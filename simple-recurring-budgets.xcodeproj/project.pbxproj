@@ -1,0 +1,600 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		A498F5BC2F8945FE00A9A394 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A498F5A22F8945FC00A9A394 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A498F5A92F8945FC00A9A394;
+			remoteInfo = "simple-recurring-budgets";
+		};
+		A498F5C62F8945FE00A9A394 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A498F5A22F8945FC00A9A394 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A498F5A92F8945FC00A9A394;
+			remoteInfo = "simple-recurring-budgets";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A498F5AA2F8945FC00A9A394 /* simple-recurring-budgets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-recurring-budgets.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A498F5BB2F8945FE00A9A394 /* simple-recurring-budgetsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "simple-recurring-budgetsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A498F5C52F8945FE00A9A394 /* simple-recurring-budgetsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "simple-recurring-budgetsUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A498F5CD2F8945FE00A9A394 /* Exceptions for "simple-recurring-budgets" folder in "simple-recurring-budgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A498F5A92F8945FC00A9A394 /* simple-recurring-budgets */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A498F5AC2F8945FC00A9A394 /* simple-recurring-budgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A498F5CD2F8945FE00A9A394 /* Exceptions for "simple-recurring-budgets" folder in "simple-recurring-budgets" target */,
+			);
+			path = "simple-recurring-budgets";
+			sourceTree = "<group>";
+		};
+		A498F5BE2F8945FE00A9A394 /* simple-recurring-budgetsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "simple-recurring-budgetsTests";
+			sourceTree = "<group>";
+		};
+		A498F5C82F8945FE00A9A394 /* simple-recurring-budgetsUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "simple-recurring-budgetsUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A498F5A72F8945FC00A9A394 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A498F5B82F8945FE00A9A394 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A498F5C22F8945FE00A9A394 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A498F5A12F8945FC00A9A394 = {
+			isa = PBXGroup;
+			children = (
+				A498F5AC2F8945FC00A9A394 /* simple-recurring-budgets */,
+				A498F5BE2F8945FE00A9A394 /* simple-recurring-budgetsTests */,
+				A498F5C82F8945FE00A9A394 /* simple-recurring-budgetsUITests */,
+				A498F5AB2F8945FC00A9A394 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A498F5AB2F8945FC00A9A394 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A498F5AA2F8945FC00A9A394 /* simple-recurring-budgets.app */,
+				A498F5BB2F8945FE00A9A394 /* simple-recurring-budgetsTests.xctest */,
+				A498F5C52F8945FE00A9A394 /* simple-recurring-budgetsUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A498F5A92F8945FC00A9A394 /* simple-recurring-budgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A498F5CE2F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgets" */;
+			buildPhases = (
+				A498F5A62F8945FC00A9A394 /* Sources */,
+				A498F5A72F8945FC00A9A394 /* Frameworks */,
+				A498F5A82F8945FC00A9A394 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A498F5AC2F8945FC00A9A394 /* simple-recurring-budgets */,
+			);
+			name = "simple-recurring-budgets";
+			packageProductDependencies = (
+			);
+			productName = "simple-recurring-budgets";
+			productReference = A498F5AA2F8945FC00A9A394 /* simple-recurring-budgets.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A498F5BA2F8945FE00A9A394 /* simple-recurring-budgetsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A498F5D32F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgetsTests" */;
+			buildPhases = (
+				A498F5B72F8945FE00A9A394 /* Sources */,
+				A498F5B82F8945FE00A9A394 /* Frameworks */,
+				A498F5B92F8945FE00A9A394 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A498F5BD2F8945FE00A9A394 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A498F5BE2F8945FE00A9A394 /* simple-recurring-budgetsTests */,
+			);
+			name = "simple-recurring-budgetsTests";
+			packageProductDependencies = (
+			);
+			productName = "simple-recurring-budgetsTests";
+			productReference = A498F5BB2F8945FE00A9A394 /* simple-recurring-budgetsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A498F5C42F8945FE00A9A394 /* simple-recurring-budgetsUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A498F5D62F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgetsUITests" */;
+			buildPhases = (
+				A498F5C12F8945FE00A9A394 /* Sources */,
+				A498F5C22F8945FE00A9A394 /* Frameworks */,
+				A498F5C32F8945FE00A9A394 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A498F5C72F8945FE00A9A394 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A498F5C82F8945FE00A9A394 /* simple-recurring-budgetsUITests */,
+			);
+			name = "simple-recurring-budgetsUITests";
+			packageProductDependencies = (
+			);
+			productName = "simple-recurring-budgetsUITests";
+			productReference = A498F5C52F8945FE00A9A394 /* simple-recurring-budgetsUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A498F5A22F8945FC00A9A394 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2640;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					A498F5A92F8945FC00A9A394 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					A498F5BA2F8945FE00A9A394 = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = A498F5A92F8945FC00A9A394;
+					};
+					A498F5C42F8945FE00A9A394 = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = A498F5A92F8945FC00A9A394;
+					};
+				};
+			};
+			buildConfigurationList = A498F5A52F8945FC00A9A394 /* Build configuration list for PBXProject "simple-recurring-budgets" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A498F5A12F8945FC00A9A394;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A498F5AB2F8945FC00A9A394 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A498F5A92F8945FC00A9A394 /* simple-recurring-budgets */,
+				A498F5BA2F8945FE00A9A394 /* simple-recurring-budgetsTests */,
+				A498F5C42F8945FE00A9A394 /* simple-recurring-budgetsUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A498F5A82F8945FC00A9A394 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A498F5B92F8945FE00A9A394 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A498F5C32F8945FE00A9A394 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A498F5A62F8945FC00A9A394 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A498F5B72F8945FE00A9A394 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A498F5C12F8945FE00A9A394 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A498F5BD2F8945FE00A9A394 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A498F5A92F8945FC00A9A394 /* simple-recurring-budgets */;
+			targetProxy = A498F5BC2F8945FE00A9A394 /* PBXContainerItemProxy */;
+		};
+		A498F5C72F8945FE00A9A394 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A498F5A92F8945FC00A9A394 /* simple-recurring-budgets */;
+			targetProxy = A498F5C62F8945FE00A9A394 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A498F5CF2F8945FE00A9A394 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "simple-recurring-budgets/simple_recurring_budgets.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "simple-recurring-budgets/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jimmyho.simple-recurring-budgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A498F5D02F8945FE00A9A394 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "simple-recurring-budgets/simple_recurring_budgets.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "simple-recurring-budgets/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jimmyho.simple-recurring-budgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A498F5D12F8945FE00A9A394 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A498F5D22F8945FE00A9A394 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A498F5D42F8945FE00A9A394 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jimmyho.simple-recurring-budgetsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/simple-recurring-budgets.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/simple-recurring-budgets";
+			};
+			name = Debug;
+		};
+		A498F5D52F8945FE00A9A394 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jimmyho.simple-recurring-budgetsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/simple-recurring-budgets.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/simple-recurring-budgets";
+			};
+			name = Release;
+		};
+		A498F5D72F8945FE00A9A394 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jimmyho.simple-recurring-budgetsUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "simple-recurring-budgets";
+			};
+			name = Debug;
+		};
+		A498F5D82F8945FE00A9A394 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = EDMB3Z5KAY;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jimmyho.simple-recurring-budgetsUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "simple-recurring-budgets";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A498F5A52F8945FC00A9A394 /* Build configuration list for PBXProject "simple-recurring-budgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A498F5D12F8945FE00A9A394 /* Debug */,
+				A498F5D22F8945FE00A9A394 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A498F5CE2F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A498F5CF2F8945FE00A9A394 /* Debug */,
+				A498F5D02F8945FE00A9A394 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A498F5D32F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgetsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A498F5D42F8945FE00A9A394 /* Debug */,
+				A498F5D52F8945FE00A9A394 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A498F5D62F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgetsUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A498F5D72F8945FE00A9A394 /* Debug */,
+				A498F5D82F8945FE00A9A394 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A498F5A22F8945FC00A9A394 /* Project object */;
+}

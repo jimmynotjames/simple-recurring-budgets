@@ -59,3 +59,7 @@ fastlane/test_output
 # Env files
 .env
 .env.local
+
+# Claude Code — local-only (see https://code.claude.com/docs/en/claude-directory)
+.claude/settings.local.json
+CLAUDE.local.md

@@ -262,3 +262,33 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Acceptance Criteria:**
 - **Edge Cases / Notes:**
 - **Dependencies:**
+
+---
+
+### T-7: AI Features
+
+#### Features
+
+##### F-7.01: Receipt scanning via camera
+
+- **Status:** Open
+- **Description:** User takes a photo of a receipt; on-device machine vision extracts the amount (and optionally merchant name / date) to pre-fill an Expense Item.
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** F-2.04
+
+##### F-7.02: Voice input to add an Expense Item
+
+- **Status:** Open
+- **Description:** User speaks via Siri and/or in-app voice input; Apple's on-device NLP parses the utterance into an Expense Item (amount, name, date/time).
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** F-2.04
+
+##### F-7.03: Voice query for Budget status
+
+- **Status:** Open
+- **Description:** User speaks via Siri and/or in-app voice input to ask about a Budget's current status; the app responds with the **Remaining for current Budget Period** amount and the separate **Over/Under** amount.
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** F-2.01, F-2.02

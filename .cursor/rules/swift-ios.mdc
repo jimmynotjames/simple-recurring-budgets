@@ -1,0 +1,36 @@
+---
+description: Swift and Apple platform conventions for this app
+globs: "**/*.swift"
+alwaysApply: false
+---
+
+# Swift / iOS conventions
+
+## Money and currency
+
+- Represent monetary amounts with **`Decimal`** (or storage patterns backed by `Decimal`), not `Double`.
+- **Currency is per Budget**, not a single global default. Format amounts using the budget’s currency and the user’s locale (see F-3.04 in `docs/product-features-planning.md`).
+
+## UI and system integration
+
+- Follow **Human Interface Guidelines**: system typography, spacing, and materials; minimal, elegant layout per PRD.
+- New views should support **Dynamic Type** and **Dark Mode** without extra toggles.
+
+## Accessibility
+
+- Provide meaningful **accessibility labels** (and hints where helpful); set appropriate **accessibility traits** on controls.
+- Exercise new flows with **VoiceOver** when feasible (F-3.02).
+
+## Localization
+
+- No hard-coded English in production UI. Use a **String Catalog** and `LocalizedStringKey` / localized string APIs (F-3.03).
+
+## Testing
+
+- Prefer **Swift Testing** for new tests. Place tests in the Xcode test target (or project convention) alongside or mirroring app modules.
+
+## Data and sync
+
+- When changing the schema, consider **SwiftData** models and **CloudKit** sync early: relationships, uniqueness, and migration impact (F-1.02).
+
+When editing the **Xcode project** or schemes, keep target membership and test targets correct.

@@ -1,13 +1,14 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Platform: iOS / iPadOS / macOS native app (SwiftUI, SwiftData, CloudKit)
+  Language: Latest stable Swift
+  Testing: Swift Testing framework
+  Architecture: No backend; on-device SwiftData persistence with CloudKit sync
+  Design: Apple Human Interface Guidelines, minimalistic and elegant
+  Accessibility: Dynamic Type, VoiceOver
+  Internationalization: All languages, per-budget currency
+  Always check docs/main-prd.md for global constraints and docs/product-features-planning.md for feature details
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

@@ -87,6 +87,17 @@ CloudKit imposes rules that affect SwiftData model design:
 
 SwiftData + CloudKit uses last-writer-wins at the record level by default. For this app's use case (single user across personal devices), this is acceptable.
 
+### 4.5 App Settings (NSUbiquitousKeyValueStore)
+
+Lightweight app-wide preferences (e.g., default carry-over toggle, start-of-week day) use `NSUbiquitousKeyValueStore` instead of `UserDefaults`. This gives automatic iCloud sync across the user's devices signed into the same Apple ID — settings configured on one device appear on all others without requiring SwiftData or a custom sync mechanism. The iCloud key-value store shares the app's existing iCloud container entitlement (same as CloudKit).
+
+Key constraints:
+- 1 MB total / 1024 keys maximum — suitable for a small number of preferences.
+- Eventual consistency — changes propagate when connectivity is available; the local value is authoritative until sync arrives.
+- `NSUbiquitousKeyValueStore.didChangeExternallyNotification` must be observed to update in-memory state when another device writes.
+- No `register(defaults:)` equivalent — code must check for key existence and apply hard-coded defaults on first read.
+- Testability via a `KeyValueStore` protocol seam (since `NSUbiquitousKeyValueStore` cannot be instantiated with a custom suite).
+
 ---
 
 ## 5. Internationalization, Accessibility, and Testing
@@ -134,12 +145,12 @@ Items from the feature backlog (T-4 through T-7) that will require technical des
 
 | Feature | Technical Surface |
 |---------|-------------------|
-| **F-4.01–02: Color themes** | Asset Catalog color sets, theme state in `UserDefaults` or SwiftData, `@Environment(\.colorScheme)` integration |
+| **F-4.01–02: Color themes** | Asset Catalog color sets, theme state in `NSUbiquitousKeyValueStore` (synced via iCloud) or SwiftData, `@Environment(\.colorScheme)` integration |
 | **F-4.03: Budget icons** | Emoji storage as `String` on `Budget`; SF Symbols picker; optional LLM call for default suggestion |
 | **F-4.04: Photo upload for icon** | PhotosUI (`PhotosPicker`), image resizing, binary storage (or file URL) in SwiftData, CloudKit asset limits |
-| **F-5.01: Start of week** | `UserDefaults` storage, `Calendar` mutation, cascade to Over/Under reset boundary calculations |
+| **F-5.01: Start of week** | `NSUbiquitousKeyValueStore` storage (synced via iCloud), `Calendar` mutation, cascade to Over/Under reset boundary calculations |
 | **F-6.01: Adding funds** | Negative expense amount or separate `Transaction` type with a direction enum |
-| **F-6.02: Expense Type** | New `expenseType: String?` on `ExpenseItem`, user-defined values stored as a `Set<String>` in `UserDefaults` or a dedicated entity |
+| **F-6.02: Expense Type** | New `expenseType: String?` on `ExpenseItem`, user-defined values stored as a `Set<String>` in `NSUbiquitousKeyValueStore` (synced via iCloud) or a dedicated entity |
 | **F-7.01: Receipt scanning** | Vision framework (`VNRecognizeTextRequest`), on-device OCR, regex extraction for amounts |
 | **F-7.02–03: Voice input/query** | SiriKit intents or App Intents framework, on-device NLP, `SFSpeechRecognizer` for in-app voice |
 
@@ -169,3 +180,4 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial draft    |
+| 0.2     | 2026-04-11 | Jimmy Ho | Add §4.5 (NSUbiquitousKeyValueStore for app settings); update §8 future table to reflect iCloud key-value store instead of UserDefaults |

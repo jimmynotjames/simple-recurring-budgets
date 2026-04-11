@@ -130,6 +130,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Acceptance Criteria:**
   - Add/Edit Budget screen has a toggle to turn on/off the carry-over of the prior balances.
   - Settings screen has a global setting to default all new Budgets with carry-over turned on or off. It is turned on by default.
+  - This setting is stored in `NSUbiquitousKeyValueStore` and syncs automatically across the user's iCloud-connected devices.
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-1.02, F-2.02, F-2.05
 
@@ -243,6 +244,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Default value is determined by locale's official week starting day. For example, Sunday in the USA, Monday in most of Europe. 
   - Configurable to be different. Will cascade to all existing Budgets. 
   - Display pop-up to acknowledge that existing Budgets will be affected.
+  - This setting is stored in `NSUbiquitousKeyValueStore` and syncs automatically across the user's iCloud-connected devices.
 - **Edge Cases / Notes:**
 - **Dependencies:**
 

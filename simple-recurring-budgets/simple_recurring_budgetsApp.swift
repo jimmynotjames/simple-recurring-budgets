@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct simple_recurring_budgetsApp: App {
+    @State private var settings = AppSettings()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([Budget.self, ExpenseItem.self])
 
@@ -48,6 +50,7 @@ struct simple_recurring_budgetsApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(settings)
         }
         .modelContainer(sharedModelContainer)
     }

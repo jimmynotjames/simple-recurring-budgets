@@ -29,7 +29,7 @@ final class Budget {
     var carryOverLastResetDate: Date = Date()
     /// Stored as `ResetCadence.rawValue`.
     var resetCadence: String = ResetCadence.weekly.rawValue
-    // TODO(F-2.07): Pull initial value from UserDefaults `defaultCarryOverEnabled` (same key as `@AppStorage`); init still uses `true` until Settings wiring exists.
+    /// Sourced from `AppSettings.defaultCarryOverEnabled` when creating budgets; persisted per budget.
     var isCarryOverEnabled: Bool = true
 
     @Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)

@@ -8,14 +8,29 @@ context: |
   Design: Apple Human Interface Guidelines, minimalistic and elegant
   Accessibility: Dynamic Type, VoiceOver
   Internationalization: All languages, per-budget currency
-  Always check: docs/main-prd.md (product constraints and glossary, including Over/Under vs remaining); docs/product-features-planning.md (feature IDs F-x.xx and acceptance criteria); docs/tech-design-doc.md (technical design: MVVM/@Observable, navigation, SwiftData + CloudKit setup and constraints, data model approach, i18n/a11y/testing expectations, performance and security)
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  High-level docs (source of truth for product and architecture): docs/main-prd.md (constraints, glossary, Over/Under vs remaining); docs/product-features-planning.md (F-x.xx, acceptance criteria); docs/tech-design-doc.md (MVVM/@Observable, navigation, SwiftData + CloudKit, data model, i18n/a11y/testing, performance, security).
+
+  Doc checks apply during planning and read-only modes: skim those three files before drafting or refining proposals, design, specs, tasks, or implementation plans. If direction contradicts the docs, surface a short "Conflict with docs" note (which file, what it says; resolve by updating the doc, changing the plan, or explicit exception). Do not silently override PRD, tech-design, or feature IDs.
+
+  Written plans: if the topic touches product rules, feature IDs, architecture, data model, sync, or global constraints, include Doc alignment or Conflicts with docs and list which docs/*.md files need updates after implementation (or none).
+
+  When artifacts or implementation materially change product constraints, F-x.xx, acceptance criteria, architecture, data model, sync, or i18n/a11y/testing expectations, update the matching docs file(s) or add an explicit task before archive: product-features-planning.md (features/IDs/acceptance), tech-design-doc.md (schema/CloudKit/architecture), main-prd.md (global constraints/glossary).
+
+  Apply / implementation: when work changes behavior covered by docs/, either update docs in-repo as part of tasks or leave an explicit follow-up task; do not treat the change as complete with drift versus those three files.
+
+  Verify: compare implementation and specs to the three docs/*.md files; flag docs drift (missing or contradictory updates) as issues to fix before archive.
+
+  Archive: after handling delta spec sync as usual, assess whether docs/ need updates; prompt to update now or defer and warn if deferred.
+
+  Sync (delta to main specs): merging specs does not update docs/; if the change materially affects product or architecture, remind to update docs/ or call out conflicts with docs.
+
+rules:
+  proposal:
+    - After skimming docs/main-prd.md, docs/product-features-planning.md, and docs/tech-design-doc.md, note Doc alignment or Conflicts with docs before finalizing the proposal.
+  design:
+    - Ensure design aligns with docs/tech-design-doc.md and docs/main-prd.md; call out conflicts explicitly.
+  tasks:
+    - Include a task to update relevant docs/*.md when the change affects product features, architecture, or global constraints—or explicitly confirm no doc updates are needed.
+  specs:
+    - If requirements conflict with the three docs/*.md files, document the conflict in the delta spec or proposal rather than silently overriding.

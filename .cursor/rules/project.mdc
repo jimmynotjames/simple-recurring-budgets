@@ -7,12 +7,13 @@ alwaysApply: true
 
 - Native **SwiftUI** app for iOS, iPadOS, and macOS. Persistence: **SwiftData** with **CloudKit** sync. No app-owned backend (Apple cloud services only).
 
-## Product source of truth
+## Docs to consult before implementing
 
 Before implementing or specifying behavior, consult:
 
 - [`docs/main-prd.md`](docs/main-prd.md) — global constraints; pay special attention to **Over/Under vs remaining for the current Budget Period** (§6.7).
 - [`docs/product-features-planning.md`](docs/product-features-planning.md) — feature IDs (F-x.xx) and acceptance criteria.
+- [`docs/tech-design-doc.md`](docs/tech-design-doc.md) — technical architecture and persistence/sync; follow for code structure and CloudKit/schema decisions.
 
 ## Spec-driven workflow
 

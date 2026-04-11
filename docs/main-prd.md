@@ -8,7 +8,7 @@
 | **Author / Owner** | Jimmy Ho   |
 
 
-> This document is the governing source of truth for the app. It defines the north star, guiding principles, and global constraints that every feature, design decision, and technical choice must align with. For themed features and IDs, see [product-features-planning.md](product-features-planning.md).
+> This document is the governing source of truth for the app. It defines the north star, guiding principles, and global constraints that every feature, design decision, and technical choice must align with. For more details about specific features, see [product-features-planning.md](product-features-planning.md).
 
 ---
 
@@ -22,27 +22,23 @@ An app that gives users more discipline in their personal spending when it comes
 
 ### 2.1 Background / Context
 
-A gazillion apps exist in the Apple App Store to budget and track expenses for personal use. There are a lot of use cases covered. Examples include expense tracking for business travelers and independent contractors, personal budgeting tools, and tools that help a person see their finances in total. Other tools integrate with a user's banking and credit cards. 
+A gazillion apps exist in the Apple App Store to budget and track expenses for personal use, covering a lot of use cases. Examples include expense tracking for business travelers, personal budgeting tools, apps that help a person analyze their finances, tools that connect with banks and credit cards, and on and on. 
 
 ### 2.2 Pain Points
 
 Current popular budgeting apps in the marketplace are heavyweight. They make assumptions about the user's mental model of personal finance and try to take over all of a user's personal finances. Onboarding onto these can be a lot. This makes these apps hard to use by most users.
 
-More simple apps may exist to do more simple tracking but they tend to not be pretty or are hard to use. 
-
+More simple apps may exist to do more simple tracking but they tend to not be visually elegant or are hard to use. 
 
 ### 2.3 Target Users
 
-Tech-savvy men and women who want to control their expenses. They may or may not have their own personal finance frameworks and apps to handle higher-level budgeting. 
-
+Tech-savvy people who want to control their expenses better. They may or may not have their own personal finance frameworks and apps to handle higher-level budgeting. 
 
 ---
 
 ## 3. Guiding Principles
 
-*Core beliefs that drive every product decision. When two good ideas conflict, these principles break the tie. Aim for 4–6.*
-
-1. UX Simplicity - We make no assumptions about the user's mental model of their higher-level finances. 
+1. UX Simplicity - We make no assumptions about the user's mental model of their higher-level finances.
 2. Ease of Use - Day to day interactions with the app should feel efficient and easeful.
 3. Clarity - Users clearly understand where they stand with respect to their recurring budgets.
 4. Delight - The above principles take priority, but when possible, the app should be fun and cute.
@@ -78,7 +74,7 @@ Colin, man, 34 years old, is working to support his wife and two kids as a const
 
 ### Persona 3 — Paige
 
-Paige, woman, 42, is a project manager living in Fort Collins, CO, with her husband and daughter. She is very organized and knows her finances well. She wants to carve out a budget for herself for those little luxuries and fun expenses, but wants to keep it disciplined. She thinks that setting a daily or weekly spending amount would work, but needs an easy way to track the budget. Current apps are too heavyweight. She enjoys cute and fun things, including in the way her apps work. 
+Paige, woman, 42, is a project manager living in Fort Collins, CO, with her husband and daughter. She is very organized and knows her finances well. She wants to carve out a budget for herself for those little luxuries and fun expenses, but wants to keep it disciplined. She thinks that setting a daily or weekly spending amount would work, but needs an easy way to track the budget. Current apps are too heavyweight. She enjoys working with tools that are not only useful but fun and cute to use. 
 
 ---
 
@@ -88,8 +84,8 @@ Constraints that apply universally across every feature and release.
 
 ### 6.1 Platform and Compatibility
 
-- Primary focus is iOS, but will support iPadOS and macOS.
-- Only target latest major operating system version (iOS, etc.) and latest general release Swift version.
+- iOS, iPadOS, macOS. Primary focus on iOS.
+- Only target latest major operating system version and latest general release Swift version.
 
 ### 6.2 Performance
 
@@ -97,11 +93,12 @@ Constraints that apply universally across every feature and release.
 
 ### 6.3 Security and Privacy
 
-- Protect user's privacy with the usual Apple tools, such as native encryption of application data files, DBs, etc. 
+- Protect user's privacy with the usual Apple tools, such as native encryption of application data files, DBs, etc.
 
 ### 6.4 Accessibility
 
 We will support
+
 - Dynamic Type
 - VoiceOver
 
@@ -110,7 +107,6 @@ We will support
 - Support all global users with access to Apple apps. 
 - Support for all global languages
 - Includes supporting all currency symbols, but not currency exchange conversions.
-
 
 ### 6.6 Data and Storage
 
@@ -140,7 +136,9 @@ These rules apply to every Budget. They are **per budget**; there is no aggregat
 
 ## 7. Technical Foundations
 
-*High-level technical decisions that constrain all downstream work. Not feature-specific — those belong in [product-features-planning.md](product-features-planning.md).*
+*High-level technical decisions that constrain all downstream work. More specifics wil be worked out during feature development.*
+
+The companion technical reference for implementation and tooling is [tech-design-doc.md](tech-design-doc.md) (architecture, SwiftData/CloudKit, and related engineering choices).
 
 ### 7.1 Language and Frameworks
 
@@ -151,6 +149,7 @@ These rules apply to every Budget. They are **per budget**; there is no aggregat
 ### 7.2 Data Model (High-Level)
 
 High-level entities include:
+
 - Recurring Budget - A spending allowance that repeats. Carries configuration for Budget Period, allocation, **currency (per budget)**, and **Over/Under reset cadence** (subject to [§6.7](#67-overunder-carryover-behavior)).
 - Expense Item
   - A single expense
@@ -164,7 +163,7 @@ High-level entities include:
 
 ### 7.4 General Architecture Constraints
 
-- Except for leveraging Apple's CloudKit and similar cloud services that are free to the developer, there will be no backend. 
+- Except for leveraging Apple's CloudKit and similar cloud services that are free to the developer, there will be no backend.
 
 ---
 
@@ -183,6 +182,7 @@ High-level entities include:
 ### 8.3 Information Architecture
 
 Screens:
+
 - Budgets screen — List of Recurring Budgets with current allocations
 - Budget screen — List of Expense Items for one Budget
 - Add/Edit Budget screen — Create or edit a Budget (entity).
@@ -206,7 +206,6 @@ Screens:
 - Budget Period - Usually daily, weekly, biweekly, or monthly. This is the repeating time period that the Budget is allocating funds to.
 - Over/Under Amount (AKA OverUnder) - A per-budget, signed cumulative total: surplus (under-spent relative to allocation over time) or deficit (over-spent). It is **shown separately** from “remaining for this Budget Period” (which is not adjusted by Over/Under for display). Updated at each Budget Period boundary per [§6.7](#67-overunder-carryover-behavior); can be cleared manually or on a user-configured schedule (maximum cadence: monthly).
 
-
 ### 10.2 References
 
 None
@@ -214,8 +213,8 @@ None
 ### 10.3 Revision History
 
 
-| Version | Date       | Author   | Changes                                                          |
-| ------- | ---------- | -------- | ---------------------------------------------------------------- |
-| 0.1     | 2026-04-10 | Jimmy Ho | Initial template             |
+| Version | Date       | Author   | Changes          |
+| ------- | ---------- | -------- | ---------------- |
+| 0.1     | 2026-04-10 | Jimmy Ho | Initial template |
 
 

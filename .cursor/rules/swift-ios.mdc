@@ -31,6 +31,7 @@ alwaysApply: false
 
 ## Data and sync
 
+- When changing models, sync, or app structure, align with [`docs/tech-design-doc.md`](docs/tech-design-doc.md).
 - When changing the schema, consider **SwiftData** models and **CloudKit** sync early: relationships, uniqueness, and migration impact (F-1.02).
 
 When editing the **Xcode project** or schemes, keep target membership and test targets correct.

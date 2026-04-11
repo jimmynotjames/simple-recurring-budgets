@@ -1,4 +1,4 @@
-  //
+//
 //  simple_recurring_budgetsApp.swift
 //  simple-recurring-budgets
 //
@@ -11,9 +11,7 @@ import SwiftData
 @main
 struct simple_recurring_budgetsApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
+        let schema = Schema(SchemaV1.models)
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -21,7 +19,11 @@ struct simple_recurring_budgetsApp: App {
         )
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(
+                for: schema,
+                migrationPlan: BudgetMigrationPlan.self,
+                configurations: modelConfiguration
+            )
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

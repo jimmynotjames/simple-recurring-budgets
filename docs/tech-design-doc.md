@@ -43,17 +43,17 @@ The app's information architecture is a simple stack: Budgets list → Budget de
 
 Two SwiftData `@Model` entities: **Budget** and **ExpenseItem**, linked by a one-to-many relationship (Budget → ExpenseItem, cascade delete). Supporting enums (`BudgetPeriod`, `ResetCadence`) are `String`-backed `Codable` types stored inline.
 
-Key fields on Budget include allocation, period, currency code (ISO 4217), and carry-over state (cumulative amount + last reset date + reset cadence). ExpenseItem carries amount, optional name, and date. All monetary values use `Decimal`.
+Key fields on Budget include allocation, period, currency code (ISO 4217), and Over/Under state (cumulative amount + last reset date + reset cadence). ExpenseItem carries amount, optional name, and date. All monetary values use `Decimal`.
 
-Derived values — **Remaining for current Budget Period** and **Carry-over display** — are computed at read-time, not persisted.
+Derived values — **Remaining for current Budget Period** and **Over/Under display** — are computed at read-time, not persisted.
 
-### 3.2 Carry-over Bookkeeping
+### 3.2 Over/Under Bookkeeping
 
-Per [PRD §6.7](main-prd.md#67-carry-over-behavior):
+Per [PRD §6.7](main-prd.md#67-overunder-carryover-behavior):
 
-- **Period boundary roll**: When the app detects a new Budget Period has started, compute `allocation − expenses` for the completed period(s) and fold into the stored carry-over amount. This happens eagerly on app launch / budget access.
-- **Scheduled reset**: Compare last reset date against current date and the budget's reset cadence. If a reset boundary has passed, zero out carry-over and update the last reset date.
-- **Manual reset**: User action zeros carry-over and updates the last reset date.
+- **Period boundary roll**: When the app detects a new Budget Period has started, compute `allocation − expenses` for the completed period(s) and fold into the stored Over/Under amount. This happens eagerly on app launch / budget access.
+- **Scheduled reset**: Compare last reset date against current date and the budget's reset cadence. If a reset boundary has passed, zero out Over/Under and update the last reset date.
+- **Manual reset**: User action zeros Over/Under and updates the last reset date.
 
 ### 3.3 Migration Strategy
 
@@ -103,7 +103,7 @@ All user-facing text uses Xcode **String Catalogs** and `LocalizedStringKey` —
 
 ### 5.3 Testing
 
-**Swift Testing** for all new tests; XCTest for UI tests where needed. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, carry-over rolls, date boundaries) lives in pure, testable services with no SwiftData/UI dependencies.
+**Swift Testing** for all new tests; XCTest for UI tests where needed. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure, testable services with no SwiftData/UI dependencies.
 
 ---
 
@@ -113,7 +113,7 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 
 - **SwiftData `@Query` with predicates**: Fetch only expenses for the current period, not the full history, when computing "remaining."
 - **Lazy loading**: Use `LazyVStack` in scrollable lists.
-- **Background carry-over roll**: If a user hasn't opened the app in weeks, multiple period boundaries may need processing. Do this on a background context to avoid blocking the main thread.
+- **Background Over/Under roll**: If a user hasn't opened the app in weeks, multiple period boundaries may need processing. Do this on a background context to avoid blocking the main thread.
 - **Instrument periodically**: Profile with Instruments (Time Profiler, Core Data) during development milestones.
 
 ---
@@ -137,7 +137,7 @@ Items from the feature backlog (T-4 through T-7) that will require technical des
 | **F-4.01–02: Color themes** | Asset Catalog color sets, theme state in `UserDefaults` or SwiftData, `@Environment(\.colorScheme)` integration |
 | **F-4.03: Budget icons** | Emoji storage as `String` on `Budget`; SF Symbols picker; optional LLM call for default suggestion |
 | **F-4.04: Photo upload for icon** | PhotosUI (`PhotosPicker`), image resizing, binary storage (or file URL) in SwiftData, CloudKit asset limits |
-| **F-5.01: Start of week** | `UserDefaults` storage, `Calendar` mutation, cascade to carry-over reset boundary calculations |
+| **F-5.01: Start of week** | `UserDefaults` storage, `Calendar` mutation, cascade to Over/Under reset boundary calculations |
 | **F-6.01: Adding funds** | Negative expense amount or separate `Transaction` type with a direction enum |
 | **F-6.02: Expense Type** | New `expenseType: String?` on `ExpenseItem`, user-defined values stored as a `Set<String>` in `UserDefaults` or a dedicated entity |
 | **F-7.01: Receipt scanning** | Vision framework (`VNRecognizeTextRequest`), on-device OCR, regex extraction for amounts |

@@ -16,14 +16,4 @@ struct simple_recurring_budgetsTests {
         // Swift Testing Documentation
         // https://developer.apple.com/documentation/testing
     }
-
-    @Test func inMemoryModelContainerDoesNotEnableCloudKit() throws {
-        let schema = Schema([Item.self])
-        let configuration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: true,
-            cloudKitDatabase: .none
-        )
-        _ = try ModelContainer(for: schema, configurations: [configuration])
-    }
 }

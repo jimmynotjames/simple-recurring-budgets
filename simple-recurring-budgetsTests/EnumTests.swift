@@ -5,6 +5,7 @@
 //  Created by Jimmy Ho on 4/11/26.
 //
 
+import Foundation
 import Testing
 @testable import simple_recurring_budgets
 
@@ -156,5 +157,38 @@ struct ResetCadenceTests {
     @Test func validCadences_monthly() {
         let valid = ResetCadence.validResetCadences(for: .monthly)
         #expect(valid == [.quarterly, .never])
+    }
+}
+
+// MARK: - Weekday
+
+struct WeekdayTests {
+
+    @Test func rawValues_sundayThroughSaturday() {
+        #expect(Weekday.sunday.rawValue == 1)
+        #expect(Weekday.monday.rawValue == 2)
+        #expect(Weekday.tuesday.rawValue == 3)
+        #expect(Weekday.wednesday.rawValue == 4)
+        #expect(Weekday.thursday.rawValue == 5)
+        #expect(Weekday.friday.rawValue == 6)
+        #expect(Weekday.saturday.rawValue == 7)
+    }
+
+    @Test func fromCalendarFirstWeekday_matchesCurrentCalendar() {
+        let weekday = Weekday.from(calendarFirstWeekday: Calendar.current.firstWeekday)
+        #expect(weekday != nil)
+        #expect(weekday?.rawValue == Calendar.current.firstWeekday)
+    }
+
+    @Test func fromCalendarFirstWeekday_rejectsOutOfRange() {
+        #expect(Weekday.from(calendarFirstWeekday: 0) == nil)
+        #expect(Weekday.from(calendarFirstWeekday: 8) == nil)
+    }
+
+    @Test func allCases_orderAndIdentifiable() {
+        #expect(Weekday.allCases == [.sunday, .monday, .tuesday, .wednesday, .thursday, .friday, .saturday])
+        for day in Weekday.allCases {
+            #expect(day.id == day.rawValue)
+        }
     }
 }

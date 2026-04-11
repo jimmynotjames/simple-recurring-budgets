@@ -20,6 +20,7 @@ final class Budget {
     var currencyCode: String = Locale.current.currency?.identifier ?? "USD"
     /// Stored as `BudgetPeriod.rawValue`.
     var period: String = BudgetPeriod.daily.rawValue
+    /// For new rows, set from `nextSortOrder(for:)` immediately before `insert` (see extension).
     var sortOrder: Int = 0
     var createdAt: Date = Date()
     var lastModified: Date = Date()
@@ -28,6 +29,7 @@ final class Budget {
     var carryOverLastResetDate: Date = Date()
     /// Stored as `ResetCadence.rawValue`.
     var resetCadence: String = ResetCadence.weekly.rawValue
+    // TODO(F-2.07): Pull initial value from UserDefaults `defaultCarryOverEnabled` (same key as `@AppStorage`); init still uses `true` until Settings wiring exists.
     var isCarryOverEnabled: Bool = true
 
     @Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)
@@ -47,5 +49,17 @@ final class Budget {
         self.period = period.rawValue
         self.resetCadence = (resetCadence ?? period.defaultResetCadence).rawValue
         self.isCarryOverEnabled = isCarryOverEnabled
+    }
+}
+
+extension Budget {
+    /// Returns the next `sortOrder` for a **new** budget: `0` if none exist, else `max(existing.sortOrder) + 1`.
+    /// Call before `context.insert(_:)` so the fetch does not include the new instance.
+    static func nextSortOrder(for context: ModelContext) throws -> Int {
+        var descriptor = FetchDescriptor<Budget>()
+        descriptor.sortBy = [SortDescriptor(\.sortOrder, order: .reverse)]
+        descriptor.fetchLimit = 1
+        guard let maxBudget = try context.fetch(descriptor).first else { return 0 }
+        return maxBudget.sortOrder + 1
     }
 }

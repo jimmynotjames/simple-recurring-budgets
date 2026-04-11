@@ -19,7 +19,7 @@
 
 ## 4. App Configuration
 
-- [x] 4.1 Update `simple_recurring_budgetsApp.swift`: replace `Item.self` schema with `Budget.self` and `ExpenseItem.self`, set `ModelConfiguration` to use `cloudKitDatabase: .automatic`, wire `BudgetMigrationPlan`.
+- [x] 4.1 Update `simple_recurring_budgetsApp.swift`: replace `Item.self` schema with `Budget.self` and `ExpenseItem.self`, wire `BudgetMigrationPlan`, use `cloudKitDatabase: .automatic` when CloudKit is available, and fall back to `cloudKitDatabase: .none` when container creation fails (e.g. Simulator / no iCloud account).
 - [x] 4.2 Update `ContentView.swift` to remove all `Item` references (temporary placeholder view is fine — screens are a separate change).
 
 ## 5. Cleanup

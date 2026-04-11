@@ -5,6 +5,7 @@
 //  Created by Jimmy Ho on 4/11/26.
 //
 
+import Foundation
 import SwiftData
 import Testing
 @testable import simple_recurring_budgets
@@ -19,7 +20,11 @@ private func makeInMemoryContainer() throws -> ModelContainer {
         isStoredInMemoryOnly: true,
         cloudKitDatabase: .none
     )
-    return try ModelContainer(for: schema, configurations: config)
+    return try ModelContainer(
+        for: schema,
+        migrationPlan: BudgetMigrationPlan.self,
+        configurations: config
+    )
 }
 
 // MARK: - ModelContainer creation (task 6.3)
@@ -40,6 +45,7 @@ struct BudgetModelTests {
         let context = ModelContext(container)
 
         let budget = Budget()
+        budget.sortOrder = try Budget.nextSortOrder(for: context)
         context.insert(budget)
 
         #expect(budget.name == "Budget")
@@ -49,6 +55,7 @@ struct BudgetModelTests {
         #expect(budget.carryOverAmount == 0)
         #expect(budget.isCarryOverEnabled == true)
         #expect(budget.expenses.isEmpty)
+        #expect(budget.sortOrder == 0)
     }
 
     @Test func budget_customValuesStored() throws {
@@ -62,6 +69,7 @@ struct BudgetModelTests {
             period: .monthly,
             resetCadence: .quarterly
         )
+        budget.sortOrder = try Budget.nextSortOrder(for: context)
         context.insert(budget)
 
         #expect(budget.name == "Groceries")
@@ -76,12 +84,34 @@ struct BudgetModelTests {
         let context = ModelContext(container)
 
         let weeklyBudget = Budget(period: .weekly)
+        weeklyBudget.sortOrder = try Budget.nextSortOrder(for: context)
         context.insert(weeklyBudget)
         #expect(weeklyBudget.resetCadence == ResetCadence.monthly.rawValue)
 
         let biweeklyBudget = Budget(period: .biweekly)
+        biweeklyBudget.sortOrder = try Budget.nextSortOrder(for: context)
         context.insert(biweeklyBudget)
         #expect(biweeklyBudget.resetCadence == ResetCadence.quarterly.rawValue)
+    }
+
+    @Test func budget_sortOrder_firstBudgetIsZero() throws {
+        let container = try makeInMemoryContainer()
+        let context = ModelContext(container)
+        let budget = Budget()
+        budget.sortOrder = try Budget.nextSortOrder(for: context)
+        context.insert(budget)
+        #expect(budget.sortOrder == 0)
+    }
+
+    @Test func budget_sortOrder_incrementsAfterEachInsert() throws {
+        let container = try makeInMemoryContainer()
+        let context = ModelContext(container)
+        for expected in 0..<3 {
+            let budget = Budget()
+            budget.sortOrder = try Budget.nextSortOrder(for: context)
+            context.insert(budget)
+            #expect(budget.sortOrder == expected)
+        }
     }
 
     @Test func budget_cascadeDeletesExpenses() throws {
@@ -89,6 +119,7 @@ struct BudgetModelTests {
         let context = ModelContext(container)
 
         let budget = Budget()
+        budget.sortOrder = try Budget.nextSortOrder(for: context)
         context.insert(budget)
 
         let expense = ExpenseItem(amount: 10)
@@ -143,6 +174,7 @@ struct ExpenseItemModelTests {
         let context = ModelContext(container)
 
         let budget = Budget()
+        budget.sortOrder = try Budget.nextSortOrder(for: context)
         context.insert(budget)
 
         let item = ExpenseItem(amount: 15)

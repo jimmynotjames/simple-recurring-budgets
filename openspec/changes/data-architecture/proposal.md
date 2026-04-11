@@ -38,5 +38,5 @@ The following features are **not** represented in the initial schema. Their fiel
 
 ## Impact
 
-- **Code**: `Item.swift` deleted; `simple_recurring_budgetsApp.swift` and `ContentView.swift` updated to reference new models. New files for `Budget`, `ExpenseItem`, `BudgetPeriod`, `ResetCadence`, and schema versioning.
-- **Tests**: Existing placeholder test references to `Item` must be updated. New model tests use in-memory `ModelContainer`.
+- **Code**: `Item.swift` deleted; `simple_recurring_budgetsApp.swift` and `ContentView.swift` updated to reference new models. New files for `Budget`, `ExpenseItem`, `BudgetPeriod`, `ResetCadence`, and schema versioning. App startup tries a CloudKit-backed `ModelConfiguration` first and falls back to local-only storage if that fails (Simulator / missing iCloud).
+- **Tests**: Existing placeholder test references to `Item` must be updated. New model tests use in-memory `ModelContainer` with the same `BudgetMigrationPlan` as production.

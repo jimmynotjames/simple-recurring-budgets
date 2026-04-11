@@ -112,25 +112,26 @@ We will support
 
 - Persist data with **SwiftData** and sync across the user’s devices with **CloudKit**.
 
-### 6.7 Over/Under (carryover) behavior
+### 6.7 Carry-over behavior
 
-These rules apply to every Budget. They are **per budget**; there is no aggregation across budgets.
+These rules apply to every Budget **for which carry-over is enabled**. When carry-over is turned off for a budget (see product features), the carry-over amount is not computed or displayed for that budget. Rules are **per budget**; there is no aggregation across budgets.
 
 **Display (independent numbers)**
 
-- **Remaining for the current Budget Period** — How much of *this period’s* allocation is left. It is **not** increased or reduced by the separate Over/Under figure. Example: with a $20/day allocation, the primary “left to spend” for today shows amounts derived only from today’s $20 and today’s expenses, not mixed into a single combined cap.
-- **Over/Under** — A separate, signed cumulative total that reflects how far ahead or behind the user is relative to their recurring allocation, carried across Budget Periods until it is reset. Copy and formatting should read cleanly for both directions (e.g. surplus vs deficit); exact strings are a design choice.
+- **Remaining for the current Budget Period** — How much of *this period’s* allocation is left. It is **not** increased or reduced by the separate carry-over figure. Example: with a $20/day allocation, the primary “left to spend” for today shows amounts derived only from today’s $20 and today’s expenses, not mixed into a single combined cap.
+- **Carry-over** — A separate, signed cumulative total that reflects how far ahead or behind the user is relative to their recurring allocation, carried across Budget Periods until it is reset. Copy and formatting should read cleanly for both directions (e.g. surplus vs deficit); exact strings are a design choice.
 
-**How Over/Under moves**
+**How carry-over moves**
 
-- At each **Budget Period** boundary (e.g. each new day for a daily budget), fold in the outcome of the period that just ended: add `(allocation for that period − total expenses counted against that period)` to Over/Under. Example: Over/Under was a $5 deficit; allocation for the day was $20; the user spent $18. The $2 unspent vs that allocation reduces the deficit, so Over/Under becomes a $3 deficit before the new period’s expenses apply.
-- **Positive and negative** Over/Under both carry forward according to that rule until reset.
+- At each **Budget Period** boundary (e.g. each new day for a daily budget), fold in the outcome of the period that just ended: add `(allocation for that period − total expenses counted against that period)` to the carry-over amount. Example: carry-over was a $5 deficit; allocation for the day was $20; the user spent $18. The $2 unspent vs that allocation reduces the deficit, so carry-over becomes a $3 deficit before the new period’s expenses apply.
+- **Positive and negative** carry-over amounts both carry forward according to that rule until reset.
 
-**Resetting Over/Under**
+**Resetting carry-over**
 
-- **Manual** — The Budget screen provides a control to reset Over/Under to zero (with confirmation). Per-budget only.
-- **Scheduled** — On **Add/Edit Budget screen**, the user chooses how often Over/Under resets (e.g. weekly reset on a daily budget). The **longest** allowed reset cadence is **monthly**. Defaults follow “next broader rhythm than the Budget Period” up to that cap (e.g. daily → weekly; weekly or biweekly → monthly; monthly → monthly). Weekly reset boundaries respect the app’s configured start of week where applicable (see product features).
-- **Monthly Budgets** — When the Budget Period is **monthly**, the Over/Under reset aligns with that same monthly rhythm. Effectively there is **no cross-month carryover** of Over/Under, which is acceptable. **When the user selects a monthly Budget Period, the Add/Edit Budget screen must show a short, explicit message** explaining that Over/Under does not carry month to month.
+- **Manual** — The Budget screen provides a control to reset carry-over to zero (with confirmation). Per-budget only.
+- **Scheduled** — On **Add/Edit Budget screen**, the user chooses how often carry-over resets automatically. **Reset cadence** options are **weekly**, **biweekly**, **monthly**, **quarterly**, or **never** (no automatic reset; the user relies on manual reset only). Which options are available depends on **Budget Period** (each cadence must be broader than the budget’s period; see product features). The **longest** calendar-based cadence is **quarterly**. **Defaults** for new budgets: daily → weekly; weekly → monthly; biweekly → quarterly; monthly → quarterly. **Scheduled** resets fire at **period boundaries** — the first boundary after the cadence interval has elapsed — never mid-period, so biweekly and other non-calendar periods stay aligned with full cycles. Weekly reset boundaries respect the app’s configured start of week where applicable (see product features).
+- **Carry-over optional** — A budget may have carry-over turned off (see product features); when off, the carry-over amount is not computed or shown for that budget.
+- **Monthly Budgets** — When the Budget Period is **monthly**, the default reset cadence is **quarterly**. Carry-over accumulates across months and resets every quarter. The user may choose a different cadence (quarterly or never) on the Add/Edit Budget screen.
 
 ---
 
@@ -150,7 +151,7 @@ The companion technical reference for implementation and tooling is [tech-design
 
 High-level entities include:
 
-- Recurring Budget - A spending allowance that repeats. Carries configuration for Budget Period, allocation, **currency (per budget)**, and **Over/Under reset cadence** (subject to [§6.7](#67-overunder-carryover-behavior)).
+- Recurring Budget - A spending allowance that repeats. Carries configuration for Budget Period, allocation, **currency (per budget)**, and **carry-over reset cadence** (subject to [§6.7](#67-carry-over-behavior)).
 - Expense Item
   - A single expense
 
@@ -201,10 +202,11 @@ Screens:
 
 ### 10.1 Glossary
 
-- Recurring Budget (AKA Budget) - An allocation of available spending that repeats the allocation at regular time intervals, such as daily or weekly.
+- Recurring Budget (AKA Budget) - An allocation of available spending that repeats the allocation at regular time intervals. The supported period values are defined in app code (see `BudgetPeriod` or equivalent).
 - Expense Item (AKA Expense or Transaction) - A specific expense.
-- Budget Period - Usually daily, weekly, biweekly, or monthly. This is the repeating time period that the Budget is allocating funds to.
-- Over/Under Amount (AKA OverUnder) - A per-budget, signed cumulative total: surplus (under-spent relative to allocation over time) or deficit (over-spent). It is **shown separately** from “remaining for this Budget Period” (which is not adjusted by Over/Under for display). Updated at each Budget Period boundary per [§6.7](#67-overunder-carryover-behavior); can be cleared manually or on a user-configured schedule (maximum cadence: monthly).
+- Budget Period - The repeating time interval the Budget allocates funds to. The canonical set of cases and their string values are defined in app code (see `BudgetPeriod` or equivalent).
+- Carry-over Amount (AKA CarryOver) - A per-budget, signed cumulative total: surplus (under-spent relative to allocation over time) or deficit (over-spent). It is **shown separately** from “remaining for this Budget Period” (which is not adjusted by carry-over for display). Updated at each Budget Period boundary per [§6.7](#67-carry-over-behavior); can be cleared manually or on a user-configured schedule. Which reset cadence options exist, and how “manual only” is represented, are defined in app code (see `ResetCadence` or equivalent).
+- Reset cadence - How often carry-over is cleared automatically. Valid cadences and how they relate to Budget Period are defined in app code (see `ResetCadence` and related validation). This glossary does not enumerate values; refer to the code for the latest list.
 
 ### 10.2 References
 
@@ -216,5 +218,6 @@ None
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial template |
+|         |            |          |                  |
 
 

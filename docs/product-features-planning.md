@@ -1,6 +1,6 @@
 # Product Features Planning
 
-**Version:** 0.1
+**Version:** 0.1  
 **Last Updated:** 2026-04-10
 **Author/Owner:** Jimmy Ho
 
@@ -47,8 +47,8 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Description:** Top-level screen: list of Recurring Budget (entity) rows and where the user stands.
 - **Acceptance Criteria:**
   - Name of budget field
-  - **Remaining for current Budget Period** field — this period’s allocation minus expenses for this period only; **not** merged with Over/Under for display (see [main-prd.md §6.7](main-prd.md#67-overunder-carryover-behavior)).
-  - **Over/Under** field — separate signed cumulative carryover per [main-prd.md §6.7](main-prd.md#67-overunder-carryover-behavior).
+  - **Remaining for current Budget Period** field — this period’s allocation minus expenses for this period only; **not** merged with carry-over for display (see [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)).
+  - **Carry-over** field — separate signed cumulative carryover per [main-prd.md §6.7](main-prd.md#67-carry-over-behavior).
   - **Delete Budget** — swipe-to-delete on a row with confirmation
   - This **Budgets screen** is the top level of the app.
 - **Edge Cases / Notes:** None
@@ -61,8 +61,8 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Acceptance Criteria:**
   - Shows vertical scrolling list of transactions as a list of most-recent to least-recent.
   - Shows the Budget’s name at top of the screen.
-  - Shows **Remaining for current Budget Period** and **Over/Under** consistent with [main-prd.md §6.7](main-prd.md#67-overunder-carryover-behavior) and F-2.01.
-  - **Reset Over/Under** control with confirmation; clears only this budget’s Over/Under (per [main-prd.md §6.7](main-prd.md#67-overunder-carryover-behavior)).
+  - Shows **Remaining for current Budget Period** and **Carry-over** consistent with [main-prd.md §6.7](main-prd.md#67-carry-over-behavior) and F-2.01.
+  - **Reset Carry-over** control with confirmation; clears only this budget’s carry-over (per [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)).
   - **Delete Expense Item** — swipe-to-delete on a row with confirmation
   - For each Expense Item, shows the following fields:
     - Date and time
@@ -81,12 +81,12 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Entry point added to **Budget screen** to edit that Budget (entity).
   - Fields:
     - ID: Arbitrary internal identifier, not shown to user. 
-    - Name (optional)
+    - Name — defaults to `Budget` (user-editable)
     - Time Period (daily, weekly, biweekly, monthly). Defaults to daily.
     - Allocation. Defaults to 10.
     - **Currency (per budget)** — Each Budget has its own currency. Defaults to locale's currency; USD if unable to determine at all.
-    - **Over/Under reset cadence** — How often cumulative Over/Under is cleared. Allowed options are bounded by Budget Period up to **monthly** maximum (per [main-prd.md §6.7](main-prd.md#67-overunder-carryover-behavior)). Default: next broader rhythm than Budget Period, capped at monthly (e.g. daily → weekly; weekly → monthly; monthly → monthly).
-    - When **Time Period** is **monthly**, show inline **explanatory copy** that Over/Under does not carry across months (aligned with monthly reset).
+    - **Carry-over reset cadence** — How often cumulative carry-over is cleared **automatically**. Options: **weekly**, **biweekly**, **monthly**, **quarterly**, or **never** (no automatic reset; user uses manual reset only). **Quarterly** and **never** are not Budget Periods; they apply only here. Valid options depend on Budget Period (each cadence must be broader than the period; see [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)). **Defaults** for new budgets: daily → weekly; weekly → monthly; biweekly → quarterly; monthly → quarterly. Scheduled resets align to **period boundaries** (first boundary after the interval), never mid-period.
+    - When **Time Period** is **monthly**, the default reset cadence is **quarterly**. Carry-over accumulates across months and resets every quarter.
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-2.01
 
@@ -118,7 +118,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Description:** On first launch when the data store contains no budgets, seed a single Budget (entity) so the user is not dropped into an empty app. Aligns with empty-state expectations for the **Budgets screen**.
 - **Acceptance Criteria:**
   - After first launch with an empty store, **Budgets screen** shows at least one Budget (entity) without manual creation.
-  - Seeded Budget: **Name** `"Food"`; **Time Period** daily; **Allocation** `25`; **Currency** — same default as F-2.03 (locale, else USD); **Over/Under reset cadence** weekly (per [main-prd.md §6.7](main-prd.md#67-overunder-carryover-behavior)); other fields use the same defaults as F-2.03 where applicable.
+  - Seeded Budget: **Name** `"Food"`; **Time Period** daily; **Allocation** `25`; **Currency** — same default as F-2.03 (locale, else USD); **Carry-over reset cadence** weekly (per [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)); other fields use the same defaults as F-2.03 where applicable.
   - Seeding runs **once** (first install / empty store only); deleting all budgets later does not auto-reseed.
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-1.02, F-2.01, F-2.03
@@ -126,7 +126,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 ##### F-2.07: Carry-over toggle switch
 
 - **Status:** Open
-- **Description:** Every budget can have the Over/Under calculation turned off. 
+- **Description:** Every budget can have the carry-over calculation turned off. 
 - **Acceptance Criteria:**
   - Add/Edit Budget screen has a toggle to turn on/off the carry-over of the prior balances.
   - Settings screen has a global setting to default all new Budgets with carry-over turned on or off. It is turned on by default.
@@ -296,7 +296,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 ##### F-7.03: Voice query for Budget status
 
 - **Status:** Open
-- **Description:** User speaks via Siri and/or in-app voice input to ask about a Budget's current status; the app responds with the **Remaining for current Budget Period** amount and the separate **Over/Under** amount.
+- **Description:** User speaks via Siri and/or in-app voice input to ask about a Budget's current status; the app responds with the **Remaining for current Budget Period** amount and the separate **Carry-over** amount.
 - **Acceptance Criteria:**
 - **Edge Cases / Notes:**
 - **Dependencies:** F-2.01, F-2.02

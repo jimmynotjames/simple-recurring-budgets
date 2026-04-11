@@ -10,8 +10,9 @@ import SwiftData
 
 @Model
 final class Item {
-    var timestamp: Date
-    
+    /// CloudKit requires stored properties to be optional or have a default at the property site.
+    var timestamp: Date = Date()
+
     init(timestamp: Date) {
         self.timestamp = timestamp
     }

@@ -5,6 +5,7 @@
 //  Created by Jimmy Ho on 4/10/26.
 //
 
+import SwiftData
 import Testing
 @testable import simple_recurring_budgets
 
@@ -16,4 +17,13 @@ struct simple_recurring_budgetsTests {
         // https://developer.apple.com/documentation/testing
     }
 
+    @Test func inMemoryModelContainerDoesNotEnableCloudKit() throws {
+        let schema = Schema([Item.self])
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true,
+            cloudKitDatabase: .none
+        )
+        _ = try ModelContainer(for: schema, configurations: [configuration])
+    }
 }

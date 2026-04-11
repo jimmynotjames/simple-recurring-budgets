@@ -1,4 +1,4 @@
-//
+  //
 //  simple_recurring_budgetsApp.swift
 //  simple-recurring-budgets
 //
@@ -14,7 +14,11 @@ struct simple_recurring_budgetsApp: App {
         let schema = Schema([
             Item.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .automatic
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])

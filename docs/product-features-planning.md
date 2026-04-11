@@ -90,7 +90,6 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-2.01
 
-
 ##### F-2.04: Add/Edit/View Expense Item screen
 
 - **Status:** Open
@@ -123,6 +122,16 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Seeding runs **once** (first install / empty store only); deleting all budgets later does not auto-reseed.
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-1.02, F-2.01, F-2.03
+
+##### F-2.07: Carry-over toggle switch
+
+- **Status:** Open
+- **Description:** Every budget can have the Over/Under calculation turned off. 
+- **Acceptance Criteria:**
+  - Add/Edit Budget screen has a toggle to turn on/off the carry-over of the prior balances.
+  - Settings screen has a global setting to default all new Budgets with carry-over turned on or off. It is turned on by default.
+- **Edge Cases / Notes:** None
+- **Dependencies:** F-1.02, F-2.02, F-2.05
 
 ---
 
@@ -237,7 +246,6 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:**
 - **Dependencies:**
 
-
 ---
 
 ### T-6: Miscellaneous
@@ -292,3 +300,4 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Acceptance Criteria:**
 - **Edge Cases / Notes:**
 - **Dependencies:** F-2.01, F-2.02
+

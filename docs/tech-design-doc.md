@@ -43,6 +43,8 @@ The app's information architecture is a simple stack: Budgets list → Budget de
 
 Two SwiftData `@Model` entities: **Budget** and **ExpenseItem**, linked by a one-to-many relationship (Budget → ExpenseItem, cascade delete). Supporting enums (`BudgetPeriod`, `ResetCadence`) are `String`-backed `Codable` types stored inline.
 
+**CloudKit optional relationship pattern:** CloudKit requires all relationships to be optional (records may arrive out-of-order during sync). The stored `Budget.expenses` property is therefore typed `[ExpenseItem]?`. A non-optional computed property `expenseItems: [ExpenseItem]` (`get { expenses ?? [] }`, settable) is the canonical accessor for all app code, so no call site ever handles optionality. The raw `expenses` property should not be accessed outside of the model definition.
+
 Key fields on Budget include allocation, period, currency code (ISO 4217), and Over/Under state (cumulative amount + last reset date + reset cadence). ExpenseItem carries amount, optional name, and date. All monetary values use `Decimal`.
 
 Derived values — **Remaining for current Budget Period** and **Over/Under display** — are computed at read-time, not persisted.

@@ -37,7 +37,7 @@ struct BudgetModelTests {
         #expect(budget.resetCadence == ResetCadence.weekly.rawValue)
         #expect(budget.carryOverAmount == 0)
         #expect(budget.isCarryOverEnabled == true)
-        #expect(budget.expenses.isEmpty)
+        #expect(budget.expenseItems.isEmpty)
         #expect(budget.sortOrder == 0)
     }
 
@@ -108,7 +108,7 @@ struct BudgetModelTests {
         let expense = ExpenseItem(amount: 10)
         expense.budget = budget
         context.insert(expense)
-        budget.expenses.append(expense)
+        budget.expenseItems.append(expense)
 
         let budgetId = budget.id
         context.delete(budget)
@@ -163,9 +163,9 @@ struct ExpenseItemModelTests {
         let item = ExpenseItem(amount: 15)
         item.budget = budget
         context.insert(item)
-        budget.expenses.append(item)
+        budget.expenseItems.append(item)
 
-        #expect(budget.expenses.count == 1)
-        #expect(budget.expenses.first?.amount == 15)
+        #expect(budget.expenseItems.count == 1)
+        #expect(budget.expenseItems.first?.amount == 15)
     }
 }

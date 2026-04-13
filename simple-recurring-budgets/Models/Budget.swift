@@ -32,8 +32,27 @@ final class Budget {
     /// Sourced from `AppSettings.defaultCarryOverEnabled` when creating budgets; persisted per budget.
     var isCarryOverEnabled: Bool = true
 
+    /// Persisted one-to-many relationship to `ExpenseItem` rows (cascade delete on the parent).
+    ///
+    /// CloudKit requires every relationship to be optional in the persisted model, not only during
+    /// sync: the server does not process relationship updates atomically, and related records can
+    /// arrive out of order or remain temporarily unresolved. `nil` or an empty collection can also
+    /// appear in edge cases outside normal app flows. Use `expenseItems` everywhere in application
+    /// code so callers never branch on optionality; treat this property as storage for SwiftData only.
     @Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)
-    var expenses: [ExpenseItem] = []
+    var expenses: [ExpenseItem]? = []
+
+    /// Non-optional view of the same relationship for app code (`expenses ?? []`).
+    var expenseItems: [ExpenseItem] {
+        get { expenses ?? [] }
+        set {
+            // Replacing the whole array assigns a new relationship collection, not an in-place merge.
+            // That can detach or remove linked `ExpenseItem`s (per delete rules and context) in ways
+            // that differ from appending, removing, or setting `ExpenseItem.budget`. Use full assignment
+            // only when you intend to replace the entire set; otherwise mutate the array or the child.
+            expenses = newValue
+        }
+    }
 
     init(
         name: String = "Budget",

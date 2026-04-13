@@ -13,7 +13,7 @@ struct simple_recurring_budgetsApp: App {
     @State private var settings = AppSettings()
 
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([Budget.self, ExpenseItem.self])
+        let schema = SchemaV1.swiftDataSchema
 
         // Try CloudKit-backed storage first. CloudKit requires an active iCloud account;
         // fall back to local-only storage when unavailable (e.g., Simulator without a

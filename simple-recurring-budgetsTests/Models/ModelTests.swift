@@ -10,29 +10,12 @@ import SwiftData
 import Testing
 @testable import simple_recurring_budgets
 
-// MARK: - Helpers
-
-/// Creates an in-memory `ModelContainer` for testing. CloudKit is disabled in-memory.
-private func makeInMemoryContainer() throws -> ModelContainer {
-    let schema = Schema([Budget.self, ExpenseItem.self])
-    let config = ModelConfiguration(
-        schema: schema,
-        isStoredInMemoryOnly: true,
-        cloudKitDatabase: .none
-    )
-    return try ModelContainer(
-        for: schema,
-        migrationPlan: BudgetMigrationPlan.self,
-        configurations: config
-    )
-}
-
 // MARK: - ModelContainer creation (task 6.3)
 
 struct ModelContainerTests {
 
     @Test func inMemoryContainerCreatesSuccessfully() throws {
-        _ = try makeInMemoryContainer()
+        _ = try TestModelContainer.make()
     }
 }
 
@@ -41,7 +24,7 @@ struct ModelContainerTests {
 struct BudgetModelTests {
 
     @Test func budget_defaultsAreCorrect() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
 
         let budget = Budget()
@@ -59,7 +42,7 @@ struct BudgetModelTests {
     }
 
     @Test func budget_customValuesStored() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
 
         let budget = Budget(
@@ -80,7 +63,7 @@ struct BudgetModelTests {
     }
 
     @Test func budget_defaultResetCadence_followsPeriod() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
 
         let weeklyBudget = Budget(period: .weekly)
@@ -95,7 +78,7 @@ struct BudgetModelTests {
     }
 
     @Test func budget_sortOrder_firstBudgetIsZero() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
         let budget = Budget()
         budget.sortOrder = try Budget.nextSortOrder(for: context)
@@ -104,7 +87,7 @@ struct BudgetModelTests {
     }
 
     @Test func budget_sortOrder_incrementsAfterEachInsert() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
         for expected in 0..<3 {
             let budget = Budget()
@@ -115,7 +98,7 @@ struct BudgetModelTests {
     }
 
     @Test func budget_cascadeDeletesExpenses() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
 
         let budget = Budget()
@@ -144,7 +127,7 @@ struct BudgetModelTests {
 struct ExpenseItemModelTests {
 
     @Test func expenseItem_defaultsAreCorrect() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
 
         let item = ExpenseItem(amount: 25)
@@ -170,7 +153,7 @@ struct ExpenseItemModelTests {
     }
 
     @Test func expenseItem_linkedToBudget() throws {
-        let container = try makeInMemoryContainer()
+        let container = try TestModelContainer.make()
         let context = ModelContext(container)
 
         let budget = Budget()

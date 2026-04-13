@@ -3,7 +3,7 @@
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
 | **Version**        | 0.1                            |
-| **Last Updated**   | 2026-04-10                     |
+| **Last Updated**   | 2026-04-12                     |
 | **Author / Owner** | Jimmy Ho                       |
 
 > Master technical reference for the Simple Recurring Budgets app. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
@@ -69,15 +69,17 @@ SwiftData persistence with `cloudKitDatabase: .automatic` on `ModelConfiguration
 
 ### 4.2 CloudKit Setup Requirements
 
-- **iCloud container identifier**: Must be set in entitlements (currently empty — needs a value like `iCloud.com.jimmyho.simple-recurring-budgets`).
+- **iCloud container identifier**: Set in app entitlements (e.g. `iCloud.com.jimmyho.simple-recurring-budgets` in `simple_recurring_budgets.entitlements`). The scheme’s `ModelConfiguration(cloudKitDatabase: .automatic)` uses this default container.
 - **Capabilities**: iCloud (CloudKit) + Push Notifications (background remote-notification already in `Info.plist`).
 - **Dashboard**: Register the container in CloudKit Dashboard; schema is auto-created from SwiftData models on first push.
+- **Simulator / device**: CloudKit-backed `ModelContainer` initialization still requires an iCloud-signed-in environment where CloudKit is available; otherwise the app may fall back to local-only storage (see app entry point).
 
 ### 4.3 CloudKit Constraints on Schema
 
 CloudKit imposes rules that affect SwiftData model design:
 
 - All properties must be optional at the CKRecord level (SwiftData handles this, but be aware during manual CKRecord work).
+- **Relationships must be optional** in the SwiftData model when using CloudKit sync. A non-optional to-many (e.g. `[Child] = []`) is rejected with Core Data error 134060 (“CloudKit integration requires that all relationships be optional”). Use an optional collection on the parent (e.g. `var expenses: [ExpenseItem]? = nil`) and treat `nil` like an empty list in app code (see `Budget.expenseList` in the app target; link expenses by setting `ExpenseItem.budget`).
 - No unique constraints enforced server-side — `@Attribute(.unique)` is local-only. UUID-based IDs provide practical uniqueness.
 - Relationships are modeled via CKReference; only one-to-many with a parent reference is well-supported.
 - Fields cannot be deleted from CKRecord types once deployed — only add.
@@ -180,4 +182,3 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial draft    |
-| 0.2     | 2026-04-11 | Jimmy Ho | Add §4.5 (NSUbiquitousKeyValueStore for app settings); update §8 future table to reflect iCloud key-value store instead of UserDefaults |

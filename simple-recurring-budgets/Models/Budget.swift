@@ -32,8 +32,9 @@ final class Budget {
     /// Sourced from `AppSettings.defaultCarryOverEnabled` when creating budgets; persisted per budget.
     var isCarryOverEnabled: Bool = true
 
+    /// Optional to-many for CloudKit: SwiftData requires optional relationships when using CloudKit sync.
     @Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)
-    var expenses: [ExpenseItem] = []
+    var expenses: [ExpenseItem]? = nil
 
     init(
         name: String = "Budget",
@@ -53,6 +54,11 @@ final class Budget {
 }
 
 extension Budget {
+    /// Expenses for this budget; `nil` and empty are treated the same for display and iteration.
+    var expenseList: [ExpenseItem] {
+        expenses ?? []
+    }
+
     /// Returns the next `sortOrder` for a **new** budget: `0` if none exist, else `max(existing.sortOrder) + 1`.
     /// Call before `context.insert(_:)` so the fetch does not include the new instance.
     static func nextSortOrder(for context: ModelContext) throws -> Int {

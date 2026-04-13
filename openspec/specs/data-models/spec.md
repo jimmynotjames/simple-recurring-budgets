@@ -24,7 +24,7 @@ The system SHALL define a SwiftData `@Model` class `Budget` with the following s
 | `carryOverLastResetDate`     | `Date`          | `Date()`                       | Last manual/scheduled reset      |
 | `resetCadence`               | `String`        | `ResetCadence.weekly.rawValue` | Stored as ResetCadence raw value |
 | `isCarryOverEnabled`         | `Bool`          | `true`                         | Carry-over toggle (F-2.07)       |
-| `expenses`                   | `[ExpenseItem]` | `[]`                           | One-to-many, cascade delete      |
+| `expenses`                   | `[ExpenseItem]?` | `nil`                         | One-to-many, cascade delete; optional for CloudKit sync |
 
 
 All monetary values SHALL use `Decimal`, never floating-point types.
@@ -32,7 +32,7 @@ All monetary values SHALL use `Decimal`, never floating-point types.
 #### Scenario: Creating a Budget with defaults
 
 - **WHEN** a Budget is initialized with no arguments
-- **THEN** `id` SHALL be a new UUID, `allocation` SHALL be `10`, `period` SHALL be `"daily"`, `resetCadence` SHALL be `"weekly"`, `carryOverAmount` SHALL be `0`, `isCarryOverEnabled` SHALL be `true`, `currencyCode` SHALL be the locale currency (or `"USD"` if undetermined), `createdAt` and `lastModified` SHALL be the current date, and `expenses` SHALL be empty.
+- **THEN** `id` SHALL be a new UUID, `allocation` SHALL be `10`, `period` SHALL be `"daily"`, `resetCadence` SHALL be `"weekly"`, `carryOverAmount` SHALL be `0`, `isCarryOverEnabled` SHALL be `true`, `currencyCode` SHALL be the locale currency (or `"USD"` if undetermined), `createdAt` and `lastModified` SHALL be the current date, and `expenses` SHALL be `nil` or empty (no linked `ExpenseItem` records).
 
 #### Scenario: Creating a Budget with custom values
 
@@ -88,7 +88,7 @@ All monetary values SHALL use `Decimal`, never floating-point types.
 #### Scenario: ExpenseItem linked to a Budget
 
 - **WHEN** an ExpenseItem is created and its `budget` property is set to an existing Budget
-- **THEN** the ExpenseItem SHALL appear in that Budget's `expenses` array.
+- **THEN** the ExpenseItem SHALL appear in that Budget's linked expenses (via `expenseList` or the `expenses` relationship, which may be `nil` until populated).
 
 ---
 

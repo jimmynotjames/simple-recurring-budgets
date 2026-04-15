@@ -1,0 +1,131 @@
+//
+//  PeriodCalculator.swift
+//  simple-recurring-budgets
+//
+
+import Foundation
+
+/// Pure date-math service for computing budget period boundaries.
+///
+/// All methods accept an explicit `Calendar` parameter for deterministic, timezone-safe results.
+/// Production callers pass `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC calendar.
+///
+/// For biweekly periods, callers must supply a `biweeklyAnchor` computed as:
+/// the most recent occurrence of `weekStart` at or before the budget's `createdAt` date.
+enum PeriodCalculator {
+
+    // MARK: - Period Start
+
+    /// Returns the start date of the budget period containing `date`.
+    ///
+    /// - Parameters:
+    ///   - date: The reference date.
+    ///   - period: The budget's repeating period.
+    ///   - weekStart: The user's configured week-start day.
+    ///   - biweeklyAnchor: The cycle anchor for biweekly periods (ignored for other periods).
+    ///   - calendar: The calendar to use for all date arithmetic.
+    static func periodStart(
+        containing date: Date,
+        period: BudgetPeriod,
+        weekStart: Weekday,
+        biweeklyAnchor: Date,
+        calendar: Calendar
+    ) -> Date {
+        switch period {
+        case .daily:
+            return calendar.startOfDay(for: date)
+
+        case .weekly:
+            let dayStart = calendar.startOfDay(for: date)
+            let weekdayOfDate = calendar.component(.weekday, from: dayStart)
+            let daysBack = (weekdayOfDate - weekStart.rawValue + 7) % 7
+            return calendar.date(byAdding: .day, value: -daysBack, to: dayStart)!
+
+        case .biweekly:
+            let dayStart = calendar.startOfDay(for: date)
+            let anchorStart = calendar.startOfDay(for: biweeklyAnchor)
+            let daysDiff = calendar.dateComponents([.day], from: anchorStart, to: dayStart).day ?? 0
+            let periodsElapsed = floorDiv(daysDiff, 14)
+            return calendar.date(byAdding: .day, value: periodsElapsed * 14, to: anchorStart)!
+
+        case .monthly:
+            var comps = calendar.dateComponents([.year, .month], from: date)
+            comps.day = 1
+            comps.hour = 0
+            comps.minute = 0
+            comps.second = 0
+            return calendar.date(from: comps)!
+        }
+    }
+
+    // MARK: - Period End
+
+    /// Returns the start of the period immediately following the one containing `date`.
+    ///
+    /// This is the exclusive upper bound for the period that contains `date`.
+    static func periodEnd(
+        containing date: Date,
+        period: BudgetPeriod,
+        weekStart: Weekday,
+        biweeklyAnchor: Date,
+        calendar: Calendar
+    ) -> Date {
+        let start = periodStart(
+            containing: date,
+            period: period,
+            weekStart: weekStart,
+            biweeklyAnchor: biweeklyAnchor,
+            calendar: calendar
+        )
+        switch period {
+        case .daily:    return calendar.date(byAdding: .day, value: 1, to: start)!
+        case .weekly:   return calendar.date(byAdding: .day, value: 7, to: start)!
+        case .biweekly: return calendar.date(byAdding: .day, value: 14, to: start)!
+        case .monthly:  return calendar.date(byAdding: .month, value: 1, to: start)!
+        }
+    }
+
+    // MARK: - Period Boundary Enumeration
+
+    /// Returns all period-start dates in `[from, to)`.
+    ///
+    /// The enumeration begins at `periodStart(containing: from, ...)` and advances one period
+    /// at a time until the next boundary would equal or exceed `to`. Returns an empty array
+    /// when `from >= to` or when the first boundary is not before `to`.
+    static func periodBoundaries(
+        from start: Date,
+        to end: Date,
+        period: BudgetPeriod,
+        weekStart: Weekday,
+        biweeklyAnchor: Date,
+        calendar: Calendar
+    ) -> [Date] {
+        var boundaries: [Date] = []
+        var current = periodStart(
+            containing: start,
+            period: period,
+            weekStart: weekStart,
+            biweeklyAnchor: biweeklyAnchor,
+            calendar: calendar
+        )
+        while current < end {
+            boundaries.append(current)
+            current = periodEnd(
+                containing: current,
+                period: period,
+                weekStart: weekStart,
+                biweeklyAnchor: biweeklyAnchor,
+                calendar: calendar
+            )
+        }
+        return boundaries
+    }
+
+    // MARK: - Private Helpers
+
+    /// Floor division: largest integer q such that q * d <= n (for positive d).
+    private static func floorDiv(_ n: Int, _ d: Int) -> Int {
+        let q = n / d
+        return n % d < 0 ? q - 1 : q
+    }
+}

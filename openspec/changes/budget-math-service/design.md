@@ -25,7 +25,7 @@ The next milestone is building screens (F-2.01, F-2.02) that display "Remaining 
 
 ### 1. Two-layer architecture: `PeriodCalculator` + `BudgetCalculator`
 
-**Decision:** Split into two structs with static methods.
+**Decision:** Split into two caseless `enum` types with static methods. A caseless `enum` cannot be instantiated (there are no cases to construct), which makes the intent explicit at the type level: these are pure namespaces, not objects. A `struct` would also work but would permit meaningless empty instances.
 
 - `PeriodCalculator` — Pure `Calendar`/`Date` math. Given a date, `BudgetPeriod`, `Weekday`, and `Calendar`, compute period start, period end, and enumerate boundaries between two dates. No financial concepts.
 - `BudgetCalculator` — Financial math. Calls `PeriodCalculator` internally. Computes remaining, carry-over roll, and scheduled reset detection.

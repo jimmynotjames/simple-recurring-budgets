@@ -118,6 +118,17 @@ All user-facing text uses Xcode **String Catalogs** and `LocalizedStringKey` —
 
 **Swift Testing** for all new tests; XCTest for UI tests where needed. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure, testable services with no SwiftData/UI dependencies.
 
+### 5.4 Budget Math Service Layer
+
+Two pure, stateless services in `Domain/` implement all budget math with no SwiftData or SwiftUI dependencies:
+
+- **`PeriodCalculator`** — Date-only math: computes period start/end dates and enumerates period boundaries between two dates. All methods accept an injected `Calendar` for deterministic, timezone-safe results in tests.
+- **`BudgetCalculator`** — Financial math built on `PeriodCalculator`: computes remaining for the current period, rolls carry-over across completed periods, and detects scheduled reset boundaries. Returns structured result types so callers have all the data they need to write back to the model.
+
+**Biweekly anchor:** For biweekly periods, the cycle anchor is derived from `createdAt` + `weekStart` at call time — no extra stored field is needed. Changing `weekStartDay` cascades to biweekly alignment (acknowledged by F-5.01).
+
+**ViewModel consumption:** ViewModels call `rollCarryOver` then `checkScheduledReset` eagerly on budget access (roll before reset, so completed-period carry-over is folded in before any reset fires), then `remaining` for current-period display.
+
 ---
 
 ## 6. Performance Considerations
@@ -183,3 +194,4 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | ------- | ---------- | -------- | ---------------- |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial draft    |
 | 0.2     | 2026-04-11 | Jimmy Ho | Add §4.5 (NSUbiquitousKeyValueStore for app settings); update §8 future table to reflect iCloud key-value store instead of UserDefaults |
+| 0.3     | 2026-04-13 | Jimmy Ho | Add §5.4 documenting the `PeriodCalculator` / `BudgetCalculator` service layer (public API, biweekly anchor convention, ViewModel consumption pattern) |

@@ -24,6 +24,8 @@ alwaysApply: false
 ## Localization
 
 - No hard-coded English in production UI. Use a **String Catalog** and `LocalizedStringKey` / localized string APIs (F-3.03).
+- The catalog is at `simple-recurring-budgets/Resources/Localizable.xcstrings`. New strings go there automatically via Xcode's string extraction once you use `Text("key", comment: "...")`.
+- Prefer `Text("key", comment: "translator context")` over bare `Text("key")` so translators have context. The `comment:` is especially important for short or ambiguous labels (button titles, destructive actions, one-word labels).
 
 ## Testing
 

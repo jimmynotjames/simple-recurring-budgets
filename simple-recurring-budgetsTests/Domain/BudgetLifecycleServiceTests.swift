@@ -339,7 +339,27 @@ struct BudgetLifecycleLastModifiedTests {
         #expect(budget.lastModified == now)
     }
 
-    /// 8.3 — remaining is independent of carryOverAmount (PRD §6.7).
+    /// 8.3 — remaining may be negative when expenses exceed the allocation (spec §"Remaining may be negative").
+    @Test func refreshAndSave_remaining_isNegativeWhenExpensesExceedAllocation() throws {
+        let container = try TestModelContainer.make()
+        let ctx = ModelContext(container)
+
+        let budget = Budget(allocation: 10, period: .daily, resetCadence: .never)
+        ctx.insert(budget)
+
+        let now = d(2026, 4, 15, hour: 10)
+        budget.carryOverLastProcessedDate = d(2026, 4, 15)  // no roll
+        budget.carryOverLastResetDate = d(2026, 4, 15)
+
+        // Single expense of 15 exceeds allocation of 10 → remaining = −5
+        expense(amount: 15, date: d(2026, 4, 15, hour: 9), budget: budget, in: ctx)
+
+        let result = BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
+
+        #expect(result.remaining == -5)
+    }
+
+    /// 8.4 — remaining is independent of carryOverAmount (PRD §6.7).
     @Test func refreshAndSave_remainingIsIndependentOfCarryOver() throws {
         let container = try TestModelContainer.make()
         let ctx = ModelContext(container)

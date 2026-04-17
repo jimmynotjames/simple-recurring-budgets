@@ -3,7 +3,7 @@
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
 | **Version**        | 0.1                            |
-| **Last Updated**   | 2026-04-10                     |
+| **Last Updated**   | 2026-04-17                     |
 | **Author / Owner** | Jimmy Ho                       |
 
 > Master technical reference for the Simple Recurring Budgets app. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
@@ -120,14 +120,15 @@ All user-facing text uses Xcode **String Catalogs** and `LocalizedStringKey` —
 
 ### 5.4 Budget Math Service Layer
 
-Two pure, stateless services in `Domain/` implement all budget math with no SwiftData or SwiftUI dependencies:
+Three services in `Domain/` implement all budget math and lifecycle orchestration with no SwiftUI dependencies:
 
-- **`PeriodCalculator`** — Date-only math: computes period start/end dates and enumerates period boundaries between two dates. All methods accept an injected `Calendar` for deterministic, timezone-safe results in tests.
-- **`BudgetCalculator`** — Financial math built on `PeriodCalculator`: computes remaining for the current period, rolls carry-over across completed periods, and detects scheduled reset boundaries. Returns structured result types so callers have all the data they need to write back to the model.
+- **`PeriodCalculator`** — Pure date-only math (no SwiftData): computes period start/end dates and enumerates period boundaries between two dates. All methods accept an injected `Calendar` for deterministic, timezone-safe results in tests.
+- **`BudgetCalculator`** — Pure financial math (no SwiftData) built on `PeriodCalculator`: computes remaining for the current period, rolls carry-over across completed periods, and detects scheduled reset boundaries. Returns structured result types (`CarryOverRollResult`, `ResetCheckResult`) so callers have all the data they need to write back to the model.
+- **`BudgetLifecycleService`** — The sole orchestrator that binds `BudgetCalculator` outputs to SwiftData. Takes a `Budget`, `AppSettings`, and `ModelContext`; runs the strict PRD §6.7 sequence (roll → persist → reset if needed → persist); and returns a `BudgetLifecycleResult` with `remaining`, `carryOverAmount`, `periodStart`, and `periodEnd` — everything a ViewModel needs for display. Writes `carryOverAmount`, `carryOverLastProcessedDate`, `carryOverLastResetDate`, and `lastModified` back to the `Budget` in a single `context.save()`, and only when at least one field changed.
 
 **Biweekly anchor:** For biweekly periods, the cycle anchor is derived from `createdAt` + `weekStart` at call time — no extra stored field is needed. Changing `weekStartDay` cascades to biweekly alignment (acknowledged by F-5.01).
 
-**ViewModel consumption:** ViewModels call `rollCarryOver` then `checkScheduledReset` eagerly on budget access (roll before reset, so completed-period carry-over is folded in before any reset fires), then `remaining` for current-period display.
+**ViewModel consumption:** ViewModels call `BudgetLifecycleService.refreshAndSave(_:settings:context:)` eagerly on budget access (screen appearance and `scenePhase == .active`) and bind the returned `BudgetLifecycleResult` to the view. ViewModels do **not** call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly for the eager access flow — `BudgetLifecycleService` is the single entry point for that sequence.
 
 ---
 
@@ -195,3 +196,4 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial draft    |
 | 0.2     | 2026-04-11 | Jimmy Ho | Add §4.5 (NSUbiquitousKeyValueStore for app settings); update §8 future table to reflect iCloud key-value store instead of UserDefaults |
 | 0.3     | 2026-04-13 | Jimmy Ho | Add §5.4 documenting the `PeriodCalculator` / `BudgetCalculator` service layer (public API, biweekly anchor convention, ViewModel consumption pattern) |
+| 0.4     | 2026-04-17 | Jimmy Ho | Update §5.4 to add `BudgetLifecycleService` as the sole orchestrator of the eager roll → persist → reset → persist sequence; clarify ViewModel consumption contract |

@@ -27,9 +27,34 @@ A native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending
 
 ## 2. Architecture
 
-### 2.1 Pattern: MVVM with `@Observable`
+### 2.1 Pattern: View + Services, ViewModels on demand
 
-Each screen gets a SwiftUI View and, when it has meaningful logic beyond simple property display, a companion `@Observable` ViewModel. Pure display-only subviews (e.g., a row cell) can remain logic-free without a VM. This keeps view logic testable without spinning up UI, and aligns with Apple's modern observation direction.
+**Default:** Screens are SwiftUI Views that read data with `@Query`, write through `@Environment(\.modelContext)`, and delegate non-trivial logic to pure domain services in `Domain/` (`BudgetLifecycleService`, `BudgetCalculator`, `PeriodCalculator`). No companion ViewModel is introduced by default.
+
+**Why not a VM on every screen.** The `Domain/` layer already carries the testable business logic as pure, SwiftData-free services (see §5.4). Adding a VM to thin list or detail screens mostly relays calls, duplicates state, and introduces lifecycle plumbing (`ModelContext` injection, `bind` timing, preview setup) without a payoff. Keeping reads in the view via `@Query` also preserves SwiftUI's automatic invalidation on SwiftData changes — something a VM-held fetch would have to reimplement.
+
+**Escalate to an `@Observable` ViewModel only when at least one of these is true:**
+
+1. The screen holds **non-trivial draft/form state** not persisted until the user commits (e.g., an Add/Edit screen with cross-field validation such as Budget Period → Reset Cadence rules per [PRD §6.7](main-prd.md#67-carry-over-behavior)).
+2. The screen owns **`async` / `Task` work** or concurrency-scoped state (e.g., future F-7.01 receipt OCR via Vision, F-7.02 speech recognition).
+3. The screen needs **a multi-step user action** chaining validation, multiple writes, and side effects beyond a one-liner.
+4. The screen has **derived display state expensive to recompute** inside `body` that benefits from caching outside it.
+
+**When a VM is escalated, these rules apply:**
+
+- Name and shape: `@Observable final class <Screen>ViewModel`, owned by the view via `@State`.
+- VM holds **draft state and pure logic only**. It does **not** store `ModelContext`, does **not** hold `@Query` results, and does **not** fetch.
+- Methods that need to write take `(context: ModelContext, ...)` at the call site (and `AppSettings` similarly when relevant). This avoids any `init(context:)` / `bind(context:)` lifecycle trap — `@Environment(\.modelContext)` is only readable inside `body`, and passing it per call keeps Sendable/ownership concerns simple.
+- Reads stay in the view via `@Query`. The VM never fetches.
+
+**Grey-area protocol — ask before scaffolding a VM.** A VM is harder to remove than to add. If a screen is on the fence, the implementer must ask the user for an explicit judgment call **before** creating a VM file. Explicit grey-area triggers that require a ping:
+
+- More than 3 mutable form fields.
+- A framework call inside the screen (Vision, Speech, PhotosUI, SiriKit / App Intents, `SFSpeechRecognizer`, network).
+- A single user input that mutates more than one model property or couples fields (e.g., changing Budget Period must re-validate Reset Cadence).
+- The screen is expected to grow materially within the next 1–2 features.
+
+Pure display-only subviews (row cells, badges, amount formatters) remain logic-free regardless of which side of the rule the parent screen falls on.
 
 ### 2.2 Navigation: `NavigationStack` with value-based routing
 
@@ -150,11 +175,11 @@ Three services in `Domain/` implement all budget math and lifecycle orchestratio
 
 - **`PeriodCalculator`** — Pure date-only math (no SwiftData): computes period start/end dates and enumerates period boundaries between two dates. All methods accept an injected `Calendar` for deterministic, timezone-safe results in tests.
 - **`BudgetCalculator`** — Pure financial math (no SwiftData) built on `PeriodCalculator`: computes remaining for the current period, rolls carry-over across completed periods, and detects scheduled reset boundaries. Returns structured result types (`CarryOverRollResult`, `ResetCheckResult`) so callers have all the data they need to write back to the model.
-- **`BudgetLifecycleService`** — The sole orchestrator that binds `BudgetCalculator` outputs to SwiftData. Takes a `Budget`, `AppSettings`, and `ModelContext`; runs the strict PRD §6.7 sequence (roll → persist → reset if needed → persist); and returns a `BudgetLifecycleResult` with `remaining`, `carryOverAmount`, `periodStart`, and `periodEnd` — everything a ViewModel needs for display. Writes `carryOverAmount`, `carryOverLastProcessedDate`, `carryOverLastResetDate`, and `lastModified` back to the `Budget` in a single `context.save()`, and only when at least one field changed.
+- **`BudgetLifecycleService`** — The sole orchestrator that binds `BudgetCalculator` outputs to SwiftData. Takes a `Budget`, `AppSettings`, and `ModelContext`; runs the strict PRD §6.7 sequence (roll → persist → reset if needed → persist); and returns a `BudgetLifecycleResult` with `remaining`, `carryOverAmount`, `periodStart`, and `periodEnd` — everything a screen needs for display. Writes `carryOverAmount`, `carryOverLastProcessedDate`, `carryOverLastResetDate`, and `lastModified` back to the `Budget` in a single `context.save()`, and only when at least one field changed.
 
 **Biweekly anchor:** For biweekly periods, the cycle anchor is derived from `createdAt` + `weekStart` at call time — no extra stored field is needed. Changing `weekStartDay` cascades to biweekly alignment (acknowledged by F-5.01).
 
-**ViewModel consumption:** ViewModels call `BudgetLifecycleService.refreshAndSave(_:settings:context:)` eagerly on budget access (screen appearance and `scenePhase == .active`) and bind the returned `BudgetLifecycleResult` to the view. ViewModels do **not** call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly for the eager access flow — `BudgetLifecycleService` is the single entry point for that sequence.
+**Caller consumption:** Screens call `BudgetLifecycleService.refreshAndSave(_:settings:context:)` eagerly on budget access (screen appearance and `scenePhase == .active`) and bind the returned `BudgetLifecycleResult` to the view. Per §2.1, simple screens invoke this directly from the view body / `.task` using `@Environment(\.modelContext)` and the injected `AppSettings`; screens that have escalated to a ViewModel expose a method taking `(settings: AppSettings, context: ModelContext, ...)` at the call site and forward to the service. Screens (and any VMs) do **not** call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly for the eager access flow — `BudgetLifecycleService` is the single entry point for that sequence.
 
 ### 5.5 Bootstrap
 
@@ -229,3 +254,4 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | 0.3     | 2026-04-13 | Jimmy Ho | Add §5.4 documenting the `PeriodCalculator` / `BudgetCalculator` service layer (public API, biweekly anchor convention, ViewModel consumption pattern) |
 | 0.4     | 2026-04-17 | Jimmy Ho | Update §5.4 to add `BudgetLifecycleService` as the sole orchestrator of the eager roll → persist → reset → persist sequence; clarify ViewModel consumption contract |
 | 0.5     | 2026-04-17 | Jimmy Ho | Add §4.6 (`FirstRunSeeder`, two-gate decision, `"seededV1"` KV key, flag-write ordering); add KV key table to §4.5; add §5.5 Bootstrap |
+| 0.6     | 2026-04-17 | Jimmy Ho | Replace §2.1 MVVM framing with "View + Services, ViewModels on demand" (escalation criteria, VM rules, grey-area ping protocol); update §5.4 consumer wording to "screens (and any VMs)" |

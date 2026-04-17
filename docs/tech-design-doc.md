@@ -177,7 +177,8 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 
 - **Encryption at rest**: Apple encrypts app data by default (Data Protection). No additional encryption is needed.
 - **No network calls**: Beyond CloudKit sync (managed by the OS), the app makes no network requests.
-- **No analytics or tracking**: Aligns with the privacy-first approach.
+- **On-device diagnostics**: Uses Apple's unified logging (`OSLog`) with per-subsystem categories (`bootstrap`, `cloudkit`, `ui`). Logs stay on device and are not transmitted.
+- **Analytics**: An `AnalyticsClient` protocol abstraction exists for future product analytics. Today's default implementation (`ConsoleAnalyticsClient`) only writes events to the local unified log in **Debug builds** (gated by `#if DEBUG`); release builds are silent no-ops and transmit nothing. Before any network-bound implementation (e.g., Mixpanel) ships, it must be opt-in, exclude PII, and be documented here with the chosen vendor.
 - **App Transport Security**: Default configuration is sufficient (no custom domains).
 - **Keychain**: Not needed unless future features require secrets (e.g., API keys for AI features in T-7).
 

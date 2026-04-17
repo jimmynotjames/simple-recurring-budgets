@@ -114,7 +114,7 @@ We will support
 
 ### 6.7 Carry-over behavior
 
-These rules apply to every Budget **for which carry-over is enabled**. When carry-over is turned off for a budget (see product features), the carry-over amount is not computed or displayed for that budget. Rules are **per budget**; there is no aggregation across budgets.
+These rules apply to every Budget. When carry-over is turned off for a budget (see product features), the carry-over amount is still computed and kept current internally but is **not displayed** in the UI for that budget. This ensures that toggling carry-over back on at any time produces an immediately correct, up-to-date figure without retroactive computation. Rules are **per budget**; there is no aggregation across budgets.
 
 **Display (independent numbers)**
 
@@ -130,7 +130,7 @@ These rules apply to every Budget **for which carry-over is enabled**. When carr
 
 - **Manual** — The Budget screen provides a control to reset carry-over to zero (with confirmation). Per-budget only.
 - **Scheduled** — On **Add/Edit Budget screen**, the user chooses how often carry-over resets automatically. **Reset cadence** options are **weekly**, **biweekly**, **monthly**, **quarterly**, or **never** (no automatic reset; the user relies on manual reset only). Which options are available depends on **Budget Period** (each cadence must be broader than the budget’s period; see product features). The **longest** calendar-based cadence is **quarterly**. **Defaults** for new budgets: daily → weekly; weekly → monthly; biweekly → quarterly; monthly → quarterly. **Scheduled** resets fire at **period boundaries** — the first boundary after the cadence interval has elapsed — never mid-period, so biweekly and other non-calendar periods stay aligned with full cycles. Weekly reset boundaries respect the app’s configured start of week where applicable (see product features).
-- **Carry-over optional** — A budget may have carry-over turned off (see product features); when off, the carry-over amount is not computed or shown for that budget.
+- **Carry-over optional** — A budget may have carry-over turned off (see product features); when off, the carry-over amount is maintained internally but not shown for that budget. Toggling carry-over back on surfaces the current, already-computed figure.
 - **Monthly Budgets** — When the Budget Period is **monthly**, the default reset cadence is **quarterly**. Carry-over accumulates across months and resets every quarter. The user may choose a different cadence (quarterly or never) on the Add/Edit Budget screen.
 
 ---

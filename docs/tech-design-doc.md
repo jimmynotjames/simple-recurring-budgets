@@ -108,6 +108,8 @@ Key constraints:
 
 All user-facing text uses Xcode **String Catalogs** and `LocalizedStringKey` — no hard-coded English in production views. Dates and numbers use Foundation format styles that auto-adapt to locale. Each Budget stores its own ISO 4217 currency code; formatting uses `Decimal.FormatStyle.Currency`.
 
+The canonical catalog lives at `simple-recurring-budgets/Resources/Localizable.xcstrings` and is picked up automatically by the app target's `PBXFileSystemSynchronizedRootGroup`; no `project.pbxproj` changes are needed when adding or renaming strings. Every new user-facing string in a production view must use `Text("key", comment: "translator context")` or `LocalizedStringKey("key")`. The `comment:` argument is required whenever the source string would be ambiguous out of context (short labels, button titles, destructive action names, etc.). Placeholder strings in `Views/ContentView.swift` are exempt until the real T-2 screens replace them.
+
 ### 5.2 Accessibility
 
 - **Dynamic Type**: System text styles everywhere; no fixed frame heights that clip at larger sizes.

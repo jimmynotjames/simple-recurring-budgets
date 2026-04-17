@@ -10,9 +10,53 @@ import SwiftData
 
 @main
 struct simple_recurring_budgetsApp: App {
-    @State private var settings = AppSettings()
+    @State private var settings: AppSettings
+    private let analytics: any AnalyticsClient
+    var sharedModelContainer: ModelContainer
 
-    var sharedModelContainer: ModelContainer = {
+    init() {
+        let client = ConsoleAnalyticsClient()
+        self.analytics = client
+        self.sharedModelContainer = Self.makeModelContainer(analytics: client)
+        self._settings = State(initialValue: AppSettings())
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(settings)
+                .environment(\.analytics, analytics)
+                .task {
+                    let result = try? await FirstRunSeeder.seedIfNeeded(
+                        context: sharedModelContainer.mainContext,
+                        store: NSUbiquitousKeyValueStore.default,
+                        isCarryOverEnabled: settings.defaultCarryOverEnabled
+                    )
+                    switch result {
+                    case .seeded:
+                        analytics.track(AnalyticsEvent.firstRunSeeded, channel: .bootstrap)
+                    case .skippedFlagAlreadySet, .skippedStoreNonEmpty, .skippedStoreNonEmptyFlagSealed:
+                        analytics.track(
+                            AnalyticsEvent.firstRunSkipped,
+                            channel: .bootstrap,
+                            level: .info,
+                            properties: ["result": String(describing: result)]
+                        )
+                    case nil:
+                        analytics.track(AnalyticsEvent.firstRunError, channel: .bootstrap, level: .error)
+                    }
+                    analytics.track(AnalyticsEvent.appLaunched)
+                }
+        }
+        .modelContainer(sharedModelContainer)
+    }
+
+    // MARK: - Private
+
+    /// Creates the SwiftData `ModelContainer`, preferring CloudKit-backed storage
+    /// and falling back to local-only when CloudKit is unavailable. All outcomes
+    /// are reported through `analytics` so every event travels the same code path.
+    private static func makeModelContainer(analytics: any AnalyticsClient) -> ModelContainer {
         let schema = SchemaV1.swiftDataSchema
 
         // Try CloudKit-backed storage first. CloudKit requires an active iCloud account;
@@ -28,8 +72,11 @@ struct simple_recurring_budgetsApp: App {
             migrationPlan: BudgetMigrationPlan.self,
             configurations: cloudConfig
         ) {
+            analytics.track(AnalyticsEvent.cloudKitContainerBacked, channel: .cloudKit)
             return container
         }
+
+        analytics.track(AnalyticsEvent.cloudKitContainerLocalFallback, channel: .cloudKit, level: .notice)
 
         let localConfig = ModelConfiguration(
             schema: schema,
@@ -37,28 +84,21 @@ struct simple_recurring_budgetsApp: App {
             cloudKitDatabase: .none
         )
         do {
-            return try ModelContainer(
+            let container = try ModelContainer(
                 for: schema,
                 migrationPlan: BudgetMigrationPlan.self,
                 configurations: localConfig
             )
+            analytics.track(AnalyticsEvent.cloudKitContainerLocalSuccess, channel: .cloudKit)
+            return container
         } catch {
+            analytics.track(
+                AnalyticsEvent.cloudKitContainerFailed,
+                channel: .cloudKit,
+                level: .error,
+                properties: ["error": error.localizedDescription]
+            )
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environment(settings)
-                .task {
-                    try? await FirstRunSeeder.seedIfNeeded(
-                        context: sharedModelContainer.mainContext,
-                        store: NSUbiquitousKeyValueStore.default,
-                        isCarryOverEnabled: settings.defaultCarryOverEnabled
-                    )
-                }
-        }
-        .modelContainer(sharedModelContainer)
     }
 }

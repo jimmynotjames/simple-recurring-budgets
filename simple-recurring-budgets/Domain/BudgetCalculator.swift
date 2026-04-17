@@ -27,7 +27,9 @@ struct ResetCheckResult {
 
 /// Financial math service built on `PeriodCalculator`.
 ///
-/// All methods are pure functions with no SwiftData or SwiftUI dependencies.
+/// Built to be tested without SwiftData and SwiftUI dependencies.
+/// Methods are pure and stateless — no `ModelContext`, no fetches, no mutation. `ExpenseItem`
+/// appears in signatures for caller convenience (reads only `.amount` and `.date`).
 /// Production callers pass `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC calendar.
 ///
 /// `isCarryOverEnabled` is a display-only flag consumed by the UI layer.

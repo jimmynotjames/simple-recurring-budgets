@@ -51,6 +51,13 @@ struct simple_recurring_budgetsApp: App {
         WindowGroup {
             ContentView()
                 .environment(settings)
+                .task {
+                    try? await FirstRunSeeder.seedIfNeeded(
+                        context: sharedModelContainer.mainContext,
+                        store: NSUbiquitousKeyValueStore.default,
+                        isCarryOverEnabled: settings.defaultCarryOverEnabled
+                    )
+                }
         }
         .modelContainer(sharedModelContainer)
     }

@@ -2,6 +2,10 @@
 
 This repo is a native SwiftUI app (SwiftData + CloudKit). Before specifying, planning, or implementing:
 
+## Build and test
+
+After substantive code changes, run **`make test`** or **`bash scripts/test.sh`** from the repo root (single iPhone simulator, latest installed OS). For faster repeat runs, leave Simulator open or set **`SIMULATOR_UDID`** so tests reuse a booted device (see `scripts/test.sh` header). Details: `.cursor/rules/ios-build-test.mdc`.
+
 ## High-level docs
 
 Skim and respect:

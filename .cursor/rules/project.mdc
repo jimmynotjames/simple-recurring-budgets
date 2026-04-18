@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Project context
 
-- Native **SwiftUI** app for iOS, iPadOS, and macOS. Persistence: **SwiftData** with **CloudKit** sync. No app-owned backend (Apple cloud services only).
+- Native **SwiftUI** app for **iOS and iPadOS** (universal target). Persistence: **SwiftData** with **CloudKit** sync. No app-owned backend (Apple cloud services only).
 
 ## Docs to consult (all modes, including Plan mode)
 

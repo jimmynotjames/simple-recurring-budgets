@@ -1,0 +1,42 @@
+---
+description: Run iOS unit/UI tests on one simulator after code changes; latest SDK and deployment target only
+alwaysApply: true
+---
+
+# Build and test (iOS)
+
+## After substantive code changes
+
+When you edit Swift, SwiftUI, the Xcode project, or anything that affects compilation or runtime behavior, **run the full test suite** before considering the task done:
+
+- From the repo root: `bash scripts/test.sh` or `make test`.
+- Do **not** run tests on multiple simulators or multiple iOS versions unless the user explicitly asks.
+
+## Single destination
+
+Tests use **one** iPhone simulator. The canonical command lives in [`scripts/test.sh`](scripts/test.sh).
+
+**Faster runs (reuse a warm simulator):** cold-booting a simulator is usually what feels “forever.” The script prefers, in order: **`SIMULATOR_UDID`** if set; else any **already booted** device whose name matches `SIMULATOR_NAME` (resolved by [`scripts/resolve_booted_sim_udid.py`](scripts/resolve_booted_sim_udid.py), with a short `simctl` timeout so a stuck CoreSimulatorService does not hang forever); else **`name=…,OS=latest`**. `xcodebuild` is invoked with **`-destination-timeout 300`** so destination resolution does not hang indefinitely. Leave **Simulator.app** open with your device, or run `xcrun simctl boot <UDID>` once per session. Pin a device:
+
+```bash
+xcrun simctl list devices available   # copy a UDID
+export SIMULATOR_UDID='…'             # optional: add to your shell profile
+make test
+```
+
+Override the device name if needed:
+
+```bash
+SIMULATOR_NAME='iPhone 17' bash scripts/test.sh
+```
+
+If `xcodebuild` cannot find the destination, run `xcrun simctl list devices available` and set `SIMULATOR_NAME` or `SIMULATOR_UDID`, or install the latest simulator runtime in Xcode.
+
+## Latest iOS / iPadOS only
+
+- Keep **`IPHONEOS_DEPLOYMENT_TARGET`** aligned with the product rule: latest major OS only; do **not** lower it without an explicit product decision (see `docs/main-prd.md` and `docs/tech-design-doc.md`).
+- The app target is universal (iPhone + iPad). **One** iPhone simulator run still compiles the same target; extra iPad simulators are unnecessary unless validating iPad-specific UI.
+
+## Scheme
+
+The shared scheme is [simple-recurring-budgets.xcscheme](simple-recurring-budgets.xcodeproj/xcshareddata/xcschemes/simple-recurring-budgets.xcscheme). Use `-scheme simple-recurring-budgets` (as in `scripts/test.sh`).

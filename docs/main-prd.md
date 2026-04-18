@@ -10,11 +10,17 @@
 
 > This document is the governing source of truth for the app. It defines the north star, guiding principles, and global constraints that every feature, design decision, and technical choice must align with. For more details about specific features, see [product-features-planning.md](product-features-planning.md).
 
+## Release Status
+
+This app has not been released to production and is not in the App Store. It is currently "greenfield."
+
 ---
 
 ## 1. Vision and North Star
 
 An app that gives users more discipline in their personal spending when it comes to regular, repeating expenses. Examples include daily food expenses or weekly groceries and so on.
+
+
 
 ---
 

@@ -167,7 +167,9 @@ The canonical catalog lives at `simple-recurring-budgets/Resources/Localizable.x
 
 ### 5.3 Testing
 
-**Swift Testing** for all new tests; XCTest for UI tests where needed. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure, testable services with no SwiftData/UI dependencies.
+**Swift Testing** for all new tests; XCTest for UI tests where needed. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure, testable services with minimal or no SwiftData/UI dependencies.
+
+**Test Runs**: When supporting only iPhone and iPad, we only need to run the unit test suites for one iPhone model using the latest OS version available. For UI tests, run the tests for the appropriate platform for platform-specific tests, defaulting to iPhone when not specified. Again, unless tests are specifically testing different device models or OS versions, only one combination of one arbitrary device model + latest available OS version is necessary.
 
 ### 5.4 Budget Math Service Layer
 

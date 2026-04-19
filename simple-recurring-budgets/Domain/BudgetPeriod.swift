@@ -33,7 +33,7 @@ enum BudgetPeriod: String, Codable, CaseIterable, Comparable {
     ///
     /// This mapping is intentional and not derived from enum ordering:
     /// daily → weekly, weekly → monthly, biweekly → quarterly, monthly → quarterly.
-    var defaultResetCadence: ResetCadence {
+    nonisolated var defaultResetCadence: ResetCadence {
         switch self {
         case .daily: return .weekly
         case .weekly: return .monthly

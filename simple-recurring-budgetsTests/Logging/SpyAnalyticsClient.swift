@@ -8,9 +8,16 @@ import Foundation
 
 /// A test double that records every call made to `AnalyticsClient`.
 ///
-/// Use in place of `ConsoleAnalyticsClient` whenever a test needs to assert on
-/// which events were tracked, on which channel, at which level, and with what
-/// properties — or how `identify`/`reset` were called.
+/// Marked `@MainActor` so that:
+/// - Mutable stored state is protected by actor isolation (satisfies `Sendable`).
+/// - `AnalyticsChannel.Equatable` (also `@MainActor` under the app target's default
+///   isolation) can be used freely in filter closures.
+///
+/// Protocol methods are `nonisolated` to match the non-isolated protocol requirement;
+/// they use `MainActor.assumeIsolated` to mutate state — safe because every call site
+/// in the test suite runs on the main actor (sync tests in Swift Testing execute on the
+/// main thread; async tests carry the `@MainActor` annotation explicitly).
+@MainActor
 final class SpyAnalyticsClient: AnalyticsClient {
 
     struct TrackCall: Equatable {
@@ -34,16 +41,22 @@ final class SpyAnalyticsClient: AnalyticsClient {
     private(set) var identifyCalls: [String?] = []
     private(set) var resetCallCount = 0
 
-    func track(_ event: String, channel: AnalyticsChannel, level: AnalyticsLevel, properties: [String: any Sendable]?) {
-        trackCalls.append(TrackCall(event: event, channel: channel, level: level, properties: properties))
+    nonisolated func track(_ event: String, channel: AnalyticsChannel, level: AnalyticsLevel, properties: [String: any Sendable]?) {
+        MainActor.assumeIsolated {
+            trackCalls.append(TrackCall(event: event, channel: channel, level: level, properties: properties))
+        }
     }
 
-    func identify(_ distinctId: String?) {
-        identifyCalls.append(distinctId)
+    nonisolated func identify(_ distinctId: String?) {
+        MainActor.assumeIsolated {
+            identifyCalls.append(distinctId)
+        }
     }
 
-    func reset() {
-        resetCallCount += 1
+    nonisolated func reset() {
+        MainActor.assumeIsolated {
+            resetCallCount += 1
+        }
     }
 
     // MARK: - Convenience

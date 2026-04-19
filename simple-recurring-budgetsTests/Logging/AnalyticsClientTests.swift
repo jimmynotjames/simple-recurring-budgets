@@ -9,6 +9,7 @@ import Testing
 // MARK: - Protocol default overloads
 
 @Suite("AnalyticsClient — convenience overloads")
+@MainActor
 struct AnalyticsClientOverloadTests {
 
     @Test("track(_:properties:) defaults to .product channel at .info level")
@@ -55,6 +56,7 @@ struct AnalyticsClientOverloadTests {
 // MARK: - SpyAnalyticsClient recording
 
 @Suite("SpyAnalyticsClient — call recording")
+@MainActor
 struct SpyAnalyticsClientTests {
 
     @Test("records track calls in order with all metadata")
@@ -113,6 +115,7 @@ struct SpyAnalyticsClientTests {
 // MARK: - ConsoleAnalyticsClient crash safety
 
 @Suite("ConsoleAnalyticsClient — crash safety")
+@MainActor
 struct ConsoleAnalyticsClientTests {
 
     @Test("product channel with nil properties does not crash")
@@ -180,6 +183,7 @@ struct ConsoleAnalyticsClientTests {
 // MARK: - AnalyticsEvent constants
 
 @Suite("AnalyticsEvent — constant values")
+@MainActor
 struct AnalyticsEventTests {
 
     @Test("product event name constants have expected string values")

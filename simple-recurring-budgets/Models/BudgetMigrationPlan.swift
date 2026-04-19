@@ -12,6 +12,6 @@ import SwiftData
 /// `stages` is empty for V1; add `MigrationStage` entries here when future
 /// schema versions require data transforms.
 enum BudgetMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] = [SchemaV1.self]
-    static var stages: [MigrationStage] = []
+    static let schemas: [any VersionedSchema.Type] = [SchemaV1.self]
+    static let stages: [MigrationStage] = []
 }

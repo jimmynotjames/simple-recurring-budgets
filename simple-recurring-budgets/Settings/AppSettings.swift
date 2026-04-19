@@ -41,24 +41,35 @@ final class AppSettings {
             object: store as AnyObject?,
             queue: .main
         ) { [weak self] notification in
-            self?.applyExternalNotification(notification)
+            // Extract only Sendable data ([String]?) before entering the
+            // @MainActor assumeIsolated block. Notification itself is not
+            // Sendable (its object: AnyObject? member prevents conformance).
+            let changedKeys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String]
+            // The observer is registered on .main queue, so we are already on
+            // the main actor. assumeIsolated makes isolation visible to the
+            // compiler without crossing any actor boundary.
+            MainActor.assumeIsolated {
+                self?.applyChangedKeys(changedKeys)
+            }
         }
     }
 
     deinit {
-        if let notificationObserver {
-            NotificationCenter.default.removeObserver(notificationObserver)
+        // deinit is nonisolated in Swift 6; use assumeIsolated since AppSettings is
+        // always owned by @MainActor code and will be deallocated on the main thread.
+        MainActor.assumeIsolated {
+            if let notificationObserver {
+                NotificationCenter.default.removeObserver(notificationObserver)
+            }
         }
     }
 
-    private func applyExternalNotification(_ notification: Notification) {
-        guard
-            let keys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String]
-        else {
+    private func applyChangedKeys(_ changedKeys: [String]?) {
+        guard let changedKeys else {
             reloadAllFromStore()
             return
         }
-        applyKeys(Set(keys))
+        applyKeys(Set(changedKeys))
     }
 
     private func reloadAllFromStore() {

@@ -34,7 +34,7 @@ A gazillion apps exist in the Apple App Store to budget and track expenses for p
 
 Current popular budgeting apps in the marketplace are heavyweight. They make assumptions about the user's mental model of personal finance and try to take over all of a user's personal finances. Onboarding onto these can be a lot. This makes these apps hard to use by most users.
 
-More simple apps may exist to do more simple tracking but they tend to not be visually elegant or are hard to use. 
+More simple apps may exist to do more simple tracking but they tend to not be visually elegant or are hard to use. Many also require more taps and manual input than users are willing to tolerate for routine logging.
 
 ### 2.3 Target Users
 
@@ -45,7 +45,7 @@ Tech-savvy people who want to control their expenses better. They may or may not
 ## 3. Guiding Principles
 
 1. UX Simplicity - We make no assumptions about the user's mental model of their higher-level finances.
-2. Ease of Use - Day to day interactions with the app should feel efficient and easeful.
+2. Ease of Use - Day-to-day interactions should feel efficient and easeful, requiring minimal user input (e.g. logging an expense should take as few taps as reasonably possible).
 3. Clarity - Users clearly understand where they stand with respect to their recurring budgets.
 4. Delight - The above principles take priority, but when possible, the app should be fun and cute.
 
@@ -72,15 +72,15 @@ None
 
 ### Persona 1 — Juliette
 
-Juliette, woman, 26 years old, is living a typical, frantic New York life. She has a stable white collar job that easily pays the rent for her shoebox of an apartment but her expenses are a mess. She has no financial tracking system whatsoever. Wrangling her finances is too overwhelming but she thinks she can at least break down the problem into daily and weekly spending. She wants to spend no more than $25/day on food and groceries, $7/day on coffee, and no more than $100/week on beauty supplies and cute clothes. 
+Juliette, woman, 26 years old, is living a typical, frantic New York life. She has a stable white collar job that easily pays the rent for her shoebox of an apartment but her expenses are a mess. She has no financial tracking system whatsoever. Wrangling her finances is too overwhelming but she thinks she can at least break down the problem into daily and weekly spending. She wants to spend no more than $25/day on food and groceries, $7/day on coffee, and no more than $100/week on beauty supplies and cute clothes. She won't stick with any app that feels like a chore to open and log into.
 
 ### Persona 2 — Colin
 
-Colin, man, 34 years old, is working to support his wife and two kids as a construction foreman in Kansas City. He has a good grasp on his high-level finances, which are on spreadsheets that he and his wife put together. However, day-to-day financial decisions are still a pain point. It's annoying to consult a big spreadsheet on his phone with monthly numbers just to understand if he should splurge on ice cream sundaes for the kids. He can break down his spending allocations into smaller chunks, divided by category and temporal rhythm (daily, weekly), but he doesn't have an easy way to track it. 
+Colin, man, 34 years old, is working to support his wife and two kids as a construction foreman in Kansas City. He has a good grasp on his high-level finances, which are on spreadsheets that he and his wife put together. However, day-to-day financial decisions are still a pain point. It's annoying to consult a big spreadsheet on his phone with monthly numbers just to understand if he should splurge on ice cream sundaes for the kids. He can break down his spending allocations into smaller chunks, divided by category and temporal rhythm (daily, weekly), but he doesn't have an easy way to track it. Whatever tool he uses has to be quick to log into on the go — he's not going to tap through a bunch of screens while wrangling the kids.
 
 ### Persona 3 — Paige
 
-Paige, woman, 42, is a project manager living in Fort Collins, CO, with her husband and daughter. She is very organized and knows her finances well. She wants to carve out a budget for herself for those little luxuries and fun expenses, but wants to keep it disciplined. She thinks that setting a daily or weekly spending amount would work, but needs an easy way to track the budget. Current apps are too heavyweight. She enjoys working with tools that are not only useful but fun and cute to use. 
+Paige, woman, 42, is a project manager living in Fort Collins, CO, with her husband and daughter. She is very organized and knows her finances well. She wants to carve out a budget for herself for those little luxuries and fun expenses, but wants to keep it disciplined. She thinks that setting a daily or weekly spending amount would work, but needs an easy way to track the budget. Current apps are too heavyweight. She enjoys working with tools that are not only useful but fun and cute to use. Finally, she wants logging a purchase to take just seconds so tracking stays a habit, not a burden.
 
 ---
 

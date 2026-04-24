@@ -8,7 +8,7 @@
 | **Author / Owner** | Jimmy Ho   |
 
 
-> This document is the governing source of truth for the app. It defines the north star, guiding principles, and global constraints that every feature, design decision, and technical choice must align with. For more details about specific features, see [product-features-planning.md](product-features-planning.md).
+> This document is the governing source of truth for the app. It defines the north star, guiding principles, and global constraints that every feature, design decision, and technical choice must align with. For more details about specific features, see [product-features-planning.md](product-features-planning.md). For more information UX guidelines, see [ux-design-brief.md](ux-design-brief.md).
 
 ## Release Status
 

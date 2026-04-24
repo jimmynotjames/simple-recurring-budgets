@@ -1,4 +1,4 @@
-# Master PRD
+# Simple Recurring Budgets App PRD
 
 
 | Field              | Value      |
@@ -19,8 +19,6 @@ This app has not been released to production and is not in the App Store. It is 
 ## 1. Vision and North Star
 
 An app that gives users more discipline in their personal spending when it comes to regular, repeating expenses. Examples include daily food expenses or weekly groceries and so on.
-
-
 
 ---
 

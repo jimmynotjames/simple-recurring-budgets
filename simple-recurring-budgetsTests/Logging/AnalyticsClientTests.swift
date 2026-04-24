@@ -188,10 +188,7 @@ struct AnalyticsEventTests {
 
     @Test("product event name constants have expected string values")
     func productEventConstants() {
-        #expect(AnalyticsEvent.appLaunched    == "app.launched")
-        #expect(AnalyticsEvent.firstRunSeeded == "firstRun.seeded")
-        #expect(AnalyticsEvent.firstRunSkipped == "firstRun.skipped")
-        #expect(AnalyticsEvent.firstRunError  == "firstRun.error")
+        #expect(AnalyticsEvent.appLaunched == "app.launched")
     }
 
     @Test("cloudKit diagnostic event name constants have expected string values")

@@ -27,24 +27,6 @@ struct simple_recurring_budgetsApp: App {
                 .environment(settings)
                 .environment(\.analytics, analytics)
                 .task {
-                    let result = try? await FirstRunSeeder.seedIfNeeded(
-                        context: sharedModelContainer.mainContext,
-                        store: NSUbiquitousKeyValueStore.default,
-                        isCarryOverEnabled: settings.defaultCarryOverEnabled
-                    )
-                    switch result {
-                    case .seeded:
-                        analytics.track(AnalyticsEvent.firstRunSeeded, channel: .bootstrap)
-                    case .skippedFlagAlreadySet, .skippedStoreNonEmpty, .skippedStoreNonEmptyFlagSealed:
-                        analytics.track(
-                            AnalyticsEvent.firstRunSkipped,
-                            channel: .bootstrap,
-                            level: .info,
-                            properties: ["result": String(describing: result)]
-                        )
-                    case nil:
-                        analytics.track(AnalyticsEvent.firstRunError, channel: .bootstrap, level: .error)
-                    }
                     analytics.track(AnalyticsEvent.appLaunched)
                 }
         }

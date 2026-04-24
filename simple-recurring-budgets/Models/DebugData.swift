@@ -283,13 +283,14 @@ enum DebugData {
 
     // MARK: - Top-level accessors
 
-    /// Every fixture budget, in sidebar display order.
+    /// Every fixture budget, in canonical preview display order.
     ///
-    /// Order is chosen to front-load the "common" cases (each period's default) so a
-    /// preview that crops to the first few rows still shows a diverse set; edge-case
-    /// budgets follow.
+    /// Carry-over budgets lead so a cropped preview surfaces the carry-over chip
+    /// immediately; each period's default follows for breadth; edge-case budgets trail.
     static func allBudgets(now: Date = Date()) -> [Budget] {
         [
+            dailyWithSurplusCarryOver(now: now),
+            monthlyWithDeficitCarryOver(now: now),
             dailyDefault(now: now),
             weeklyDefault(now: now),
             biweeklyDefault(now: now),
@@ -297,8 +298,6 @@ enum DebugData {
             dailyNeverReset(now: now),
             weeklyCarryOverOff(now: now),
             weeklyNeverReset(now: now),
-            dailyWithSurplusCarryOver(now: now),
-            monthlyWithDeficitCarryOver(now: now)
         ]
     }
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 /// Root navigation host. Owns the `NavigationStack` path and the active sheet.
 ///
@@ -19,7 +20,7 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            Text("Budgets screen placeholder")
+            BudgetsView()
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .budgetDetail(let budget):
@@ -46,4 +47,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .modelContainer(PreviewContainer.make())
+        .environment(AppSettings())
 }

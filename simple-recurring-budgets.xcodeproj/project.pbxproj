@@ -28,6 +28,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A49520712F9BB5150025E77A /* main-prd.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "main-prd.md"; sourceTree = "<group>"; };
+		A49520722F9BB5150025E77A /* product-features-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "product-features-planning.md"; sourceTree = "<group>"; };
+		A49520732F9BB5150025E77A /* tech-design-doc.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "tech-design-doc.md"; sourceTree = "<group>"; };
+		A49520742F9BB5150025E77A /* ux-design-brief.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ux-design-brief.md"; sourceTree = "<group>"; };
+		A49520762F9BB53A0025E77A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		A49520772F9BB53A0025E77A /* resolve_booted_sim_udid.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = resolve_booted_sim_udid.py; sourceTree = "<group>"; };
+		A49520782F9BB53A0025E77A /* test.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = test.sh; sourceTree = "<group>"; };
 		A498F5AA2F8945FC00A9A394 /* simple-recurring-budgets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-recurring-budgets.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A498F5BB2F8945FE00A9A394 /* simple-recurring-budgetsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "simple-recurring-budgetsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A498F5C52F8945FE00A9A394 /* simple-recurring-budgetsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "simple-recurring-budgetsUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -90,6 +97,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A49520752F9BB5150025E77A /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				A49520712F9BB5150025E77A /* main-prd.md */,
+				A49520722F9BB5150025E77A /* product-features-planning.md */,
+				A49520732F9BB5150025E77A /* tech-design-doc.md */,
+				A49520742F9BB5150025E77A /* ux-design-brief.md */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
+		A49520792F9BB53A0025E77A /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				A49520772F9BB53A0025E77A /* resolve_booted_sim_udid.py */,
+				A49520782F9BB53A0025E77A /* test.sh */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
 		A498F5A12F8945FC00A9A394 = {
 			isa = PBXGroup;
 			children = (
@@ -98,6 +125,9 @@
 				A498F5BE2F8945FE00A9A394 /* simple-recurring-budgetsTests */,
 				A498F5C82F8945FE00A9A394 /* simple-recurring-budgetsUITests */,
 				A498F5AB2F8945FC00A9A394 /* Products */,
+				A49520752F9BB5150025E77A /* docs */,
+				A49520762F9BB53A0025E77A /* Makefile */,
+				A49520792F9BB53A0025E77A /* scripts */,
 			);
 			sourceTree = "<group>";
 		};

@@ -131,23 +131,8 @@ Key constraints:
 |-----|------|-------|---------|
 | `"defaultCarryOverEnabled"` | `Bool` | `AppSettings` | Default carry-over toggle for new budgets |
 | `"weekStartDay"` | `Int64` (`Weekday.rawValue`) | `AppSettings` | First day of the week (locale default if absent) |
-| `"seededV1"` | `Bool` | `FirstRunSeeder` | Records that first-run seeding has occurred for this iCloud account; see §5.5 |
 
-### 4.6 First-Run Bootstrap (FirstRunSeeder)
-
-`App/FirstRunSeeder.swift` (a caseless `enum`) seeds one default `Budget` (name: `"Food"`, period: daily, allocation: 25, reset cadence: weekly) on first launch when the data store is empty. It is invoked via a `.task` modifier on the Budgets root in `ContentView`.
-
-**Two-gate decision** — seeding is attempted only when both are true:
-1. **Gate A (KV flag):** `NSUbiquitousKeyValueStore` has no value for `"seededV1"`. Prevents reseeding after the user intentionally deletes all their budgets, and on a reinstall where the KV flag arrives before CloudKit.
-2. **Gate B (store count):** `context.fetchCount(FetchDescriptor<Budget>()) == 0`. Prevents seeding when CloudKit sync delivers existing budgets before the KV flag arrives on a fresh install of a device that already had the app.
-
-When Gate A is open but Gate B is closed (CloudKit beat the KV sync), the seeder **forward-seals** the KV flag without inserting a budget, so a later delete-all cannot trigger a reseed.
-
-**Flag write ordering:** the `"seededV1"` flag is written only *after* `context.save()` succeeds. A crash between save and flag write causes at most one duplicate seed on next launch (user can delete it) — preferable to writing first and permanently suppressing seeding on a save failure.
-
-The `"seededV1"` key is versioned by name. Future changes that want to force a one-time re-seed for all users should introduce a new key (e.g., `"seededV2"`) rather than reusing this one.
-
-All collaborators (`ModelContext`, `KeyValueStore`, `now: Date`) are injected, making the service fully unit-testable with `MockKeyValueStore` and an in-memory `ModelContainer`.
+> **Orphaned key:** The string `"seededV1"` was used by a prior first-run seeder (removed in change `remove-first-run-seeder`) and is now a harmless leftover on upgraded installs. It SHALL NOT be reused as a new KV key; the `"V1"` suffix remains reserved per convention so any future one-time-reseed change introduces a distinct key name (e.g., `"seededV2"`).
 
 ---
 
@@ -182,10 +167,6 @@ Three services in `Domain/` implement all budget math and lifecycle orchestratio
 **Biweekly anchor:** For biweekly periods, the cycle anchor is derived from `createdAt` + `weekStart` at call time — no extra stored field is needed. Changing `weekStartDay` cascades to biweekly alignment (acknowledged by F-5.01).
 
 **Caller consumption:** Screens call `BudgetLifecycleService.refreshAndSave(_:settings:context:)` eagerly on budget access (screen appearance and `scenePhase == .active`) and bind the returned `BudgetLifecycleResult` to the view. Per §2.1, simple screens invoke this directly from the view body / `.task` using `@Environment(\.modelContext)` and the injected `AppSettings`; screens that have escalated to a ViewModel expose a method taking `(settings: AppSettings, context: ModelContext, ...)` at the call site and forward to the service. Screens (and any VMs) do **not** call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly for the eager access flow — `BudgetLifecycleService` is the single entry point for that sequence.
-
-### 5.5 Bootstrap
-
-`FirstRunSeeder` (see §4.6) is the sole owner of the first-launch seed operation. It lives in `App/` (not `Domain/`), reflecting that it is an app-lifecycle concern rather than a budget-math concern. Its `SeedResult` return type enables precise unit-test assertions for each gate branch. Tests live in `simple-recurring-budgetsTests/App/FirstRunSeederTests.swift`.
 
 ---
 
@@ -257,3 +238,4 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | 0.4     | 2026-04-17 | Jimmy Ho | Update §5.4 to add `BudgetLifecycleService` as the sole orchestrator of the eager roll → persist → reset → persist sequence; clarify ViewModel consumption contract |
 | 0.5     | 2026-04-17 | Jimmy Ho | Add §4.6 (`FirstRunSeeder`, two-gate decision, `"seededV1"` KV key, flag-write ordering); add KV key table to §4.5; add §5.5 Bootstrap |
 | 0.6     | 2026-04-17 | Jimmy Ho | Replace §2.1 MVVM framing with "View + Services, ViewModels on demand" (escalation criteria, VM rules, grey-area ping protocol); update §5.4 consumer wording to "screens (and any VMs)" |
+| 0.7     | 2026-04-24 | Jimmy Ho | Remove §4.6 (FirstRunSeeder) and §5.5 (Bootstrap); drop `"seededV1"` from §4.5 KV key table; add orphaned-key note; see change `remove-first-run-seeder` |

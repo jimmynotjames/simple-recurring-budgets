@@ -66,9 +66,6 @@ extension AnalyticsClient {
 enum AnalyticsEvent {
     // Product events
     static let appLaunched              = "app.launched"
-    static let firstRunSeeded           = "firstRun.seeded"
-    static let firstRunSkipped          = "firstRun.skipped"
-    static let firstRunError            = "firstRun.error"
 
     // Diagnostic events — CloudKit container bootstrap
     static let cloudKitContainerBacked       = "cloudkit.container.backed"

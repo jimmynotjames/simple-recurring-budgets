@@ -112,16 +112,16 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-2.01
 
-##### F-2.06: First-run seed and empty state
+##### F-2.06: First-run empty state
 
 - **Status:** Open
-- **Description:** On first launch when the data store contains no budgets, seed a single Budget (entity) so the user is not dropped into an empty app. Aligns with empty-state expectations for the **Budgets screen**.
+- **Description:** On first launch when the data store contains no budgets, the **Budgets screen** displays a first-run empty state with a clear primary action to create a budget. No placeholder or seed Budget is inserted by the app.
 - **Acceptance Criteria:**
-  - After first launch with an empty store, **Budgets screen** shows at least one Budget (entity) without manual creation.
-  - Seeded Budget: **Name** `"Food"`; **Time Period** daily; **Allocation** `25`; **Currency** — same default as F-2.03 (locale, else USD); **Carry-over reset cadence** weekly (per [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)); other fields use the same defaults as F-2.03 where applicable.
-  - Seeding runs **once** (first install / empty store only); deleting all budgets later does not auto-reseed.
-- **Edge Cases / Notes:** None
-- **Dependencies:** F-1.02, F-2.01, F-2.03
+  - After first launch with an empty store, the **Budgets screen** shows its empty-state view (title, short description, and a primary "Create a budget" CTA) — NOT a blank or unlabeled screen.
+  - No `Budget` entity is created by the app as part of launch; any Budget in the store was created by the user.
+  - The empty state is equivalent to the empty state shown after the user deletes all their budgets.
+- **Edge Cases / Notes:** The empty-state UI itself ships under F-2.01; F-2.06 is the first-launch contract.
+- **Dependencies:** F-2.01
 
 ##### F-2.07: Carry-over toggle switch
 

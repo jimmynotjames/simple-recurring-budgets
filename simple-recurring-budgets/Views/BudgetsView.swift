@@ -10,6 +10,7 @@ import SwiftData
 
 struct BudgetsView: View {
     @Query(sort: \Budget.sortOrder) private var budgets: [Budget]
+    @Environment(Router.self) private var router
 
     var body: some View {
         List {
@@ -26,7 +27,7 @@ struct BudgetsView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
-                    print("Open Settings") // TODO: Remove when actual routing implemented.
+                    router.sheet = .settings
                     } label: {
                     Label(
                         String(
@@ -45,7 +46,7 @@ struct BudgetsView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    print("Add Budget") // TODO: Remove when actual routing implemented.
+                    router.sheet = .addBudget
                 } label: {
                     Image(systemName: "plus")
                         .fontWeight(.semibold)
@@ -72,6 +73,7 @@ struct BudgetRowView: View {
 
     @Environment(\.modelContext) private var context
     @Environment(AppSettings.self) private var settings
+    @Environment(Router.self) private var router
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var lifecycle: BudgetLifecycleResult?
@@ -113,7 +115,7 @@ struct BudgetRowView: View {
             // static-text element rather than a non-activatable nested element.
             VStack(alignment: .leading, spacing: 0) {
                 Button {
-                    print("Open Budget: \(budget.name)") // TODO: Remove after implementing routing.
+                    router.path.append(.budgetDetail(budget))
                 } label: {
                     VStack(alignment: .leading, spacing: rowSpacing) {
                         // Line 1: Budget name
@@ -166,7 +168,7 @@ struct BudgetRowView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             Button {
-                print("Add Expense for: \(budget.name)") // TODO: Remove after implementing routing.
+                router.sheet = .addExpense(budget)
             } label: {
                 Image(systemName: "plus.circle.fill")
                     .font(.largeTitle)
@@ -260,6 +262,7 @@ private struct BudgetsPreview: View {
             BudgetsView()
         }
         .modelContainer(PreviewContainer.make())
+        .environment(Router())
         .environment(AppSettings())
     }
 }

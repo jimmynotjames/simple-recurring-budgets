@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct simple_recurring_budgetsApp: App {
     @State private var settings: AppSettings
+    @State private var router = Router()
     private let analytics: any AnalyticsClient
     var sharedModelContainer: ModelContainer
 
@@ -23,7 +24,8 @@ struct simple_recurring_budgetsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(router)
                 .environment(settings)
                 .environment(\.analytics, analytics)
                 .task {

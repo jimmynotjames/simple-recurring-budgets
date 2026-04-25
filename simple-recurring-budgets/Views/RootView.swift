@@ -1,25 +1,23 @@
 //
-//  ContentView.swift
+//  RootView.swift
 //  simple-recurring-budgets
-//
-//  Created by Jimmy Ho on 4/10/26.
 //
 
 import SwiftUI
 import SwiftData
 
-/// Root navigation host. Owns the `NavigationStack` path and the active sheet.
+/// Root navigation host. Owns the `NavigationStack` path and the active sheet
+/// via the environment-injected `Router`.
 ///
 /// Replace placeholder `Text` bodies here as real screens are implemented:
-/// - Budgets list root → `BudgetsView` (F-2.01)
 /// - `.budgetDetail` destination → `BudgetView` (F-2.02)
 /// - Sheet destinations → their respective screens (F-2.03, F-2.04, F-2.05)
-struct ContentView: View {
-    @State private var path: [AppRoute] = []
-    @State private var sheet: SheetRoute? = nil
+struct RootView: View {
+    @Environment(Router.self) private var router
 
     var body: some View {
-        NavigationStack(path: $path) {
+        @Bindable var router = router
+        NavigationStack(path: $router.path) {
             BudgetsView()
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
@@ -28,7 +26,7 @@ struct ContentView: View {
                     }
                 }
         }
-        .sheet(item: $sheet) { route in
+        .sheet(item: $router.sheet) { route in
             switch route {
             case .addBudget:
                 Text("Add Budget")
@@ -46,7 +44,8 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    RootView()
         .modelContainer(PreviewContainer.make())
+        .environment(Router())
         .environment(AppSettings())
 }

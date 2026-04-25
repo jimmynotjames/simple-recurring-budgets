@@ -266,6 +266,8 @@ private struct BudgetsPreview: View {
 
 #Preview("Light Mode") { BudgetsPreview() }
 #Preview("Dark Mode") { BudgetsPreview().preferredColorScheme(.dark) }
+// Just below reformatting threshold.
 #Preview("xxLarge") { BudgetsPreview().dynamicTypeSize(.xxLarge) }
+// Just at reformatting threshold. (Changes from horizontal stack to vertical).
 #Preview("xxxLarge") { BudgetsPreview().dynamicTypeSize(.xxxLarge) }
 

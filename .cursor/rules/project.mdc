@@ -12,6 +12,7 @@ alwaysApply: true
 These files are the high-level source of truth. **Read them when planning, specifying, or implementing**—including when Cursor is in **Plan mode** (no file edits yet). Plan mode does not skip doc checks.
 
 - [`docs/main-prd.md`](docs/main-prd.md) — global constraints; pay special attention to **Over/Under vs remaining for the current Budget Period** (§6.7).
+- [`docs/ux-design-brief.md`](docs/ux-design-brief.md) — High-level UX guidelines.
 - [`docs/product-features-planning.md`](docs/product-features-planning.md) — feature IDs (F-x.xx) and acceptance criteria.
 - [`docs/tech-design-doc.md`](docs/tech-design-doc.md) — technical architecture and persistence/sync; follow for code structure and CloudKit/schema decisions.
 

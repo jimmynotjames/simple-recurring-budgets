@@ -26,7 +26,7 @@ struct BudgetsView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
-                    print("Open Settings")
+                    print("Open Settings") // TODO: Remove when actual routing implemented.
                     } label: {
                     Label(
                         String(
@@ -45,7 +45,7 @@ struct BudgetsView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    print("Add Budget")
+                    print("Add Budget") // TODO: Remove when actual routing implemented.
                 } label: {
                     Image(systemName: "plus")
                         .fontWeight(.semibold)
@@ -76,12 +76,12 @@ struct BudgetRowView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var lifecycle: BudgetLifecycleResult?
 
-    // Scale spacing and padding with the user's preferred text size.
+    // Scale spacing and padding with the user's preferred text size,
+    // except for add-expense button, which is fixed.
     @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 7
-    @ScaledMetric(relativeTo: .subheadline) private var amountSpacing: CGFloat = 6
-    @ScaledMetric(relativeTo: .headline) private var chipTopSpacing: CGFloat = 12
+    @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
+    @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 12
     @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 6
-    private let addExpenseLeadingPadding: CGFloat = 16
 
     private var period: BudgetPeriod {
         BudgetPeriod(rawValue: budget.period) ?? .daily
@@ -113,7 +113,7 @@ struct BudgetRowView: View {
             // static-text element rather than a non-activatable nested element.
             VStack(alignment: .leading, spacing: 0) {
                 Button {
-                    print("Open Budget: \(budget.name)")
+                    print("Open Budget: \(budget.name)") // TODO: Remove after implementing routing.
                 } label: {
                     VStack(alignment: .leading, spacing: rowSpacing) {
                         // Line 1: Budget name
@@ -166,14 +166,14 @@ struct BudgetRowView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             Button {
-                print("Add Expense for: \(budget.name)")
+                print("Add Expense for: \(budget.name)") // TODO: Remove after implementing routing.
             } label: {
                 Image(systemName: "plus.circle.fill")
                     .font(.largeTitle)
             }
             .buttonStyle(.plain)
             .foregroundStyle(.tint)
-            .padding(.leading, addExpenseLeadingPadding)
+            .padding(.leading, 16)
             // Keep right button fixed size to allow more room for text as Dynamic Type sizes grow.
             .frame(minWidth: 60, maxWidth: 60, minHeight: 44)
             .contentShape(Rectangle())
@@ -206,6 +206,7 @@ struct BudgetRowView: View {
 
     /// Builds the VoiceOver label for the row button, including period and — when the
     /// budget is exceeded — an explicit "over budget" signal instead of a negative amount.
+    /// Intentionally set as computed var to handle hot-swapping localizations.
     private var rowAccessibilityLabel: String {
         if remaining < 0 {
             return String(
@@ -228,6 +229,7 @@ private struct RemainingBar: View {
     let remainingFraction: Double   // 0.0–1.0, already clamped; see BudgetRowView.remainingFraction
     let isOverBudget: Bool
 
+    // Conservative scale keeps the decorative bar from growing as fast as the text.
     @ScaledMetric(relativeTo: .caption2) private var barHeight: CGFloat = 4
 
     /// Fuel gauge under budget (full = healthy, empties as you spend);
@@ -258,9 +260,9 @@ struct CarryOverChip: View {
 
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
-    @ScaledMetric(relativeTo: .caption2) private var chipSpacing: CGFloat = 3
-    @ScaledMetric(relativeTo: .caption2) private var chipHPadding: CGFloat = 6
-    @ScaledMetric(relativeTo: .caption2) private var chipVPadding: CGFloat = 3
+    @ScaledMetric(relativeTo: .caption) private var chipSpacing: CGFloat = 3
+    @ScaledMetric(relativeTo: .caption) private var chipHPadding: CGFloat = 6
+    @ScaledMetric(relativeTo: .caption) private var chipVPadding: CGFloat = 3
 
     private var display: CarryOverDisplay {
         CarryOverFormatter.display(amount, currencyCode: currencyCode)
@@ -272,7 +274,7 @@ struct CarryOverChip: View {
                 Image(systemName: amount > 0 ? "arrow.up" : "arrow.down")
             }
             Text(display.amount)
-            Text("carryOver.label", comment: "Fixed label shown in the carry-over chip on the budgets list")
+            Text(String(localized: "carryOver.label", defaultValue: "carry-over", comment: "Fixed label shown in the carry-over chip on the budgets list"))
                 .foregroundStyle(chipForeground.opacity(colorSchemeContrast == .increased ? 1.0 : 0.8))
         }
         .font(.caption)

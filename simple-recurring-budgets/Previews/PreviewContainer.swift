@@ -18,8 +18,10 @@ import SwiftData
 ///
 /// ```swift
 /// #Preview {
-///     ContentView()
+///     RootView()
 ///         .modelContainer(PreviewContainer.make())
+///         .environment(Router())
+///         .environment(AppSettings())
 /// }
 /// ```
 ///

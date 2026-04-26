@@ -170,6 +170,54 @@ Three services in `Domain/` implement all budget math and lifecycle orchestratio
 
 **Caller consumption:** Screens call `BudgetLifecycleService.refreshAndSave(_:settings:context:)` eagerly on budget access (screen appearance and `scenePhase == .active`) and bind the returned `BudgetLifecycleResult` to the view. Per §2.1, simple screens invoke this directly from the view body / `.task` using `@Environment(\.modelContext)` and the injected `AppSettings`; screens that have escalated to a ViewModel expose a method taking `(settings: AppSettings, context: ModelContext, ...)` at the call site and forward to the service. Screens (and any VMs) do **not** call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly for the eager access flow — `BudgetLifecycleService` is the single entry point for that sequence.
 
+### 5.5 Color Palette and Theming
+
+The app uses a warm earth-tone palette defined as named color assets in `Resources/Assets.xcassets`, with separate light and dark appearances. All views must use these named assets — never hard-coded color literals.
+
+#### Color assets
+
+Exact values are defined in `Resources/Assets.xcassets` with separate light and dark appearances. The table below documents semantic intent only.
+
+| Asset name | Semantic role |
+|---|---|
+| `AppBackground` | Screen/page background; fills behind nav bar, list, and empty states |
+| `CellBackground` | List row background |
+| `AccentColor` | Tint for interactive controls (buttons, chevrons, toggles) |
+
+#### Applying to screens
+
+**`View+AppBackground.swift`** exposes a single `appBackground()` modifier that every screen calls once on its root content view:
+
+```swift
+Group { ... }
+    .navigationTitle("My Screen")
+    .appBackground()
+```
+
+This modifier applies:
+- `.background(Color("AppBackground").ignoresSafeArea())` — fills the full screen including safe areas; shows through the transparent nav bar while the large title is visible.
+- `.toolbarBackground(Color("AppBackground"), for: .navigationBar)` — sets the compact nav bar colour for when the user scrolls and the large title collapses.
+
+> **Do not** add `.toolbarBackground(.visible, for: .navigationBar)` — that suppresses large title display by forcing the compact bar permanently.
+
+**List screens** additionally need two lines per `List`:
+
+```swift
+List { ... }
+    .scrollContentBackground(.hidden)   // reveals AppBackground behind the list
+
+ForEach(items) { item in
+    RowView(item: item)
+        .listRowBackground(Color("CellBackground"))
+}
+```
+
+`.scrollContentBackground(.hidden)` cannot be set globally; it must be applied to each `List`. Cell background is applied per `ForEach` (one line per list).
+
+#### Future theming (F-4.01–02)
+
+When user-selectable colour themes are implemented, the `AppBackground` and `CellBackground` asset slots will be the natural extension point — either by swapping asset catalog appearances or by driving `Color` values from a theme state stored in `NSUbiquitousKeyValueStore`. The `appBackground()` modifier call sites will not need to change.
+
 ---
 
 ## 6. Performance Considerations
@@ -241,3 +289,4 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | 0.5     | 2026-04-17 | Jimmy Ho | Add §4.6 (`FirstRunSeeder`, two-gate decision, `"seededV1"` KV key, flag-write ordering); add KV key table to §4.5; add §5.5 Bootstrap |
 | 0.6     | 2026-04-17 | Jimmy Ho | Replace §2.1 MVVM framing with "View + Services, ViewModels on demand" (escalation criteria, VM rules, grey-area ping protocol); update §5.4 consumer wording to "screens (and any VMs)" |
 | 0.7     | 2026-04-24 | Jimmy Ho | Remove §4.6 (FirstRunSeeder) and §5.5 (Bootstrap); drop `"seededV1"` from §4.5 KV key table; add orphaned-key note; see change `remove-first-run-seeder` |
+| 0.8     | 2026-04-26 | Jimmy Ho | Add §5.5 (Color Palette and Theming): `AppBackground`/`CellBackground` asset definitions, `appBackground()` modifier usage pattern, list screen wiring, and future theming notes |

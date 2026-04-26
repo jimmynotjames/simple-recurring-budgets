@@ -48,7 +48,7 @@ struct simple_recurring_budgetsApp: App {
     // • `.emptyPersistedThenClear` — production store, then delete all budgets (**data loss**).
     // • `.debugDataSeededInMemory` — `DebugData` fixtures, in-memory.
     // -------------------------------------------------------------------------
-    private static let appDatabaseLaunchMode: AppDatabaseLaunchMode = .debugDataSeededInMemory
+    private static let appDatabaseLaunchMode: AppDatabaseLaunchMode = .normal
     #endif
 
     private enum AppDatabaseLaunchMode: Equatable {

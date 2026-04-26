@@ -49,7 +49,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Name of budget field
   - **Remaining for current Budget Period** field — this period’s allocation minus expenses for this period only; **not** merged with carry-over for display (see [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)).
   - **Carry-over** field — separate signed cumulative carryover per [main-prd.md §6.7](main-prd.md#67-carry-over-behavior).
-  - **Delete Budget** — swipe-to-delete on a row with confirmation
+  - **Drag-to-reorder budgets** — user can reorder the list via standard iOS edit-mode drag (and long-press drag where the platform supports it); the order is persisted via `Budget.sortOrder` so it survives app relaunch and syncs across the user's iCloud-paired devices.
   - This **Budgets screen** is the top level of the app.
 - **Edge Cases / Notes:** None
 - **Dependencies:** None
@@ -119,7 +119,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Acceptance Criteria:**
   - After first launch with an empty store, the **Budgets screen** shows its empty-state view (title, short description, and a primary "Create a budget" CTA) — NOT a blank or unlabeled screen.
   - No `Budget` entity is created by the app as part of launch; any Budget in the store was created by the user.
-  - The empty state is equivalent to the empty state shown after the user deletes all their budgets.
+  - The empty state is rendered whenever the Budgets `@Query` returns zero rows, so the same view is shown for any future state in which the store transiently presents zero budgets (e.g., during initial CloudKit hydration on a fresh install of an existing iCloud account).
 - **Edge Cases / Notes:** The empty-state UI itself ships under F-2.01; F-2.06 is the first-launch contract.
 - **Dependencies:** F-2.01
 

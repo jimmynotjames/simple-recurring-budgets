@@ -11,24 +11,26 @@ import SwiftData
 struct BudgetsView: View {
     @Query(sort: \Budget.sortOrder) private var budgets: [Budget]
     @Environment(Router.self) private var router
+    @Environment(\.modelContext) private var context
 
     var body: some View {
-        List {
-            ForEach(budgets) { budget in
-                BudgetRowView(budget: budget)
+        Group {
+            if budgets.isEmpty {
+                emptyStateView
+            } else {
+                populatedListView
             }
         }
-        .listStyle(.automatic)
         .navigationTitle(String(
             localized: "budgets.navigationTitle",
             defaultValue: "Budgets",
             comment: "Navigation bar title for the budgets list screen"
         ))
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItemGroup(placement: .topBarLeading) {
                 Button {
                     router.sheet = .settings
-                    } label: {
+                } label: {
                     Label(
                         String(
                             localized: "toolbar.settings.label",
@@ -43,6 +45,11 @@ struct BudgetsView: View {
                     defaultValue: "Opens app settings",
                     comment: "VoiceOver hint for the Settings toolbar button"
                 ))
+
+                // Only show the Edit button when there are rows to reorder.
+                if !budgets.isEmpty {
+                    EditButton()
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -64,6 +71,67 @@ struct BudgetsView: View {
             }
         }
     }
+
+    // MARK: - Private views
+
+    private var emptyStateView: some View {
+        ContentUnavailableView {
+            Label(
+                String(
+                    localized: "budgets.empty.title",
+                    defaultValue: "No budgets yet",
+                    comment: "Empty-state title on the Budgets screen when no budgets exist"
+                ),
+                systemImage: "tray"
+            )
+        } description: {
+            Text(String(
+                localized: "budgets.empty.description",
+                defaultValue: "Create your first recurring budget to start tracking what you spend each day, week, biweek, or month.",
+                comment: "Empty-state description on the Budgets screen"
+            ))
+        } actions: {
+            Button {
+                router.sheet = .addBudget
+            } label: {
+                Text(String(
+                    localized: "budgets.empty.createBudget",
+                    defaultValue: "Create a budget",
+                    comment: "Primary CTA button on the empty-state of the Budgets screen"
+                ))
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private var populatedListView: some View {
+        List {
+            ForEach(budgets) { budget in
+                BudgetRowView(budget: budget)
+            }
+            .onMove(perform: move)
+        }
+        .listStyle(.automatic)
+    }
+
+    // MARK: - Handlers
+
+    /// Reorders budgets after a user drag-to-reorder gesture.
+    ///
+    /// Rewrites `sortOrder` densely over the new order (0..<count).
+    /// Only mutates — and bumps `lastModified` on — rows whose `sortOrder` actually changed.
+    /// Batches all writes into a single `context.save()`.
+    private func move(from source: IndexSet, to destination: Int) {
+        var reordered = budgets
+        reordered.move(fromOffsets: source, toOffset: destination)
+        let now = Date()
+        for (index, budget) in reordered.enumerated() where budget.sortOrder != index {
+            budget.sortOrder = index
+            budget.lastModified = now
+        }
+        try? context.save()
+    }
+
 }
 
 // MARK: - BudgetRowView
@@ -257,11 +325,13 @@ private struct RemainingBar: View {
 // MARK: - Preview
 
 private struct BudgetsPreview: View {
+    var empty: Bool = false
+
     var body: some View {
         NavigationStack {
             BudgetsView()
         }
-        .modelContainer(PreviewContainer.make())
+        .modelContainer(empty ? InMemoryModelContainer.makeEmpty() : PreviewContainer.make())
         .environment(Router())
         .environment(AppSettings())
     }
@@ -273,4 +343,4 @@ private struct BudgetsPreview: View {
 #Preview("xxLarge") { BudgetsPreview().dynamicTypeSize(.xxLarge) }
 // Just at reformatting threshold. (Changes from horizontal stack to vertical).
 #Preview("xxxLarge") { BudgetsPreview().dynamicTypeSize(.xxxLarge) }
-
+#Preview("Empty state") { BudgetsPreview(empty: true) }

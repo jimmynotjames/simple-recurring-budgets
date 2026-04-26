@@ -73,6 +73,42 @@
         }
       }
     },
+    "budgets.empty.createBudget" : {
+      "comment" : "Primary CTA button on the empty-state of the Budgets screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create a budget"
+          }
+        }
+      }
+    },
+    "budgets.empty.description" : {
+      "comment" : "Empty-state description on the Budgets screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create your first recurring budget to start tracking what you spend each day, week, biweek, or month."
+          }
+        }
+      }
+    },
+    "budgets.empty.title" : {
+      "comment" : "Empty-state title on the Budgets screen when no budgets exist",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No budgets yet"
+          }
+        }
+      }
+    },
     "budgets.navigationTitle" : {
       "comment" : "Navigation bar title for the budgets list screen",
       "extractionState" : "extracted_with_value",

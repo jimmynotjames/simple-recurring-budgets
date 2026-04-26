@@ -37,10 +37,55 @@ struct simple_recurring_budgetsApp: App {
 
     // MARK: - Private
 
-    /// Creates the SwiftData `ModelContainer`, preferring CloudKit-backed storage
-    /// and falling back to local-only when CloudKit is unavailable. All outcomes
-    /// are reported through `analytics` so every event travels the same code path.
+    // `case normal` is always available. Non-`.normal` cases exist only in DEBUG
+    // (see `#if` inside the enum) so they are stripped from Release builds.
+    #if DEBUG
+    // -------------------------------------------------------------------------
+    // Manual database launch — set `appDatabaseLaunchMode` below. Options:
+    //
+    // • `.normal` — CloudKit when available, else on-disk (matches App Store behavior).
+    // • `.emptyInMemory` — in-memory, no rows.
+    // • `.emptyPersistedThenClear` — production store, then delete all budgets (**data loss**).
+    // • `.debugDataSeededInMemory` — `DebugData` fixtures, in-memory.
+    // -------------------------------------------------------------------------
+    private static let appDatabaseLaunchMode: AppDatabaseLaunchMode = .normal
+    #endif
+
+    private enum AppDatabaseLaunchMode: Equatable {
+        /// Default: CloudKit-backed `ModelContainer` if possible, else local on-disk. Analytics on outcomes.
+        case normal
+        #if DEBUG
+        /// In-memory, no iCloud, no rows — empty Budgets list.
+        case emptyInMemory
+        /// Same stack as production, then delete all `Budget`s (cascades expenses). **Wipes local data.**
+        case emptyPersistedThenClear
+        /// Full `DebugData` fixtures in memory.
+        case debugDataSeededInMemory
+        #endif
+    }
+
+    /// Picks a `ModelContainer` for this launch based on `appDatabaseLaunchMode` (DEBUG) or always production (Release).
     private static func makeModelContainer(analytics: any AnalyticsClient) -> ModelContainer {
+        #if DEBUG
+        switch appDatabaseLaunchMode {
+        case .emptyInMemory:
+            return InMemoryModelContainer.makeEmpty()
+        case .emptyPersistedThenClear:
+            let container = makeProductionModelContainer(analytics: analytics)
+            deleteAllBudgets(in: container.mainContext)
+            return container
+        case .debugDataSeededInMemory:
+            return InMemoryModelContainer.makeSeeded()
+        case .normal:
+            return makeProductionModelContainer(analytics: analytics)
+        }
+        #else
+        return makeProductionModelContainer(analytics: analytics)
+        #endif
+    }
+
+    /// CloudKit if available, else local on disk — the production persistence stack.
+    private static func makeProductionModelContainer(analytics: any AnalyticsClient) -> ModelContainer {
         let schema = SchemaV1.swiftDataSchema
 
         // Try CloudKit-backed storage first. CloudKit requires an active iCloud account;
@@ -85,4 +130,17 @@ struct simple_recurring_budgetsApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }
+
+    #if DEBUG
+    /// Removes every `Budget` (cascade-deletes their `ExpenseItem`s) and saves. For manual
+    /// "empty on disk / CloudKit" testing only; see `appDatabaseLaunchMode` `.emptyPersistedThenClear`.
+    private static func deleteAllBudgets(in context: ModelContext) {
+        let descriptor = FetchDescriptor<Budget>()
+        guard let all = try? context.fetch(descriptor) else { return }
+        for budget in all {
+            context.delete(budget)
+        }
+        try? context.save()
+    }
+    #endif
 }

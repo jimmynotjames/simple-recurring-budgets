@@ -325,22 +325,13 @@ private struct RemainingBar: View {
 // MARK: - Preview
 
 private struct BudgetsPreview: View {
-    var body: some View {
-        NavigationStack {
-            BudgetsView()
-        }
-        .modelContainer(PreviewContainer.make())
-        .environment(Router())
-        .environment(AppSettings())
-    }
-}
+    var empty: Bool = false
 
-private struct BudgetsEmptyStatePreview: View {
     var body: some View {
         NavigationStack {
             BudgetsView()
         }
-        .modelContainer(InMemoryModelContainer.makeEmpty())
+        .modelContainer(empty ? InMemoryModelContainer.makeEmpty() : PreviewContainer.make())
         .environment(Router())
         .environment(AppSettings())
     }
@@ -352,4 +343,4 @@ private struct BudgetsEmptyStatePreview: View {
 #Preview("xxLarge") { BudgetsPreview().dynamicTypeSize(.xxLarge) }
 // Just at reformatting threshold. (Changes from horizontal stack to vertical).
 #Preview("xxxLarge") { BudgetsPreview().dynamicTypeSize(.xxxLarge) }
-#Preview("Empty state") { BudgetsEmptyStatePreview() }
+#Preview("Empty state") { BudgetsPreview(empty: true) }

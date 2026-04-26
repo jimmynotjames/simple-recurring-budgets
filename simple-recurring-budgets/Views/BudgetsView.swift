@@ -26,6 +26,7 @@ struct BudgetsView: View {
             defaultValue: "Budgets",
             comment: "Navigation bar title for the budgets list screen"
         ))
+        .appBackground()
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
                 Button {
@@ -108,10 +109,12 @@ struct BudgetsView: View {
         List {
             ForEach(budgets) { budget in
                 BudgetRowView(budget: budget)
+                    .listRowBackground(Color("CellBackground"))
             }
             .onMove(perform: move)
         }
         .listStyle(.automatic)
+        .scrollContentBackground(.hidden)
     }
 
     // MARK: - Handlers

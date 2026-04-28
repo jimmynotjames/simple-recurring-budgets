@@ -277,6 +277,18 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:**
 - **Dependencies:**
 
+##### F-6.03: App Store rating prompt
+
+- **Status:** Open
+- **Description:** Prompt the user to rate the app in the App Store after meaningful product use and/or after a minimum elapsed time period.
+- **Acceptance Criteria:**
+  - The app requests an App Store rating only after eligibility conditions are met, based on meaningful usage and/or elapsed time.
+  - Eligibility thresholds and exact trigger formula are explicitly **TBD** and will be finalized later.
+  - Prompting behavior is respectful and non-intrusive (not shown too frequently, and not shown on every launch).
+  - The app tracks prompt outcomes so a recent dismissal or rating action prevents immediate re-prompting.
+- **Edge Cases / Notes:** Final trigger logic, cooldown duration, and definition of "meaningful usage" are **TBD**.
+- **Dependencies:** None
+
 ---
 
 ### T-7: AI Features

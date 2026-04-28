@@ -34,7 +34,7 @@ struct BudgetModelTests {
         #expect(budget.name == "Budget")
         #expect(budget.allocation == 10)
         #expect(budget.period == BudgetPeriod.daily.rawValue)
-        #expect(budget.resetCadence == ResetCadence.weekly.rawValue)
+        #expect(budget.resetCadence == ResetCadence.never.rawValue) // PAUSED (Reset Cadences)
         #expect(budget.carryOverAmount == 0)
         #expect(budget.isCarryOverEnabled == true)
         #expect(budget.expenseItems.isEmpty)
@@ -62,19 +62,21 @@ struct BudgetModelTests {
         #expect(budget.resetCadence == "quarterly")
     }
 
-    @Test func budget_defaultResetCadence_followsPeriod() throws {
+    // PAUSED (Reset Cadences): while paused, Budget.init always defaults to .never regardless
+    // of period. The type-level defaultResetCadence mapping is still tested in EnumTests.swift.
+    @Test func budget_defaultResetCadence_isNeverWhilePaused() throws {
         let container = try TestModelContainer.make()
         let context = ModelContext(container)
 
-        let weeklyBudget = Budget(period: .weekly)
-        weeklyBudget.sortOrder = try Budget.nextSortOrder(for: context)
-        context.insert(weeklyBudget)
-        #expect(weeklyBudget.resetCadence == ResetCadence.monthly.rawValue)
-
-        let biweeklyBudget = Budget(period: .biweekly)
-        biweeklyBudget.sortOrder = try Budget.nextSortOrder(for: context)
-        context.insert(biweeklyBudget)
-        #expect(biweeklyBudget.resetCadence == ResetCadence.quarterly.rawValue)
+        for period in BudgetPeriod.allCases {
+            let budget = Budget(period: period)
+            budget.sortOrder = try Budget.nextSortOrder(for: context)
+            context.insert(budget)
+            #expect(
+                budget.resetCadence == ResetCadence.never.rawValue,
+                "Expected .never for period \(period.rawValue) while Reset Cadences are paused"
+            )
+        }
     }
 
     @Test func budget_sortOrder_firstBudgetIsZero() throws {

@@ -96,6 +96,9 @@ enum BudgetLifecycleService {
         }
 
         // ── Step 2: Check for scheduled reset ────────────────────────────────────────────────
+        // PAUSED (Reset Cadences): for all new Budgets, `resetCadence` is `.never`, so this step
+        // is a no-op in practice. The call is retained for correctness on any pre-existing records
+        // that carried a non-`.never` cadence. Do not surface scheduling UI/specs while paused.
         let resetResult = BudgetCalculator.checkScheduledReset(
             lastResetDate: budget.carryOverLastResetDate,
             resetCadence: resetCadence,

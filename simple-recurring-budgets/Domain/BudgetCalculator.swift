@@ -129,6 +129,9 @@ enum BudgetCalculator {
 
     // MARK: - Scheduled Reset
 
+    // PAUSED (Reset Cadences): behavior is correct and unit-tested, but in practice all new
+    // Budgets persist `.never`, so this always returns a no-reset result. Do not surface
+    // scheduling configuration in UI or new specs while the feature is paused.
     /// Determines whether a scheduled reset boundary has been crossed since `lastResetDate`.
     ///
     /// Reset boundaries align to the budget's period boundaries (never mid-period).

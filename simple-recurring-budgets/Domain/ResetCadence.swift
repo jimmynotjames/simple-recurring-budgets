@@ -7,6 +7,13 @@
 
 import Foundation
 
+// PAUSED (Reset Cadences): The Reset Cadences feature is currently paused.
+// - No UI surfaces this type today; do not introduce new UI, Figma designs, or specs that use it.
+// - The type, cases, and `isBroaderThan`/`validResetCadences` methods are retained for the
+//   (currently unused) scheduled-reset code path and for the future un-pause.
+// - All new `Budget` instances default to `.never` (see `Budget.init`).
+// - To un-pause: restore `period.defaultResetCadence` in `Budget.init` and remove these comments.
+
 /// How often a Budget's carry-over amount is automatically cleared.
 ///
 /// Not `Comparable` — use `isBroaderThan(_:)` for cross-type comparison with `BudgetPeriod`.

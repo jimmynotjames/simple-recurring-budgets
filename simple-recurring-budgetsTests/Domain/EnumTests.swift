@@ -51,6 +51,9 @@ struct BudgetPeriodTests {
     }
 
     // MARK: defaultResetCadence mapping
+    // PAUSED (Reset Cadences) — type-level mapping is retained and tested here, but it is NOT
+    // consumed by `Budget.init` while the feature is paused. These tests verify the design
+    // knowledge survives; they do not imply the mapping is used in production defaults.
 
     @Test func defaultResetCadence_daily_isWeekly() {
         #expect(BudgetPeriod.daily.defaultResetCadence == .weekly)

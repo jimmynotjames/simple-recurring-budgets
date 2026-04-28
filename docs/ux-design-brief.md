@@ -23,7 +23,11 @@ The app should feel **calm, tidy, quietly warm**, and **low-key delightful** at 
 - **Budgets (root):** Grouped list of Recurring Budgets; each row shows name, remaining this period, and an optional carry-over chip. Glanceable, no dashboard sprawl.
 - **Budget detail:** One budget's expense history with current-period state pinned at top; primary **Add Expense** action always within thumb reach.
 - **Add/Edit Expense (sheet or expanded section):** Amount field focused on open; everything else optional. Designed to dismiss in seconds.
-- **Add/Edit Budget (sheet):** Lower-frequency setup — allocation, period, carry-over toggle, reset cadence.
+- **Add/Edit Budget (sheet):** Lower-frequency setup — allocation, period, carry-over toggle, ~~reset cadence~~.
+
+> [!NOTE]
+> **PAUSED — Reset Cadences feature is not in scope.** Do not include a Reset Cadence control in the Add/Edit Budget sheet (or any UI) while paused. The strikethrough above marks it as inactive; the text is retained for future reference.
+
 - **Settings:** Start of week, currency display, **skin selection**, About. Minimal.
 
 ## Navigation

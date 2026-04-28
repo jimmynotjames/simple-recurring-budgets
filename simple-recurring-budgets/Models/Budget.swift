@@ -27,8 +27,10 @@ final class Budget {
     var carryOverAmount: Decimal = 0
     var carryOverLastProcessedDate: Date = Date()
     var carryOverLastResetDate: Date = Date()
-    /// Stored as `ResetCadence.rawValue`.
-    var resetCadence: String = ResetCadence.weekly.rawValue
+    // PAUSED (Reset Cadences): feature is paused; stored default is `.never` while paused.
+    // Do not surface Reset Cadence in any UI or plan while this pause is in effect.
+    /// Stored as `ResetCadence.rawValue`. Default is `"never"` while Reset Cadences are paused.
+    var resetCadence: String = ResetCadence.never.rawValue
     /// Sourced from `AppSettings.defaultCarryOverEnabled` when creating budgets; persisted per budget.
     var isCarryOverEnabled: Bool = true
 
@@ -54,6 +56,9 @@ final class Budget {
         }
     }
 
+    // PAUSED (Reset Cadences): `Budget.init` defaults to `.never` while the feature is paused.
+    // Do NOT pass `period.defaultResetCadence` as the fallback here until the pause is lifted.
+    // When unpausing: restore `resetCadence ?? period.defaultResetCadence` and remove these comments.
     init(
         name: String = "Budget",
         allocation: Decimal = 10,
@@ -66,7 +71,7 @@ final class Budget {
         self.allocation = allocation
         self.currencyCode = currencyCode
         self.period = period.rawValue
-        self.resetCadence = (resetCadence ?? period.defaultResetCadence).rawValue
+        self.resetCadence = (resetCadence ?? .never).rawValue
         self.isCarryOverEnabled = isCarryOverEnabled
     }
 }

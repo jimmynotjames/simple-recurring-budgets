@@ -45,7 +45,7 @@ enum CurrencyDisplayPreference: String, CaseIterable, Identifiable, Codable, Sen
         }
     }
 
-    // MARK: - Live preview example
+    // MARK: - Formatted example
 
     /// Returns a locale-aware preview of how `Decimal(25)` renders under this
     /// preference for the supplied locale's currency.

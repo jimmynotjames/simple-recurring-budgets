@@ -12,14 +12,17 @@ import SwiftData
 struct simple_recurring_budgetsApp: App {
     @State private var settings: AppSettings
     @State private var router = Router()
+    @State private var syncStatus: SyncStatus
     private let analytics: any AnalyticsClient
     var sharedModelContainer: ModelContainer
 
     init() {
         let client = ConsoleAnalyticsClient()
         self.analytics = client
-        self.sharedModelContainer = Self.makeModelContainer(analytics: client)
+        let (container, backing) = Self.makeModelContainer(analytics: client)
+        self.sharedModelContainer = container
         self._settings = State(initialValue: AppSettings())
+        self._syncStatus = State(initialValue: SyncStatus(containerBacking: backing))
     }
 
     var body: some Scene {
@@ -27,6 +30,7 @@ struct simple_recurring_budgetsApp: App {
             RootView()
                 .environment(router)
                 .environment(settings)
+                .environment(syncStatus)
                 .environment(\.analytics, analytics)
                 .task {
                     analytics.track(AnalyticsEvent.appLaunched)
@@ -64,18 +68,21 @@ struct simple_recurring_budgetsApp: App {
         #endif
     }
 
-    /// Picks a `ModelContainer` for this launch based on `appDatabaseLaunchMode` (DEBUG) or always production (Release).
-    private static func makeModelContainer(analytics: any AnalyticsClient) -> ModelContainer {
+    /// Picks a `ModelContainer` (and the `SyncStatus.ContainerBacking` it represents)
+    /// based on `appDatabaseLaunchMode` (DEBUG) or always production (Release).
+    ///
+    /// In-memory DEBUG containers always use `.localFallback` since they don't sync via CloudKit.
+    private static func makeModelContainer(analytics: any AnalyticsClient) -> (ModelContainer, SyncStatus.ContainerBacking) {
         #if DEBUG
         switch appDatabaseLaunchMode {
         case .emptyInMemory:
-            return InMemoryModelContainer.makeEmpty()
+            return (InMemoryModelContainer.makeEmpty(), .localFallback)
         case .emptyPersistedThenClear:
-            let container = makeProductionModelContainer(analytics: analytics)
+            let (container, backing) = makeProductionModelContainer(analytics: analytics)
             deleteAllBudgets(in: container.mainContext)
-            return container
+            return (container, backing)
         case .debugDataSeededInMemory:
-            return InMemoryModelContainer.makeSeeded()
+            return (InMemoryModelContainer.makeSeeded(), .localFallback)
         case .normal:
             return makeProductionModelContainer(analytics: analytics)
         }
@@ -85,7 +92,9 @@ struct simple_recurring_budgetsApp: App {
     }
 
     /// CloudKit if available, else local on disk — the production persistence stack.
-    private static func makeProductionModelContainer(analytics: any AnalyticsClient) -> ModelContainer {
+    /// Returns the container and the `SyncStatus.ContainerBacking` that reflects
+    /// which path was taken (`.cloudKit` or `.localFallback`).
+    private static func makeProductionModelContainer(analytics: any AnalyticsClient) -> (ModelContainer, SyncStatus.ContainerBacking) {
         let schema = SchemaV1.swiftDataSchema
 
         // Try CloudKit-backed storage first. CloudKit requires an active iCloud account;
@@ -102,7 +111,7 @@ struct simple_recurring_budgetsApp: App {
             configurations: cloudConfig
         ) {
             analytics.track(AnalyticsEvent.cloudKitContainerBacked, channel: .cloudKit)
-            return container
+            return (container, .cloudKit)
         }
 
         analytics.track(AnalyticsEvent.cloudKitContainerLocalFallback, channel: .cloudKit, level: .notice)
@@ -119,7 +128,7 @@ struct simple_recurring_budgetsApp: App {
                 configurations: localConfig
             )
             analytics.track(AnalyticsEvent.cloudKitContainerLocalSuccess, channel: .cloudKit)
-            return container
+            return (container, .localFallback)
         } catch {
             analytics.track(
                 AnalyticsEvent.cloudKitContainerFailed,

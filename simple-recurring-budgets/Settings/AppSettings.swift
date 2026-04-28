@@ -10,6 +10,7 @@ import Observation
 final class AppSettings {
     static let defaultCarryOverEnabledKey = "defaultCarryOverEnabled"
     static let weekStartDayKey = "weekStartDay"
+    static let currencyDisplayKey = "currencyDisplay"
 
     private let store: KeyValueStore
     private var isApplyingFromStore = false
@@ -31,10 +32,19 @@ final class AppSettings {
         }
     }
 
+    var currencyDisplay: CurrencyDisplayPreference {
+        didSet {
+            guard !isApplyingFromStore else { return }
+            store.set(currencyDisplay.rawValue, forKey: Self.currencyDisplayKey)
+            _ = store.synchronize()
+        }
+    }
+
     init(store: KeyValueStore = NSUbiquitousKeyValueStore.default) {
         self.store = store
         self.defaultCarryOverEnabled = Self.readCarryOver(from: store)
         self.weekStartDay = Self.readWeekStart(from: store)
+        self.currencyDisplay = Self.readCurrencyDisplay(from: store)
 
         notificationObserver = NotificationCenter.default.addObserver(
             forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
@@ -73,7 +83,7 @@ final class AppSettings {
     }
 
     private func reloadAllFromStore() {
-        applyKeys(Set([Self.defaultCarryOverEnabledKey, Self.weekStartDayKey]))
+        applyKeys(Set([Self.defaultCarryOverEnabledKey, Self.weekStartDayKey, Self.currencyDisplayKey]))
     }
 
     private func applyKeys(_ keys: Set<String>) {
@@ -85,6 +95,9 @@ final class AppSettings {
         }
         if keys.contains(Self.weekStartDayKey) {
             weekStartDay = Self.readWeekStart(from: store)
+        }
+        if keys.contains(Self.currencyDisplayKey) {
+            currencyDisplay = Self.readCurrencyDisplay(from: store)
         }
     }
 
@@ -99,6 +112,13 @@ final class AppSettings {
             return n.boolValue
         }
         return true
+    }
+
+    private static func readCurrencyDisplay(from store: KeyValueStore) -> CurrencyDisplayPreference {
+        guard let raw = store.object(forKey: currencyDisplayKey) as? String else {
+            return .symbol
+        }
+        return CurrencyDisplayPreference(rawValue: raw) ?? .symbol
     }
 
     private static func readWeekStart(from store: KeyValueStore) -> Weekday {

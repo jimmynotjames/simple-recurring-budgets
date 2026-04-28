@@ -58,6 +58,76 @@ struct DecimalCurrencyFormattingTests {
     }
 }
 
+// MARK: - Decimal.formatted(currencyCode:display:locale:)
+
+struct DecimalDisplayFormattingTests {
+
+    @Test func symbol_matchesDefaultBehavior_enUS() {
+        let value: Decimal = 25
+        let symbol = value.formatted(currencyCode: "USD", display: .symbol, locale: enUS)
+        let baseline = value.formatted(currencyCode: "USD", locale: enUS)
+        #expect(symbol == baseline)
+    }
+
+    @Test func code_usesISOCode_enUS() {
+        let value: Decimal = 25
+        let result = value.formatted(currencyCode: "USD", display: .code, locale: enUS)
+        #expect(result.contains("USD"))
+        #expect(!result.contains("$"))
+    }
+
+    @Test func codeAndSymbol_containsCodeAndSymbol_enUS() {
+        let value: Decimal = 25
+        let result = value.formatted(currencyCode: "USD", display: .codeAndSymbol, locale: enUS)
+        #expect(result.contains("USD"))
+        #expect(result.contains("$"))
+        let components = result.components(separatedBy: " ")
+        #expect(components.first == "USD", "ISO code should be the first space-delimited token")
+    }
+
+    @Test func symbol_eur_deDE_containsEuroSign() {
+        let value: Decimal = 25
+        let result = value.formatted(currencyCode: "EUR", display: .symbol, locale: deDE)
+        #expect(result.contains("€"))
+    }
+
+    @Test func code_eur_deDE_containsEURNotEuroSign() {
+        let value: Decimal = 25
+        let result = value.formatted(currencyCode: "EUR", display: .code, locale: deDE)
+        #expect(result.contains("EUR"))
+        #expect(!result.contains("€"))
+    }
+
+    @Test func codeAndSymbol_eur_deDE_containsBothCodeAndSymbol() {
+        let value: Decimal = 25
+        let result = value.formatted(currencyCode: "EUR", display: .codeAndSymbol, locale: deDE)
+        #expect(result.contains("EUR"))
+        #expect(result.contains("€"))
+    }
+
+    @Test func code_jpy_jaJP_containsJPY() {
+        let value: Decimal = 2500
+        let locale = Locale(identifier: "ja_JP")
+        let result = value.formatted(currencyCode: "JPY", display: .code, locale: locale)
+        #expect(result.contains("JPY"))
+    }
+
+    @Test func code_sar_arSA_containsSAR() {
+        let value: Decimal = 25
+        let locale = Locale(identifier: "ar_SA")
+        let result = value.formatted(currencyCode: "SAR", display: .code, locale: locale)
+        #expect(result.contains("SAR"))
+    }
+
+    @Test func defaultDisplayParameter_behavesLikeSymbol() {
+        let value: Decimal = 25
+        // The defaulted `display:` should produce the same result as `.symbol` explicitly.
+        let withDefault  = value.formatted(currencyCode: "USD", locale: enUS)
+        let withSymbol   = value.formatted(currencyCode: "USD", display: .symbol, locale: enUS)
+        #expect(withDefault == withSymbol)
+    }
+}
+
 // MARK: - CarryOverFormatter
 
 struct CarryOverFormatterTests {
@@ -105,6 +175,51 @@ struct CarryOverFormatterTests {
         )
         #expect(display.amount.contains("€"))
         #expect(display.amount.contains("7"))
+    }
+
+    // MARK: - display parameter threading
+
+    @Test func displayCode_doesNotContainSymbol() {
+        let result = CarryOverFormatter.display(
+            Decimal(10),
+            currencyCode: "USD",
+            display: .code,
+            locale: enUS
+        )
+        #expect(result.amount.contains("USD"))
+        #expect(!result.amount.contains("$"))
+        #expect(result.sign == .surplus)
+    }
+
+    @Test func displayCodeAndSymbol_containsBothCodeAndSymbol() {
+        let result = CarryOverFormatter.display(
+            Decimal(10),
+            currencyCode: "USD",
+            display: .codeAndSymbol,
+            locale: enUS
+        )
+        #expect(result.amount.contains("USD"))
+        #expect(result.amount.contains("$"))
+        #expect(result.sign == .surplus)
+    }
+
+    @Test func displayCode_deficit_signAndMagnitudeUnchanged() {
+        let result = CarryOverFormatter.display(
+            Decimal(-10),
+            currencyCode: "USD",
+            display: .code,
+            locale: enUS
+        )
+        #expect(result.sign == .deficit)
+        #expect(!result.amount.contains("-"), "magnitude should not be negative")
+        #expect(result.amount.contains("USD"))
+    }
+
+    @Test func defaultDisplay_equalsSymbol() {
+        let withDefault = CarryOverFormatter.display(Decimal(5), currencyCode: "USD", locale: enUS)
+        let withSymbol  = CarryOverFormatter.display(Decimal(5), currencyCode: "USD", display: .symbol, locale: enUS)
+        #expect(withDefault.amount == withSymbol.amount)
+        #expect(withDefault.sign == withSymbol.sign)
     }
 }
 

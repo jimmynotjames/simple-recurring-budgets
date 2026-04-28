@@ -199,7 +199,7 @@ struct BudgetRowView: View {
                         // Line 2: Remaining amount + period
                         // Stacks vertically at accessibility1+ to give the amount more room.
                         amountLayout {
-                            Text(remaining.formatted(currencyCode: budget.currencyCode))
+                            Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
                                 .font(.largeTitle)
                                 .monospacedDigit()
                                 .foregroundStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit)
@@ -230,7 +230,8 @@ struct BudgetRowView: View {
                 if budget.isCarryOverEnabled {
                     CarryOverChip(
                         amount: lifecycle?.carryOverAmount ?? budget.carryOverAmount,
-                        currencyCode: budget.currencyCode
+                        currencyCode: budget.currencyCode,
+                        display: settings.currencyDisplay
                     )
                     .padding(.top, chipTopSpacing)
                     .accessibilityAddTraits(.isStaticText)
@@ -284,13 +285,13 @@ struct BudgetRowView: View {
         if remaining < 0 {
             return String(
                 localized: "budget.row.accessibilityLabel.overBudget",
-                defaultValue: "\(budget.name), \((-remaining).formatted(currencyCode: budget.currencyCode)) over budget this \(period.inlineLabel) period",
+                defaultValue: "\(budget.name), \((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget this \(period.inlineLabel) period",
                 comment: "VoiceOver label for an over-budget row; arguments are the budget name, the positive overage amount, and the period name"
             )
         }
         return String(
             localized: "budget.row.accessibilityLabel",
-            defaultValue: "\(budget.name), \(remaining.formatted(currencyCode: budget.currencyCode)) remaining this \(period.inlineLabel) period",
+            defaultValue: "\(budget.name), \(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining this \(period.inlineLabel) period",
             comment: "VoiceOver label for a budget row; states the budget name, remaining amount, and period"
         )
     }
@@ -337,6 +338,7 @@ private struct BudgetsPreview: View {
         .modelContainer(empty ? InMemoryModelContainer.makeEmpty() : PreviewContainer.make())
         .environment(Router())
         .environment(AppSettings())
+        .environment(SyncStatus(containerBacking: .cloudKit, accountStatus: .available))
     }
 }
 

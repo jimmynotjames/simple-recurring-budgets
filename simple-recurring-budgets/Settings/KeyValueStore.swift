@@ -10,12 +10,17 @@ protocol KeyValueStore: AnyObject {
     func object(forKey key: String) -> Any?
     func set(_ value: Bool, forKey defaultName: String)
     func set(_ value: Int64, forKey defaultName: String)
+    func set(_ value: String, forKey defaultName: String)
     func removeObject(forKey defaultName: String)
     @discardableResult
     func synchronize() -> Bool
 }
 
-extension NSUbiquitousKeyValueStore: KeyValueStore {}
+extension NSUbiquitousKeyValueStore: KeyValueStore {
+    func set(_ value: String, forKey defaultName: String) {
+        set(value as Any, forKey: defaultName)
+    }
+}
 
 /// In-memory store for unit tests (`NSUbiquitousKeyValueStore` cannot use a custom suite).
 final class MockKeyValueStore: NSObject, KeyValueStore {
@@ -33,6 +38,10 @@ final class MockKeyValueStore: NSObject, KeyValueStore {
         storage[defaultName] = value
     }
 
+    func set(_ value: String, forKey defaultName: String) {
+        storage[defaultName] = value
+    }
+
     func removeObject(forKey defaultName: String) {
         storage.removeValue(forKey: defaultName)
     }
@@ -47,6 +56,10 @@ final class MockKeyValueStore: NSObject, KeyValueStore {
     }
 
     func seedExternal(int64 value: Int64, forKey key: String) {
+        storage[key] = value
+    }
+
+    func seedExternal(string value: String, forKey key: String) {
         storage[key] = value
     }
 }

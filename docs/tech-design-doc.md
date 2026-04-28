@@ -136,8 +136,11 @@ Key constraints:
 |-----|------|-------|---------|
 | `"defaultCarryOverEnabled"` | `Bool` | `AppSettings` | Default carry-over toggle for new budgets |
 | `"weekStartDay"` | `Int64` (`Weekday.rawValue`) | `AppSettings` | First day of the week (locale default if absent) |
+| `"currencyDisplay"` | `String` (`CurrencyDisplayPreference.rawValue`) | `AppSettings` | Currency display format for monetary amounts (symbol / code / codeAndSymbol); default `.symbol` |
 
 > **Orphaned key:** The string `"seededV1"` was used by a prior first-run seeder (removed in change `remove-first-run-seeder`) and is now a harmless leftover on upgraded installs. It SHALL NOT be reused as a new KV key; the `"V1"` suffix remains reserved per convention so any future one-time-reseed change introduces a distinct key name (e.g., `"seededV2"`).
+
+**SyncStatus environment value:** `SyncStatus` is an `@Observable final class` injected into the SwiftUI environment via `.environment(syncStatus)` in `simple_recurring_budgetsApp`. It carries two properties: `containerBacking: ContainerBacking` (`.cloudKit` or `.localFallback`), which is determined once at launch from the outcome of `makeProductionModelContainer` and never mutated; and `accountStatus: AccountStatus` (`.checking`, `.available`, or `.unavailable`), which is updated asynchronously by `SettingsView` via `CKContainer.default().accountStatus()` and live `CKAccountChanged` / `NSUbiquityIdentityDidChange` notification observers. A derived `rowState: RowState` property combines both fields to produce the four-state view-state for the Settings iCloud row (`.checking`, `.available`, `.paused`, `.unavailable`). Screens consume it via `@Environment(SyncStatus.self) private var syncStatus`.
 
 ---
 
@@ -290,6 +293,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | 0.3     | 2026-04-13 | Jimmy Ho | Add §5.4 documenting the `PeriodCalculator` / `BudgetCalculator` service layer (public API, biweekly anchor convention, ViewModel consumption pattern) |
 | 0.4     | 2026-04-17 | Jimmy Ho | Update §5.4 to add `BudgetLifecycleService` as the sole orchestrator of the eager roll → persist → reset → persist sequence; clarify ViewModel consumption contract |
 | 0.5     | 2026-04-17 | Jimmy Ho | Add §4.6 (`FirstRunSeeder`, two-gate decision, `"seededV1"` KV key, flag-write ordering); add KV key table to §4.5; add §5.5 Bootstrap |
+| 0.6     | 2026-04-28 | Jimmy Ho | Add `"currencyDisplay"` KV-key row to §4.5 table; document `SyncStatus` environment value plumbing (containerBacking, accountStatus, rowState) in §4.5 |
 | 0.6     | 2026-04-17 | Jimmy Ho | Replace §2.1 MVVM framing with "View + Services, ViewModels on demand" (escalation criteria, VM rules, grey-area ping protocol); update §5.4 consumer wording to "screens (and any VMs)" |
 | 0.7     | 2026-04-24 | Jimmy Ho | Remove §4.6 (FirstRunSeeder) and §5.5 (Bootstrap); drop `"seededV1"` from §4.5 KV key table; add orphaned-key note; see change `remove-first-run-seeder` |
 | 0.8     | 2026-04-26 | Jimmy Ho | Add §5.5 (Color Palette and Theming): `AppBackground`/`CellBackground` asset definitions, `appBackground()` modifier usage pattern, list screen wiring, and future theming notes |

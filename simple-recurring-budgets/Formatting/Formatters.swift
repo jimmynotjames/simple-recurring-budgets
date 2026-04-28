@@ -13,11 +13,30 @@ extension Decimal {
     /// This is the single blessed path for "render a `Decimal` with a Budget's
     /// currency". Pass `locale` only for deterministic tests; the default
     /// adapts to the user's locale.
+    ///
+    /// `display` controls the currency representation format:
+    /// - `.symbol`        → locale's conventional symbol form, e.g. "$25.00", "25,00 €"
+    /// - `.code`          → ISO 4217 code in place of symbol, e.g. "USD 25.00"
+    /// - `.codeAndSymbol` → code prepended to the symbol form, e.g. "USD $25.00"
+    ///
+    /// The `display` parameter defaults to `.symbol` so all existing call sites
+    /// compile unchanged and behave identically until explicitly migrated.
     func formatted(
         currencyCode: String,
+        display: CurrencyDisplayPreference = .symbol,
         locale: Locale = .autoupdatingCurrent
     ) -> String {
-        self.formatted(.currency(code: currencyCode).locale(locale))
+        switch display {
+        case .symbol:
+            return self.formatted(.currency(code: currencyCode).locale(locale))
+        case .code:
+            return self.formatted(
+                .currency(code: currencyCode).presentation(.isoCode).locale(locale)
+            )
+        case .codeAndSymbol:
+            let symbolForm = self.formatted(.currency(code: currencyCode).locale(locale))
+            return "\(currencyCode) \(symbolForm)"
+        }
     }
 }
 
@@ -41,12 +60,15 @@ enum CarryOverFormatter {
     /// Splits sign from magnitude so views can style the label independently
     /// (e.g. color) without re-parsing formatted strings. Exact copy is a
     /// design choice per PRD §6.7 and lives in the String Catalog (F-3.03).
+    ///
+    /// `display` defaults to `.symbol` so existing call sites are unchanged.
     static func display(
         _ amount: Decimal,
         currencyCode: String,
+        display: CurrencyDisplayPreference = .symbol,
         locale: Locale = .autoupdatingCurrent
     ) -> CarryOverDisplay {
-        let magnitude = abs(amount).formatted(currencyCode: currencyCode, locale: locale)
+        let magnitude = abs(amount).formatted(currencyCode: currencyCode, display: display, locale: locale)
         if amount > 0 {
             return CarryOverDisplay(
                 amount: magnitude,

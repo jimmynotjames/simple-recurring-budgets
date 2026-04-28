@@ -100,4 +100,72 @@ struct AppSettingsTests {
         await Task.yield()
         #expect(settings.weekStartDay == .friday)
     }
+
+    // MARK: - currencyDisplay
+
+    @Test func freshStore_currencyDisplayIsSymbol() {
+        let mock = MockKeyValueStore()
+        let settings = AppSettings(store: mock)
+        #expect(settings.currencyDisplay == .symbol)
+    }
+
+    @Test func persistedCurrencyDisplay_readOnInit() {
+        let mock = MockKeyValueStore()
+        mock.set(CurrencyDisplayPreference.code.rawValue, forKey: AppSettings.currencyDisplayKey)
+        _ = mock.synchronize()
+
+        let settings = AppSettings(store: mock)
+        #expect(settings.currencyDisplay == .code)
+    }
+
+    @Test func settingCurrencyDisplay_persistsRawValueToStore() {
+        let mock = MockKeyValueStore()
+        let settings = AppSettings(store: mock)
+        settings.currencyDisplay = .codeAndSymbol
+
+        let obj = mock.object(forKey: AppSettings.currencyDisplayKey)
+        #expect((obj as? String) == "codeAndSymbol")
+    }
+
+    @Test func invalidCurrencyDisplayRawValue_fallsBackToSymbol() {
+        let mock = MockKeyValueStore()
+        mock.set("unknownValue", forKey: AppSettings.currencyDisplayKey)
+
+        let settings = AppSettings(store: mock)
+        #expect(settings.currencyDisplay == .symbol)
+    }
+
+    @Test @MainActor
+    func externalNotification_updatesCurrencyDisplay() async {
+        let mock = MockKeyValueStore()
+        let settings = AppSettings(store: mock)
+        #expect(settings.currencyDisplay == .symbol)
+
+        mock.seedExternal(string: CurrencyDisplayPreference.code.rawValue, forKey: AppSettings.currencyDisplayKey)
+        NotificationCenter.default.post(
+            name: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+            object: mock,
+            userInfo: [NSUbiquitousKeyValueStoreChangedKeysKey: [AppSettings.currencyDisplayKey]]
+        )
+
+        await Task.yield()
+        #expect(settings.currencyDisplay == .code)
+    }
+
+    @Test @MainActor
+    func externalNotification_nilChangedKeys_reloadsCurrencyDisplay() async {
+        let mock = MockKeyValueStore()
+        let settings = AppSettings(store: mock)
+
+        mock.seedExternal(string: CurrencyDisplayPreference.codeAndSymbol.rawValue, forKey: AppSettings.currencyDisplayKey)
+        // nil changed keys → full reload
+        NotificationCenter.default.post(
+            name: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+            object: mock,
+            userInfo: nil
+        )
+
+        await Task.yield()
+        #expect(settings.currencyDisplay == .codeAndSymbol)
+    }
 }

@@ -37,7 +37,7 @@ struct RootView: View {
             case .viewExpense:
                 Text("View Expense")
             case .settings:
-                Text("Settings")
+                SettingsView()
             }
         }
     }
@@ -48,4 +48,5 @@ struct RootView: View {
         .modelContainer(PreviewContainer.make())
         .environment(Router())
         .environment(AppSettings())
+        .environment(SyncStatus(containerBacking: .cloudKit, accountStatus: .available))
 }

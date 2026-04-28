@@ -29,10 +29,15 @@ enum BudgetPeriod: String, Codable, CaseIterable, Comparable {
         lhs.sortOrder < rhs.sortOrder
     }
 
+    // PAUSED (Reset Cadences): this mapping is retained as design knowledge but is NOT consumed
+    // by `Budget.init` while the feature is paused. Do not introduce new callers. When unpausing:
+    // restore `resetCadence ?? period.defaultResetCadence` in `Budget.init`.
     /// The recommended default reset cadence when first creating a budget with this period.
     ///
     /// This mapping is intentional and not derived from enum ordering:
     /// daily → weekly, weekly → monthly, biweekly → quarterly, monthly → quarterly.
+    ///
+    /// **PAUSED** — not consumed by `Budget.init` while Reset Cadences are paused.
     nonisolated var defaultResetCadence: ResetCadence {
         switch self {
         case .daily: return .weekly

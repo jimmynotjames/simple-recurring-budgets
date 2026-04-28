@@ -35,7 +35,7 @@ A native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending
 
 **Escalate to an `@Observable` ViewModel only when at least one of these is true:**
 
-1. The screen holds **non-trivial draft/form state** not persisted until the user commits (e.g., an Add/Edit screen with cross-field validation such as Budget Period → Reset Cadence rules per [PRD §6.7](main-prd.md#67-carry-over-behavior)).
+1. The screen holds **non-trivial draft/form state** not persisted until the user commits (e.g., an Add/Edit screen with cross-field validation such as Budget Period → Reset Cadence rules per [PRD §6.7](main-prd.md#67-carry-over-behavior)). _(Note: Budget Period → Reset Cadence cross-field validation is **PAUSED** — Reset Cadences are not in scope; do not implement this validation in UI while paused.)_
 2. The screen owns **`async` / `Task` work** or concurrency-scoped state (e.g., future F-7.01 receipt OCR via Vision, F-7.02 speech recognition).
 3. The screen needs **a multi-step user action** chaining validation, multiple writes, and side effects beyond a one-liner.
 4. The screen has **derived display state expensive to recompute** inside `body` that benefits from caching outside it.
@@ -51,7 +51,7 @@ A native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending
 
 - More than 3 mutable form fields.
 - A framework call inside the screen (Vision, Speech, PhotosUI, SiriKit / App Intents, `SFSpeechRecognizer`, network).
-- A single user input that mutates more than one model property or couples fields (e.g., changing Budget Period must re-validate Reset Cadence).
+- A single user input that mutates more than one model property or couples fields (e.g., changing Budget Period must re-validate Reset Cadence). _(Reset Cadence coupling is **PAUSED** — do not implement while paused.)_
 - The screen is expected to grow materially within the next 1–2 features.
 
 Pure display-only subviews (row cells, badges, amount formatters) remain logic-free regardless of which side of the rule the parent screen falls on.
@@ -70,9 +70,12 @@ A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned
 
 Two SwiftData `@Model` entities: **Budget** and **ExpenseItem**, linked by a one-to-many relationship (Budget → ExpenseItem, cascade delete). Supporting enums (`BudgetPeriod`, `ResetCadence`) are `String`-backed `Codable` types stored inline.
 
+> [!NOTE]
+> **PAUSED — Reset Cadences feature is not in scope.** `ResetCadence` and the `Budget.resetCadence` field are retained for schema stability and the future un-pause. All new Budgets persist `"never"`. Do not surface Reset Cadence in UI, plans, or new specs while paused; the type and engine are available for future use.
+
 **CloudKit optional relationship pattern:** CloudKit requires all relationships to be optional (records may arrive out-of-order during sync). The stored `Budget.expenses` property is therefore typed `[ExpenseItem]?`. A non-optional computed property `expenseItems: [ExpenseItem]` (`get { expenses ?? [] }`, settable) is the canonical accessor for all app code, so no call site ever handles optionality. The raw `expenses` property should not be accessed outside of the model definition.
 
-Key fields on Budget include allocation, period, currency code (ISO 4217), and Over/Under state (cumulative amount + last reset date + reset cadence). ExpenseItem carries amount, optional name, and date. All monetary values use `Decimal`.
+Key fields on Budget include allocation, period, currency code (ISO 4217), and Over/Under state (cumulative amount + last reset date + reset cadence). ExpenseItem carries amount, optional name, and date. All monetary values use `Decimal`. _(Reset cadence is stored but **PAUSED** — defaults to `"never"` for new records.)_
 
 Derived values — **Remaining for current Budget Period** and **Over/Under display** — are computed at read-time, not persisted.
 
@@ -81,7 +84,7 @@ Derived values — **Remaining for current Budget Period** and **Over/Under disp
 Per [PRD §6.7](main-prd.md#67-overunder-carryover-behavior):
 
 - **Period boundary roll**: When the app detects a new Budget Period has started, compute `allocation − expenses` for the completed period(s) and fold into the stored Over/Under amount. This happens eagerly on app launch / budget access.
-- **Scheduled reset**: Compare last reset date against current date and the budget's reset cadence. If a reset boundary has passed, zero out Over/Under and update the last reset date.
+- **Scheduled reset**: Compare last reset date against current date and the budget's reset cadence. If a reset boundary has passed, zero out Over/Under and update the last reset date. _(PAUSED — Reset Cadences feature is not in scope. The code path is retained and unit-tested, but all new Budgets default to `"never"`, so this is a no-op in practice. Do not surface scheduling configuration in UI or new specs while paused.)_
 - **Manual reset**: User action zeros Over/Under and updates the last reset date.
 
 ### 3.3 Migration Strategy

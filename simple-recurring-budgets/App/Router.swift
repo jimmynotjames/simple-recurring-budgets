@@ -1,8 +1,3 @@
-//
-//  Router.swift
-//  simple-recurring-budgets
-//
-
 import Foundation
 
 /// Centralised navigation state for the app.
@@ -21,6 +16,6 @@ import Foundation
 @Observable
 @MainActor
 final class Router {
-    var path: [AppRoute] = []
-    var sheet: SheetRoute?
+  var path: [AppRoute] = []
+  var sheet: SheetRoute?
 }

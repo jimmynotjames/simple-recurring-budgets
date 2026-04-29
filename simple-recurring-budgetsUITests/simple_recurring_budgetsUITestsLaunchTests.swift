@@ -1,35 +1,27 @@
-//
-//  simple_recurring_budgetsUITestsLaunchTests.swift
-//  simple-recurring-budgetsUITests
-//
-//  Created by Jimmy Ho on 4/10/26.
-//
-
 import XCTest
 
 final class simple_recurring_budgetsUITestsLaunchTests: XCTestCase {
+  override static var runsForEachTargetApplicationUIConfiguration: Bool {
+    true
+  }
 
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
-    }
+  override func setUpWithError() throws {
+    continueAfterFailure = false
+  }
 
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
+  @MainActor
+  func testLaunch() {
+    let app = XCUIApplication()
+    app.launch()
 
-    @MainActor
-    func testLaunch() throws {
-        let app = XCUIApplication()
-        app.launch()
+    // Insert steps here to perform after app launch but before taking a screenshot,
+    // such as logging into a test account or navigating somewhere in the app
+    // XCUIAutomation Documentation
+    // https://developer.apple.com/documentation/xcuiautomation
 
-        // Insert steps here to perform after app launch but before taking a screenshot,
-        // such as logging into a test account or navigating somewhere in the app
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
-
-        let attachment = XCTAttachment(screenshot: app.screenshot())
-        attachment.name = "Launch Screen"
-        attachment.lifetime = .keepAlways
-        add(attachment)
-    }
+    let attachment = XCTAttachment(screenshot: app.screenshot())
+    attachment.name = "Launch Screen"
+    attachment.lifetime = .keepAlways
+    add(attachment)
+  }
 }

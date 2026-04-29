@@ -285,4 +285,84 @@ struct AddEditBudgetViewModelTests {
     let all = try context.fetch(FetchDescriptor<Budget>())
     #expect(all.count == 1)
   }
+
+  // MARK: - 7.1.j  Delete
+
+  @Test func delete_inEditMode_removesBudgetFromStore() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let budget = Budget(name: "Groceries", allocation: 200, currencyCode: "USD", period: .weekly)
+    context.insert(budget)
+    try context.save()
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.delete(context: context)
+
+    let remaining = try context.fetch(FetchDescriptor<Budget>())
+    #expect(remaining.isEmpty, "Budget should be removed after delete(context:)")
+  }
+
+  @Test func delete_inAddMode_isNoOp() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let existing = Budget(name: "Rent", allocation: 1500, currencyCode: "USD", period: .monthly)
+    context.insert(existing)
+    try context.save()
+
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.delete(context: context) // should do nothing in Add mode
+
+    let all = try context.fetch(FetchDescriptor<Budget>())
+    #expect(all.count == 1, "No budget should be deleted when VM is in Add mode")
+    #expect(all.first?.name == "Rent")
+  }
+
+  @Test func delete_inEditMode_doesNotAffectOtherBudgets() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let target = Budget(name: "Target", allocation: 50, currencyCode: "USD", period: .weekly)
+    let other = Budget(name: "Other", allocation: 200, currencyCode: "USD", period: .monthly)
+    context.insert(target)
+    context.insert(other)
+    try context.save()
+
+    let vm = AddEditBudgetViewModel(editing: target)
+    vm.delete(context: context)
+
+    let remaining = try context.fetch(FetchDescriptor<Budget>())
+    #expect(remaining.count == 1, "Only the target budget should be deleted")
+    #expect(remaining.first?.name == "Other", "The non-target budget should be unaffected")
+  }
+
+  @Test func delete_inEditMode_cascadesToExpenseItems() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let budget = Budget(name: "Entertainment", allocation: 100, currencyCode: "USD", period: .monthly)
+    context.insert(budget)
+
+    let expense1 = ExpenseItem(amount: 15)
+    expense1.budget = budget
+    context.insert(expense1)
+    budget.expenseItems.append(expense1)
+
+    let expense2 = ExpenseItem(amount: 30)
+    expense2.budget = budget
+    context.insert(expense2)
+    budget.expenseItems.append(expense2)
+
+    try context.save()
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.delete(context: context)
+
+    let remainingBudgets = try context.fetch(FetchDescriptor<Budget>())
+    #expect(remainingBudgets.isEmpty, "Budget should be removed after delete")
+
+    let remainingExpenses = try context.fetch(FetchDescriptor<ExpenseItem>())
+    #expect(remainingExpenses.isEmpty, "Cascade delete should remove all ExpenseItems belonging to the deleted budget")
+  }
 }

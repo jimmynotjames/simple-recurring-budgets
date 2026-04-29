@@ -59,6 +59,15 @@ final class AddEditBudgetViewModel {
     mode = .edit(budget)
   }
 
+  // MARK: - Delete
+
+  // TODO: If we eventually create a BudgetView that navigates to this screen, that may also need to be popped off nav stack on deletion.
+  func delete(context: ModelContext) {
+    guard case let .edit(budget) = mode else { return }
+    context.delete(budget)
+    try? context.save()
+  }
+
   // MARK: - Save
 
   /// Persists the draft to `context`. In Add mode, inserts a new `Budget`; in Edit

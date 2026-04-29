@@ -8,6 +8,7 @@ struct AddEditBudgetView: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var showCurrencyPicker = false
+  @State private var showDeleteConfirmation = false
   @FocusState private var isNameFocused: Bool
 
   var body: some View {
@@ -18,6 +19,9 @@ struct AddEditBudgetView: View {
           allocationCard
           periodCard
           carryOverCard
+          if viewModel.isEditing {
+            deleteButton
+          }
         }
         .padding(.horizontal)
         .padding(.top, 8)
@@ -70,6 +74,55 @@ struct AddEditBudgetView: View {
         CurrencyPickerView(selection: $viewModel.currencyCode)
       }
     }
+    .confirmationDialog(
+      String(
+        localized: "addEditBudget.deleteConfirmation.title",
+        defaultValue: "Delete Budget?",
+        comment: "Title of the confirmation dialog when the user taps Delete Budget"
+      ),
+      isPresented: $showDeleteConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button(
+        String(
+          localized: "addEditBudget.deleteConfirmation.confirm",
+          defaultValue: "Delete Budget",
+          comment: "Destructive confirm button in the delete budget confirmation dialog"
+        ),
+        role: .destructive
+      ) {
+        viewModel.delete(context: context)
+        dismiss()
+      }
+    } message: {
+      Text(String(
+        localized: "addEditBudget.deleteConfirmation.message",
+        defaultValue: "This action cannot be undone.",
+        comment: "Body text in the delete budget confirmation dialog warning that deletion is permanent"
+      ))
+    }
+  }
+
+  // MARK: - Destructive Actions
+
+  private var deleteButton: some View {
+    Button(role: .destructive) {
+      showDeleteConfirmation = true
+    } label: {
+      Text(String(
+        localized: "addEditBudget.action.delete",
+        defaultValue: "Delete Budget",
+        comment: "Button that triggers the delete budget confirmation dialog"
+      ))
+      .frame(maxWidth: .infinity)
+    }
+    .buttonStyle(.bordered)
+    .tint(.red)
+    .accessibilityHint(String(
+      localized: "addEditBudget.action.delete.accessibilityHint",
+      defaultValue: "Permanently deletes this budget and its expenses.",
+      comment: "VoiceOver hint for the Delete Budget button, communicating the destructive and irreversible consequence"
+    ))
   }
 
   // MARK: - Cards

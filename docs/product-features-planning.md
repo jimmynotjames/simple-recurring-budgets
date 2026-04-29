@@ -73,7 +73,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.03: Add/Edit Budget screen
 
-- **Status:** Open
+- **Status:** Implemented (excluding paused Reset Cadences). Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`).
 - **Description:** Screen to create or edit a Budget (entity).
 - **Acceptance Criteria:**
   - Same screen used to create and edit.
@@ -81,9 +81,9 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Entry point added to **Budget screen** to edit that Budget (entity).
   - Fields:
     - ID: Arbitrary internal identifier, not shown to user. 
-    - Name — defaults to `Budget` (user-editable)
+    - Name — defaults to empty string (user-editable); the field shows `"Budget"` as a placeholder but the draft value is blank so Save is disabled until the user types a name. In Add mode the Name field auto-focuses (keyboard appears) when the sheet opens.
     - Time Period (daily, weekly, biweekly, monthly). Defaults to daily.
-    - Allocation. Defaults to 10.
+    - Allocation. Defaults to blank (no amount until the user enters one); Save stays disabled until a positive amount is entered. The Allocation card prefixes the numeric field with a currency symbol/code label driven by `AppSettings.currencyDisplay` (symbol / code / code+symbol).
     - **Currency (per budget)** — Each Budget has its own currency. Defaults to locale's currency; USD if unable to determine at all.
     - **Carry-over reset cadence** _(PAUSED — see note below)_ — How often cumulative carry-over is cleared **automatically**. Options: **weekly**, **biweekly**, **monthly**, **quarterly**, or **never** (no automatic reset; user uses manual reset only). **Quarterly** and **never** are not Budget Periods; they apply only here. Valid options depend on Budget Period (each cadence must be broader than the period; see [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)). **Defaults** for new budgets: daily → weekly; weekly → monthly; biweekly → quarterly; monthly → quarterly. Scheduled resets align to **period boundaries** (first boundary after the interval), never mid-period.
     - When **Time Period** is **monthly**, the default reset cadence is **quarterly**. Carry-over accumulates across months and resets every quarter. _(PAUSED — see note below.)_
@@ -182,11 +182,11 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 - **Status:** Open
 - **Description:** Currency is **per Budget** (entity) — see **Add/Edit Budget screen** (F-2.03) — not a single global app default. This feature covers formatting, symbols, and the currency catalog used when choosing a Budget’s currency.
-- **Acceptance Criteria:** 
-  - **Add/Edit Budget screen** includes a currency picker; all supported currency codes are available there (not on **Settings screen** as a global override).
+- **Acceptance Criteria:**
+  - **Add/Edit Budget screen** includes a currency picker; all supported currency codes are available there (not on **Settings screen** as a global override). _(Implemented by `add-edit-budget-screen` change.)_
   - Amounts and symbols in the UI respect **each Budget’s** selected currency and the user’s locale formatting rules.
-  - Currency catalog (codes, symbols, localized names) is stored outside source code (e.g. YAML or equivalent).
-  - The display name of each currency in the picker is internationalized.
+  - Currency catalog (codes, symbols, localized names) is sourced from outside our application source — either from Foundation’s system catalog (`Locale.commonISOCurrencyCodes` plus `Locale.localizedString(forCurrencyCode:)`) or from a project-owned data file (e.g. YAML) when the app needs to diverge from the system catalog. The Add/Edit Budget screen ships the system-catalog path.
+  - The display name of each currency in the picker is internationalized. _(Implemented by `add-edit-budget-screen` change.)_
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-2.03, F-3.03
 

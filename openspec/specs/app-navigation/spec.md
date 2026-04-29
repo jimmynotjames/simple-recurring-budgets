@@ -1,9 +1,9 @@
 # App navigation
 
+## Purpose
+
 Centralized `Router`/`AppRoute`/`SheetRoute` pattern for type-safe, state-driven navigation in the primary `NavigationStack`. Synced from change `budgets-screen` (2026-04-25).
-
 ## Requirements
-
 ### Requirement: App provides a centralized observable Router for navigation state
 
 The system SHALL provide a `Router` reference type, declared `@Observable` and isolated to `@MainActor`, that owns the app's primary navigation state in two independent properties:
@@ -81,14 +81,36 @@ The system SHALL host the primary `NavigationStack` and the single sheet present
 
 ### Requirement: Placeholder destinations are exempt from the no-hard-coded-English rule until replaced
 
-While downstream screens (Budget detail, Add/Edit Budget, Add/Edit/View Expense, Settings) are not yet implemented, `RootView` SHALL render placeholder `Text(...)` views for the corresponding `AppRoute` and `SheetRoute` cases. These placeholder strings SHALL be exempt from the localization requirement that applies to production views (per `docs/tech-design-doc.md` §5.1) and SHALL be replaced — string and view — when each destination's owning feature change ships.
+While downstream screens (Budget detail, Add/Edit/View Expense) are not yet implemented, `RootView` SHALL render placeholder `Text(...)` views for the corresponding `AppRoute` and `SheetRoute` cases. These placeholder strings SHALL be exempt from the localization requirement that applies to production views (per `docs/tech-design-doc.md` §5.1) and SHALL be replaced — string and view — when each destination's owning feature change ships.
 
-#### Scenario: Each route has a placeholder destination
+The Add/Edit Budget sheet (`SheetRoute.addBudget` and `SheetRoute.editBudget(Budget)`) is no longer a placeholder. Both cases SHALL render the real, fully-localized `AddEditBudgetView` (per the `add-edit-budget-screen` capability), and the i18n exemption SHALL NOT apply to them. Concretely, `RootView`'s `.sheet(item:)` switch SHALL resolve `.addBudget` to `AddEditBudgetView(viewModel: AddEditBudgetViewModel(settings: settings))` and `.editBudget(let budget)` to `AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))`, where `settings` comes from `@Environment(AppSettings.self)` on `RootView`.
 
-- **WHEN** the app is built before the downstream screens (F-2.02 through F-2.05) ship
-- **THEN** every `AppRoute` and `SheetRoute` case is reachable and renders a placeholder `Text` view rather than a navigation error
+The Settings sheet (`SheetRoute.settings`) is also no longer a placeholder; it has rendered the real `SettingsView` since change `2026-04-28-settings-screen` shipped. The i18n exemption does NOT apply to it.
+
+The remaining placeholder cases — `AppRoute.budgetDetail(Budget)`, `SheetRoute.addExpense(Budget)`, and `SheetRoute.viewExpense(ExpenseItem)` — keep the exemption until their owning feature changes (F-2.02, F-2.04) ship.
+
+#### Scenario: Each remaining route still has a placeholder destination
+
+- **WHEN** the app is built before the still-pending downstream screens (F-2.02 Budget detail, F-2.04 Add/Edit/View Expense) ship
+- **THEN** `AppRoute.budgetDetail`, `SheetRoute.addExpense`, and `SheetRoute.viewExpense` each render a placeholder `Text` view rather than a navigation error
+
+#### Scenario: Add Budget sheet renders the real screen
+
+- **WHEN** any caller sets `Router.sheet = .addBudget`
+- **THEN** `RootView` SHALL render the real `AddEditBudgetView` configured for Add mode, with all user-visible strings sourced from `Localizable.xcstrings`; the previous `Text("Add Budget")` placeholder is no longer used
+
+#### Scenario: Edit Budget sheet renders the real screen with the budget seed
+
+- **WHEN** any caller sets `Router.sheet = .editBudget(budget)` for some `Budget`
+- **THEN** `RootView` SHALL render the real `AddEditBudgetView` configured for Edit mode, seeded from that `Budget`, with all user-visible strings sourced from `Localizable.xcstrings`; the previous `Text("Edit Budget")` placeholder is no longer used
+
+#### Scenario: Settings sheet renders the real screen
+
+- **WHEN** any caller sets `Router.sheet = .settings`
+- **THEN** `RootView` SHALL render the real `SettingsView` (shipped by `2026-04-28-settings-screen`); no placeholder is used and the i18n exemption does not apply
 
 #### Scenario: Placeholders are replaced with localized real screens by their owning feature changes
 
-- **WHEN** a downstream feature change (e.g. F-2.02 Budget detail) ships
+- **WHEN** a still-pending downstream feature change (F-2.02 Budget detail, F-2.04 Add/Edit/View Expense) ships
 - **THEN** the corresponding placeholder in `RootView` is replaced with the real, fully-localized screen, and the i18n exemption no longer applies to that case
+

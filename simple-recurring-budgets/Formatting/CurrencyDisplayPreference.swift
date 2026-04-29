@@ -59,4 +59,20 @@ enum CurrencyDisplayPreference: String, CaseIterable, Identifiable, Codable, Sen
         let code = locale.currency?.identifier ?? "USD"
         return Decimal(25).formatted(currencyCode: code, display: self, locale: locale)
     }
+
+    // MARK: - Prefix
+
+    /// Currency symbol and/or ISO code for `currencyCode` in this display mode — not a full amount string.
+    func prefix(for currencyCode: String, locale: Locale = .autoupdatingCurrent) -> String {
+        let fmt = NumberFormatter()
+        fmt.numberStyle = .currency
+        fmt.currencyCode = currencyCode
+        fmt.locale = locale
+        let symbol = fmt.currencySymbol ?? currencyCode
+        switch self {
+        case .symbol:        return symbol
+        case .code:          return currencyCode
+        case .codeAndSymbol: return "\(currencyCode) \(symbol)"
+        }
+    }
 }

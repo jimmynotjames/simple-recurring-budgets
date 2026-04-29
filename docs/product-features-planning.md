@@ -73,12 +73,13 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.03: Add/Edit Budget screen
 
-- **Status:** Implemented (excluding paused Reset Cadences). Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`).
+- **Status:** Implemented (excluding paused Reset Cadences). Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`). Delete Budget implemented by change `delete-budget-button`.
 - **Description:** Screen to create or edit a Budget (entity).
 - **Acceptance Criteria:**
   - Same screen used to create and edit.
   - Entry point added to **Budgets screen** to create a Budget (entity).
   - Entry point added to **Budget screen** to edit that Budget (entity).
+  - **Delete Budget** — Edit mode only. A destructive bordered button appears beneath the form cards when editing an existing budget. Tapping it presents a confirmation dialog with the message "This action cannot be undone." Confirming the dialog deletes the `Budget` and (via the existing `Budget → ExpenseItem` cascade-delete rule) all of its `ExpenseItem` rows in a single `ModelContext.save()`. The sheet is then dismissed and the row disappears reactively from the Budgets list. Add mode does not show this button.
   - Fields:
     - ID: Arbitrary internal identifier, not shown to user. 
     - Name — defaults to empty string (user-editable); the field shows `"Budget"` as a placeholder but the draft value is blank so Save is disabled until the user types a name. In Add mode the Name field auto-focuses (keyboard appears) when the sheet opens.

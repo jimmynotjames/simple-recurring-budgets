@@ -70,6 +70,8 @@ A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned
 
 Two SwiftData `@Model` entities: **Budget** and **ExpenseItem**, linked by a one-to-many relationship (Budget → ExpenseItem, cascade delete). Supporting enums (`BudgetPeriod`, `ResetCadence`) are `String`-backed `Codable` types stored inline.
 
+The user-facing entry point for deleting a `Budget` is the **Delete Budget** button on the Add/Edit Budget sheet (Edit mode only). Confirming the dialog calls `context.delete(budget)` + `context.save()` on `AddEditBudgetViewModel`; the `@Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)` rule on `Budget` automatically removes the budget's `ExpenseItem` rows in the same save. No schema or CKRecord change is involved.
+
 > [!NOTE]
 > **PAUSED — Reset Cadences feature is not in scope.** `ResetCadence` and the `Budget.resetCadence` field are retained for schema stability and the future un-pause. All new Budgets persist `"never"`. Do not surface Reset Cadence in UI, plans, or new specs while paused; the type and engine are available for future use.
 

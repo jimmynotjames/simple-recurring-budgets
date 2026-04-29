@@ -29,6 +29,30 @@
         }
       }
     },
+    "addEditBudget.action.delete" : {
+      "comment" : "Button that triggers the delete budget confirmation dialog",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete Budget"
+          }
+        }
+      }
+    },
+    "addEditBudget.action.delete.accessibilityHint" : {
+      "comment" : "VoiceOver hint for the Delete Budget button, communicating the destructive and irreversible consequence",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Permanently deletes this budget and its expenses."
+          }
+        }
+      }
+    },
     "addEditBudget.action.save" : {
       "comment" : "Button that saves the budget and dismisses the Add/Edit Budget sheet",
       "extractionState" : "extracted_with_value",
@@ -49,6 +73,42 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%@ period"
+          }
+        }
+      }
+    },
+    "addEditBudget.deleteConfirmation.confirm" : {
+      "comment" : "Destructive confirm button in the delete budget confirmation dialog",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete Budget"
+          }
+        }
+      }
+    },
+    "addEditBudget.deleteConfirmation.message" : {
+      "comment" : "Body text in the delete budget confirmation dialog warning that deletion is permanent",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This action cannot be undone."
+          }
+        }
+      }
+    },
+    "addEditBudget.deleteConfirmation.title" : {
+      "comment" : "Title of the confirmation dialog when the user taps Delete Budget",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete Budget?"
           }
         }
       }

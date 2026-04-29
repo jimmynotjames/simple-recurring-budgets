@@ -56,19 +56,28 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.02: Budget screen
 
-- **Status:** Open
+- **Status:** Implemented (excluding F-2.04 entry/edit and F-6.01). Implemented by change `budget-detail-screen`.
 - **Description:** Screen that lists Expense Items for a single Budget (entity).
 - **Acceptance Criteria:**
   - Shows vertical scrolling list of transactions as a list of most-recent to least-recent.
-  - Shows the Budget’s name at top of the screen.
+  - Shows the Budget’s name at top of the screen (navigation title).
   - Shows **Remaining for current Budget Period** and **Carry-over** consistent with [main-prd.md §6.7](main-prd.md#67-carry-over-behavior) and F-2.01.
+  - **Status header** — large monospaced remaining amount (deficit-tinted when negative), period label, fuel-gauge `RemainingBar`, and — when carry-over is enabled — an inline `CarryOverChip` and a small **Reset** button for the manual carry-over reset.
+  - **Adaptive header layout** — remaining amount and period label render side-by-side below `.xxxLarge` Dynamic Type; stacked vertically at `.xxxLarge` and above. Row spacing scales via `@ScaledMetric`.
+  - **Primary Add Expense action** — a full-width `.borderedProminent` button always visible within the screen, presenting `SheetRoute.addExpense(budget)` for this specific budget. (The actual Add Expense sheet ships under F-2.04.)
+  - **Toolbar overflow Menu** (`ellipsis.circle`, top-trailing) hosting:
+    - **Edit Budget** — opens the Add/Edit Budget sheet in Edit mode.
+    - **Reset Budget…** (destructive) — deletes every `ExpenseItem` for this budget, zeros `carryOverAmount`, and bumps timestamps in a single `ModelContext.save()`. The `Budget` entity itself is **not** deleted. Gated by a confirmation dialog whose body is a single static localized string (no expense count in copy). See [main-prd.md §6.7](main-prd.md#67-carry-over-behavior) for the distinction between Reset Budget, Reset Carry-Over, and Delete Budget.
   - **Reset Carry-over** control with confirmation; clears only this budget’s carry-over (per [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)).
-  - **Delete Expense Item** — swipe-to-delete on a row with confirmation
+  - **Delete Expense Item** — swipe-to-delete on a row with confirmation.
+  - **Period-aware expense sections** — expenses are split into a **Current ⟨period⟩** section (items in the current Budget Period, with a section total) and a **Past ⟨period⟩** section (earlier items). Contextual empty captions handle the current-period-empty and zero-expense cases.
   - For each Expense Item, shows the following fields:
-    - Date and time
-    - Amount of expense
-    - Name of expense
-- **Edge Cases / Notes:** None
+    - Date and time (relative: “Today HH:mm” / “Yesterday HH:mm” / locale-aware beyond yesterday)
+    - Amount of expense (absolute value; `Color.moneySurplus` tint for add-funds entries per F-6.01 display path)
+    - Name of expense (or an italic “Untitled expense” placeholder when nil)
+  - **Lifecycle refresh** on task initialization, `scenePhase == .active`, and `onChange(of: budget.expenseItems.count)`.
+  - **VoiceOver** — composed accessibility labels on the header (on-budget and over-budget variants) and on each expense row (standard and add-funds variants).
+- **Edge Cases / Notes:** The Add Expense sheet target and tap-to-edit on expense rows are out of scope until F-2.04. The add-funds display path for `ExpenseItem.isAddFunds` is present but no UI to create one exists until F-6.01 (PAUSED).
 - **Dependencies:** F-2.01
 
 ##### F-2.03: Add/Edit Budget screen

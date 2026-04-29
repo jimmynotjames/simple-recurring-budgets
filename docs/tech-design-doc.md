@@ -2,7 +2,7 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.9                            |
+| **Version**        | 0.10                           |
 | **Last Updated**   | 2026-04-29                     |
 | **Author / Owner** | Jimmy Ho                       |
 
@@ -55,6 +55,11 @@ A native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending
 - The screen is expected to grow materially within the next 1–2 features.
 
 Pure display-only subviews (row cells, badges, amount formatters) remain logic-free regardless of which side of the rule the parent screen falls on.
+
+**Implemented View + Services screens:**
+
+- `BudgetsView` — root list; `@Query` drives the row list; `BudgetLifecycleService.refreshAndSave` called from each row's `.task(id:)` and `onChange(of: scenePhase)`.
+- `BudgetDetailView` — Budget detail; lifecycle refresh invoked from the view body via `.task(id: budget.persistentModelID)`, `onChange(of: scenePhase)`, and `onChange(of: budget.expenseItems.count)`. Destructive actions (`resetBudget`, `resetCarryOver`, `deleteExpense`) are short imperative methods on the view that write through `@Environment(\.modelContext)` and call `BudgetLifecycleService` afterward. None of the §2.1 escalation triggers apply.
 
 ### 2.2 Navigation: `NavigationStack` with value-based routing
 
@@ -153,6 +158,10 @@ Key constraints:
 All user-facing text uses Xcode **String Catalogs** and `LocalizedStringKey` — no hard-coded English in production views. Dates and numbers use Foundation format styles that auto-adapt to locale. Each Budget stores its own ISO 4217 currency code; formatting uses `Decimal.FormatStyle.Currency`.
 
 The canonical catalog lives at `simple-recurring-budgets/Resources/Localizable.xcstrings` and is picked up automatically by the app target's `PBXFileSystemSynchronizedRootGroup`; no `project.pbxproj` changes are needed when adding or renaming strings. Every new user-facing string in a production view must use `Text("key", comment: "translator context")` or `LocalizedStringKey("key")`. The `comment:` argument is required whenever the source string would be ambiguous out of context (short labels, button titles, destructive action names, etc.). Placeholder strings in `Views/RootView.swift` are exempt until the real T-2 screens replace them.
+
+**Count-driven plurals** — when copy genuinely varies by count (e.g. "1 item" vs "2 items"), use Xcode String Catalog plural variations (CLDR `one`/`other` per locale) rather than Swift-side word substitution. The Swift call site passes the integer count as an interpolation (`Text("my.key \(count)")`), which resolves to the catalog key `"my.key %lld"`; the catalog encodes locale-specific `one`/`other` (and `few`/`many` where needed) buckets. Prefer rewriting copy to avoid count-driven plurals when a count-free form ("all expenses", "all items") is equally clear — this keeps the catalog simpler and the call site free of runtime arguments.
+
+**Inline vs list-label period names** — `BudgetPeriod.inlineLabel` (`period.daily.inline`, `period.weekly.inline`, `period.biweekly.inline`, `period.monthly.inline`) and `BudgetPeriod.listLabel` are backed by **separate** per-locale keys. Inline forms are **never** derived from list-label forms via `.lowercased()`, ensuring translators control case for each usage context independently.
 
 ### 5.2 Accessibility
 
@@ -335,7 +344,8 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
-| 1.0     | 2026-04-29 | Jimmy Ho | §8: `make system` / `scripts/system-setup.sh`; clarify Python 3 for `make test` vs Lefthook; optional OpenSpec CLI note |
+| 0.11    | 2026-04-29 | Jimmy Ho | §2.1: list `BudgetDetailView` as a View+Services example with its three lifecycle-refresh triggers; §5.1: document count-driven plural variation pattern and inline vs list-label period-name rule |
+| 0.10     | 2026-04-29 | Jimmy Ho | §8: `make system` / `scripts/system-setup.sh`; clarify Python 3 for `make test` vs Lefthook; optional OpenSpec CLI note |
 | 0.9     | 2026-04-29 | Jimmy Ho | Add §8 Developer Tooling (Lefthook, SwiftLint, SwiftFormat, gitleaks, large-file script, Makefile targets); renumber former §8–§9 to §9–§10 |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial draft    |
 | 0.2     | 2026-04-11 | Jimmy Ho | Add §4.5 (NSUbiquitousKeyValueStore for app settings); update §8 future table to reflect iCloud key-value store instead of UserDefaults |

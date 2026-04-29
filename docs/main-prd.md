@@ -132,7 +132,19 @@ These rules apply to every Budget. When carry-over is turned off for a budget (s
 
 **Resetting carry-over**
 
-- **Manual** — The Budget screen provides a control to reset carry-over to zero (with confirmation). Per-budget only.
+- **Manual** — The Budget detail screen provides a control to reset carry-over to zero (with confirmation). Per-budget only. This is a "carry-over only" reset: no expenses are deleted.
+
+**Distinct destructive operations on a Budget**
+
+Three operations exist with different blast radii — do not conflate them:
+
+| Operation | Trigger | Effect |
+|---|---|---|
+| **Reset Carry-Over** | Budget detail screen → header inline "Reset" button | Zeros `carryOverAmount` and bumps `carryOverLastResetDate` / `lastModified`. No `ExpenseItem`s are deleted. |
+| **Reset Budget** | Budget detail screen → toolbar Menu → "Reset Budget…" | Deletes every `ExpenseItem` for this budget AND zeros `carryOverAmount`. The `Budget` entity itself remains. See F-2.02. |
+| **Delete Budget** | Add/Edit Budget sheet (Edit mode) → "Delete Budget" button | Removes the `Budget` entity and cascade-deletes all its `ExpenseItem`s. See F-2.03. |
+
+All three require a confirmation dialog. "Reset Budget" and "Delete Budget" are **irreversible**.
 
 > [!NOTE]
 > **PAUSED — Reset Cadences feature is not in scope.** Scheduled carry-over resets are paused. Manual reset remains supported. Existing prose below is retained for future reference; **do not surface Reset Cadence in UI, plans, or new specs while this pause is in effect.** All new Budgets default to `ResetCadence.never`.
@@ -215,6 +227,8 @@ Screens:
 - Budget Period - The repeating time interval the Budget allocates funds to. The canonical set of cases and their string values are defined in app code (see `BudgetPeriod` or equivalent).
 - Carry-over Amount (AKA CarryOver) - A per-budget, signed cumulative total: surplus (under-spent relative to allocation over time) or deficit (over-spent). It is **shown separately** from “remaining for this Budget Period” (which is not adjusted by carry-over for display). Updated at each Budget Period boundary per [§6.7](#67-carry-over-behavior); can be cleared manually or on a user-configured schedule. Which reset cadence options exist, and how “manual only” is represented, are defined in app code (see `ResetCadence` or equivalent). _PAUSED — Reset Cadences feature not in scope; retained for design reference._
 - Reset cadence - How often carry-over is cleared automatically. Valid cadences and how they relate to Budget Period are defined in app code (see `ResetCadence` and related validation). This glossary does not enumerate values; refer to the code for the latest list. _PAUSED — feature not in scope; retained for design reference._
+- Reset Budget - A destructive action on the Budget detail screen that deletes every Expense Item for a given Budget and zeros its carry-over balance, while leaving the Budget entity itself intact. Distinct from Reset Carry-Over (which only zeros carry-over) and Delete Budget (which removes the Budget entity and cascades to its Expense Items). See §6.7 and F-2.02.
+- Reset Carry-Over - A per-budget action on the Budget detail screen that zeros a Budget's carry-over balance without affecting its Expense Items. Distinct from Reset Budget and Delete Budget. See §6.7 and F-2.02.
 
 ### 10.2 References
 

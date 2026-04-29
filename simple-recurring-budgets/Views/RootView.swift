@@ -18,7 +18,7 @@ struct RootView: View {
         .navigationDestination(for: AppRoute.self) { route in
           switch route {
           case let .budgetDetail(budget):
-            Text("Budget detail: \(budget.name)")
+            BudgetDetailView(budget: budget)
           }
         }
     }

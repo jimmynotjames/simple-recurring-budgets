@@ -256,19 +256,7 @@ struct AddEditBudgetView: View {
     // MARK: - Helpers
 
     private var currencyPrefix: String {
-        let symbol = currencySymbol(for: viewModel.currencyCode)
-        switch settings.currencyDisplay {
-        case .symbol:        return symbol
-        case .code:          return viewModel.currencyCode
-        case .codeAndSymbol: return "\(viewModel.currencyCode) \(symbol)"
-        }
-    }
-
-    private func currencySymbol(for code: String) -> String {
-        let fmt = NumberFormatter()
-        fmt.numberStyle = .currency
-        fmt.currencyCode = code
-        return fmt.currencySymbol
+        settings.currencyDisplay.prefix(for: viewModel.currencyCode)
     }
 
     private func sectionLabel(_ text: String) -> some View {
@@ -300,6 +288,7 @@ private struct OptionalDecimalParseStrategy: ParseStrategy {
         let trimmed = value.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return nil }
         guard let decimal = Decimal(string: trimmed, locale: .current) else {
+            // SwiftUI catches this and reverts the field to its last valid value.
             throw CocoaError(.formatting)
         }
         return decimal

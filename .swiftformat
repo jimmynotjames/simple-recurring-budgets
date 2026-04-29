@@ -1,0 +1,8 @@
+# https://github.com/nicklockwood/SwiftFormat/blob/master/Rules.md
+--swiftversion 6.0
+--indent 2
+--importgrouping alpha
+--wraparguments before-first
+--wrapparameters before-first
+--header strip
+--linebreaks lf

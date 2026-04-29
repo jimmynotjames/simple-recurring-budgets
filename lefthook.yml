@@ -1,0 +1,32 @@
+# https://lefthook.dev/configuration/
+pre-commit:
+  parallel: true
+  commands:
+    swiftformat:
+      glob: "**/*.swift"
+      run: swiftformat {staged_files}
+      stage_fixed: true
+
+    swiftlint:
+      glob: "**/*.swift"
+      run: swiftlint lint --strict {staged_files}
+
+    check-merge-conflicts:
+      # Avoid grep with zero operands (would read stdin).
+      run: bash -c 'set -f; set -- {staged_files}; [ "$#" -eq 0 ] || ! grep -q "<<<<<<<" -- "$@"'
+
+    check-large-files:
+      run: bash scripts/check-large-files.sh {staged_files}
+
+    gitleaks:
+      run: gitleaks protect --staged --no-banner
+
+pre-push:
+  commands:
+    build:
+      run: >
+        xcodebuild build
+        -project simple-recurring-budgets.xcodeproj
+        -scheme simple-recurring-budgets
+        -destination "platform=iOS Simulator,name=iPhone 17,OS=latest"
+        -quiet

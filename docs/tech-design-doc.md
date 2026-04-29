@@ -2,8 +2,8 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.1                            |
-| **Last Updated**   | 2026-04-17                     |
+| **Version**        | 0.9                            |
+| **Last Updated**   | 2026-04-29                     |
 | **Author / Owner** | Jimmy Ho                       |
 
 > Master technical reference for the Simple Recurring Budgets app. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
@@ -248,7 +248,44 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 
 ---
 
-## 8. Future Technical Considerations
+## 8. Developer Tooling
+
+Local quality gates use **Lefthook** ([lefthook.dev](https://lefthook.dev/)) so hooks stay fast and dependency-light (no Python runtime).
+
+### 8.1 One-time machine setup
+
+```bash
+brew install lefthook swiftlint swiftformat gitleaks
+```
+
+After cloning, install Git hooks from the repo root:
+
+```bash
+make hooks-install   # runs `lefthook install` → writes into .git/hooks/
+```
+
+### 8.2 What runs where
+
+| When | What |
+|------|------|
+| **pre-commit** | **SwiftFormat** (2-space indent, Swift 6; see [`.swiftformat`](../.swiftformat)) — auto-formats staged `*.swift` and re-stages fixes; **SwiftLint** strict on staged files ([`.swiftlint.yml`](../.swiftlint.yml)); merge-conflict marker scan; **large-file** guard ([`scripts/check-large-files.sh`](../scripts/check-large-files.sh)) — rejects any staged file over 1 MiB; **gitleaks** on staged changes |
+| **pre-push** | **`xcodebuild build`** for scheme `simple-recurring-budgets`, iOS Simulator destination `name=iPhone 17,OS=latest` (same default device family as [`scripts/test.sh`](../scripts/test.sh)) |
+
+`gitleaks` is optional for solo work but strongly recommended before any secrets or API keys exist in the tree.
+
+### 8.3 Manual commands
+
+- `make lint` — `swiftlint lint --strict` over the repo
+- `make format` — `swiftformat .` (format everything, not only staged files)
+- `make test` — full unit/UI test run via [`scripts/test.sh`](../scripts/test.sh) (unchanged)
+
+### 8.4 Pre-push build caveat
+
+The pre-push build needs a resolvable iOS Simulator (booted device or `SIMULATOR_UDID` / `SIMULATOR_NAME` as in `scripts/test.sh`). If destination resolution fails, run tests once with `make test` or boot a simulator, then push again.
+
+---
+
+## 9. Future Technical Considerations
 
 Items from the feature backlog (T-4 through T-7) that will require technical design when prioritized:
 
@@ -265,7 +302,7 @@ Items from the feature backlog (T-4 through T-7) that will require technical des
 
 ---
 
-## 9. Decision Log
+## 10. Decision Log
 
 | # | Decision | Rationale |
 |---|----------|-----------|
@@ -288,6 +325,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.9     | 2026-04-29 | Jimmy Ho | Add §8 Developer Tooling (Lefthook, SwiftLint, SwiftFormat, gitleaks, large-file script, Makefile targets); renumber former §8–§9 to §9–§10 |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial draft    |
 | 0.2     | 2026-04-11 | Jimmy Ho | Add §4.5 (NSUbiquitousKeyValueStore for app settings); update §8 future table to reflect iCloud key-value store instead of UserDefaults |
 | 0.3     | 2026-04-13 | Jimmy Ho | Add §5.4 documenting the `PeriodCalculator` / `BudgetCalculator` service layer (public API, biweekly anchor convention, ViewModel consumption pattern) |

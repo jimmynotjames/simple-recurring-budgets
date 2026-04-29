@@ -14,6 +14,7 @@ import SwiftData
 /// - Sheet destinations → their respective screens (F-2.03, F-2.04, F-2.05)
 struct RootView: View {
     @Environment(Router.self) private var router
+    @Environment(AppSettings.self) private var settings
 
     var body: some View {
         @Bindable var router = router
@@ -29,9 +30,9 @@ struct RootView: View {
         .sheet(item: $router.sheet) { route in
             switch route {
             case .addBudget:
-                Text("Add Budget")
-            case .editBudget:
-                Text("Edit Budget")
+                AddEditBudgetView(viewModel: AddEditBudgetViewModel(settings: settings))
+            case .editBudget(let budget):
+                AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))
             case .addExpense:
                 Text("Add Expense")
             case .viewExpense:

@@ -315,7 +315,6 @@ struct AddEditBudgetView: View {
   }
 }
 
-
 // MARK: - Previews
 
 #if DEBUG

@@ -180,8 +180,16 @@ struct SettingsView: View {
         ),
         selection: currencyDisplay
       ) {
+        // F-2.05 acceptance: each row reads "<localized option label> — <locale-aware example>",
+        // not the example alone. The example is derived live from the user's locale.
         ForEach(CurrencyDisplayPreference.allCases) { option in
-          Text(option.example()).tag(option)
+          Text(String(
+            localized: "settings.currencyDisplay.option.row",
+            defaultValue: "\(option.label) — \(option.example())",
+            comment:
+            "Composite Settings picker row text per F-2.05. First argument is the localized option label (Symbol / Code / Code + Symbol); second is a locale-aware example such as \"$25.00\"."
+          ))
+          .tag(option)
         }
       }
       .pickerStyle(.menu)
@@ -288,9 +296,13 @@ struct SettingsView: View {
           comment: "Label for the app version row in Settings"
         ))
         Spacer()
-        Text("\(appVersion) (\(buildNumber))")
-          .foregroundStyle(.secondary)
-          .monospacedDigit()
+        Text(String(
+          localized: "settings.version.value",
+          defaultValue: "\(appVersion) (\(buildNumber))",
+          comment: "Renders the app version and build number on the Settings About row. First argument is CFBundleShortVersionString (or \"—\"); second is CFBundleVersion (or \"—\")."
+        ))
+        .foregroundStyle(.secondary)
+        .monospacedDigit()
       }
       .accessibilityElement(children: .combine)
       .accessibilityLabel(String(

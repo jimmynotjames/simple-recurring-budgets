@@ -2,7 +2,7 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.13                           |
+| **Version**        | 0.14                           |
 | **Last Updated**   | 2026-04-30                     |
 | **Author / Owner** | Jimmy Ho                       |
 
@@ -167,10 +167,18 @@ The canonical catalog lives at `simple-recurring-budgets/Resources/Localizable.x
 
 **Inline vs list-label period names** — `BudgetPeriod.inlineLabel` (`period.daily.inline`, `period.weekly.inline`, `period.biweekly.inline`, `period.monthly.inline`) and `BudgetPeriod.listLabel` are backed by **separate** per-locale keys. Inline forms are **never** derived from list-label forms via `.lowercased()`, ensuring translators control case for each usage context independently.
 
+**Shared keys for repeated copy** — strings that appear identically across multiple surfaces use a single `common.*` catalog key rather than per-surface duplicates. The current shared keys are:
+
+| Key                    | Used by                                                                                                  |
+|------------------------|----------------------------------------------------------------------------------------------------------|
+| `common.action.cancel` | Reset Budget confirmation, Reset Carry-Over alert, Currency Picker toolbar, and any future Cancel reuse. |
+
+This avoids translation drift (one surface translating "Cancel" differently from another) and keeps the catalog smaller. New shared copy SHOULD be hoisted under `common.*` only when it is genuinely identical in meaning across surfaces; otherwise prefer per-surface keys so translators can choose context-appropriate wording.
+
 ### 5.2 Accessibility
 
 - **Dynamic Type**: System text styles everywhere; no fixed frame heights that clip at larger sizes.
-- **VoiceOver**: Meaningful accessibility labels on all interactive controls; financial amounts include currency context.
+- **VoiceOver**: Meaningful accessibility labels on all interactive controls; financial amounts include currency context. Custom composite views (carry-over chip, currency picker rows, current-period section header on Budget detail) collapse to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with an explicit composed `.accessibilityLabel(...)`. Headings on `List` / form screens use `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them. Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) carry an `.accessibilityHint(...)` describing the irreversible consequence. **`swipeActions` are not auto-exposed to VoiceOver**; every `swipeActions` block MUST be paired with a matching `.accessibilityAction(named:)` so VO users can invoke the action via the rotor. See [docs/audits/2026-04-30-loc-voiceover-audit.md](audits/2026-04-30-loc-voiceover-audit.md) for the per-screen audit baseline.
 - **Dark Mode**: Semantic system colors and Asset Catalog color sets with light/dark variants; no hard-coded color literals.
 
 ### 5.3 Testing
@@ -353,6 +361,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.14    | 2026-04-30 | Jimmy Ho | Loc + VoiceOver audit conventions: §5.1 add shared-key (`common.*`) policy; §5.2 codify single-element composite a11y, header rotor trait, destructive hint requirement, and `swipeActions` ↔ `accessibilityAction` pairing rule. Cross-link audit at `docs/audits/2026-04-30-loc-voiceover-audit.md`. |
 | 0.13    | 2026-04-30 | Jimmy Ho | Continued drift audit (phase 2): §3.2 fix broken anchor link (67-overunder → 67-carry-over); §5.5 document color-literal exceptions (money, sync status, destructive tints); §9 mark F-5.01 as shipped, update F-6.01/F-6.02 partial-impl notes |
 | 0.12    | 2026-04-30 | Jimmy Ho | Doc/code drift audit: §2.2 fix Router ownership (app entry point, not RootView); §8.2 fix pre-push to reference `scripts/build.sh` + `_destination.sh`; §8.3 add `make build`, `make lint-fix`, `make hooks-install` |
 | 0.11    | 2026-04-29 | Jimmy Ho | §2.1: list `BudgetDetailView` as a View+Services example with its three lifecycle-refresh triggers; §5.1: document count-driven plural variation pattern and inline vs list-label period-name rule |

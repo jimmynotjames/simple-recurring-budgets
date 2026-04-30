@@ -220,7 +220,8 @@ struct BudgetRowView: View {
         ))
 
         // Line 4: Carry-over chip — separate from the button so VoiceOver
-        // can read it as a distinct static-text element.
+        // can read it as a distinct static-text element. The chip itself
+        // owns its accessibilityElement / accessibilityLabel.
         if budget.isCarryOverEnabled {
           CarryOverChip(
             amount: lifecycle?.carryOverAmount ?? budget.carryOverAmount,
@@ -228,7 +229,6 @@ struct BudgetRowView: View {
             display: settings.currencyDisplay
           )
           .padding(.top, chipTopSpacing)
-          .accessibilityAddTraits(.isStaticText)
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)

@@ -1,6 +1,6 @@
 # Product Features Planning
 
-**Version:** 0.1  
+**Version:** 0.2  
 **Last Updated:** 2026-04-30
 **Author/Owner:** Jimmy Ho
 
@@ -178,21 +178,26 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.02: VoiceOver
 
-- **Status:** Partially implemented. All shipped screens provide composed accessibility labels and hints; not formally audited per-screen.
+- **Status:** Implemented (static + per-screen audit complete; pending interactive walkthrough). Audited and remediated under [docs/audits/2026-04-30-loc-voiceover-audit.md](audits/2026-04-30-loc-voiceover-audit.md). All shipped screens provide composed accessibility labels and hints; the status header on the Budget detail screen now carries `.isHeader` for rotor navigation; `swipeActions` are paired with explicit `.accessibilityAction(named:)` so VoiceOver users can delete via the rotor; custom composite controls (`RemainingBar`, `CarryOverChip`, currency-picker rows, current-period section header) collapse to single VO elements; destructive controls (Delete Budget, Delete Expense, Reset Budget, Reset Carry-Over, swipe delete) speak the consequence via `.accessibilityHint`.
 - **Description: VoiceOver is supported**
 - **Acceptance Criteria:**
   - All necessary UI elements have accessibility labels to support VoiceOver.
-- **Edge Cases / Notes:** None
+  - Custom composite views (e.g. carry-over chip, currency picker rows, current-period section header) read as single VoiceOver elements with composed labels rather than as multiple static-text fragments.
+  - Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete on an expense row) carry an `accessibilityHint` describing the irreversible consequence.
+  - `swipeActions` are paired with `.accessibilityAction(named:)` mirroring the gesture so VoiceOver users can invoke them via the rotor.
+- **Edge Cases / Notes:** Live VoiceOver walkthrough and pseudo-loc smoke procedures are documented in [Appendices B and C of the audit](audits/2026-04-30-loc-voiceover-audit.md); they are delegated to the human verifier on real hardware.
 - **Dependencies:** F-3.03
 
 ##### F-3.03: Internationalization of text
 
-- **Status:** Open
-- **Description: VoiceOver is supported**
-- **Acceptance Criteria:** 
+- **Status:** Partially implemented. **English source coverage** is complete and audited under [docs/audits/2026-04-30-loc-voiceover-audit.md](audits/2026-04-30-loc-voiceover-audit.md): every user-facing string in production views is keyed in `Localizable.xcstrings` with a translator `comment:`, no hard-coded literals remain, and shared keys (`common.action.cancel`) eliminate duplicate copy across surfaces. **Real translations** for additional languages have not yet been produced.
+- **Description:** All user-facing text is keyed and translatable; once translations are produced, all labels change automatically to match the device's locale.
+- **Acceptance Criteria:**
   - All Apple-supported languages have translations for all labels.
   - All labels change automatically to match the device's locale.
-- **Edge Cases / Notes:** None
+  - Every user-facing string in production views uses `Text("key", comment:)` or `String(localized: KEY, defaultValue:, comment:)`; no hard-coded English literals remain.
+  - The catalog has no orphan keys and every key carries a translator-friendly `comment:`.
+- **Edge Cases / Notes:** Pseudo-localization smoke procedure is documented in [Appendix B of the audit](audits/2026-04-30-loc-voiceover-audit.md). Translation rollout to additional locales is the remaining work for this feature.
 - **Dependencies:** None
 
 ##### F-3.04: Internationalization of currency

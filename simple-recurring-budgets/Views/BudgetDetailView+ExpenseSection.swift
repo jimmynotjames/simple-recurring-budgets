@@ -34,16 +34,27 @@ extension BudgetDetailView {
             .listRowSeparator(.hidden)
         }
       } else {
+        let totalString = currentPeriodTotal.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)
         Section {
           ForEach(current) { expense in expenseRow(expense) }
         } header: {
           HStack {
             Text(currentSectionTitle)
             Spacer()
-            Text(currentPeriodTotal.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
+            Text(totalString)
               .monospacedDigit()
               .textCase(nil)
           }
+          // Coalesce the title + total into a single VoiceOver element so
+          // it reads "Current Day, total $20.00" rather than as two
+          // separate static-text elements.
+          .accessibilityElement(children: .ignore)
+          .accessibilityLabel(String(
+            localized: "budgetDetail.section.current.accessibilityLabel",
+            defaultValue: "\(currentSectionTitle), total \(totalString)",
+            comment:
+            "VoiceOver label for the current-period section header on the Budget detail screen. First argument is the section title (e.g. \"Current Day\"); second is the formatted running total in the budget's currency."
+          ))
         }
       }
       if !past.isEmpty {
@@ -75,6 +86,15 @@ extension BudgetDetailView {
           systemImage: "trash"
         )
       }
+    }
+    // SwiftUI does not auto-expose `swipeActions` to VoiceOver. Without an
+    // explicit `accessibilityAction`, VO users cannot delete expenses.
+    .accessibilityAction(named: Text(String(
+      localized: "budgetDetail.expenseRow.accessibilityAction.delete",
+      defaultValue: "Delete",
+      comment: "VoiceOver custom action name on an expense row that mirrors the trailing-edge swipe-to-delete gesture, so VoiceOver users can delete via the rotor Actions"
+    ))) {
+      deleteExpense(expense)
     }
   }
 

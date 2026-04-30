@@ -97,7 +97,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.04: Add/Edit/View Expense Item screen
 
-- **Status:** Open
+- **Status:** Implemented (change `add-edit-expense-screen`)
 - **Description:** A full screen (or partial screen) that shows all the editable fields of an Expense Item (entity).
 - **Acceptance Criteria:**
   - Shows editable name of expense (optional)
@@ -105,7 +105,9 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Shows date and time (prefilled with current date and time)
   - Same screen is used for add, edit, and view use cases.
   - No Edit Mode. User should be able to edit fields in place without having to toggle modes.
-- **Edge Cases / Notes:** None
+- **Edge Cases / Notes:**
+  - The screen treats Edit and View as a single mode (per the "No Edit Mode" AC); fields are always directly editable without a mode toggle. "View" means opening the Edit sheet for an existing expense.
+  - Edit-mode Save preserves the sign of `ExpenseItem.amount`, so existing add-funds rows (F-6.01) survive an edit without flipping to a positive expense. Add mode unconditionally inserts a non-negative amount; the Add Funds toggle UI is part of F-6.01's future change.
 - **Dependencies:** F-2.02
 
 ##### F-2.05: Settings screen

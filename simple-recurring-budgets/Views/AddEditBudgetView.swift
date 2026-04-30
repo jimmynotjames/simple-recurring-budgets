@@ -315,36 +315,6 @@ struct AddEditBudgetView: View {
   }
 }
 
-// MARK: - Allocation format style
-
-private struct OptionalDecimalFormatStyle: ParseableFormatStyle {
-  typealias FormatInput = Decimal?
-  typealias FormatOutput = String
-
-  func format(_ value: Decimal?) -> String {
-    guard let value else { return "" }
-    return value.formatted(.number.precision(.fractionLength(0 ... 2)))
-  }
-
-  var parseStrategy: OptionalDecimalParseStrategy {
-    OptionalDecimalParseStrategy()
-  }
-}
-
-private struct OptionalDecimalParseStrategy: ParseStrategy {
-  typealias ParseInput = String
-  typealias ParseOutput = Decimal?
-
-  func parse(_ value: String) throws -> Decimal? {
-    let trimmed = value.trimmingCharacters(in: .whitespaces)
-    guard !trimmed.isEmpty else { return nil }
-    guard let decimal = Decimal(string: trimmed, locale: .current) else {
-      // SwiftUI catches this and reverts the field to its last valid value.
-      throw CocoaError(.formatting)
-    }
-    return decimal
-  }
-}
 
 // MARK: - Previews
 

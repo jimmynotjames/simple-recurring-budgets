@@ -8,7 +8,8 @@ enum SheetRoute: Hashable, Identifiable {
   case addBudget
   case editBudget(Budget)
   case addExpense(Budget)
-  case viewExpense(ExpenseItem)
+  /// Existing expense: F-2.04 single surface for viewing and in-place editing (no separate view vs edit mode).
+  case expense(ExpenseItem)
   case settings
 
   var id: Self {

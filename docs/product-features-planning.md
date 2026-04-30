@@ -348,3 +348,34 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:**
 - **Dependencies:** F-2.01, F-2.02
 
+---
+
+### T-8: Analytics and Observability
+
+#### Features
+
+##### F-8.01: Basic analytics reporting via OSLogger
+
+- **Status:** Partially implemented in data model creation code. No other coverage. 
+- **Description:** Analytics reporting as OSLogger is meant to be used.
+- **Acceptance Criteria:** 
+  - Coverage is 100% of the things that OSLogger is meant to log, leaning towards leaner logging.
+- **Edge Cases / Notes:**
+- **Dependencies:** None
+
+##### F-8.02: Mixpanel basic analytics
+
+- **Status:** Open
+- **Description:** 
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** None
+
+##### F-8.03: Mixpanel advanced analytics
+
+- **Status:** Open
+- **Description:** 
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** F-8.02
+

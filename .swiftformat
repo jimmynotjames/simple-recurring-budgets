@@ -6,3 +6,4 @@
 --wrapparameters before-first
 --header strip
 --linebreaks lf
+--maxwidth 200

@@ -290,7 +290,7 @@ make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 
 | When | What |
 |------|------|
-| **pre-commit** | **SwiftFormat** (2-space indent, Swift 6; see [`.swiftformat`](../.swiftformat)) — auto-formats staged `*.swift` and re-stages fixes; **SwiftLint** strict on staged files ([`.swiftlint.yml`](../.swiftlint.yml)); merge-conflict marker scan; **large-file** guard ([`scripts/check-large-files.sh`](../scripts/check-large-files.sh)) — rejects any staged file over 1 MiB; **gitleaks** on staged changes |
+| **pre-commit** | **SwiftFormat** (2-space indent, Swift 6, max 200 chars/line; see [`.swiftformat`](../.swiftformat)) — auto-formats staged `*.swift` and re-stages fixes; **SwiftLint `--fix`** — auto-corrects mechanical violations (vertical whitespace, modifier order, sorted imports, etc.) and re-stages; **SwiftLint** strict on staged files ([`.swiftlint.yml`](../.swiftlint.yml)); merge-conflict marker scan; **large-file** guard ([`scripts/check-large-files.sh`](../scripts/check-large-files.sh)) — rejects any staged file over 1 MiB; **gitleaks** on staged changes |
 | **pre-push** | **`xcodebuild build`** for scheme `simple-recurring-budgets`, iOS Simulator destination `name=iPhone 17,OS=latest` (same default device family as [`scripts/test.sh`](../scripts/test.sh)) |
 
 `gitleaks` is optional for solo work but strongly recommended before any secrets or API keys exist in the tree.

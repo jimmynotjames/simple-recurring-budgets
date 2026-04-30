@@ -1,10 +1,15 @@
 # https://lefthook.dev/configuration/
 pre-commit:
-  parallel: true
+  parallel: false
   commands:
     swiftformat:
       glob: "**/*.swift"
       run: swiftformat {staged_files}
+      stage_fixed: true
+
+    swiftlint-fix:
+      glob: "**/*.swift"
+      run: swiftlint --fix --quiet {staged_files}
       stage_fixed: true
 
     swiftlint:

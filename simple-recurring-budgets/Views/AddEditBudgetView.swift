@@ -74,6 +74,28 @@ struct AddEditBudgetView: View {
         CurrencyPickerView(selection: $viewModel.currencyCode)
       }
     }
+  }
+
+  // MARK: - Destructive Actions
+
+  private var deleteButton: some View {
+    Button(role: .destructive) {
+      showDeleteConfirmation = true
+    } label: {
+      Text(String(
+        localized: "addEditBudget.action.delete",
+        defaultValue: "Delete Budget",
+        comment: "Button that triggers the delete budget confirmation dialog"
+      ))
+      .frame(maxWidth: .infinity)
+    }
+    .buttonStyle(.bordered)
+    .tint(.red)
+    .accessibilityHint(String(
+      localized: "addEditBudget.action.delete.accessibilityHint",
+      defaultValue: "Permanently deletes this budget and its expenses.",
+      comment: "VoiceOver hint for the Delete Budget button, communicating the destructive and irreversible consequence"
+    ))
     .confirmationDialog(
       String(
         localized: "addEditBudget.deleteConfirmation.title",
@@ -101,28 +123,6 @@ struct AddEditBudgetView: View {
         comment: "Body text in the delete budget confirmation dialog warning that deletion is permanent"
       ))
     }
-  }
-
-  // MARK: - Destructive Actions
-
-  private var deleteButton: some View {
-    Button(role: .destructive) {
-      showDeleteConfirmation = true
-    } label: {
-      Text(String(
-        localized: "addEditBudget.action.delete",
-        defaultValue: "Delete Budget",
-        comment: "Button that triggers the delete budget confirmation dialog"
-      ))
-      .frame(maxWidth: .infinity)
-    }
-    .buttonStyle(.bordered)
-    .tint(.red)
-    .accessibilityHint(String(
-      localized: "addEditBudget.action.delete.accessibilityHint",
-      defaultValue: "Permanently deletes this budget and its expenses.",
-      comment: "VoiceOver hint for the Delete Budget button, communicating the destructive and irreversible consequence"
-    ))
   }
 
   // MARK: - Cards

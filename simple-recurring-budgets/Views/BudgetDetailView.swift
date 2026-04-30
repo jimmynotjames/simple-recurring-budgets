@@ -149,7 +149,6 @@ struct BudgetDetailView: View {
             ),
             role: .destructive
           ) { resetBudget() }
-          Button("Cancel", role: .cancel) {}
         } message: {
           Text(
             "budgetDetail.resetBudget.dialog.message",
@@ -174,7 +173,6 @@ struct BudgetDetailView: View {
         ),
         role: .destructive
       ) { resetCarryOver() }
-      Button("Cancel", role: .cancel) {}
     } message: {
       Text(String(
         localized: "budgetDetail.resetCarryOver.alert.message",

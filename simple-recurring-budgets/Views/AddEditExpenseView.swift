@@ -159,6 +159,28 @@ struct AddEditExpenseView: View {
         .fontWeight(.semibold)
       }
     }
+  }
+
+  // MARK: - Destructive Actions
+
+  private var deleteButton: some View {
+    Button(role: .destructive) {
+      showDeleteConfirmation = true
+    } label: {
+      Text(String(
+        localized: "addEditExpense.action.delete",
+        defaultValue: "Delete Expense",
+        comment: "Button that triggers the delete expense confirmation dialog"
+      ))
+      .frame(maxWidth: .infinity)
+    }
+    .buttonStyle(.bordered)
+    .tint(.red)
+    .accessibilityHint(String(
+      localized: "addEditExpense.action.delete.accessibilityHint",
+      defaultValue: "Permanently deletes this expense.",
+      comment: "VoiceOver hint for the Delete Expense button"
+    ))
     .confirmationDialog(
       String(
         localized: "addEditExpense.deleteConfirmation.title",
@@ -186,28 +208,6 @@ struct AddEditExpenseView: View {
         comment: "Body text in the delete expense confirmation dialog"
       ))
     }
-  }
-
-  // MARK: - Destructive Actions
-
-  private var deleteButton: some View {
-    Button(role: .destructive) {
-      showDeleteConfirmation = true
-    } label: {
-      Text(String(
-        localized: "addEditExpense.action.delete",
-        defaultValue: "Delete Expense",
-        comment: "Button that triggers the delete expense confirmation dialog"
-      ))
-      .frame(maxWidth: .infinity)
-    }
-    .buttonStyle(.bordered)
-    .tint(.red)
-    .accessibilityHint(String(
-      localized: "addEditExpense.action.delete.accessibilityHint",
-      defaultValue: "Permanently deletes this expense.",
-      comment: "VoiceOver hint for the Delete Expense button"
-    ))
   }
 
   // MARK: - Cards

@@ -984,9 +984,6 @@
         }
       }
     },
-    "Cancel" : {
-
-    },
     "carryOver.accessibilityLabel.deficit" : {
       "comment" : "VoiceOver label for a deficit carry-over chip; argument is the formatted currency amount",
       "extractionState" : "extracted_with_value",

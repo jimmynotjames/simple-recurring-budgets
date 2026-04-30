@@ -142,10 +142,7 @@ The Menu SHALL provide a localized accessibility label (key `budgetDetail.menu.a
 
 ### Requirement: Reset Carry-Over presents a confirmation alert and zeros only carry-over
 
-The header's "Reset" button next to the `CarryOverChip` SHALL present a SwiftUI `.alert` titled with key `budgetDetail.resetCarryOver.alert.title` and bodied with key `budgetDetail.resetCarryOver.alert.message`. The alert SHALL include:
-
-- A destructive confirm button (key `budgetDetail.resetCarryOver.alert.confirm`).
-- A standard `role: .cancel` Cancel button.
+The header's "Reset" button next to the `CarryOverChip` SHALL present a SwiftUI `.alert` titled with key `budgetDetail.resetCarryOver.alert.title` and bodied with key `budgetDetail.resetCarryOver.alert.message`. The alert SHALL expose exactly one explicit button: a destructive confirm button (key `budgetDetail.resetCarryOver.alert.confirm`). The implementation SHALL NOT add a redundant `role: .cancel` button; the platform provides dismissal per current iOS behavior (e.g. tap-outside where applicable).
 
 On confirm, the system SHALL set `Budget.carryOverAmount = 0`, set `Budget.carryOverLastResetDate = Date()`, set `Budget.lastModified = Date()`, persist via a single `ModelContext.save()`, and re-invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)` so the header updates. The system SHALL NOT delete any `ExpenseItem`s.
 
@@ -156,19 +153,16 @@ The reset button SHALL provide a localized VoiceOver label (key `budgetDetail.re
 - **WHEN** the user activates the header Reset button and confirms the alert
 - **THEN** the budget's `carryOverAmount` becomes `0`, `carryOverLastResetDate` and `lastModified` become the current date, and **no** `ExpenseItem` rows are deleted
 
-#### Scenario: Cancelling the alert preserves carry-over
+#### Scenario: Dismissing the alert without confirming preserves carry-over
 
-- **WHEN** the user activates the header Reset button and selects Cancel
+- **WHEN** the user activates the header Reset button and dismisses the alert without activating the destructive confirm action
 - **THEN** the budget's `carryOverAmount`, `carryOverLastResetDate`, and `lastModified` SHALL NOT be modified
 
 ---
 
 ### Requirement: Reset Budget presents a confirmation dialog and atomically wipes expenses + zeros carry-over
 
-The Menu's "Reset Budget…" item SHALL present a SwiftUI `confirmationDialog` titled with key `budgetDetail.resetBudget.dialog.title` and bodied with key `budgetDetail.resetBudget.dialog.message`. The dialog SHALL include:
-
-- A destructive confirm button (key `budgetDetail.resetBudget.dialog.confirm`).
-- A standard `role: .cancel` Cancel button.
+The Menu's "Reset Budget…" item SHALL present a SwiftUI `confirmationDialog` titled with key `budgetDetail.resetBudget.dialog.title` and bodied with key `budgetDetail.resetBudget.dialog.message`. The dialog SHALL expose exactly one explicit button: a destructive confirm button (key `budgetDetail.resetBudget.dialog.confirm`). The implementation SHALL NOT add a redundant `role: .cancel` button; SwiftUI's implicit dismiss (e.g. tap-outside on iOS when presented as an anchored popover) SHALL provide the cancel path, consistent with the Add/Edit Budget and Add/Edit Expense delete confirmations.
 
 The dialog body SHALL be a single static localized string under key `budgetDetail.resetBudget.dialog.message` (en-US: "All expenses will be permanently deleted and the carry-over balance will be reset to zero.") with no runtime arguments and no expense count in the copy.
 
@@ -199,9 +193,9 @@ The Reset Budget operation is distinct from the Reset Carry-Over operation (whic
 - **WHEN** the user confirms the Reset Budget dialog
 - **THEN** the `Budget` entity SHALL remain in the store (no `context.delete(budget)` call), the screen stays on the same `BudgetDetailView`, and the navigation stack does not pop
 
-#### Scenario: Cancelling the dialog preserves the budget's data
+#### Scenario: Dismissing the Reset Budget dialog without confirming preserves the budget's data
 
-- **WHEN** the user activates Reset Budget… and selects Cancel
+- **WHEN** the user activates Reset Budget… and dismisses the confirmation dialog without activating the destructive confirm action
 - **THEN** no `ExpenseItem` is deleted and the budget's `carryOverAmount`, `carryOverLastResetDate`, and `lastModified` are unchanged
 
 ---

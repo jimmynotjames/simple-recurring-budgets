@@ -13,6 +13,7 @@ struct CurrencyPickerView: View {
           currencyRow(code: code)
         }
       }
+      .scrollContentBackground(.hidden)
       .searchable(
         text: $query,
         prompt: String(
@@ -38,6 +39,7 @@ struct CurrencyPickerView: View {
           }
         }
       }
+      .appBackground()
     }
   }
 
@@ -73,6 +75,7 @@ struct CurrencyPickerView: View {
       }
     }
     .foregroundStyle(.primary)
+    .listRowBackground(Color("CellBackground"))
     .accessibilityValue(selectedValue)
   }
 
@@ -101,6 +104,16 @@ struct CurrencyPickerView: View {
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Light") {
   CurrencyPickerView(selection: .constant("USD"))
+}
+
+#Preview("Dark") {
+  CurrencyPickerView(selection: .constant("USD"))
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Accessibility Dynamic Type") {
+  CurrencyPickerView(selection: .constant("USD"))
+    .environment(\.sizeCategory, .accessibilityExtraExtraExtraLarge)
 }

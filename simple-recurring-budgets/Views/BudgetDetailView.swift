@@ -70,9 +70,12 @@ struct BudgetDetailView: View {
             defaultValue: "Add Expense",
             comment: "Label on the primary action button that opens the add expense form"
           )
-          Label(title, systemImage: "plus")
-            .font(.headline)
-            .frame(maxWidth: .infinity)
+          HStack(spacing: 8) {
+            Image(systemName: "plus")
+            Text(title)
+          }
+          .font(.headline)
+          .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.large)

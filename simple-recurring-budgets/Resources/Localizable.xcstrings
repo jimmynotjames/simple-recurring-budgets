@@ -1680,18 +1680,6 @@
         }
       }
     },
-    "settings.version.value" : {
-      "comment" : "Renders the app version and build number on the Settings About row. First argument is CFBundleShortVersionString (or \"—\"); second is CFBundleVersion (or \"—\").",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ (%2$@)"
-          }
-        }
-      }
-    },
     "settings.weekStart.accessibilityHint" : {
       "comment" : "VoiceOver hint for the week-start day picker in Settings",
       "extractionState" : "extracted_with_value",

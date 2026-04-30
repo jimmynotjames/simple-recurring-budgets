@@ -2,7 +2,7 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.14                           |
+| **Version**        | 0.15                           |
 | **Last Updated**   | 2026-04-30                     |
 | **Author / Owner** | Jimmy Ho                       |
 
@@ -174,6 +174,8 @@ The canonical catalog lives at `simple-recurring-budgets/Resources/Localizable.x
 | `common.action.cancel` | Reset Budget confirmation, Reset Carry-Over alert, Currency Picker toolbar, and any future Cancel reuse. |
 
 This avoids translation drift (one surface translating "Cancel" differently from another) and keeps the catalog smaller. New shared copy SHOULD be hoisted under `common.*` only when it is genuinely identical in meaning across surfaces; otherwise prefer per-surface keys so translators can choose context-appropriate wording.
+
+**Locale-invariant strings use `Text(verbatim:)`** — content that is purely numeric, code-like, or otherwise not meaningfully translatable (app version + build number, raw ISO currency codes when shown without a localized name, monospaced identifiers, etc.) MUST use `Text(verbatim: "…")` so the literal is **not** auto-extracted into the catalog. Without this, Xcode silently emits opaque catalog keys like `"%@ (%@)"` that translators cannot interpret and that bypass the project's `screen.purpose.detail` naming convention. Where the same row also exposes translatable copy via VoiceOver (e.g. the Settings version row's "Version 1.2.0, build 342" `accessibilityLabel`), localize the **a11y label** with a real catalog key while keeping the visible numerals verbatim.
 
 ### 5.2 Accessibility
 
@@ -361,6 +363,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.15    | 2026-04-30 | Jimmy Ho | §5.1 add `Text(verbatim:)` rule for locale-invariant strings (app version + build, raw ISO codes, etc.) so they are not auto-extracted into the catalog as opaque `%@`-format keys; pair with a localized `accessibilityLabel` when the row exposes translatable copy via VoiceOver. |
 | 0.14    | 2026-04-30 | Jimmy Ho | Loc + VoiceOver audit conventions: §5.1 add shared-key (`common.*`) policy; §5.2 codify single-element composite a11y, header rotor trait, destructive hint requirement, and `swipeActions` ↔ `accessibilityAction` pairing rule. Cross-link audit at `docs/audits/2026-04-30-loc-voiceover-audit.md`. |
 | 0.13    | 2026-04-30 | Jimmy Ho | Continued drift audit (phase 2): §3.2 fix broken anchor link (67-overunder → 67-carry-over); §5.5 document color-literal exceptions (money, sync status, destructive tints); §9 mark F-5.01 as shipped, update F-6.01/F-6.02 partial-impl notes |
 | 0.12    | 2026-04-30 | Jimmy Ho | Doc/code drift audit: §2.2 fix Router ownership (app entry point, not RootView); §8.2 fix pre-push to reference `scripts/build.sh` + `_destination.sh`; §8.3 add `make build`, `make lint-fix`, `make hooks-install` |

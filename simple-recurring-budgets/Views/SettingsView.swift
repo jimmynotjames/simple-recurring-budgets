@@ -296,13 +296,13 @@ struct SettingsView: View {
           comment: "Label for the app version row in Settings"
         ))
         Spacer()
-        Text(String(
-          localized: "settings.version.value",
-          defaultValue: "\(appVersion) (\(buildNumber))",
-          comment: "Renders the app version and build number on the Settings About row. First argument is CFBundleShortVersionString (or \"—\"); second is CFBundleVersion (or \"—\")."
-        ))
-        .foregroundStyle(.secondary)
-        .monospacedDigit()
+        // Locale-invariant numerals + parentheses; use `verbatim:` so the
+        // string is not extracted into the catalog and translators never
+        // see a `%@ (%@)` format. The accessibilityLabel below carries the
+        // real localizable copy ("Version …, build …").
+        Text(verbatim: "\(appVersion) (\(buildNumber))")
+          .foregroundStyle(.secondary)
+          .monospacedDigit()
       }
       .accessibilityElement(children: .combine)
       .accessibilityLabel(String(

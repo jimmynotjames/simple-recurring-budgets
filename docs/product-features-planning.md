@@ -1,7 +1,7 @@
 # Product Features Planning
 
 **Version:** 0.1  
-**Last Updated:** 2026-04-10
+**Last Updated:** 2026-04-30
 **Author/Owner:** Jimmy Ho
 
 For north-star vision, guiding principles, and global constraints, see [main-prd.md](main-prd.md).
@@ -16,7 +16,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-1.01: App Scaffolding
 
-- **Status:** Open
+- **Status:** Implemented. Xcode project, test targets, and GitHub repo exist.
 - **Description:** Basic app created.
 - **Acceptance Criteria:**
   - Xcode project created with main code folder and tests folders scaffolded.
@@ -27,7 +27,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-1.02: Data Architecture
 
-- **Status:** Open
+- **Status:** Implemented. Implemented by change `data-architecture`; SwiftData models with CloudKit sync are in place.
 - **Description:** Database schema created to support entire product roadmap. Persistence uses **SwiftData** with **CloudKit** sync.
 - **Acceptance Criteria:**
   - Database schema instantiated in the app.
@@ -43,7 +43,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.01: Budgets screen
 
-- **Status:** Open
+- **Status:** Implemented. Implemented by change `budgets-screen` and `finish-budgets-screen`.
 - **Description:** Top-level screen: list of Recurring Budget (entity) rows and where the user stands.
 - **Acceptance Criteria:**
   - Name of budget field
@@ -125,7 +125,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.05: Settings screen
 
-- **Status:** Open
+- **Status:** Implemented. Implemented by change `settings-screen`.
 - **Description:** A modal Settings sheet accessible from the Budgets navigation bar. Contains six sections with functional controls, a Done button, and no ViewModel (plain SwiftUI view).
 - **Acceptance Criteria:**
   - A Settings entry-point button is placed in the canonical location in the Budgets navigation bar; tapping it presents a modal sheet.
@@ -141,7 +141,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.06: First-run empty state
 
-- **Status:** Open
+- **Status:** Implemented. Empty state included in the `budgets-screen` change (ContentUnavailableView with create-budget CTA).
 - **Description:** On first launch when the data store contains no budgets, the **Budgets screen** displays a first-run empty state with a clear primary action to create a budget. No placeholder or seed Budget is inserted by the app.
 - **Acceptance Criteria:**
   - After first launch with an empty store, the **Budgets screen** shows its empty-state view (title, short description, and a primary "Create a budget" CTA) — NOT a blank or unlabeled screen.
@@ -170,7 +170,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.01: Dynamic Type
 
-- **Status:** Open
+- **Status:** Partially implemented. All shipped screens use semantic text styles, `@ScaledMetric`, and adaptive layouts; not formally audited per-screen.
 - **Description: Dynamic Type is supported** 
 - **Acceptance Criteria: None**
 - **Edge Cases / Notes:** None
@@ -178,7 +178,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.02: VoiceOver
 
-- **Status:** Open
+- **Status:** Partially implemented. All shipped screens provide composed accessibility labels and hints; not formally audited per-screen.
 - **Description: VoiceOver is supported**
 - **Acceptance Criteria:**
   - All necessary UI elements have accessibility labels to support VoiceOver.
@@ -197,7 +197,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.04: Internationalization of currency
 
-- **Status:** Open
+- **Status:** Partially implemented. Per-budget currency picker (`CurrencyPickerView`) and locale-aware formatting shipped with `add-edit-budget-screen`; currency display preference shipped with `settings-screen`. Full i18n of picker display names depends on F-3.03.
 - **Description:** Currency is **per Budget** (entity) — see **Add/Edit Budget screen** (F-2.03) — not a single global app default. This feature covers formatting, symbols, and the currency catalog used when choosing a Budget’s currency.
 - **Acceptance Criteria:**
   - **Add/Edit Budget screen** includes a currency picker; all supported currency codes are available there (not on **Settings screen** as a global override). _(Implemented by `add-edit-budget-screen` change.)_
@@ -209,7 +209,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.05: Dark Mode
 
-- **Status:** Open
+- **Status:** Partially implemented. Named color assets with light/dark appearances are used on all shipped screens; semantic system colors throughout; not formally audited per-screen.
 - **Description: Dark mode is supported.** 
 - **Acceptance Criteria:** 
 - **Edge Cases / Notes:** None
@@ -266,7 +266,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-5.01: Configurable start of week.
 
-- **Status:** Open
+- **Status:** Implemented. `AppSettings.weekStartDay` with Settings picker and confirmation alert; implemented by change `settings-screen`.
 - **Description:** Choose start day of week for weekly Budgets.
 - **Acceptance Criteria:**
   - Default value is determined by locale's official week starting day. For example, Sunday in the USA, Monday in most of Europe. 
@@ -284,7 +284,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-6.01: Allow manually adding funds
 
-- **Status:** Open
+- **Status:** Partially implemented. Model layer done (`isAddFunds`, `displayAmount` on `ExpenseItem`, negative-amount convention, edit sign preservation in `AddEditExpenseViewModel`). Budget detail screen shows add-funds rows with `Color.moneySurplus` tint and VoiceOver labels. UI toggle on the Add Expense screen to *create* an add-funds entry is not yet shipped.
 - **Description:** User can add a transaction where the amount adds to available funds instead of subtract from it. 
 - **Acceptance Criteria:**
 - **Edge Cases / Notes:**
@@ -292,7 +292,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-6.02: Expense Type on Expense Items
 
-- **Status:** Open
+- **Status:** Partially implemented. Schema done: `expenseType: String?` on `ExpenseItem` (persisted in SchemaV1). No user-facing editor shipped yet.
 - **Description:** 
   - On each Expense Item, allow user to specify an Expense Type.  
   - User can select from "Cash", "Credit Card", "Debit Card", but can also choose to type in their own value.

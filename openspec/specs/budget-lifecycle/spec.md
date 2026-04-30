@@ -114,18 +114,18 @@ The system SHALL correctly handle catch-up scenarios where multiple period bound
 - **WHEN** `carryOverLastResetDate` is several reset cadences before `now` (e.g., a daily budget with weekly reset cadence that has not been opened for multiple weeks)
 - **THEN** the service advances `carryOverLastResetDate` to the most recent applicable period boundary at or before `now` and persists a single zeroed `carryOverAmount`
 
-### Requirement: ViewModel consumption contract
+### Requirement: Screen / ViewModel consumption contract
 
-The system SHALL be invoked from ViewModels (not from SwiftUI `View` bodies, not from `Budget` initializers, not from `Budget` property getters). ViewModels SHALL call `refreshAndSave` eagerly on budget access — at minimum on screen appearance and on `scenePhase == .active` — and MAY call it after mutations that could affect current-period display.
+Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `refreshAndSave` eagerly on budget access — at minimum on screen appearance and on `scenePhase == .active` — and MAY call it after mutations that could affect current-period display. Screens that have not escalated to a ViewModel invoke `refreshAndSave` directly from the view body / `.task` using `@Environment(\.modelContext)` and the injected `AppSettings`. Screens that have escalated to a ViewModel expose a method taking `(settings: AppSettings, context: ModelContext, ...)` at the call site and forward to the service.
 
-ViewModels SHALL treat the returned `BudgetLifecycleResult` as the source of truth for current-period display values rather than recomputing them.
+Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the source of truth for current-period display values rather than recomputing them. Neither screens nor ViewModels SHALL call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly for the eager access flow — `BudgetLifecycleService` is the single entry point for that sequence.
 
-#### Scenario: ViewModel calls refreshAndSave on screen appearance
+#### Scenario: Screen calls refreshAndSave on screen appearance
 
 - **WHEN** a Budgets or Budget screen becomes visible
-- **THEN** its ViewModel calls `BudgetLifecycleService.refreshAndSave` for each displayed budget and binds the returned `BudgetLifecycleResult` values to the view
+- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.refreshAndSave` for each displayed budget and binds the returned `BudgetLifecycleResult` values to the view
 
-#### Scenario: ViewModel calls refreshAndSave on scene activation
+#### Scenario: Screen calls refreshAndSave on scene activation
 
 - **WHEN** the app transitions to `scenePhase == .active` while a budget is displayed
-- **THEN** the ViewModel calls `BudgetLifecycleService.refreshAndSave` so any period or reset boundaries crossed while inactive are applied before the next frame
+- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.refreshAndSave` so any period or reset boundaries crossed while inactive are applied before the next frame

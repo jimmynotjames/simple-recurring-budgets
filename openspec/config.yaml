@@ -19,6 +19,8 @@ context: |
 
   Apply / implementation: when work changes behavior covered by docs/, either update docs in-repo as part of tasks or leave an explicit follow-up task; do not treat the change as complete with drift versus those three files.
 
+  Build/test during apply: after code changes follow the four-step procedure in AGENTS.md > Build and test (make format → make lint-fix → make build → make test) rather than running bare make test; this applies regardless of which tool is running OpenSpec.
+
   Verify: compare implementation and specs to the three docs/*.md files; flag docs drift (missing or contradictory updates) as issues to fix before archive.
 
   Archive: after handling delta spec sync as usual, assess whether docs/ need updates; prompt to update now or defer and warn if deferred.

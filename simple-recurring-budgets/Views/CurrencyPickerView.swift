@@ -31,9 +31,9 @@ struct CurrencyPickerView: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button(String(
-            localized: "addEditBudget.action.cancel",
+            localized: "common.action.cancel",
             defaultValue: "Cancel",
-            comment: "Button that dismisses the Add/Edit Budget sheet without saving"
+            comment: "Generic Cancel button reused by multiple confirmation dialogs, alerts, and sheets across the app"
           )) {
             dismiss()
           }
@@ -47,6 +47,18 @@ struct CurrencyPickerView: View {
 
   private func currencyRow(code: String) -> some View {
     let isSelected = code == selection
+    let name = displayName(for: code)
+    let rowLabel = name.map { localizedName in
+      String(
+        localized: "currencyPicker.row.accessibilityLabel",
+        defaultValue: "\(code), \(localizedName)",
+        comment: "VoiceOver label for a currency row in the picker that has a localized display name. First argument is the ISO 4217 code (e.g. USD); second is the localized display name (e.g. US Dollar)."
+      )
+    } ?? String(
+      localized: "currencyPicker.row.accessibilityLabel.codeOnly",
+      defaultValue: "\(code)",
+      comment: "VoiceOver label for a currency row in the picker when no localized display name is available. Argument is the ISO 4217 code."
+    )
     let selectedValue = isSelected
       ? String(
         localized: "currencyPicker.row.selected.accessibilityValue",
@@ -61,7 +73,7 @@ struct CurrencyPickerView: View {
       HStack {
         Text(code)
           .font(.body.monospacedDigit())
-        if let name = displayName(for: code) {
+        if let name {
           Text(name)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -76,6 +88,11 @@ struct CurrencyPickerView: View {
     }
     .foregroundStyle(.primary)
     .listRowBackground(Color("CellBackground"))
+    // Coalesce the row's children (code + name + checkmark) into a
+    // single VoiceOver element with the explicit composed label, so
+    // VO reads "USD, US Dollar" rather than as two static-text rows.
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(rowLabel)
     .accessibilityValue(selectedValue)
   }
 

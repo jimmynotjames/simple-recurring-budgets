@@ -124,6 +124,11 @@ struct BudgetDetailView: View {
           ) {
             showResetBudgetConfirm = true
           }
+          .accessibilityHint(String(
+            localized: "budgetDetail.menu.resetBudget.accessibilityHint",
+            defaultValue: "Permanently deletes every expense for this budget and resets carry-over to zero.",
+            comment: "VoiceOver hint for the destructive Reset Budget menu item, communicating the irreversible consequence"
+          ))
         } label: {
           Image(systemName: "ellipsis.circle")
         }
@@ -214,6 +219,7 @@ struct BudgetDetailView: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .accessibilityElement(children: .combine)
       .accessibilityLabel(headerA11yLabel)
+      .accessibilityAddTraits(.isHeader)
 
       if budget.isCarryOverEnabled {
         HStack(alignment: .center, spacing: 8) {
@@ -222,7 +228,6 @@ struct BudgetDetailView: View {
             currencyCode: budget.currencyCode,
             display: settings.currencyDisplay
           )
-          .accessibilityAddTraits(.isStaticText)
           Button(String(
             localized: "budgetDetail.resetCarryOver.button",
             defaultValue: "Reset",
@@ -234,6 +239,11 @@ struct BudgetDetailView: View {
               localized: "budgetDetail.resetCarryOver.button.accessibilityLabel",
               defaultValue: "Reset carry-over to zero",
               comment: "VoiceOver label for the reset carry-over button"
+            ))
+            .accessibilityHint(String(
+              localized: "budgetDetail.resetCarryOver.button.accessibilityHint",
+              defaultValue: "Resets the carry-over balance to zero. Expenses are not affected.",
+              comment: "VoiceOver hint for the Reset Carry-Over button, communicating the destructive (but non-cascading) consequence"
             ))
         }
         .padding(.top, chipTopSpacing)

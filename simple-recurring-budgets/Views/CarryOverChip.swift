@@ -32,6 +32,11 @@ struct CarryOverChip: View {
     .padding(.horizontal, chipHPadding)
     .padding(.vertical, chipVPadding)
     .background(Capsule().fill(chipBackground))
+    // Collapse the icon + amount + "carry-over" word into a single
+    // VoiceOver static-text element with the explicit composed label.
+    // Without this, each child Text/Image is its own VO element and
+    // `.accessibilityLabel(...)` does not coalesce them.
+    .accessibilityElement(children: .ignore)
     .accessibilityLabel(accessibilityLabel)
   }
 

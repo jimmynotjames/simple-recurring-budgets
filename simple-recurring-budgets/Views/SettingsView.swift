@@ -180,8 +180,16 @@ struct SettingsView: View {
         ),
         selection: currencyDisplay
       ) {
+        // F-2.05 acceptance: each row reads "<localized option label> — <locale-aware example>",
+        // not the example alone. The example is derived live from the user's locale.
         ForEach(CurrencyDisplayPreference.allCases) { option in
-          Text(option.example()).tag(option)
+          Text(String(
+            localized: "settings.currencyDisplay.option.row",
+            defaultValue: "\(option.label) — \(option.example())",
+            comment:
+            "Composite Settings picker row text per F-2.05. First argument is the localized option label (Symbol / Code / Code + Symbol); second is a locale-aware example such as \"$25.00\"."
+          ))
+          .tag(option)
         }
       }
       .pickerStyle(.menu)
@@ -288,7 +296,11 @@ struct SettingsView: View {
           comment: "Label for the app version row in Settings"
         ))
         Spacer()
-        Text("\(appVersion) (\(buildNumber))")
+        // Locale-invariant numerals + parentheses; use `verbatim:` so the
+        // string is not extracted into the catalog and translators never
+        // see a `%@ (%@)` format. The accessibilityLabel below carries the
+        // real localizable copy ("Version …, build …").
+        Text(verbatim: "\(appVersion) (\(buildNumber))")
           .foregroundStyle(.secondary)
           .monospacedDigit()
       }

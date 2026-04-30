@@ -1,4 +1,7 @@
-.PHONY: test lint format hooks-install
+.PHONY: test lint format hooks-install system
+
+system:
+	bash scripts/system-setup.sh
 
 test:
 	bash scripts/test.sh

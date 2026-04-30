@@ -252,19 +252,26 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 
 ## 8. Developer Tooling
 
-Local quality gates use **Lefthook** ([lefthook.dev](https://lefthook.dev/)) so hooks stay fast and dependency-light (no Python runtime).
+Local quality gates use **Lefthook** ([lefthook.dev](https://lefthook.dev/)) so hooks stay fast and dependency-light (**Lefthook hooks do not require a Python runtime**; they are not the Python `pre-commit` framework). **`make test`** still invokes **`python3`** for [`scripts/resolve_booted_sim_udid.py`](../scripts/resolve_booted_sim_udid.py), so a Python **3.9+** on `PATH` is required for the full test script.
 
 ### 8.1 One-time machine setup
 
+From the repo root, install Homebrew CLI tools, verify Xcode / Python 3, and install Git hooks:
+
+```bash
+make system   # runs scripts/system-setup.sh (idempotent)
+```
+
+Equivalent manual steps:
+
 ```bash
 brew install lefthook swiftlint swiftformat gitleaks
-```
-
-After cloning, install Git hooks from the repo root:
-
-```bash
 make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 ```
+
+`make system` already runs `lefthook install`; use `make hooks-install` alone if you only need to refresh hooks after pulling hook config changes.
+
+**OpenSpec:** The `openspec` CLI (spec-driven workflow in Cursor/skills) is optional for building and testing the app; install it separately per OpenSpec vendor documentation if you use that workflow.
 
 ### 8.2 What runs where
 
@@ -277,6 +284,7 @@ make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 
 ### 8.3 Manual commands
 
+- `make system` — machine bootstrap: Homebrew packages above, Python 3.9+ and `xcodebuild` checks, `lefthook install` (see [`scripts/system-setup.sh`](../scripts/system-setup.sh))
 - `make lint` — `swiftlint lint --strict` over the repo
 - `make format` — `swiftformat .` (format everything, not only staged files)
 - `make test` — full unit/UI test run via [`scripts/test.sh`](../scripts/test.sh) (unchanged)
@@ -327,6 +335,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 1.0     | 2026-04-29 | Jimmy Ho | §8: `make system` / `scripts/system-setup.sh`; clarify Python 3 for `make test` vs Lefthook; optional OpenSpec CLI note |
 | 0.9     | 2026-04-29 | Jimmy Ho | Add §8 Developer Tooling (Lefthook, SwiftLint, SwiftFormat, gitleaks, large-file script, Makefile targets); renumber former §8–§9 to §9–§10 |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial draft    |
 | 0.2     | 2026-04-11 | Jimmy Ho | Add §4.5 (NSUbiquitousKeyValueStore for app settings); update §8 future table to reflect iCloud key-value store instead of UserDefaults |

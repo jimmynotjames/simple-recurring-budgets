@@ -3,10 +3,6 @@ import SwiftUI
 
 /// Root navigation host. Owns the `NavigationStack` path and the active sheet
 /// via the environment-injected `Router`.
-///
-/// Replace placeholder bodies as screens land:
-/// - `.budgetDetail` destination → `BudgetView` (F-2.02)
-/// - `.addExpense` / `.expense` → `AddEditExpenseView` (F-2.04)
 struct RootView: View {
   @Environment(Router.self) private var router
   @Environment(AppSettings.self) private var settings
@@ -19,6 +15,8 @@ struct RootView: View {
           switch route {
           case let .budgetDetail(budget):
             BudgetDetailView(budget: budget)
+          case let .expenseDetail(expense):
+            AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))
           }
         }
     }
@@ -29,9 +27,9 @@ struct RootView: View {
       case let .editBudget(budget):
         AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))
       case let .addExpense(budget):
-        AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget))
-      case let .expense(expense):
-        AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))
+        NavigationStack {
+          AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget))
+        }
       case .settings:
         SettingsView()
       }

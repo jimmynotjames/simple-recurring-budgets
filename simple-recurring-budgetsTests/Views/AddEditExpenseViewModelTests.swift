@@ -4,8 +4,8 @@ import SwiftData
 import Testing
 
 @MainActor
+// swiftlint:disable:next type_body_length
 struct AddEditExpenseViewModelTests {
-
   // MARK: - 5.1  Add-mode defaults
 
   @Test func addMode_defaults() throws {
@@ -92,28 +92,28 @@ struct AddEditExpenseViewModelTests {
 
   // MARK: - 5.5  canSave enumeration
 
-  @Test func canSave_falseWhenAmountNil() throws {
+  @Test func canSave_falseWhenAmountNil() {
     let budget = Budget()
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = nil
     #expect(vm.canSave == false)
   }
 
-  @Test func canSave_falseWhenAmountZero() throws {
+  @Test func canSave_falseWhenAmountZero() {
     let budget = Budget()
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 0
     #expect(vm.canSave == false)
   }
 
-  @Test func canSave_falseWhenAmountNegative() throws {
+  @Test func canSave_falseWhenAmountNegative() {
     let budget = Budget()
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = -1
     #expect(vm.canSave == false)
   }
 
-  @Test func canSave_trueWhenPositiveAmountWithEmptyDescription() throws {
+  @Test func canSave_trueWhenPositiveAmountWithEmptyDescription() {
     let budget = Budget()
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5.00
@@ -121,7 +121,7 @@ struct AddEditExpenseViewModelTests {
     #expect(vm.canSave == true)
   }
 
-  @Test func canSave_trueWhenPositiveAmountWithDescription() throws {
+  @Test func canSave_trueWhenPositiveAmountWithDescription() {
     let budget = Budget()
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5.00
@@ -551,5 +551,34 @@ struct AddEditExpenseViewModelTests {
     vm.delete(context: context) // must compile with (context:) only
     let remaining = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(remaining.isEmpty)
+  }
+
+  // MARK: - Cancel button visibility (isEditing gate)
+
+  /// Add mode: isEditing is false → Cancel button renders.
+  @Test func addMode_isEditingIsFalse() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    context.insert(budget)
+    try context.save()
+
+    let vm = AddEditExpenseViewModel(adding: budget)
+    #expect(vm.isEditing == false)
+  }
+
+  /// Edit mode: isEditing is true → Cancel button is suppressed.
+  @Test func editMode_isEditingIsTrue() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    context.insert(budget)
+    let expense = ExpenseItem(amount: 7, name: "Lunch")
+    expense.budget = budget
+    context.insert(expense)
+    try context.save()
+
+    let vm = AddEditExpenseViewModel(editing: expense)
+    #expect(vm.isEditing == true)
   }
 }

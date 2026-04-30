@@ -2,39 +2,82 @@
 
 ## Purpose
 
-SwiftUI sheet for adding a new `ExpenseItem` or viewing and editing an existing one on a single surface (F-2.04). Card-based form (Amount, Description, When) backed by `AddEditExpenseViewModel`, wired to `Router.sheet` via `SheetRoute.addExpense` and `SheetRoute.expense`.
+SwiftUI view for adding a new `ExpenseItem` or viewing and editing an existing one on a single surface (F-2.04). Card-based form (Amount, Description, When) backed by `AddEditExpenseViewModel`. Presented as a sheet (Add mode via `SheetRoute.addExpense`) or pushed (Edit mode via `AppRoute.expenseDetail`). Navigation context provided by the caller, not by `AddEditExpenseView` itself.
 
 ## Requirements
 
-### Requirement: Add/Edit/View Expense screen is a single sheet for both create and edit modes
+### Requirement: Add/Edit/View Expense screen is a single view for both create and edit modes
 
-The system SHALL present a single SwiftUI sheet, `AddEditExpenseView`, used for both creating a new `ExpenseItem` (Add mode) and editing an existing `ExpenseItem` (Edit/View mode). Per F-2.04, the screen does NOT distinguish between Edit and View — Edit mode IS the View mode and there is no read-only toggle.
+The system SHALL present a single SwiftUI view, `AddEditExpenseView`, used for both creating a new `ExpenseItem` (Add mode) and editing an existing `ExpenseItem` (Edit/View mode). Per F-2.04, the screen does NOT distinguish between Edit and View — Edit mode IS the View mode and there is no read-only toggle.
 
-The sheet SHALL be presented from the existing `Router.sheet` mechanism via two existing `SheetRoute` cases:
+`AddEditExpenseView` SHALL NOT wrap its own body in a `NavigationStack`. The navigation context (and therefore the navigation bar that hosts toolbar items) SHALL be provided by the caller:
+
+- When presented as a **sheet** (`SheetRoute.addExpense(Budget)`), `RootView` SHALL wrap `AddEditExpenseView` in a `NavigationStack` at the sheet presentation site.
+- When presented as a **push** (`AppRoute.expenseDetail(ExpenseItem)`), `RootView`'s existing outer `NavigationStack` provides the navigation context; no additional wrapper is needed.
+
+This ensures that the view is not embedded inside a nested `NavigationStack`, which would produce a double navigation bar when pushed.
+
+The `AddEditExpenseView` previews SHALL also wrap the view in a `NavigationStack` so that toolbar items render correctly.
+
+The two access paths are:
 
 - `SheetRoute.addExpense(Budget)` — Add mode.
-- `SheetRoute.expense(ExpenseItem)` — existing expense (F-2.04: same surface for view and in-place edit).
+- `AppRoute.expenseDetail(ExpenseItem)` — existing expense (F-2.04: same surface for view and in-place edit), reached via push navigation from `BudgetDetailView`.
 
-No new `SheetRoute` cases beyond the two expense routes SHALL be introduced. The existing-expense route is `SheetRoute.expense(ExpenseItem)` (neutral name aligned with F-2.04: one surface for view and in-place edit).
+`SheetRoute.expense(ExpenseItem)` is removed. No `SheetRoute` case for an existing expense remains.
 
-The sheet's navigation title SHALL read the localized string `"Add Expense"` (key `addEditExpense.title.add`) in Add mode and a neutral title for an existing row (key `addEditExpense.title.existing`; English string catalog value `"Expense"`) on the existing-expense path. The title SHALL be displayed inline (`.navigationBarTitleDisplayMode(.inline)`).
+The navigation title SHALL read `"Add Expense"` (key `addEditExpense.title.add`) in Add mode and `"Expense"` (key `addEditExpense.title.existing`) in Edit/View mode. The title SHALL be displayed inline (`.navigationBarTitleDisplayMode(.inline)`).
 
-The sheet SHALL expose two toolbar items: a leading `Cancel` button (key `addEditExpense.action.cancel`) that dismisses without persisting any changes, and a trailing `Save` button (key `addEditExpense.action.save`) whose enablement follows the validation rule documented in the "Save is enabled only when amount is strictly positive" requirement.
-
-#### Scenario: Add mode is presented via SheetRoute.addExpense
+#### Scenario: Add mode is presented via SheetRoute.addExpense (sheet)
 
 - **WHEN** a caller sets `Router.sheet = .addExpense(budget)` for some `Budget`
-- **THEN** `RootView` SHALL present `AddEditExpenseView` configured for Add mode, with the in-flight `Budget` available to the VM for attachment on Save
+- **THEN** `RootView` SHALL present a `NavigationStack` containing `AddEditExpenseView` configured for Add mode, with the in-flight `Budget` available to the VM for attachment on Save
 
-#### Scenario: Existing expense path is presented via SheetRoute.expense
+#### Scenario: Existing expense path is presented via AppRoute.expenseDetail (push)
 
-- **WHEN** a caller sets `Router.sheet = .expense(expense)` for some `ExpenseItem`
-- **THEN** `RootView` SHALL present `AddEditExpenseView` configured for the existing-expense path, seeded from that `ExpenseItem`
+- **WHEN** the user taps an expense row on `BudgetDetailView`, appending `AppRoute.expenseDetail(expense)` to `router.path`
+- **THEN** `RootView`'s `navigationDestination` SHALL push `AddEditExpenseView` configured for Edit/View mode, seeded from that `ExpenseItem`, inside the existing outer `NavigationStack` — no nested `NavigationStack` is introduced
 
-#### Scenario: Sheet exposes Cancel and Save toolbar items
+#### Scenario: No nested NavigationStack when pushed
 
-- **WHEN** the sheet is visible in either Add or Edit/View mode
-- **THEN** the navigation bar SHALL show a leading Cancel button and a trailing Save button (localized via `addEditExpense.action.cancel` and `addEditExpense.action.save`); no other toolbar items SHALL be present on this sheet
+- **WHEN** `AppRoute.expenseDetail(expense)` is resolved by `RootView`'s `navigationDestination`
+- **THEN** the resulting screen SHALL have exactly one navigation bar (from the outer `NavigationStack`); a double navigation bar SHALL NOT appear
+
+### Requirement: Add/Edit/View Expense screen toolbar items differ by mode
+
+The Add/Edit/View Expense screen SHALL expose toolbar items according to the active mode:
+
+- **Add mode** (`viewModel.isEditing == false`): a leading Cancel button (key `addEditExpense.action.cancel`, placement `.cancellationAction`) that dismisses without persisting any changes, and a trailing Save button (key `addEditExpense.action.save`, placement `.confirmationAction`) whose enablement follows the "Save is enabled only when amount is strictly positive" requirement.
+- **Edit/View mode** (`viewModel.isEditing == true`): a trailing Save button only. The Cancel button SHALL NOT be rendered. The system-provided back button in the `NavigationStack` serves as the discard path — navigating back without tapping Save discards any in-flight field changes.
+
+The Save button SHALL render with `.fontWeight(.semibold)` in both modes. The Cancel button locale key `addEditExpense.action.cancel` remains in the String Catalog (it is used in Add mode); it is simply not rendered in Edit mode.
+
+No other toolbar items SHALL be present on this screen in either mode.
+
+#### Scenario: Add mode shows Cancel and Save toolbar items
+
+- **WHEN** the sheet is visible in Add mode (`viewModel.isEditing == false`)
+- **THEN** the navigation bar SHALL show a leading Cancel button (key `addEditExpense.action.cancel`) and a trailing Save button (key `addEditExpense.action.save`)
+
+#### Scenario: Edit mode shows Save only — no Cancel button
+
+- **WHEN** the screen is pushed in Edit/View mode (`viewModel.isEditing == true`)
+- **THEN** the navigation bar SHALL show only the trailing Save button; the leading Cancel button SHALL NOT be present
+
+#### Scenario: Back chevron is the discard path in Edit mode
+
+- **WHEN** the screen is in Edit/View mode and the user navigates back without tapping Save
+- **THEN** no changes are persisted; `dismiss()` is NOT called explicitly from a Cancel button; the `NavigationStack` back action pops the view
+
+#### Scenario: Save remains enabled by positive amount in both modes
+
+- **WHEN** `viewModel.amount > 0` in either Add or Edit/View mode
+- **THEN** the Save button is enabled regardless of whether Cancel is visible
+
+#### Scenario: Cancel in Add mode dismisses without saving
+
+- **WHEN** the sheet is in Add mode and the user taps Cancel
+- **THEN** the sheet is dismissed and no `ExpenseItem` is inserted
 
 ### Requirement: Form fields are Amount, Description (optional), and When (date/time)
 
@@ -340,7 +383,7 @@ The user-visible Amount field SHALL remain a non-negative numeric editor regardl
 
 ### Requirement: Cancel dismisses without persisting any changes
 
-When the user activates the Cancel toolbar button (in either Add or Edit/View mode), the system SHALL dismiss the sheet without inserting, mutating, or saving any `ExpenseItem`. Any in-flight draft state SHALL be discarded.
+When the user activates the Cancel toolbar button (available in Add mode only), the system SHALL dismiss the sheet without inserting, mutating, or saving any `ExpenseItem`. Any in-flight draft state SHALL be discarded. In Edit/View mode the Cancel button is not rendered; the system back button provides the equivalent discard path.
 
 #### Scenario: Cancel from Add mode inserts no expense
 

@@ -8,7 +8,7 @@ struct BudgetDetailView: View {
 
   @Environment(\.modelContext) var context
   @Environment(AppSettings.self) var settings
-  @Environment(Router.self) private var router
+  @Environment(Router.self) var router
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 

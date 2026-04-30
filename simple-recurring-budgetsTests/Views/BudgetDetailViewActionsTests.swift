@@ -293,3 +293,49 @@ struct DeleteExpenseAlgorithmTests {
     #expect(ids.contains(keeperID))
   }
 }
+
+// MARK: - Expense Row Push Navigation
+
+struct ExpenseRowPushNavigationTests {
+  /// Tapping a row appends AppRoute.expenseDetail to the router path.
+  @Test func tapExpenseRow_appendsExpenseDetailRoute() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let expense = ExpenseItem(amount: 5, name: "Coffee")
+    context.insert(expense)
+    try context.save()
+
+    let router = Router()
+    router.path.append(AppRoute.expenseDetail(expense))
+
+    #expect(router.path.count == 1)
+    #expect(router.path.last == AppRoute.expenseDetail(expense))
+  }
+
+  /// Two AppRoute.expenseDetail values wrapping the same ExpenseItem are equal.
+  @Test func appRoute_expenseDetail_isHashable() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let expense = ExpenseItem(amount: 10, name: "Lunch")
+    context.insert(expense)
+    try context.save()
+
+    let routeA = AppRoute.expenseDetail(expense)
+    let routeB = AppRoute.expenseDetail(expense)
+    #expect(routeA == routeB)
+    #expect(routeA.hashValue == routeB.hashValue)
+  }
+
+  /// Two AppRoute.expenseDetail values wrapping distinct ExpenseItems are not equal.
+  @Test func appRoute_expenseDetail_differsByExpense() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let expenseA = ExpenseItem(amount: 5, name: "Tea")
+    let expenseB = ExpenseItem(amount: 8, name: "Juice")
+    context.insert(expenseA)
+    context.insert(expenseB)
+    try context.save()
+
+    #expect(AppRoute.expenseDetail(expenseA) != AppRoute.expenseDetail(expenseB))
+  }
+}

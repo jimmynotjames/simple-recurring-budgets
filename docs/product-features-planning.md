@@ -56,7 +56,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.02: Budget screen
 
-- **Status:** Implemented (excluding F-2.04 entry/edit and F-6.01). Implemented by change `budget-detail-screen`.
+- **Status:** Implemented (excluding F-6.01). Core screen implemented by change `budget-detail-screen`; tap-to-edit on expense rows implemented by change `expense-row-push-navigation`.
 - **Description:** Screen that lists Expense Items for a single Budget (entity).
 - **Acceptance Criteria:**
   - Shows vertical scrolling list of transactions as a list of most-recent to least-recent.
@@ -64,7 +64,8 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Shows **Remaining for current Budget Period** and **Carry-over** consistent with [main-prd.md §6.7](main-prd.md#67-carry-over-behavior) and F-2.01.
   - **Status header** — large monospaced remaining amount (deficit-tinted when negative), period label, fuel-gauge `RemainingBar`, and — when carry-over is enabled — an inline `CarryOverChip` and a small **Reset** button for the manual carry-over reset.
   - **Adaptive header layout** — remaining amount and period label render side-by-side below `.xxxLarge` Dynamic Type; stacked vertically at `.xxxLarge` and above. Row spacing scales via `@ScaledMetric`.
-  - **Primary Add Expense action** — a full-width `.borderedProminent` button always visible within the screen, presenting `SheetRoute.addExpense(budget)` for this specific budget. (The actual Add Expense sheet ships under F-2.04.)
+  - **Primary Add Expense action** — a full-width `.borderedProminent` button always visible within the screen, presenting `SheetRoute.addExpense(budget)` for this specific budget.
+  - **Tap-to-edit expense row** — tapping an expense row pushes `AddEditExpenseView` in Edit mode via `AppRoute.expenseDetail(expense)` (push navigation, standard back-button return). Implemented by change `expense-row-push-navigation`.
   - **Toolbar overflow Menu** (`ellipsis.circle`, top-trailing) hosting:
     - **Edit Budget** — opens the Add/Edit Budget sheet in Edit mode.
     - **Reset Budget…** (destructive) — deletes every `ExpenseItem` for this budget, zeros `carryOverAmount`, and bumps timestamps in a single `ModelContext.save()`. The `Budget` entity itself is **not** deleted. Gated by a confirmation dialog whose body is a single static localized string (no expense count in copy). See [main-prd.md §6.7](main-prd.md#67-carry-over-behavior) for the distinction between Reset Budget, Reset Carry-Over, and Delete Budget.
@@ -77,7 +78,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
     - Name of expense (or an italic “Untitled expense” placeholder when nil)
   - **Lifecycle refresh** on task initialization, `scenePhase == .active`, and `onChange(of: budget.expenseItems.count)`.
   - **VoiceOver** — composed accessibility labels on the header (on-budget and over-budget variants) and on each expense row (standard and add-funds variants).
-- **Edge Cases / Notes:** The Add Expense sheet target and tap-to-edit on expense rows are out of scope until F-2.04. The add-funds display path for `ExpenseItem.isAddFunds` is present but no UI to create one exists until F-6.01 (PAUSED).
+- **Edge Cases / Notes:** The add-funds display path for `ExpenseItem.isAddFunds` is present but no UI to create one exists until F-6.01 (PAUSED).
 - **Dependencies:** F-2.01
 
 ##### F-2.03: Add/Edit Budget screen
@@ -106,7 +107,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.04: Add/Edit/View Expense Item screen
 
-- **Status:** Implemented (change `add-edit-expense-screen`)
+- **Status:** Implemented (changes `add-edit-expense-screen`, `edit-expense-omit-cancel`)
 - **Description:** A full screen (or partial screen) that shows all the editable fields of an Expense Item (entity).
 - **Acceptance Criteria:**
   - Shows editable name of expense (optional)
@@ -114,9 +115,12 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Shows date and time (prefilled with current date and time)
   - Same screen is used for add, edit, and view use cases.
   - No Edit Mode. User should be able to edit fields in place without having to toggle modes.
+  - **Add mode** shows a leading Cancel button (dismisses without saving) and a trailing Save button.
+  - **Edit mode** shows only a trailing Save button; the system back button serves as the discard path.
 - **Edge Cases / Notes:**
   - The screen treats Edit and View as a single mode (per the "No Edit Mode" AC); fields are always directly editable without a mode toggle. "View" means opening the Edit sheet for an existing expense.
   - Edit-mode Save preserves the sign of `ExpenseItem.amount`, so existing add-funds rows (F-6.01) survive an edit without flipping to a positive expense. Add mode unconditionally inserts a non-negative amount; the Add Funds toggle UI is part of F-6.01's future change.
+  - Omitting Cancel in Edit mode avoids redundancy with the navigation back button and reduces toolbar clutter on the narrow pushed view.
 - **Dependencies:** F-2.02
 
 ##### F-2.05: Settings screen

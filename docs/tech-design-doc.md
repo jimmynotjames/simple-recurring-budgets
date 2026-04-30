@@ -67,6 +67,10 @@ The app's information architecture is a simple stack: Budgets list → Budget de
 
 A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned by the navigation host (`RootView`) as `@State` and exposed via `@Environment` so leaf screens trigger pushes and sheets without holding navigation state themselves.
 
+`AppRoute` push cases: `budgetDetail(Budget)` (Budgets list → Budget detail), `expenseDetail(ExpenseItem)` (Budget detail → Expense edit, F-2.04 edit path). `SheetRoute` sheet cases: `addBudget`, `editBudget(Budget)`, `addExpense(Budget)`, `settings`. Existing-expense editing is reached via push (`AppRoute.expenseDetail`), not a sheet.
+
+`AddEditExpenseView` does not own a `NavigationStack`; the navigation context is provided by the caller. For the sheet path (`addExpense`), `RootView` wraps it in `NavigationStack { }`. For the push path (`expenseDetail`), the outer `NavigationStack` in `RootView` provides the context directly.
+
 ---
 
 ## 3. Data Model

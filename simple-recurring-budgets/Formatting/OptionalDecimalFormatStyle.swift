@@ -11,7 +11,7 @@ struct OptionalDecimalFormatStyle: ParseableFormatStyle {
 
   func format(_ value: Decimal?) -> String {
     guard let value else { return "" }
-    return value.formatted(.number.precision(.fractionLength(0...2)))
+    return value.formatted(.number.precision(.fractionLength(0 ... 2)))
   }
 
   var parseStrategy: OptionalDecimalParseStrategy {

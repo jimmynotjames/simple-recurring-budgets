@@ -260,16 +260,21 @@ struct BudgetRowView: View {
     }
     .padding(.vertical, rowVerticalPadding)
     .task(id: budget.persistentModelID) {
-      lifecycle = BudgetLifecycleService.refreshAndSave(
-        budget, settings: settings, context: context
-      )
+      refreshLifecycle()
     }
     .onChange(of: scenePhase) { _, newPhase in
       guard newPhase == .active else { return }
-      lifecycle = BudgetLifecycleService.refreshAndSave(
-        budget, settings: settings, context: context
-      )
+      refreshLifecycle()
     }
+    .onChange(of: budget.expenseItems.count) {
+      refreshLifecycle()
+    }
+  }
+
+  private func refreshLifecycle() {
+    lifecycle = BudgetLifecycleService.refreshAndSave(
+      budget, settings: settings, context: context
+    )
   }
 
   /// Builds the VoiceOver label for the row button, including period and — when the

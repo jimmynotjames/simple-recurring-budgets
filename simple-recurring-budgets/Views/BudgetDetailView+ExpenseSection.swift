@@ -55,23 +55,28 @@ extension BudgetDetailView {
   }
 
   func expenseRow(_ expense: ExpenseItem) -> some View {
-    ExpenseRowView(expense: expense, currencyCode: budget.currencyCode)
-      .listRowBackground(Color("CellBackground"))
-      .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-        Button(role: .destructive) {
-          expenseToDelete = expense
-          showDeleteConfirm = true
-        } label: {
-          Label(
-            String(
-              localized: "budgetDetail.deleteExpense.swipeAction",
-              defaultValue: "Delete",
-              comment: "Label on the swipe-to-delete action for an expense row"
-            ),
-            systemImage: "trash"
-          )
-        }
+    Button {
+      router.path.append(AppRoute.expenseDetail(expense))
+    } label: {
+      ExpenseRowView(expense: expense, currencyCode: budget.currencyCode)
+    }
+    .buttonStyle(.plain)
+    .listRowBackground(Color("CellBackground"))
+    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+      Button(role: .destructive) {
+        expenseToDelete = expense
+        showDeleteConfirm = true
+      } label: {
+        Label(
+          String(
+            localized: "budgetDetail.deleteExpense.swipeAction",
+            defaultValue: "Delete",
+            comment: "Label on the swipe-to-delete action for an expense row"
+          ),
+          systemImage: "trash"
+        )
       }
+    }
   }
 
   func deleteExpense(_ expense: ExpenseItem) {
@@ -211,6 +216,8 @@ private struct ExpenseRowView: View {
         .foregroundStyle(expense.isAddFunds ? Color.moneySurplus : .primary)
     }
     .padding(.vertical, rowVerticalPadding)
+    // Extend hit-test area to full row frame; plain button style only hits rendered pixels otherwise.
+    .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
     .accessibilityLabel(a11yLabel)
   }

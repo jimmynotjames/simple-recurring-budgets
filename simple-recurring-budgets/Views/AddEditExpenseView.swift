@@ -48,14 +48,14 @@ final class AddEditExpenseViewModel {
     let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedName: String? = trimmed.isEmpty ? nil : trimmed
     switch mode {
-    case .add(let budget):
+    case let .add(budget):
       // Guard per spec: "Save in Add mode inserts a new ExpenseItem attached to the in-flight Budget"
       guard canSave, let amount else { return }
       let expense = ExpenseItem(amount: amount, name: trimmedName, date: date)
       expense.budget = budget
       context.insert(expense)
       try? context.save()
-    case .edit(let expense):
+    case let .edit(expense):
       var changed = false
       // Compare against displayAmount (absolute value) — mirrors how the field is seeded.
       // Write preserves sign for isAddFunds rows (spec: "Edit-mode Save preserves the sign of ExpenseItem.amount").
@@ -98,44 +98,44 @@ struct AddEditExpenseView: View {
   @FocusState private var isAmountFocused: Bool
 
   var body: some View {
-    NavigationStack {
-      ScrollView {
-        VStack(spacing: 16) {
-          amountCard
-          nameCard
-          whenCard
-          if viewModel.isEditing {
-            deleteButton
-          }
-        }
-        .padding(.horizontal)
-        .padding(.top, 8)
-        .padding(.bottom, 32)
-      }
-      .onAppear {
-        // Auto-focus Amount in Add mode only; Edit/View mode should not pop the keyboard
-        // (spec: "Add mode auto-focuses the Amount field; Edit/View mode does not")
-        if !viewModel.isEditing {
-          isAmountFocused = true
+    ScrollView {
+      VStack(spacing: 16) {
+        amountCard
+        nameCard
+        whenCard
+        if viewModel.isEditing {
+          deleteButton
         }
       }
-      .navigationTitle(
-        viewModel.isEditing
-          ? String(
-            localized: "addEditExpense.title.existing",
-            defaultValue: "Expense",
-            comment:
-              "Navigation bar title for an existing expense (F-2.04: same sheet for view and in-place edit; no separate Edit mode)"
-          )
-          : String(
-            localized: "addEditExpense.title.add",
-            defaultValue: "Add Expense",
-            comment: "Navigation bar title when adding a new expense"
-          )
-      )
-      .navigationBarTitleDisplayMode(.inline)
-      .appBackground()
-      .toolbar {
+      .padding(.horizontal)
+      .padding(.top, 8)
+      .padding(.bottom, 32)
+    }
+    .onAppear {
+      // Auto-focus Amount in Add mode only; Edit/View mode should not pop the keyboard
+      // (spec: "Add mode auto-focuses the Amount field; Edit/View mode does not")
+      if !viewModel.isEditing {
+        isAmountFocused = true
+      }
+    }
+    .navigationTitle(
+      viewModel.isEditing
+        ? String(
+          localized: "addEditExpense.title.existing",
+          defaultValue: "Expense",
+          comment:
+          "Navigation bar title for an existing expense (F-2.04: same surface for view and in-place edit; no separate Edit mode)"
+        )
+        : String(
+          localized: "addEditExpense.title.add",
+          defaultValue: "Add Expense",
+          comment: "Navigation bar title when adding a new expense"
+        )
+    )
+    .navigationBarTitleDisplayMode(.inline)
+    .appBackground()
+    .toolbar {
+      if !viewModel.isEditing {
         ToolbarItem(placement: .cancellationAction) {
           Button(String(
             localized: "addEditExpense.action.cancel",
@@ -145,18 +145,18 @@ struct AddEditExpenseView: View {
             dismiss()
           }
         }
-        ToolbarItem(placement: .confirmationAction) {
-          Button(String(
-            localized: "addEditExpense.action.save",
-            defaultValue: "Save",
-            comment: "Button that saves the expense and dismisses the sheet"
-          )) {
-            viewModel.save(context: context)
-            dismiss()
-          }
-          .disabled(!viewModel.canSave)
-          .fontWeight(.semibold)
+      }
+      ToolbarItem(placement: .confirmationAction) {
+        Button(String(
+          localized: "addEditExpense.action.save",
+          defaultValue: "Save",
+          comment: "Button that saves the expense and dismisses the sheet"
+        )) {
+          viewModel.save(context: context)
+          dismiss()
         }
+        .disabled(!viewModel.canSave)
+        .fontWeight(.semibold)
       }
     }
     .confirmationDialog(
@@ -310,54 +310,65 @@ struct AddEditExpenseView: View {
   }
 }
 
-
 // MARK: - Previews
 
 #if DEBUG
   #Preview("Add — Light") {
-    AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
-      .modelContainer(PreviewContainer.make())
-      .environment(AppSettings())
+    NavigationStack {
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
+    }
+    .modelContainer(PreviewContainer.make())
+    .environment(AppSettings())
   }
 
   #Preview("Add — Dark") {
-    AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.weeklyDefault()))
-      .modelContainer(PreviewContainer.make())
-      .environment(AppSettings())
-      .preferredColorScheme(.dark)
+    NavigationStack {
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.weeklyDefault()))
+    }
+    .modelContainer(PreviewContainer.make())
+    .environment(AppSettings())
+    .preferredColorScheme(.dark)
   }
 
   #Preview("Existing expense — Light") {
     let budget = DebugData.dailyDefault()
-    return AddEditExpenseView(
-      viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
-    )
+    return NavigationStack {
+      AddEditExpenseView(
+        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
+      )
+    }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
   }
 
   #Preview("Existing expense — Dark") {
     let budget = DebugData.monthlyDefault()
-    return AddEditExpenseView(
-      viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
-    )
+    return NavigationStack {
+      AddEditExpenseView(
+        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
+      )
+    }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
     .preferredColorScheme(.dark)
   }
 
   #Preview("xxxLarge Type") {
-    AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
-      .modelContainer(PreviewContainer.make())
-      .environment(AppSettings())
-      .dynamicTypeSize(.xxxLarge)
+    NavigationStack {
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
+    }
+    .modelContainer(PreviewContainer.make())
+    .environment(AppSettings())
+    .dynamicTypeSize(.xxxLarge)
   }
 
   #Preview("Empty — Save disabled") {
     let vm = AddEditExpenseViewModel(adding: DebugData.dailyDefault())
     vm.amount = nil
-    return AddEditExpenseView(viewModel: vm)
-      .modelContainer(PreviewContainer.make())
-      .environment(AppSettings())
+    return NavigationStack {
+      AddEditExpenseView(viewModel: vm)
+    }
+    .modelContainer(PreviewContainer.make())
+    .environment(AppSettings())
   }
 #endif

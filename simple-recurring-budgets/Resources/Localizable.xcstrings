@@ -470,7 +470,7 @@
       }
     },
     "addEditExpense.title.existing" : {
-      "comment" : "Navigation bar title for an existing expense (F-2.04: same sheet for view and in-place edit; no separate Edit mode)",
+      "comment" : "Navigation bar title for an existing expense (F-2.04: same surface for view and in-place edit; no separate Edit mode)",
       "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {

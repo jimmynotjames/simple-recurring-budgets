@@ -204,7 +204,7 @@ High-level entities include:
 
 Screens:
 
-- Budgets screen — List of Recurring Budgets with current allocations
+- Budgets screen — List of Recurring Budgets with remaining for the current Budget Period
 - Budget screen — List of Expense Items for one Budget
 - Add/Edit Budget screen — Create or edit a Budget (entity).
 - Add/Edit/View Expense Item screen — Create, edit, or view an Expense Item (entity).

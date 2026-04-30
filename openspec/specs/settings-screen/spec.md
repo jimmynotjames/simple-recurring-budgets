@@ -203,7 +203,7 @@ If the device has no `mailto:` handler installed, the Send Feedback `Link` MAY n
 
 ### Requirement: About section — app version and build
 
-The Settings screen SHALL include an "About" section that contains a single row displaying the app's version and build numbers, formatted as `"<version> (<build>)"`. The values SHALL be read from `Bundle.main.infoDictionary["CFBundleShortVersionString"]` and `Bundle.main.infoDictionary["CFBundleVersion"]` respectively. If either value is missing, the row SHALL display the em-dash placeholder `"—"` for that field.
+The Settings screen SHALL include an about section (header optional) that contains a single row displaying the app's version and build numbers, formatted as `"<version> (<build>)"`. The values SHALL be read from `Bundle.main.infoDictionary["CFBundleShortVersionString"]` and `Bundle.main.infoDictionary["CFBundleVersion"]` respectively. If either value is missing, the row SHALL display the em-dash placeholder `"—"` for that field.
 
 The row SHALL be a single `accessibilityElement(children: .combine)`-collapsed element with a localized VoiceOver label that announces both the version and the build number as a single utterance ("Version <version>, build <build>").
 

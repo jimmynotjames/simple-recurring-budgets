@@ -2,8 +2,8 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.10                           |
-| **Last Updated**   | 2026-04-29                     |
+| **Version**        | 0.13                           |
+| **Last Updated**   | 2026-04-30                     |
 | **Author / Owner** | Jimmy Ho                       |
 
 > Master technical reference for the Simple Recurring Budgets app. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
@@ -65,7 +65,7 @@ Pure display-only subviews (row cells, badges, amount formatters) remain logic-f
 
 The app's information architecture is a simple stack: Budgets list → Budget detail → Expense detail. A `NavigationStack` with a `Hashable` route enum and `navigationDestination(for:)` handles this cleanly — type-safe, state-driven, and deep-linkable. iPad/Mac can use adaptive layout without requiring a full split view.
 
-A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned by the navigation host (`RootView`) as `@State` and exposed via `@Environment` so leaf screens trigger pushes and sheets without holding navigation state themselves.
+A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned by the app entry point (`simple_recurring_budgetsApp`) as `@State` and injected into the SwiftUI environment via `.environment(router)`. `RootView` and all descendant screens access it via `@Environment(Router.self)` so leaf screens trigger pushes and sheets without holding navigation state themselves.
 
 `AppRoute` push cases: `budgetDetail(Budget)` (Budgets list → Budget detail), `expenseDetail(ExpenseItem)` (Budget detail → Expense edit, F-2.04 edit path). `SheetRoute` sheet cases: `addBudget`, `editBudget(Budget)`, `addExpense(Budget)`, `settings`. Existing-expense editing is reached via push (`AppRoute.expenseDetail`), not a sheet.
 
@@ -92,7 +92,7 @@ Derived values — **Remaining for current Budget Period** and **Over/Under disp
 
 ### 3.2 Over/Under Bookkeeping
 
-Per [PRD §6.7](main-prd.md#67-overunder-carryover-behavior):
+Per [PRD §6.7](main-prd.md#67-carry-over-behavior):
 
 - **Period boundary roll**: When the app detects a new Budget Period has started, compute `allocation − expenses` for the completed period(s) and fold into the stored Over/Under amount. This happens eagerly on app launch / budget access.
 - **Scheduled reset**: Compare last reset date against current date and the budget's reset cadence. If a reset boundary has passed, zero out Over/Under and update the last reset date. _(PAUSED — Reset Cadences feature is not in scope. The code path is retained and unit-tested, but all new Budgets default to `"never"`, so this is a no-op in practice. Do not surface scheduling configuration in UI or new specs while paused.)_
@@ -195,6 +195,8 @@ Three services in `Domain/` implement all budget math and lifecycle orchestratio
 
 The app uses a warm earth-tone palette defined as named color assets in `Resources/Assets.xcassets`, with separate light and dark appearances. All views must use these named assets — never hard-coded color literals.
 
+**Exceptions:** Semantic system colors are used for money signals (`Color.moneySurplus` / `Color.moneyDeficit` defined as extensions on `Color` in `Views/Color+Money.swift`), iCloud sync-status icons (system `.green` / `.orange`), and destructive button tints (`.tint(.red)`). These adapt to light/dark mode via the system palette and do not need custom asset catalog slots. If a future theme change (F-4.01–02) needs per-theme control over these, they can be promoted to named assets at that time.
+
 #### Color assets
 
 Exact values are defined in `Resources/Assets.xcassets` with separate light and dark appearances. The table below documents semantic intent only.
@@ -291,16 +293,19 @@ make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 | When | What |
 |------|------|
 | **pre-commit** | **SwiftFormat** (2-space indent, Swift 6, max 200 chars/line; see [`.swiftformat`](../.swiftformat)) — auto-formats staged `*.swift` and re-stages fixes; **SwiftLint `--fix`** — auto-corrects mechanical violations (vertical whitespace, modifier order, sorted imports, etc.) and re-stages; **SwiftLint** strict on staged files ([`.swiftlint.yml`](../.swiftlint.yml)); merge-conflict marker scan; **large-file** guard ([`scripts/check-large-files.sh`](../scripts/check-large-files.sh)) — rejects any staged file over 1 MiB; **gitleaks** on staged changes |
-| **pre-push** | **`xcodebuild build`** for scheme `simple-recurring-budgets`, iOS Simulator destination `name=iPhone 17,OS=latest` (same default device family as [`scripts/test.sh`](../scripts/test.sh)) |
+| **pre-push** | **`bash scripts/build.sh`** — bare compile via `xcodebuild build` for scheme `simple-recurring-budgets` using the shared destination helper [`scripts/_destination.sh`](../scripts/_destination.sh) (same resolution as [`scripts/test.sh`](../scripts/test.sh): `SIMULATOR_UDID` → booted sim → `name=iPhone 17,OS=latest` fallback) |
 
 `gitleaks` is optional for solo work but strongly recommended before any secrets or API keys exist in the tree.
 
 ### 8.3 Manual commands
 
 - `make system` — machine bootstrap: Homebrew packages above, Python 3.9+ and `xcodebuild` checks, `lefthook install` (see [`scripts/system-setup.sh`](../scripts/system-setup.sh))
+- `make build` — bare compile via [`scripts/build.sh`](../scripts/build.sh) (same destination resolution as `make test`)
 - `make lint` — `swiftlint lint --strict` over the repo
+- `make lint-fix` — `swiftlint --fix --quiet .` then `swiftlint lint --strict` (auto-fix + verify)
 - `make format` — `swiftformat .` (format everything, not only staged files)
-- `make test` — full unit/UI test run via [`scripts/test.sh`](../scripts/test.sh) (unchanged)
+- `make test` — full unit/UI test run via [`scripts/test.sh`](../scripts/test.sh)
+- `make hooks-install` — `lefthook install` (refresh hooks after pulling config changes)
 
 ### 8.4 Pre-push build caveat
 
@@ -310,16 +315,16 @@ The pre-push build needs a resolvable iOS Simulator (booted device or `SIMULATOR
 
 ## 9. Future Technical Considerations
 
-Items from the feature backlog (T-4 through T-7) that will require technical design when prioritized:
+Remaining items from the feature backlog that will require technical design when prioritized:
 
 | Feature | Technical Surface |
 |---------|-------------------|
 | **F-4.01–02: Color themes** | Asset Catalog color sets, theme state in `NSUbiquitousKeyValueStore` (synced via iCloud) or SwiftData, `@Environment(\.colorScheme)` integration |
 | **F-4.03: Budget icons** | Emoji storage as `String` on `Budget`; SF Symbols picker; optional LLM call for default suggestion |
 | **F-4.04: Photo upload for icon** | PhotosUI (`PhotosPicker`), image resizing, binary storage (or file URL) in SwiftData, CloudKit asset limits |
-| **F-5.01: Start of week** | `NSUbiquitousKeyValueStore` storage (synced via iCloud), `Calendar` mutation, cascade to Over/Under reset boundary calculations |
-| **F-6.01: Adding funds** | Negative expense amount or separate `Transaction` type with a direction enum |
-| **F-6.02: Expense Type** | New `expenseType: String?` on `ExpenseItem`, user-defined values stored as a `Set<String>` in `NSUbiquitousKeyValueStore` (synced via iCloud) or a dedicated entity |
+| ~~**F-5.01: Start of week**~~ | **Shipped** — `NSUbiquitousKeyValueStore` storage, `Calendar` mutation, period calculation integration via `AppSettings.weekStartDay` and `PeriodCalculator`. Row removed from future table. |
+| **F-6.01: Adding funds** | Model layer done: negative `ExpenseItem.amount` convention, `isAddFunds` / `displayAmount` computed properties, edit-path sign preservation. Remaining: Add Funds toggle UI on the Add Expense screen. |
+| **F-6.02: Expense Type** | Schema done: `expenseType: String?` on `ExpenseItem`. Remaining: user-facing editor, user-defined values stored as a `Set<String>` in `NSUbiquitousKeyValueStore` (synced via iCloud) or a dedicated entity. |
 | **F-7.01: Receipt scanning** | Vision framework (`VNRecognizeTextRequest`), on-device OCR, regex extraction for amounts |
 | **F-7.02–03: Voice input/query** | SiriKit intents or App Intents framework, on-device NLP, `SFSpeechRecognizer` for in-app voice |
 
@@ -348,6 +353,8 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.13    | 2026-04-30 | Jimmy Ho | Continued drift audit (phase 2): §3.2 fix broken anchor link (67-overunder → 67-carry-over); §5.5 document color-literal exceptions (money, sync status, destructive tints); §9 mark F-5.01 as shipped, update F-6.01/F-6.02 partial-impl notes |
+| 0.12    | 2026-04-30 | Jimmy Ho | Doc/code drift audit: §2.2 fix Router ownership (app entry point, not RootView); §8.2 fix pre-push to reference `scripts/build.sh` + `_destination.sh`; §8.3 add `make build`, `make lint-fix`, `make hooks-install` |
 | 0.11    | 2026-04-29 | Jimmy Ho | §2.1: list `BudgetDetailView` as a View+Services example with its three lifecycle-refresh triggers; §5.1: document count-driven plural variation pattern and inline vs list-label period-name rule |
 | 0.10     | 2026-04-29 | Jimmy Ho | §8: `make system` / `scripts/system-setup.sh`; clarify Python 3 for `make test` vs Lefthook; optional OpenSpec CLI note |
 | 0.9     | 2026-04-29 | Jimmy Ho | Add §8 Developer Tooling (Lefthook, SwiftLint, SwiftFormat, gitleaks, large-file script, Makefile targets); renumber former §8–§9 to §9–§10 |

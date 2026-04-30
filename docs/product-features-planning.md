@@ -152,10 +152,11 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.07: Carry-over toggle switch
 
-- **Status:** Open
+- **Status:** Implemented. Per-budget toggle implemented as part of the `add-edit-budget-screen` change; global default implemented as part of the Settings screen.
 - **Description:** Every budget can have the carry-over calculation turned off. 
 - **Acceptance Criteria:**
   - Add/Edit Budget screen has a toggle to turn on/off the carry-over of the prior balances.
+  - In Add mode, the carry-over toggle defaults to the current value of the global default carry-over setting in Settings (`AppSettings.defaultCarryOverEnabled`).
   - Settings screen has a global setting to default all new Budgets with carry-over turned on or off. It is turned on by default.
   - This setting is stored in `NSUbiquitousKeyValueStore` and syncs automatically across the user's iCloud-connected devices.
 - **Edge Cases / Notes:** None

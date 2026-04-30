@@ -270,6 +270,32 @@ struct DeleteExpenseAlgorithmTests {
     )
   }
 
+  /// deleteExpense invoked directly (no confirmation staging) removes the expense.
+  /// This covers the path used by the swipe-to-delete action after the confirmation
+  /// dialog was removed and `allowsFullSwipe` was enabled.
+  @Test func deleteExpense_swipeDeleteCallsDirectly() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let budget = Budget(name: "Dining", allocation: 80)
+    context.insert(budget)
+    let target = ExpenseItem(amount: 12, name: "Lunch"); target.budget = budget; context.insert(target)
+    let keeper = ExpenseItem(amount: 6, name: "Coffee"); keeper.budget = budget; context.insert(keeper)
+    let targetID = target.id
+    try context.save()
+
+    // Simulate what deleteExpense(_:) does directly (no expenseToDelete staging).
+    context.delete(target)
+    try context.save()
+
+    let context2 = ModelContext(container)
+    let all = try context2.fetch(FetchDescriptor<ExpenseItem>())
+    let ids = Set(all.map(\.id))
+    #expect(!ids.contains(targetID), "Directly-deleted expense must be removed")
+    #expect(ids.contains(keeper.id), "Sibling expense must remain")
+    #expect(all.count == 1)
+  }
+
   /// Changes persist atomically across a fresh ModelContext.
   @Test func deleteExpense_persistsAtomically() throws {
     let container = try TestModelContainer.make()

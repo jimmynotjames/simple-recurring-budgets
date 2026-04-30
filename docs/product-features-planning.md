@@ -70,7 +70,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
     - **Edit Budget** — opens the Add/Edit Budget sheet in Edit mode.
     - **Reset Budget…** (destructive) — deletes every `ExpenseItem` for this budget, zeros `carryOverAmount`, and bumps timestamps in a single `ModelContext.save()`. The `Budget` entity itself is **not** deleted. Gated by a confirmation dialog whose body is a single static localized string (no expense count in copy). See [main-prd.md §6.7](main-prd.md#67-carry-over-behavior) for the distinction between Reset Budget, Reset Carry-Over, and Delete Budget.
   - **Reset Carry-over** control with confirmation; clears only this budget’s carry-over (per [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)).
-  - **Delete Expense Item** — swipe-to-delete on a row with confirmation.
+  - **Delete Expense Item** — swipe-to-delete on a row. A full trailing swipe or a tap on the revealed destructive button immediately deletes the expense; no confirmation dialog is presented.
   - **Period-aware expense sections** — expenses are split into a **Current ⟨period⟩** section (items in the current Budget Period, with a section total) and a **Past ⟨period⟩** section (earlier items). Contextual empty captions handle the current-period-empty and zero-expense cases.
   - For each Expense Item, shows the following fields:
     - Date and time (relative: “Today HH:mm” / “Yesterday HH:mm” / locale-aware beyond yesterday)

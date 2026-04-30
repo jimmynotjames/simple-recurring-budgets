@@ -13,8 +13,6 @@ struct BudgetDetailView: View {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   @State var lifecycle: BudgetLifecycleResult?
-  @State var expenseToDelete: ExpenseItem?
-  @State var showDeleteConfirm = false
   @State private var showResetCarryOverConfirm = false
   @State private var showResetBudgetConfirm = false
 
@@ -158,41 +156,6 @@ struct BudgetDetailView: View {
             comment: "Body of the reset-budget confirmation dialog."
           )
         }
-      }
-    }
-    .confirmationDialog(
-      String(
-        localized: "budgetDetail.deleteExpense.dialog.title",
-        defaultValue: "Delete this expense?",
-        comment: "Title of the confirmation dialog when the user swipes to delete an expense"
-      ),
-      isPresented: $showDeleteConfirm,
-      titleVisibility: .visible
-    ) {
-      Button(
-        String(
-          localized: "budgetDetail.deleteExpense.dialog.confirm",
-          defaultValue: "Delete",
-          comment: "Destructive confirm button in the delete expense confirmation dialog"
-        ),
-        role: .destructive
-      ) {
-        if let e = expenseToDelete { deleteExpense(e) }
-      }
-      Button("Cancel", role: .cancel) {}
-    } message: {
-      if let name = expenseToDelete?.name {
-        Text(String(
-          localized: "budgetDetail.deleteExpense.dialog.message",
-          defaultValue: "\(name) will be permanently removed.",
-          comment: "Body of the delete expense dialog when the expense has a name; argument is the expense name"
-        ))
-      } else {
-        Text(String(
-          localized: "budgetDetail.deleteExpense.dialog.message.unnamed",
-          defaultValue: "This expense will be permanently removed.",
-          comment: "Body of the delete expense dialog when the expense has no name"
-        ))
       }
     }
     .alert(

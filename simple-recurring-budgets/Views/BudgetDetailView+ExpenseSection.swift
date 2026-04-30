@@ -62,10 +62,9 @@ extension BudgetDetailView {
     }
     .buttonStyle(.plain)
     .listRowBackground(Color("CellBackground"))
-    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
       Button(role: .destructive) {
-        expenseToDelete = expense
-        showDeleteConfirm = true
+        deleteExpense(expense)
       } label: {
         Label(
           String(

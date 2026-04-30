@@ -301,40 +301,39 @@ The combined accessibility element SHALL provide a localized label that includes
 
 ---
 
-### Requirement: Trailing swipe presents a delete confirmation that removes one expense
+### Requirement: Trailing swipe immediately deletes one expense without confirmation
 
-Each expense row SHALL expose a trailing `swipeActions(edge: .trailing, allowsFullSwipe: false)` containing exactly one destructive `Button` whose label is a `Label` composed of the localized title `budgetDetail.deleteExpense.swipeAction` (en-US "Delete") and the SF Symbol `trash`. Activating the swipe button SHALL set `expenseToDelete = expense` and `showDeleteConfirm = true`.
+Each expense row SHALL expose a trailing `swipeActions(edge: .trailing, allowsFullSwipe: true)` containing exactly one destructive `Button` whose label is a `Label` composed of the localized title `budgetDetail.deleteExpense.swipeAction` (en-US "Delete") and the SF Symbol `trash`. Activating the swipe button (partial swipe + tap, or full trailing swipe) SHALL immediately call `deleteExpense(_:)` on the tapped expense.
 
-The confirmation `confirmationDialog` SHALL be titled with key `budgetDetail.deleteExpense.dialog.title` (en-US "Delete this expense?") and bodied with one of two keys depending on whether the expense has a name:
+There is no confirmation dialog for swipe-initiated expense deletion. The `@State` properties `expenseToDelete` and `showDeleteConfirm` SHALL NOT exist on `BudgetDetailView`.
 
-- `budgetDetail.deleteExpense.dialog.message` when `expenseToDelete.name != nil` (interpolating the name).
-- `budgetDetail.deleteExpense.dialog.message.unnamed` when `expenseToDelete.name == nil`.
+On invocation, within a single `withAnimation` block, the system SHALL `context.delete(expense)` and call `ModelContext.save()` exactly once, then re-invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)`. The Budget itself SHALL NOT be modified except by the lifecycle service's normal roll-and-persist behavior.
 
-The dialog SHALL include a destructive confirm button (key `budgetDetail.deleteExpense.dialog.confirm`) and a standard `role: .cancel` Cancel button.
+The four localization keys that existed solely for the removed confirmation dialog SHALL NOT be present in `Localizable.xcstrings`:
+- `budgetDetail.deleteExpense.dialog.title`
+- `budgetDetail.deleteExpense.dialog.confirm`
+- `budgetDetail.deleteExpense.dialog.message`
+- `budgetDetail.deleteExpense.dialog.message.unnamed`
 
-On confirm, within a single `withAnimation` block, the system SHALL `context.delete(expenseToDelete)` and call `ModelContext.save()` exactly once, then re-invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)`. The Budget itself SHALL NOT be modified except by the lifecycle service's normal roll-and-persist behavior.
+#### Scenario: Full trailing swipe immediately deletes the expense
 
-`allowsFullSwipe` SHALL remain `false` so a casual full-swipe cannot bypass the confirmation dialog.
+- **WHEN** the user performs a full trailing swipe on an expense row
+- **THEN** the expense is immediately deleted from the store; no confirmation dialog is presented
 
-#### Scenario: Swipe presents confirmation, not immediate delete
+#### Scenario: Partial swipe button tap immediately deletes the expense
 
-- **WHEN** the user trailing-swipes a row and taps the destructive Delete swipe button
-- **THEN** the confirmation dialog is presented; no `ExpenseItem` is deleted yet
+- **WHEN** the user partially swipes a row to reveal the red Delete button and taps it
+- **THEN** the expense is immediately deleted from the store; no confirmation dialog is presented
 
-#### Scenario: Confirm deletes only the targeted expense
+#### Scenario: Deletion removes only the targeted expense
 
-- **WHEN** the user confirms the delete dialog for `expenseToDelete`
-- **THEN** that `ExpenseItem` is removed from the store, `ModelContext.save()` is called exactly once, and the lifecycle service is re-invoked so the header re-derives `remaining`
+- **WHEN** swipe-delete is invoked on one expense row
+- **THEN** that `ExpenseItem` is removed from the store, `ModelContext.save()` is called exactly once, no sibling `ExpenseItem`s are affected, and the lifecycle service is re-invoked so the header re-derives `remaining`
 
-#### Scenario: Cancelling the dialog preserves the row
+#### Scenario: Localized delete button label is unchanged
 
-- **WHEN** the user cancels the delete dialog
-- **THEN** the targeted `ExpenseItem` remains in the store and the row continues to render
-
-#### Scenario: Unnamed expense uses the unnamed dialog body
-
-- **WHEN** the user swipes-to-delete a row whose `expense.name == nil`
-- **THEN** the dialog body is rendered from key `budgetDetail.deleteExpense.dialog.message.unnamed` (no name interpolation)
+- **WHEN** the user trailing-swipes any expense row
+- **THEN** the action button label reads the localized string under key `budgetDetail.deleteExpense.swipeAction` (en-US "Delete") and uses the `trash` SF Symbol
 
 ---
 
@@ -362,7 +361,7 @@ When the lifecycle result is unavailable (initial state before the first call re
 
 #### Scenario: Refresh on expense count change
 
-- **WHEN** `budget.expenseItems.count` changes (via Add Expense sheet, swipe-to-delete confirmation, or Reset Budget confirmation)
+- **WHEN** `budget.expenseItems.count` changes (via Add Expense sheet, swipe-to-delete, or Reset Budget confirmation)
 - **THEN** `BudgetLifecycleService.refreshAndSave` is invoked so the header re-derives `remaining` and the section partitioning re-evaluates against the latest set
 
 #### Scenario: Refresh keyed by persistentModelID for row recycling

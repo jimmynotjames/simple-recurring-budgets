@@ -1,6 +1,6 @@
 # Product Features Planning
 
-**Version:** 0.2  
+**Version:** 0.3  
 **Last Updated:** 2026-04-30
 **Author/Owner:** Jimmy Ho
 
@@ -363,19 +363,61 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:**
 - **Dependencies:** None
 
-##### F-8.02: Mixpanel basic analytics
+##### F-8.02: Mixpanel Phase 1 — foundation and basic stats
 
 - **Status:** Open
-- **Description:** 
+- **Description:** Establish the product analytics foundation. Phase 1 is the smallest viable Mixpanel integration that still answers the most fundamental questions about who is using the app, what they are using it for, and whether they come back — and that informs how we develop future features. Detailed events, properties, dashboards, identity, consent jurisdictions, and architecture live in [analytics-spec.md](analytics-spec.md). Mixpanel is the chosen vendor; rationale and weaknesses we sidestep are in spec §1.
 - **Acceptance Criteria:**
+  - **Constraints (canonical / legally required):**
+    - Strictly **opt-in**, default off, gated by a Settings toggle. Mandated by [main-prd.md](main-prd.md) §6.3 and [tech-design-doc.md](tech-design-doc.md) §7.
+    - **No PII** ever transmitted — no budget names, expense names, currency amounts, expense dates, notes, or any free-text user input.
+    - First-run consent sheet appears only in jurisdictions that legally require explicit opt-in consent (EU + EEA + UK + Switzerland by default; see spec §6.2).
+    - Diagnostic / OSLog telemetry (`.bootstrap`, `.cloudKit`, `.ui` channels per `AnalyticsClient`) is **never** forwarded to Mixpanel.
+    - All consent and Settings copy is keyed in `Localizable.xcstrings` per F-3.03.
+    - No engagement-pressure events (streaks, "missed days," push nudges) per [main-prd.md](main-prd.md) §3 and [ux-design-brief.md](ux-design-brief.md).
+  - **Product questions Phase 1 must be able to answer** (delivered as Mixpanel reports / dashboards alongside the build; full mapping in [analytics-spec.md](analytics-spec.md) §§2, 10):
+    - Are people opening the app at all? (DAU / WAU / MAU; sessions per user.)
+    - What share of new users complete the activation funnel — first launch → first Budget created → first Expense logged?
+    - How long does it take a new user to create their first Budget? From first Budget to first Expense?
+    - What's the 1-day, 7-day, and 30-day retention rate on logging an Expense?
+    - What's the average number of Budgets per active user, and how is it distributed?
+    - What's the breakdown of Budget Period (daily / weekly / biweekly / monthly) across all users and across all Budgets?
+    - What's the currency-code, locale / region, and iOS / device-class breakdown?
+    - What share of users keep carry-over enabled (default-on retained) versus explicitly turn it off?
+    - How often do users open Settings? Which settings get changed?
+    - How often are destructive actions invoked — Reset Carry-Over vs Reset Budget vs Delete Budget?
+    - What's the opt-in rate, and how does it differ between consent-required jurisdictions and the rest of the world?
+  - **Deliverables (the spec is the source of truth):**
+    - Mixpanel SDK integrated, opt-in toggle in Settings, first-run consent sheet in consent-required jurisdictions, and the canonical event + property surface implemented per [analytics-spec.md](analytics-spec.md).
+    - Phase 1 dashboards built and linked from the spec.
+    - Companion updates to [tech-design-doc.md](tech-design-doc.md) §§4.5, 7, 9 per spec §18.
 - **Edge Cases / Notes:**
-- **Dependencies:** None
+  - Mixpanel is **not** a crash reporter or time-series telemetry log; crash and lifecycle data stays on `OSLog` (F-8.01) and Apple-native frameworks (MetricKit). The full F-8.01 boundary is in [analytics-spec.md](analytics-spec.md) §16.
+  - Final per-event property list, super properties, people properties, and dashboards live in [analytics-spec.md](analytics-spec.md). Treat that doc as the implementation contract; this entry is intentionally high-level.
+- **Dependencies:** F-2.05 (Settings — for the opt-in toggle), F-3.03 (i18n of consent + Settings copy), F-8.01 (OSLog boundary)
 
-##### F-8.03: Mixpanel advanced analytics
+##### F-8.03: Mixpanel Phase 2 — reactive deepening and experimentation seam
 
 - **Status:** Open
-- **Description:** 
+- **Description:** React to what Phase 1 reveals. Add the behavioral analysis depth Phase 1 cannot deliver — funnel drop-offs, cohort retention, and whether the app's UX promises (notably "fast logging") are materializing in practice — and add a controlled experimentation seam so future small UX experiments (theme defaults, rating-prompt thresholds, copy variants) can run without app updates. The detailed event / property / dashboard surface lives in [analytics-spec.md](analytics-spec.md) §§3, 11–14, and MUST be re-validated against actual Phase 1 evidence before implementation: low-signal Phase 2 properties are dropped or replaced.
 - **Acceptance Criteria:**
+  - **Constraints (canonical / legally required):**
+    - Same opt-in and no-PII guarantees as Phase 1; nothing added that could become identifying when combined with Phase 1 properties.
+    - Mixpanel feature flags are pull-only and cached for offline starts; no app launch is blocked on a flag fetch.
+    - Phase 2 still excludes engagement-pressure events; no notification / messaging surface is wired even though the SDK supports it.
+  - **Product questions Phase 2 should answer** (full mapping in [analytics-spec.md](analytics-spec.md) §§3, 13):
+    - Where in the Add Expense flow do users drop off — between presenting the sheet and a successful save?
+    - Is the [ux-design-brief.md](ux-design-brief.md) "Signature Element: Fast expense logging" promise materializing? (Median taps from Budgets list to a successful Expense; cold-start latency to a usable Budgets list.)
+    - Do daily-budget users retain differently from weekly / biweekly / monthly users? Do users with multiple Budgets retain differently from single-Budget users?
+    - Do users with carry-over enabled retain differently from those who turn it off?
+    - When do users meet the "meaningful usage" threshold needed for the F-6.03 rating prompt, and what does the rating-prompt outcome distribution look like?
+    - When we A/B test a UX variant via Mixpanel feature flags, does it move activation, retention, or rating-prompt outcomes? (No live experiment ships in F-8.03 itself — this is the seam.)
+  - **Deliverables (the spec is the source of truth):**
+    - Funnel-abandonment events, cohort-driving people properties, and lightweight performance properties implemented per [analytics-spec.md](analytics-spec.md) §§11–13.
+    - `FeatureFlagClient` protocol + `MixpanelFeatureFlagClient` and `StaticFeatureFlagClient` implementations per spec §14.
+    - Phase 2 dashboards built and linked from the spec.
+    - The implementing change cites Phase 1 dashboard evidence motivating (or trimming) each Phase 2 property and event before scope is locked.
 - **Edge Cases / Notes:**
+  - Phase 2 acceptance criteria are written before Phase 1 evidence exists; the spec's Phase 2 lists are intentionally marked **planned** and may shift.
 - **Dependencies:** F-8.02
 

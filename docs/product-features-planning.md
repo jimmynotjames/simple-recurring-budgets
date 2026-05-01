@@ -1,7 +1,7 @@
 # Product Features Planning
 
 **Version:** 0.3  
-**Last Updated:** 2026-04-30
+**Last Updated:** 2026-05-01
 **Author/Owner:** Jimmy Ho
 
 For north-star vision, guiding principles, and global constraints, see [main-prd.md](main-prd.md).
@@ -96,8 +96,8 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
     - Time Period (daily, weekly, biweekly, monthly). Defaults to daily.
     - Allocation. Defaults to blank (no amount until the user enters one); Save stays disabled until a positive amount is entered. The Allocation card prefixes the numeric field with a currency symbol/code label driven by `AppSettings.currencyDisplay` (symbol / code / code+symbol).
     - **Currency (per budget)** — Each Budget has its own currency. Defaults to locale's currency; USD if unable to determine at all.
-    - **Carry-over reset cadence** _(PAUSED — see note below)_ — How often cumulative carry-over is cleared **automatically**. Options: **weekly**, **biweekly**, **monthly**, **quarterly**, or **never** (no automatic reset; user uses manual reset only). **Quarterly** and **never** are not Budget Periods; they apply only here. Valid options depend on Budget Period (each cadence must be broader than the period; see [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)). **Defaults** for new budgets: daily → weekly; weekly → monthly; biweekly → quarterly; monthly → quarterly. Scheduled resets align to **period boundaries** (first boundary after the interval), never mid-period.
-    - When **Time Period** is **monthly**, the default reset cadence is **quarterly**. Carry-over accumulates across months and resets every quarter. _(PAUSED — see note below.)_
+    - **Carry-over reset cadence** *(PAUSED — see note below)* — How often cumulative carry-over is cleared **automatically**. Options: **weekly**, **biweekly**, **monthly**, **quarterly**, or **never** (no automatic reset; user uses manual reset only). **Quarterly** and **never** are not Budget Periods; they apply only here. Valid options depend on Budget Period (each cadence must be broader than the period; see [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)). **Defaults** for new budgets: daily → weekly; weekly → monthly; biweekly → quarterly; monthly → quarterly. Scheduled resets align to **period boundaries** (first boundary after the interval), never mid-period.
+    - When **Time Period** is **monthly**, the default reset cadence is **quarterly**. Carry-over accumulates across months and resets every quarter. *(PAUSED — see note below.)*
 
 > [!NOTE]
 > **PAUSED — Reset Cadences feature is not in scope.** The carry-over reset cadence field and scheduled-reset flow are paused. Acceptance criteria for current work MUST NOT depend on Reset Cadence UI; treat any default as `.never`. Existing description is retained for future reference; **do not include a Reset Cadence control in the Add/Edit Budget sheet while paused.**
@@ -205,10 +205,10 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Status:** Partially implemented. Per-budget currency picker (`CurrencyPickerView`) and locale-aware formatting shipped with `add-edit-budget-screen`; currency display preference shipped with `settings-screen`. Full i18n of picker display names depends on F-3.03.
 - **Description:** Currency is **per Budget** (entity) — see **Add/Edit Budget screen** (F-2.03) — not a single global app default. This feature covers formatting, symbols, and the currency catalog used when choosing a Budget’s currency.
 - **Acceptance Criteria:**
-  - **Add/Edit Budget screen** includes a currency picker; all supported currency codes are available there (not on **Settings screen** as a global override). _(Implemented by `add-edit-budget-screen` change.)_
+  - **Add/Edit Budget screen** includes a currency picker; all supported currency codes are available there (not on **Settings screen** as a global override). *(Implemented by `add-edit-budget-screen` change.)*
   - Amounts and symbols in the UI respect **each Budget’s** selected currency and the user’s locale formatting rules.
   - Currency catalog (codes, symbols, localized names) is sourced from outside our application source — either from Foundation’s system catalog (`Locale.commonISOCurrencyCodes` plus `Locale.localizedString(forCurrencyCode:)`) or from a project-owned data file (e.g. YAML) when the app needs to diverge from the system catalog. The Add/Edit Budget screen ships the system-catalog path.
-  - The display name of each currency in the picker is internationalized. _(Implemented by `add-edit-budget-screen` change.)_
+  - The display name of each currency in the picker is internationalized. *(Implemented by `add-edit-budget-screen` change.)*
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-2.03, F-3.03
 
@@ -320,7 +320,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ---
 
-### T-7: AI Features
+### T-7: Optimizing the UX
 
 #### Features
 
@@ -347,6 +347,30 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Acceptance Criteria:**
 - **Edge Cases / Notes:**
 - **Dependencies:** F-2.01, F-2.02
+
+##### F-7.04: Recently used expenses
+
+- **Status:** Open
+- **Description:** Surface the user's recently logged expenses as tappable suggestions when adding a new Expense Item, so they can reuse a prior entry (name, amount) with one tap.
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** F-2.04
+
+##### F-7.05: Per-budget period start date
+
+- **Status:** Open
+- **Description:** Allow each Budget to have its own period start date. For weekly and biweekly Budgets, the user can also select the start day of the cycle in addition to when to start the budget; for monthly Budgets, the user selects the start day of the month. The default is to start the budget today.
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** F-2.03
+
+##### F-7.06: Stop a Budget
+
+- **Status:** Open
+- **Description:** User can stop a Budget, halting all period calculations and carry-over accumulation until they choose to resume it. A stopped Budget remains visible but is clearly marked as inactive.
+- **Acceptance Criteria:**
+- **Edge Cases / Notes:**
+- **Dependencies:** F-2.01, F-2.02, F-2.03
 
 ---
 

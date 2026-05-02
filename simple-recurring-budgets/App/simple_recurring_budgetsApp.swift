@@ -1,4 +1,5 @@
 import Mixpanel
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -20,7 +21,7 @@ struct simple_recurring_budgetsApp: App {
     #endif
     let client = MixpanelAnalyticsClient(token: mixpanelToken) { false } // TODO: replace with AppSettings opt-in check
     analytics = client
-    let (container, backing) = Self.makeModelContainer(analytics: client)
+    let (container, backing) = Self.makeModelContainer()
     sharedModelContainer = container
     _settings = State(initialValue: AppSettings())
     _syncStatus = State(initialValue: SyncStatus(containerBacking: backing))
@@ -73,29 +74,29 @@ struct simple_recurring_budgetsApp: App {
   /// based on `appDatabaseLaunchMode` (DEBUG) or always production (Release).
   ///
   /// In-memory DEBUG containers always use `.localFallback` since they don't sync via CloudKit.
-  private static func makeModelContainer(analytics: any AnalyticsClient) -> (ModelContainer, SyncStatus.ContainerBacking) {
+  private static func makeModelContainer() -> (ModelContainer, SyncStatus.ContainerBacking) {
     #if DEBUG
       switch appDatabaseLaunchMode {
       case .emptyInMemory:
         return (InMemoryModelContainer.makeEmpty(), .localFallback)
       case .emptyPersistedThenClear:
-        let (container, backing) = makeProductionModelContainer(analytics: analytics)
+        let (container, backing) = makeProductionModelContainer()
         deleteAllBudgets(in: container.mainContext)
         return (container, backing)
       case .debugDataSeededInMemory:
         return (InMemoryModelContainer.makeSeeded(), .localFallback)
       case .normal:
-        return makeProductionModelContainer(analytics: analytics)
+        return makeProductionModelContainer()
       }
     #else
-      return makeProductionModelContainer(analytics: analytics)
+      return makeProductionModelContainer()
     #endif
   }
 
   /// CloudKit if available, else local on disk — the production persistence stack.
   /// Returns the container and the `SyncStatus.ContainerBacking` that reflects
   /// which path was taken (`.cloudKit` or `.localFallback`).
-  private static func makeProductionModelContainer(analytics: any AnalyticsClient) -> (ModelContainer, SyncStatus.ContainerBacking) {
+  private static func makeProductionModelContainer() -> (ModelContainer, SyncStatus.ContainerBacking) {
     let schema = SchemaV1.swiftDataSchema
 
     // Try CloudKit-backed storage first. CloudKit requires an active iCloud account;
@@ -111,11 +112,11 @@ struct simple_recurring_budgetsApp: App {
       migrationPlan: BudgetMigrationPlan.self,
       configurations: cloudConfig
     ) {
-      analytics.track(AnalyticsEvent.cloudKitContainerBacked, channel: .cloudKit)
+      Logger.cloudKit.info("cloudkit.container.backed")
       return (container, .cloudKit)
     }
 
-    analytics.track(AnalyticsEvent.cloudKitContainerLocalFallback, channel: .cloudKit, level: .notice)
+    Logger.cloudKit.notice("cloudkit.container.localFallback")
 
     let localConfig = ModelConfiguration(
       schema: schema,
@@ -128,15 +129,10 @@ struct simple_recurring_budgetsApp: App {
         migrationPlan: BudgetMigrationPlan.self,
         configurations: localConfig
       )
-      analytics.track(AnalyticsEvent.cloudKitContainerLocalSuccess, channel: .cloudKit)
+      Logger.cloudKit.info("cloudkit.container.localSuccess")
       return (container, .localFallback)
     } catch {
-      analytics.track(
-        AnalyticsEvent.cloudKitContainerFailed,
-        channel: .cloudKit,
-        level: .error,
-        properties: ["error": error.localizedDescription]
-      )
+      Logger.cloudKit.error("cloudkit.container.failed: \(error.localizedDescription, privacy: .public)")
       fatalError("Could not create ModelContainer: \(error)")
     }
   }

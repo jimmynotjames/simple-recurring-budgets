@@ -378,12 +378,13 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 #### Features
 
-##### F-8.01: Basic analytics reporting via OSLogger
+##### F-8.01: Diagnostic logging via OSLog
 
-- **Status:** Partially implemented in data model creation code. No other coverage. 
-- **Description:** Analytics reporting as OSLogger is meant to be used.
-- **Acceptance Criteria:** 
-  - Coverage is 100% of the things that OSLogger is meant to log, leaning towards leaner logging.
+- **Status:** Partially implemented — CloudKit container bootstrap path covered; other call sites not yet added.
+- **Description:** All operational / diagnostic events (container bootstrap, CloudKit sync outcomes, UI traces) are written directly via `OSLog.Logger` constants in `AppLoggers.swift`. Diagnostic logging never passes through `AnalyticsClient`, which is product-only.
+- **Acceptance Criteria:**
+  - Direct `Logger.*` calls cover 100% of the diagnostic events OSLog is meant to log (bootstrap, cloudKit, ui categories), leaning towards leaner logging.
+  - No diagnostic events routed through `AnalyticsClient`.
 - **Edge Cases / Notes:**
 - **Dependencies:** None
 
@@ -396,7 +397,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
     - Strictly **opt-in**, default off, gated by a Settings toggle. Mandated by [main-prd.md](main-prd.md) §6.3 and [tech-design-doc.md](tech-design-doc.md) §7.
     - **No PII** ever transmitted — no budget names, expense names, currency amounts, expense dates, notes, or any free-text user input.
     - First-run consent sheet appears only in jurisdictions that legally require explicit opt-in consent (EU + EEA + UK + Switzerland by default; see spec §6.2).
-    - Diagnostic / OSLog telemetry (`.bootstrap`, `.cloudKit`, `.ui` channels per `AnalyticsClient`) is **never** forwarded to Mixpanel.
+    - Diagnostic / OSLog telemetry (bootstrap, cloudKit, ui) is **never** forwarded to Mixpanel — it bypasses `AnalyticsClient` entirely (F-8.01).
     - All consent and Settings copy is keyed in `Localizable.xcstrings` per F-3.03.
     - No engagement-pressure events (streaks, "missed days," push nudges) per [main-prd.md](main-prd.md) §3 and [ux-design-brief.md](ux-design-brief.md).
   - **Product questions Phase 1 must be able to answer** (delivered as Mixpanel reports / dashboards alongside the build; full mapping in [analytics-spec.md](analytics-spec.md) §§2, 10):

@@ -35,7 +35,7 @@ struct simple_recurring_budgetsApp: App {
         .environment(syncStatus)
         .environment(\.analytics, analytics)
         .task {
-          analytics.track(AnalyticsEvent.appLaunched)
+          analytics.track(AnalyticsEvent.appOpened)
         }
     }
     .modelContainer(sharedModelContainer)

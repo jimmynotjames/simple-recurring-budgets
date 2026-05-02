@@ -99,8 +99,8 @@ struct ConsoleAnalyticsClientTests {
 @Suite("AnalyticsEvent — constant values")
 @MainActor
 struct AnalyticsEventTests {
-  @Test("appLaunched has expected string value")
-  func appLaunchedConstant() {
-    #expect(AnalyticsEvent.appLaunched == "app.launched")
+  @Test("appOpened has expected string value")
+  func appOpenedConstant() {
+    #expect(AnalyticsEvent.appOpened == "app_opened")
   }
 }

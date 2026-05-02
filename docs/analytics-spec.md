@@ -168,16 +168,12 @@ When the user disables analytics:
 
 ---
 
-## 7. Architecture: AnalyticsClient Seam
+## 7. Architecture: Two Independent Paths
 
-The existing `AnalyticsClient` protocol in [simple-recurring-budgets/Logging/AnalyticsClient.swift](../simple-recurring-budgets/Logging/AnalyticsClient.swift) already separates routing by channel:
+Diagnostic and product analytics are deliberately separate:
 
-| Channel                          | Routing                                                  |
-| -------------------------------- | -------------------------------------------------------- |
-| `.bootstrap`, `.cloudKit`, `.ui` | `OSLog` only (F-8.01) — never forwarded to Mixpanel.     |
-| `.product`                       | Mixpanel, gated on opt-in. Silent no-op when opted out.  |
-
-Phase 1 implements `MixpanelAnalyticsClient: AnalyticsClient` next to [simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift). Like `ConsoleAnalyticsClient`, it routes diagnostic channels (`.bootstrap`, `.cloudKit`, `.ui`) to `OSLog` and only forwards `.product` events to Mixpanel — so swapping clients never silences runtime diagnostics. The diagnostic routing is asserted by a contract test (§17).
+- **Diagnostic logging** — operational events (container bootstrap, CloudKit sync, UI traces) are written directly via `OSLog.Logger` constants defined in [simple-recurring-budgets/Logging/AppLoggers.swift](../simple-recurring-budgets/Logging/AppLoggers.swift). They never pass through `AnalyticsClient`.
+- **Product analytics** — the `AnalyticsClient` protocol in [simple-recurring-budgets/Logging/AnalyticsClient.swift](../simple-recurring-budgets/Logging/AnalyticsClient.swift) is product-only. It has no concept of diagnostic channels or log levels. Phase 1 implements `MixpanelAnalyticsClient: AnalyticsClient` next to [simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift).
 
 Selection is made once at app entry in [simple-recurring-budgets/App/simple_recurring_budgetsApp.swift](../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift):
 
@@ -356,14 +352,14 @@ Two implementations:
 | User-initiated UI actions whose **product behavior** we want to measure            | Mixpanel `.product` channel — F-8.02 / F-8.03.                                         |
 | User-initiated UI actions whose **runtime trace** we want for debugging            | OSLog (`ui` category) — F-8.01.                                                        |
 
-A single user action can produce both — e.g., a successful Add Expense logs `expense_logged` to Mixpanel **and** an `ui` info entry to OSLog. The two channels are independent; events never cross.
+A single user action can produce both — e.g., a successful Add Expense sends `expense_logged` to Mixpanel **and** writes an `ui`-category entry to OSLog. The two paths are independent and never cross.
 
 ---
 
 ## 17. Test Strategy
 
 - The existing `SpyAnalyticsClient` continues to back call-site unit tests.
-- A contract test on `MixpanelAnalyticsClient` asserts that `.bootstrap` / `.cloudKit` / `.ui` events are **not** forwarded — the keystone of the routing boundary.
+- `MixpanelAnalyticsClient` has no diagnostic routing to contract-test; the separation is structural — diagnostic calls never reach `AnalyticsClient` at all.
 - A single integration smoke test verifies a real `MixpanelInstance` can be initialized and a sample event enqueued. Run manually before Mixpanel-touching releases.
 
 ---

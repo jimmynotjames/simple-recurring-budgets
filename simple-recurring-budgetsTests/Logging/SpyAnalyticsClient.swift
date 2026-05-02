@@ -3,28 +3,19 @@ import Foundation
 
 /// A test double that records every call made to `AnalyticsClient`.
 ///
-/// Marked `@MainActor` so that:
-/// - Mutable stored state is protected by actor isolation (satisfies `Sendable`).
-/// - `AnalyticsChannel.Equatable` (also `@MainActor` under the app target's default
-///   isolation) can be used freely in filter closures.
-///
-/// Protocol methods are `nonisolated` to match the non-isolated protocol requirement;
-/// they use `MainActor.assumeIsolated` to mutate state — safe because every call site
-/// in the test suite runs on the main actor (sync tests in Swift Testing execute on the
-/// main thread; async tests carry the `@MainActor` annotation explicitly).
+/// Marked `@MainActor` so mutable stored state is protected by actor isolation
+/// (satisfies `Sendable`). Protocol methods are `nonisolated` to match the
+/// non-isolated protocol requirement; they use `MainActor.assumeIsolated` to
+/// mutate state — safe because every call site in the test suite runs on the
+/// main actor.
 @MainActor
 final class SpyAnalyticsClient: AnalyticsClient {
   struct TrackCall: Equatable {
     let event: String
-    let channel: AnalyticsChannel
-    let level: AnalyticsLevel
     let properties: [String: String]?
 
-    init(event: String, channel: AnalyticsChannel, level: AnalyticsLevel, properties: [String: any Sendable]?) {
+    init(event: String, properties: [String: any Sendable]?) {
       self.event = event
-      self.channel = channel
-      self.level = level
-      // Flatten to [String: String] for equatability in assertions.
       self.properties = properties.map { dict in
         dict.mapValues { "\($0)" }
       }
@@ -35,9 +26,9 @@ final class SpyAnalyticsClient: AnalyticsClient {
   private(set) var identifyCalls: [String?] = []
   private(set) var resetCallCount = 0
 
-  nonisolated func track(_ event: String, channel: AnalyticsChannel, level: AnalyticsLevel, properties: [String: any Sendable]?) {
+  nonisolated func track(_ event: String, properties: [String: any Sendable]?) {
     MainActor.assumeIsolated {
-      trackCalls.append(TrackCall(event: event, channel: channel, level: level, properties: properties))
+      trackCalls.append(TrackCall(event: event, properties: properties))
     }
   }
 
@@ -57,13 +48,5 @@ final class SpyAnalyticsClient: AnalyticsClient {
 
   var trackedEvents: [String] {
     trackCalls.map(\.event)
-  }
-
-  var productEvents: [TrackCall] {
-    trackCalls.filter { $0.channel == .product }
-  }
-
-  var diagnosticEvents: [TrackCall] {
-    trackCalls.filter { $0.channel != .product }
   }
 }

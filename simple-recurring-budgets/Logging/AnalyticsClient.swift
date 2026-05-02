@@ -20,5 +20,5 @@ extension AnalyticsClient {
 
 /// Canonical product event-name constants.
 enum AnalyticsEvent {
-  static let appLaunched = "app.launched"
+  static let appOpened = "app_opened"
 }

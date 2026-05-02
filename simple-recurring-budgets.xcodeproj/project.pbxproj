@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A422E6A02FA5312A004245B5 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = A422E69F2FA5312A004245B5 /* Mixpanel */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A498F5BC2F8945FE00A9A394 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -72,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A422E6A02FA5312A004245B5 /* Mixpanel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +160,7 @@
 			);
 			name = "simple-recurring-budgets";
 			packageProductDependencies = (
+				A422E69F2FA5312A004245B5 /* Mixpanel */,
 			);
 			productName = "simple-recurring-budgets";
 			productReference = A498F5AA2F8945FC00A9A394 /* simple-recurring-budgets.app */;
@@ -238,6 +244,9 @@
 			);
 			mainGroup = A498F5A12F8945FC00A9A394;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A422E69E2FA5312A004245B5 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A498F5AB2F8945FC00A9A394 /* Products */;
 			projectDirPath = "";
@@ -633,6 +642,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A422E69E2FA5312A004245B5 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A422E69F2FA5312A004245B5 /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A422E69E2FA5312A004245B5 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A498F5A22F8945FC00A9A394 /* Project object */;
 }

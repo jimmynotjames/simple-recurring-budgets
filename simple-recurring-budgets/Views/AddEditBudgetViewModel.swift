@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import OSLog
 import SwiftData
 
 @Observable
@@ -64,6 +65,9 @@ final class AddEditBudgetViewModel {
   // TODO: If we eventually create a BudgetView that navigates to this screen, that may also need to be popped off nav stack on deletion.
   func delete(context: ModelContext) {
     guard case let .edit(budget) = mode else { return }
+    Logger.ui.debug(
+      "ui.action: deleteBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
+    )
     context.delete(budget)
     try? context.save()
   }

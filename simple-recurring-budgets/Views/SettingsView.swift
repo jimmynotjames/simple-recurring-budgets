@@ -1,4 +1,5 @@
 import CloudKit
+import OSLog
 import StoreKit
 import SwiftUI
 
@@ -406,11 +407,18 @@ struct SettingsView: View {
   }
 
   private func loadICloudStatus() async {
+    let old = syncStatus.accountStatus
     do {
       let status = try await CKContainer.default().accountStatus()
       syncStatus.accountStatus = status == .available ? .available : .unavailable
     } catch {
       syncStatus.accountStatus = .unavailable
+    }
+    let new = syncStatus.accountStatus
+    if old != new {
+      Logger.cloudKit.notice(
+        "cloudkit.account.transition: \(String(describing: old), privacy: .public) → \(String(describing: new), privacy: .public)"
+      )
     }
   }
 

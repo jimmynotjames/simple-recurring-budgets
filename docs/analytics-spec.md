@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.11       |
+| **Version**        | 0.12       |
 | **Last Updated**   | 2026-05-02 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -568,7 +568,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | When           | What to update                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------------------- |
-| F-8.01 ships   | `tech-design-doc.md` §7 — confirm the OSLog category list (`bootstrap`, `cloudkit`, `ui`) matches `AppLoggers.swift` and add a sentence pointing at this spec's §17 boundary. |
+| ~~F-8.01 ships~~ ✓ (done by `oslog-diagnostic-logging`) | `tech-design-doc.md` §7 — confirm the OSLog category list (`bootstrap`, `cloudkit`, `ui`) matches `AppLoggers.swift` and add a sentence pointing at this spec's §17 boundary. |
 | F-8.02 ships   | `tech-design-doc.md` §7 — name vendor as Mixpanel; document opt-in toggle and privacy contract; reference §8 / §8.1 client-selection and ordering. |
 | F-8.02 ships   | `tech-design-doc.md` §4.5 KV-key table — add `"analyticsOptIn"` (Bool) and `"analyticsDistinctId"` (String, UUIDv4). |
 | F-8.02 ships   | `tech-design-doc.md` §9 — refresh future-work table; add Phase 2 row pointing at F-8.03.             |
@@ -588,6 +588,8 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.12    | 2026-05-02 | Jimmy Ho | §19 F-8.01 row marked done (implemented by change `oslog-diagnostic-logging`). |
+| 0.11    | 2026-05-02 | Jimmy Ho | Fork-pollution defense. Added `bundle_id` to §10.2 super-property table — registered explicitly via `registerSuperProperties`, not auto-attached — with rationale (fork filtering) and §11 / §16 cross-references. Added "Universal project filter" paragraph in §11 instructing every Mixpanel dashboard to filter on `bundle_id`, with a note on the residual case (forker who doesn't change bundle ID) and its practical negligibility. |
 | 0.1     | 2026-04-30 | Jimmy Ho | Initial draft to support T-8 / F-8.02 / F-8.03 in [product-features-planning.md](product-features-planning.md). |
 | 0.2     | 2026-05-02 | Jimmy Ho | Locale-aware consent default: auto-opt-in outside known strict-opt-in jurisdictions; canonical jurisdiction table in §6.2; `consent_jurisdiction` values updated to `required` / `auto_optin`. |
 | 0.3     | 2026-05-02 | Jimmy Ho | Restructured §4 into a field-level allow/deny PII contract. Accepted-risk exceptions: `budget_name` (raw) and `budget_allocation_amount`. Hard ban on any `ExpenseItem` field by value and on all other free-text and money-shaped values. §9.1 and §10 updated to match. |

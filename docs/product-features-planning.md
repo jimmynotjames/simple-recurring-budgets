@@ -1,6 +1,6 @@
 # Product Features Planning
 
-**Version:** 0.4  
+**Version:** 0.5  
 **Last Updated:** 2026-05-02
 **Author/Owner:** Jimmy Ho
 
@@ -380,7 +380,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-8.01: Diagnostic logging via OSLog
 
-- **Status:** Partially implemented — CloudKit container bootstrap path covered (`Logger.cloudKit` calls in `simple_recurring_budgetsApp.makeProductionModelContainer`); `bootstrap` and `ui` category call sites not yet added.
+- **Status:** Implemented. Implemented by change `oslog-diagnostic-logging`.
 - **Description:** All operational / diagnostic events (container bootstrap, CloudKit sync outcomes, UI traces) are written directly via `OSLog.Logger` constants in [`Logging/AppLoggers.swift`](../simple-recurring-budgets/Logging/AppLoggers.swift). Diagnostic logging never passes through `AnalyticsClient`, which is product-only. Categories are fixed: `bootstrap`, `cloudkit`, `ui` (defined in `AppLoggers.swift`).
 - **Acceptance Criteria:**
   - **Bootstrap category** (`Logger.bootstrap`): a single `info`-level entry on app launch indicating the resolved `AppDatabaseLaunchMode` (Release builds always log `.normal`; DEBUG logs the active case from the dev override).

@@ -2,7 +2,7 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.16                           |
+| **Version**        | 0.17                           |
 | **Last Updated**   | 2026-05-02                     |
 | **Author / Owner** | Jimmy Ho                       |
 
@@ -268,7 +268,7 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 
 - **Encryption at rest**: Apple encrypts app data by default (Data Protection). No additional encryption is needed.
 - **No network calls**: Beyond CloudKit sync (managed by the OS), the app makes no network requests.
-- **On-device diagnostics**: Uses Apple's unified logging (`OSLog`) directly via `Logger` constants in `AppLoggers.swift` (categories: `bootstrap`, `cloudkit`, `ui`). Diagnostic call sites write to these loggers directly — they never pass through `AnalyticsClient`. Logs stay on device and are not transmitted.
+- **On-device diagnostics**: Uses Apple's unified logging (`OSLog`) directly via `Logger` constants in `AppLoggers.swift` (categories: `bootstrap`, `cloudkit`, `ui`). These are the canonical three categories; any addition or rename requires a matching update to this section and to the `diagnostic-logging` capability spec. Canonical call-site map: `Logger.bootstrap` — one `info` entry per launch recording the resolved `AppDatabaseLaunchMode`; `Logger.cloudKit` — existing container-backing entries in `makeProductionModelContainer` plus one `notice` entry per iCloud account-status transition in `SettingsView`; `Logger.ui` — one `debug` entry per user-initiated destructive action (`resetBudget`, `resetCarryOver`, `deleteBudget`, `deleteExpense`), recording the entity's `persistentModelID` at `privacy: .private`. Every interpolated value at a `Logger.*` call site carries an explicit `privacy:` argument. Diagnostic call sites write to these loggers directly — they never pass through `AnalyticsClient`. The boundary between OSLog and `AnalyticsClient` is codified in [`docs/analytics-spec.md` §17](analytics-spec.md#17-boundary-with-f-801-oslog). Logs stay on device and are not transmitted.
 - **Product analytics**: The `AnalyticsClient` protocol is product-only (no diagnostic routing). The default implementation (`ConsoleAnalyticsClient`) prints events in **Debug builds** only (`#if DEBUG`); release builds are silent no-ops and transmit nothing. `MixpanelAnalyticsClient` is the production implementation. Consent is **locale-aware**: default off (explicit opt-in required) in strict-opt-in jurisdictions (EU/EEA/UK/Switzerland and other regimes such as South Korea, China, Brazil, Turkey, Thailand, and Quebec — canonical list in `docs/analytics-spec.md` §7.2), default on (auto opt-in, user can opt out from Settings) in all other locales. No PII is ever transmitted regardless of jurisdiction. The Mixpanel SDK is initialized **lazily** — the first opted-in `track`/`identify` triggers initialization; an opted-out launch incurs zero `MixpanelInstance` creation and no network activity. The canonical client-selection table (DEBUG → Console; Release opted-out → Console; Release opted-in → Mixpanel lazy) and the launch-time / consent-transition event ordering are in `docs/analytics-spec.md` §§8 and 8.1; the implementation starting state and required refactors of existing scaffolding are in §16.1. Fully specified in `docs/analytics-spec.md` §§2–8.
 - **App Transport Security**: Default configuration is sufficient (no custom domains).
 - **Keychain**: Not needed unless future features require secrets (e.g., API keys for AI features in T-7).
@@ -363,6 +363,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.17    | 2026-05-02 | Jimmy Ho | §7 expanded the on-device diagnostics entry: canonical call-site map for `bootstrap`, `cloudkit`, and `ui` categories; explicit `privacy:` annotation rule; cross-reference to `docs/analytics-spec.md` §17 for the OSLog ↔ `AnalyticsClient` boundary. (F-8.01 implemented by change `oslog-diagnostic-logging`.) |
 | 0.16    | 2026-05-02 | Jimmy Ho | §7 expanded the product-analytics paragraph to call out Mixpanel SDK lazy init, the canonical client-selection table, and cross-references to `docs/analytics-spec.md` §§8 / 8.1 (ordering) and §16.1 (implementation starting state) ahead of F-8.01 / F-8.02 OpenSpec planning. |
 | 0.15    | 2026-04-30 | Jimmy Ho | §5.1 add `Text(verbatim:)` rule for locale-invariant strings (app version + build, raw ISO codes, etc.) so they are not auto-extracted into the catalog as opaque `%@`-format keys; pair with a localized `accessibilityLabel` when the row exposes translatable copy via VoiceOver. |
 | 0.14    | 2026-04-30 | Jimmy Ho | Loc + VoiceOver audit conventions: §5.1 add shared-key (`common.*`) policy; §5.2 codify single-element composite a11y, header rotor trait, destructive hint requirement, and `swipeActions` ↔ `accessibilityAction` pairing rule. Cross-link audit at `docs/audits/2026-04-30-loc-voiceover-audit.md`. |

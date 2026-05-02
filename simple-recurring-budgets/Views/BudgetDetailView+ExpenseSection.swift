@@ -1,3 +1,4 @@
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -99,6 +100,9 @@ extension BudgetDetailView {
   }
 
   func deleteExpense(_ expense: ExpenseItem) {
+    Logger.ui.debug(
+      "ui.action: deleteExpense expense=\(String(describing: expense.persistentModelID), privacy: .private)"
+    )
     withAnimation {
       context.delete(expense)
       try? context.save()

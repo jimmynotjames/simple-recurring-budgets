@@ -1,3 +1,4 @@
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -262,6 +263,9 @@ struct BudgetDetailView: View {
   }
 
   private func resetCarryOver() {
+    Logger.ui.debug(
+      "ui.action: resetCarryOver budget=\(String(describing: budget.persistentModelID), privacy: .private)"
+    )
     budget.carryOverAmount = 0
     budget.carryOverLastResetDate = Date()
     budget.lastModified = Date()
@@ -270,6 +274,9 @@ struct BudgetDetailView: View {
   }
 
   private func resetBudget() {
+    Logger.ui.debug(
+      "ui.action: resetBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
+    )
     withAnimation {
       for expense in Array(budget.expenseItems) {
         context.delete(expense)

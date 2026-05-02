@@ -25,6 +25,11 @@ struct simple_recurring_budgetsApp: App {
     sharedModelContainer = container
     _settings = State(initialValue: AppSettings())
     _syncStatus = State(initialValue: SyncStatus(containerBacking: backing))
+    #if DEBUG
+      Logger.bootstrap.info("bootstrap.launchMode: \(String(describing: Self.appDatabaseLaunchMode), privacy: .public)")
+    #else
+      Logger.bootstrap.info("bootstrap.launchMode: normal")
+    #endif
   }
 
   var body: some Scene {

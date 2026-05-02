@@ -1,3 +1,4 @@
+import Mixpanel
 import SwiftData
 import SwiftUI
 
@@ -10,7 +11,14 @@ struct simple_recurring_budgetsApp: App {
   var sharedModelContainer: ModelContainer
 
   init() {
-    let client = ConsoleAnalyticsClient()
+    #if DEBUG
+      // Dev project token
+      let mixpanelToken = "d75149bc04193d5313f130cd688a54c9"
+    #else
+      // Prod project token
+      let mixpanelToken = "6d8492115467535089006f9ad413cb94"
+    #endif
+    let client = MixpanelAnalyticsClient(token: mixpanelToken) { false } // TODO: replace with AppSettings opt-in check
     analytics = client
     let (container, backing) = Self.makeModelContainer(analytics: client)
     sharedModelContainer = container

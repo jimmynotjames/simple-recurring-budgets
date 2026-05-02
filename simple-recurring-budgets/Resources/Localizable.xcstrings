@@ -637,6 +637,18 @@
         }
       }
     },
+    "budgetDetail.expenseRow.accessibilityAction.delete" : {
+      "comment" : "VoiceOver custom action name on an expense row that mirrors the trailing-edge swipe-to-delete gesture, so VoiceOver users can delete via the rotor Actions",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
     "budgetDetail.expenseRow.accessibilityLabel" : {
       "comment" : "VoiceOver label for an expense row; arguments are the formatted amount, name, and formatted date",
       "extractionState" : "extracted_with_value",
@@ -733,6 +745,18 @@
         }
       }
     },
+    "budgetDetail.menu.resetBudget.accessibilityHint" : {
+      "comment" : "VoiceOver hint for the destructive Reset Budget menu item, communicating the irreversible consequence",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Permanently deletes every expense for this budget and resets carry-over to zero."
+          }
+        }
+      }
+    },
     "budgetDetail.resetBudget.dialog.confirm" : {
       "comment" : "Destructive confirm button in the reset budget confirmation dialog",
       "extractionState" : "extracted_with_value",
@@ -816,6 +840,18 @@
         }
       }
     },
+    "budgetDetail.resetCarryOver.button.accessibilityHint" : {
+      "comment" : "VoiceOver hint for the Reset Carry-Over button, communicating the destructive (but non-cascading) consequence",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Resets the carry-over balance to zero. Expenses are not affected."
+          }
+        }
+      }
+    },
     "budgetDetail.resetCarryOver.button.accessibilityLabel" : {
       "comment" : "VoiceOver label for the reset carry-over button",
       "extractionState" : "extracted_with_value",
@@ -824,6 +860,18 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Reset carry-over to zero"
+          }
+        }
+      }
+    },
+    "budgetDetail.section.current.accessibilityLabel" : {
+      "comment" : "VoiceOver label for the current-period section header on the Budget detail screen. First argument is the section title (e.g. \"Current Day\"); second is the formatted running total in the budget's currency.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, total %2$@"
           }
         }
       }
@@ -968,54 +1016,6 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Budgets"
-          }
-        }
-      }
-    },
-    "budgetDetail.expenseRow.accessibilityAction.delete" : {
-      "comment" : "VoiceOver custom action name on an expense row that mirrors the trailing-edge swipe-to-delete gesture, so VoiceOver users can delete via the rotor Actions",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Delete"
-          }
-        }
-      }
-    },
-    "budgetDetail.menu.resetBudget.accessibilityHint" : {
-      "comment" : "VoiceOver hint for the destructive Reset Budget menu item, communicating the irreversible consequence",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Permanently deletes every expense for this budget and resets carry-over to zero."
-          }
-        }
-      }
-    },
-    "budgetDetail.resetCarryOver.button.accessibilityHint" : {
-      "comment" : "VoiceOver hint for the Reset Carry-Over button, communicating the destructive (but non-cascading) consequence",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Resets the carry-over balance to zero. Expenses are not affected."
-          }
-        }
-      }
-    },
-    "budgetDetail.section.current.accessibilityLabel" : {
-      "comment" : "VoiceOver label for the current-period section header on the Budget detail screen. First argument is the section title (e.g. \"Current Day\"); second is the formatted running total in the budget's currency.",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@, total %2$@"
           }
         }
       }
@@ -1344,18 +1344,6 @@
         }
       }
     },
-    "settings.currencyDisplay.option.row" : {
-      "comment" : "Composite Settings picker row text per F-2.05. First argument is the localized option label (Symbol / Code / Code + Symbol); second is a locale-aware example such as \"$25.00\".",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ — %2$@"
-          }
-        }
-      }
-    },
     "settings.currencyDisplay.label" : {
       "comment" : "Label for the currency display format picker in Settings",
       "extractionState" : "extracted_with_value",
@@ -1364,6 +1352,18 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Currency Display"
+          }
+        }
+      }
+    },
+    "settings.currencyDisplay.option.row" : {
+      "comment" : "Composite Settings picker row text per F-2.05. First argument is the localized option label (Symbol / Code / Code + Symbol); second is a locale-aware example such as \"$25.00\".",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ — %2$@"
           }
         }
       }
@@ -1772,6 +1772,18 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Add budget"
+          }
+        }
+      }
+    },
+    "toolbar.addBudget.label" : {
+      "comment" : "Label for the Add Budget toolbar button",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New Budget"
           }
         }
       }

@@ -19,7 +19,7 @@ struct RemainingBar: View {
         Capsule()
           .fill(Color.secondary.opacity(0.12))
         Capsule()
-          .fill(isOverBudget ? Color.moneyDeficit : Color.accentColor)
+          .fill(isOverBudget ? Color.moneyDeficit : Color("AccentColor"))
           .frame(width: isOverBudget ? geo.size.width : geo.size.width * remainingFraction)
       }
     }

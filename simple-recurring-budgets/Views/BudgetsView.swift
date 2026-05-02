@@ -36,24 +36,33 @@ struct BudgetsView: View {
             systemImage: "gearshape"
           )
         }
+        .tint(Color("AccentColor"))
         .accessibilityHint(String(
           localized: "toolbar.settings.accessibilityHint",
           defaultValue: "Opens app settings",
           comment: "VoiceOver hint for the Settings toolbar button"
         ))
-
         // Only show the Edit button when there are rows to reorder.
         if !budgets.isEmpty {
           EditButton()
+            .tint(Color("AccentColor"))
         }
       }
       ToolbarItem(placement: .topBarTrailing) {
         Button {
           router.sheet = .addBudget
         } label: {
-          Image(systemName: "plus")
-            .fontWeight(.semibold)
+          HStack(spacing: 4) {
+            Image(systemName: "plus")
+              .fontWeight(.semibold)
+            Text(String(
+              localized: "toolbar.addBudget.label",
+              defaultValue: "New Budget",
+              comment: "Label for the Add Budget toolbar button"
+            ))
+          }
         }
+        .tint(Color("AccentColor"))
         .accessibilityLabel(String(
           localized: "toolbar.addBudget.accessibilityLabel",
           defaultValue: "Add budget",
@@ -105,6 +114,7 @@ struct BudgetsView: View {
       ForEach(budgets) { budget in
         BudgetRowView(budget: budget)
           .listRowBackground(Color("CellBackground"))
+          .tint(Color("AccentColor"))
       }
       .onMove(perform: move)
     }

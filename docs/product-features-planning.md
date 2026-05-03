@@ -1,6 +1,6 @@
 # Product Features Planning
 
-**Version:** 0.6  
+**Version:** 0.7  
 **Last Updated:** 2026-05-03
 **Author/Owner:** Jimmy Ho
 
@@ -10,6 +10,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 | Version | Date       | Author   | Changes |
 | ------- | ---------- | -------- | ------- |
+| 0.7     | 2026-05-03 | Jimmy Ho | F-3.03 → Ongoing. Translations for all 38 storefront locales now complete and merged; both source-string keying and running `scripts/translate_catalog/` are ongoing concerns per [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns). ACs updated to maintenance checklist. |
 | 0.6     | 2026-05-03 | Jimmy Ho | Added Status legend (Open / Partially implemented / Implemented / Ongoing / PAUSED). Updated T-3: F-3.01 and F-3.05 → Ongoing; F-3.02 → Ongoing; F-3.03 description updated to note source-string keying is an ongoing concern per [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) (F-3.03 split deferred to a separate change). F-8.02 Ongoing-concern sub-bullet added. Cross-cutting concerns governed by [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns). |
 | 0.5     | 2026-05-02 | Jimmy Ho | (prior history not recorded) |
 
@@ -214,14 +215,14 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.03: Internationalization of text
 
-- **Status:** Fully implemented. **English source coverage** is complete and audited under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md): every user-facing string in production views is keyed in `Localizable.xcstrings` with a translator `comment:`, no hard-coded literals remain, and shared keys (`common.action.cancel`) eliminate duplicate copy across surfaces. **Translations for all 38 App Store storefront locales** (`ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`) were produced via the `scripts/translate_catalog/` pipeline (Composer 2 model) and merged into `Localizable.xcstrings` with `state: "translated"`. All 38 locales are registered in `knownRegions` in `project.pbxproj`. Format-specifier integrity was validated by `validate.py` before merging.
-- **Description:** All user-facing text is keyed and translatable; once translations are produced, all labels change automatically to match the device's locale. Source-string keying is also a cross-cutting ongoing concern (see [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns)) — every new user-facing string added to production views must be keyed immediately, regardless of whether translations have been produced yet.
-- **Acceptance Criteria:**
-  - All Apple-supported languages have translations for all labels.
-  - All labels change automatically to match the device's locale.
+- **Status:** Ongoing. **English source coverage** is complete and audited under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md). **Translations for all 38 App Store storefront locales** (`ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`) are complete and merged. Both source-string keying and translations are now ongoing maintenance concerns — see [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns).
+- **Description:** All user-facing text is keyed and translatable; labels change automatically to match the device's locale. This is a cross-cutting ongoing concern — every new user-facing string added to production views must be keyed immediately AND translations must be produced via the `scripts/translate_catalog/` pipeline before the change ships to users.
+- **Acceptance Criteria (maintenance checklist — applies to every new user-facing string):**
   - Every user-facing string in production views uses `Text("key", comment:)` or `String(localized: KEY, defaultValue:, comment:)`; no hard-coded English literals remain.
   - The catalog has no orphan keys and every key carries a translator-friendly `comment:`.
-- **Edge Cases / Notes:** Pseudo-localization smoke procedure is documented in [Appendix B of the audit](audits/localization+voiceover-audit-2026-04-30.md). Ongoing: new catalog keys require re-running the `scripts/translate_catalog/` pipeline (extract → translate → merge → validate) so all storefront locales stay translated; human pseudo-loc and per-locale spot checks remain part of release verification.
+  - All 38 storefront locales have translations for all catalog keys — maintained by re-running `scripts/translate_catalog/` (extract → translate → merge → validate) after any new keys are added.
+  - Human pseudo-loc and per-locale spot checks remain part of release verification.
+- **Edge Cases / Notes:** Pseudo-localization smoke procedure documented in [Appendix B of the audit](audits/localization+voiceover-audit-2026-04-30.md). Full keying rules in `docs/tech-design-doc.md` §5.1.
 - **Dependencies:** None
 
 ##### F-3.04: Internationalization of currency

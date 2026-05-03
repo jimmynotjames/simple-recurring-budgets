@@ -3,7 +3,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.0       |
+| **Version**        | 1.0        |
 | **Last Updated**   | 2026-05-03 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -141,9 +141,7 @@ The following concerns are **not** features that complete — they are durable r
 
 - **Accessibility (Dynamic Type + VoiceOver + Dark Mode)** — tracked under T-3 (F-3.01, F-3.02, F-3.05). Every new UI surface must ship with semantic text styles (`@ScaledMetric` for custom metrics), composed `.accessibilityLabel`/`.accessibilityHint` on composite and destructive controls, `swipeActions` paired with `.accessibilityAction(named:)`, and named color assets with separate light/dark appearances.
 
-- **Localization — source-string coverage (English keying)** — tracked under F-3.03. Every user-facing string in production views must use `Text("key", comment:)` or `String(localized:defaultValue:comment:)` with a translator-friendly `comment:`. No hard-coded English literals in production views. Locale-invariant strings (app versions, raw ISO codes, monospaced identifiers) use `Text(verbatim:)` so they are never emitted into the catalog. See `docs/tech-design-doc.md` §5.1 for the full keying rules.
-
-- **Localization — translations (additional locales)** — tracked under F-3.03 (currently Partially implemented — source keying complete, locale translations not yet produced). When new string keys land before translation rollout, they are automatically queued for that effort; no key should ever be dropped or deliberately deferred from keying.
+- **Localization — source strings and translations** — tracked under F-3.03. Translations for all 38 App Store storefront locales are shipped and must be kept current. Every new user-facing string in a production view must be (1) keyed in `Localizable.xcstrings` with a translator-friendly `comment:` — no hard-coded English literals, locale-invariant strings use `Text(verbatim:)` — and (2) translated via the `scripts/translate_catalog/` pipeline (extract → translate → merge → validate) before the change ships to users. See `docs/tech-design-doc.md` §5.1 for full keying rules.
 
 - **Mixpanel analytics for user actions** — tracked under F-8.02 (and later F-8.03). Every new user-initiated action that materially changes app state (new destructive action, new CTA, new toggle that affects usage or retention) must ship with the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](analytics-spec.md), respecting the consent and no-PII rules in that spec. See `docs/tech-design-doc.md` §7 for the implementation boundary.
 
@@ -280,6 +278,7 @@ None
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 1.0     | 2026-05-03 | Jimmy Ho |                  |
 | 0.2     | 2026-05-03 | Jimmy Ho | §6.8 Cross-cutting ongoing concerns (Accessibility, source-string coverage, translations queue, Mixpanel user-action analytics); §6.4 and §6.5 cross-references to §6.8. |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial template |
 

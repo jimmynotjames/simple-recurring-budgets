@@ -38,7 +38,7 @@ A gazillion apps exist in the Apple App Store to budget and track expenses for p
 
 ### 2.2 Pain Points
 
-Current budgeting apps in the marketplace are heavyweight for both initial setup and ongoing use. Personal finance is very, well, very personal, and an app's model of organizing finances is unlikely to match the user's mental model. Apps that try to take over all of a user's personal finances are especially suspect.
+Current budgeting apps in the marketplace are heavyweight for both initial setup and ongoing use. Personal finance is very, well, personal, and an app's model of organizing finances is unlikely to match the user's mental model. Apps that try to take over all of a user's personal finances are especially suspect.
 
 More simple apps may exist to do more simple tracking but they tend to not be visually elegant. They add distracting visual elements or color palettes. 
 

@@ -18,11 +18,9 @@ App Store Details:
 
 App Name: *Neatly – Fast Daily Spending Tracker* [TENTATIVE]
 
-Subtitle: For budgeting and expense logging on the go [TENTATIVE]
+Subtitle: Simple budgeting and expense logging on the go [TENTATIVE]
 
 App Icon Name: *Neatly* [TENTATIVE]
-
-
 
 ---
 
@@ -40,13 +38,23 @@ A gazillion apps exist in the Apple App Store to budget and track expenses for p
 
 ### 2.2 Pain Points
 
-Current popular budgeting apps in the marketplace are heavyweight. They make assumptions about the user's mental model of personal finance and try to take over all of a user's personal finances. Onboarding onto these can be a lot. This makes these apps hard to use by most users.
+Current budgeting apps in the marketplace are heavyweight for both initial setup and ongoing use. Personal finance is very, well, very personal, and an app's model of organizing finances is unlikely to match the user's mental model. Apps that try to take over all of a user's personal finances are especially suspect.
 
-More simple apps may exist to do more simple tracking but they tend to not be visually elegant or are hard to use. Many also require more taps and manual input than users are willing to tolerate for routine logging.
+More simple apps may exist to do more simple tracking but they tend to not be visually elegant. They add distracting visual elements or color palettes. 
+
+Existing apps may add graphs and charts that seem nominally useful, but I question how much utility users actually receive from them. 
+
+Many apps require more UI steps to input data than users are willing to tolerate for routine logging.
+
+Many apps make it hard for users to answer the question: Should I buy this thing now? That is, real-time decision-making takes time for them to look up where they're at with their finances. Furthermore, integration with banks for credit and debit card balances is convenient, but there's usually a 2-day delay to post transactions. Even checking pending transactions is suspect because in the US, they often don't include tipping in the pending amount. This makes it hard for users to exercise discipline for categories of spending that are regularly recurring, especially on a daily basis.
 
 ### 2.3 Target Users
 
 Tech-savvy people who want to control their expenses better. They may or may not have their own personal finance frameworks and apps to handle higher-level budgeting. 
+
+Whatever their mental model, we assume that they can distill their spending limits for recurring expenses down to $30 per day, or $100 per week, and so on.
+
+These users want to know in-the-moment whether they can afford a recurring expense category item, like food, groceries, and so on.
 
 ---
 
@@ -54,7 +62,7 @@ Tech-savvy people who want to control their expenses better. They may or may not
 
 1. UX Simplicity - We make no assumptions about the user's mental model of their higher-level finances.
 2. Ease of Use - Day-to-day interactions should feel efficient and easeful, requiring minimal user input (e.g. logging an expense should take as few taps as reasonably possible).
-3. Clarity - Users clearly understand where they stand with respect to their recurring budgets.
+3. Clarity - Users clearly understand where they stand in real time with respect to their recurring budgets so they can confidently decide how to spend their budgets.
 4. Delight - The above principles take priority, but when possible, the app should be fun and cute.
 
 ---
@@ -67,7 +75,8 @@ None
 
 ### 4.2 User Goals
 
-None
+- Minimal effort by users to add expenses.
+- Minimal effort by users to see what their budget status is, to help them decide on purchases.
 
 ### 4.3 Key Performance Indicators (KPIs)
 

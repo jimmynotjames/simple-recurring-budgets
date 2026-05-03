@@ -19,12 +19,12 @@ struct simple_recurring_budgetsApp: App {
     let initialSettings = AppSettings()
     let initialSyncStatus = SyncStatus(containerBacking: backing)
 
-    // Narrow test-host escape hatch: when XCTest launches the process, the
-    // full @main App runs and the `.task { analytics.track(.appOpened) }` in
-    // `body` fires before any test code runs. Substituting ConsoleAnalyticsClient
-    // here prevents those events from reaching Mixpanel. This guard applies only
-    // to this @main constructor — all other call sites are covered by
-    // @Environment(\.analytics) injection and use SpyAnalyticsClient in tests.
+    // Narrow test-host escape hatch: when the app runs under any test type
+    // (IS_TESTING=1 in the environment), the full @main App still launches
+    // and `.task { analytics.track(.appOpened) }` fires. Substituting
+    // ConsoleAnalyticsClient prevents those events from reaching Mixpanel.
+    // This guard applies only to this @main constructor — all other call
+    // sites use @Environment(\.analytics) injection with SpyAnalyticsClient.
     if Self.isRunningTests {
       analytics = ConsoleAnalyticsClient()
     } else {
@@ -75,10 +75,15 @@ struct simple_recurring_budgetsApp: App {
 
   // MARK: - Private
 
-  /// `true` when the process was launched by XCTest. Checked in `init()` to
-  /// substitute `ConsoleAnalyticsClient` so no Mixpanel events fire during test runs.
+  /// `true` when the process should suppress real analytics.
+  ///
+  /// `IS_TESTING = 1` is the single canonical signal for both test types:
+  /// - **Unit tests**: set via the scheme's TestAction `EnvironmentVariables`,
+  ///   which are visible to the app-as-test-host process at launch.
+  /// - **UI tests**: injected by each `XCUIApplication` call site via
+  ///   `launchEnvironment["IS_TESTING"] = "1"` before `launch()`.
   private static var isRunningTests: Bool {
-    ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    ProcessInfo.processInfo.environment["IS_TESTING"] != nil
   }
 
   // `case normal` is always available. Non-`.normal` cases exist only in DEBUG

@@ -82,7 +82,7 @@ Quick checklist for every UI-touching change:
 
 - **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics, no fixed frame heights that clip), composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls, `.accessibilityAddTraits(.isHeader)` on section headings, `swipeActions` paired with `.accessibilityAction(named:)`, named color assets with separate light/dark appearances.
 - **Localized source strings** — every new user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`. Never hard-coded English in production views. Locale-invariant strings (app versions, raw ISO codes, monospaced identifiers) use `Text(verbatim:)`. Shared copy across surfaces uses `common.*` keys. Full rules in `docs/tech-design-doc.md` §5.1.
-- **Translations** — new keys are inherently queued for the eventual translation rollout (F-3.03); never drop or deliberately defer keying just because translations aren't shipped yet.
+- **Translations** — translations for all 38 storefront locales are shipped and must stay current. After adding new string keys, re-run `scripts/translate_catalog/` (extract → translate → merge → validate) before the change ships to users. Never omit keying or skip the pipeline step.
 - **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary with OSLog: `docs/analytics-spec.md` §17.
 
 ## Conflicts and planning

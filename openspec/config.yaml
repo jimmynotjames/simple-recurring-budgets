@@ -11,6 +11,8 @@ context: |
 
   High-level docs (source of truth for product and architecture): docs/main-prd.md (constraints, glossary, Over/Under vs remaining); docs/product-features-planning.md (F-x.xx, acceptance criteria); docs/tech-design-doc.md (MVVM/@Observable, navigation, SwiftData + CloudKit, data model, i18n/a11y/testing, performance, security).
 
+  Cross-cutting ongoing concerns (docs/main-prd.md §6.8): Accessibility, localized source strings, translations queue, and Mixpanel user-action analytics apply to every UI-touching change. See AGENTS.md > Cross-cutting concerns for the checklist.
+
   Doc checks apply during planning and read-only modes: skim those three files before drafting or refining proposals, design, specs, tasks, or implementation plans. If direction contradicts the docs, surface a short "Conflict with docs" note (which file, what it says; resolve by updating the doc, changing the plan, or explicit exception). Do not silently override PRD, tech-design, or feature IDs.
 
   Written plans: if the topic touches product rules, feature IDs, architecture, data model, sync, or global constraints, include Doc alignment or Conflicts with docs and list which docs/*.md files need updates after implementation (or none).
@@ -34,5 +36,6 @@ rules:
     - Ensure design aligns with docs/tech-design-doc.md and docs/main-prd.md; call out conflicts explicitly.
   tasks:
     - Include a task to update relevant docs/*.md when the change affects product features, architecture, or global constraints—or explicitly confirm no doc updates are needed.
+    - For changes that add or modify user-facing UI, include explicit task line items for the cross-cutting concerns in docs/main-prd.md §6.8 (accessibility labels/hints, localized source strings with comment:, queued translations, Mixpanel user-action events) — or explicitly state which do not apply.
   specs:
     - If requirements conflict with the three docs/*.md files, document the conflict in the delta spec or proposal rather than silently overriding.

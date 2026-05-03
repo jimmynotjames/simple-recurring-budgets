@@ -1,10 +1,29 @@
 # Product Features Planning
 
-**Version:** 0.5  
-**Last Updated:** 2026-05-02
+**Version:** 0.6  
+**Last Updated:** 2026-05-03
 **Author/Owner:** Jimmy Ho
 
 For north-star vision, guiding principles, and global constraints, see [main-prd.md](main-prd.md).
+
+### Revision history
+
+| Version | Date       | Author   | Changes |
+| ------- | ---------- | -------- | ------- |
+| 0.6     | 2026-05-03 | Jimmy Ho | Added Status legend (Open / Partially implemented / Implemented / Ongoing / PAUSED). Updated T-3: F-3.01 and F-3.05 → Ongoing; F-3.02 → Ongoing; F-3.03 description updated to note source-string keying is an ongoing concern per [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) (F-3.03 split deferred to a separate change). F-8.02 Ongoing-concern sub-bullet added. Cross-cutting concerns governed by [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns). |
+| 0.5     | 2026-05-02 | Jimmy Ho | (prior history not recorded) |
+
+---
+
+## Status legend
+
+| Status | Meaning |
+|--------|---------|
+| `Open` | Not started. |
+| `Partially implemented` | Feature has a defined end state but is not fully shipped yet. |
+| `Implemented` | Feature has reached its defined end state. |
+| `Ongoing` | Cross-cutting concern (see [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns)). Covers every currently shipped surface; every new code change must continue to maintain it. There is no terminal "Implemented" state for these features. |
+| `PAUSED` | Explicitly out of scope; retained for future un-pause. |
 
 ---
 
@@ -170,20 +189,25 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.01: Dynamic Type
 
-- **Status:** Partially implemented. All shipped screens use semantic text styles, `@ScaledMetric`, and adaptive layouts; not formally audited per-screen.
-- **Description: Dynamic Type is supported** 
-- **Acceptance Criteria: None**
+- **Status:** Ongoing. All shipped screens use semantic text styles, `@ScaledMetric`, and adaptive layouts. See [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) for the ongoing-concern rule.
+- **Description:** Dynamic Type is supported. This is a cross-cutting ongoing concern — every new UI surface must continue to use semantic text styles and adaptive layouts.
+- **Acceptance Criteria (maintenance checklist — applies to every new UI surface):**
+  - Semantic system text styles used throughout (`Text`, `Label`, etc. with `.title`, `.body`, `.caption`, etc.); no fixed point sizes.
+  - `@ScaledMetric` used for any custom spacing or dimension that should scale with type size.
+  - No fixed frame heights that clip text at `.xxxLarge` Dynamic Type or above.
+  - Layouts remain usable and readable at `.xxxLarge` accessibility size (sample-tested at least once per major new screen).
 - **Edge Cases / Notes:** None
 - **Dependencies:** None
 
 ##### F-3.02: VoiceOver
 
-- **Status:** Implemented (static + per-screen audit complete; pending interactive walkthrough). Audited and remediated under [docs/audits/2026-04-30-loc-voiceover-audit.md](audits/2026-04-30-loc-voiceover-audit.md). All shipped screens provide composed accessibility labels and hints; the status header on the Budget detail screen now carries `.isHeader` for rotor navigation; `swipeActions` are paired with explicit `.accessibilityAction(named:)` so VoiceOver users can delete via the rotor; custom composite controls (`RemainingBar`, `CarryOverChip`, currency-picker rows, current-period section header) collapse to single VO elements; destructive controls (Delete Budget, Delete Expense, Reset Budget, Reset Carry-Over, swipe delete) speak the consequence via `.accessibilityHint`.
-- **Description: VoiceOver is supported**
-- **Acceptance Criteria:**
-  - All necessary UI elements have accessibility labels to support VoiceOver.
-  - Custom composite views (e.g. carry-over chip, currency picker rows, current-period section header) read as single VoiceOver elements with composed labels rather than as multiple static-text fragments.
-  - Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete on an expense row) carry an `accessibilityHint` describing the irreversible consequence.
+- **Status:** Ongoing. All shipped screens audited and remediated under [docs/audits/2026-04-30-loc-voiceover-audit.md](audits/2026-04-30-loc-voiceover-audit.md); pending full interactive walkthrough on hardware. See [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) for the ongoing-concern rule.
+- **Description:** VoiceOver is supported. This is a cross-cutting ongoing concern — every new UI surface must continue to ship with complete VoiceOver support.
+- **Acceptance Criteria (maintenance checklist — applies to every new UI surface):**
+  - All interactive and informational UI elements carry meaningful `.accessibilityLabel` values.
+  - Custom composite views (e.g. carry-over chip, currency picker rows, section headers) collapse to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with a composed `.accessibilityLabel(...)`.
+  - Section headings on `List` / form screens use `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them.
+  - Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) carry an `.accessibilityHint(...)` describing the irreversible consequence.
   - `swipeActions` are paired with `.accessibilityAction(named:)` mirroring the gesture so VoiceOver users can invoke them via the rotor.
 - **Edge Cases / Notes:** Live VoiceOver walkthrough and pseudo-loc smoke procedures are documented in [Appendices B and C of the audit](audits/2026-04-30-loc-voiceover-audit.md); they are delegated to the human verifier on real hardware.
 - **Dependencies:** F-3.03
@@ -191,7 +215,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 ##### F-3.03: Internationalization of text
 
 - **Status:** Partially implemented. **English source coverage** is complete and audited under [docs/audits/2026-04-30-loc-voiceover-audit.md](audits/2026-04-30-loc-voiceover-audit.md): every user-facing string in production views is keyed in `Localizable.xcstrings` with a translator `comment:`, no hard-coded literals remain, and shared keys (`common.action.cancel`) eliminate duplicate copy across surfaces. **Real translations** for additional languages have not yet been produced.
-- **Description:** All user-facing text is keyed and translatable; once translations are produced, all labels change automatically to match the device's locale.
+- **Description:** All user-facing text is keyed and translatable; once translations are produced, all labels change automatically to match the device's locale. Source-string keying is also a cross-cutting ongoing concern (see [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns)) — every new user-facing string added to production views must be keyed immediately, regardless of whether translations have been produced yet.
 - **Acceptance Criteria:**
   - All Apple-supported languages have translations for all labels.
   - All labels change automatically to match the device's locale.
@@ -214,9 +238,12 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.05: Dark Mode
 
-- **Status:** Partially implemented. Named color assets with light/dark appearances are used on all shipped screens; semantic system colors throughout; not formally audited per-screen.
-- **Description: Dark mode is supported.** 
-- **Acceptance Criteria:** 
+- **Status:** Ongoing. Named color assets with light/dark appearances used on all shipped screens; semantic system colors throughout. See [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) for the ongoing-concern rule.
+- **Description:** Dark Mode is supported. This is a cross-cutting ongoing concern — every new UI surface must continue to use named color assets with separate light/dark appearances, never hard-coded color literals.
+- **Acceptance Criteria (maintenance checklist — applies to every new UI surface):**
+  - Named color assets from `Resources/Assets.xcassets` with separate light/dark appearances used for all custom colors (see `docs/tech-design-doc.md` §5.5 for the color asset table and `appBackground()` modifier pattern).
+  - Semantic system colors used throughout; no hard-coded color literals.
+  - Exceptions: `Color.moneySurplus` / `Color.moneyDeficit` (defined in `Views/Color+Money.swift`), iCloud sync-status system colors, and `.tint(.red)` for destructive controls are permitted system-palette exceptions per `docs/tech-design-doc.md` §5.5.
 - **Edge Cases / Notes:** None
 - **Dependencies:** None
 
@@ -393,8 +420,9 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-8.02: Mixpanel Phase 1 — foundation and basic stats
 
-- **Status:** Implemented (change `mixpanel-phase-1-foundation`, 2026-05-03)
+- **Status:** Implemented (change `mixpanel-phase-1-foundation`, 2026-05-03). **Ongoing concern** — the event surface must be maintained with every code change; see note below.
 - **Description:** Establish the product analytics foundation. Phase 1 is the smallest viable Mixpanel integration that still answers the most fundamental questions about who is using the app, what they are using it for, and whether they come back — and that informs how we develop future features. Detailed events, properties, dashboards, identity, consent jurisdictions, and architecture live in [analytics-spec.md](analytics-spec.md). Mixpanel is the chosen vendor; rationale and weaknesses we sidestep are in spec §1 (Vendor Choice).
+  - **Ongoing concern ([main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns)):** Every new user-initiated action that materially changes app state (new destructive action, new screen with a primary CTA, new toggle whose value affects retention or feature usage) MUST ship with the corresponding `AnalyticsClient.track(...)` event per [analytics-spec.md](analytics-spec.md). No PII; respect consent. This applies to every change going forward — not only to Phase 1 or Phase 2 milestones.
 - **Acceptance Criteria:**
   - **Constraints:** see [analytics-spec.md §2 (Canonical Constraints)](analytics-spec.md#2-canonical-constraints). That section is the single source of truth for the locale-aware consent default, no-PII guarantee, OSLog boundary, copy-keying, and lazy-SDK-init rules that gate this feature.
   - **Product questions Phase 1 must be able to answer:** see [analytics-spec.md §3 (Product Questions — Phase 1)](analytics-spec.md#3-product-questions--phase-1) for the canonical list, and [§11 (Phase 1 Dashboards)](analytics-spec.md#11-phase-1-dashboards) for the report each question lands on. Phase 1 ships only when each question in §3 has a corresponding dashboard or report in §11.

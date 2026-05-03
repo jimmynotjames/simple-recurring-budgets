@@ -74,6 +74,17 @@ Skim and respect:
 - `docs/product-features-planning.md` — feature IDs (F-x.xx) and acceptance criteria.
 - `docs/tech-design-doc.md` — architecture, persistence/sync, data model, i18n/a11y/testing expectations.
 
+## Cross-cutting concerns
+
+Some concerns are **ongoing**, not feature-shaped. Every substantive code change that adds or modifies user-facing UI MUST address each of these in the same change (or add an explicit follow-up task before the change is treated complete). Failing to do so is a defect, not a follow-up. The canonical rule lives in [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns); per-feature tracking lives in `docs/product-features-planning.md` (F-3.01, F-3.02, F-3.03, F-3.05, F-8.02).
+
+Quick checklist for every UI-touching change:
+
+- **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics, no fixed frame heights that clip), composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls, `.accessibilityAddTraits(.isHeader)` on section headings, `swipeActions` paired with `.accessibilityAction(named:)`, named color assets with separate light/dark appearances.
+- **Localized source strings** — every new user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`. Never hard-coded English in production views. Locale-invariant strings (app versions, raw ISO codes, monospaced identifiers) use `Text(verbatim:)`. Shared copy across surfaces uses `common.*` keys. Full rules in `docs/tech-design-doc.md` §5.1.
+- **Translations** — new keys are inherently queued for the eventual translation rollout (F-3.03); never drop or deliberately defer keying just because translations aren't shipped yet.
+- **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary with OSLog: `docs/analytics-spec.md` §17.
+
 ## Conflicts and planning
 
 - If the planned direction contradicts those files, say so with a short **Conflict with docs** block (file, summary, resolution: update doc / change plan / intentional exception).

@@ -43,7 +43,12 @@ final class AddEditExpenseViewModel {
     mode = .edit(expense)
   }
 
+  /// Convenience overload for tests and call sites without an `AnalyticsClient` in scope.
   func save(context: ModelContext) {
+    save(context: context, analytics: ConsoleAnalyticsClient())
+  }
+
+  func save(context: ModelContext, analytics: any AnalyticsClient) {
     // Trim whitespace; empty-after-trim collapses to nil (spec: "Form fields are Amount, Description, and When")
     let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedName: String? = trimmed.isEmpty ? nil : trimmed
@@ -55,6 +60,22 @@ final class AddEditExpenseViewModel {
       expense.budget = budget
       context.insert(expense)
       try? context.save()
+
+      // expense_logged: NO ExpenseItem field transmitted — only categorical context.
+      let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+      let elapsed = Date().timeIntervalSince(budget.createdAt)
+      analytics.track(
+        AnalyticsEvent.expenseLogged,
+        properties: [
+          AnalyticsProperty.period: period.analyticsValue,
+          AnalyticsProperty.isAddFunds: expense.isAddFunds,
+          AnalyticsProperty.fromScreen: "add_sheet",
+          AnalyticsProperty.timeSinceBudgetCreatedBucket: timeSinceBudgetCreatedBucket(
+            seconds: elapsed
+          ),
+        ]
+      )
+
     case let .edit(expense):
       var changed = false
       // Compare against displayAmount (absolute value) — mirrors how the field is seeded.
@@ -75,6 +96,17 @@ final class AddEditExpenseViewModel {
       if changed {
         expense.lastModified = Date()
         try? context.save()
+        // expense_edited: NO ExpenseItem field transmitted — only categorical context.
+        let budget = expense.budget
+        let period = budget.map { BudgetPeriod(rawValue: $0.period) ?? .daily } ?? .daily
+        analytics.track(
+          AnalyticsEvent.expenseEdited,
+          properties: [
+            AnalyticsProperty.period: period.analyticsValue,
+            AnalyticsProperty.isAddFunds: expense.isAddFunds,
+            AnalyticsProperty.fromScreen: "budget_detail",
+          ]
+        )
       }
     }
   }
@@ -92,6 +124,7 @@ struct AddEditExpenseView: View {
   @State var viewModel: AddEditExpenseViewModel
   @Environment(\.modelContext) private var context
   @Environment(AppSettings.self) private var settings
+  @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
 
   @State private var showDeleteConfirmation = false
@@ -152,7 +185,7 @@ struct AddEditExpenseView: View {
           defaultValue: "Save",
           comment: "Button that saves the expense and dismisses the sheet"
         )) {
-          viewModel.save(context: context)
+          viewModel.save(context: context, analytics: analytics)
           dismiss()
         }
         .disabled(!viewModel.canSave)

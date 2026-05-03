@@ -32,6 +32,8 @@ struct RootView: View {
         }
       case .settings:
         SettingsView()
+      case .analyticsConsent:
+        AnalyticsConsentSheet()
       }
     }
   }

@@ -12,12 +12,11 @@ final class simple_recurring_budgetsUITestsLaunchTests: XCTestCase {
   @MainActor
   func testLaunch() {
     let app = XCUIApplication()
+    // IS_TESTING suppresses Mixpanel analytics in the app under test.
+    // The app is a separate process and does not inherit the test runner's
+    // environment, so this must be set explicitly before every launch().
+    app.launchEnvironment["IS_TESTING"] = "1"
     app.launch()
-
-    // Insert steps here to perform after app launch but before taking a screenshot,
-    // such as logging into a test account or navigating somewhere in the app
-    // XCUIAutomation Documentation
-    // https://developer.apple.com/documentation/xcuiautomation
 
     let attachment = XCTAttachment(screenshot: app.screenshot())
     attachment.name = "Launch Screen"

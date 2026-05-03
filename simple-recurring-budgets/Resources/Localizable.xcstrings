@@ -1104,6 +1104,54 @@
         }
       }
     },
+    "consent.analytics.sheet.accept" : {
+      "comment" : "Accept button on the analytics consent sheet; tapping opts the user in to analytics",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Share Anonymous Usage Data"
+          }
+        }
+      }
+    },
+    "consent.analytics.sheet.body" : {
+      "comment" : "Body of the first-run analytics consent sheet. Describes what is and is not transmitted (mirrors §5 analytics-spec.md). Discloses budget_name and budget_allocation_amount as accepted-risk exceptions per §5.4.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To understand how the app is used, this app can send anonymous usage data to Mixpanel. Here's what's shared:\n\n✓ Categorical Budget settings (period, currency code, carry-over on/off)\n✓ Bucketed counts (number of budgets)\n✓ Budget names and allocation amounts are included as an accepted trade-off so patterns across budgets are visible in aggregate\n\nHere's what's never shared:\n\n✗ Expense names, amounts, or dates\n✗ Any iCloud or Apple ID identifier\n✗ Free-text notes or personal information\n\nThe initial setting was chosen automatically based on your device's region and can be changed at any time in Settings → Diagnostics & Analytics."
+          }
+        }
+      }
+    },
+    "consent.analytics.sheet.decline" : {
+      "comment" : "Decline button on the analytics consent sheet; tapping keeps analytics off",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No Thanks"
+          }
+        }
+      }
+    },
+    "consent.analytics.sheet.title" : {
+      "comment" : "Title of the first-run analytics consent sheet shown in strict-opt-in jurisdictions after the user creates their first Budget",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Help Improve the App?"
+          }
+        }
+      }
+    },
     "currencyPicker.navigationTitle" : {
       "comment" : "Navigation bar title for the currency picker sheet",
       "extractionState" : "extracted_with_value",
@@ -1280,6 +1328,54 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "weekly"
+          }
+        }
+      }
+    },
+    "settings.analytics.section.title" : {
+      "comment" : "Settings section header for the analytics opt-in toggle",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Diagnostics & Analytics"
+          }
+        }
+      }
+    },
+    "settings.analytics.toggle.accessibilityHint" : {
+      "comment" : "VoiceOver hint for the analytics opt-in toggle in Settings",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Allows the app to send anonymous usage data to help improve the app. No expense details, iCloud identifiers, or personal information are ever included."
+          }
+        }
+      }
+    },
+    "settings.analytics.toggle.footer" : {
+      "comment" : "Footer below the analytics opt-in toggle. Discloses what is/is not transmitted (§5 analytics-spec.md). budget_name and budget_allocation_amount are accepted-risk exceptions. Mentions that the locale-based default can be changed.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Anonymous usage data helps understand how the app is used. What's included: Budget settings (period, currency, carry-over on/off) and bucketed counts. Budget names and allocation amounts are included as an accepted trade-off. What's never included: expense names, amounts, dates, or any iCloud or Apple ID identifier. The initial setting was chosen automatically based on your device's region."
+          }
+        }
+      }
+    },
+    "settings.analytics.toggle.title" : {
+      "comment" : "Toggle label for the analytics opt-in in the Diagnostics & Analytics settings section",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Share Anonymous Usage Data"
           }
         }
       }

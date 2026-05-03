@@ -5,6 +5,8 @@ struct AddEditBudgetView: View {
   @State var viewModel: AddEditBudgetViewModel
   @Environment(\.modelContext) private var context
   @Environment(AppSettings.self) private var settings
+  @Environment(Router.self) private var router
+  @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
 
   @State private var showCurrencyPicker = false
@@ -63,7 +65,7 @@ struct AddEditBudgetView: View {
             defaultValue: "Save",
             comment: "Button that saves the budget and dismisses the Add/Edit Budget sheet"
           )) {
-            viewModel.save(context: context)
+            viewModel.save(context: context, analytics: analytics, settings: settings, router: router)
             dismiss()
           }
           .disabled(!viewModel.canSave)
@@ -113,7 +115,7 @@ struct AddEditBudgetView: View {
         ),
         role: .destructive
       ) {
-        viewModel.delete(context: context)
+        viewModel.delete(context: context, analytics: analytics)
         dismiss()
       }
     } message: {

@@ -10,6 +10,7 @@ enum SheetRoute: Hashable, Identifiable {
   case editBudget(Budget)
   case addExpense(Budget)
   case settings
+  case analyticsConsent
 
   var id: Self {
     self

@@ -7,3 +7,6 @@
 --header strip
 --linebreaks lf
 --maxwidth 200
+# SwiftLint owns modifier ordering (modifier_order rule with isolation-before-acl order).
+# Disabling here prevents the swiftformat→swiftlint conflict on `nonisolated private`.
+--disable modifierOrder

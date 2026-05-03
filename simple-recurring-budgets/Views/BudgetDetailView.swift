@@ -10,6 +10,7 @@ struct BudgetDetailView: View {
   @Environment(\.modelContext) var context
   @Environment(AppSettings.self) var settings
   @Environment(Router.self) var router
+  @Environment(\.analytics) var analytics
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -266,10 +267,23 @@ struct BudgetDetailView: View {
     Logger.ui.debug(
       "ui.action: resetCarryOver budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
+    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
     budget.carryOverAmount = 0
     budget.carryOverLastResetDate = Date()
     budget.lastModified = Date()
     try? context.save()
+    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
+    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
+    analytics.track(
+      AnalyticsEvent.carryOverReset,
+      properties: [
+        AnalyticsProperty.period: period.analyticsValue,
+        AnalyticsProperty.carryOverEnabled: budget.isCarryOverEnabled,
+        AnalyticsProperty.currencyCode: budget.currencyCode,
+        AnalyticsProperty.budgetName: budget.name,
+        AnalyticsProperty.budgetAllocationAmount: (budget.allocation as NSDecimalNumber).doubleValue,
+      ]
+    )
     refreshLifecycle()
   }
 
@@ -277,6 +291,7 @@ struct BudgetDetailView: View {
     Logger.ui.debug(
       "ui.action: resetBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
+    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
     withAnimation {
       for expense in Array(budget.expenseItems) {
         context.delete(expense)
@@ -286,6 +301,18 @@ struct BudgetDetailView: View {
       budget.lastModified = Date()
       try? context.save()
     }
+    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
+    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
+    analytics.track(
+      AnalyticsEvent.budgetReset,
+      properties: [
+        AnalyticsProperty.period: period.analyticsValue,
+        AnalyticsProperty.carryOverEnabled: budget.isCarryOverEnabled,
+        AnalyticsProperty.currencyCode: budget.currencyCode,
+        AnalyticsProperty.budgetName: budget.name,
+        AnalyticsProperty.budgetAllocationAmount: (budget.allocation as NSDecimalNumber).doubleValue,
+      ]
+    )
     refreshLifecycle()
   }
 

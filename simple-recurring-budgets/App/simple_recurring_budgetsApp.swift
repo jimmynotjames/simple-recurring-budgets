@@ -12,19 +12,46 @@ struct simple_recurring_budgetsApp: App {
   var sharedModelContainer: ModelContainer
 
   init() {
-    #if DEBUG
-      // Dev project token
-      let mixpanelToken = "d75149bc04193d5313f130cd688a54c9"
-    #else
-      // Prod project token
-      let mixpanelToken = "6d8492115467535089006f9ad413cb94"
-    #endif
-    let client = MixpanelAnalyticsClient(token: mixpanelToken) { false } // TODO: replace with AppSettings opt-in check
-    analytics = client
+    let mixpanelToken = MixpanelTokenSource.activeToken
+
     let (container, backing) = Self.makeModelContainer()
     sharedModelContainer = container
-    _settings = State(initialValue: AppSettings())
-    _syncStatus = State(initialValue: SyncStatus(containerBacking: backing))
+    let initialSettings = AppSettings()
+    let initialSyncStatus = SyncStatus(containerBacking: backing)
+
+    // Narrow test-host escape hatch: when the app runs under any test type
+    // (IS_TESTING=1 in the environment), the full @main App still launches
+    // and `.task { analytics.track(.appOpened) }` fires. Substituting
+    // ConsoleAnalyticsClient prevents those events from reaching Mixpanel.
+    // This guard applies only to this @main constructor — all other call
+    // sites use @Environment(\.analytics) injection with SpyAnalyticsClient.
+    if Self.isRunningTests {
+      analytics = ConsoleAnalyticsClient()
+    } else {
+      // Closures capture @MainActor-isolated properties (AppSettings, SyncStatus,
+      // ModelContainer.mainContext). They are NOT @Sendable — thread safety is
+      // delegated to the @unchecked Sendable declaration on MixpanelAnalyticsClient,
+      // which is safe because all call sites (track, identify) run on the main actor.
+      analytics = MixpanelAnalyticsClient(
+        token: mixpanelToken,
+        isOptedIn: { [initialSettings] in initialSettings.analyticsOptIn },
+        distinctIdProvider: { [initialSettings] in initialSettings.analyticsDistinctId },
+        weekStartDayProvider: { [initialSettings] in initialSettings.weekStartDay.analyticsValue },
+        currencyDisplayProvider: { [initialSettings] in
+          initialSettings.currencyDisplay.analyticsValue
+        },
+        carryOverDefaultProvider: { [initialSettings] in
+          initialSettings.defaultCarryOverEnabled
+        },
+        syncStateProvider: { [initialSyncStatus] in initialSyncStatus.rowState.analyticsValue },
+        budgetsCountProvider: { [container] in
+          let descriptor = FetchDescriptor<Budget>()
+          return (try? container.mainContext.fetchCount(descriptor)) ?? 0
+        }
+      )
+    }
+    _settings = State(initialValue: initialSettings)
+    _syncStatus = State(initialValue: initialSyncStatus)
     #if DEBUG
       Logger.bootstrap.info("bootstrap.launchMode: \(String(describing: Self.appDatabaseLaunchMode), privacy: .public)")
     #else
@@ -46,7 +73,18 @@ struct simple_recurring_budgetsApp: App {
     .modelContainer(sharedModelContainer)
   }
 
-    // MARK: - Private
+  // MARK: - Private
+
+  /// `true` when the process should suppress real analytics.
+  ///
+  /// `IS_TESTING = 1` is the single canonical signal for both test types:
+  /// - **Unit tests**: set via the scheme's TestAction `EnvironmentVariables`,
+  ///   which are visible to the app-as-test-host process at launch.
+  /// - **UI tests**: injected by each `XCUIApplication` call site via
+  ///   `launchEnvironment["IS_TESTING"] = "1"` before `launch()`.
+  private static var isRunningTests: Bool {
+    ProcessInfo.processInfo.environment["IS_TESTING"] != nil
+  }
 
   // `case normal` is always available. Non-`.normal` cases exist only in DEBUG
   // (see `#if` inside the enum) so they are stripped from Release builds.

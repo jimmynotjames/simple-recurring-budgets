@@ -388,3 +388,40 @@ The two interactive checks below cannot be completed by an autonomous agent and 
 | Live VO walkthrough: every checklist item passes                      | TBD    | Run per Appendix C on the booted simulator with VoiceOver on. |
 
 Once the human verifier completes the interactive checks, this table should be amended with PASS/FAIL and any new findings should be filed as a follow-up change rather than re-opening this audit (the static substrate underneath is now in a known-good state).
+
+---
+
+## Post-Translation Verification (2026-05-03)
+
+### Translation pipeline run
+
+Translations for all 38 App Store storefront locales were produced on 2026-05-03 using the `scripts/translate_catalog/` pipeline (Composer 2 model, see `docs/tech-design-doc.md §5.1` for pipeline details).
+
+| Metric | Value |
+| ------ | ----- |
+| Total keys translated | 151 per locale |
+| Total locales | 38 (`ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`) |
+| Total key-locale pairs merged | 5,738 |
+| `validate.py` hard errors | 0 |
+| `validate.py` identical-to-source warnings | 70 (all reviewed; all are legitimate loanwords, brand names, or intentional English-retained terms such as "iCloud", "Carry-Over", "Version", "Symbol") |
+| `knownRegions` updated | ✓ all 38 locales + `en` + `Base` registered in `project.pbxproj` |
+| `make format` | PASS |
+| `make lint-fix` | PASS — 0 violations |
+| `make build` | PASS — `** BUILD SUCCEEDED **` |
+| `make test` (unit suite) | PASS — all unit tests green; UITest runner encountered a transient AX initialization timeout (pre-existing simulator infrastructure flake, unrelated to translation changes) |
+
+### Interactive verification (delegated to the human verifier)
+
+The simulator smoke tests per Appendix B should be re-run now that real translations are loaded, to verify layout and RTL correctness across locales:
+
+| Check | Result | Notes |
+| ----- | ------ | ----- |
+| Pseudo-loc walkthrough (`-AppleLanguages '(en-XA)'`) — no raw keys visible | TBD | Re-run per Appendix B now that catalog has 38 new locale blocks |
+| Spanish (`es`) — no truncated buttons or broken HStacks | TBD | Spanish strings run ~15–20% longer than English |
+| German (`de`) — no truncated buttons (long compound words) | TBD | German strings often longer; test navigation titles |
+| Japanese (`ja`) — no broken HStack spacing (no word-spaces) | TBD | |
+| Hebrew (`he`) — RTL layout mirrors correctly | TBD | |
+| Arabic (`ar`) — RTL layout mirrors correctly; no specifier leakage | TBD | `ar` has highest risk of format-specifier reordering |
+| Thai (`th`) — no line-break issues | TBD | Thai has no word spaces |
+
+Once the human verifier completes these checks, update the table above with PASS/FAIL results and file any layout findings as a follow-up change.

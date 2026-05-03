@@ -180,6 +180,23 @@ This avoids translation drift (one surface translating "Cancel" differently from
 
 **Locale-invariant strings use `Text(verbatim:)`** — content that is purely numeric, code-like, or otherwise not meaningfully translatable (app version + build number, raw ISO currency codes when shown without a localized name, monospaced identifiers, etc.) MUST use `Text(verbatim: "…")` so the literal is **not** auto-extracted into the catalog. Without this, Xcode silently emits opaque catalog keys like `"%@ (%@)"` that translators cannot interpret and that bypass the project's `screen.purpose.detail` naming convention. Where the same row also exposes translatable copy via VoiceOver (e.g. the Settings version row's "Version 1.2.0, build 342" `accessibilityLabel`), localize the **a11y label** with a real catalog key while keeping the visible numerals verbatim.
 
+#### Translation pipeline
+
+Translations for all 38 App Store storefront locales were produced and merged by a four-script pipeline at `scripts/translate_catalog/`:
+
+| Script | Role |
+|--------|------|
+| `locales.py` | Single source of truth: `LOCALES` list (38 BCP 47 codes) and `LOCALE_NAMES` map |
+| `extract.py` | Reads `Localizable.xcstrings`, emits `tmp/translate-inputs/source.json` with English values + format specifier metadata |
+| `merge.py` | Reads `tmp/translate-outputs/{locale}.json` per locale; writes `localizations[locale]` back into the catalog with `state: "translated"` and stable sorted-key JSON |
+| `validate.py` | Post-merge audit: checks for missing keys, format-specifier multiset equality, non-empty values; exits non-zero on hard errors |
+
+**To add a new key:** write the key in the source view with `String(localized:defaultValue:comment:)`, run `extract.py` to refresh `source.json`, then re-run the translation subagents for that key's values only, then re-run `merge.py` and `validate.py`.
+
+**Model used:** Composer 2 (`composer-2-fast`). The `PROMPT_TEMPLATE.md` in the same directory documents model requirements; if Haiku or another model is available in a future run, swap the slug there.
+
+**Proper nouns kept in English:** "iCloud", "Carry-Over" (product concept), and App Store brand terms are intentionally left in English for all locales; `validate.py` issues informational warnings (not hard errors) for identical-to-source values.
+
 ### 5.2 Accessibility
 
 - **Dynamic Type**: System text styles everywhere; no fixed frame heights that clip at larger sizes.

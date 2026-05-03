@@ -19,27 +19,36 @@ struct simple_recurring_budgetsApp: App {
     let initialSettings = AppSettings()
     let initialSyncStatus = SyncStatus(containerBacking: backing)
 
-    // Closures are @Sendable and read only Sendable-typed values from the
-    // captured references. All call sites in this app are on the main actor,
-    // so accessing @Observable main-actor-isolated properties is safe here.
-    let client = MixpanelAnalyticsClient(
-      token: mixpanelToken,
-      isOptedIn: { [initialSettings] in initialSettings.analyticsOptIn },
-      distinctIdProvider: { [initialSettings] in initialSettings.analyticsDistinctId },
-      weekStartDayProvider: { [initialSettings] in initialSettings.weekStartDay.analyticsValue },
-      currencyDisplayProvider: { [initialSettings] in
-        initialSettings.currencyDisplay.analyticsValue
-      },
-      carryOverDefaultProvider: { [initialSettings] in
-        initialSettings.defaultCarryOverEnabled
-      },
-      syncStateProvider: { [initialSyncStatus] in initialSyncStatus.rowState.analyticsValue },
-      budgetsCountProvider: { [container] in
-        let descriptor = FetchDescriptor<Budget>()
-        return (try? container.mainContext.fetchCount(descriptor)) ?? 0
-      }
-    )
-    analytics = client
+    // Narrow test-host escape hatch: when XCTest launches the process, the
+    // full @main App runs and the `.task { analytics.track(.appOpened) }` in
+    // `body` fires before any test code runs. Substituting ConsoleAnalyticsClient
+    // here prevents those events from reaching Mixpanel. This guard applies only
+    // to this @main constructor — all other call sites are covered by
+    // @Environment(\.analytics) injection and use SpyAnalyticsClient in tests.
+    if Self.isRunningTests {
+      analytics = ConsoleAnalyticsClient()
+    } else {
+      // Closures are @Sendable and read only Sendable-typed values from the
+      // captured references. All call sites in this app are on the main actor,
+      // so accessing @Observable main-actor-isolated properties is safe here.
+      analytics = MixpanelAnalyticsClient(
+        token: mixpanelToken,
+        isOptedIn: { [initialSettings] in initialSettings.analyticsOptIn },
+        distinctIdProvider: { [initialSettings] in initialSettings.analyticsDistinctId },
+        weekStartDayProvider: { [initialSettings] in initialSettings.weekStartDay.analyticsValue },
+        currencyDisplayProvider: { [initialSettings] in
+          initialSettings.currencyDisplay.analyticsValue
+        },
+        carryOverDefaultProvider: { [initialSettings] in
+          initialSettings.defaultCarryOverEnabled
+        },
+        syncStateProvider: { [initialSyncStatus] in initialSyncStatus.rowState.analyticsValue },
+        budgetsCountProvider: { [container] in
+          let descriptor = FetchDescriptor<Budget>()
+          return (try? container.mainContext.fetchCount(descriptor)) ?? 0
+        }
+      )
+    }
     _settings = State(initialValue: initialSettings)
     _syncStatus = State(initialValue: initialSyncStatus)
     #if DEBUG
@@ -63,7 +72,13 @@ struct simple_recurring_budgetsApp: App {
     .modelContainer(sharedModelContainer)
   }
 
-    // MARK: - Private
+  // MARK: - Private
+
+  /// `true` when the process was launched by XCTest. Checked in `init()` to
+  /// substitute `ConsoleAnalyticsClient` so no Mixpanel events fire during test runs.
+  private static var isRunningTests: Bool {
+    ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+  }
 
   // `case normal` is always available. Non-`.normal` cases exist only in DEBUG
   // (see `#if` inside the enum) so they are stripped from Release builds.

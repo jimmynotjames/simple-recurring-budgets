@@ -103,10 +103,22 @@ extension BudgetDetailView {
     Logger.ui.debug(
       "ui.action: deleteExpense expense=\(String(describing: expense.persistentModelID), privacy: .private)"
     )
+    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let isAddFunds = expense.isAddFunds
     withAnimation {
       context.delete(expense)
       try? context.save()
     }
+    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
+    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
+    analytics.track(
+      AnalyticsEvent.expenseDeleted,
+      properties: [
+        AnalyticsProperty.period: period.analyticsValue,
+        AnalyticsProperty.isAddFunds: isAddFunds,
+        AnalyticsProperty.fromScreen: "budget_detail",
+      ]
+    )
     refreshLifecycle()
   }
 

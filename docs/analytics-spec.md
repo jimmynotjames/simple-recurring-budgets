@@ -499,30 +499,34 @@ Two implementations:
 - Mixpanel batching is tuned for iOS Low Data Mode (`Mixpanel.flushBatchSize` conservative).
 - All Phase 1 events are user-initiated and low-frequency (no per-tap, per-scroll, or per-frame events). No client-side sampling is required for Phase 1; Phase 2 may revisit this for `screen_viewed` if event volume becomes a concern.
 
-### 16.1 Implementation starting state (codebase snapshot)
+### 16.1 Implementation starting state (codebase snapshot) — historical record
 
-This subsection captures what already exists in the repo so an implementing change can clearly distinguish *refactor* from *build new*. Confirmed against the codebase at this spec's `Last Updated` date.
+> **This subsection is now a historical record.** F-8.02 (`mixpanel-phase-1-foundation`) has been implemented. The table below reflects the pre-implementation state for reference; the "Required action" column is now complete.
 
-**Already in place — preserve and refactor (do NOT recreate):**
+This subsection captures what existed in the repo before implementing F-8.02.
 
-| File | Current state | Required action in F-8.02 |
+**Pre-F-8.02 state — all refactors now complete:**
+
+| File | Pre-F-8.02 state | Action taken by F-8.02 |
 |---|---|---|
-| [`simple-recurring-budgets/Logging/AnalyticsClient.swift`](../simple-recurring-budgets/Logging/AnalyticsClient.swift) | Defines the `AnalyticsClient` protocol and `AnalyticsEvent` enum with `appLaunched = "app.launched"`. | Keep the protocol shape. Replace `AnalyticsEvent.appLaunched` with `AnalyticsEvent.appOpened = "app_opened"` (and the rest of §9's canonical event names). |
-| [`simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift`](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift) | DEBUG `print` impl. | Keep as-is; this remains the DEBUG default and the auto-opt-out fallback per §8. |
-| [`simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift`](../simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift) | **Eagerly** calls `Mixpanel.initialize(token:trackAutomaticEvents:)` from inside `init` — every launch, even opted-out — which violates the §2.1.8 / §8 lazy-init contract. Takes a closure for opt-in but is currently wired with `{ false }` so all `track`/`identify` calls are dropped. No `super properties`, `people properties`, or `time` attachment. | **Required refactor (F-8.02 scope):** (1) Defer the `Mixpanel.initialize` call to the first opted-in `track` or `identify` invocation; the call site in `init` MUST be removed. (2) Use a thread-safe one-shot init guard (e.g. `Mutex<MixpanelInstance?>` or an actor) so concurrent first-call `track`s don't race the init. (3) Reset the init state on `reset()` so a subsequent toggle-on after a toggle-off re-initializes cleanly. (4) Replace the constructor with one accepting `(token, isOptedIn, distinctIdProvider)` or equivalent; (5) register super properties from §10.2 on first init; (6) add people-property setters per §10.3. |
-| [`simple-recurring-budgets/Logging/AnalyticsEnvironment.swift`](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift) | `@Entry var analytics: any AnalyticsClient = ConsoleAnalyticsClient()`. | Keep. |
-| [`simple-recurring-budgets/App/simple_recurring_budgetsApp.swift`](../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift) | `init()` hardcodes the dev and prod Mixpanel tokens via `#if DEBUG`, always constructs `MixpanelAnalyticsClient(token:isOptedIn: { false })`, fires `track(AnalyticsEvent.appOpened)` in `.task`. | **Refactor**: replace the hardcoded `{ false }` opt-in closure with one that reads `AppSettings.analyticsOptIn`; wire identify(distinctId) per §6 / §8.1. The `appLaunched` → `appOpened` rename is already complete (see §19). DEBUG continues to use `MixpanelAnalyticsClient` with the dev token per §8 / §16; **token sourcing is intentionally left as the existing `#if DEBUG` literal branch — do NOT move tokens to `xcconfig` / `Info.plist` per §16's pragmatic decision.** |
-| [`simple-recurring-budgets/Logging/AppLoggers.swift`](../simple-recurring-budgets/Logging/AppLoggers.swift) | `Logger.bootstrap`, `Logger.cloudKit`, `Logger.ui` constants. | Untouched by F-8.02. F-8.01 is the feature that adds call sites here. |
-| [`simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift`](../simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift) | Existing test double recording `track`/`identify`/`reset` calls. | Reuse for Phase 1 call-site unit tests; extend if new methods are added. |
+| [`simple-recurring-budgets/Logging/AnalyticsClient.swift`](../simple-recurring-budgets/Logging/AnalyticsClient.swift) | `AnalyticsClient` protocol + `AnalyticsEvent` enum with `appOpened = "app_opened"`. | Extended with Phase 1 event constants + new `AnalyticsProperty` enum; all constants marked `nonisolated` for Swift 6 `@MainActor` default-isolation compatibility. |
+| [`simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift`](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift) | DEBUG `print` impl. | Unchanged; remains the DEBUG default and test fallback. |
+| [`simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift`](../simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift) | Eagerly called `Mixpanel.initialize` in `init`. | Fully refactored: lazy `NSLock`-guarded init; accepts full set of `@Sendable` closure providers for super/people properties; `refreshSuperProperties()` and `refreshCohortPeopleProperties(budgets:)` added; `@unchecked Sendable`. |
+| [`simple-recurring-budgets/Logging/AnalyticsEnvironment.swift`](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift) | `@Entry var analytics: any AnalyticsClient = ConsoleAnalyticsClient()`. | Unchanged. |
+| [`simple-recurring-budgets/App/simple_recurring_budgetsApp.swift`](../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift) | Hardcoded `{ false }` opt-in closure. | Wired to `AppSettings.analyticsOptIn`; `identify(distinctId)` call added per §6 / §8.1; `MixpanelTokenSource` helper extracts token literals. |
+| [`simple-recurring-budgets/Logging/AppLoggers.swift`](../simple-recurring-budgets/Logging/AppLoggers.swift) | `Logger.bootstrap`, `Logger.cloudKit`, `Logger.ui` constants. | Untouched by F-8.02. |
+| [`simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift`](../simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift) | Existing test double. | Extended with `recordSuperProperties`, `recordPeopleSet`, `recordPeopleSetOnce` helpers for Phase 1 test contracts. |
 
-**To create new in F-8.02:**
+**Created by F-8.02:**
 
-- `ConsentJurisdiction` helper (location: alongside `AppSettings`, e.g. `simple-recurring-budgets/Settings/ConsentJurisdiction.swift`) — pure function from `Locale.Region` (or `String?` region identifier) to a `JurisdictionKind` enum (`required` / `auto_optin`); table lives in code, mirrored from §7.2.
-- `AppSettings.analyticsOptIn: Bool` and `AppSettings.analyticsDistinctId: String` (both `NSUbiquitousKeyValueStore`-backed); delta belongs in the `app-settings` capability spec.
-- Settings screen: new "Diagnostics & Analytics" section per §7.1; delta belongs in the `settings-screen` capability spec.
-- First-run consent sheet (strict-opt-in jurisdictions only) presented via the existing `Router.sheet` mechanism; trigger is the first successful `budget_created` per §7.2.
-- Phase 1 event constants in `AnalyticsEvent` beyond the already-renamed `appOpened` (the rest of §9's canonical list); property-key constants in a new `AnalyticsProperty` enum so call sites are typo-safe per §5.5.
-- Call-site instrumentation at every site listed in §9 (one instrumentation hook per event; never derived from a `Logger.*` callback per §17 / F-8.01).
+- `simple-recurring-budgets/Settings/ConsentJurisdiction.swift` — pure jurisdiction classifier from region identifier.
+- `AppSettings` analytics properties: `analyticsOptIn`, `analyticsDistinctId`, `analyticsFirstOpenAt` (all `NSUbiquitousKeyValueStore`-backed, `@Observable`, locale-aware defaults).
+- `simple-recurring-budgets/Views/Consent/AnalyticsConsentSheet.swift` — first-run consent sheet for strict-opt-in jurisdictions.
+- `simple-recurring-budgets/App/SheetRoute.swift` + `RootView.swift` — `.analyticsConsent` case added.
+- `simple-recurring-budgets/Logging/Analytics+DomainExtensions.swift` — `analyticsValue` helpers for domain types.
+- `simple-recurring-budgets/Logging/MixpanelTokenSource.swift` — `#if DEBUG` token branch abstraction.
+- Phase 1 call-site instrumentation in `AddEditBudgetViewModel`, `AddEditExpenseView`, `BudgetDetailView`, `BudgetDetailView+ExpenseSection`, `SettingsView`.
+- 10 Swift Testing suites in `simple-recurring-budgetsTests/Logging/` covering all §18.1 contracts.
 
 ---
 
@@ -536,6 +540,17 @@ This subsection captures what already exists in the repo so an implementing chan
 | User-initiated UI actions whose **runtime trace** we want for debugging            | OSLog (`ui` category) — F-8.01.                                                        |
 
 A single user action can produce both — e.g., a successful Add Expense sends `expense_logged` to Mixpanel **and** writes an `ui`-category entry to OSLog. The two paths are independent and never cross.
+
+**Co-location (sibling-call) pattern — F-8.02 destructive-action funnels.** Four methods in the codebase contain both a `Logger.ui.debug(...)` call (F-8.01) and an `analytics.track(...)` call (F-8.02) in the same method body:
+
+| Method | Logger call | Analytics call |
+|--------|-------------|----------------|
+| `AddEditBudgetViewModel.delete(context:analytics:)` | `Logger.ui.debug("ui.action: deleteBudget …")` | `analytics.track(AnalyticsEvent.budgetDeleted, …)` |
+| `BudgetDetailView.resetBudget(…)` | `Logger.ui.debug("ui.action: resetBudget …")` | `analytics.track(AnalyticsEvent.budgetReset, …)` |
+| `BudgetDetailView.resetCarryOver(…)` | `Logger.ui.debug("ui.action: resetCarryOver …")` | `analytics.track(AnalyticsEvent.carryOverReset, …)` |
+| `BudgetDetailView+ExpenseSection.deleteExpense(_:)` | `Logger.ui.debug("ui.action: deleteExpense …")` | `analytics.track(AnalyticsEvent.expenseDeleted, …)` |
+
+These are **independent sibling statements** — the Logger call does not feed the analytics call and vice versa. Each carries its own independently assembled arguments. This is the approved pattern for funnels where both diagnostic tracing and product measurement are warranted at the same action point. The "never cross" rule above means: the Logger argument MUST NOT be derived from an analytics property bag, and the analytics property bag MUST NOT be derived from a Logger call.
 
 ---
 
@@ -569,14 +584,15 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 | When           | What to update                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------------------- |
 | ~~F-8.01 ships~~ ✓ (done by `oslog-diagnostic-logging`) | `tech-design-doc.md` §7 — confirm the OSLog category list (`bootstrap`, `cloudkit`, `ui`) matches `AppLoggers.swift` and add a sentence pointing at this spec's §17 boundary. |
-| F-8.02 ships   | `tech-design-doc.md` §7 — name vendor as Mixpanel; document opt-in toggle and privacy contract; reference §8 / §8.1 client-selection and ordering. |
-| F-8.02 ships   | `tech-design-doc.md` §4.5 KV-key table — add `"analyticsOptIn"` (Bool) and `"analyticsDistinctId"` (String, UUIDv4). |
-| F-8.02 ships   | `tech-design-doc.md` §9 — refresh future-work table; add Phase 2 row pointing at F-8.03.             |
-| F-8.02 ships   | `analytics-spec.md` §16.1 — reflect the post-implementation state (refactor complete; this subsection becomes a historical record). |
-| F-8.02 ships   | OpenSpec `app-settings` capability — delta adding `analyticsOptIn` and `analyticsDistinctId` requirements alongside the existing settings. |
-| F-8.02 ships   | OpenSpec `settings-screen` capability — delta adding the "Diagnostics & Analytics" section (toggle, disclosure copy, footer note). |
-| F-8.02 ships   | `product-features-planning.md` F-8.02 — flip status to **Implemented**; update the "Implementation starting state" reference to point at the historical §16.1 entry. |
-| F-8.02 ships   | Source rename: `AnalyticsEvent.appLaunched = "app.launched"` → `AnalyticsEvent.appOpened = "app_opened"` (per §9). Update the lone existing call site in `simple_recurring_budgetsApp.body`. |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | `tech-design-doc.md` §7 — name vendor as Mixpanel; document opt-in toggle and privacy contract; reference §8 / §8.1 client-selection and ordering. |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | `tech-design-doc.md` §4.5 KV-key table — added `"analyticsOptIn"` (Bool), `"analyticsDistinctId"` (String, UUIDv4), and `"analyticsFirstOpenAt"` (Double). |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | `tech-design-doc.md` §9 — refresh future-work table; added Phase 2 row pointing at F-8.03. |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | `analytics-spec.md` §16.1 — rewritten as historical record; post-implementation state documented. |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | OpenSpec `app-settings` capability — delta adding `analyticsOptIn`, `analyticsDistinctId`, and `analyticsFirstOpenAt` requirements alongside the existing settings. |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | OpenSpec `settings-screen` capability — delta adding the "Diagnostics & Analytics" section (toggle, disclosure copy, footer note). |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | `product-features-planning.md` F-8.02 — flipped status to **Implemented**. |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | Source rename: `AnalyticsEvent.appLaunched = "app.launched"` → `AnalyticsEvent.appOpened = "app_opened"` (per §9). Done in precursor to this change. |
+| ~~F-8.02 ships~~ ✓ (done by `mixpanel-phase-1-foundation`) | `analytics-spec.md` §17 — formalized the co-location (sibling-call) pattern at four destructive-action funnels. |
 | F-8.03 ships   | `tech-design-doc.md` §7 — note the feature-flag surface and reference `FeatureFlagClient`.           |
 | F-8.03 ships   | `tech-design-doc.md` §9 — drop / refresh the Phase 2 row. Update cross-refs to analytics-spec.md §12–15 if Phase 2 surface changes. |
 
@@ -588,6 +604,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.13    | 2026-05-03 | Jimmy Ho | F-8.02 implemented by change `mixpanel-phase-1-foundation`. §16.1 rewritten as historical record. §17 — formalized co-location (sibling-call) pattern at four destructive-action funnels. §19 — all F-8.02 rows marked done. |
 | 0.12    | 2026-05-02 | Jimmy Ho | §19 F-8.01 row marked done (implemented by change `oslog-diagnostic-logging`). |
 | 0.11    | 2026-05-02 | Jimmy Ho | Fork-pollution defense. Added `bundle_id` to §10.2 super-property table — registered explicitly via `registerSuperProperties`, not auto-attached — with rationale (fork filtering) and §11 / §16 cross-references. Added "Universal project filter" paragraph in §11 instructing every Mixpanel dashboard to filter on `bundle_id`, with a note on the residual case (forker who doesn't change bundle ID) and its practical negligibility. |
 | 0.1     | 2026-04-30 | Jimmy Ho | Initial draft to support T-8 / F-8.02 / F-8.03 in [product-features-planning.md](product-features-planning.md). |

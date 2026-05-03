@@ -44,6 +44,36 @@ final class SpyAnalyticsClient: AnalyticsClient {
     }
   }
 
+  // MARK: - Super / people property recording (not on AnalyticsClient protocol)
+
+  /// Last dictionary passed to `registerSuperProperties`. Nil until first call.
+  private(set) var superProperties: [String: String]?
+  /// Accumulated people-property sets (via `people.set`).
+  private(set) var peopleProperties: [String: String] = [:]
+  /// Accumulated people-property setOnce values.
+  private(set) var peopleSetOnceProperties: [String: String] = [:]
+
+  /// Simulates `MixpanelAnalyticsClient.registerSuperProperties` for test assertions
+  /// (§18.1 #9). Call sites that need to assert super-property attachment can set
+  /// properties via this method rather than reaching into the Mixpanel SDK.
+  func recordSuperProperties(_ props: [String: Any]) {
+    superProperties = props.mapValues { "\($0)" }
+  }
+
+  /// Simulates `people.set` for cohort people-property assertions (§18.1 cohort tests).
+  func recordPeopleSet(_ props: [String: Any]) {
+    for (key, value) in props {
+      peopleProperties[key] = "\(value)"
+    }
+  }
+
+  /// Simulates `people.setOnce` for baseline people-property assertions.
+  func recordPeopleSetOnce(_ props: [String: Any]) {
+    for (key, value) in props {
+      peopleSetOnceProperties[key] = "\(value)"
+    }
+  }
+
   // MARK: - Convenience
 
   var trackedEvents: [String] {

@@ -12,19 +12,36 @@ struct simple_recurring_budgetsApp: App {
   var sharedModelContainer: ModelContainer
 
   init() {
-    #if DEBUG
-      // Dev project token
-      let mixpanelToken = "d75149bc04193d5313f130cd688a54c9"
-    #else
-      // Prod project token
-      let mixpanelToken = "6d8492115467535089006f9ad413cb94"
-    #endif
-    let client = MixpanelAnalyticsClient(token: mixpanelToken) { false } // TODO: replace with AppSettings opt-in check
-    analytics = client
+    let mixpanelToken = MixpanelTokenSource.activeToken
+
     let (container, backing) = Self.makeModelContainer()
     sharedModelContainer = container
-    _settings = State(initialValue: AppSettings())
-    _syncStatus = State(initialValue: SyncStatus(containerBacking: backing))
+    let initialSettings = AppSettings()
+    let initialSyncStatus = SyncStatus(containerBacking: backing)
+
+    // Closures are @Sendable and read only Sendable-typed values from the
+    // captured references. All call sites in this app are on the main actor,
+    // so accessing @Observable main-actor-isolated properties is safe here.
+    let client = MixpanelAnalyticsClient(
+      token: mixpanelToken,
+      isOptedIn: { [initialSettings] in initialSettings.analyticsOptIn },
+      distinctIdProvider: { [initialSettings] in initialSettings.analyticsDistinctId },
+      weekStartDayProvider: { [initialSettings] in initialSettings.weekStartDay.analyticsValue },
+      currencyDisplayProvider: { [initialSettings] in
+        initialSettings.currencyDisplay.analyticsValue
+      },
+      carryOverDefaultProvider: { [initialSettings] in
+        initialSettings.defaultCarryOverEnabled
+      },
+      syncStateProvider: { [initialSyncStatus] in initialSyncStatus.rowState.analyticsValue },
+      budgetsCountProvider: { [container] in
+        let descriptor = FetchDescriptor<Budget>()
+        return (try? container.mainContext.fetchCount(descriptor)) ?? 0
+      }
+    )
+    analytics = client
+    _settings = State(initialValue: initialSettings)
+    _syncStatus = State(initialValue: initialSyncStatus)
     #if DEBUG
       Logger.bootstrap.info("bootstrap.launchMode: \(String(describing: Self.appDatabaseLaunchMode), privacy: .public)")
     #else

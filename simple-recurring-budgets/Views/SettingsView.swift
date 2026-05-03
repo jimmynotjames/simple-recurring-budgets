@@ -17,6 +17,7 @@ private enum AppInfo {
 struct SettingsView: View {
   @Environment(AppSettings.self) private var settings
   @Environment(SyncStatus.self) private var syncStatus
+  @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
   @Environment(\.requestReview) private var requestReview
 
@@ -39,6 +40,7 @@ struct SettingsView: View {
         calendarSection(currentDay: settings.weekStartDay)
         displaySection(currencyDisplay: $settings.currencyDisplay)
         iCloudSection
+        analyticsSection
         supportSection
         aboutSection
       }
@@ -77,7 +79,18 @@ struct SettingsView: View {
           defaultValue: "Change",
           comment: "Confirm button in the week-start day change alert"
         )) {
-          if let day = pendingWeekStart { settings.weekStartDay = day }
+          if let day = pendingWeekStart {
+            let oldDay = settings.weekStartDay
+            settings.weekStartDay = day
+            analytics.track(
+              AnalyticsEvent.settingChanged,
+              properties: [
+                AnalyticsProperty.settingName: "week_start_day",
+                AnalyticsProperty.newValue: day.analyticsValue,
+                AnalyticsProperty.oldValue: oldDay.analyticsValue,
+              ]
+            )
+          }
           pendingWeekStart = nil
         }
         Button(String(
@@ -98,6 +111,7 @@ struct SettingsView: View {
       }
       .task { await loadICloudStatus() }
       .task { await observeAccountChanges() }
+      .task { analytics.track(AnalyticsEvent.settingsOpened) }
     }
   }
 
@@ -111,7 +125,21 @@ struct SettingsView: View {
           defaultValue: "Carry-Over",
           comment: "Toggle label for the default carry-over setting in Settings"
         ),
-        isOn: carryOverOn
+        isOn: Binding(
+          get: { carryOverOn.wrappedValue },
+          set: { newValue in
+            let oldValue = carryOverOn.wrappedValue
+            carryOverOn.wrappedValue = newValue
+            analytics.track(
+              AnalyticsEvent.settingChanged,
+              properties: [
+                AnalyticsProperty.settingName: "default_carry_over_enabled",
+                AnalyticsProperty.newValue: newValue,
+                AnalyticsProperty.oldValue: oldValue,
+              ]
+            )
+          }
+        )
       )
       .tint(.accentColor) // Toggle doesn't pick up AccentColor automatically.
       .accessibilityHint(String(
@@ -150,6 +178,8 @@ struct SettingsView: View {
             pendingWeekStart = new
           }
         )
+        // setting_changed for week_start_day fires on confirmation (via alert confirm handler).
+        // See the alert confirm button below.
       ) {
         ForEach(Weekday.allCases) { day in
           Text(weekdayName(day)).tag(day)
@@ -179,7 +209,21 @@ struct SettingsView: View {
           defaultValue: "Currency Display",
           comment: "Label for the currency display format picker in Settings"
         ),
-        selection: currencyDisplay
+        selection: Binding(
+          get: { currencyDisplay.wrappedValue },
+          set: { newValue in
+            let oldValue = currencyDisplay.wrappedValue
+            currencyDisplay.wrappedValue = newValue
+            analytics.track(
+              AnalyticsEvent.settingChanged,
+              properties: [
+                AnalyticsProperty.settingName: "currency_display_preference",
+                AnalyticsProperty.newValue: newValue.analyticsValue,
+                AnalyticsProperty.oldValue: oldValue.analyticsValue,
+              ]
+            )
+          }
+        )
       ) {
         // F-2.05 acceptance: each row reads "<localized option label> — <locale-aware example>",
         // not the example alone. The example is derived live from the user's locale.
@@ -204,7 +248,86 @@ struct SettingsView: View {
     }
   }
 
-  private var iCloudSection: some View {
+  // MARK: - Diagnostics & Analytics section (F-8.02)
+
+  @ViewBuilder
+  private var analyticsSection: some View {
+    @Bindable var settings = settings
+    Section {
+      Toggle(isOn: Binding(
+        get: { settings.analyticsOptIn },
+        set: { newValue in
+          if newValue {
+            // Toggle-on: set first, then track (SDK lazy-inits on track call).
+            settings.analyticsOptIn = true
+            analytics.track(
+              AnalyticsEvent.analyticsConsentChanged,
+              properties: [
+                AnalyticsProperty.newValue: true,
+                AnalyticsProperty.oldValue: false,
+              ]
+            )
+          } else {
+            // Toggle-off ordering per §7.3 analytics-spec.md:
+            // 1. Fire consent_changed FIRST while still opted in.
+            // 2. Reset the SDK state.
+            // 3. Set analyticsOptIn = false so subsequent events are dropped.
+            analytics.track(
+              AnalyticsEvent.analyticsConsentChanged,
+              properties: [
+                AnalyticsProperty.newValue: false,
+                AnalyticsProperty.oldValue: true,
+              ]
+            )
+            analytics.reset()
+            settings.analyticsOptIn = false
+          }
+        }
+      )) {
+        Text(String(
+          localized: "settings.analytics.toggle.title",
+          defaultValue: "Share Anonymous Usage Data",
+          comment: "Toggle label for the analytics opt-in in the Diagnostics & Analytics settings section"
+        ))
+      }
+      .tint(.accentColor)
+      .accessibilityHint(String(
+        localized: "settings.analytics.toggle.accessibilityHint",
+        defaultValue: "Allows the app to send anonymous usage data to help improve the app. No expense details, iCloud identifiers, or personal information are ever included.",
+        comment: "VoiceOver hint for the analytics opt-in toggle in Settings"
+      ))
+      .listRowBackground(Color("CellBackground"))
+    } header: {
+      Text(String(
+        localized: "settings.analytics.section.title",
+        defaultValue: "Diagnostics & Analytics",
+        comment: "Settings section header for the analytics opt-in toggle"
+      ))
+    } footer: {
+      Text(String(
+        localized: "settings.analytics.toggle.footer",
+        defaultValue: """
+        Anonymous usage data helps understand how the app is used. \
+        What's included: Budget settings (period, currency, carry-over on/off) and bucketed counts. \
+        Budget names and allocation amounts are included as an accepted trade-off. \
+        What's never included: expense names, amounts, dates, or any iCloud or Apple ID identifier. \
+        The initial setting was chosen automatically based on your device's region.
+        """,
+        comment:
+        """
+        Footer below the analytics opt-in toggle. Discloses what is/is not transmitted \
+        (§5 analytics-spec.md). budget_name and budget_allocation_amount are accepted-risk \
+        exceptions. Mentions that the locale-based default can be changed.
+        """
+      ))
+    }
+  }
+}
+
+// MARK: - SettingsView: iCloud, Support, About, Helpers
+
+private extension SettingsView {
+  var iCloudSection: some View {
     Section {
       iCloudStatusRow
         .listRowBackground(Color("CellBackground"))
@@ -225,8 +348,10 @@ struct SettingsView: View {
       case .paused:
         Text(String(
           localized: "settings.iCloud.paused.footer",
-          defaultValue: "Your budgets are saved on this device only. Restart the app to retry iCloud sync.",
-          comment: "Section footer shown below the iCloud status row when the app is signed in to iCloud but the SwiftData container is running in local-only mode"
+          defaultValue:
+          "Your budgets are saved on this device only. Restart the app to retry iCloud sync.",
+          comment:
+          "Section footer shown below the iCloud status row when the app is signed in to iCloud but the SwiftData container is running in local-only mode"
         ))
       default:
         EmptyView()
@@ -234,7 +359,7 @@ struct SettingsView: View {
     }
   }
 
-  private var supportSection: some View {
+  var supportSection: some View {
     Section {
       Link(
         String(
@@ -288,7 +413,7 @@ struct SettingsView: View {
     }
   }
 
-  private var aboutSection: some View {
+  var aboutSection: some View {
     Section {
       HStack {
         Text(String(
@@ -318,7 +443,7 @@ struct SettingsView: View {
   // MARK: - iCloud status row
 
   @ViewBuilder
-  private var iCloudStatusRow: some View {
+  var iCloudStatusRow: some View {
     switch syncStatus.rowState {
     case .checking:
       HStack {
@@ -392,21 +517,21 @@ struct SettingsView: View {
 
   // MARK: - Helpers
 
-  private func weekdayName(_ weekday: Weekday) -> String {
+  func weekdayName(_ weekday: Weekday) -> String {
     Calendar.current.standaloneWeekdaySymbols[weekday.rawValue - 1]
   }
 
-  private var feedbackMailtoURL: URL {
+  var feedbackMailtoURL: URL {
     let subject = AppInfo.feedbackSubject
       .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
     return URL(string: "mailto:\(AppInfo.feedbackEmail)?subject=\(subject)")!
   }
 
-  private var privacyPolicyURL: URL {
+  var privacyPolicyURL: URL {
     URL(string: AppInfo.privacyPolicyURL)!
   }
 
-  private func loadICloudStatus() async {
+  func loadICloudStatus() async {
     let old = syncStatus.accountStatus
     do {
       let status = try await CKContainer.default().accountStatus()
@@ -428,14 +553,14 @@ struct SettingsView: View {
   /// Watches both `CKAccountChanged` (CloudKit container sign-in/out) and
   /// `NSUbiquityIdentityDidChange` (iCloud identity token rotation, e.g. account
   /// switch in Settings.app) since each can fire independently.
-  private func observeAccountChanges() async {
+  func observeAccountChanges() async {
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await observeSingleNotification(.CKAccountChanged) }
       group.addTask { await observeSingleNotification(.NSUbiquityIdentityDidChange) }
     }
   }
 
-  private func observeSingleNotification(_ name: NSNotification.Name) async {
+  func observeSingleNotification(_ name: NSNotification.Name) async {
     let notifications = NotificationCenter.default.notifications(named: name)
     for await _ in notifications {
       await loadICloudStatus()

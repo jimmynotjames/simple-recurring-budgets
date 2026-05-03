@@ -37,22 +37,12 @@ struct AnalyticsConsentSheet: View {
           Text(String(
             localized: "consent.analytics.sheet.body",
             defaultValue: """
-            To understand how the app is used, this app can send anonymous usage data to Mixpanel. \
-            Here's what's shared:
-
-            ✓ Categorical Budget settings (period, currency code, carry-over on/off)
-            ✓ Bucketed counts (number of budgets)
-            ✓ Budget names and allocation amounts are included as an accepted trade-off so patterns \
-            across budgets are visible in aggregate
-
-            Here's what's never shared:
-
-            ✗ Expense names, amounts, or dates
-            ✗ Any iCloud or Apple ID identifier
-            ✗ Free-text notes or personal information
-
-            The initial setting was chosen automatically based on your device's region and can be \
-            changed at any time in Settings → Diagnostics & Analytics.
+            To help troubleshoot issues and understand usage, this app sends anonymous usage \
+            data to backend systems for analysis. Examples of what\u{2019}s shared include budget \
+            settings like period, currency code, carry-over on/off, allocation amount, and so on. \
+            Never shared: Expense names, amounts, dates, any Apple/iCloud identifiers, any \
+            free-text notes or personal information. This decision can be changed at any time \
+            on the Settings screen.
             """,
             comment:
             """

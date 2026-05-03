@@ -22099,7 +22099,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "To understand how the app is used, this app can send anonymous usage data to Mixpanel. Here's what's shared:\n\n✓ Categorical Budget settings (period, currency code, carry-over on/off)\n✓ Bucketed counts (number of budgets)\n✓ Budget names and allocation amounts are included as an accepted trade-off so patterns across budgets are visible in aggregate\n\nHere's what's never shared:\n\n✗ Expense names, amounts, or dates\n✗ Any iCloud or Apple ID identifier\n✗ Free-text notes or personal information\n\nThe initial setting was chosen automatically based on your device's region and can be changed at any time in Settings → Diagnostics & Analytics."
+            "value" : "To help troubleshoot issues and understand usage, this app sends anonymous usage data to backend systems for analysis. Examples of what’s shared include budget settings like period, currency code, carry-over on/off, allocation amount, and so on. Never shared: Expense names, amounts, dates, any Apple/iCloud identifiers, any free-text notes or personal information. This decision can be changed at any time on the Settings screen."
           }
         }
       }
@@ -25759,7 +25759,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Anonymous usage data helps understand how the app is used. What's included: Budget settings (period, currency, carry-over on/off) and bucketed counts. Budget names and allocation amounts are included as an accepted trade-off. What's never included: expense names, amounts, dates, or any iCloud or Apple ID identifier. The initial setting was chosen automatically based on your device's region."
+            "value" : "Anonymous usage data helps troubleshoot issues and understand usage. What’s included: Budget settings like period, currency code, carry-over on/off, allocation amount, and so on. What’s never included: Expense names, amounts, dates, any Apple/iCloud identifiers, any free-text notes or personal information. The initial setting was chosen automatically based on your device’s region."
           }
         }
       }

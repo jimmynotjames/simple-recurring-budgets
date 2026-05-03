@@ -307,11 +307,11 @@ struct SettingsView: View {
       Text(String(
         localized: "settings.analytics.toggle.footer",
         defaultValue: """
-        Anonymous usage data helps understand how the app is used. \
-        What's included: Budget settings (period, currency, carry-over on/off) and bucketed counts. \
-        Budget names and allocation amounts are included as an accepted trade-off. \
-        What's never included: expense names, amounts, dates, or any iCloud or Apple ID identifier. \
-        The initial setting was chosen automatically based on your device's region.
+        Anonymous usage data helps troubleshoot issues and understand usage. \
+        What\u{2019}s included: Budget settings like period, currency code, carry-over on/off, \
+        allocation amount, and so on. What\u{2019}s never included: Expense names, amounts, dates, \
+        any Apple/iCloud identifiers, any free-text notes or personal information. \
+        The initial setting was chosen automatically based on your device\u{2019}s region.
         """,
         comment:
         """

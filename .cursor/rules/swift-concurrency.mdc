@@ -1,0 +1,67 @@
+---
+description: Swift 6 strict concurrency rules for this app (default MainActor isolation)
+globs: "**/*.swift"
+alwaysApply: false
+---
+
+# Swift 6 concurrency rules
+
+This project compiles with **Swift 6.0**, **`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`** (SE-0466 "Approachable Concurrency"), and strict data-race checking. Read this every time you edit a `.swift` file. For deep dives (TaskGroup design, AsyncSequence, reentrancy, migration from `@preconcurrency`), also load the global skill at `~/.claude/skills/swift-concurrency/SKILL.md`.
+
+## What "default MainActor isolation" means here
+
+- Top-level types, properties, and functions are **implicitly `@MainActor`** unless you opt out. You do **not** need to add `@MainActor` to a SwiftUI `View`, an `@Observable` view model, or a regular `final class` / `struct`.
+- Annotations are still allowed and not wrong; just don't add them reflexively. Prefer the implicit default. Do not "fix" existing explicit `@MainActor` by removing it without a reason.
+- To run off the main actor, you must opt out **deliberately** — see the next section.
+
+## Off-main-actor patterns (use these, in order of preference)
+
+1. **`nonisolated` synchronous helper** — pure functions with no shared state. Cheapest, no executor hop.
+2. **`@concurrent` async function on a `nonisolated` type** — for genuine background work (parsing, hashing, file IO that doesn't need the main actor).
+3. **A custom `actor`** — when you need serialized mutable state that is **not** UI-bound (e.g., an in-memory cache).
+4. **`Task.detached`** — last resort. Almost never needed in this codebase. If you reach for it, justify in a code comment.
+
+`Task { ... }` started inside MainActor-isolated code **inherits MainActor** and runs on the main thread. That is usually what you want for SwiftUI work (e.g., kicking off an async fetch from `.task { ... }`). Do not add `@MainActor in` to such a closure — it is redundant.
+
+## Sendable rules for this codebase
+
+- New value types should be `Sendable` by construction (immutable `let` properties of `Sendable` types). Prefer `struct` over `class`.
+- For protocols that cross isolation boundaries, mark the protocol `Sendable` — see `AnalyticsClient: AnyObject, Sendable` in `simple-recurring-budgets/Logging/AnalyticsClient.swift` as the canonical example.
+- **Forbidden without an inline justification comment**: `@unchecked Sendable`, `nonisolated(unsafe)`, `@preconcurrency`. If you must use one, leave a `// concurrency: ...` comment naming the invariant that makes it safe.
+- `[String: any Sendable]` is the right shape for analytics event payloads (see `AddEditBudgetViewModel.budgetEventProperties`). Don't widen to `Any`.
+
+## SwiftData and `ModelContext`
+
+- **`ModelContext` is not `Sendable`.** Never capture it in a `@concurrent` function, a `Task.detached`, or store it on a non-MainActor type.
+- View models do not store `ModelContext` (see `.cursor/rules/swift-ios.mdc` §Screen architecture). Methods that write take `(context: ModelContext, ...)` at the call site, on the MainActor.
+- For background SwiftData work, use a `@ModelActor` type and pass IDs (`PersistentIdentifier`) across the boundary, never model instances or contexts.
+
+## SwiftUI specifics
+
+- `View.body`, `.task`, `.onAppear`, `.onChange` are all MainActor-isolated. Inside them, `Task { ... }` stays on the main actor.
+- To do background work from a view: call into a `@concurrent` async function on a domain service, then assign results back on return (you are already back on the main actor).
+- Do not annotate `View` types with `@MainActor` — it is implied.
+
+## Common mistakes to avoid
+
+- ❌ Adding `@MainActor` to every type "to be safe" — adds noise; the default already handles it.
+- ❌ `Task.detached { @MainActor in ... }` — pointless hop. Use `Task { ... }` on a MainActor caller.
+- ❌ Capturing `self` in a `@concurrent` closure when `self` is MainActor-isolated. Capture only `Sendable` values you need.
+- ❌ Making a protocol `Sendable` without auditing every conformance — adopters silently take on the constraint.
+- ❌ Using `@unchecked Sendable` to "make the warning go away." Fix the underlying unsafe sharing.
+- ❌ Wrapping synchronous work in `Task { ... }` for no reason. If the work is sync and on-main is fine, leave it sync.
+
+## Authoring workflow (mandatory)
+
+After **any** Swift edit, before reporting completion, you must run the four-step procedure from `AGENTS.md > Build and test`:
+
+1. `make format`
+2. `make lint-fix`
+3. `make build` ← this is the concurrency gate; it must pass clean
+4. `make test`
+
+If `make build` reports actor-isolation, `Sendable`, or data-race errors: do **not** silence them with `@unchecked Sendable`, `nonisolated(unsafe)`, or `@preconcurrency`. Fix the underlying isolation. If you genuinely need an unsafe escape hatch, leave a `// concurrency:` comment explaining the invariant and ask the user to confirm before committing.
+
+## When to load the deeper skill
+
+Load `~/.claude/skills/swift-concurrency/SKILL.md` when the task involves any of: designing a new actor, structured concurrency with `TaskGroup`, `AsyncSequence` / `AsyncStream` plumbing, actor reentrancy, migrating a `@preconcurrency` import to clean Swift 6, or diagnosing a non-trivial isolation error that this rule does not cover.

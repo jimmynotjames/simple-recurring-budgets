@@ -180,10 +180,27 @@ This avoids translation drift (one surface translating "Cancel" differently from
 
 **Locale-invariant strings use `Text(verbatim:)`** — content that is purely numeric, code-like, or otherwise not meaningfully translatable (app version + build number, raw ISO currency codes when shown without a localized name, monospaced identifiers, etc.) MUST use `Text(verbatim: "…")` so the literal is **not** auto-extracted into the catalog. Without this, Xcode silently emits opaque catalog keys like `"%@ (%@)"` that translators cannot interpret and that bypass the project's `screen.purpose.detail` naming convention. Where the same row also exposes translatable copy via VoiceOver (e.g. the Settings version row's "Version 1.2.0, build 342" `accessibilityLabel`), localize the **a11y label** with a real catalog key while keeping the visible numerals verbatim.
 
+#### Translation pipeline
+
+Translations for all 38 App Store storefront locales were produced and merged by a four-script pipeline at `scripts/translate_catalog/`:
+
+| Script | Role |
+|--------|------|
+| `locales.py` | Single source of truth: `LOCALES` list (38 BCP 47 codes) and `LOCALE_NAMES` map |
+| `extract.py` | Reads `Localizable.xcstrings`, emits `tmp/translate-inputs/source.json` with English values + format specifier metadata |
+| `merge.py` | Reads `tmp/translate-outputs/{locale}.json` per locale; writes `localizations[locale]` back into the catalog with `state: "translated"` and stable sorted-key JSON |
+| `validate.py` | Post-merge audit: checks for missing keys, format-specifier multiset equality, non-empty values; exits non-zero on hard errors |
+
+**To add a new key:** write the key in the source view with `String(localized:defaultValue:comment:)`, run `extract.py` to refresh `source.json`, then re-run the translation subagents for that key's values only, then re-run `merge.py` and `validate.py`.
+
+**Model used:** Composer 2 (`composer-2-fast`). The `PROMPT_TEMPLATE.md` in the same directory documents model requirements; if Haiku or another model is available in a future run, swap the slug there.
+
+**Proper nouns kept in English:** "iCloud", "Carry-Over" (product concept), and App Store brand terms are intentionally left in English for all locales; `validate.py` issues informational warnings (not hard errors) for identical-to-source values.
+
 ### 5.2 Accessibility
 
 - **Dynamic Type**: System text styles everywhere; no fixed frame heights that clip at larger sizes.
-- **VoiceOver**: Meaningful accessibility labels on all interactive controls; financial amounts include currency context. Custom composite views (carry-over chip, currency picker rows, current-period section header on Budget detail) collapse to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with an explicit composed `.accessibilityLabel(...)`. Headings on `List` / form screens use `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them. Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) carry an `.accessibilityHint(...)` describing the irreversible consequence. **`swipeActions` are not auto-exposed to VoiceOver**; every `swipeActions` block MUST be paired with a matching `.accessibilityAction(named:)` so VO users can invoke the action via the rotor. See [docs/audits/2026-04-30-loc-voiceover-audit.md](audits/2026-04-30-loc-voiceover-audit.md) for the per-screen audit baseline.
+- **VoiceOver**: Meaningful accessibility labels on all interactive controls; financial amounts include currency context. Custom composite views (carry-over chip, currency picker rows, current-period section header on Budget detail) collapse to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with an explicit composed `.accessibilityLabel(...)`. Headings on `List` / form screens use `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them. Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) carry an `.accessibilityHint(...)` describing the irreversible consequence. **`swipeActions` are not auto-exposed to VoiceOver**; every `swipeActions` block MUST be paired with a matching `.accessibilityAction(named:)` so VO users can invoke the action via the rotor. See [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md) for the per-screen audit baseline.
 - **Dark Mode**: Semantic system colors and Asset Catalog color sets with light/dark variants; no hard-coded color literals.
 
 ### 5.3 Testing
@@ -371,7 +388,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 | 0.17    | 2026-05-02 | Jimmy Ho | §7 expanded the on-device diagnostics entry: canonical call-site map for `bootstrap`, `cloudkit`, and `ui` categories; explicit `privacy:` annotation rule; cross-reference to `docs/analytics-spec.md` §17 for the OSLog ↔ `AnalyticsClient` boundary. (F-8.01 implemented by change `oslog-diagnostic-logging`.) |
 | 0.16    | 2026-05-02 | Jimmy Ho | §7 expanded the product-analytics paragraph to call out Mixpanel SDK lazy init, the canonical client-selection table, and cross-references to `docs/analytics-spec.md` §§8 / 8.1 (ordering) and §16.1 (implementation starting state) ahead of F-8.01 / F-8.02 OpenSpec planning. |
 | 0.15    | 2026-04-30 | Jimmy Ho | §5.1 add `Text(verbatim:)` rule for locale-invariant strings (app version + build, raw ISO codes, etc.) so they are not auto-extracted into the catalog as opaque `%@`-format keys; pair with a localized `accessibilityLabel` when the row exposes translatable copy via VoiceOver. |
-| 0.14    | 2026-04-30 | Jimmy Ho | Loc + VoiceOver audit conventions: §5.1 add shared-key (`common.*`) policy; §5.2 codify single-element composite a11y, header rotor trait, destructive hint requirement, and `swipeActions` ↔ `accessibilityAction` pairing rule. Cross-link audit at `docs/audits/2026-04-30-loc-voiceover-audit.md`. |
+| 0.14    | 2026-04-30 | Jimmy Ho | Loc + VoiceOver audit conventions: §5.1 add shared-key (`common.*`) policy; §5.2 codify single-element composite a11y, header rotor trait, destructive hint requirement, and `swipeActions` ↔ `accessibilityAction` pairing rule. Cross-link audit at `docs/audits/localization+voiceover-audit-2026-04-30.md`. |
 | 0.13    | 2026-04-30 | Jimmy Ho | Continued drift audit (phase 2): §3.2 fix broken anchor link (67-overunder → 67-carry-over); §5.5 document color-literal exceptions (money, sync status, destructive tints); §9 mark F-5.01 as shipped, update F-6.01/F-6.02 partial-impl notes |
 | 0.12    | 2026-04-30 | Jimmy Ho | Doc/code drift audit: §2.2 fix Router ownership (app entry point, not RootView); §8.2 fix pre-push to reference `scripts/build.sh` + `_destination.sh`; §8.3 add `make build`, `make lint-fix`, `make hooks-install` |
 | 0.11    | 2026-04-29 | Jimmy Ho | §2.1: list `BudgetDetailView` as a View+Services example with its three lifecycle-refresh triggers; §5.1: document count-driven plural variation pattern and inline vs list-label period-name rule |

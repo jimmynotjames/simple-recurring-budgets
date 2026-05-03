@@ -82,7 +82,7 @@ The boundary between OSLog (diagnostic, on-device only) and `AnalyticsClient` / 
 - *Two log lines for `Delete Expense` (one in `swipeActions`, one in the rotor `accessibilityAction`).* They both call the same `deleteExpense(_:)` method; logging at the funnel produces one canonical line per logical delete.
 - *Emit at `info` instead of `debug`.* `info` is appropriate for `bootstrap` (per-launch, low frequency); `debug` is appropriate for `ui` because destructive actions are user-frequency events that we don't need persisted in the system log archive. F-8.01 AC explicitly specifies "`debug`-level."
 
-**Rationale.** Maps F-8.01 AC to the four existing call sites with the lowest possible code surface. The shared `deleteExpense(_:)` funnel for swipe + rotor is an existing pattern in the view (per [`docs/audits/2026-04-30-loc-voiceover-audit.md`](../../../docs/audits/2026-04-30-loc-voiceover-audit.md)) — log there.
+**Rationale.** Maps F-8.01 AC to the four existing call sites with the lowest possible code surface. The shared `deleteExpense(_:)` funnel for swipe + rotor is an existing pattern in the view (per [`docs/audits/localization+voiceover-audit-2026-04-30.md`](../../../docs/audits/localization+voiceover-audit-2026-04-30.md)) — log there.
 
 ### D5. Privacy-level rule — explicit `privacy:` always
 

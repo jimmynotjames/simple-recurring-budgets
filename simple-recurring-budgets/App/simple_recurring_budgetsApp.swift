@@ -28,9 +28,10 @@ struct simple_recurring_budgetsApp: App {
     if Self.isRunningTests {
       analytics = ConsoleAnalyticsClient()
     } else {
-      // Closures are @Sendable and read only Sendable-typed values from the
-      // captured references. All call sites in this app are on the main actor,
-      // so accessing @Observable main-actor-isolated properties is safe here.
+      // Closures capture @MainActor-isolated properties (AppSettings, SyncStatus,
+      // ModelContainer.mainContext). They are NOT @Sendable — thread safety is
+      // delegated to the @unchecked Sendable declaration on MixpanelAnalyticsClient,
+      // which is safe because all call sites (track, identify) run on the main actor.
       analytics = MixpanelAnalyticsClient(
         token: mixpanelToken,
         isOptedIn: { [initialSettings] in initialSettings.analyticsOptIn },

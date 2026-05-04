@@ -65,6 +65,7 @@ fastlane/test_output
 
 # Claude Code — local-only (see https://code.claude.com/docs/en/claude-directory)
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 CLAUDE.local.md
 
 # Translation pipeline — generated outputs (keep .gitkeep to preserve dirs)

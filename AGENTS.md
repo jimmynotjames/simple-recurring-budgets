@@ -17,29 +17,71 @@ Run in this exact order from the repo root. Fix failures before advancing to the
 
 Steps 1–3 are seconds-cheap and let you fix lint/compile errors before paying the simulator boot + full-suite cost.
 
-### Single destination
+### Per-repo simulator sandbox
 
-The two `xcodebuild` steps (**`make build`** and **`make test`**) target **one** iPhone simulator. The destination is resolved by `scripts/_destination.sh` (shared by `scripts/build.sh` and `scripts/test.sh`), in priority order:
+Each clone of this repo gets its own dedicated simulator, identified by a unique device name derived from the repo's absolute path (e.g. `iPhone 17 [a1b2c3d4]`). The device lives in the default CoreSimulator device set (required by `xcodebuild`), but the unique name and UDID ensure no two clones ever share a simulator.
 
-1. **`SIMULATOR_UDID`** env var — pins a specific booted device (fastest; set once per session or in your shell profile).
-2. Any **already-booted** simulator whose name matches `SIMULATOR_NAME` (resolved by [`scripts/resolve_booted_sim_udid.py`](scripts/resolve_booted_sim_udid.py), with a short `simctl` timeout).
-3. **`name=…,OS=latest`** fallback — `xcodebuild` may cold-boot a simulator (slowest).
+The sandbox is set up automatically by `scripts/_sim_sandbox.sh` (sourced by `scripts/_destination.sh`), which is in turn sourced by `scripts/build.sh` and `scripts/test.sh`. You do not need to manage the simulator manually.
 
-`xcodebuild` is invoked with **`-destination-timeout 300`** so destination resolution does not hang indefinitely. Leave **Simulator.app** open with your device, or run `xcrun simctl boot <UDID>` once per session. Pin a device:
+**What happens on first run:**
 
-```bash
-xcrun simctl list devices available   # copy a UDID
-export SIMULATOR_UDID='…'             # optional: add to your shell profile
-make build   # or make test
-```
+1. `_sim_sandbox.sh` computes a unique device name from the repo path.
+2. It resolves the device type and runtime for `SIMULATOR_NAME` via `scripts/resolve_sim_spec.py`.
+3. It creates a new simulator in the default set with the unique name and boots it (~30–90 s one-time cost).
+4. The UDID is stored in `.build/sim/device.udid` for use by `make sim-*` targets.
+5. Subsequent runs find the booted simulator by UDID and reuse it (fast).
 
-Override the device name if needed:
+**Destination priority:**
+
+1. **`SIMULATOR_UDID`** env var — pins a specific device and skips sandbox management entirely (escape hatch).
+2. Any **already-booted** device whose name matches this repo's unique device name.
+3. Any **existing but shutdown** device with that name — boots it.
+4. **Creates a new device** with the unique name and boots it (first run only).
+
+**Override the device name:**
 
 ```bash
 SIMULATOR_NAME='iPhone 17' make build
+SIMULATOR_NAME='iPad Pro 13-inch (M4)' make test
 ```
 
-If `xcodebuild` cannot find the destination, run `xcrun simctl list devices available` and set `SIMULATOR_NAME` or `SIMULATOR_UDID`, or install the latest simulator runtime in Xcode.
+**Simulator management targets** (affect only this repo's device):
+
+```bash
+make initialize-sims  # create and boot this repo's simulator without building
+make sim-status       # show this repo's simulator status
+make sim-shutdown     # shut down this repo's simulator
+make sim-clean        # shut down + delete this repo's simulator + remove .build/sim/
+```
+
+**Derived data and result bundles** are scoped per repo:
+
+- `-derivedDataPath .build/sim/DerivedData` — build cache stays per-clone.
+- `-resultBundlePath .build/sim/results/<timestamp>.xcresult` — test results per run.
+
+**Parallel testing is disabled** for scripted runs (`-parallel-testing-enabled NO`). The scheme has `parallelizable = "YES"` so Xcode's IDE runs can still use per-class clones, but `scripts/test.sh` runs serially on the single warm base sim. Reasons:
+
+1. Each clone re-boots from the base sim (~30–90 s overhead per clone).
+2. With multiple agents across repo clones, dozens of clones spawn at once and CoreSimulator races during teardown — manifesting as `Test crashed with signal kill` after tests finish.
+3. Serial execution is faster *and* deterministic.
+
+**The UI test bundle is skipped** in scripted runs (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". The UI bundle only contains `testExample` (trivial launch) and `testLaunchPerformance` (performance baseline), not business-logic tests. Run them in Xcode when needed.
+
+`make sim-clean` runs `scripts/sim_clean.py`, which finds every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` left behind by a parallel-testing crash) and deletes them all. It cannot touch other repos' devices.
+
+### What NOT to do (multi-agent safety)
+
+> These commands affect **all** simulators on the machine, including those owned by other repo clones and by Xcode. They will break parallel agent sessions.
+
+- ❌ `pkill Simulator`
+- ❌ `killall Simulator`
+- ❌ `xcrun simctl shutdown all`
+- ❌ `xcrun simctl erase all`
+- ❌ Opening Simulator.app on a device an agent is actively using
+
+Use `make sim-shutdown` or `make sim-clean` instead — they operate on this repo's specific UDID only.
+
+Also: all clones must share the same `xcode-select` path. Switching Xcode versions while agents are running restarts CoreSimulatorService and kills booted sims.
 
 ### Latest iOS / iPadOS only
 

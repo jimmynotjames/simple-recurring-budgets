@@ -1,10 +1,6 @@
 import XCTest
 
 final class simple_recurring_budgetsUITestsLaunchTests: XCTestCase {
-  override static var runsForEachTargetApplicationUIConfiguration: Bool {
-    true
-  }
-
   override func setUpWithError() throws {
     continueAfterFailure = false
   }

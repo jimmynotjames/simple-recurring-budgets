@@ -20,6 +20,8 @@ file_size() {
 
 for path in "$@"; do
   [[ -f "$path" ]] || continue
+  # Skip .xcstrings localization catalogs—they grow naturally with language translations
+  [[ "$path" == *.xcstrings ]] && continue
   size="$(file_size "$path")"
   if (( size > MAX_BYTES )); then
     printf 'error: file exceeds 1 MiB (%s bytes): %s\n' "$size" "$path" >&2

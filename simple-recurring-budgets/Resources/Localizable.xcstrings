@@ -1201,6 +1201,246 @@
         }
       }
     },
+    "addEditBudget.chip.period.locked.accessibilityHint": {
+      "comment": "VoiceOver hint for a period chip in Edit mode; tells the user the period is immutable post-creation",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مقفل. لا يمكن تغيير الفترة بعد إنشاء ميزانيتك."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloquejat. El període no es pot canviar un cop creat el pressupost."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamčeno. Období nelze po vytvoření rozpočtu změnit."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låst. Perioden kan ikke ændres, efter du har oprettet dit budget."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesperrt. Der Zeitraum kann nach dem Erstellen deines Budgets nicht mehr geändert werden."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κλειδωμένο. Η περίοδος δεν μπορεί να αλλαχθεί μετά τη δημιουργία του προϋπολογισμού."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Locked. Period can't be changed after creating your budget."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked. Period can't be changed after creating your budget."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked. Period can't be changed after creating your budget."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked. Period can't be changed after creating your budget."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloqueado. El periodo no se puede cambiar una vez creado el presupuesto."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloqueado. El período no puede cambiarse después de crear tu presupuesto."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lukittu. Kautta ei voi muuttaa budjetin luomisen jälkeen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouillé. La période ne peut pas être modifiée après la création de votre budget."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouillé. La période ne peut pas être modifiée après la création de votre budget."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "נעול. לא ניתן לשנות את התקופה לאחר יצירת התקציב."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लॉक है। बजट बनाने के बाद अवधि बदली नहीं जा सकती।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaključano. Razdoblje se ne može promijeniti nakon stvaranja proračuna."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zárolt. Az időszak a költségvetés létrehozása után nem módosítható."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terkunci. Periode tidak dapat diubah setelah anggaran dibuat."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloccato. Il periodo non può essere modificato dopo aver creato il budget."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ロック済み。予算を作成した後は期間を変更できません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠김. 예산 생성 후에는 기간을 변경할 수 없습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dikunci. Tempoh tidak boleh diubah selepas membuat belanjawan anda."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låst. Perioden kan ikke endres etter at budsjettet er opprettet."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vergrendeld. De periode kan niet worden gewijzigd nadat je budget is aangemaakt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zablokowane. Okresu nie można zmienić po utworzeniu budżetu."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloqueado. O período não pode ser alterado após a criação do orçamento."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloqueado. O período não pode ser alterado após criar o seu orçamento."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocat. Perioada nu poate fi modificată după crearea bugetului."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заблокировано. Период нельзя изменить после создания бюджета."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknuté. Obdobie nemožno po vytvorení rozpočtu zmeniť."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Låst. Perioden kan inte ändras efter att din budget har skapats."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ล็อกอยู่ ไม่สามารถเปลี่ยนรอบเวลาได้หลังจากสร้างงบประมาณแล้ว"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kilitli. Bütçenizi oluşturduktan sonra dönem değiştirilemez."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заблоковано. Після створення бюджету змінити період неможливо."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã khóa. Kỳ không thể thay đổi sau khi tạo ngân sách."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已锁定。预算创建后无法更改周期。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已鎖定。預算建立後無法更改週期。"
+          }
+        }
+      }
+    },
     "addEditBudget.deleteConfirmation.confirm": {
       "comment": "Destructive confirm button in the delete budget confirmation dialog",
       "extractionState": "extracted_with_value",
@@ -3597,6 +3837,486 @@
           "stringUnit": {
             "state": "translated",
             "value": "隨時間累積未使用或超支的金額。"
+          }
+        }
+      }
+    },
+    "addEditBudget.note.currencyLabelOnly": {
+      "comment": "Inline note shown below the currency picker when the user selects a different currency, warning that no conversion is applied",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تغيير العملة يُحدِّث التسمية فقط، أي لا يتم تحويل العملة."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canviar la moneda només actualitza l'etiqueta. És a dir, no es fa cap conversió de divises."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Změna měny aktualizuje pouze popisek. Tj. Neprovádí se žádný přepočet měny."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ændring af valuta opdaterer kun etiketten. Der foretages ingen valutakonvertering."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn du die Währung änderst, wird nur die Bezeichnung aktualisiert. Es findet keine Währungsumrechnung statt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η αλλαγή νομίσματος ενημερώνει μόνο την ετικέτα. Δεν γίνεται μετατροπή νομίσματος."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Changing currency only updates the label. I.e. No currency conversion."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing currency only updates the label. I.e. No currency conversion."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing currency only updates the label. I.e. No currency conversion."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing currency only updates the label. I.e. No currency conversion."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar la divisa solo actualiza la etiqueta. No se aplica ninguna conversión."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar la divisa solo actualiza la etiqueta. Es decir, no se aplica ninguna conversión de divisa."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valuutan vaihto päivittää vain tunnuksen. Valuuttamuunnosta ei tehdä."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer la devise met uniquement à jour le libellé. Aucune conversion de devise n'est appliquée."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer la devise met à jour l'étiquette seulement. Aucune conversion de devise n'est appliquée."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "שינוי מטבע מעדכן רק את התווית. כלומר, אין המרת מטבע."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मुद्रा बदलने से केवल लेबल अपडेट होता है। यानी कोई मुद्रा रूपांतरण नहीं होता।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promjena valute mijenja samo oznaku, tj. ne provodi se pretvorba valute."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A pénznem megváltoztatása csak a feliratot frissíti. Azaz: nincs pénznemkonverzió."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mengubah mata uang hanya memperbarui label. Tidak ada konversi mata uang."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiare la valuta aggiorna solo l'etichetta. Non viene applicata alcuna conversione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通貨を変更してもラベルが更新されるだけです。つまり、通貨の換算は行われません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "통화를 변경하면 표시 단위만 바뀝니다. 즉, 환율 변환은 적용되지 않습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menukar mata wang hanya mengemas kini label. Tiada penukaran mata wang dilakukan."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Å endre valuta oppdaterer kun etiketten. Ingen valutakonvertering utføres."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het wijzigen van de valuta werkt alleen het label bij. Er vindt geen valutaconversie plaats."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmiana waluty aktualizuje tylko etykietę. Nie jest stosowane przeliczanie walut."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar a moeda atualiza apenas o rótulo. Ou seja, nenhuma conversão de moeda é aplicada."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar a moeda apenas atualiza a etiqueta. I.e. Sem conversão de moeda."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schimbarea valutei actualizează doar eticheta. Adică nu se aplică nicio conversie valutară."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменение валюты обновляет только метку. Конвертация валюты не выполняется."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmena meny aktualizuje iba označenie. Tj. Nedochádza ku konverzii meny."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Att ändra valuta uppdaterar bara etiketten. Dvs. ingen valutakonvertering görs."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเปลี่ยนสกุลเงินจะอัปเดตเฉพาะป้ายกำกับเท่านั้น ไม่มีการแปลงสกุลเงิน"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para birimi değiştirme yalnızca etiketi günceller. Yani para birimi dönüşümü uygulanmaz."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зміна валюти оновлює лише мітку. Конвертація валюти не виконується."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thay đổi tiền tệ chỉ cập nhật nhãn. Không có chuyển đổi tiền tệ."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改货币仅更新标签显示，不进行汇率换算。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改貨幣只會更新標籤，不會進行任何貨幣換算。"
+          }
+        }
+      }
+    },
+    "addEditBudget.note.periodLocked": {
+      "comment": "Caption below the period chip grid in edit mode, explaining that the period is locked",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يمكن تغيير هذا بعد إنشاء ميزانيتك."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Això no es pot canviar un cop creat el pressupost."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toto nelze po vytvoření rozpočtu změnit."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette kan ikke ændres, efter du har oprettet dit budget."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dies kann nach dem Erstellen deines Budgets nicht mehr geändert werden."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν μπορεί να αλλαχθεί μετά τη δημιουργία του προϋπολογισμού."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "This can't be changed after creating your budget."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can't be changed after creating your budget."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can't be changed after creating your budget."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can't be changed after creating your budget."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto no se puede cambiar una vez creado el presupuesto."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto no puede cambiarse después de crear tu presupuesto."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tätä ei voi muuttaa budjetin luomisen jälkeen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela ne peut pas être modifié après la création de votre budget."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceci ne peut pas être modifié après la création de votre budget."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "לא ניתן לשנות זאת לאחר יצירת התקציב."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बजट बनाने के बाद यह नहीं बदला जा सकता।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovo se ne može promijeniti nakon stvaranja proračuna."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez a költségvetés létrehozása után nem módosítható."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini tidak dapat diubah setelah anggaran dibuat."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non può essere modificato dopo aver creato il budget."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予算を作成した後は変更できません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "예산 생성 후에는 변경할 수 없습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini tidak boleh diubah selepas membuat belanjawan anda."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette kan ikke endres etter at budsjettet er opprettet."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit kan niet worden gewijzigd nadat je budget is aangemaakt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tego nie można zmienić po utworzeniu budżetu."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isso não pode ser alterado após a criação do orçamento."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isto não pode ser alterado após criar o seu orçamento."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceasta nu poate fi modificată după crearea bugetului."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это нельзя изменить после создания бюджета."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toto nemožno zmeniť po vytvorení rozpočtu."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det här kan inte ändras efter att din budget har skapats."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่สามารถเปลี่ยนแปลงได้หลังจากสร้างงบประมาณแล้ว"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bütçenizi oluşturduktan sonra bu değiştirilemez."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це неможливо змінити після створення бюджету."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể thay đổi sau khi tạo ngân sách."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预算创建后无法更改此项。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "預算建立後無法更改此設定。"
           }
         }
       }

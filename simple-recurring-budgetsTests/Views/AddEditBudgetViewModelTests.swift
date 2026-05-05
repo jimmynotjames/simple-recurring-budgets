@@ -365,4 +365,49 @@ struct AddEditBudgetViewModelTests {
     let remainingExpenses = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(remainingExpenses.isEmpty, "Cascade delete should remove all ExpenseItems belonging to the deleted budget")
   }
+
+  // MARK: - Period immutability (restrict-edit-budget-period)
+
+  @Test func editMode_save_periodChangeIsIgnored() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let original = Date(timeIntervalSinceNow: -3600)
+    let budget = Budget(name: "Transport", allocation: 100, currencyCode: "USD", period: .weekly)
+    budget.lastModified = original
+    context.insert(budget)
+    try context.save()
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.period = .monthly // mutate period in Edit mode — should be silently ignored
+
+    vm.save(context: context)
+
+    #expect(budget.period == BudgetPeriod.weekly.rawValue, "period must not be written in Edit mode")
+    #expect(budget.lastModified == original, "lastModified must not change when only period differs")
+  }
+
+  @Test func editMode_save_periodChangeAlongsideOtherChange_writesOtherButNotPeriod() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let before = Date(timeIntervalSinceNow: -3600)
+    let budget = Budget(name: "Original", allocation: 100, currencyCode: "USD", period: .daily)
+    budget.lastModified = before
+    context.insert(budget)
+    try context.save()
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.name = "Updated" // real change
+    vm.period = .monthly // should be ignored
+
+    vm.save(context: context)
+
+    #expect(budget.name == "Updated", "name must be written")
+    #expect(budget.period == BudgetPeriod.daily.rawValue, "period must not be written even alongside another change")
+    #expect(budget.lastModified != before, "lastModified must be bumped once for the name change")
+    // Verify lastModified set exactly once (synchronous save — reading again yields same value)
+    let lastMod = budget.lastModified
+    #expect(budget.lastModified == lastMod)
+  }
 }

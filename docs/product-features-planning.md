@@ -103,7 +103,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.03: Add/Edit Budget screen
 
-- **Status:** Implemented (excluding paused Reset Cadences). Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`). Delete Budget implemented by change `delete-budget-button`.
+- **Status:** Implemented (excluding paused Reset Cadences). Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`). Delete Budget implemented by change `delete-budget-button`. Period immutability and currency-change disclaimer implemented by change `restrict-edit-budget-period`.
 - **Description:** Screen to create or edit a Budget (entity).
 - **Acceptance Criteria:**
   - Same screen used to create and edit.
@@ -113,7 +113,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Fields:
     - ID: Arbitrary internal identifier, not shown to user. 
     - Name — defaults to empty string (user-editable); the field shows `"Budget"` as a placeholder but the draft value is blank so Save is disabled until the user types a name. In Add mode the Name field auto-focuses (keyboard appears) when the sheet opens.
-    - Time Period (daily, weekly, biweekly, monthly). Defaults to daily.
+    - **Time Period** (daily, weekly, biweekly, monthly). Defaults to daily. **Time Period is immutable after creation.** In Edit mode the period chips are non-interactive (rendered as static labels, not buttons) with a muted visual style; a `lock.fill` caption ("This can't be changed after creating your budget.") is displayed below the chip grid. The model layer also excludes `period` from the fields written on Edit-mode Save — period cannot be mutated regardless of any UI or programmatic state.
     - Allocation. Defaults to blank (no amount until the user enters one); Save stays disabled until a positive amount is entered. The Allocation card prefixes the numeric field with a currency symbol/code label driven by `AppSettings.currencyDisplay` (symbol / code / code+symbol).
     - **Currency (per budget)** — Each Budget has its own currency. Defaults to locale's currency; USD if unable to determine at all.
     - **Carry-over reset cadence** *(PAUSED — see note below)* — How often cumulative carry-over is cleared **automatically**. Options: **weekly**, **biweekly**, **monthly**, **quarterly**, or **never** (no automatic reset; user uses manual reset only). **Quarterly** and **never** are not Budget Periods; they apply only here. Valid options depend on Budget Period (each cadence must be broader than the period; see [main-prd.md §6.7](main-prd.md#67-carry-over-behavior)). **Defaults** for new budgets: daily → weekly; weekly → monthly; biweekly → quarterly; monthly → quarterly. Scheduled resets align to **period boundaries** (first boundary after the interval), never mid-period.
@@ -234,6 +234,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Amounts and symbols in the UI respect **each Budget’s** selected currency and the user’s locale formatting rules.
   - Currency catalog (codes, symbols, localized names) is sourced from outside our application source — either from Foundation’s system catalog (`Locale.commonISOCurrencyCodes` plus `Locale.localizedString(forCurrencyCode:)`) or from a project-owned data file (e.g. YAML) when the app needs to diverge from the system catalog. The Add/Edit Budget screen ships the system-catalog path.
   - The display name of each currency in the picker is internationalized. *(Implemented by `add-edit-budget-screen` change.)*
+  - **Changing a Budget's currency is a label change only — no FX conversion is performed on `Budget.allocation` or any `ExpenseItem.amount`.** The Add/Edit Budget screen surfaces an inline caption ("Changing currency only updates the label. I.e. No currency conversion.") below the allocation/currency row whenever the user picks a currency different from the one at sheet-open time. *(Implemented by `restrict-edit-budget-period` change.)*
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-2.03, F-3.03
 

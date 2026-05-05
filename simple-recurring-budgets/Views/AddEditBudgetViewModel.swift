@@ -184,10 +184,9 @@ final class AddEditBudgetViewModel {
       budget.currencyCode = currencyCode
       changed = true
     }
-    if budget.period != period.rawValue {
-      budget.period = period.rawValue
-      changed = true
-    }
+    // period is intentionally excluded: Budget.period is immutable post-creation (F-2.03;
+    // restrict-edit-budget-period). The UI enforces this via non-interactive chips in Edit
+    // mode; this layer ensures no programmatic drift can bypass it.
     if budget.isCarryOverEnabled != isCarryOverEnabled {
       budget.isCarryOverEnabled = isCarryOverEnabled
       changed = true

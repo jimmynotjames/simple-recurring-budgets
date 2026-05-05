@@ -11,6 +11,7 @@ struct AddEditBudgetView: View {
 
   @State private var showCurrencyPicker = false
   @State private var showDeleteConfirmation = false
+  @State private var initialCurrencyCode: String = ""
   @FocusState private var isNameFocused: Bool
 
   var body: some View {
@@ -30,6 +31,7 @@ struct AddEditBudgetView: View {
         .padding(.bottom, 32)
       }
       .onAppear {
+        initialCurrencyCode = viewModel.currencyCode
         if !viewModel.isEditing {
           isNameFocused = true
         }
@@ -158,58 +160,72 @@ struct AddEditBudgetView: View {
 
   private var allocationCard: some View {
     GroupBox {
-      HStack(alignment: .center, spacing: 12) {
-        HStack(alignment: .firstTextBaseline, spacing: 2) {
-          Text(currencyPrefix)
-            .font(.title2.weight(.semibold))
-            .foregroundStyle(.secondary)
-          TextField(
-            String(
-              localized: "addEditBudget.field.allocation.placeholder",
-              defaultValue: "0",
-              comment: "Placeholder in the allocation amount field when no value is entered"
-            ),
-            value: $viewModel.allocation,
-            format: OptionalDecimalFormatStyle()
-          )
-          .keyboardType(.decimalPad)
-          .font(.title2.weight(.semibold).monospacedDigit())
-          .accessibilityLabel(
-            String(
-              localized: "addEditBudget.field.allocation.accessibilityLabel",
-              defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
-              comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
+      VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .center, spacing: 12) {
+          HStack(alignment: .firstTextBaseline, spacing: 2) {
+            Text(currencyPrefix)
+              .font(.title2.weight(.semibold))
+              .foregroundStyle(.secondary)
+            TextField(
+              String(
+                localized: "addEditBudget.field.allocation.placeholder",
+                defaultValue: "0",
+                comment: "Placeholder in the allocation amount field when no value is entered"
+              ),
+              value: $viewModel.allocation,
+              format: OptionalDecimalFormatStyle()
             )
-          )
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-
-        Button {
-          showCurrencyPicker = true
-        } label: {
-          HStack(spacing: 4) {
-            Text(viewModel.currencyCode)
-              .font(.callout.weight(.medium))
-            Image(systemName: "chevron.up.chevron.down")
-              .font(.caption2)
+            .keyboardType(.decimalPad)
+            .font(.title2.weight(.semibold).monospacedDigit())
+            .accessibilityLabel(
+              String(
+                localized: "addEditBudget.field.allocation.accessibilityLabel",
+                defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
+                comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
+              )
+            )
           }
-          .padding(.horizontal, 10)
-          .padding(.vertical, 6)
-          .background(Capsule().fill(Color.secondary.opacity(0.12)))
-          .foregroundStyle(.secondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+
+          Button {
+            showCurrencyPicker = true
+          } label: {
+            HStack(spacing: 4) {
+              Text(viewModel.currencyCode)
+                .font(.callout.weight(.medium))
+              Image(systemName: "chevron.up.chevron.down")
+                .font(.caption2)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Capsule().fill(Color.secondary.opacity(0.12)))
+            .foregroundStyle(.secondary)
+          }
+          .buttonStyle(.plain)
+          .accessibilityLabel(String(
+            localized: "addEditBudget.field.currency.accessibilityLabel",
+            defaultValue: "Currency, \(viewModel.currencyCode)",
+            comment: "VoiceOver label for the currency selection pill showing the current ISO code"
+          ))
+          .accessibilityHint(String(
+            localized: "addEditBudget.field.currency.accessibilityHint",
+            defaultValue: "Opens currency picker",
+            comment: "VoiceOver hint for the currency selection pill"
+          ))
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(String(
-          localized: "addEditBudget.field.currency.accessibilityLabel",
-          defaultValue: "Currency, \(viewModel.currencyCode)",
-          comment: "VoiceOver label for the currency selection pill showing the current ISO code"
-        ))
-        .accessibilityHint(String(
-          localized: "addEditBudget.field.currency.accessibilityHint",
-          defaultValue: "Opens currency picker",
-          comment: "VoiceOver hint for the currency selection pill"
-        ))
+
+        if !initialCurrencyCode.isEmpty, viewModel.currencyCode != initialCurrencyCode {
+          Text(String(
+            localized: "addEditBudget.note.currencyLabelOnly",
+            defaultValue: "Changing currency only updates the label. I.e. No currency conversion.",
+            comment: "Inline note shown below the currency picker when the user selects a different currency, warning that no conversion is applied"
+          ))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .transition(.opacity.combined(with: .move(edge: .top)))
+        }
       }
+      .animation(.easeInOut(duration: 0.2), value: viewModel.currencyCode)
     } label: {
       sectionLabel(String(
         localized: "addEditBudget.section.allocation",
@@ -218,14 +234,39 @@ struct AddEditBudgetView: View {
       ))
     }
     .backgroundStyle(Color("CellBackground"))
+    .onChange(of: viewModel.currencyCode) { _, newCode in
+      guard !initialCurrencyCode.isEmpty, newCode != initialCurrencyCode else { return }
+      let disclaimer = String(
+        localized: "addEditBudget.note.currencyLabelOnly",
+        defaultValue: "Changing currency only updates the label. I.e. No currency conversion.",
+        comment: "Inline note shown below the currency picker when the user selects a different currency, warning that no conversion is applied"
+      )
+      AccessibilityNotification.Announcement(disclaimer).post()
+    }
   }
 
   private var periodCard: some View {
     GroupBox {
       let columns = [GridItem(.flexible()), GridItem(.flexible())]
-      LazyVGrid(columns: columns, spacing: 8) {
-        ForEach(BudgetPeriod.allCases, id: \.self) { p in
-          periodChip(p)
+      VStack(alignment: .leading, spacing: 8) {
+        LazyVGrid(columns: columns, spacing: 8) {
+          ForEach(BudgetPeriod.allCases, id: \.self) { p in
+            periodChip(p)
+          }
+        }
+
+        if viewModel.isEditing {
+          Label(
+            String(
+              localized: "addEditBudget.note.periodLocked",
+              defaultValue: "This can't be changed after creating your budget.",
+              comment: "Caption below the period chip grid in edit mode, explaining that the period is locked"
+            ),
+            systemImage: "lock.fill"
+          )
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .padding(.top, 8)
         }
       }
     } label: {
@@ -278,30 +319,57 @@ struct AddEditBudgetView: View {
 
   // MARK: - Period chip
 
+  @ViewBuilder
   private func periodChip(_ p: BudgetPeriod) -> some View {
-    Button {
-      withAnimation(.easeInOut(duration: 0.15)) {
-        viewModel.period = p
-      }
-    } label: {
+    let isSelected = viewModel.period == p
+
+    if viewModel.isEditing {
       Text(p.listLabel)
         .font(.subheadline)
-        .fontWeight(viewModel.period == p ? .semibold : .regular)
+        .fontWeight(isSelected ? .semibold : .regular)
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
         .background(
           RoundedRectangle(cornerRadius: 8, style: .continuous)
-            .fill(viewModel.period == p ? Color.accentColor : Color.secondary.opacity(0.1))
+            .fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.06))
         )
-        .foregroundStyle(viewModel.period == p ? Color.white : Color.primary)
+        .foregroundStyle(isSelected ? Color.white : Color.primary.opacity(0.3))
+        .accessibilityLabel(String(
+          localized: "addEditBudget.chip.period.accessibilityLabel",
+          defaultValue: "\(p.listLabel) period",
+          comment: "VoiceOver label for a period selection chip; argument is the period name (Daily, Weekly, etc.)"
+        ))
+        .accessibilityHint(String(
+          localized: "addEditBudget.chip.period.locked.accessibilityHint",
+          defaultValue: "Locked. Period can't be changed after creating your budget.",
+          comment: "VoiceOver hint for a period chip in Edit mode; tells the user the period is immutable post-creation"
+        ))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    } else {
+      Button {
+        withAnimation(.easeInOut(duration: 0.15)) {
+          viewModel.period = p
+        }
+      } label: {
+        Text(p.listLabel)
+          .font(.subheadline)
+          .fontWeight(isSelected ? .semibold : .regular)
+          .frame(maxWidth: .infinity)
+          .padding(.vertical, 10)
+          .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+              .fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.1))
+          )
+          .foregroundStyle(isSelected ? Color.white : Color.primary)
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel(String(
+        localized: "addEditBudget.chip.period.accessibilityLabel",
+        defaultValue: "\(p.listLabel) period",
+        comment: "VoiceOver label for a period selection chip; argument is the period name (Daily, Weekly, etc.)"
+      ))
+      .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
-    .buttonStyle(.plain)
-    .accessibilityLabel(String(
-      localized: "addEditBudget.chip.period.accessibilityLabel",
-      defaultValue: "\(p.listLabel) period",
-      comment: "VoiceOver label for a period selection chip; argument is the period name (Daily, Weekly, etc.)"
-    ))
-    .accessibilityAddTraits(viewModel.period == p ? .isSelected : [])
   }
 
   // MARK: - Helpers

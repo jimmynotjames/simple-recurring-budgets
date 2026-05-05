@@ -324,12 +324,14 @@ struct AddEditBudgetView: View {
     AddEditBudgetView(viewModel: AddEditBudgetViewModel(settings: AppSettings()))
       .modelContainer(PreviewContainer.make())
       .environment(AppSettings())
+      .environment(Router())
   }
 
   #Preview("Add — Dark") {
     AddEditBudgetView(viewModel: AddEditBudgetViewModel(settings: AppSettings()))
       .modelContainer(PreviewContainer.make())
       .environment(AppSettings())
+      .environment(Router())
       .preferredColorScheme(.dark)
   }
 
@@ -338,6 +340,7 @@ struct AddEditBudgetView: View {
     return AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))
       .modelContainer(PreviewContainer.make())
       .environment(AppSettings())
+      .environment(Router())
   }
 
   #Preview("Edit — Dark") {
@@ -345,6 +348,7 @@ struct AddEditBudgetView: View {
     return AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))
       .modelContainer(PreviewContainer.make())
       .environment(AppSettings())
+      .environment(Router())
       .preferredColorScheme(.dark)
   }
 
@@ -353,6 +357,7 @@ struct AddEditBudgetView: View {
     return AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))
       .modelContainer(PreviewContainer.make())
       .environment(AppSettings())
+      .environment(Router())
       .dynamicTypeSize(.xxxLarge)
   }
 
@@ -363,5 +368,6 @@ struct AddEditBudgetView: View {
     return AddEditBudgetView(viewModel: vm)
       .modelContainer(PreviewContainer.make())
       .environment(AppSettings())
+      .environment(Router())
   }
 #endif

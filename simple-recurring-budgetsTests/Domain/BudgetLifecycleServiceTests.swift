@@ -3,16 +3,14 @@ import Foundation
 import SwiftData
 import Testing
 
-// MARK: - Shared test helpers (3.1 – 3.3)
+// MARK: - Shared helpers
 
-/// Fixed-UTC Gregorian calendar for deterministic results in all BudgetLifecycleService tests.
 private let cal: Calendar = {
   var c = Calendar(identifier: .gregorian)
   c.timeZone = TimeZone(identifier: "UTC")!
   return c
 }()
 
-/// Build a `Date` at a given UTC time.
 private func d(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0) -> Date {
   var comps = DateComponents()
   comps.year = year; comps.month = month; comps.day = day
@@ -21,382 +19,302 @@ private func d(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0) -> Date {
   return Calendar(identifier: .gregorian).date(from: comps)!
 }
 
-/// Inserts an `ExpenseItem` for the given `budget` in `context`.
-@discardableResult
-private func expense(amount: Decimal, date: Date, budget: Budget, in context: ModelContext) -> ExpenseItem {
-  let item = ExpenseItem(amount: amount, date: date)
-  item.budget = budget
-  context.insert(item)
-  return item
-}
-
-/// Builds and configures `AppSettings` with the desired `weekStartDay`.
 private func settings(weekStart: Weekday = .sunday) -> AppSettings {
   let s = AppSettings(store: MockKeyValueStore())
   s.weekStartDay = weekStart
   return s
 }
 
-// MARK: - No-op path (4.1, 4.2)
+private func makeBudget(
+  period: BudgetPeriod = .daily,
+  allocation: Decimal = 20,
+  startDate: Date,
+  in context: ModelContext
+) -> Budget {
+  let b = Budget(period: period)
+  b.startDate = startDate
+  let change = AllocationChange(effectiveFrom: startDate, amount: allocation)
+  change.budget = b
+  context.insert(b)
+  context.insert(change)
+  return b
+}
 
-struct BudgetLifecycleNoOpTests {
-  /// 4.1 — When lastProcessedDate is within the current period and no reset boundary elapsed,
-  /// `refreshAndSave` does not mutate any carryOver* field or lastModified.
-  @Test func refreshAndSave_noOpWithinPeriod_doesNotMutateFields() throws {
+// MARK: - refreshAndSave: pure read, no mutations
+
+struct BudgetLifecycleRefreshTests {
+  @Test func refreshAndSave_doesNotMutateBudget() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .weekly)
-    ctx.insert(budget)
-
-    // lastProcessedDate already at today's start (same period as now)
-    let now = d(2026, 4, 15, hour: 10)
-    budget.carryOverLastProcessedDate = d(2026, 4, 15) // today's start → no roll
-    budget.carryOverLastResetDate = d(2026, 4, 12) // last Sunday; now is Wed → no reset
-    budget.carryOverAmount = try #require(Decimal(string: "5.00"))
+    let startDate = d(2026, 4, 15)
+    let budget = makeBudget(startDate: startDate, in: ctx)
     let originalLastModified = budget.lastModified
 
-    let s = settings(weekStart: .sunday)
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: s, context: ctx, now: now, calendar: cal)
+    BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal)
 
-    #expect(budget.carryOverAmount == Decimal(string: "5.00")!)
-    #expect(budget.carryOverLastProcessedDate == d(2026, 4, 15))
-    #expect(budget.carryOverLastResetDate == d(2026, 4, 12))
     #expect(budget.lastModified == originalLastModified)
-
-    // 4.2 — result reflects the unmodified carryOverAmount and correct remaining
-    #expect(result.carryOverAmount == Decimal(string: "5.00")!)
-    #expect(result.remaining == 20) // no expenses
+    #expect(budget.lastResetDate == nil)
   }
 
-  /// 4.2 — remaining equals allocation − current-period expenses.
-  @Test func refreshAndSave_noOp_remainingAccountsForCurrentPeriodExpenses() throws {
+  @Test func refreshAndSave_mapsSnapshotToResult() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 14)
+    let budget = makeBudget(allocation: 20, startDate: startDate, in: ctx)
+    // Prior period Apr 14: expense 18 → carry-over = 2
+    let exp = ExpenseItem(amount: 18, date: d(2026, 4, 14, hour: 10))
+    exp.budget = budget; ctx.insert(exp)
 
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .weekly)
-    ctx.insert(budget)
-    try ctx.save()
+    let result = BudgetLifecycleService.refreshAndSave(
+      budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal
+    )
 
-    let now = d(2026, 4, 15, hour: 10)
-    budget.carryOverLastProcessedDate = d(2026, 4, 15) // within today
-    budget.carryOverLastResetDate = d(2026, 4, 12) // no reset
-    budget.carryOverAmount = 0
-
-    expense(amount: 7, date: d(2026, 4, 15, hour: 9), budget: budget, in: ctx)
-
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
-
-    #expect(result.remaining == 13) // 20 - 7
-    #expect(result.carryOverAmount == 0)
-  }
-}
-
-// MARK: - Roll-only path (5.1, 5.2, 5.3)
-
-struct BudgetLifecycleRollOnlyTests {
-  /// 5.1 — Daily budget: yesterday completed; expenses don't equal allocation → roll updates
-  /// carryOverAmount, carryOverLastProcessedDate, and bumps lastModified.
-  @Test func refreshAndSave_rollOnly_daily_updatesFieldsAndLastModified() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .never)
-    ctx.insert(budget)
-
-    let now = d(2026, 4, 15, hour: 8)
-    budget.carryOverLastProcessedDate = d(2026, 4, 14) // yesterday's start
-    budget.carryOverLastResetDate = d(2026, 4, 15) // set to now so reset won't fire
-    budget.carryOverAmount = 0
-
-    expense(amount: 18, date: d(2026, 4, 14, hour: 10), budget: budget, in: ctx)
-
-    let s = settings(weekStart: .sunday)
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: s, context: ctx, now: now, calendar: cal)
-
-    // roll: 0 + (20 - 18) = 2
-    #expect(budget.carryOverAmount == 2)
-    #expect(budget.carryOverLastProcessedDate == d(2026, 4, 15))
-    #expect(budget.lastModified == now)
-    #expect(result.carryOverAmount == 2)
+    #expect(result.remaining == 20) // current period Apr 15, no expenses
+    #expect(result.carryOverAmount == 2) // walker: 20 − 18 = 2
+    #expect(result.periodStart == d(2026, 4, 15))
+    #expect(result.periodEnd == d(2026, 4, 16))
   }
 
-  /// 5.2 — Weekly budget: last week boundary crossed; roll matches BudgetCalculator output.
-  @Test func refreshAndSave_rollOnly_weekly_matchesCalculatorOutput() throws {
+  @Test func refreshAndSave_remainingIsIndependentOfCarryOver() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    // Many prior periods with surplus carry-over, current period has expense 5
+    let currentExpense = ExpenseItem(amount: 5, date: d(2026, 4, 15, hour: 9))
+    currentExpense.budget = budget; ctx.insert(currentExpense)
 
-    // Budget created on a Sunday so anchor = that Sunday.
-    let createdAt = d(2026, 4, 5) // Sunday
-    let budget = Budget(allocation: 100, period: .weekly, resetCadence: .never)
-    budget.createdAt = createdAt
-    ctx.insert(budget)
+    let result = BudgetLifecycleService.refreshAndSave(
+      budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal
+    )
 
-    let now = d(2026, 4, 12, hour: 1) // just after Sun Apr 12 (new week boundary)
-    budget.carryOverLastProcessedDate = d(2026, 4, 5) // last Sunday
-    budget.carryOverLastResetDate = d(2026, 4, 12) // set forward so reset won't fire
-    budget.carryOverAmount = 0
-
-    // Expenses in the Apr 5–11 window: 80 total
-    expense(amount: 50, date: d(2026, 4, 6, hour: 10), budget: budget, in: ctx)
-    expense(amount: 30, date: d(2026, 4, 10, hour: 10), budget: budget, in: ctx)
-    // Out-of-period expense (should be excluded)
-    expense(amount: 20, date: d(2026, 4, 13, hour: 10), budget: budget, in: ctx)
-
-    let s = settings(weekStart: .sunday)
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: s, context: ctx, now: now, calendar: cal)
-
-    // 100 - 80 = 20
-    #expect(budget.carryOverAmount == 20)
-    #expect(budget.carryOverLastProcessedDate == d(2026, 4, 12))
-    #expect(result.carryOverAmount == 20)
+    #expect(result.remaining == 15) // 20 − 5, regardless of carry-over
   }
 
-  /// 5.3 — Multi-period catch-up: 3 completed daily periods.
-  @Test func refreshAndSave_rollOnly_multiPeriodCatchUp() throws {
+  @Test func refreshAndSave_remainingMayBeNegative() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 15)
+    let budget = makeBudget(allocation: 10, startDate: startDate, in: ctx)
+    let exp = ExpenseItem(amount: 15, date: d(2026, 4, 15, hour: 9))
+    exp.budget = budget; ctx.insert(exp)
 
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .never)
-    ctx.insert(budget)
+    let result = BudgetLifecycleService.refreshAndSave(
+      budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal
+    )
 
-    let now = d(2026, 4, 15, hour: 8)
-    budget.carryOverLastProcessedDate = d(2026, 4, 12) // 3 days ago
-    budget.carryOverLastResetDate = d(2026, 4, 15) // no reset
-    budget.carryOverAmount = 0
-
-    // Apr 12: 25 (delta −5), Apr 13: 15 (delta +5), Apr 14: 20 (delta 0) → net 0
-    expense(amount: 25, date: d(2026, 4, 12, hour: 10), budget: budget, in: ctx)
-    expense(amount: 15, date: d(2026, 4, 13, hour: 10), budget: budget, in: ctx)
-    expense(amount: 20, date: d(2026, 4, 14, hour: 10), budget: budget, in: ctx)
-
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
-
-    #expect(budget.carryOverAmount == 0)
-    #expect(budget.carryOverLastProcessedDate == d(2026, 4, 15))
-    #expect(budget.lastModified == now)
-    #expect(result.carryOverAmount == 0)
-  }
-}
-
-// MARK: - Reset-only path (6.1, 6.2, 6.3)
-
-struct BudgetLifecycleResetOnlyTests {
-  /// 6.1 — Daily budget, weekly reset cadence: reset boundary crossed → carryOverAmount zeroed,
-  /// carryOverLastResetDate advanced; carryOverLastProcessedDate unchanged.
-  @Test func refreshAndSave_resetOnly_daily_weekly_zeroesAmountAndAdvancesResetDate() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .weekly)
-    ctx.insert(budget)
-
-    let now = d(2026, 4, 12) // Sunday — new weekly reset boundary
-    // Place processedDate at today's start so no roll fires
-    budget.carryOverLastProcessedDate = d(2026, 4, 12)
-    budget.carryOverLastResetDate = d(2026, 4, 5) // last Sunday
-    budget.carryOverAmount = try #require(Decimal(string: "15.00"))
-
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: settings(weekStart: .sunday), context: ctx, now: now, calendar: cal)
-
-    #expect(budget.carryOverAmount == 0)
-    #expect(budget.carryOverLastResetDate == d(2026, 4, 12))
-    #expect(budget.carryOverLastProcessedDate == d(2026, 4, 12)) // unchanged by reset
-    #expect(budget.lastModified == now)
-    #expect(result.carryOverAmount == 0)
+    #expect(result.remaining == -5)
   }
 
-  /// 6.2 — `never` cadence: no fields change regardless of elapsed time; no save.
-  @Test func refreshAndSave_neverCadence_noMutation() throws {
+  @Test func refreshAndSave_weeklyBudget_periodBoundaries() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .never)
-    ctx.insert(budget)
-
-    let now = d(2026, 12, 31)
-    budget.carryOverLastProcessedDate = d(2026, 12, 31) // no roll
-    budget.carryOverLastResetDate = d(2026, 1, 1) // long ago, but cadence = never
-    budget.carryOverAmount = try #require(Decimal(string: "42.00"))
-    let originalLastModified = budget.lastModified
-
-    BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
-
-    #expect(budget.carryOverAmount == Decimal(string: "42.00")!)
-    #expect(budget.carryOverLastResetDate == d(2026, 1, 1))
-    #expect(budget.lastModified == originalLastModified)
-  }
-
-  /// 6.3 — Multiple reset cadences skipped: carryOverLastResetDate advances to most recent boundary.
-  @Test func refreshAndSave_longResetGap_advancesToMostRecentBoundary() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .weekly)
-    ctx.insert(budget)
-
-    // 6 weeks gap: Mar 1 (Sun) → Apr 12 (Sun)
-    let now = d(2026, 4, 12)
-    budget.carryOverLastProcessedDate = d(2026, 4, 12) // no roll
-    budget.carryOverLastResetDate = d(2026, 3, 1) // several weekly cadences ago
-    budget.carryOverAmount = try #require(Decimal(string: "10.00"))
-
-    BudgetLifecycleService.refreshAndSave(budget, settings: settings(weekStart: .sunday), context: ctx, now: now, calendar: cal)
-
-    #expect(budget.carryOverLastResetDate == d(2026, 4, 12)) // most recent Sunday boundary
-    #expect(budget.carryOverAmount == 0)
-  }
-}
-
-// MARK: - Roll-then-reset ordering (7.1, 7.2)
-
-struct BudgetLifecycleRollThenResetTests {
-  /// 7.1 — When both roll and reset fire in the same call, the final state reflects:
-  /// roll applied first (carryOverLastProcessedDate advanced), then reset (carryOverAmount = 0).
-  @Test func refreshAndSave_rollThenReset_finalStateReflectsBothOperations() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    // Daily budget, weekly reset cadence (Sunday).
-    // now = Sun Apr 12 01:00; lastProcessedDate = Mon Apr 6 (6 days back); lastResetDate = Sun Apr 5.
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .weekly)
-    ctx.insert(budget)
-
-    let now = d(2026, 4, 12, hour: 1)
-    budget.carryOverLastProcessedDate = d(2026, 4, 6)
-    budget.carryOverLastResetDate = d(2026, 4, 5)
-    budget.carryOverAmount = 0
-
-    // 6 days: Apr 6–11. Expenses: 20+20+20+20+10+10 = 100; allocation = 6×20 = 120.
-    // Roll yields: 0 + (120 − 100) = 20, then reset fires → 0.
-    expense(amount: 20, date: d(2026, 4, 6, hour: 10), budget: budget, in: ctx)
-    expense(amount: 20, date: d(2026, 4, 7, hour: 10), budget: budget, in: ctx)
-    expense(amount: 20, date: d(2026, 4, 8, hour: 10), budget: budget, in: ctx)
-    expense(amount: 20, date: d(2026, 4, 9, hour: 10), budget: budget, in: ctx)
-    expense(amount: 10, date: d(2026, 4, 10, hour: 10), budget: budget, in: ctx)
-    expense(amount: 10, date: d(2026, 4, 11, hour: 10), budget: budget, in: ctx)
+    // Budget with Sunday start date → week runs Sun–Sat
+    let startDate = d(2026, 4, 5) // Sunday
+    let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, in: ctx)
+    let now = d(2026, 4, 12, hour: 1) // just after Sun Apr 12
 
     let result = BudgetLifecycleService.refreshAndSave(
       budget, settings: settings(weekStart: .sunday), context: ctx, now: now, calendar: cal
     )
 
-    // Roll happened: processedDate advanced
-    #expect(budget.carryOverLastProcessedDate == d(2026, 4, 12))
-    // Reset happened: amount zeroed
-    #expect(budget.carryOverAmount == 0)
-    #expect(budget.carryOverLastResetDate == d(2026, 4, 12))
-    // 7.2 — single save proxy: lastModified == now
-    #expect(budget.lastModified == now)
-    #expect(result.carryOverAmount == 0)
-  }
-}
-
-// MARK: - Save and lastModified semantics (8.1, 8.2, 8.3)
-
-struct BudgetLifecycleLastModifiedTests {
-  /// 8.1 — No change → lastModified is not bumped.
-  @Test func refreshAndSave_noChange_lastModifiedUnchanged() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .never)
-    ctx.insert(budget)
-
-    let now = d(2026, 4, 15, hour: 10)
-    budget.carryOverLastProcessedDate = d(2026, 4, 15)
-    budget.carryOverLastResetDate = d(2026, 4, 15)
-    let originalLastModified = budget.lastModified
-
-    BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
-
-    #expect(budget.lastModified == originalLastModified)
-  }
-
-  /// 8.2 — Any change → lastModified == now.
-  @Test func refreshAndSave_anyChange_lastModifiedBumpedToNow() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .never)
-    ctx.insert(budget)
-
-    let now = d(2026, 4, 15, hour: 8)
-    budget.carryOverLastProcessedDate = d(2026, 4, 14) // yesterday → roll fires
-    budget.carryOverLastResetDate = d(2026, 4, 15)
-
-    BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
-
-    #expect(budget.lastModified == now)
-  }
-
-  /// 8.3 — remaining may be negative when expenses exceed the allocation (spec §"Remaining may be negative").
-  @Test func refreshAndSave_remaining_isNegativeWhenExpensesExceedAllocation() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 10, period: .daily, resetCadence: .never)
-    ctx.insert(budget)
-
-    let now = d(2026, 4, 15, hour: 10)
-    budget.carryOverLastProcessedDate = d(2026, 4, 15) // no roll
-    budget.carryOverLastResetDate = d(2026, 4, 15)
-
-    // Single expense of 15 exceeds allocation of 10 → remaining = −5
-    expense(amount: 15, date: d(2026, 4, 15, hour: 9), budget: budget, in: ctx)
-
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
-
-    #expect(result.remaining == -5)
-  }
-
-  /// 8.4 — remaining is independent of carryOverAmount (PRD §6.7).
-  @Test func refreshAndSave_remainingIsIndependentOfCarryOver() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    let budget = Budget(allocation: 20, period: .daily, resetCadence: .never)
-    ctx.insert(budget)
-
-    let now = d(2026, 4, 15, hour: 10)
-    budget.carryOverLastProcessedDate = d(2026, 4, 15) // no roll
-    budget.carryOverLastResetDate = d(2026, 4, 15)
-    budget.carryOverAmount = try #require(Decimal(string: "1000.00")) // large carry-over
-
-    expense(amount: 5, date: d(2026, 4, 15, hour: 9), budget: budget, in: ctx)
-
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: now, calendar: cal)
-
-    // remaining = 20 − 5 = 15, regardless of carryOverAmount = 1000
-    #expect(result.remaining == 15)
-  }
-}
-
-// MARK: - Biweekly anchor (9.1)
-
-struct BudgetLifecycleBiweeklyAnchorTests {
-  /// 9.1 — Budget created mid-week; service derives anchor as the most recent weekStart
-  /// day at or before createdAt — matching the budget-math spec's biweekly anchor scenario.
-  @Test func refreshAndSave_biweeklyAnchorDerivedFromCreatedAt() throws {
-    let container = try TestModelContainer.make()
-    let ctx = ModelContext(container)
-
-    // budget-math spec scenario: createdAt = Wed Apr 1, weekStart = Sunday.
-    // Expected anchor = Sun Mar 29. Biweekly boundary after anchor+14d = Sun Apr 12.
-    let budget = Budget(allocation: 50, period: .biweekly, resetCadence: .never)
-    budget.createdAt = d(2026, 4, 1) // Wednesday
-    ctx.insert(budget)
-
-    // Now is Thu Apr 17 — within the Apr 12–25 biweekly window (anchor Mar 29, +14d=Apr 12, +14d=Apr 26).
-    let now = d(2026, 4, 17)
-    budget.carryOverLastProcessedDate = d(2026, 4, 17) // no roll
-    budget.carryOverLastResetDate = d(2026, 4, 17)
-
-    let s = settings(weekStart: .sunday)
-    let result = BudgetLifecycleService.refreshAndSave(budget, settings: s, context: ctx, now: now, calendar: cal)
-
-    // Period start should be Sun Apr 12 (anchor Mar 29 + 14 days = Apr 12)
     #expect(result.periodStart == d(2026, 4, 12))
-    // Period end should be Sun Apr 26
-    #expect(result.periodEnd == d(2026, 4, 26))
+    #expect(result.periodEnd == d(2026, 4, 19))
+  }
+}
+
+// MARK: - applyAllocationEdit write path
+
+struct BudgetLifecycleApplyAllocationEditTests {
+  @Test func applyAllocationEdit_insertsNewRowForCurrentPeriod() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    try ctx.save()
+
+    let now = d(2026, 4, 15, hour: 10)
+    BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: now, calendar: cal)
+
+    // Should have original row (Apr 1 = 20) and a new row (Apr 15 = 30)
+    #expect(budget.allocationChanges.count == 2)
+    #expect(budget.lastModified == now)
+    // Snapshot should now use 30 for Apr 15
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal)
+    #expect(snap.effectiveAllocation == 30)
+  }
+
+  @Test func applyAllocationEdit_mutatesExistingRowForSamePeriod() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 15)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    try ctx.save()
+
+    let now = d(2026, 4, 15, hour: 10)
+    // First edit
+    BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 25, context: ctx, now: now, calendar: cal)
+    let countAfterFirst = budget.allocationChanges.count
+
+    // Second edit in same period
+    BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 35, context: ctx, now: now, calendar: cal)
+
+    // Should not have added a second row — mutated the existing one
+    #expect(budget.allocationChanges.count == countAfterFirst)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal)
+    #expect(snap.effectiveAllocation == 35)
+  }
+
+  @Test func applyAllocationEdit_priorPeriodsUnaffected() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(allocation: 20, startDate: startDate, in: ctx)
+    // Some prior period expenses
+    let exp = ExpenseItem(amount: 5, date: d(2026, 4, 10, hour: 10))
+    exp.budget = budget; ctx.insert(exp)
+    try ctx.save()
+
+    // Edit on Apr 15
+    BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: d(2026, 4, 15), calendar: cal)
+
+    // Apr 10's contribution should still use alloc 20
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal)
+    // Walker: Apr 1–14 with alloc 20; Apr 10 had expense 5 → +15; rest +20 each
+    // Apr 1–9 = 9 × 20 = 180; Apr 10 = 15; Apr 11–14 = 4 × 20 = 80; total = 275
+    #expect(snap.carryOver == 275)
+    #expect(snap.effectiveAllocation == 30)
+  }
+}
+
+// MARK: - resetCarryOver write path
+
+struct BudgetLifecycleResetCarryOverTests {
+  @Test func resetCarryOver_setsLastResetDate_bumpsLastModified() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    try ctx.save()
+
+    let now = d(2026, 4, 15, hour: 10)
+    BudgetLifecycleService.resetCarryOver(budget, context: ctx, now: now)
+
+    #expect(budget.lastResetDate == now)
+    #expect(budget.lastModified == now)
+  }
+
+  @Test func resetCarryOver_walkerDropsToCurrentPeriodOnly() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(allocation: 20, startDate: startDate, in: ctx)
+    // Lots of prior period expenses
+    for day in 1 ... 13 {
+      let exp = ExpenseItem(amount: 18, date: d(2026, 4, day, hour: 10))
+      exp.budget = budget; ctx.insert(exp)
+    }
+    try ctx.save()
+
+    BudgetLifecycleService.resetCarryOver(budget, context: ctx, now: d(2026, 4, 14))
+
+    // Snapshot now on Apr 14 (the reset day): walk window = max(Apr 1, Apr 14) = Apr 14 00:00
+    // Apr 14 period is [Apr 14, Apr 15). It is the current period → walker goes up to Apr 14 start.
+    // No completed period in the window since Apr 14 is the current period.
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 14), calendar: cal)
+    #expect(snap.carryOver == 0)
+  }
+
+  @Test func resetCarryOver_doesNotDeleteExpenses() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    let exp = ExpenseItem(amount: 10, date: d(2026, 4, 1, hour: 10))
+    exp.budget = budget; ctx.insert(exp)
+    try ctx.save()
+
+    BudgetLifecycleService.resetCarryOver(budget, context: ctx)
+
+    #expect(budget.expenseItems.count == 1)
+  }
+}
+
+// MARK: - resetBudget write path
+
+struct BudgetLifecycleResetBudgetTests {
+  @Test func resetBudget_deletesAllExpenses() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    for i in 1 ... 3 {
+      let exp = ExpenseItem(amount: Decimal(i * 5), date: d(2026, 4, i, hour: 10))
+      exp.budget = budget; ctx.insert(exp)
+    }
+    try ctx.save()
+    #expect(budget.expenseItems.count == 3)
+
+    BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15))
+
+    #expect(budget.expenseItems.isEmpty)
+  }
+
+  @Test func resetBudget_setsLastResetDate_bumpsLastModified() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    try ctx.save()
+
+    let now = d(2026, 4, 15, hour: 10)
+    BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
+
+    #expect(budget.lastResetDate == now)
+    #expect(budget.lastModified == now)
+  }
+
+  @Test func resetBudget_preservesAllocationChanges() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    try ctx.save()
+
+    BudgetLifecycleService.resetBudget(budget, context: ctx)
+
+    #expect(!budget.allocationChanges.isEmpty)
+  }
+
+  @Test func resetBudget_preservesLifecycleEvents() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    let ev = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 5))
+    ev.budget = budget; ctx.insert(ev)
+    try ctx.save()
+
+    BudgetLifecycleService.resetBudget(budget, context: ctx)
+
+    #expect(!budget.lifecycleEvents.isEmpty)
+  }
+
+  @Test func resetBudget_isolatedToTargetBudget() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+
+    let budgetA = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    let budgetB = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    for b in [budgetA, budgetB] {
+      let exp = ExpenseItem(amount: 10, date: d(2026, 4, 1, hour: 10))
+      exp.budget = b; ctx.insert(exp)
+    }
+    try ctx.save()
+
+    BudgetLifecycleService.resetBudget(budgetA, context: ctx)
+
+    #expect(budgetA.expenseItems.isEmpty)
+    #expect(budgetB.expenseItems.count == 1)
   }
 }

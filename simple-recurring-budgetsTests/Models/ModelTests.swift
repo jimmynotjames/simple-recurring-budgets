@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 import Testing
 
-// MARK: - ModelContainer creation (task 6.3)
+// MARK: - ModelContainer creation
 
 struct ModelContainerTests {
   @Test func inMemoryContainerCreatesSuccessfully() throws {
@@ -11,7 +11,7 @@ struct ModelContainerTests {
   }
 }
 
-// MARK: - Budget defaults (task 6.2)
+// MARK: - Budget defaults
 
 struct BudgetModelTests {
   @Test func budget_defaultsAreCorrect() throws {
@@ -23,51 +23,16 @@ struct BudgetModelTests {
     context.insert(budget)
 
     #expect(budget.name == "Budget")
-    #expect(budget.allocation == 10)
     #expect(budget.period == BudgetPeriod.daily.rawValue)
-    #expect(budget.resetCadence == ResetCadence.never.rawValue) // PAUSED (Reset Cadences)
-    #expect(budget.carryOverAmount == 0)
+    #expect(budget.startDate == nil)
+    #expect(budget.endDate == nil)
+    #expect(budget.lastResetDate == nil)
     #expect(budget.isCarryOverEnabled == true)
     #expect(budget.expenseItems.isEmpty)
+    #expect(budget.allocationChanges.isEmpty)
+    #expect(budget.lifecycleEvents.isEmpty)
     #expect(budget.sortOrder == 0)
-  }
-
-  @Test func budget_customValuesStored() throws {
-    let container = try TestModelContainer.make()
-    let context = ModelContext(container)
-
-    let budget = Budget(
-      name: "Groceries",
-      allocation: 500,
-      currencyCode: "EUR",
-      period: .monthly,
-      resetCadence: .quarterly
-    )
-    budget.sortOrder = try Budget.nextSortOrder(for: context)
-    context.insert(budget)
-
-    #expect(budget.name == "Groceries")
-    #expect(budget.allocation == 500)
-    #expect(budget.currencyCode == "EUR")
-    #expect(budget.period == "monthly")
-    #expect(budget.resetCadence == "quarterly")
-  }
-
-  /// PAUSED (Reset Cadences): while paused, Budget.init always defaults to .never regardless
-  /// of period. The type-level defaultResetCadence mapping is still tested in EnumTests.swift.
-  @Test func budget_defaultResetCadence_isNeverWhilePaused() throws {
-    let container = try TestModelContainer.make()
-    let context = ModelContext(container)
-
-    for period in BudgetPeriod.allCases {
-      let budget = Budget(period: period)
-      budget.sortOrder = try Budget.nextSortOrder(for: context)
-      context.insert(budget)
-      #expect(
-        budget.resetCadence == ResetCadence.never.rawValue,
-        "Expected .never for period \(period.rawValue) while Reset Cadences are paused"
-      )
-    }
+    #expect(budget.currentAllocation == 0)
   }
 
   @Test func budget_sortOrder_firstBudgetIsZero() throws {
@@ -90,7 +55,7 @@ struct BudgetModelTests {
     }
   }
 
-  @Test func budget_cascadeDeletesExpenses() throws {
+  @Test func budget_cascadeDeletesExpensesAllocationChangesAndLifecycleEvents() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
@@ -101,21 +66,108 @@ struct BudgetModelTests {
     let expense = ExpenseItem(amount: 10)
     expense.budget = budget
     context.insert(expense)
-    budget.expenseItems.append(expense)
 
-    let budgetId = budget.id
+    let change = AllocationChange(effectiveFrom: Date(), amount: 20)
+    change.budget = budget
+    context.insert(change)
+
+    let event = LifecycleEvent(kind: .pause, effectiveDate: Date())
+    event.budget = budget
+    context.insert(event)
+
     context.delete(budget)
     try context.save()
 
-    let remaining = try context.fetch(FetchDescriptor<ExpenseItem>())
-    #expect(remaining.isEmpty, "Cascade delete should remove all linked ExpenseItems")
-
-    let budgets = try context.fetch(FetchDescriptor<Budget>())
-    #expect(!budgets.contains(where: { $0.id == budgetId }))
+    #expect(try context.fetch(FetchDescriptor<ExpenseItem>()).isEmpty)
+    #expect(try context.fetch(FetchDescriptor<AllocationChange>()).isEmpty)
+    #expect(try context.fetch(FetchDescriptor<LifecycleEvent>()).isEmpty)
   }
 }
 
-// MARK: - ExpenseItem defaults and signed amount (task 6.2)
+// MARK: - AllocationChange round-trip
+
+struct AllocationChangeModelTests {
+  @Test func allocationChange_insertsAndFetches() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let budget = Budget(); context.insert(budget)
+    let change = AllocationChange(effectiveFrom: Date(), amount: 25)
+    change.budget = budget; context.insert(change)
+    try context.save()
+
+    let fetched = try context.fetch(FetchDescriptor<AllocationChange>())
+    #expect(fetched.count == 1)
+    #expect(fetched.first?.amount == 25)
+  }
+
+  @Test func allocationChange_budgetComputedAccessor_nonOptional() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let budget = Budget(); context.insert(budget)
+    let change = AllocationChange(effectiveFrom: Date(), amount: 30)
+    change.budget = budget; context.insert(change)
+
+    // allocationChanges accessor returns non-optional
+    let allocs: [AllocationChange] = budget.allocationChanges
+    #expect(allocs.count == 1)
+    #expect(allocs.first?.amount == 30)
+  }
+
+  @Test func allocationChange_currentAllocation_returnsLatest() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    var comps = DateComponents()
+    comps.year = 2026; comps.month = 4; comps.day = 1
+    comps.timeZone = TimeZone(identifier: "UTC")
+    let startDate = try #require(Calendar(identifier: .gregorian).date(from: comps))
+    comps.day = 10
+    let laterDate = try #require(Calendar(identifier: .gregorian).date(from: comps))
+
+    let budget = Budget(); context.insert(budget)
+    let c1 = AllocationChange(effectiveFrom: startDate, amount: 20)
+    let c2 = AllocationChange(effectiveFrom: laterDate, amount: 30)
+    c1.budget = budget; c2.budget = budget
+    context.insert(c1); context.insert(c2)
+
+    #expect(budget.currentAllocation == 30)
+  }
+}
+
+// MARK: - LifecycleEvent round-trip
+
+struct LifecycleEventModelTests {
+  @Test func lifecycleEvent_kindRoundTrips() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let budget = Budget(); context.insert(budget)
+    let ev = LifecycleEvent(kind: .pause, effectiveDate: Date())
+    ev.budget = budget; context.insert(ev)
+    try context.save()
+
+    let context2 = ModelContext(container)
+    let fetched = try context2.fetch(FetchDescriptor<LifecycleEvent>())
+    #expect(fetched.first?.kind == .pause)
+  }
+
+  @Test func lifecycleEvents_computedAccessor_nonOptional() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+
+    let budget = Budget(); context.insert(budget)
+    let ev = LifecycleEvent(kind: .resume, effectiveDate: Date())
+    ev.budget = budget; context.insert(ev)
+
+    let events: [LifecycleEvent] = budget.lifecycleEvents
+    #expect(events.count == 1)
+    #expect(events.first?.kind == .resume)
+  }
+}
+
+// MARK: - ExpenseItem defaults and signed amount
 
 struct ExpenseItemModelTests {
   @Test func expenseItem_defaultsAreCorrect() throws {

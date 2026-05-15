@@ -2,11 +2,11 @@ import Foundation
 
 /// Pure date-math service for computing budget period boundaries.
 ///
-/// All methods accept an explicit `Calendar` parameter for deterministic, timezone-safe results.
-/// Production callers pass `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC calendar.
-///
-/// For biweekly periods, callers must supply a `biweeklyAnchor` computed as:
-/// the most recent occurrence of `weekStart` at or before the budget's `createdAt` date.
+/// All methods accept `RecurringBudgetPeriod` — `.specificDates` cannot reach this service
+/// at compile time. Weekly/biweekly anchoring derives from the budget's `startDate`
+/// (passed in as `weekStart` and `biweeklyAnchor`); `AppSettings.weekStartDay` is not
+/// consulted here. Production callers pass `Calendar.autoupdatingCurrent`; tests inject
+/// a fixed-UTC calendar.
 enum PeriodCalculator {
   // MARK: - Period Start
 
@@ -14,13 +14,13 @@ enum PeriodCalculator {
   ///
   /// - Parameters:
   ///   - date: The reference date.
-  ///   - period: The budget's repeating period.
-  ///   - weekStart: The user's configured week-start day.
-  ///   - biweeklyAnchor: The cycle anchor for biweekly periods (ignored for other periods).
+  ///   - period: The budget's repeating period (recurring types only).
+  ///   - weekStart: The budget's weekly anchor weekday (derived from `Budget.startDate`).
+  ///   - biweeklyAnchor: The cycle anchor for biweekly periods (ignored for others).
   ///   - calendar: The calendar to use for all date arithmetic.
   static func periodStart(
     containing date: Date,
-    period: BudgetPeriod,
+    period: RecurringBudgetPeriod,
     weekStart: Weekday,
     biweeklyAnchor: Date,
     calendar: Calendar
@@ -55,11 +55,9 @@ enum PeriodCalculator {
   // MARK: - Period End
 
   /// Returns the start of the period immediately following the one containing `date`.
-  ///
-  /// This is the exclusive upper bound for the period that contains `date`.
   static func periodEnd(
     containing date: Date,
-    period: BudgetPeriod,
+    period: RecurringBudgetPeriod,
     weekStart: Weekday,
     biweeklyAnchor: Date,
     calendar: Calendar
@@ -83,13 +81,12 @@ enum PeriodCalculator {
 
   /// Returns all period-start dates in `[from, to)`.
   ///
-  /// The enumeration begins at `periodStart(containing: from, ...)` and advances one period
-  /// at a time until the next boundary would equal or exceed `to`. Returns an empty array
-  /// when `from >= to` or when the first boundary is not before `to`.
+  /// Begins at `periodStart(containing: from, ...)` and advances one period at a time
+  /// until the next boundary would equal or exceed `to`. Returns `[]` when `from >= to`.
   static func periodBoundaries(
     from start: Date,
     to end: Date,
-    period: BudgetPeriod,
+    period: RecurringBudgetPeriod,
     weekStart: Weekday,
     biweeklyAnchor: Date,
     calendar: Calendar

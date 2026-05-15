@@ -1,218 +1,177 @@
 import Foundation
 
-// MARK: - Result Types
-
-/// The result of a carry-over roll computation.
-struct CarryOverRollResult {
-  /// The updated carry-over amount after folding all completed periods.
-  let amount: Decimal
-  /// The start of the last period that was folded in; write back to `carryOverLastProcessedDate`.
-  let lastProcessedDate: Date
-}
-
-/// The result of a scheduled reset boundary check.
-struct ResetCheckResult {
-  /// `true` when a reset cadence boundary has been crossed since `lastResetDate`.
-  let shouldReset: Bool
-  /// The period boundary at which the reset fires; `nil` when `shouldReset` is `false`.
-  let newResetDate: Date?
-}
-
-// MARK: - BudgetCalculator
-
-/// Financial math service built on `PeriodCalculator`.
+/// Financial math service — pure, stateless, no SwiftData or SwiftUI dependencies.
 ///
-/// Built to be tested without SwiftData and SwiftUI dependencies.
-/// Methods are pure and stateless — no `ModelContext`, no fetches, no mutation. `ExpenseItem`
-/// appears in signatures for caller convenience (reads only `.amount` and `.date`).
-/// Production callers pass `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC calendar.
-///
-/// `isCarryOverEnabled` is a display-only flag consumed by the UI layer.
-/// The calculator always computes carry-over regardless of that setting so the figure is
-/// immediately correct if the user re-enables carry-over after a period of disabling it.
+/// The single entry point is `snapshot(budget:expenses:now:calendar:)`. It reads
+/// `Budget` and `[ExpenseItem]` and returns an immutable `BudgetSnapshot`; it never
+/// mutates any model or saves to a `ModelContext`. Production callers pass
+/// `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC calendar.
 enum BudgetCalculator {
-  // MARK: - Remaining for Current Period
+  // MARK: - Main entry point
 
-  /// Returns `allocation − sum(expenses in [periodStart, periodEnd))`.
-  ///
-  /// The result may be negative (overspending). This value is independent of carry-over (PRD §6.7).
-  /// Add-funds transactions use negative `amount` values (per `ExpenseItem` convention) and
-  /// therefore reduce the expense total, increasing `remaining`.
-  static func remaining(
-    allocation: Decimal,
+  static func snapshot(
+    budget: Budget,
     expenses: [ExpenseItem],
-    periodStart: Date,
-    periodEnd: Date
-  ) -> Decimal {
-    let inPeriod = expenses.filter { $0.date >= periodStart && $0.date < periodEnd }
-    let total = inPeriod.reduce(Decimal(0)) { $0 + $1.amount }
-    return allocation - total
-  }
-
-  // MARK: - Carry-Over Roll
-
-  /// Walks all completed period boundaries since `lastProcessedDate` and folds
-  /// `(allocation − sum of period expenses)` into the running carry-over amount.
-  ///
-  /// Always executes regardless of `isCarryOverEnabled` (display-only flag).
-  /// Returns unchanged values when no period boundary has been fully completed since
-  /// `lastProcessedDate`.
-  ///
-  /// - Parameters:
-  ///   - currentAmount: The current carry-over amount to accumulate into.
-  ///   - allocation: The per-period allocation for this budget.
-  ///   - expenses: All expenses for this budget (filtering to each period happens internally).
-  ///   - lastProcessedDate: The date through which carry-over has already been computed.
-  ///   - now: The current date/time.
-  ///   - period: The budget's repeating period.
-  ///   - weekStart: The user's configured week-start day.
-  ///   - biweeklyAnchor: The cycle anchor for biweekly periods.
-  ///   - calendar: The calendar to use for all date arithmetic.
-  static func rollCarryOver(
-    currentAmount: Decimal,
-    allocation: Decimal,
-    expenses: [ExpenseItem],
-    lastProcessedDate: Date,
     now: Date,
-    period: BudgetPeriod,
-    weekStart: Weekday,
-    biweeklyAnchor: Date,
     calendar: Calendar
-  ) -> CarryOverRollResult {
-    let boundaries = PeriodCalculator.periodBoundaries(
-      from: lastProcessedDate,
-      to: now,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: biweeklyAnchor,
-      calendar: calendar
-    )
+  ) -> BudgetSnapshot {
+    let effectiveStartDate = calendar.startOfDay(for: budget.startDate ?? budget.createdAt)
+    let effectiveEndInclusive: Date? = budget.endDate.map { calendar.startOfDay(for: $0) }
+    let effectiveEndExclusive: Date = effectiveEndInclusive.map { inclusive in
+      calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: inclusive)!)
+    } ?? .distantFuture
 
-    var amount = currentAmount
-    var lastDate = lastProcessedDate
+    // Pre-start short-circuit
+    if now < effectiveStartDate {
+      let alloc = allocationInEffect(at: effectiveStartDate, history: budget.allocationChanges)
+      let periodRawForPreStart = BudgetPeriod(rawValue: budget.period) ?? .daily
+      let preStartCarryOver: Decimal? = periodRawForPreStart == .specificDates ? nil : 0
+      return BudgetSnapshot(
+        lifecycleState: .preStart,
+        effectiveAllocation: alloc,
+        remaining: 0,
+        carryOver: preStartCarryOver,
+        effectivePeriodStart: effectiveStartDate,
+        effectivePeriodEnd: effectiveStartDate
+      )
+    }
 
-    for (i, boundary) in boundaries.enumerated() {
-      let nextBoundary: Date = if i + 1 < boundaries.count {
-        boundaries[i + 1]
-      } else {
-        PeriodCalculator.periodEnd(
-          containing: boundary,
-          period: period,
-          weekStart: weekStart,
-          biweeklyAnchor: biweeklyAnchor,
-          calendar: calendar
-        )
-      }
-
-      // Only process periods that have fully completed (nextBoundary is in the past or now)
-      guard nextBoundary <= now else { break }
-
-      let periodRemaining = Self.remaining(
-        allocation: allocation,
+    // Branch on period type
+    let periodRaw = BudgetPeriod(rawValue: budget.period) ?? .daily
+    if periodRaw == .specificDates {
+      return specificDatesBranch(
+        budget: budget,
         expenses: expenses,
-        periodStart: boundary,
-        periodEnd: nextBoundary
+        now: now,
+        effectiveStartDate: effectiveStartDate,
+        effectiveEndExclusive: effectiveEndExclusive
       )
-      amount += periodRemaining
-      lastDate = nextBoundary
     }
 
-    return CarryOverRollResult(amount: amount, lastProcessedDate: lastDate)
+    guard let period = RecurringBudgetPeriod(periodRaw) else {
+      return snapshot(budget: budget, expenses: expenses, now: now, calendar: calendar)
+    }
+
+    return recurringBranch(
+      budget: budget,
+      expenses: expenses,
+      now: now,
+      calendar: calendar,
+      period: period,
+      effectiveStartDate: effectiveStartDate,
+      effectiveEndInclusive: effectiveEndInclusive,
+      effectiveEndExclusive: effectiveEndExclusive
+    )
   }
 
-  // MARK: - Scheduled Reset
+  // MARK: - Recurring branch
 
-  /// PAUSED (Reset Cadences): behavior is correct and unit-tested, but in practice all new
-  /// Budgets persist `.never`, so this always returns a no-reset result. Do not surface
-  /// scheduling configuration in UI or new specs while the feature is paused.
-  /// Determines whether a scheduled reset boundary has been crossed since `lastResetDate`.
-  ///
-  /// Reset boundaries align to the budget's period boundaries (never mid-period).
-  /// When multiple cadence intervals have elapsed (app not opened for a long time), returns
-  /// the most recent applicable boundary at or before `now`.
-  ///
-  /// Always returns no-reset for `.never` cadence.
-  static func checkScheduledReset(
-    lastResetDate: Date,
-    resetCadence: ResetCadence,
+  private static func recurringBranch(
+    budget: Budget,
+    expenses: [ExpenseItem],
     now: Date,
-    period: BudgetPeriod,
-    weekStart: Weekday,
-    biweeklyAnchor: Date,
-    calendar: Calendar
-  ) -> ResetCheckResult {
-    guard resetCadence != .never else {
-      return ResetCheckResult(shouldReset: false, newResetDate: nil)
-    }
+    calendar: Calendar,
+    period: RecurringBudgetPeriod,
+    effectiveStartDate: Date,
+    effectiveEndInclusive: Date?,
+    effectiveEndExclusive: Date
+  ) -> BudgetSnapshot {
+    let effectiveNow = effectiveEndInclusive.map { min(now, $0) } ?? now
 
-    let firstCandidate = advanced(from: lastResetDate, by: resetCadence, calendar: calendar)
-    let firstBoundary = firstPeriodBoundaryAtOrAfter(
-      firstCandidate,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: biweeklyAnchor,
-      calendar: calendar
+    let weekdayRaw = calendar.component(.weekday, from: effectiveStartDate)
+    let weekStart = Weekday(rawValue: weekdayRaw) ?? .sunday
+    let biweeklyAnchor = effectiveStartDate
+
+    let currentPeriodStart = PeriodCalculator.periodStart(
+      containing: effectiveNow, period: period, weekStart: weekStart,
+      biweeklyAnchor: biweeklyAnchor, calendar: calendar
+    )
+    let currentPeriodEnd = PeriodCalculator.periodEnd(
+      containing: effectiveNow, period: period, weekStart: weekStart,
+      biweeklyAnchor: biweeklyAnchor, calendar: calendar
     )
 
-    guard firstBoundary <= now else {
-      return ResetCheckResult(shouldReset: false, newResetDate: nil)
-    }
+    let effectivePeriodStart = max(currentPeriodStart, effectiveStartDate)
+    let effectivePeriodEnd = min(currentPeriodEnd, effectiveEndExclusive)
 
-    // Walk forward to find the most recent reset boundary at or before now.
-    var latestReset = firstBoundary
-    while true {
-      let nextCandidate = advanced(from: latestReset, by: resetCadence, calendar: calendar)
-      let nextBoundary = firstPeriodBoundaryAtOrAfter(
-        nextCandidate,
-        period: period,
-        weekStart: weekStart,
-        biweeklyAnchor: biweeklyAnchor,
-        calendar: calendar
-      )
-      guard nextBoundary <= now else { break }
-      latestReset = nextBoundary
-    }
-
-    return ResetCheckResult(shouldReset: true, newResetDate: latestReset)
-  }
-
-  // MARK: - Private Helpers
-
-  /// Advances `date` by one cadence interval.
-  private static func advanced(from date: Date, by cadence: ResetCadence, calendar: Calendar) -> Date {
-    switch cadence {
-    case .weekly: calendar.date(byAdding: .day, value: 7, to: date)!
-    case .biweekly: calendar.date(byAdding: .day, value: 14, to: date)!
-    case .monthly: calendar.date(byAdding: .month, value: 1, to: date)!
-    case .quarterly: calendar.date(byAdding: .month, value: 3, to: date)!
-    case .never: date
-    }
-  }
-
-  /// Returns the first period boundary that is >= `date`.
-  private static func firstPeriodBoundaryAtOrAfter(
-    _ date: Date,
-    period: BudgetPeriod,
-    weekStart: Weekday,
-    biweeklyAnchor: Date,
-    calendar: Calendar
-  ) -> Date {
-    let start = PeriodCalculator.periodStart(
-      containing: date,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: biweeklyAnchor,
-      calendar: calendar
+    let isCurrentPaused = !isActive(
+      periodStart: effectivePeriodStart,
+      periodEnd: currentPeriodEnd,
+      lifecycleEvents: budget.lifecycleEvents
     )
-    if start >= date {
-      return start
+    let effectiveAllocation = allocationInEffect(
+      at: max(currentPeriodStart, effectiveStartDate),
+      history: budget.allocationChanges
+    )
+
+    let remaining: Decimal
+    if isCurrentPaused {
+      remaining = 0
+    } else {
+      let inPeriod = expenses.filter { $0.date >= effectivePeriodStart && $0.date < effectivePeriodEnd }
+      remaining = effectiveAllocation - inPeriod.reduce(Decimal(0)) { $0 + $1.amount }
     }
-    return PeriodCalculator.periodEnd(
-      containing: date,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: biweeklyAnchor,
-      calendar: calendar
+
+    let walkWindowStart = max(effectiveStartDate, budget.lastResetDate ?? .distantPast)
+    let walkerSum = walkCarryOver(
+      from: walkWindowStart, to: currentPeriodStart, period: period,
+      weekStart: weekStart, biweeklyAnchor: biweeklyAnchor,
+      allocationChanges: budget.allocationChanges,
+      lifecycleEvents: budget.lifecycleEvents,
+      expenses: expenses, calendar: calendar
+    )
+
+    let lifecycleState: BudgetLifecycleState = if budget.endDate != nil, now >= effectiveEndExclusive {
+      .postEnd
+    } else if isCurrentPaused {
+      .paused
+    } else {
+      .active
+    }
+
+    let spillover = currentPeriodSpillover(
+      remaining: remaining,
+      effectiveAllocation: effectiveAllocation,
+      lifecycleState: lifecycleState
+    )
+
+    return BudgetSnapshot(
+      lifecycleState: lifecycleState,
+      effectiveAllocation: effectiveAllocation,
+      remaining: remaining,
+      carryOver: walkerSum + spillover,
+      effectivePeriodStart: effectivePeriodStart,
+      effectivePeriodEnd: effectivePeriodEnd
+    )
+  }
+
+  // MARK: - Specific Dates branch (§A.4.2)
+
+  private static func specificDatesBranch(
+    budget: Budget,
+    expenses: [ExpenseItem],
+    now: Date,
+    effectiveStartDate: Date,
+    effectiveEndExclusive: Date
+  ) -> BudgetSnapshot {
+    let effectiveAllocation = budget.allocationChanges
+      .sorted { lhs, rhs in
+        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+        return lhs.lastModified < rhs.lastModified
+      }
+      .last?.amount ?? 0
+
+    let windowExpenses = expenses.filter { $0.date >= effectiveStartDate && $0.date < effectiveEndExclusive }
+    let remaining = effectiveAllocation - windowExpenses.reduce(Decimal(0)) { $0 + $1.amount }
+    let lifecycleState: BudgetLifecycleState = now >= effectiveEndExclusive ? .postEnd : .active
+
+    return BudgetSnapshot(
+      lifecycleState: lifecycleState,
+      effectiveAllocation: effectiveAllocation,
+      remaining: remaining,
+      carryOver: nil,
+      effectivePeriodStart: effectiveStartDate,
+      effectivePeriodEnd: effectiveEndExclusive
     )
   }
 }

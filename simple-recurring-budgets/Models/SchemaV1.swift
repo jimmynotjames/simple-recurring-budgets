@@ -1,12 +1,18 @@
 import SwiftData
 
-/// The initial SwiftData schema version containing `Budget` and `ExpenseItem`.
+/// The initial SwiftData schema version containing all model types.
 ///
-/// All future schema migrations will reference this as their baseline.
+/// All future schema migrations will reference this as their baseline. Updated in-place
+/// (no SchemaV2) because the app has not shipped to the App Store — greenfield rewrite.
 enum SchemaV1: VersionedSchema {
   static let versionIdentifier = Schema.Version(1, 0, 0)
   /// Single source of truth for persisted model types. Add new `@Model` types here only.
-  static let models: [any PersistentModel.Type] = [Budget.self, ExpenseItem.self]
+  static let models: [any PersistentModel.Type] = [
+    Budget.self,
+    ExpenseItem.self,
+    AllocationChange.self,
+    LifecycleEvent.self,
+  ]
 
   /// Runtime `Schema` for the app and tests — always derived from `models` via the versioned schema.
   static var swiftDataSchema: Schema {

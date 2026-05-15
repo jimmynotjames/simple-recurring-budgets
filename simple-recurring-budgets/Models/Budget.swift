@@ -1,76 +1,91 @@
 import Foundation
 import SwiftData
 
-/// A recurring budget that allocates a fixed `allocation` per `period`.
+/// A recurring (or one-shot) budget that tracks spending over repeating periods.
 ///
-/// All monetary values use `Decimal`. The `period` and `resetCadence` properties
-/// are stored as their `String` raw values for human-readable CloudKit records.
+/// All monetary values use `Decimal`. The `period` property is stored as its `String` raw
+/// value for human-readable CloudKit records. Allocation history lives in `AllocationChange`
+/// child rows; lifecycle pause/resume history lives in `LifecycleEvent` child rows.
 @Model
 final class Budget {
   var id: UUID = UUID()
   var name: String = "Budget"
-  var allocation: Decimal = 10
   var currencyCode: String = Locale.current.currency?.identifier ?? "USD"
   /// Stored as `BudgetPeriod.rawValue`.
   var period: String = BudgetPeriod.daily.rawValue
-  /// For new rows, set from `nextSortOrder(for:)` immediately before `insert` (see extension).
   var sortOrder: Int = 0
   var createdAt: Date = Date()
   var lastModified: Date = Date()
-  var carryOverAmount: Decimal = 0
-  var carryOverLastProcessedDate: Date = Date()
-  var carryOverLastResetDate: Date = Date()
-  /// PAUSED (Reset Cadences): feature is paused; stored default is `.never` while paused.
-  /// Do not surface Reset Cadence in any UI or plan while this pause is in effect.
-  /// Stored as `ResetCadence.rawValue`. Default is `"never"` while Reset Cadences are paused.
-  var resetCadence: String = ResetCadence.never.rawValue
-  /// Sourced from `AppSettings.defaultCarryOverEnabled` when creating budgets; persisted per budget.
+
+  /// When the budget begins. Semantically always populated for a saved budget; stored as
+  /// `Date?` only for CloudKit optionality. Read-time fallback: `createdAt`.
+  var startDate: Date?
+  /// When the budget stops calculating (terminal, no resume). Genuinely optional for
+  /// recurring budgets; required for `.specificDates`.
+  var endDate: Date?
+  /// The most recent manual Reset Carry-Over or Reset Budget timestamp.
+  /// `nil` means no manual reset has occurred.
+  var lastResetDate: Date?
+
   var isCarryOverEnabled: Bool = true
 
-  /// Persisted one-to-many relationship to `ExpenseItem` rows (cascade delete on the parent).
-  ///
-  /// CloudKit requires every relationship to be optional in the persisted model, not only during
-  /// sync: the server does not process relationship updates atomically, and related records can
-  /// arrive out of order or remain temporarily unresolved. `nil` or an empty collection can also
-  /// appear in edge cases outside normal app flows. Use `expenseItems` everywhere in application
-  /// code so callers never branch on optionality; treat this property as storage for SwiftData only.
-  @Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)
-  var expenses: [ExpenseItem]? = []
+  /// CloudKit requires every relationship to be optional. Use `allocationChanges` in app
+  /// code — it always returns a non-optional array.
+  @Relationship(deleteRule: .cascade, inverse: \AllocationChange.budget)
+  var allocationChangesStorage: [AllocationChange]?
 
-  /// Non-optional view of the same relationship for app code (`expenses ?? []`).
-  var expenseItems: [ExpenseItem] {
-    get { expenses ?? [] }
-    set {
-      // Replacing the whole array assigns a new relationship collection, not an in-place merge.
-      // That can detach or remove linked `ExpenseItem`s (per delete rules and context) in ways
-      // that differ from appending, removing, or setting `ExpenseItem.budget`. Use full assignment
-      // only when you intend to replace the entire set; otherwise mutate the array or the child.
-      expenses = newValue
-    }
+  /// CloudKit requires every relationship to be optional. Use `lifecycleEvents` in app
+  /// code — it always returns a non-optional array.
+  @Relationship(deleteRule: .cascade, inverse: \LifecycleEvent.budget)
+  var lifecycleEventsStorage: [LifecycleEvent]?
+
+  /// CloudKit requires every relationship to be optional. Use `expenseItems` in app code.
+  @Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)
+  var expenses: [ExpenseItem]?
+
+  // MARK: - Non-optional computed accessors
+
+  var allocationChanges: [AllocationChange] {
+    allocationChangesStorage ?? []
   }
 
-  /// PAUSED (Reset Cadences): `Budget.init` defaults to `.never` while the feature is paused.
-  /// Do NOT pass `period.defaultResetCadence` as the fallback here until the pause is lifted.
-  /// When unpausing: restore `resetCadence ?? period.defaultResetCadence` and remove these comments.
+  var lifecycleEvents: [LifecycleEvent] {
+    lifecycleEventsStorage ?? []
+  }
+
+  var expenseItems: [ExpenseItem] {
+    get { expenses ?? [] }
+    set { expenses = newValue }
+  }
+
+  /// The most-recent allocation amount by `(effectiveFrom, lastModified)`. Used for
+  /// display contexts (analytics, RemainingBar denominator) where a quick "current
+  /// allocation" lookup is sufficient. The algorithm uses `allocationInEffect(at:history:)`
+  /// for period-accurate values.
+  var currentAllocation: Decimal {
+    allocationChanges
+      .sorted { lhs, rhs in
+        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+        return lhs.lastModified < rhs.lastModified
+      }
+      .last?.amount ?? 0
+  }
+
   init(
     name: String = "Budget",
-    allocation: Decimal = 10,
     currencyCode: String = Locale.current.currency?.identifier ?? "USD",
     period: BudgetPeriod = .daily,
-    resetCadence: ResetCadence? = nil,
     isCarryOverEnabled: Bool = true
   ) {
     self.name = name
-    self.allocation = allocation
     self.currencyCode = currencyCode
     self.period = period.rawValue
-    self.resetCadence = (resetCadence ?? .never).rawValue
     self.isCarryOverEnabled = isCarryOverEnabled
   }
 }
 
 extension Budget {
-  /// Returns the next `sortOrder` for a **new** budget: `0` if none exist, else `max(existing.sortOrder) + 1`.
+  /// Returns the next `sortOrder` for a **new** budget: `0` if none exist, else `max + 1`.
   /// Call before `context.insert(_:)` so the fetch does not include the new instance.
   static func nextSortOrder(for context: ModelContext) throws -> Int {
     var descriptor = FetchDescriptor<Budget>()

@@ -38,8 +38,6 @@ final class AddEditBudgetViewModel {
 
   // MARK: - Init (Add mode)
 
-  /// Seeds Add-mode defaults from `AppSettings`. Does NOT retain a reference to `settings`
-  /// after initialisation (reads `defaultCarryOverEnabled` once and captures the value).
   init(settings: AppSettings) {
     name = ""
     allocation = nil
@@ -53,7 +51,7 @@ final class AddEditBudgetViewModel {
 
   init(editing budget: Budget) {
     name = budget.name
-    allocation = budget.allocation
+    allocation = budget.currentAllocation
     currencyCode = budget.currencyCode
     period = BudgetPeriod(rawValue: budget.period) ?? .daily
     isCarryOverEnabled = budget.isCarryOverEnabled
@@ -62,31 +60,23 @@ final class AddEditBudgetViewModel {
 
   // MARK: - Delete
 
-  /// Convenience overload used by tests and call sites that do not yet have an
-  /// `AnalyticsClient` in scope. Routes to `delete(context:analytics:)`.
   func delete(context: ModelContext) {
     delete(context: context, analytics: ConsoleAnalyticsClient())
   }
 
-  // TODO: If we eventually create a BudgetView that navigates to this screen, that may also need to be popped off nav stack on deletion.
   func delete(context: ModelContext, analytics: any AnalyticsClient) {
     guard case let .edit(budget) = mode else { return }
     Logger.ui.debug(
       "ui.action: deleteBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
-    // Capture snapshot BEFORE deletion — entity is unusable after save.
     let props = budgetEventProperties(budget: budget)
     context.delete(budget)
     try? context.save()
-    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
-    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
     analytics.track(AnalyticsEvent.budgetDeleted, properties: props)
   }
 
   // MARK: - Save
 
-  /// Convenience overload used by tests and call sites that do not yet have an
-  /// `AnalyticsClient`/`AppSettings`/`Router` in scope. Routes to the full overload.
   func save(context: ModelContext) {
     save(
       context: context,
@@ -96,10 +86,6 @@ final class AddEditBudgetViewModel {
     )
   }
 
-  /// Persists the draft to `context`. In Add mode, inserts a new `Budget`; in Edit
-  /// mode, applies only the fields that actually changed so other mutable properties
-  /// (carry-over amounts, sort order, etc.) are untouched. The view reads
-  /// `@Environment(\.modelContext)` and passes it here; the VM never stores `context`.
   func save(
     context: ModelContext,
     analytics: any AnalyticsClient,
@@ -110,7 +96,7 @@ final class AddEditBudgetViewModel {
     case .add:
       saveNew(context: context, analytics: analytics, settings: settings, router: router)
     case let .edit(budget):
-      saveEdit(budget: budget, context: context, analytics: analytics)
+      saveEdit(budget: budget, context: context, analytics: analytics, settings: settings)
     }
   }
 
@@ -124,23 +110,51 @@ final class AddEditBudgetViewModel {
   ) {
     guard canSave, let allocation else { return }
 
-    // Compute is_first_budget BEFORE inserting so the count reflects the current state.
+    let now = Date()
+    let calendar = Calendar.autoupdatingCurrent
+
+    // Compute startDate per period type so AppSettings.weekStartDay anchors weekly/biweekly.
+    let startDate: Date
+    switch period {
+    case .daily:
+      startDate = calendar.startOfDay(for: now)
+
+    case .weekly, .biweekly:
+      // Most recent weekStartDay-aligned date at or before startOfDay(now).
+      let dayStart = calendar.startOfDay(for: now)
+      let weekday = calendar.component(.weekday, from: dayStart)
+      let daysBack = (weekday - settings.weekStartDay.rawValue + 7) % 7
+      startDate = calendar.date(byAdding: .day, value: -daysBack, to: dayStart)!
+
+    case .monthly:
+      var comps = calendar.dateComponents([.year, .month], from: now)
+      comps.day = 1; comps.hour = 0; comps.minute = 0; comps.second = 0
+      startDate = calendar.date(from: comps)!
+
+    case .specificDates:
+      startDate = calendar.startOfDay(for: now)
+    }
+
     let budgetCountBefore = (try? context.fetchCount(FetchDescriptor<Budget>())) ?? 0
     let isFirst = budgetCountBefore == 0
 
     let budget = Budget(
       name: name,
-      allocation: allocation,
       currencyCode: currencyCode,
       period: period,
-      resetCadence: nil, // keeps the paused `.never` default from Budget.init
       isCarryOverEnabled: isCarryOverEnabled
     )
+    budget.startDate = startDate
     budget.sortOrder = (try? Budget.nextSortOrder(for: context)) ?? 0
     context.insert(budget)
+
+    // Insert the initial AllocationChange in the same save.
+    let initialChange = AllocationChange(effectiveFrom: startDate, amount: allocation, lastModified: now)
+    initialChange.budget = budget
+    context.insert(initialChange)
+
     try? context.save()
 
-    // Fire budget_created.
     var props = budgetEventProperties(budget: budget)
     props[AnalyticsProperty.isFirstBudget] = isFirst
     if isFirst {
@@ -151,15 +165,12 @@ final class AddEditBudgetViewModel {
     }
     analytics.track(AnalyticsEvent.budgetCreated, properties: props)
 
-    // Refresh cohort people properties with the updated budget list.
     if let client = analytics as? MixpanelAnalyticsClient {
       let infos = budgetCohortInfos(context: context)
       client.refreshSuperProperties()
       client.refreshCohortPeopleProperties(budgets: infos)
     }
 
-    // First-run consent sheet trigger (§7.2): strict-opt-in jurisdiction and
-    // the user has not yet made an explicit analytics decision.
     let jurisdiction = ConsentJurisdiction.kind(for: Locale.current.region?.identifier)
     if jurisdiction == .required, !settings.analyticsOptInExplicitlySet {
       router.sheet = .analyticsConsent
@@ -169,24 +180,26 @@ final class AddEditBudgetViewModel {
   private func saveEdit(
     budget: Budget,
     context: ModelContext,
-    analytics: any AnalyticsClient
+    analytics: any AnalyticsClient,
+    settings _: AppSettings
   ) {
     var changed = false
     if budget.name != name {
       budget.name = name
       changed = true
     }
-    if let newAlloc = allocation, budget.allocation != newAlloc {
-      budget.allocation = newAlloc
+    if let newAlloc = allocation, budget.currentAllocation != newAlloc {
+      BudgetLifecycleService.applyAllocationEdit(
+        budget,
+        newAmount: newAlloc,
+        context: context
+      )
       changed = true
     }
     if budget.currencyCode != currencyCode {
       budget.currencyCode = currencyCode
       changed = true
     }
-    // period is intentionally excluded: Budget.period is immutable post-creation (F-2.03;
-    // restrict-edit-budget-period). The UI enforces this via non-interactive chips in Edit
-    // mode; this layer ensures no programmatic drift can bypass it.
     if budget.isCarryOverEnabled != isCarryOverEnabled {
       budget.isCarryOverEnabled = isCarryOverEnabled
       changed = true
@@ -214,7 +227,7 @@ final class AddEditBudgetViewModel {
       AnalyticsProperty.carryOverEnabled: budget.isCarryOverEnabled,
       AnalyticsProperty.currencyCode: budget.currencyCode,
       AnalyticsProperty.budgetName: budget.name,
-      AnalyticsProperty.budgetAllocationAmount: (budget.allocation as NSDecimalNumber).doubleValue,
+      AnalyticsProperty.budgetAllocationAmount: (budget.currentAllocation as NSDecimalNumber).doubleValue,
     ]
   }
 

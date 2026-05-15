@@ -56,9 +56,11 @@ final class AddEditExpenseViewModel {
     case let .add(budget):
       // Guard per spec: "Save in Add mode inserts a new ExpenseItem attached to the in-flight Budget"
       guard canSave, let amount else { return }
+      let now = Date()
       let expense = ExpenseItem(amount: amount, name: trimmedName, date: date)
       expense.budget = budget
       context.insert(expense)
+      budget.lastModified = now
       try? context.save()
 
       // expense_logged: NO ExpenseItem field transmitted — only categorical context.
@@ -94,7 +96,9 @@ final class AddEditExpenseViewModel {
         changed = true
       }
       if changed {
-        expense.lastModified = Date()
+        let now = Date()
+        expense.lastModified = now
+        expense.budget?.lastModified = now
         try? context.save()
         // expense_edited: NO ExpenseItem field transmitted — only categorical context.
         let budget = expense.budget
@@ -113,7 +117,9 @@ final class AddEditExpenseViewModel {
 
   func delete(context: ModelContext) {
     guard case let .edit(expense) = mode else { return }
+    let budget = expense.budget
     context.delete(expense)
+    budget?.lastModified = Date()
     try? context.save()
   }
 }

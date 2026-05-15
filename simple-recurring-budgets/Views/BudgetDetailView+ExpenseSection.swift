@@ -106,6 +106,7 @@ extension BudgetDetailView {
     let period = BudgetPeriod(rawValue: budget.period) ?? .daily
     let isAddFunds = expense.isAddFunds
     withAnimation {
+      budget.lastModified = Date()
       context.delete(expense)
       try? context.save()
     }
@@ -164,6 +165,12 @@ extension BudgetDetailView {
         defaultValue: "Current Month",
         comment: "Section header for expenses in the current month"
       )
+    case .specificDates:
+      String(
+        localized: "budgetDetail.section.current.specificDates",
+        defaultValue: "Current Period",
+        comment: "Section header for expenses in a specific-dates budget window"
+      )
     }
   }
 
@@ -193,6 +200,12 @@ extension BudgetDetailView {
         defaultValue: "Past Months",
         comment: "Section header for expenses from previous months"
       )
+    case .specificDates:
+      String(
+        localized: "budgetDetail.section.past.specificDates",
+        defaultValue: "Past Periods",
+        comment: "Section header for expenses from past periods of a specific-dates budget"
+      )
     }
   }
 
@@ -221,6 +234,12 @@ extension BudgetDetailView {
         localized: "budgetDetail.currentPeriod.empty.monthly",
         defaultValue: "Nothing logged this month",
         comment: "Empty state for the current period section when the budget period is monthly"
+      )
+    case .specificDates:
+      String(
+        localized: "budgetDetail.currentPeriod.empty.specificDates",
+        defaultValue: "Nothing logged this period",
+        comment: "Empty state for the current period section when the budget period is specific dates"
       )
     }
   }

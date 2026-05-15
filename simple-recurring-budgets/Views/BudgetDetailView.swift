@@ -259,9 +259,7 @@ struct BudgetDetailView: View {
   // MARK: - Actions
 
   func refreshLifecycle() {
-    lifecycle = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings, context: context
-    )
+    lifecycle = BudgetLifecycleService.result(for: budget)
   }
 
   private func resetCarryOver() {

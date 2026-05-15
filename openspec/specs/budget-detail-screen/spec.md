@@ -144,7 +144,7 @@ The Menu SHALL provide a localized accessibility label (key `budgetDetail.menu.a
 
 The header's "Reset" button next to the `CarryOverChip` SHALL present a SwiftUI `.alert` titled with key `budgetDetail.resetCarryOver.alert.title` and bodied with key `budgetDetail.resetCarryOver.alert.message`. The alert SHALL expose exactly one explicit button: a destructive confirm button (key `budgetDetail.resetCarryOver.alert.confirm`). The implementation SHALL NOT add a redundant `role: .cancel` button; the platform provides dismissal per current iOS behavior (e.g. tap-outside where applicable).
 
-On confirm, the system SHALL set `Budget.carryOverAmount = 0`, set `Budget.carryOverLastResetDate = Date()`, set `Budget.lastModified = Date()`, persist via a single `ModelContext.save()`, and re-invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)` so the header updates. The system SHALL NOT delete any `ExpenseItem`s.
+On confirm, the system SHALL set `Budget.carryOverAmount = 0`, set `Budget.carryOverLastResetDate = Date()`, set `Budget.lastModified = Date()`, persist via a single `ModelContext.save()`, and re-invoke `BudgetLifecycleService.result(for:)` so the header updates. The system SHALL NOT delete any `ExpenseItem`s.
 
 The reset button SHALL provide a localized VoiceOver label (key `budgetDetail.resetCarryOver.button.accessibilityLabel`).
 
@@ -174,7 +174,7 @@ On confirm, within a single `withAnimation` block, the system SHALL:
 4. Set `Budget.lastModified = Date()`.
 5. Persist via exactly one `ModelContext.save()` call.
 
-After the save, the system SHALL re-invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)` so the header and lists re-render. The Budget itself SHALL NOT be deleted.
+After the save, the system SHALL re-invoke `BudgetLifecycleService.result(for:)` so the header and lists re-render. The Budget itself SHALL NOT be deleted.
 
 The Reset Budget operation is distinct from the Reset Carry-Over operation (which only zeros carry-over) and from the Delete Budget operation owned by the Add/Edit Budget sheet (which removes the Budget and cascades expenses). The capability `budget-detail-screen` SHALL NOT introduce a Delete Budget entry point on this screen.
 
@@ -301,7 +301,7 @@ Each expense row SHALL expose a trailing `swipeActions(edge: .trailing, allowsFu
 
 There is no confirmation dialog for swipe-initiated expense deletion. The `@State` properties `expenseToDelete` and `showDeleteConfirm` SHALL NOT exist on `BudgetDetailView`.
 
-On invocation, within a single `withAnimation` block, the system SHALL `context.delete(expense)` and call `ModelContext.save()` exactly once, then re-invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)`. The Budget itself SHALL NOT be modified except by the lifecycle service's normal roll-and-persist behavior.
+On invocation, within a single `withAnimation` block, the system SHALL `context.delete(expense)` and call `ModelContext.save()` exactly once, then re-invoke `BudgetLifecycleService.result(for:)`. The Budget itself SHALL NOT be modified except by the lifecycle service's normal roll-and-persist behavior.
 
 The four localization keys that existed solely for the removed confirmation dialog SHALL NOT be present in `Localizable.xcstrings`:
 - `budgetDetail.deleteExpense.dialog.title`
@@ -333,7 +333,7 @@ The four localization keys that existed solely for the removed confirmation dial
 
 ### Requirement: Eager lifecycle refresh on task, scene-active, and expense-count change
 
-The screen SHALL invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)` for the bound `Budget` on three triggers:
+The screen SHALL invoke `BudgetLifecycleService.result(for:)` for the bound `Budget` on three triggers:
 
 1. `.task(id: budget.persistentModelID)` — initial load and identity changes.
 2. `onChange(of: scenePhase)` when the new phase equals `.active`.
@@ -346,17 +346,17 @@ When the lifecycle result is unavailable (initial state before the first call re
 #### Scenario: Refresh on screen appearance
 
 - **WHEN** `BudgetDetailView` first appears for a budget
-- **THEN** `BudgetLifecycleService.refreshAndSave` is called once within `.task(id: budget.persistentModelID)` and the returned `remaining`, `carryOverAmount`, and `periodStart` are bound to the view's state
+- **THEN** `BudgetLifecycleService.result(for:)` is called once within `.task(id: budget.persistentModelID)` and the returned `remaining`, `carryOverAmount`, and `periodStart` are bound to the view's state
 
 #### Scenario: Refresh on scene activation
 
 - **WHEN** the app transitions from `.inactive` or `.background` to `.active` while `BudgetDetailView` is visible
-- **THEN** `BudgetLifecycleService.refreshAndSave` is invoked again so any boundaries crossed while the app was inactive are applied before the next render
+- **THEN** `BudgetLifecycleService.result(for:)` is invoked again so any boundaries crossed while the app was inactive are applied before the next render
 
 #### Scenario: Refresh on expense count change
 
 - **WHEN** `budget.expenseItems.count` changes (via Add Expense sheet, swipe-to-delete, or Reset Budget confirmation)
-- **THEN** `BudgetLifecycleService.refreshAndSave` is invoked so the header re-derives `remaining` and the section partitioning re-evaluates against the latest set
+- **THEN** `BudgetLifecycleService.result(for:)` is invoked so the header re-derives `remaining` and the section partitioning re-evaluates against the latest set
 
 #### Scenario: Refresh keyed by persistentModelID for row recycling
 

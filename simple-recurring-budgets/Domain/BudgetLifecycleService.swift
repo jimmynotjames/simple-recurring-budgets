@@ -3,7 +3,7 @@ import SwiftData
 
 // MARK: - Result Type
 
-/// The display-ready output of a `BudgetLifecycleService.refreshAndSave` call.
+/// The display-ready output of a `BudgetLifecycleService.result(for:)` call.
 ///
 /// Shape is preserved for view-site compatibility. `lifecycleState` and
 /// `effectiveAllocation` from the underlying snapshot are not exposed here;
@@ -27,23 +27,19 @@ struct BudgetLifecycleResult {
 /// Compatibility adapter between the new `BudgetCalculator.snapshot` algorithm and the
 /// existing view sites that consume `BudgetLifecycleResult`.
 ///
-/// `refreshAndSave` is a pure read — it calls `BudgetCalculator.snapshot`, maps the result,
-/// and returns it. **No mutations. No `context.save()`.** The "Save" in the name is a
-/// historical misnomer; renaming is deferred to a future change.
+/// `result(for:)` is a pure read — it calls `BudgetCalculator.snapshot`, maps the result,
+/// and returns it. No mutations.
 ///
-/// Write-path methods (`applyAllocationEdit`, `resetCarryOver`, `resetBudget`) are the new
+/// Write-path methods (`applyAllocationEdit`, `resetCarryOver`, `resetBudget`) are the
 /// entry points for math-affecting mutations. Each bumps `Budget.lastModified` and calls
 /// `context.save()` exactly once.
 enum BudgetLifecycleService {
   // MARK: - Read path
 
   /// Returns display-ready values for `budget`. Pure read — does not mutate the budget
-  /// or call `context.save()`.
-  @discardableResult
-  static func refreshAndSave(
-    _ budget: Budget,
-    settings _: AppSettings,
-    context _: ModelContext,
+  /// or touch the model context.
+  static func result(
+    for budget: Budget,
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
   ) -> BudgetLifecycleResult {
@@ -79,7 +75,7 @@ enum BudgetLifecycleService {
           let period = RecurringBudgetPeriod(periodRaw)
     else { return }
 
-    let effectiveStartDate = calendar.startOfDay(for: budget.startDate ?? budget.createdAt)
+    let effectiveStartDate = calendar.startOfDay(for: budget.effectiveStartDate)
     let weekdayRaw = calendar.component(.weekday, from: effectiveStartDate)
     let weekStart = Weekday(rawValue: weekdayRaw) ?? .sunday
 

@@ -4,29 +4,27 @@ Orchestrates the pure-read snapshot entry point, write-path methods, and display
 
 ## Requirements
 
-### Requirement: Eager refreshAndSave entry point
+### Requirement: Pure-read result(for:) entry point
 
-The system SHALL provide a `BudgetLifecycleService.refreshAndSave(_:settings:context:now:calendar:)` entry point as a compatibility seam between view sites and the new pure read `BudgetCalculator.snapshot(...)`. The method SHALL:
+The system SHALL provide a `BudgetLifecycleService.result(for:now:calendar:)` entry point as a compatibility seam between view sites and the pure read `BudgetCalculator.snapshot(...)`. The method SHALL:
 
 1. Call `BudgetCalculator.snapshot(budget:expenses:now:calendar:)` to compute a `BudgetSnapshot`.
 2. Map the snapshot to a `BudgetLifecycleResult` (see "BudgetLifecycleResult returned for display") and return it.
 3. NOT mutate `Budget`, `ExpenseItem`, `AllocationChange`, or `LifecycleEvent` rows. The walker is live; there are no fields on `Budget` for the read path to persist.
-4. NOT call `ModelContext.save()` from the read path.
-
-The method's name (`refreshAndSave`) is preserved for view-site compatibility. The "Save" semantic is a misnomer after this change and will be addressed by a future renaming change.
+4. NOT accept a `ModelContext` or call `ModelContext.save()` from the read path.
 
 All time-dependent inputs (`now`, `calendar`) SHALL be parameters with production defaults (`Date()`, `Calendar.autoupdatingCurrent`) so that tests can inject deterministic values.
 
 The biweekly anchor used for period math SHALL be derived from `Budget.startDate` per the `budget-math` capability. `AppSettings.weekStartDay` SHALL NOT be consulted from this service at math-time.
 
-#### Scenario: refreshAndSave is a pure read pass-through
+#### Scenario: result(for:) is a pure read pass-through
 
-- **WHEN** `BudgetLifecycleService.refreshAndSave` is called with a budget, app settings, a model context, a fixed `now`, and a fixed calendar
-- **THEN** the service calls `BudgetCalculator.snapshot(...)` exactly once, does not mutate the budget or its child rows, does not call `context.save()`, and returns a `BudgetLifecycleResult` mapped from the snapshot
+- **WHEN** `BudgetLifecycleService.result(for:)` is called with a budget, a fixed `now`, and a fixed calendar
+- **THEN** the service calls `BudgetCalculator.snapshot(...)` exactly once, does not mutate the budget or its child rows, does not touch any model context, and returns a `BudgetLifecycleResult` mapped from the snapshot
 
 #### Scenario: Idempotent across repeated calls
 
-- **WHEN** `refreshAndSave` is called twice in a row with the same `now` and no intervening writes
+- **WHEN** `result(for:)` is called twice in a row with the same `now` and no intervening writes
 - **THEN** both calls return equal `BudgetLifecycleResult` values, and the budget's stored fields are unchanged between calls
 
 
@@ -65,24 +63,24 @@ Additional snapshot fields (`lifecycleState`, `effectiveAllocation`) SHALL NOT b
 
 ### Requirement: Screen / ViewModel consumption contract
 
-Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `refreshAndSave` eagerly on budget access — at minimum on screen appearance, on `scenePhase == .active`, and via `.onChange(of: budget.lastModified)` so that mid-period writes refresh the chip. Screens that have not escalated to a ViewModel invoke `refreshAndSave` directly using `@Environment(\.modelContext)` and the injected `AppSettings`. Screens that have escalated to a ViewModel expose a method taking `(settings: AppSettings, context: ModelContext, ...)` at the call site and forward to the service.
+Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `result(for:)` eagerly on budget access — at minimum on screen appearance, on `scenePhase == .active`, and via `.onChange(of: budget.lastModified)` so that mid-period writes refresh the chip. Because `result(for:)` is a pure read, no `ModelContext` or `AppSettings` is required at the call site.
 
 Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the source of truth for current-period display values rather than recomputing them. Neither screens nor ViewModels SHALL call `BudgetCalculator.snapshot(...)` directly for the eager access flow — `BudgetLifecycleService` is the single entry point.
 
-#### Scenario: Screen calls refreshAndSave on screen appearance
+#### Scenario: Screen calls result(for:) on screen appearance
 
 - **WHEN** a Budgets or Budget screen becomes visible
-- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.refreshAndSave` for each displayed budget and binds the returned `BudgetLifecycleResult` values to the view
+- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.result(for:)` for each displayed budget and binds the returned `BudgetLifecycleResult` values to the view
 
-#### Scenario: Screen calls refreshAndSave on scene activation
+#### Scenario: Screen calls result(for:) on scene activation
 
 - **WHEN** the app transitions to `scenePhase == .active` while a budget is displayed
-- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.refreshAndSave` so any period boundaries crossed while inactive are reflected before the next frame
+- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.result(for:)` so any period boundaries crossed while inactive are reflected before the next frame
 
-#### Scenario: Screen calls refreshAndSave on Budget.lastModified change
+#### Scenario: Screen calls result(for:) on Budget.lastModified change
 
 - **WHEN** any user-initiated write that bumps `Budget.lastModified` lands (expense add/edit/delete, allocation edit, manual reset)
-- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.refreshAndSave` so the chip reflects the new state without waiting for a period boundary
+- **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.result(for:)` so the chip reflects the new state without waiting for a period boundary
 
 ### Requirement: Allocation edit write-path
 

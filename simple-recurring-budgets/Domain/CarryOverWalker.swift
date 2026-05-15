@@ -6,6 +6,12 @@ import Foundation
 /// - active → contributes `allocationInEffect − sum(expenses in period)`.
 /// - paused → contributes 0.
 ///
+/// Expenses are filtered by `max(boundaryStart, walkWindowStart)` so that for the period
+/// containing `walkWindowStart` (e.g., the period in which a Reset Carry-Over occurred),
+/// pre-reset expenses are not counted. Allocation is still awarded for the full period —
+/// no proration — matching the design choice that the user gets the full period's spending
+/// power even when the budget started, or was reset, mid-period.
+///
 /// Backdated expenses are automatically folded in on the next call because the walker
 /// re-evaluates every period on every read (pure function, no cached state).
 func walkCarryOver(
@@ -54,7 +60,8 @@ func walkCarryOver(
     ) else { continue }
 
     let allocation = allocationInEffect(at: boundaryStart, history: allocationChanges)
-    let periodExpenses = expenses.filter { $0.date >= boundaryStart && $0.date < nextBoundary }
+    let expenseLowerBound = max(boundaryStart, walkWindowStart)
+    let periodExpenses = expenses.filter { $0.date >= expenseLowerBound && $0.date < nextBoundary }
     let contribution = allocation - periodExpenses.reduce(Decimal(0)) { $0 + $1.amount }
     sum += contribution
   }

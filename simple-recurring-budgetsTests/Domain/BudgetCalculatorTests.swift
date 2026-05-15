@@ -248,6 +248,27 @@ struct BudgetCalculatorCarryOverTests {
     // Spillover for current period Apr 15 (no expenses) = 0
     #expect(snap.carryOver == 32)
   }
+
+  @Test func carryOver_weeklyMidPeriodReset_excludesPreResetExpensesFromContainingPeriod() {
+    // Weekly budget anchored on Wed (Apr 1, 2026). Week 1 = Apr 1–7, week 2 begins Apr 8.
+    // User resets on Fri Apr 3 (mid-week); spends both before and after the reset within
+    // week 1; then week 1 closes. The walker should exclude pre-reset expenses from
+    // week 1's contribution and still award the full $100 allocation.
+    let startDate = d(2026, 4, 1) // Wednesday — weekly anchor is Wed
+    let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate)
+    budget.lastResetDate = d(2026, 4, 3) // Fri, mid week 1
+    let expenses = [
+      expense(amount: 20, date: d(2026, 4, 1, hour: 10)), // pre-reset (week 1)
+      expense(amount: 15, date: d(2026, 4, 2, hour: 10)), // pre-reset (week 1)
+      expense(amount: 30, date: d(2026, 4, 5, hour: 10)), // post-reset (week 1)
+    ]
+    let now = d(2026, 4, 8) // Wed — start of week 2
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: now, calendar: cal)
+    // Walker week 1: $100 allocation − post-reset expenses ($30) = $70.
+    // Pre-reset ($20 + $15) are excluded by the walkWindowStart clamp.
+    // Current period (week 2) has no expenses → spillover = 0.
+    #expect(snap.carryOver == 70)
+  }
 }
 
 // MARK: - Snapshot: weekly period anchoring from startDate

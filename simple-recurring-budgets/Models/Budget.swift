@@ -58,17 +58,27 @@ final class Budget {
     set { expenses = newValue }
   }
 
+  /// The effective start date for math: `startDate` when populated, otherwise `createdAt`.
+  /// Single source of truth — never read `startDate ?? createdAt` directly elsewhere.
+  ///
+  /// `startDate` is stored as `Date?` only for CloudKit optionality; semantically it is
+  /// always populated for a saved budget. The `createdAt` fallback exists in case a sync
+  /// race delivers a budget before its `startDate` field arrives. For biweekly budgets,
+  /// silently anchoring to a different date can shift cycle boundaries — keeping the
+  /// fallback centralized here makes the failure mode easier to spot and instrument.
+  var effectiveStartDate: Date {
+    startDate ?? createdAt
+  }
+
   /// The most-recent allocation amount by `(effectiveFrom, lastModified)`. Used for
   /// display contexts (analytics, RemainingBar denominator) where a quick "current
   /// allocation" lookup is sufficient. The algorithm uses `allocationInEffect(at:history:)`
   /// for period-accurate values.
   var currentAllocation: Decimal {
-    allocationChanges
-      .sorted { lhs, rhs in
-        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
-        return lhs.lastModified < rhs.lastModified
-      }
-      .last?.amount ?? 0
+    allocationChanges.max { lhs, rhs in
+      if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+      return lhs.lastModified < rhs.lastModified
+    }?.amount ?? 0
   }
 
   init(

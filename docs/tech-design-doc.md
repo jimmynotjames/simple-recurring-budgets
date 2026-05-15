@@ -58,8 +58,8 @@ Pure display-only subviews (row cells, badges, amount formatters) remain logic-f
 
 **Implemented View + Services screens:**
 
-- `BudgetsView` — root list; `@Query` drives the row list; `BudgetLifecycleService.refreshAndSave` called from each row's `.task(id:)` and `onChange(of: scenePhase)`.
-- `BudgetDetailView` — Budget detail; lifecycle refresh invoked from the view body via `.task(id: budget.persistentModelID)`, `onChange(of: scenePhase)`, and `onChange(of: budget.expenseItems.count)`. Destructive actions (`resetBudget`, `resetCarryOver`, `deleteExpense`) are short imperative methods on the view that write through `@Environment(\.modelContext)` and call `BudgetLifecycleService` afterward. None of the §2.1 escalation triggers apply.
+- `BudgetsView` — root list; `@Query` drives the row list; `BudgetLifecycleService.result(for:)` called from each row's `.task(id:)`, `onChange(of: scenePhase)`, and `onChange(of: budget.lastModified)`.
+- `BudgetDetailView` — Budget detail; lifecycle refresh invoked from the view body via `.task(id: budget.persistentModelID)`, `onChange(of: scenePhase)`, and `onChange(of: budget.lastModified)`. Destructive actions (`resetBudget`, `resetCarryOver`, `deleteExpense`) are short imperative methods on the view that write through `@Environment(\.modelContext)` and call `BudgetLifecycleService` afterward. None of the §2.1 escalation triggers apply.
 
 ### 2.2 Navigation: `NavigationStack` with value-based routing
 
@@ -236,13 +236,13 @@ Services in `Domain/` implement all budget math with no SwiftUI dependencies:
 
 - **`PeriodCalculator`** — Pure date math: computes period start/end dates and enumerates period boundaries. Accepts `RecurringBudgetPeriod` (excludes `.specificDates` at compile time). All methods take an injected `Calendar`. Weekly/biweekly anchoring derives from `Budget.startDate`, not `AppSettings.weekStartDay` (which only seeds the pre-populated value at budget creation time).
 - **`BudgetCalculator.snapshot(budget:expenses:now:calendar:) -> BudgetSnapshot`** — The single pure read entry point. Stateless; never mutates anything. Computes carry-over via `walkCarryOver(...)` (live walker over completed active prior periods), adds the asymmetric `currentPeriodSpillover(...)` for the in-progress period, looks up allocation history via `allocationInEffect(at:history:)`, and classifies the lifecycle state via `isActive(periodStart:periodEnd:lifecycleEvents:)`. Returns a `BudgetSnapshot` containing `lifecycleState`, `effectiveAllocation`, `remaining`, `carryOver` (`nil` for `.specificDates`), `effectivePeriodStart`, `effectivePeriodEnd`.
-- **`BudgetLifecycleService`** — Compatibility adapter between `BudgetCalculator.snapshot` and the existing view-layer `BudgetLifecycleResult` contract. `refreshAndSave(_:settings:context:)` is now a pure read (calls `snapshot`, maps result, never saves). Three write-path methods mutate state and `context.save()`: `applyAllocationEdit(_:newAmount:context:)` (insert-or-mutate `AllocationChange`), `resetCarryOver(_:context:)` (sets `lastResetDate`), `resetBudget(_:context:)` (deletes all expenses + sets `lastResetDate`). All write-path methods bump `Budget.lastModified = now` before saving.
+- **`BudgetLifecycleService`** — Compatibility adapter between `BudgetCalculator.snapshot` and the existing view-layer `BudgetLifecycleResult` contract. `result(for:)` is a pure read (calls `snapshot`, maps result, takes no `ModelContext`). Three write-path methods mutate state and `context.save()`: `applyAllocationEdit(_:newAmount:context:)` (insert-or-mutate `AllocationChange`), `resetCarryOver(_:context:)` (sets `lastResetDate`), `resetBudget(_:context:)` (deletes all expenses + sets `lastResetDate`). All write-path methods bump `Budget.lastModified = now` before saving.
 
 **Refresh trigger:** Every user-initiated write (expense add/edit/delete, allocation edit, manual reset) bumps `Budget.lastModified = now` in the same `context.save()`. Views observe `.onChange(of: budget.lastModified)` to refresh the chip, alongside `.task(id:)` and `.onChange(of: scenePhase)`. This single signal replaces the old `expenseItems.count` observer and covers expense Edit (previously unhandled).
 
 **Biweekly anchor:** The cycle anchor for weekly/biweekly periods is `Budget.startDate`. `AppSettings.weekStartDay` seeds the pre-populated value in the Add Budget form; it is not consulted by the algorithm.
 
-**Caller consumption:** Screens call `BudgetLifecycleService.refreshAndSave(_:settings:context:)` eagerly and bind the returned `BudgetLifecycleResult` to the view. Screens do **not** call `BudgetCalculator.snapshot(...)` directly — `BudgetLifecycleService` is the read-path entry point.
+**Caller consumption:** Screens call `BudgetLifecycleService.result(for:)` eagerly and bind the returned `BudgetLifecycleResult` to the view. Screens do **not** call `BudgetCalculator.snapshot(...)` directly — `BudgetLifecycleService` is the read-path entry point.
 
 ### 5.5 Color Palette and Theming
 

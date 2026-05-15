@@ -15,7 +15,7 @@ enum BudgetCalculator {
     now: Date,
     calendar: Calendar
   ) -> BudgetSnapshot {
-    let effectiveStartDate = calendar.startOfDay(for: budget.startDate ?? budget.createdAt)
+    let effectiveStartDate = calendar.startOfDay(for: budget.effectiveStartDate)
     let effectiveEndInclusive: Date? = budget.endDate.map { calendar.startOfDay(for: $0) }
     let effectiveEndExclusive: Date = effectiveEndInclusive.map { inclusive in
       calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: inclusive)!)
@@ -49,7 +49,19 @@ enum BudgetCalculator {
     }
 
     guard let period = RecurringBudgetPeriod(periodRaw) else {
-      return snapshot(budget: budget, expenses: expenses, now: now, calendar: calendar)
+      // Unreachable today: `.specificDates` is the only non-recurring case and is handled
+      // above. Trip in debug if a future non-recurring case slips past that branch; in
+      // release, return a safe zero snapshot so the UI degrades gracefully rather than
+      // crashes on a hot read path.
+      assertionFailure("snapshot: non-recurring period reached recurring branch — invariant broken")
+      return BudgetSnapshot(
+        lifecycleState: .active,
+        effectiveAllocation: 0,
+        remaining: 0,
+        carryOver: 0,
+        effectivePeriodStart: effectiveStartDate,
+        effectivePeriodEnd: effectiveStartDate
+      )
     }
 
     return recurringBranch(
@@ -154,12 +166,10 @@ enum BudgetCalculator {
     effectiveStartDate: Date,
     effectiveEndExclusive: Date
   ) -> BudgetSnapshot {
-    let effectiveAllocation = budget.allocationChanges
-      .sorted { lhs, rhs in
-        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
-        return lhs.lastModified < rhs.lastModified
-      }
-      .last?.amount ?? 0
+    let effectiveAllocation = budget.allocationChanges.max { lhs, rhs in
+      if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+      return lhs.lastModified < rhs.lastModified
+    }?.amount ?? 0
 
     let windowExpenses = expenses.filter { $0.date >= effectiveStartDate && $0.date < effectiveEndExclusive }
     let remaining = effectiveAllocation - windowExpenses.reduce(Decimal(0)) { $0 + $1.amount }

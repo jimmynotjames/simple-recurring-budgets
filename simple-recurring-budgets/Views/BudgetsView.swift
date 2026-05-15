@@ -146,7 +146,6 @@ struct BudgetsView: View {
 struct BudgetRowView: View {
   let budget: Budget
 
-  @Environment(\.modelContext) private var context
   @Environment(AppSettings.self) private var settings
   @Environment(Router.self) private var router
   @Environment(\.scenePhase) private var scenePhase
@@ -283,9 +282,7 @@ struct BudgetRowView: View {
   }
 
   private func refreshLifecycle() {
-    lifecycle = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings, context: context
-    )
+    lifecycle = BudgetLifecycleService.result(for: budget)
   }
 
   /// Builds the VoiceOver label for the row button, including period and — when the

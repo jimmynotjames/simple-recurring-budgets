@@ -19,12 +19,6 @@ private func d(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0) -> Date {
   return Calendar(identifier: .gregorian).date(from: comps)!
 }
 
-private func settings(weekStart: Weekday = .sunday) -> AppSettings {
-  let s = AppSettings(store: MockKeyValueStore())
-  s.weekStartDay = weekStart
-  return s
-}
-
 private func makeBudget(
   period: BudgetPeriod = .daily,
   allocation: Decimal = 20,
@@ -40,23 +34,23 @@ private func makeBudget(
   return b
 }
 
-// MARK: - refreshAndSave: pure read, no mutations
+// MARK: - result(for:): pure read, no mutations
 
-struct BudgetLifecycleRefreshTests {
-  @Test func refreshAndSave_doesNotMutateBudget() throws {
+struct BudgetLifecycleResultTests {
+  @Test func result_doesNotMutateBudget() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 15)
     let budget = makeBudget(startDate: startDate, in: ctx)
     let originalLastModified = budget.lastModified
 
-    BudgetLifecycleService.refreshAndSave(budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal)
+    _ = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
 
     #expect(budget.lastModified == originalLastModified)
     #expect(budget.lastResetDate == nil)
   }
 
-  @Test func refreshAndSave_mapsSnapshotToResult() throws {
+  @Test func result_mapsSnapshotToResult() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 14)
@@ -65,9 +59,7 @@ struct BudgetLifecycleRefreshTests {
     let exp = ExpenseItem(amount: 18, date: d(2026, 4, 14, hour: 10))
     exp.budget = budget; ctx.insert(exp)
 
-    let result = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal
-    )
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
 
     #expect(result.remaining == 20) // current period Apr 15, no expenses
     #expect(result.carryOverAmount == 2) // walker: 20 − 18 = 2
@@ -75,7 +67,7 @@ struct BudgetLifecycleRefreshTests {
     #expect(result.periodEnd == d(2026, 4, 16))
   }
 
-  @Test func refreshAndSave_remainingIsIndependentOfCarryOver() throws {
+  @Test func result_remainingIsIndependentOfCarryOver() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 1)
@@ -84,14 +76,12 @@ struct BudgetLifecycleRefreshTests {
     let currentExpense = ExpenseItem(amount: 5, date: d(2026, 4, 15, hour: 9))
     currentExpense.budget = budget; ctx.insert(currentExpense)
 
-    let result = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal
-    )
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
 
     #expect(result.remaining == 15) // 20 − 5, regardless of carry-over
   }
 
-  @Test func refreshAndSave_remainingMayBeNegative() throws {
+  @Test func result_remainingMayBeNegative() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 15)
@@ -99,14 +89,12 @@ struct BudgetLifecycleRefreshTests {
     let exp = ExpenseItem(amount: 15, date: d(2026, 4, 15, hour: 9))
     exp.budget = budget; ctx.insert(exp)
 
-    let result = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings(), context: ctx, now: d(2026, 4, 15), calendar: cal
-    )
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
 
     #expect(result.remaining == -5)
   }
 
-  @Test func refreshAndSave_weeklyBudget_periodBoundaries() throws {
+  @Test func result_weeklyBudget_periodBoundaries() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     // Budget with Sunday start date → week runs Sun–Sat
@@ -114,9 +102,7 @@ struct BudgetLifecycleRefreshTests {
     let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, in: ctx)
     let now = d(2026, 4, 12, hour: 1) // just after Sun Apr 12
 
-    let result = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings(weekStart: .sunday), context: ctx, now: now, calendar: cal
-    )
+    let result = BudgetLifecycleService.result(for: budget, now: now, calendar: cal)
 
     #expect(result.periodStart == d(2026, 4, 12))
     #expect(result.periodEnd == d(2026, 4, 19))

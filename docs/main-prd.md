@@ -157,15 +157,32 @@ Implementation rules for all four concerns live in `docs/tech-design-doc.md` §�
 
 These rules apply to every Budget. When carry-over is turned off for a budget (see product features), the carry-over amount is still computed and kept current internally but is **not displayed** in the UI for that budget. This ensures that toggling carry-over back on at any time produces an immediately correct, up-to-date figure without retroactive computation. Rules are **per budget**; there is no aggregation across budgets.
 
-**Display (independent numbers)**
+**Display (two separate numbers)**
 
-- **Remaining for the current Budget Period** — How much of *this period’s* allocation is left. It is **not** increased or reduced by the separate carry-over figure. Example: with a $20/day allocation, the primary “left to spend” for today shows amounts derived only from today’s $20 and today’s expenses, not mixed into a single combined cap.
-- **Carry-over** — A separate, signed cumulative total that reflects how far ahead or behind the user is relative to their recurring allocation, carried across Budget Periods until it is reset. Copy and formatting should read cleanly for both directions (e.g. surplus vs deficit); exact strings are a design choice.
+The two numbers are computed and displayed independently — they are never merged into a single combined "available to spend" cap. Influence flows one direction only: the current period's *committed* overflow (overspend or add-funds excess) feeds into Carry-over (see "How carry-over moves" below). Carry-over never affects Remaining.
+
+- **Remaining for the current Budget Period** — How much of *this period's* allocation is left. Live as expenses are added, edited, or deleted within the current period. May go negative (overspend) or above the allocation (add-funds excess via [F-6.01](product-features-planning.md)). Example: with a $20/day allocation, the primary "left to spend" for today shows amounts derived only from today's $20 and today's expenses, not mixed into a single combined cap.
+- **Carry-over** — A separate, signed cumulative total that reflects how far ahead or behind the user is relative to their recurring allocation. Sum of completed prior active periods, plus the *committed* portion of the current period's overflow (see asymmetric live coupling below). Carried across Budget Periods until it is reset. Copy and formatting should read cleanly for both directions (e.g. surplus vs deficit); exact strings are a design choice.
 
 **How carry-over moves**
 
-- At each **Budget Period** boundary (e.g. each new day for a daily budget), fold in the outcome of the period that just ended: add `(allocation for that period − total expenses counted against that period)` to the carry-over amount. Example: carry-over was a $5 deficit; allocation for the day was $20; the user spent $18. The $2 unspent vs that allocation reduces the deficit, so carry-over becomes a $3 deficit before the new period’s expenses apply.
-- **Positive and negative** carry-over amounts both carry forward according to that rule until reset.
+Carry-over has two components, both contributing to the displayed value:
+
+1. **Sum across completed prior active periods.** At each **Budget Period** boundary (e.g. each new day for a daily budget), the outcome of the period that just ended folds in: `(allocation for that period − total expenses counted against that period)` is added to the running carry-over. Example: carry-over was a $5 deficit; allocation for the day was $20; the user spent $18. The $2 unspent vs that allocation reduces the deficit, so carry-over becomes a $3 deficit before the new period's expenses apply.
+
+2. **Asymmetric live coupling with the current period.** While a period is in progress, the current period's contribution flows into Carry-over **only when it has crossed out of `[0, allocation]`** — i.e., only when the user has *committed* an overshoot in either direction. This is the asymmetric live coupling rule:
+
+   - **Overspend (Remaining < 0).** The deficit is immediately reflected in Carry-over. Example: daily $20 budget, +$5 carry-over from prior days, $10 already spent today. User logs an $11 expense → Remaining becomes −$1, Carry-over becomes +$4 instantly. Deleting that expense snaps Carry-over back to +$5.
+   - **Add-funds excess (Remaining > allocation, see [F-6.01](product-features-planning.md)).** The excess above allocation is immediately reflected in Carry-over. Example: daily $20 budget, user adds $30 of funds → Remaining becomes $50, Carry-over absorbs the +$30 excess.
+   - **Ordinary mid-period slack (0 ≤ Remaining ≤ allocation).** Carry-over does **not** change. The slack remains *provisional* — the user might still spend more before the period closes — and only flows into Carry-over when the period actually completes (per rule 1 above).
+
+   **Rationale.** Committed actions (overspend, deliberate add-funds) reflect real user decisions and belong in the cumulative position immediately. Provisional slack waits for the period to close so the user does not over-rely on a mid-day "ahead" reading they might still spend down. Loss-aversion: bad news lands live; good news waits for the period close.
+
+   **Post-end (`now > endDate`) collapses to symmetric.** When the budget has ended, there is no future period close, so the full final-period contribution (positive or negative) folds into Carry-over immediately. This is what makes the chip "frozen at final tally."
+
+   **Paused periods contribute 0.** A paused period's allocation is not credited and its expenses are not debited. The asymmetric rule does not apply while the current period is paused — Carry-over is whatever it was at the most-recent pause moment (modulo retroactive edits to prior active periods).
+
+- **Positive and negative** carry-over amounts both carry forward according to these rules until reset.
 
 **Resetting carry-over**
 
@@ -264,7 +281,7 @@ Screens:
 - Recurring Budget (AKA Budget) - An allocation of available spending that repeats the allocation at regular time intervals. The supported period values are defined in app code (see `BudgetPeriod` or equivalent).
 - Expense Item (AKA Expense or Transaction) - A specific expense.
 - Budget Period - The repeating time interval the Budget allocates funds to. The canonical set of cases and their string values are defined in app code (see `BudgetPeriod` or equivalent).
-- Carry-over Amount (AKA CarryOver) - A per-budget, signed cumulative total: surplus (under-spent relative to allocation over time) or deficit (over-spent). It is **shown separately** from “remaining for this Budget Period” (which is not adjusted by carry-over for display). Updated at each Budget Period boundary per [§6.7](#67-carry-over-behavior); can be cleared manually or on a user-configured schedule. Which reset cadence options exist, and how “manual only” is represented, are defined in app code (see `ResetCadence` or equivalent). *PAUSED — Reset Cadences feature not in scope; retained for design reference.*
+- Carry-over Amount (AKA CarryOver) - A per-budget, signed cumulative total: surplus (under-spent relative to allocation over time) or deficit (over-spent). It is **shown separately** from “remaining for this Budget Period” (which is not adjusted by carry-over for display). Computed live per [§6.7](#67-carry-over-behavior) as the sum of completed prior active periods plus the *committed* portion of the current period's overflow (asymmetric live coupling: overspend and add-funds excess land immediately; ordinary mid-period slack waits for the period to close). Can be cleared manually or on a user-configured schedule. Which reset cadence options exist, and how “manual only” is represented, are defined in app code (see `ResetCadence` or equivalent). *PAUSED — Reset Cadences feature not in scope; retained for design reference.*
 - Reset cadence - How often carry-over is cleared automatically. Valid cadences and how they relate to Budget Period are defined in app code (see `ResetCadence` and related validation). This glossary does not enumerate values; refer to the code for the latest list. *PAUSED — feature not in scope; retained for design reference.*
 - Reset Budget - A destructive action on the Budget detail screen that deletes every Expense Item for a given Budget and zeros its carry-over balance, while leaving the Budget entity itself intact. Distinct from Reset Carry-Over (which only zeros carry-over) and Delete Budget (which removes the Budget entity and cascades to its Expense Items). See §6.7 and F-2.02.
 - Reset Carry-Over - A per-budget action on the Budget detail screen that zeros a Budget's carry-over balance without affecting its Expense Items. Distinct from Reset Budget and Delete Budget. See §6.7 and F-2.02.

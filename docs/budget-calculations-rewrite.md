@@ -15,6 +15,13 @@ A summary of the requirements the rewrite must satisfy. Detailed reasoning, conf
 ### 2.1. Algorithm behavior
 
 - **CHANGED** The carry-over / remaining chip updates **mid-period** in response to any change that affects the value — expense add / edit / delete, allocation edit, start/end-date edit, pause/resume, reset. No more boundary-only `rollCarryOver`.
+- **NEW — Carry-over "asymmetric live coupling."** Carry-over and Remaining remain conceptually separate (per main-prd.md §6.7), but Carry-over absorbs the current period's *committed* overflow in real time:
+  - When Remaining is inside `[0, Allocation]` (ordinary mid-period state), Carry-over reflects only completed prior active periods — unchanged from the walker sum.
+  - When Remaining < 0 (overspend), Carry-over increases by the deficit (i.e., decreases) immediately. Example: prior Carry-over +$5, daily $20 budget, user logs an expense that pushes today to −$1 over → Carry-over updates to +$4 instantly. Undoing the expense snaps it back to +$5.
+  - When Remaining > Allocation (the user has added funds for this period via F-6.01 add-funds, making the *net* spend negative), Carry-over increases by the excess immediately. Example: $20/day budget, user adds $30 via Add Funds — Remaining = $50, Carry-over absorbs the +$30 excess.
+  - **Why asymmetric.** Overspending and deliberate add-funds are *committed* user actions — they should land in the cumulative position immediately. Ordinary mid-period slack (Remaining > 0 but ≤ Allocation) is *provisional* — the user might still spend more before the period closes, so it stays in "today's envelope" until the period actually completes (at which point the walker folds it in normally). This matches the user's mental model of "today's envelope" (Remaining) feeding the "savings jar" (Carry-over) only when there's a real spill in either direction. Loss-aversion: bad news shows up live; good news waits for the period to close.
+  - At the period boundary, the just-closed period's *full* contribution flows into walker sum, and the new period's spillover starts at 0. The asymmetric rule never double-counts: when the period closed with overspend or add-funds excess, the spillover was already reflected, and the walker's fold cancels it cleanly (smooth transition); when the period closed with ordinary slack, the walker folds it in and the chip jumps by that slack at the close.
+  - In post-`endDate` (`.postEnd`) state, the rule collapses to symmetric — the entire final-period Remaining is folded into Carry-over, since there is no future period close. This matches the "frozen at final tally" expectation (§2.9, §6.5).
 - **NEW** Allocation edits are **forward-only**, effective at `currentPeriodStart` (the boundary of the period that is in progress when the edit happens). They never retroactively rewrite the carry-over contribution of prior completed periods. Allocation edits are **not** a reset.
 - **NEW** Allocation edits made **while the budget is paused** take effect at the resume point (i.e., at the period containing the resume action). The chosen storage convention can either record `effectiveFrom = the paused period's start` or `effectiveFrom = the resume-anchored period's start` — both produce the same final carry-over value, because paused periods contribute 0 regardless of allocation. See §5.5 for the underlying pause semantics.
 - **NEW** Backdated expenses — including expenses backdated into a *prior active period* of a paused budget — recompute the carry-over of the period they fall in, and that change propagates forward through all subsequent active periods.
@@ -83,7 +90,7 @@ A summary of the requirements the rewrite must satisfy. Detailed reasoning, conf
 
 ### 2.9. Chip semantics across `BudgetsView` and `BudgetDetailView`
 
-- **CHANGED** For recurring types: chip is the signed cumulative carry-over per main-prd.md §6.7, updating mid-period.
+- **CHANGED** For recurring types: chip is the signed cumulative carry-over per main-prd.md §6.7, updating mid-period per the asymmetric coupling rule in §2.1 (overspend and add-funds excess land live; ordinary mid-period slack waits for the period close).
 - **NEW** For `.specificDates`: the standard **Remaining** chip displays `allocation − sumOfExpensesInWindow`; the **Carry-over** chip is hidden. main-prd.md §6.7 needs a Specific Dates carve-out.
 - **NEW** Pre-`startDate` state, post-`endDate` state, and paused state each get their own chip presentations:
   - Pre-start: "Starts on X" treatment; algorithm returns 0.
@@ -181,14 +188,14 @@ Five independent problems all touch the carry-over algorithm. The rewrite must a
 
 Two requirements together:
 
-1. The carry-over chip must update **mid-period** in response to expense add / edit / delete in the current period — not just at period boundaries. Today's boundary-only `rollCarryOver` is the root cause of the unfixed chip-stale bug.
+1. The Remaining chip must update **fully live** in response to expense add / edit / delete in the current period. The Carry-over chip must update **asymmetrically live** — instantly absorb the current period's *committed* overflow (overspend or add-funds excess), but hold ordinary mid-period slack until the period closes. (See §2.1 for the full rule.) Today's boundary-only `rollCarryOver` is the root cause of the unfixed chip-stale bug.
 2. Editing the budget's allocation must **not retroactively rewrite the carry-over of prior periods**. Prior completed periods retain whichever allocation was in effect when they occurred. Allocation edits are forward-only and take effect starting at `currentPeriodStart` (the boundary of the period that is in progress when the edit happens). Allocation edits are *not* a reset.
 
-**Why both at once.** The naive way to satisfy (1) is to re-walk every period from some anchor through the in-progress period using a single scalar `allocation`. That walker re-applies the *current* allocation to every prior period, which violates (2).
+**Why both at once.** The naive way to satisfy (1) is to re-walk every period from some anchor through the in-progress period using a single scalar `allocation`. That walker re-applies the *current* allocation to every prior period, which violates (2). The chosen design (allocation history with forward-only `effectiveFrom` keys, walker iterating completed prior periods only, current period's spillover added separately) satisfies both.
 
-**Worked example.** Daily budget, $20 allocation, $15/day spend, 60 days running. A naive live walker computes: 60 × $5 + (today: $20 − $0) = $320. User edits allocation $20 → $25. Next refresh: 60 × $10 + (today: $25 − $0) = $625. User expected ~$325 (the change should only affect today and going forward).
+**Worked example (allocation edit propagation).** Daily budget, $20 allocation, $15/day spend, 60 days running. A naive live walker that re-applies current allocation: 60 × $5 + (today: $20 − $0) = $320. User edits allocation $20 → $25. Next refresh: 60 × $10 + (today: $25 − $0) = $625. User expected ~$325 (the change should only affect today and going forward). The chosen design's walker uses per-period allocation lookup, so prior periods continue contributing $5 each → +$300, plus today's spillover (none, since $25 − $0 = $25 is inside `[0, $25]`) = +$300 carry-over after the edit. Today's Remaining shows $25.
 
-The new design must reconcile (1) and (2). How it does so is up to the new chat.
+**Worked example (asymmetric live coupling).** Daily $20 budget, +$5 carry-over from prior days, $10 spent today so far. Remaining = $10, Carry-over = +$5. User logs an $11 expense. Remaining = −$1 (overspent by $1), Carry-over updates instantly to +$4 (because the −$1 is *committed* overspend). User then deletes that $11 expense. Remaining = $10, Carry-over snaps back to +$5. User adds $30 via F-6.01 Add Funds. Remaining = $40, Carry-over jumps to +$25 (the +$20 excess above the $20 allocation lands live). User then spends $30. Remaining = $10, Carry-over returns to +$5. The chip mirrors what the user has *committed* at every moment.
 
 ### 5.2. New Start Date and End Date fields on `Budget`
 
@@ -274,6 +281,7 @@ The new chat should walk every numbered item against whatever design it proposes
 7. Delete expense in a prior period.
 8. Sign-flip edits (negative `amount` for add-funds per F-6.01).
 9. Add or edit expense dated outside `[startDate, endDate]` — UI must reject or not offer that option; if it slips through, algorithm must clamp.
+10. **★ Asymmetric live Carry-over coupling (§2.1).** Adding an expense that pushes the current period from Remaining ≥ 0 into Remaining < 0 must immediately decrease Carry-over by the overshoot amount. Deleting or editing-down that same expense back into Remaining ≥ 0 must immediately restore Carry-over. Add-funds expenses (negative `amount`, F-6.01) that push Remaining above Allocation must immediately increase Carry-over by the excess. Ordinary mid-period expenses that keep Remaining inside `[0, Allocation]` must NOT change Carry-over (the change is provisional until the period closes).
 
 ### 6.2. Allocation lifecycle
 

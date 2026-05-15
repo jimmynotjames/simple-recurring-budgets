@@ -1,8 +1,4 @@
-## Purpose
-
-Specifies the pure budget math service layer (`PeriodCalculator` + `BudgetCalculator`) that computes period boundaries, remaining amounts, carry-over via a live walker, and snapshot output. All computation is stateless and has no SwiftData or SwiftUI dependencies.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Period start computation
 
@@ -52,54 +48,6 @@ All date computations SHALL use the caller-provided `Calendar` instance (no impl
 - **WHEN** application code attempts to pass `BudgetPeriod.specificDates` into period-boundary math
 - **THEN** the call SHALL fail at compile time because `PeriodCalculator`'s public surface accepts `RecurringBudgetPeriod` only
 
-### Requirement: Period end computation
-
-The system SHALL compute the end date (exclusive) of the budget period containing a given date. The period end is the start of the next period.
-
-#### Scenario: Daily period end
-
-- **WHEN** the date is 2026-04-15 and the period is daily
-- **THEN** the period end is 2026-04-16 00:00
-
-#### Scenario: Weekly period end
-
-- **WHEN** the date is Wednesday 2026-04-15 and the period is weekly and week start is Sunday
-- **THEN** the period end is Sunday 2026-04-19
-
-#### Scenario: Biweekly period end
-
-- **WHEN** the biweekly period start is Sunday 2026-04-12
-- **THEN** the period end is Sunday 2026-04-26 (14 days later)
-
-#### Scenario: Monthly period end
-
-- **WHEN** the date is 2026-04-15 and the period is monthly
-- **THEN** the period end is 2026-05-01
-
-### Requirement: Period boundary enumeration
-
-The system SHALL enumerate all period boundary dates between two dates (inclusive of start, exclusive of end). This powers the multi-period catch-up walk for carry-over rolling.
-
-#### Scenario: Daily boundaries over a 3-day gap
-
-- **WHEN** the start date is 2026-04-12 00:00 and the end date is 2026-04-15 00:00 and the period is daily
-- **THEN** the boundaries returned are [2026-04-12, 2026-04-13, 2026-04-14] (three boundaries, each a day start)
-
-#### Scenario: Weekly boundaries spanning three weeks
-
-- **WHEN** the start date is 2026-04-05 (a Sunday) and the end date is 2026-04-20 and the period is weekly and week start is Sunday
-- **THEN** the boundaries returned are [2026-04-05, 2026-04-12, 2026-04-19]
-
-#### Scenario: No boundaries when start equals end
-
-- **WHEN** the start and end dates are both 2026-04-12 00:00
-- **THEN** the boundaries returned are empty
-
-#### Scenario: Monthly boundaries across quarter
-
-- **WHEN** the start date is 2026-01-01 and the end date is 2026-04-01 and the period is monthly
-- **THEN** the boundaries are [2026-01-01, 2026-02-01, 2026-03-01]
-
 ### Requirement: Remaining for current budget period
 
 The system SHALL compute the remaining amount for the current budget period as: `effectiveAllocation − sum(expenses in current period)`, where `effectiveAllocation` is the allocation in effect at the start of the current period (per `allocationInEffect`). Only expenses whose date falls within the current period (>= period start, < period end) SHALL be counted. The result MAY be negative (overspending). This value is NOT adjusted by carry-over (per PRD §6.7). For `.specificDates` budgets, "current period" is the entire `[startDate, endDate]` window.
@@ -133,6 +81,28 @@ The system SHALL compute the remaining amount for the current budget period as: 
 
 - **WHEN** the budget has two `AllocationChange` rows — one at the budget's `startDate` with amount 20.00 and one at the current period's start with amount 25.00 — and today's expenses total 5.00
 - **THEN** remaining is 20.00 (25.00 − 5.00); the value 20.00 from the prior period is not consulted for the current period
+
+## REMOVED Requirements
+
+### Requirement: Carry-over roll
+
+**Reason**: The boundary-only `BudgetCalculator.rollCarryOver(...)` algorithm is replaced by the live-walker `walkCarryOver(...)` helper plus an asymmetric `currentPeriodSpillover` term, both invoked from the new pure read entry point `BudgetCalculator.snapshot(...)`. The walker computes the cumulative carry-over from completed prior active periods on every read; no field on `Budget` is ever written by the read path. This eliminates the mid-period stale-chip bug and unblocks per-period allocation history.
+
+**Migration**: Replace every call site of `BudgetCalculator.rollCarryOver(...)` with `BudgetCalculator.snapshot(budget:expenses:now:calendar:)` and read `BudgetSnapshot.carryOver` (recurring) or `BudgetSnapshot.remaining` (specificDates). The `CarryOverRollResult` type is deleted. See ADDED Requirements: "BudgetCalculator.snapshot pure read entry point", "Carry-over walker", and "Asymmetric live coupling for the current period".
+
+### Requirement: Scheduled carry-over reset detection
+
+**Reason**: The Reset Cadences feature is permanently removed (briefing §5.4). Every scheduled-reset code path, requirement, and storage field is deleted in the same change.
+
+**Migration**: No replacement. Manual Reset Carry-Over (the user-tapped button) remains and is now invoked via `BudgetLifecycleService.resetCarryOver(_:context:)`, which sets `Budget.lastResetDate = now`. The walker honors `lastResetDate` by skipping every period whose end is at or before that timestamp.
+
+### Requirement: Carry-over roll processes before reset check
+
+**Reason**: Both the roll and the scheduled-reset check are deleted. The walker reads `Budget.lastResetDate` directly and trims the walk window accordingly — there is no longer a multi-step ordering to enforce.
+
+**Migration**: No replacement. See ADDED Requirements: "Carry-over walker" for how `lastResetDate` constrains the walk window.
+
+## ADDED Requirements
 
 ### Requirement: BudgetCalculator.snapshot pure read entry point
 
@@ -325,3 +295,7 @@ The branch SHALL ignore `isCarryOverEnabled` and `LifecycleEvent` rows of any ki
 
 - **WHEN** a `LifecycleEvent` with `kind = .pause` somehow exists on a `.specificDates` budget
 - **THEN** the snapshot's behavior is identical to the case where no LifecycleEvent rows exist
+
+## Doc alignment
+
+This delta aligns with the rewritten `docs/main-prd.md` §6.7 (live-walker plus asymmetric coupling, Specific Dates carve-out) and removes every Reset Cadences reference from this capability. No conflicts.

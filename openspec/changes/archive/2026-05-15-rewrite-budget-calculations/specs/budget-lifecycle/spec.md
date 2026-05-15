@@ -1,8 +1,4 @@
-# Budget lifecycle
-
-Orchestrates the pure-read snapshot entry point, write-path methods, and display-ready remaining/period window for a `Budget`, binding `BudgetCalculator` output to SwiftData via a single service. Synced from change `rewrite-budget-calculations` (2026-05-15).
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Eager refreshAndSave entry point
 
@@ -28,8 +24,6 @@ The biweekly anchor used for period math SHALL be derived from `Budget.startDate
 
 - **WHEN** `refreshAndSave` is called twice in a row with the same `now` and no intervening writes
 - **THEN** both calls return equal `BudgetLifecycleResult` values, and the budget's stored fields are unchanged between calls
-
-
 
 ### Requirement: BudgetLifecycleResult returned for display
 
@@ -62,7 +56,6 @@ Additional snapshot fields (`lifecycleState`, `effectiveAllocation`) SHALL NOT b
 - **WHEN** the sum of this period's expenses exceeds `effectiveAllocation`
 - **THEN** `BudgetLifecycleResult.remaining` is negative
 
-
 ### Requirement: Screen / ViewModel consumption contract
 
 Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `refreshAndSave` eagerly on budget access — at minimum on screen appearance, on `scenePhase == .active`, and via `.onChange(of: budget.lastModified)` so that mid-period writes refresh the chip. Screens that have not escalated to a ViewModel invoke `refreshAndSave` directly using `@Environment(\.modelContext)` and the injected `AppSettings`. Screens that have escalated to a ViewModel expose a method taking `(settings: AppSettings, context: ModelContext, ...)` at the call site and forward to the service.
@@ -83,6 +76,28 @@ Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the s
 
 - **WHEN** any user-initiated write that bumps `Budget.lastModified` lands (expense add/edit/delete, allocation edit, manual reset)
 - **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.refreshAndSave` so the chip reflects the new state without waiting for a period boundary
+
+## REMOVED Requirements
+
+### Requirement: Single write-back path from calculator results to Budget
+
+**Reason**: The new read path does not write to `Budget` at all — the walker is live; there are no `carryOverAmount` / `carryOverLastProcessedDate` fields to persist (both are removed from the schema per `data-models`). The "single write-back path" concern no longer exists for the read flow.
+
+**Migration**: Write paths for math-affecting state moved to dedicated write-path methods on `BudgetLifecycleService` (see ADDED Requirements: "Allocation edit write-path", "Manual reset carry-over write-path", "Reset budget write-path"). These are the new single entry points for the values they manage.
+
+### Requirement: Single save per refreshAndSave, only when state changed
+
+**Reason**: `refreshAndSave` no longer mutates state, so it never calls `context.save()`. The invariant is preserved trivially.
+
+**Migration**: No replacement needed for the read path. Write-path methods (see ADDED Requirements below) each call `context.save()` exactly once at the end of their work and bump `Budget.lastModified = now` so observing views refresh.
+
+### Requirement: Multi-period catch-up applies through the same single-save path
+
+**Reason**: The walker computes catch-up live on every read; there is no persisted `lastProcessedDate` to advance and no `save()` to coordinate. Multi-period catch-up is handled inside `walkCarryOver(...)` (see the `budget-math` capability).
+
+**Migration**: No replacement. Multi-period correctness is covered by walker tests in the `budget-math` capability.
+
+## ADDED Requirements
 
 ### Requirement: Allocation edit write-path
 
@@ -151,3 +166,7 @@ The method SHALL NOT mutate `AllocationChange` or `LifecycleEvent` rows — the 
 
 - **WHEN** a budget has two AllocationChange rows and the user invokes Reset Budget
 - **THEN** both AllocationChange rows remain in the store and `allocationInEffect(...)` continues to return the latest applicable amount
+
+## Doc alignment
+
+`docs/tech-design-doc.md` §5.4 (service layer) describes the previous orchestration sequence. This delta replaces that description with the adapter-plus-three-write-paths shape; the tasks artifact in this change updates the doc accordingly. No conflicts with `docs/main-prd.md` (which describes the user-facing contract, not the service shape).

@@ -65,7 +65,7 @@
       ],
       "hidden-specializations" : [
         {
-          "value" : true
+          "value" : false
         },
         {
           "appearance" : "dark",
@@ -91,13 +91,23 @@
         }
       ],
       "name" : "Dark Mode",
+      "opacity-specializations" : [
+        {
+          "appearance" : "tinted",
+          "value" : 1
+        },
+        {
+          "idiom" : "square",
+          "value" : 1
+        }
+      ],
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5
       },
       "specular-specializations" : [
         {
-          "value" : false
+          "value" : true
         },
         {
           "appearance" : "dark",

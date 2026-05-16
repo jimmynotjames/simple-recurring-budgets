@@ -68,11 +68,7 @@
           "value" : true
         },
         {
-          "appearance" : "light",
-          "value" : true
-        },
-        {
-          "idiom" : "square",
+          "appearance" : "dark",
           "value" : false
         }
       ],

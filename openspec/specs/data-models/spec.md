@@ -213,7 +213,7 @@ The system SHALL define a SwiftData `@Model` class `LifecycleEvent` with the fol
 | Property        | Type                  | Default     | Notes                                                       |
 | --------------- | --------------------- | ----------- | ----------------------------------------------------------- |
 | `id`            | `UUID`                | `UUID()`    | Stable identity                                             |
-| `kind`          | `LifecycleEventKind`  | —           | One of `.pause`, `.resume`. Stored directly as the enum; SwiftData serializes `String, Codable` enums automatically |
+| `kindRawValue`  | `String`              | `"pause"`   | Stored as `LifecycleEventKind.rawValue`. The typed `kind: LifecycleEventKind` accessor reads/writes this. Storing the raw string keeps the column visible to `#Predicate<LifecycleEvent>` queries (Codable-backed enum storage is opaque to predicates). Same convention as `Budget.period`. |
 | `effectiveDate` | `Date`                | —           | The instant the event takes effect                          |
 | `lastModified`  | `Date`                | `Date()`    | Tiebreaker for CloudKit cross-device convergence            |
 | `budget`        | `Budget?`             | —           | Inverse of `Budget.lifecycleEventsStorage`                  |
@@ -228,7 +228,7 @@ The system SHALL define a SwiftData `@Model` class `LifecycleEvent` with the fol
 #### Scenario: LifecycleEvent.kind round-trips through SwiftData
 
 - **WHEN** a LifecycleEvent is saved and later fetched from a new ModelContext
-- **THEN** its `kind` SHALL equal the original value (`.pause` or `.resume`) without any manual encoding/decoding code
+- **THEN** its `kind` SHALL equal the original value (`.pause` or `.resume`); the typed accessor reads `kindRawValue` and rehydrates the enum
 
 #### Scenario: Cascade delete from Budget
 

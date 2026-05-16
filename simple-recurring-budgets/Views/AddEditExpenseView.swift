@@ -27,6 +27,19 @@ final class AddEditExpenseViewModel {
     (amount ?? 0) > 0
   }
 
+  /// The allowed range for `date` in the picker. Lower bound is the owning budget's
+  /// `effectiveStartDate`; expenses dated earlier are silently dropped by the walker
+  /// (see `CarryOverWalker`) so the UI must constrain entry. Upper bound is open today;
+  /// F-2.04 / F-7.07 will tighten this to `endDate` and the budget's active-period union
+  /// when those UIs ship.
+  var dateRange: ClosedRange<Date> {
+    let lower: Date = switch mode {
+    case let .add(budget): budget.effectiveStartDate
+    case let .edit(expense): expense.budget?.effectiveStartDate ?? .distantPast
+    }
+    return lower ... .distantFuture
+  }
+
   init(adding budget: Budget) {
     amount = nil
     name = ""
@@ -321,6 +334,7 @@ struct AddEditExpenseView: View {
           comment: "Label for the expense date and time picker"
         ),
         selection: $viewModel.date,
+        in: viewModel.dateRange,
         displayedComponents: [.date, .hourAndMinute]
       )
       .datePickerStyle(.compact)

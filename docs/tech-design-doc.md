@@ -77,7 +77,7 @@ A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned
 
 ### 3.1 Approach
 
-Four SwiftData `@Model` entities: **Budget**, **ExpenseItem**, **AllocationChange**, and **LifecycleEvent**, all held in `SchemaV1`. `Budget → ExpenseItem`, `Budget → AllocationChange`, and `Budget → LifecycleEvent` are all cascade-delete one-to-many relationships. Supporting enums (`BudgetPeriod`, `LifecycleEventKind`) are `String`-backed `Codable` types stored inline.
+Four SwiftData `@Model` entities: **Budget**, **ExpenseItem**, **AllocationChange**, and **LifecycleEvent**, all held in `SchemaV1`. `Budget → ExpenseItem`, `Budget → AllocationChange`, and `Budget → LifecycleEvent` are all cascade-delete one-to-many relationships. Supporting enums (`BudgetPeriod`, `LifecycleEventKind`) are `String`-backed `Codable` types stored on entities as raw `String` columns with typed computed accessors — this keeps the columns visible to `#Predicate` queries (Codable-backed enum storage would be opaque to predicates).
 
 The user-facing entry point for deleting a `Budget` is the **Delete Budget** button on the Add/Edit Budget sheet (Edit mode only). Confirming the dialog calls `context.delete(budget)` + `context.save()` on `AddEditBudgetViewModel`; the `@Relationship(deleteRule: .cascade)` rules automatically removes the budget's `ExpenseItem`, `AllocationChange`, and `LifecycleEvent` rows in the same save. No schema or CKRecord change is involved.
 
@@ -103,7 +103,7 @@ The user-facing entry point for deleting a `Budget` is the **Delete Budget** but
 | `expenses` | `[ExpenseItem]?` | Expense rows; use `expenseItems` computed accessor |
 
 **AllocationChange entity fields:** `id`, `effectiveFrom: Date`, `amount: Decimal`, `lastModified: Date`, `budget: Budget?`.
-**LifecycleEvent entity fields:** `id`, `kind: LifecycleEventKind` (`.pause` / `.resume`), `effectiveDate: Date`, `lastModified: Date`, `budget: Budget?`.
+**LifecycleEvent entity fields:** `id`, `kindRawValue: String` (raw value of `LifecycleEventKind`; exposed via a typed `kind` accessor — storing the raw string preserves `#Predicate` filter compatibility), `effectiveDate: Date`, `lastModified: Date`, `budget: Budget?`.
 **ExpenseItem entity fields:** `id`, `amount: Decimal` (signed; negative = add-funds), `name: String?`, `date: Date`, `createdAt: Date`, `lastModified: Date`, `expenseType: String?`, `budget: Budget?`.
 
 All monetary values use `Decimal`, never floating-point.

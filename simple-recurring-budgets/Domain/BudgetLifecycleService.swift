@@ -13,8 +13,13 @@ struct BudgetLifecycleResult {
   /// Not adjusted by carry-over (PRD §6.7).
   let remaining: Decimal
   /// Carry-over from completed prior active periods plus the current-period spillover.
-  /// Maps to `snapshot.carryOver ?? 0` (defensive: `.specificDates` returns `nil` but
-  /// no UI in this migration creates that type, so `?? 0` is never triggered).
+  /// Maps to `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that
+  /// `BudgetCalculator.snapshot` returns for `.specificDates` budgets — see F-2.08, which
+  /// requires the carry-over chip to be **hidden** for that type (the chip-hiding work
+  /// lives in `BudgetDetailView` and `BudgetRowView` and ships with the F-2.08 UI). Until
+  /// then this fallback is unreachable in normal flow; the F-2.08 work should either
+  /// stop calling this entry point for specificDates budgets or replace `BudgetLifecycleResult`
+  /// with a sum type that does not flatten `nil`.
   let carryOverAmount: Decimal
   /// Inclusive start of the current budget period.
   let periodStart: Date
@@ -71,9 +76,13 @@ enum BudgetLifecycleService {
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
   ) {
-    guard let periodRaw = BudgetPeriod(rawValue: budget.period),
-          let period = RecurringBudgetPeriod(periodRaw)
-    else { return }
+    guard let periodRaw = BudgetPeriod(rawValue: budget.period) else { return }
+    // Specific Dates uses latest-wins allocation semantics (F-2.08), which is a
+    // distinct write path from the recurring-budget insert-or-mutate convention.
+    // The F-2.08 UI is not yet wired; trip in debug if anything routes a
+    // specificDates budget here so the gap is loud, but no-op in release.
+    assert(periodRaw != .specificDates, "applyAllocationEdit: specificDates not supported here yet — see F-2.08")
+    guard let period = RecurringBudgetPeriod(periodRaw) else { return }
 
     let effectiveStartDate = calendar.startOfDay(for: budget.effectiveStartDate)
     let weekdayRaw = calendar.component(.weekday, from: effectiveStartDate)
@@ -109,6 +118,14 @@ enum BudgetLifecycleService {
     context: ModelContext,
     now: Date = Date()
   ) {
+    // Reset Carry-Over is hidden in F-2.08 specificDates UI and the algorithm
+    // ignores `lastResetDate` for that branch. Calling this on a specificDates
+    // budget would write `lastResetDate` with no observable effect — trip in
+    // debug to surface the UI bug, no-op in release.
+    assert(
+      BudgetPeriod(rawValue: budget.period) != .specificDates,
+      "resetCarryOver: not supported for specificDates — see F-2.08"
+    )
     budget.lastResetDate = now
     budget.lastModified = now
     try? context.save()

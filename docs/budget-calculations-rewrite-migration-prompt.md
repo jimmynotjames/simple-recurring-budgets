@@ -59,9 +59,10 @@ Read these before designing. Where they conflict with each other, the precedence
     `init` parameters.
 - Add two new `@Model` entities exactly as specified in algorithm doc §A.2.2 and §A.2.3:
   `AllocationChange` and `LifecycleEvent`. Include `lastModified: Date` for cross-device
-  tiebreaks. `LifecycleEvent.kind` is `LifecycleEventKind` (the enum directly — SwiftData
-  serializes `String, Codable` enums automatically; do **not** make it `String` with a separate
-  accessor).
+  tiebreaks. `LifecycleEvent.kind` is exposed as a typed `LifecycleEventKind` accessor
+  backed by a stored `kindRawValue: String` (same convention as `Budget.period`). Storing
+  the raw string keeps the column visible to `#Predicate` filters — a Codable-enum-typed
+  column would be opaque to predicates and block future fetch-by-kind queries.
 - Delete `ResetCadence` enum, `BudgetPeriod.defaultResetCadence`, and the `Budget.resetCadence`
   initializer parameter (the Reset Cadences feature is permanently removed — see briefing §5.4).
 - `BudgetPeriod.specificDates` is added as a new case to the enum (algorithm doc §A.2.5). The

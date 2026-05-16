@@ -34,7 +34,7 @@ The biweekly anchor used for period math SHALL be derived from `Budget.startDate
 The system SHALL return a `BudgetLifecycleResult` value with the following fields, populated from the underlying `BudgetSnapshot`:
 
 - `remaining: Decimal` ← `snapshot.remaining`.
-- `carryOverAmount: Decimal` ← `snapshot.carryOver ?? 0`. The `?? 0` is a defensive fallback for the `.specificDates` case (which returns `nil`); no UI in this migration creates a `.specificDates` budget, so the fallback is never triggered in normal flow. Future changes that ship Specific Dates UI SHALL replace this with a typed result that does not require the fallback.
+- `carryOverAmount: Decimal` ← `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that `BudgetCalculator.snapshot` returns for `.specificDates` budgets. Per F-2.08, the carry-over chip is **hidden** for specificDates budgets (chip-hiding work lives in `BudgetDetailView` / `BudgetRowView` and ships with the F-2.08 UI). Until F-2.08 ships, this fallback is unreachable in normal flow. The F-2.08 change MUST either (a) stop calling `result(for:)` for specificDates budgets, or (b) replace `BudgetLifecycleResult` with a sum type that preserves the `nil`.
 - `periodStart: Date` ← `snapshot.effectivePeriodStart`.
 - `periodEnd: Date` ← `snapshot.effectivePeriodEnd`.
 

@@ -14,14 +14,19 @@ import Foundation
 ///
 /// Backdated expenses are automatically folded in on the next call because the walker
 /// re-evaluates every period on every read (pure function, no cached state).
+///
+/// **Contract:** `sortedAllocationChanges` and `sortedLifecycleEvents` must be pre-sorted
+/// ascending by `(effectiveFrom, lastModified)` and `(effectiveDate, lastModified)`
+/// respectively. The caller (`BudgetCalculator.snapshot`) sorts once at the entry point
+/// to avoid an O(log N) factor per walker iteration.
 func walkCarryOver(
   from walkWindowStart: Date,
   to currentPeriodStart: Date,
   period: RecurringBudgetPeriod,
   weekStart: Weekday,
   biweeklyAnchor: Date,
-  allocationChanges: [AllocationChange],
-  lifecycleEvents: [LifecycleEvent],
+  sortedAllocationChanges: [AllocationChange],
+  sortedLifecycleEvents: [LifecycleEvent],
   expenses: [ExpenseItem],
   calendar: Calendar
 ) -> Decimal {
@@ -56,10 +61,10 @@ func walkCarryOver(
     guard isActive(
       periodStart: boundaryStart,
       periodEnd: nextBoundary,
-      lifecycleEvents: lifecycleEvents
+      sortedLifecycleEvents: sortedLifecycleEvents
     ) else { continue }
 
-    let allocation = allocationInEffect(at: boundaryStart, history: allocationChanges)
+    let allocation = allocationInEffect(at: boundaryStart, sortedHistory: sortedAllocationChanges)
     let expenseLowerBound = max(boundaryStart, walkWindowStart)
     let periodExpenses = expenses.filter { $0.date >= expenseLowerBound && $0.date < nextBoundary }
     let contribution = allocation - periodExpenses.reduce(Decimal(0)) { $0 + $1.amount }

@@ -7,22 +7,27 @@ import Foundation
 /// - A period is **paused** only when no event falls within it AND the most recent
 ///   prior event was a pause.
 /// - With no events the budget is always active.
+///
+/// **Contract:** `sortedLifecycleEvents` must be sorted ascending by
+/// `(effectiveDate, lastModified)`. The walker hot path calls this once per period;
+/// pre-sorting at the snapshot entry point lets this function early-terminate in a
+/// single pass.
 func isActive(
   periodStart: Date,
   periodEnd: Date,
-  lifecycleEvents: [LifecycleEvent]
+  sortedLifecycleEvents: [LifecycleEvent]
 ) -> Bool {
-  guard !lifecycleEvents.isEmpty else { return true }
+  guard !sortedLifecycleEvents.isEmpty else { return true }
 
-  let sorted = lifecycleEvents.sorted { $0.effectiveDate < $1.effectiveDate }
-
-  // Any event that lands inside this period makes the period active (pause-action period
-  // and resume-action period are both active by definition).
-  let inPeriod = sorted.filter { $0.effectiveDate >= periodStart && $0.effectiveDate < periodEnd }
-  if !inPeriod.isEmpty { return true }
-
-  // No in-period event: use the state established by the most recent prior event.
-  let prior = sorted.filter { $0.effectiveDate < periodStart }
-  guard let lastPrior = prior.last else { return true } // no history → active
-  return lastPrior.kind == .resume
+  // Single forward pass over the sorted array:
+  // - track the latest event strictly before `periodStart` (`lastPrior`).
+  // - return `true` immediately the first time an event lands in `[periodStart, periodEnd)`.
+  // - break early once events go past `periodEnd` (the rest can't affect this period).
+  var lastPrior: LifecycleEvent?
+  for event in sortedLifecycleEvents {
+    if event.effectiveDate >= periodEnd { break }
+    if event.effectiveDate >= periodStart { return true }
+    lastPrior = event
+  }
+  return lastPrior.map { $0.kind == .resume } ?? true
 }

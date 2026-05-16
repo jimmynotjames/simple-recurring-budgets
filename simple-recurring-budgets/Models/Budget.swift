@@ -66,6 +66,12 @@ final class Budget {
   /// race delivers a budget before its `startDate` field arrives. For biweekly budgets,
   /// silently anchoring to a different date can shift cycle boundaries — keeping the
   /// fallback centralized here makes the failure mode easier to spot and instrument.
+  ///
+  /// **Important:** this property returns the raw `Date` (which may carry a time-of-day
+  /// component when the fallback to `createdAt` fires). Callers doing period math must
+  /// wrap with `calendar.startOfDay(for:)` to get a day-aligned anchor — see
+  /// `BudgetCalculator` and `BudgetLifecycleService.applyAllocationEdit` for the
+  /// canonical pattern. UI callers (display labels, date-picker bounds) may use it as-is.
   var effectiveStartDate: Date {
     startDate ?? createdAt
   }

@@ -21,9 +21,21 @@ enum BudgetCalculator {
       calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: inclusive)!)
     } ?? .distantFuture
 
+    // Sort history collections once at the entry point — both `allocationInEffect` and
+    // `isActive` require pre-sorted input (see their contracts). This avoids re-sorting
+    // inside the walker hot loop.
+    let sortedAllocationChanges = budget.allocationChanges.sorted { lhs, rhs in
+      if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+      return lhs.lastModified < rhs.lastModified
+    }
+    let sortedLifecycleEvents = budget.lifecycleEvents.sorted { lhs, rhs in
+      if lhs.effectiveDate != rhs.effectiveDate { return lhs.effectiveDate < rhs.effectiveDate }
+      return lhs.lastModified < rhs.lastModified
+    }
+
     // Pre-start short-circuit
     if now < effectiveStartDate {
-      let alloc = allocationInEffect(at: effectiveStartDate, history: budget.allocationChanges)
+      let alloc = allocationInEffect(at: effectiveStartDate, sortedHistory: sortedAllocationChanges)
       let periodRawForPreStart = BudgetPeriod(rawValue: budget.period) ?? .daily
       let preStartCarryOver: Decimal? = periodRawForPreStart == .specificDates ? nil : 0
       return BudgetSnapshot(
@@ -72,7 +84,9 @@ enum BudgetCalculator {
       period: period,
       effectiveStartDate: effectiveStartDate,
       effectiveEndInclusive: effectiveEndInclusive,
-      effectiveEndExclusive: effectiveEndExclusive
+      effectiveEndExclusive: effectiveEndExclusive,
+      sortedAllocationChanges: sortedAllocationChanges,
+      sortedLifecycleEvents: sortedLifecycleEvents
     )
   }
 
@@ -86,8 +100,16 @@ enum BudgetCalculator {
     period: RecurringBudgetPeriod,
     effectiveStartDate: Date,
     effectiveEndInclusive: Date?,
-    effectiveEndExclusive: Date
+    effectiveEndExclusive: Date,
+    sortedAllocationChanges: [AllocationChange],
+    sortedLifecycleEvents: [LifecycleEvent]
   ) -> BudgetSnapshot {
+    // Clamp `now` to `effectiveEndInclusive` so post-end snapshots reflect the *final*
+    // period (the one containing `endDate`) rather than whatever period calendar-now
+    // would fall into. Without this clamp, a daily budget that ended Apr 10 viewed on
+    // Apr 20 would compute its "current" period as Apr 20 — there'd be no allocation
+    // history covering that date and the math would be wrong. The lifecycle classification
+    // below still uses raw `now` to decide postEnd vs active — only the period math is clamped.
     let effectiveNow = effectiveEndInclusive.map { min(now, $0) } ?? now
 
     let weekdayRaw = calendar.component(.weekday, from: effectiveStartDate)
@@ -106,14 +128,17 @@ enum BudgetCalculator {
     let effectivePeriodStart = max(currentPeriodStart, effectiveStartDate)
     let effectivePeriodEnd = min(currentPeriodEnd, effectiveEndExclusive)
 
+    // Use the clamped `effectivePeriodEnd` (not raw `currentPeriodEnd`) so that
+    // lifecycle events past `endDate` cannot flip the pause classification for a
+    // postEnd budget's final period.
     let isCurrentPaused = !isActive(
       periodStart: effectivePeriodStart,
-      periodEnd: currentPeriodEnd,
-      lifecycleEvents: budget.lifecycleEvents
+      periodEnd: effectivePeriodEnd,
+      sortedLifecycleEvents: sortedLifecycleEvents
     )
     let effectiveAllocation = allocationInEffect(
       at: max(currentPeriodStart, effectiveStartDate),
-      history: budget.allocationChanges
+      sortedHistory: sortedAllocationChanges
     )
 
     let remaining: Decimal
@@ -128,8 +153,8 @@ enum BudgetCalculator {
     let walkerSum = walkCarryOver(
       from: walkWindowStart, to: currentPeriodStart, period: period,
       weekStart: weekStart, biweeklyAnchor: biweeklyAnchor,
-      allocationChanges: budget.allocationChanges,
-      lifecycleEvents: budget.lifecycleEvents,
+      sortedAllocationChanges: sortedAllocationChanges,
+      sortedLifecycleEvents: sortedLifecycleEvents,
       expenses: expenses, calendar: calendar
     )
 
@@ -159,6 +184,18 @@ enum BudgetCalculator {
 
   // MARK: - Specific Dates branch (§A.4.2)
 
+  /// Specific Dates is a single-window, no-recurrence budget type (F-2.08).
+  ///
+  /// **Intentionally ignored fields:** `Budget.lastResetDate`, `Budget.lifecycleEvents`,
+  /// and `Budget.isCarryOverEnabled` are NOT consulted here. Per F-2.08, the UI hides
+  /// Reset Carry-Over, the carry-over toggle, and Pause/Resume for this period type;
+  /// the algorithm correspondingly ignores those signals if they ever land on a
+  /// specificDates row (direct CloudKit write, UI bug, etc.). Allocation uses
+  /// latest-wins (most-recent `AllocationChange` by `(effectiveFrom, lastModified)`)
+  /// rather than the period-history walk used by recurring budgets.
+  ///
+  /// Future agents wiring the F-2.08 UI: do **not** thread `lastResetDate` or
+  /// `lifecycleEvents` through this branch — re-read F-2.08 first.
   private static func specificDatesBranch(
     budget: Budget,
     expenses: [ExpenseItem],

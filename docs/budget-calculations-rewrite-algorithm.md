@@ -244,14 +244,20 @@ Sort at read time; no sort-order column.
 ```swift
 @Model final class LifecycleEvent {
   var id: UUID = UUID()
-  /// Pause or resume action. Stored as the enum directly — SwiftData serializes
-  /// `String, Codable` enums as their raw string value for CloudKit, so this is
-  /// equivalent to storing `"pause"` / `"resume"` without a separate accessor.
-  var kind: LifecycleEventKind = .pause
+  /// Stored as `LifecycleEventKind.rawValue`. Read/write via the `kind` accessor.
+  /// Storing the raw string (rather than the enum directly) keeps this column visible
+  /// to `#Predicate<LifecycleEvent>` filters — Codable-backed enum storage is opaque to
+  /// predicates. Same convention as `Budget.period`.
+  var kindRawValue: String = LifecycleEventKind.pause.rawValue
   /// The user-action timestamp. See "pre-start pause" handling below for the one case
   /// where this is a synthetic value rather than wall-clock-now.
   var date: Date = Date()
   @Relationship(deleteRule: .nullify) var budget: Budget?
+
+  var kind: LifecycleEventKind {
+    get { LifecycleEventKind(rawValue: kindRawValue) ?? .pause }
+    set { kindRawValue = newValue.rawValue }
+  }
   init(kind: LifecycleEventKind, date: Date) { ... }
 }
 

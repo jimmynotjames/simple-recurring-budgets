@@ -403,6 +403,51 @@ struct BudgetCalculatorPausedTests {
     #expect(snap.lifecycleState == .active)
   }
 
+  // Integration: exercises the walker's threading of pre-sorted allocation history and
+  // lifecycle events through multiple completed periods. Catches regressions where the
+  // sort contract or the per-period lookup gets the wrong value.
+  @Test func snapshot_multiplePauseCycles_andAllocationChanges_walkerSumsCorrectly() {
+    let startDate = d(2026, 4, 1)
+    let budget = Budget(period: .daily)
+    budget.startDate = startDate
+    // Initial alloc 20; bumps to 30 on Apr 10.
+    let initial = AllocationChange(effectiveFrom: startDate, amount: 20)
+    let bump = AllocationChange(effectiveFrom: d(2026, 4, 10), amount: 30)
+    initial.budget = budget
+    bump.budget = budget
+    budget.allocationChangesStorage = [initial, bump]
+    // Pause Apr 5 → Resume Apr 8; Pause Apr 13 → Resume Apr 16.
+    // Pause/resume-action periods are themselves active; the periods *between* are paused.
+    let events: [LifecycleEvent] = [
+      LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 5, hour: 10)),
+      LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 8, hour: 10)),
+      LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 13, hour: 10)),
+      LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 16, hour: 10)),
+    ]
+    for e in events {
+      e.budget = budget
+    }
+    budget.lifecycleEventsStorage = events
+
+    let snap = BudgetCalculator.snapshot(
+      budget: budget, expenses: [],
+      now: d(2026, 4, 20), calendar: cal
+    )
+    // Apr 1–4: 4 × 20 = 80
+    // Apr 5 (pause-action): active, 20
+    // Apr 6–7: paused, 0
+    // Apr 8 (resume-action): active, 20
+    // Apr 9: 20
+    // Apr 10–12: 3 × 30 = 90 (allocation bumped on Apr 10)
+    // Apr 13 (pause-action): active, 30
+    // Apr 14–15: paused, 0
+    // Apr 16 (resume-action): active, 30
+    // Apr 17–19: 3 × 30 = 90
+    // Total = 80 + 20 + 20 + 20 + 90 + 30 + 30 + 90 = 380
+    #expect(snap.carryOver == 380)
+    #expect(snap.lifecycleState == .active)
+  }
+
   @Test func snapshot_paused_backdatedExpenseInPriorActivePeriod_reflected() {
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(startDate: startDate)

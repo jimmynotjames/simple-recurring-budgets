@@ -27,5 +27,11 @@ pre-commit:
 
 pre-push:
   commands:
+    check-translations:
+      run: python3 scripts/check_translations.py
+
+    check-source-strings:
+      run: python3 scripts/check_source_strings.py
+
     build:
       run: bash scripts/build.sh

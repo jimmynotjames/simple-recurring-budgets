@@ -37,5 +37,7 @@ rules:
   tasks:
     - Include a task to update relevant docs/*.md when the change affects product features, architecture, or global constraints—or explicitly confirm no doc updates are needed.
     - For changes that add or modify user-facing UI, include explicit task line items for the cross-cutting concerns in docs/main-prd.md §6.8 (accessibility labels/hints, localized source strings with comment:, queued translations, Mixpanel user-action events) — or explicitly state which do not apply.
+  apply:
+    - For any task that adds or modifies user-facing UI, verify that the cross-cutting concerns from docs/main-prd.md §6.8 are addressed before marking the task complete: (1) accessibility labels/hints on new controls, (2) new strings keyed in Localizable.xcstrings with comment:, (3) scripts/translate_catalog/ pipeline re-run (extract → translate → merge → validate), (4) AnalyticsClient.track(...) fired for new user-initiated actions per docs/analytics-spec.md. If any concern was not addressed in the task, add it now or flag it explicitly.
   specs:
     - If requirements conflict with the three docs/*.md files, document the conflict in the delta spec or proposal rather than silently overriding.

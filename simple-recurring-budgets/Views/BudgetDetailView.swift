@@ -32,12 +32,13 @@ struct BudgetDetailView: View {
   }
 
   private var carryOverAmount: Decimal {
-    lifecycle?.carryOverAmount ?? budget.carryOverAmount
+    lifecycle?.carryOverAmount ?? 0
   }
 
   private var remainingFraction: Double {
-    guard budget.allocation > 0 else { return 0 }
-    let ratio = remaining / budget.allocation
+    let allocation = budget.currentAllocation
+    guard allocation > 0 else { return 0 }
+    let ratio = remaining / allocation
     return max(0, min(1, (ratio as NSDecimalNumber).doubleValue))
   }
 
@@ -194,7 +195,7 @@ struct BudgetDetailView: View {
       guard newPhase == .active else { return }
       refreshLifecycle()
     }
-    .onChange(of: budget.expenseItems.count) {
+    .onChange(of: budget.lastModified) {
       refreshLifecycle()
     }
   }
@@ -258,9 +259,7 @@ struct BudgetDetailView: View {
   // MARK: - Actions
 
   func refreshLifecycle() {
-    lifecycle = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings, context: context
-    )
+    lifecycle = BudgetLifecycleService.result(for: budget)
   }
 
   private func resetCarryOver() {
@@ -268,10 +267,7 @@ struct BudgetDetailView: View {
       "ui.action: resetCarryOver budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
     let period = BudgetPeriod(rawValue: budget.period) ?? .daily
-    budget.carryOverAmount = 0
-    budget.carryOverLastResetDate = Date()
-    budget.lastModified = Date()
-    try? context.save()
+    BudgetLifecycleService.resetCarryOver(budget, context: context)
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
     analytics.track(
@@ -281,7 +277,7 @@ struct BudgetDetailView: View {
         AnalyticsProperty.carryOverEnabled: budget.isCarryOverEnabled,
         AnalyticsProperty.currencyCode: budget.currencyCode,
         AnalyticsProperty.budgetName: budget.name,
-        AnalyticsProperty.budgetAllocationAmount: (budget.allocation as NSDecimalNumber).doubleValue,
+        AnalyticsProperty.budgetAllocationAmount: (budget.currentAllocation as NSDecimalNumber).doubleValue,
       ]
     )
     refreshLifecycle()
@@ -293,13 +289,7 @@ struct BudgetDetailView: View {
     )
     let period = BudgetPeriod(rawValue: budget.period) ?? .daily
     withAnimation {
-      for expense in Array(budget.expenseItems) {
-        context.delete(expense)
-      }
-      budget.carryOverAmount = 0
-      budget.carryOverLastResetDate = Date()
-      budget.lastModified = Date()
-      try? context.save()
+      BudgetLifecycleService.resetBudget(budget, context: context)
     }
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
@@ -310,7 +300,7 @@ struct BudgetDetailView: View {
         AnalyticsProperty.carryOverEnabled: budget.isCarryOverEnabled,
         AnalyticsProperty.currencyCode: budget.currencyCode,
         AnalyticsProperty.budgetName: budget.name,
-        AnalyticsProperty.budgetAllocationAmount: (budget.allocation as NSDecimalNumber).doubleValue,
+        AnalyticsProperty.budgetAllocationAmount: (budget.currentAllocation as NSDecimalNumber).doubleValue,
       ]
     )
     refreshLifecycle()

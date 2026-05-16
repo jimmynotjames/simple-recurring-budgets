@@ -35,7 +35,7 @@ A native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending
 
 **Escalate to an `@Observable` ViewModel only when at least one of these is true:**
 
-1. The screen holds **non-trivial draft/form state** not persisted until the user commits (e.g., an Add/Edit screen with cross-field validation such as Budget Period → Reset Cadence rules per [PRD §6.7](main-prd.md#67-carry-over-behavior)). _(Note: Budget Period → Reset Cadence cross-field validation is **PAUSED** — Reset Cadences are not in scope; do not implement this validation in UI while paused.)_
+1. The screen holds **non-trivial draft/form state** not persisted until the user commits (e.g., an Add/Edit screen with cross-field validation).
 2. The screen owns **`async` / `Task` work** or concurrency-scoped state (e.g., future F-7.01 receipt OCR via Vision, F-7.02 speech recognition).
 3. The screen needs **a multi-step user action** chaining validation, multiple writes, and side effects beyond a one-liner.
 4. The screen has **derived display state expensive to recompute** inside `body` that benefits from caching outside it.
@@ -51,15 +51,15 @@ A native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending
 
 - More than 3 mutable form fields.
 - A framework call inside the screen (Vision, Speech, PhotosUI, SiriKit / App Intents, `SFSpeechRecognizer`, network).
-- A single user input that mutates more than one model property or couples fields (e.g., changing Budget Period must re-validate Reset Cadence). _(Reset Cadence coupling is **PAUSED** — do not implement while paused.)_
+- A single user input that mutates more than one model property or couples fields.
 - The screen is expected to grow materially within the next 1–2 features.
 
 Pure display-only subviews (row cells, badges, amount formatters) remain logic-free regardless of which side of the rule the parent screen falls on.
 
 **Implemented View + Services screens:**
 
-- `BudgetsView` — root list; `@Query` drives the row list; `BudgetLifecycleService.refreshAndSave` called from each row's `.task(id:)` and `onChange(of: scenePhase)`.
-- `BudgetDetailView` — Budget detail; lifecycle refresh invoked from the view body via `.task(id: budget.persistentModelID)`, `onChange(of: scenePhase)`, and `onChange(of: budget.expenseItems.count)`. Destructive actions (`resetBudget`, `resetCarryOver`, `deleteExpense`) are short imperative methods on the view that write through `@Environment(\.modelContext)` and call `BudgetLifecycleService` afterward. None of the §2.1 escalation triggers apply.
+- `BudgetsView` — root list; `@Query` drives the row list; `BudgetLifecycleService.result(for:)` called from each row's `.task(id:)`, `onChange(of: scenePhase)`, and `onChange(of: budget.lastModified)`.
+- `BudgetDetailView` — Budget detail; lifecycle refresh invoked from the view body via `.task(id: budget.persistentModelID)`, `onChange(of: scenePhase)`, and `onChange(of: budget.lastModified)`. Destructive actions (`resetBudget`, `resetCarryOver`, `deleteExpense`) are short imperative methods on the view that write through `@Environment(\.modelContext)` and call `BudgetLifecycleService` afterward. None of the §2.1 escalation triggers apply.
 
 ### 2.2 Navigation: `NavigationStack` with value-based routing
 
@@ -77,30 +77,51 @@ A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned
 
 ### 3.1 Approach
 
-Two SwiftData `@Model` entities: **Budget** and **ExpenseItem**, linked by a one-to-many relationship (Budget → ExpenseItem, cascade delete). Supporting enums (`BudgetPeriod`, `ResetCadence`) are `String`-backed `Codable` types stored inline.
+Four SwiftData `@Model` entities: **Budget**, **ExpenseItem**, **AllocationChange**, and **LifecycleEvent**, all held in `SchemaV1`. `Budget → ExpenseItem`, `Budget → AllocationChange`, and `Budget → LifecycleEvent` are all cascade-delete one-to-many relationships. Supporting enums (`BudgetPeriod`, `LifecycleEventKind`) are `String`-backed `Codable` types stored on entities as raw `String` columns with typed computed accessors — this keeps the columns visible to `#Predicate` queries (Codable-backed enum storage would be opaque to predicates).
 
-The user-facing entry point for deleting a `Budget` is the **Delete Budget** button on the Add/Edit Budget sheet (Edit mode only). Confirming the dialog calls `context.delete(budget)` + `context.save()` on `AddEditBudgetViewModel`; the `@Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)` rule on `Budget` automatically removes the budget's `ExpenseItem` rows in the same save. No schema or CKRecord change is involved.
+The user-facing entry point for deleting a `Budget` is the **Delete Budget** button on the Add/Edit Budget sheet (Edit mode only). Confirming the dialog calls `context.delete(budget)` + `context.save()` on `AddEditBudgetViewModel`; the `@Relationship(deleteRule: .cascade)` rules automatically removes the budget's `ExpenseItem`, `AllocationChange`, and `LifecycleEvent` rows in the same save. No schema or CKRecord change is involved.
 
-> [!NOTE]
-> **PAUSED — Reset Cadences feature is not in scope.** `ResetCadence` and the `Budget.resetCadence` field are retained for schema stability and the future un-pause. All new Budgets persist `"never"`. Do not surface Reset Cadence in UI, plans, or new specs while paused; the type and engine are available for future use.
+**CloudKit optional relationship pattern:** CloudKit requires all relationships to be optional (records may arrive out-of-order during sync). All stored relationship properties (`Budget.expenses`, `Budget.allocationChangesStorage`, `Budget.lifecycleEventsStorage`, `ExpenseItem.budget`, `AllocationChange.budget`, `LifecycleEvent.budget`) are therefore typed optional. Non-optional computed accessors (`expenseItems`, `allocationChanges`, `lifecycleEvents`) returning `?? []` are the canonical accessors for all app code.
 
-**CloudKit optional relationship pattern:** CloudKit requires all relationships to be optional (records may arrive out-of-order during sync). The stored `Budget.expenses` property is therefore typed `[ExpenseItem]?`. A non-optional computed property `expenseItems: [ExpenseItem]` (`get { expenses ?? [] }`, settable) is the canonical accessor for all app code, so no call site ever handles optionality. The raw `expenses` property should not be accessed outside of the model definition.
+**Budget entity fields:**
 
-Key fields on Budget include allocation, period, currency code (ISO 4217), and Over/Under state (cumulative amount + last reset date + reset cadence). ExpenseItem carries amount, optional name, and date. All monetary values use `Decimal`. _(Reset cadence is stored but **PAUSED** — defaults to `"never"` for new records.)_
+| Property | Type | Notes |
+|---|---|---|
+| `id` | `UUID` | Stable identity |
+| `name` | `String` | Display name |
+| `currencyCode` | `String` | ISO 4217 code |
+| `period` | `String` | `BudgetPeriod.rawValue` |
+| `sortOrder` | `Int` | User-defined list ordering |
+| `createdAt` | `Date` | Immutable after creation |
+| `lastModified` | `Date` | Bumped on every user-initiated mutation that affects math |
+| `startDate` | `Date?` | When the budget begins; semantically always populated for saved budgets (CloudKit optionality only) |
+| `endDate` | `Date?` | Terminal cutoff; `nil` for open-ended recurring budgets |
+| `lastResetDate` | `Date?` | Most recent manual Reset Carry-Over or Reset Budget timestamp; `nil` means no reset |
+| `isCarryOverEnabled` | `Bool` | Display toggle; algorithm always computes carry-over internally |
+| `allocationChangesStorage` | `[AllocationChange]?` | Allocation history; use `allocationChanges` computed accessor |
+| `lifecycleEventsStorage` | `[LifecycleEvent]?` | Pause/resume history; use `lifecycleEvents` computed accessor |
+| `expenses` | `[ExpenseItem]?` | Expense rows; use `expenseItems` computed accessor |
 
-Derived values — **Remaining for current Budget Period** and **Over/Under display** — are computed at read-time, not persisted.
+**AllocationChange entity fields:** `id`, `effectiveFrom: Date`, `amount: Decimal`, `lastModified: Date`, `budget: Budget?`.
+**LifecycleEvent entity fields:** `id`, `kindRawValue: String` (raw value of `LifecycleEventKind`; exposed via a typed `kind` accessor — storing the raw string preserves `#Predicate` filter compatibility), `effectiveDate: Date`, `lastModified: Date`, `budget: Budget?`.
+**ExpenseItem entity fields:** `id`, `amount: Decimal` (signed; negative = add-funds), `name: String?`, `date: Date`, `createdAt: Date`, `lastModified: Date`, `expenseType: String?`, `budget: Budget?`.
 
-### 3.2 Over/Under Bookkeeping
+All monetary values use `Decimal`, never floating-point.
 
-Per [PRD §6.7](main-prd.md#67-carry-over-behavior):
+Derived values — **Remaining for current Budget Period** and **Carry-over** — are computed at read-time via `BudgetCalculator.snapshot(...)` and never persisted.
 
-- **Period boundary roll**: When the app detects a new Budget Period has started, compute `allocation − expenses` for the completed period(s) and fold into the stored Over/Under amount. This happens eagerly on app launch / budget access.
-- **Scheduled reset**: Compare last reset date against current date and the budget's reset cadence. If a reset boundary has passed, zero out Over/Under and update the last reset date. _(PAUSED — Reset Cadences feature is not in scope. The code path is retained and unit-tested, but all new Budgets default to `"never"`, so this is a no-op in practice. Do not surface scheduling configuration in UI or new specs while paused.)_
-- **Manual reset**: User action zeros Over/Under and updates the last reset date.
+### 3.2 Carry-Over Bookkeeping
+
+Per [PRD §6.7](main-prd.md#67-carry-over-behavior), the algorithm is a **live walker** (no stored carry-over amount):
+
+- **`BudgetCalculator.snapshot(budget:expenses:now:calendar:)`** is the single pure read entry point. It is stateless and never mutates the budget.
+- The walker sums `(allocationInEffect(at: periodStart) − expenses)` for every completed active period in the window `[max(startDate, lastResetDate ?? .distantPast), currentPeriodStart)`.
+- The **asymmetric live coupling rule** adds the current period's *committed* overflow — overspend and add-funds excess — to the walker sum in real time. Ordinary mid-period slack waits for the period close.
+- **Manual reset**: `BudgetLifecycleService.resetCarryOver(_:context:)` sets `lastResetDate = now`, trimming the walker window so carry-over reads zero from that moment forward.
 
 ### 3.3 Migration Strategy
 
-SwiftData handles lightweight migrations automatically for additive changes. For breaking changes, use `VersionedSchema` and `SchemaMigrationPlan` with unit-tested migration steps. Always test CloudKit compatibility after schema changes — CloudKit cannot delete fields from deployed record types.
+This app has not shipped to the App Store — it is greenfield. Schema changes are made in-place on `SchemaV1`. Do **not** introduce `SchemaV2` or `SchemaMigrationPlan` stages; wipe the simulator when the schema changes. Always test CloudKit compatibility — CloudKit cannot delete fields from deployed record types.
 
 ---
 
@@ -211,15 +232,17 @@ Translations for all 38 App Store storefront locales were produced and merged by
 
 ### 5.4 Budget Math Service Layer
 
-Three services in `Domain/` implement all budget math and lifecycle orchestration with no SwiftUI dependencies:
+Services in `Domain/` implement all budget math with no SwiftUI dependencies:
 
-- **`PeriodCalculator`** — Pure date-only math (no SwiftData): computes period start/end dates and enumerates period boundaries between two dates. All methods accept an injected `Calendar` for deterministic, timezone-safe results in tests.
-- **`BudgetCalculator`** — Pure financial math (no SwiftData) built on `PeriodCalculator`: computes remaining for the current period, rolls carry-over across completed periods, and detects scheduled reset boundaries. Returns structured result types (`CarryOverRollResult`, `ResetCheckResult`) so callers have all the data they need to write back to the model.
-- **`BudgetLifecycleService`** — The sole orchestrator that binds `BudgetCalculator` outputs to SwiftData. Takes a `Budget`, `AppSettings`, and `ModelContext`; runs the strict PRD §6.7 sequence (roll → persist → reset if needed → persist); and returns a `BudgetLifecycleResult` with `remaining`, `carryOverAmount`, `periodStart`, and `periodEnd` — everything a screen needs for display. Writes `carryOverAmount`, `carryOverLastProcessedDate`, `carryOverLastResetDate`, and `lastModified` back to the `Budget` in a single `context.save()`, and only when at least one field changed.
+- **`PeriodCalculator`** — Pure date math: computes period start/end dates and enumerates period boundaries. Accepts `RecurringBudgetPeriod` (excludes `.specificDates` at compile time). All methods take an injected `Calendar`. Weekly/biweekly anchoring derives from `Budget.startDate`, not `AppSettings.weekStartDay` (which only seeds the pre-populated value at budget creation time).
+- **`BudgetCalculator.snapshot(budget:expenses:now:calendar:) -> BudgetSnapshot`** — The single pure read entry point. Stateless; never mutates anything. Computes carry-over via `walkCarryOver(...)` (live walker over completed active prior periods), adds the asymmetric `currentPeriodSpillover(...)` for the in-progress period, looks up allocation history via `allocationInEffect(at:history:)`, and classifies the lifecycle state via `isActive(periodStart:periodEnd:lifecycleEvents:)`. Returns a `BudgetSnapshot` containing `lifecycleState`, `effectiveAllocation`, `remaining`, `carryOver` (`nil` for `.specificDates`), `effectivePeriodStart`, `effectivePeriodEnd`.
+- **`BudgetLifecycleService`** — Compatibility adapter between `BudgetCalculator.snapshot` and the existing view-layer `BudgetLifecycleResult` contract. `result(for:)` is a pure read (calls `snapshot`, maps result, takes no `ModelContext`). Three write-path methods mutate state and `context.save()`: `applyAllocationEdit(_:newAmount:context:)` (insert-or-mutate `AllocationChange`), `resetCarryOver(_:context:)` (sets `lastResetDate`), `resetBudget(_:context:)` (deletes all expenses + sets `lastResetDate`). All write-path methods bump `Budget.lastModified = now` before saving.
 
-**Biweekly anchor:** For biweekly periods, the cycle anchor is derived from `createdAt` + `weekStart` at call time — no extra stored field is needed. Changing `weekStartDay` cascades to biweekly alignment (acknowledged by F-5.01).
+**Refresh trigger:** Every user-initiated write (expense add/edit/delete, allocation edit, manual reset) bumps `Budget.lastModified = now` in the same `context.save()`. Views observe `.onChange(of: budget.lastModified)` to refresh the chip, alongside `.task(id:)` and `.onChange(of: scenePhase)`. This single signal replaces the old `expenseItems.count` observer and covers expense Edit (previously unhandled).
 
-**Caller consumption:** Screens call `BudgetLifecycleService.refreshAndSave(_:settings:context:)` eagerly on budget access (screen appearance and `scenePhase == .active`) and bind the returned `BudgetLifecycleResult` to the view. Per §2.1, simple screens invoke this directly from the view body / `.task` using `@Environment(\.modelContext)` and the injected `AppSettings`; screens that have escalated to a ViewModel expose a method taking `(settings: AppSettings, context: ModelContext, ...)` at the call site and forward to the service. Screens (and any VMs) do **not** call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly for the eager access flow — `BudgetLifecycleService` is the single entry point for that sequence.
+**Biweekly anchor:** The cycle anchor for weekly/biweekly periods is `Budget.startDate`. `AppSettings.weekStartDay` seeds the pre-populated value in the Add Budget form; it is not consulted by the algorithm.
+
+**Caller consumption:** Screens call `BudgetLifecycleService.result(for:)` eagerly and bind the returned `BudgetLifecycleResult` to the view. Screens do **not** call `BudgetCalculator.snapshot(...)` directly — `BudgetLifecycleService` is the read-path entry point.
 
 ### 5.5 Color Palette and Theming
 

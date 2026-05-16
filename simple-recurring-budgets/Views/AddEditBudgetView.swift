@@ -250,7 +250,9 @@ struct AddEditBudgetView: View {
       let columns = [GridItem(.flexible()), GridItem(.flexible())]
       VStack(alignment: .leading, spacing: 8) {
         LazyVGrid(columns: columns, spacing: 8) {
-          ForEach(BudgetPeriod.allCases, id: \.self) { p in
+          // Intentionally excludes `.specificDates`: that period type's UI ships in a future change.
+          // See change `rewrite-budget-calculations` design.md, tasks.md §4.9.
+          ForEach(BudgetPeriod.allCases.filter { $0 != .specificDates }, id: \.self) { p in
             periodChip(p)
           }
         }

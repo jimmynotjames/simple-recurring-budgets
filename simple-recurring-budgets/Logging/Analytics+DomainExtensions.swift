@@ -54,6 +54,7 @@ extension BudgetPeriod {
     case .weekly: "weekly"
     case .biweekly: "biweekly"
     case .monthly: "monthly"
+    case .specificDates: "specific_dates"
     }
   }
 }

@@ -3,15 +3,23 @@ import SwiftData
 
 // MARK: - Result Type
 
-/// The display-ready output of a `BudgetLifecycleService.refreshAndSave` call.
+/// The display-ready output of a `BudgetLifecycleService.result(for:)` call.
 ///
-/// All values reflect post-refresh state: carry-over has been rolled and reset if applicable,
-/// `remaining` is independent of carry-over per PRD §6.7.
+/// Shape is preserved for view-site compatibility. `lifecycleState` and
+/// `effectiveAllocation` from the underlying snapshot are not exposed here;
+/// they will be plumbed when the new lifecycle UI features ship.
 struct BudgetLifecycleResult {
-  /// `allocation − sum(expenses in current period)`. May be negative (overspending).
+  /// `effectiveAllocation − net expenses in current period`. May be negative.
   /// Not adjusted by carry-over (PRD §6.7).
   let remaining: Decimal
-  /// The carry-over amount after rolling and any scheduled reset. Matches `Budget.carryOverAmount`.
+  /// Carry-over from completed prior active periods plus the current-period spillover.
+  /// Maps to `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that
+  /// `BudgetCalculator.snapshot` returns for `.specificDates` budgets — see F-2.08, which
+  /// requires the carry-over chip to be **hidden** for that type (the chip-hiding work
+  /// lives in `BudgetDetailView` and `BudgetRowView` and ships with the F-2.08 UI). Until
+  /// then this fallback is unreachable in normal flow; the F-2.08 work should either
+  /// stop calling this entry point for specificDates budgets or replace `BudgetLifecycleResult`
+  /// with a sum type that does not flatten `nil`.
   let carryOverAmount: Decimal
   /// Inclusive start of the current budget period.
   let periodStart: Date
@@ -21,141 +29,120 @@ struct BudgetLifecycleResult {
 
 // MARK: - BudgetLifecycleService
 
-/// Orchestrates the PRD §6.7 / tech-design §5.4 eager sequence on a `Budget`:
-/// roll carry-over → persist → check scheduled reset → persist → compute remaining.
+/// Compatibility adapter between the new `BudgetCalculator.snapshot` algorithm and the
+/// existing view sites that consume `BudgetLifecycleResult`.
 ///
-/// This is the sole write-back path from `BudgetCalculator` results to SwiftData.
-/// ViewModels call `refreshAndSave` eagerly on budget access and consume the returned
-/// `BudgetLifecycleResult` for display; they do not call `BudgetCalculator` directly
-/// for the roll+reset flow.
+/// `result(for:)` is a pure read — it calls `BudgetCalculator.snapshot`, maps the result,
+/// and returns it. No mutations.
+///
+/// Write-path methods (`applyAllocationEdit`, `resetCarryOver`, `resetBudget`) are the
+/// entry points for math-affecting mutations. Each bumps `Budget.lastModified` and calls
+/// `context.save()` exactly once.
 enum BudgetLifecycleService {
-  // MARK: - Entry Point
+  // MARK: - Read path
 
-  /// Runs the full lifecycle sequence for `budget`, persists any changes via `context`, and returns a display-ready result.
-  ///
-  /// - Parameters:
-  ///   - budget: The budget to refresh.
-  ///   - settings: App-wide settings supplying `weekStartDay`.
-  ///   - context: The `ModelContext` used to persist any changes.
-  ///   - now: The current date. Defaults to `Date()`.
-  ///   - calendar: The calendar for all date arithmetic. Defaults to `.autoupdatingCurrent`.
-  /// - Returns: A `BudgetLifecycleResult` with values ready for display.
-  @discardableResult
-  static func refreshAndSave(
-    _ budget: Budget,
-    settings: AppSettings,
-    context: ModelContext,
+  /// Returns display-ready values for `budget`. Pure read — does not mutate the budget
+  /// or touch the model context.
+  static func result(
+    for budget: Budget,
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
   ) -> BudgetLifecycleResult {
-    // Parse stored raw strings — both enums have stable string raw values; failure is
-    // unexpected in practice (would indicate corrupted data).
-    guard
-      let period = BudgetPeriod(rawValue: budget.period),
-      let resetCadence = ResetCadence(rawValue: budget.resetCadence)
-    else {
-      // Fallback: compute display values without mutating the budget.
-      let anchor = biweeklyAnchor(createdAt: budget.createdAt, weekStart: settings.weekStartDay, calendar: calendar)
-      let pStart = PeriodCalculator.periodStart(containing: now, period: .daily, weekStart: settings.weekStartDay, biweeklyAnchor: anchor, calendar: calendar)
-      let pEnd = PeriodCalculator.periodEnd(containing: now, period: .daily, weekStart: settings.weekStartDay, biweeklyAnchor: anchor, calendar: calendar)
-      return BudgetLifecycleResult(
-        remaining: BudgetCalculator.remaining(allocation: budget.allocation, expenses: budget.expenseItems, periodStart: pStart, periodEnd: pEnd),
-        carryOverAmount: budget.carryOverAmount,
-        periodStart: pStart,
-        periodEnd: pEnd
-      )
-    }
-
-    let weekStart = settings.weekStartDay
-    let anchor = biweeklyAnchor(createdAt: budget.createdAt, weekStart: weekStart, calendar: calendar)
-    var didChange = false
-
-    // ── Step 1: Roll carry-over across completed periods ─────────────────────────────────
-    let rollResult = BudgetCalculator.rollCarryOver(
-      currentAmount: budget.carryOverAmount,
-      allocation: budget.allocation,
+    let snapshot = BudgetCalculator.snapshot(
+      budget: budget,
       expenses: budget.expenseItems,
-      lastProcessedDate: budget.carryOverLastProcessedDate,
       now: now,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: anchor,
       calendar: calendar
     )
-
-    if rollResult.amount != budget.carryOverAmount || rollResult.lastProcessedDate != budget.carryOverLastProcessedDate {
-      budget.carryOverAmount = rollResult.amount
-      budget.carryOverLastProcessedDate = rollResult.lastProcessedDate
-      didChange = true
-    }
-
-    // ── Step 2: Check for scheduled reset ────────────────────────────────────────────────
-    // PAUSED (Reset Cadences): for all new Budgets, `resetCadence` is `.never`, so this step
-    // is a no-op in practice. The call is retained for correctness on any pre-existing records
-    // that carried a non-`.never` cadence. Do not surface scheduling UI/specs while paused.
-    let resetResult = BudgetCalculator.checkScheduledReset(
-      lastResetDate: budget.carryOverLastResetDate,
-      resetCadence: resetCadence,
-      now: now,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: anchor,
-      calendar: calendar
-    )
-
-    if resetResult.shouldReset, let newResetDate = resetResult.newResetDate {
-      budget.carryOverAmount = 0
-      budget.carryOverLastResetDate = newResetDate
-      didChange = true
-    }
-
-    // ── Step 3: Persist once if anything changed ─────────────────────────────────────────
-    if didChange {
-      budget.lastModified = now
-      try? context.save()
-    }
-
-    // ── Step 4: Compute display values ───────────────────────────────────────────────────
-    let periodStart = PeriodCalculator.periodStart(
-      containing: now,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: anchor,
-      calendar: calendar
-    )
-    let periodEnd = PeriodCalculator.periodEnd(
-      containing: now,
-      period: period,
-      weekStart: weekStart,
-      biweeklyAnchor: anchor,
-      calendar: calendar
-    )
-    let remaining = BudgetCalculator.remaining(
-      allocation: budget.allocation,
-      expenses: budget.expenseItems,
-      periodStart: periodStart,
-      periodEnd: periodEnd
-    )
-
     return BudgetLifecycleResult(
-      remaining: remaining,
-      carryOverAmount: budget.carryOverAmount,
-      periodStart: periodStart,
-      periodEnd: periodEnd
+      remaining: snapshot.remaining,
+      carryOverAmount: snapshot.carryOver ?? 0,
+      periodStart: snapshot.effectivePeriodStart,
+      periodEnd: snapshot.effectivePeriodEnd
     )
   }
 
-  // MARK: - Private Helpers
+  // MARK: - Write paths
 
-  /// Derives the biweekly period anchor as the most recent occurrence of `weekStart`
-  /// at or before `createdAt`. Reuses `PeriodCalculator.periodStart` with `.weekly`.
-  private static func biweeklyAnchor(createdAt: Date, weekStart: Weekday, calendar: Calendar) -> Date {
-    PeriodCalculator.periodStart(
-      containing: createdAt,
-      period: .weekly,
+  /// Applies an allocation edit: inserts or mutates the `AllocationChange` row for the
+  /// current period, then bumps `Budget.lastModified` and saves.
+  ///
+  /// Uses the insert-or-mutate convention from algorithm doc §A.6.2: if an existing row
+  /// has `effectiveFrom == currentPeriodStart`, mutate it; otherwise insert a new row.
+  static func applyAllocationEdit(
+    _ budget: Budget,
+    newAmount: Decimal,
+    context: ModelContext,
+    now: Date = Date(),
+    calendar: Calendar = .autoupdatingCurrent
+  ) {
+    guard let periodRaw = BudgetPeriod(rawValue: budget.period) else { return }
+    // Specific Dates uses latest-wins allocation semantics (F-2.08), which is a
+    // distinct write path from the recurring-budget insert-or-mutate convention.
+    // The F-2.08 UI is not yet wired; trip in debug if anything routes a
+    // specificDates budget here so the gap is loud, but no-op in release.
+    assert(periodRaw != .specificDates, "applyAllocationEdit: specificDates not supported here yet — see F-2.08")
+    guard let period = RecurringBudgetPeriod(periodRaw) else { return }
+
+    let effectiveStartDate = calendar.startOfDay(for: budget.effectiveStartDate)
+    let weekdayRaw = calendar.component(.weekday, from: effectiveStartDate)
+    let weekStart = Weekday(rawValue: weekdayRaw) ?? .sunday
+
+    let currentPeriodStart = PeriodCalculator.periodStart(
+      containing: now,
+      period: period,
       weekStart: weekStart,
-      biweeklyAnchor: createdAt, // ignored for .weekly
+      biweeklyAnchor: effectiveStartDate,
       calendar: calendar
     )
+
+    if let existing = budget.allocationChanges.first(where: { $0.effectiveFrom == currentPeriodStart }) {
+      existing.amount = newAmount
+      existing.lastModified = now
+    } else {
+      let change = AllocationChange(effectiveFrom: currentPeriodStart, amount: newAmount, lastModified: now)
+      change.budget = budget
+      context.insert(change)
+    }
+
+    budget.lastModified = now
+    try? context.save()
+  }
+
+  /// Resets carry-over to zero from `now` forward by writing `Budget.lastResetDate`.
+  ///
+  /// The walker honors `lastResetDate` by excluding periods whose end is at or before
+  /// this timestamp — no `carryOverAmount` field to zero.
+  static func resetCarryOver(
+    _ budget: Budget,
+    context: ModelContext,
+    now: Date = Date()
+  ) {
+    // Reset Carry-Over is hidden in F-2.08 specificDates UI and the algorithm
+    // ignores `lastResetDate` for that branch. Calling this on a specificDates
+    // budget would write `lastResetDate` with no observable effect — trip in
+    // debug to surface the UI bug, no-op in release.
+    assert(
+      BudgetPeriod(rawValue: budget.period) != .specificDates,
+      "resetCarryOver: not supported for specificDates — see F-2.08"
+    )
+    budget.lastResetDate = now
+    budget.lastModified = now
+    try? context.save()
+  }
+
+  /// Deletes all expenses for `budget`, sets `Budget.lastResetDate = now`, and saves.
+  /// Preserves `AllocationChange` and `LifecycleEvent` rows.
+  static func resetBudget(
+    _ budget: Budget,
+    context: ModelContext,
+    now: Date = Date()
+  ) {
+    for expense in Array(budget.expenseItems) {
+      context.delete(expense)
+    }
+    budget.lastResetDate = now
+    budget.lastModified = now
+    try? context.save()
   }
 }

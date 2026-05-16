@@ -146,7 +146,6 @@ struct BudgetsView: View {
 struct BudgetRowView: View {
   let budget: Budget
 
-  @Environment(\.modelContext) private var context
   @Environment(AppSettings.self) private var settings
   @Environment(Router.self) private var router
   @Environment(\.scenePhase) private var scenePhase
@@ -172,8 +171,9 @@ struct BudgetRowView: View {
   /// 0.0 = nothing left. Clamped to [0, 1]; over-budget collapses to 0 and is
   /// signalled separately via `isOverBudget` on `RemainingBar`.
   private var remainingFraction: Double {
-    guard budget.allocation > 0 else { return 0 }
-    let ratio = remaining / budget.allocation
+    let allocation = budget.currentAllocation
+    guard allocation > 0 else { return 0 }
+    let ratio = remaining / allocation
     return max(0, min(1, (ratio as NSDecimalNumber).doubleValue))
   }
 
@@ -234,7 +234,7 @@ struct BudgetRowView: View {
         // owns its accessibilityElement / accessibilityLabel.
         if budget.isCarryOverEnabled {
           CarryOverChip(
-            amount: lifecycle?.carryOverAmount ?? budget.carryOverAmount,
+            amount: lifecycle?.carryOverAmount ?? 0,
             currencyCode: budget.currencyCode,
             display: settings.currencyDisplay
           )
@@ -276,15 +276,13 @@ struct BudgetRowView: View {
       guard newPhase == .active else { return }
       refreshLifecycle()
     }
-    .onChange(of: budget.expenseItems.count) {
+    .onChange(of: budget.lastModified) {
       refreshLifecycle()
     }
   }
 
   private func refreshLifecycle() {
-    lifecycle = BudgetLifecycleService.refreshAndSave(
-      budget, settings: settings, context: context
-    )
+    lifecycle = BudgetLifecycleService.result(for: budget)
   }
 
   /// Builds the VoiceOver label for the row button, including period and — when the

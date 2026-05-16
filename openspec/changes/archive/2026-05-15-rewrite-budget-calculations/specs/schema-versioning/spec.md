@@ -1,8 +1,4 @@
-# Schema versioning
-
-SwiftData `VersionedSchema` baseline and migration plan. Synced from change `rewrite-budget-calculations` (2026-05-15).
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: VersionedSchema V1 baseline
 
@@ -17,8 +13,6 @@ The system SHALL define a `SchemaV1` conforming to `VersionedSchema` that contai
 
 - **WHEN** `SchemaV1.versionIdentifier` is inspected
 - **THEN** it SHALL return a `Schema.Version` of `(1, 0, 0)`
-
----
 
 ### Requirement: SchemaMigrationPlan baseline
 
@@ -38,3 +32,7 @@ The system SHALL define a `BudgetMigrationPlan` conforming to `SchemaMigrationPl
 
 - **WHEN** the project is inspected after the rewrite ships
 - **THEN** no `SchemaV2` type exists and `BudgetMigrationPlan.schemas` still contains exactly `[SchemaV1.self]`
+
+## Doc alignment
+
+No changes to `docs/main-prd.md`, `docs/product-features-planning.md`, or `docs/tech-design-doc.md` are required by this delta beyond what the `data-models` delta already covers. No conflicts.

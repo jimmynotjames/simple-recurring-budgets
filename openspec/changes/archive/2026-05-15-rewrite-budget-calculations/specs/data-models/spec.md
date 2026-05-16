@@ -1,8 +1,4 @@
-# Data models
-
-SwiftData entities, enums, and related rules for budgets and expense items. Synced from change `rewrite-budget-calculations` (2026-05-15).
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Budget entity
 
@@ -56,52 +52,6 @@ All app code SHALL use the computed accessors. The stored optional properties ex
 
 ---
 
-### Requirement: ExpenseItem entity
-
-The system SHALL define a SwiftData `@Model` class `ExpenseItem` with the following stored properties:
-
-
-| Property       | Type      | Default  | Notes                                                     |
-| -------------- | --------- | -------- | --------------------------------------------------------- |
-| `id`           | `UUID`    | `UUID()` | Stable identity                                           |
-| `amount`       | `Decimal` | `0`      | Signed: positive = expense, negative = add funds (F-6.01) |
-| `name`         | `String?` | `nil`    | Optional description                                      |
-| `date`         | `Date`    | `Date()` | When the expense occurred                                 |
-| `createdAt`    | `Date`    | `Date()` | Immutable after creation                                  |
-| `lastModified` | `Date`    | `Date()` | Updated on user-facing mutation                           |
-| `expenseType`  | `String?` | `nil`    | e.g. "Cash", "Credit Card" (F-6.02)                       |
-| `budget`       | `Budget?` | —        | Inverse of Budget.expenses (the stored optional relationship) |
-
-
-All monetary values SHALL use `Decimal`, never floating-point types.
-
-#### Scenario: Creating an ExpenseItem with defaults
-
-- **WHEN** an ExpenseItem is initialized with only an `amount`
-- **THEN** `id` SHALL be a new UUID, `date` SHALL be the current date, `createdAt` and `lastModified` SHALL be the current date, and `name`, `expenseType` SHALL be `nil`.
-
-#### Scenario: Signed amount for adding funds
-
-- **WHEN** an ExpenseItem is created with a negative `amount`
-- **THEN** it SHALL represent an "add funds" transaction; computed property `isAddFunds` SHALL return `true` and `displayAmount` SHALL return the absolute value.
-
-#### Scenario: Signed amount for expense
-
-- **WHEN** an ExpenseItem is created with a positive `amount`
-- **THEN** it SHALL represent a normal expense; computed property `isAddFunds` SHALL return `false` and `displayAmount` SHALL return the amount as-is.
-
-#### Scenario: Computed helpers on ExpenseItem
-
-- **WHEN** `isAddFunds` and `displayAmount` are accessed on an ExpenseItem
-- **THEN** they SHALL be computed (not stored) properties derived from the sign of `amount`.
-
-#### Scenario: ExpenseItem linked to a Budget
-
-- **WHEN** an ExpenseItem is created and its `budget` property is set to an existing Budget
-- **THEN** the ExpenseItem SHALL appear in that Budget's `expenseItems` collection.
-
----
-
 ### Requirement: BudgetPeriod enum
 
 The system SHALL define a `BudgetPeriod` enum that is `String`-backed, `Codable`, `CaseIterable`, and `Comparable` with the following cases in ascending order: `daily`, `weekly`, `biweekly`, `monthly`, `specificDates`.
@@ -129,49 +79,33 @@ The recurring period-boundary math (in the `budget-math` capability) operates on
 - **WHEN** code attempts to read `BudgetPeriod.daily.defaultResetCadence`
 - **THEN** the call SHALL fail to compile because the property has been removed
 
----
+## REMOVED Requirements
 
-### Requirement: Budget sortOrder assignment
+### Requirement: ResetCadence enum
 
-When a new Budget is created, its `sortOrder` SHALL be assigned the value `max(sortOrder of all existing budgets) + 1`. If no budgets exist, `sortOrder` SHALL be `0`.
+**Reason**: The Reset Cadences feature is permanently removed (briefing §5.4). The enum, the `Budget.resetCadence` stored property, and every reference to "PAUSED — Reset Cadences" are deleted in the same change.
 
-#### Scenario: First budget created
+**Migration**: No replacement. Manual Reset Carry-Over remains as the only carry-over reset affordance and is invoked via `BudgetLifecycleService.resetCarryOver(_:context:now:)` (see `budget-lifecycle` capability).
 
-- **WHEN** a Budget is created and no other Budgets exist in the store
-- **THEN** its `sortOrder` SHALL be `0`.
+### Requirement: Valid reset cadence computation
 
-#### Scenario: Additional budget created
+**Reason**: Depends on the removed `ResetCadence` enum.
 
-- **WHEN** a Budget is created and existing Budgets have `sortOrder` values `[0, 1, 2]`
-- **THEN** the new Budget's `sortOrder` SHALL be `3`.
+**Migration**: No replacement.
 
----
+### Requirement: Default reset cadence mapping
 
-### Requirement: Carry-over toggle on Budget
+**Reason**: Depends on the removed `ResetCadence` enum.
 
-Each Budget SHALL have an `isCarryOverEnabled` property (`Bool`, default `true`) that controls whether carry-over is active for that budget. When `false`, carry-over SHALL NOT be computed or displayed for that budget. The default value for new budgets SHALL be sourced from `AppSettings.defaultCarryOverEnabled` at creation time; callers that create a `Budget` SHALL pass the current value explicitly. The `Budget.init` parameter `isCarryOverEnabled` SHALL default to `true` as a safe fallback when `AppSettings` is not available (e.g., in tests or previews).
+**Migration**: No replacement. `BudgetPeriod.defaultResetCadence` is deleted; the `Budget.resetCadence` init parameter no longer exists.
 
-#### Scenario: New budget inherits global default (enabled)
+### Requirement: Period-boundary-aligned resets
 
-- **WHEN** a Budget is created and `AppSettings.defaultCarryOverEnabled` is `true`
-- **THEN** the Budget's `isCarryOverEnabled` SHALL be `true`.
+**Reason**: Scheduled resets are removed entirely (Reset Cadences deletion). Manual Reset Carry-Over and Reset Budget are user-initiated at arbitrary instants — they SHALL NOT be aligned to period boundaries; the walker honors whatever `lastResetDate` was written (see `budget-math` capability).
 
-#### Scenario: New budget inherits global default (disabled)
+**Migration**: No replacement.
 
-- **WHEN** a Budget is created and `AppSettings.defaultCarryOverEnabled` is `false`
-- **THEN** the caller SHALL pass `isCarryOverEnabled: false` to `Budget.init`, and the Budget's `isCarryOverEnabled` SHALL be `false`.
-
-#### Scenario: Carry-over disabled on existing budget
-
-- **WHEN** a Budget's `isCarryOverEnabled` is set to `false`
-- **THEN** the carry-over amount SHALL NOT be computed or displayed for that budget.
-
-#### Scenario: Budget.init does not depend on AppSettings directly
-
-- **WHEN** `Budget.init` is called in a test without an `AppSettings` instance
-- **THEN** `isCarryOverEnabled` SHALL default to `true` (the init parameter default), and no runtime error SHALL occur.
-
----
+## ADDED Requirements
 
 ### Requirement: AllocationChange entity
 
@@ -204,8 +138,6 @@ All monetary values SHALL use `Decimal`, never floating-point types.
 - **WHEN** a Budget with two AllocationChange rows is deleted
 - **THEN** both AllocationChange rows SHALL also be deleted
 
----
-
 ### Requirement: LifecycleEvent entity
 
 The system SHALL define a SwiftData `@Model` class `LifecycleEvent` with the following stored properties (algorithm doc §A.2.3):
@@ -213,7 +145,7 @@ The system SHALL define a SwiftData `@Model` class `LifecycleEvent` with the fol
 | Property        | Type                  | Default     | Notes                                                       |
 | --------------- | --------------------- | ----------- | ----------------------------------------------------------- |
 | `id`            | `UUID`                | `UUID()`    | Stable identity                                             |
-| `kindRawValue`  | `String`              | `"pause"`   | Stored as `LifecycleEventKind.rawValue`. The typed `kind: LifecycleEventKind` accessor reads/writes this. Storing the raw string keeps the column visible to `#Predicate<LifecycleEvent>` queries (Codable-backed enum storage is opaque to predicates). Same convention as `Budget.period`. |
+| `kind`          | `LifecycleEventKind`  | —           | One of `.pause`, `.resume`. Stored directly as the enum; SwiftData serializes `String, Codable` enums automatically |
 | `effectiveDate` | `Date`                | —           | The instant the event takes effect                          |
 | `lastModified`  | `Date`                | `Date()`    | Tiebreaker for CloudKit cross-device convergence            |
 | `budget`        | `Budget?`             | —           | Inverse of `Budget.lifecycleEventsStorage`                  |
@@ -228,14 +160,12 @@ The system SHALL define a SwiftData `@Model` class `LifecycleEvent` with the fol
 #### Scenario: LifecycleEvent.kind round-trips through SwiftData
 
 - **WHEN** a LifecycleEvent is saved and later fetched from a new ModelContext
-- **THEN** its `kind` SHALL equal the original value (`.pause` or `.resume`); the typed accessor reads `kindRawValue` and rehydrates the enum
+- **THEN** its `kind` SHALL equal the original value (`.pause` or `.resume`) without any manual encoding/decoding code
 
 #### Scenario: Cascade delete from Budget
 
 - **WHEN** a Budget with three LifecycleEvent rows is deleted
 - **THEN** all three LifecycleEvent rows SHALL also be deleted
-
----
 
 ### Requirement: LifecycleEventKind enum
 
@@ -245,8 +175,6 @@ The system SHALL define a `LifecycleEventKind` enum that is `String`-backed, `Co
 
 - **WHEN** a `LifecycleEventKind` is encoded
 - **THEN** the encoded value SHALL be `"pause"` or `"resume"`
-
----
 
 ### Requirement: Initial AllocationChange row on Budget creation
 
@@ -281,8 +209,6 @@ All four computed values are start-of-day-aligned, so the initial row's `effecti
 - **WHEN** the user creates a monthly budget on 2026-04-15 with allocation 500.00
 - **THEN** the Budget's `startDate` is 2026-04-01 and the initial AllocationChange row has `effectiveFrom = 2026-04-01 00:00, amount = 500.00`
 
----
-
 ### Requirement: Budget.lastModified write-site rule
 
 The system SHALL bump `Budget.lastModified = now` in the same `ModelContext.save()` as every user-initiated write that affects budget math. Specifically:
@@ -308,3 +234,7 @@ This provides a single reliable refresh signal that every chip-observing view ca
 
 - **WHEN** an ExpenseItem is deleted and `context.save()` is called
 - **THEN** the owning `Budget.lastModified` equals `now` at the moment of save
+
+## Doc alignment
+
+`docs/tech-design-doc.md` §3 (data model) describes the previous `Budget` shape and the PAUSED Reset Cadences references. This delta defines the new shape; the tasks artifact updates the doc accordingly. No conflicts.

@@ -19,9 +19,13 @@ struct BudgetPeriodTests {
     #expect(BudgetPeriod.biweekly < BudgetPeriod.monthly)
   }
 
+  @Test func ordering_monthly_lessThan_specificDates() {
+    #expect(BudgetPeriod.monthly < BudgetPeriod.specificDates)
+  }
+
   @Test func ordering_full_chain() {
-    let sorted = [BudgetPeriod.monthly, .daily, .biweekly, .weekly].sorted()
-    #expect(sorted == [.daily, .weekly, .biweekly, .monthly])
+    let sorted = [BudgetPeriod.monthly, .daily, .specificDates, .biweekly, .weekly].sorted()
+    #expect(sorted == [.daily, .weekly, .biweekly, .monthly, .specificDates])
   }
 
   // MARK: Raw value encoding
@@ -42,116 +46,48 @@ struct BudgetPeriodTests {
     #expect(BudgetPeriod.monthly.rawValue == "monthly")
   }
 
-  // MARK: defaultResetCadence mapping
-
-  // PAUSED (Reset Cadences) — type-level mapping is retained and tested here, but it is NOT
-  // consumed by `Budget.init` while the feature is paused. These tests verify the design
-  // knowledge survives; they do not imply the mapping is used in production defaults.
-
-  @Test func defaultResetCadence_daily_isWeekly() {
-    #expect(BudgetPeriod.daily.defaultResetCadence == .weekly)
-  }
-
-  @Test func defaultResetCadence_weekly_isMonthly() {
-    #expect(BudgetPeriod.weekly.defaultResetCadence == .monthly)
-  }
-
-  @Test func defaultResetCadence_biweekly_isQuarterly() {
-    #expect(BudgetPeriod.biweekly.defaultResetCadence == .quarterly)
-  }
-
-  @Test func defaultResetCadence_monthly_isQuarterly() {
-    #expect(BudgetPeriod.monthly.defaultResetCadence == .quarterly)
+  @Test func rawValue_specificDates() {
+    #expect(BudgetPeriod.specificDates.rawValue == "specificDates")
   }
 }
 
-// MARK: - ResetCadence
+// MARK: - RecurringBudgetPeriod
 
-struct ResetCadenceTests {
-  // MARK: Raw values
-
-  @Test func rawValue_weekly() {
-    #expect(ResetCadence.weekly.rawValue == "weekly")
+struct RecurringBudgetPeriodTests {
+  @Test func init_daily_succeeds() {
+    #expect(RecurringBudgetPeriod(.daily) != nil)
   }
 
-  @Test func rawValue_biweekly() {
-    #expect(ResetCadence.biweekly.rawValue == "biweekly")
+  @Test func init_weekly_succeeds() {
+    #expect(RecurringBudgetPeriod(.weekly) != nil)
   }
 
-  @Test func rawValue_monthly() {
-    #expect(ResetCadence.monthly.rawValue == "monthly")
+  @Test func init_biweekly_succeeds() {
+    #expect(RecurringBudgetPeriod(.biweekly) != nil)
   }
 
-  @Test func rawValue_quarterly() {
-    #expect(ResetCadence.quarterly.rawValue == "quarterly")
+  @Test func init_monthly_succeeds() {
+    #expect(RecurringBudgetPeriod(.monthly) != nil)
   }
 
-  @Test func rawValue_never() {
-    #expect(ResetCadence.never.rawValue == "never")
+  @Test func init_specificDates_returnsNil() {
+    #expect(RecurringBudgetPeriod(.specificDates) == nil)
+  }
+}
+
+// MARK: - LifecycleEventKind
+
+struct LifecycleEventKindTests {
+  @Test func rawValue_pause() {
+    #expect(LifecycleEventKind.pause.rawValue == "pause")
   }
 
-  // MARK: isBroaderThan
-
-  @Test func never_isBroaderThan_daily() {
-    #expect(ResetCadence.never.isBroaderThan(.daily))
+  @Test func rawValue_resume() {
+    #expect(LifecycleEventKind.resume.rawValue == "resume")
   }
 
-  @Test func never_isBroaderThan_monthly() {
-    #expect(ResetCadence.never.isBroaderThan(.monthly))
-  }
-
-  @Test func quarterly_isBroaderThan_monthly() {
-    #expect(ResetCadence.quarterly.isBroaderThan(.monthly))
-  }
-
-  @Test func quarterly_isBroaderThan_daily() {
-    #expect(ResetCadence.quarterly.isBroaderThan(.daily))
-  }
-
-  @Test func monthly_isBroaderThan_weekly() {
-    #expect(ResetCadence.monthly.isBroaderThan(.weekly))
-  }
-
-  @Test func monthly_notBroaderThan_monthly() {
-    #expect(!ResetCadence.monthly.isBroaderThan(.monthly))
-  }
-
-  @Test func biweekly_isBroaderThan_weekly() {
-    #expect(ResetCadence.biweekly.isBroaderThan(.weekly))
-  }
-
-  @Test func biweekly_notBroaderThan_biweekly() {
-    #expect(!ResetCadence.biweekly.isBroaderThan(.biweekly))
-  }
-
-  @Test func weekly_isBroaderThan_daily() {
-    #expect(ResetCadence.weekly.isBroaderThan(.daily))
-  }
-
-  @Test func weekly_notBroaderThan_weekly() {
-    #expect(!ResetCadence.weekly.isBroaderThan(.weekly))
-  }
-
-  // MARK: validResetCadences(for:)
-
-  @Test func validCadences_daily() {
-    let valid = ResetCadence.validResetCadences(for: .daily)
-    #expect(valid == [.weekly, .biweekly, .monthly, .quarterly, .never])
-  }
-
-  @Test func validCadences_weekly() {
-    let valid = ResetCadence.validResetCadences(for: .weekly)
-    #expect(valid == [.biweekly, .monthly, .quarterly, .never])
-  }
-
-  @Test func validCadences_biweekly() {
-    let valid = ResetCadence.validResetCadences(for: .biweekly)
-    #expect(valid == [.monthly, .quarterly, .never])
-  }
-
-  @Test func validCadences_monthly() {
-    let valid = ResetCadence.validResetCadences(for: .monthly)
-    #expect(valid == [.quarterly, .never])
+  @Test func allCases_hasTwo() {
+    #expect(LifecycleEventKind.allCases.count == 2)
   }
 }
 

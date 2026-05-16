@@ -131,7 +131,7 @@ Each `Budget` row SHALL display:
 - The current-period **remaining** amount formatted with the budget's `currencyCode` and rendered with the system large-title font using `monospacedDigit()` so amounts align across rows.
 - A **period label** ("Daily", "Weekly", "Biweekly", or "Monthly") rendered in the system callout font, sourced from `BudgetPeriod.listLabel`.
 
-The `remaining` value SHALL be the result of `BudgetLifecycleService.refreshAndSave(_:settings:context:)` for that budget — i.e. the current period's allocation minus expenses for that period only, **not** offset by carry-over (per `docs/main-prd.md` §6.7).
+The `remaining` value SHALL be the result of `BudgetLifecycleService.result(for:)` for that budget — i.e. the current period's allocation minus expenses for that period only, **not** offset by carry-over (per `docs/main-prd.md` §6.7).
 
 When `remaining` is negative, the amount text SHALL be rendered in `Color.moneyDeficit`. When `remaining` is zero or positive, it SHALL be rendered in the primary text color.
 
@@ -315,7 +315,7 @@ The row SHALL render the amount and period label horizontally (sharing a baselin
 
 ### Requirement: Row eagerly refreshes carry-over and remaining via the lifecycle service
 
-Each row SHALL invoke `BudgetLifecycleService.refreshAndSave(_:settings:context:)` for its budget:
+Each row SHALL invoke `BudgetLifecycleService.result(for:)` for its budget:
 
 - On task initialization keyed by the budget's `persistentModelID` (so the call is re-issued when the row's identity changes, e.g. row recycling).
 - On `scenePhase` becoming `.active` while the row is on screen (so any period or reset boundaries crossed while the app was inactive are applied before the next render).
@@ -325,12 +325,12 @@ The row SHALL bind the returned `BudgetLifecycleResult.remaining` and `BudgetLif
 #### Scenario: Refresh on row appearance
 
 - **WHEN** the Budgets screen renders a row for a budget
-- **THEN** `BudgetLifecycleService.refreshAndSave` is called for that budget within the row's `.task(id: budget.persistentModelID)`, and the returned `remaining` and `carryOverAmount` are bound to the row's display
+- **THEN** `BudgetLifecycleService.result(for:)` is called for that budget within the row's `.task(id: budget.persistentModelID)`, and the returned `remaining` and `carryOverAmount` are bound to the row's display
 
 #### Scenario: Refresh on scene activation
 
 - **WHEN** the app transitions from `.inactive` or `.background` to `.active` while the Budgets screen is visible
-- **THEN** each visible row re-invokes `BudgetLifecycleService.refreshAndSave` and re-binds the returned values
+- **THEN** each visible row re-invokes `BudgetLifecycleService.result(for:)` and re-binds the returned values
 
 ### Requirement: All user-visible strings are registered for localization
 

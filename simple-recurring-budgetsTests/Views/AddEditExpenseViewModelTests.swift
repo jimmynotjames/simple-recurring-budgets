@@ -11,7 +11,7 @@ struct AddEditExpenseViewModelTests {
   @Test func addMode_defaults() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Groceries", allocation: 200, currencyCode: "USD", period: .weekly)
+    let budget = Budget(name: "Groceries", currencyCode: "USD", period: .weekly)
     context.insert(budget)
     try context.save()
 
@@ -33,7 +33,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 300, currencyCode: "USD", period: .monthly)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .monthly)
     context.insert(budget)
     let fixedDate = Date(timeIntervalSinceReferenceDate: 800_000_000)
     let expense = ExpenseItem(amount: 4.50, name: "Morning coffee", date: fixedDate)
@@ -57,7 +57,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 300, currencyCode: "USD", period: .monthly)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .monthly)
     context.insert(budget)
     let fixedDate = Date(timeIntervalSinceReferenceDate: 800_000_000)
     let expense = ExpenseItem(amount: -10, name: "Reimbursement", date: fixedDate)
@@ -135,7 +135,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Groceries", allocation: 200, currencyCode: "USD", period: .weekly)
+    let budget = Budget(name: "Groceries", currencyCode: "USD", period: .weekly)
     context.insert(budget)
     try context.save()
 
@@ -161,7 +161,7 @@ struct AddEditExpenseViewModelTests {
   @Test func addMode_save_trimsWhitespaceFromDescription() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget)
@@ -176,7 +176,7 @@ struct AddEditExpenseViewModelTests {
   @Test func addMode_save_whitespaceOnlyDescriptionPersistsAsNil() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget)
@@ -191,7 +191,7 @@ struct AddEditExpenseViewModelTests {
   @Test func addMode_save_emptyDescriptionPersistsAsNil() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget)
@@ -208,7 +208,7 @@ struct AddEditExpenseViewModelTests {
   @Test func addMode_save_doesNotInsertWhenCanSaveFalse() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget)
@@ -225,7 +225,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let originalLastModified = Date(timeIntervalSinceNow: -3600)
     let expense = ExpenseItem(amount: 5, name: "Coffee", date: Date(timeIntervalSinceReferenceDate: 800_000_000))
@@ -246,7 +246,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let fixedDate = Date(timeIntervalSinceReferenceDate: 800_000_000)
     let expense = ExpenseItem(amount: 5, name: "Coffee", date: fixedDate)
@@ -272,7 +272,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense = ExpenseItem(amount: -10, name: "Reimbursement", date: Date())
     expense.budget = budget
@@ -294,7 +294,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense = ExpenseItem(amount: -10, name: "Reimbursement", date: Date())
     expense.budget = budget
@@ -319,7 +319,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense = ExpenseItem(amount: 5, name: "Old", date: Date(timeIntervalSinceReferenceDate: 800_000_000))
     expense.budget = budget
@@ -346,7 +346,7 @@ struct AddEditExpenseViewModelTests {
   @Test func editMode_save_trimsDescription() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense = ExpenseItem(amount: 5, name: "Old", date: Date())
     expense.budget = budget
@@ -362,7 +362,7 @@ struct AddEditExpenseViewModelTests {
   @Test func editMode_save_nullifiesWhitespaceOnlyDescription() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense = ExpenseItem(amount: 5, name: "Old", date: Date())
     expense.budget = budget
@@ -381,7 +381,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let fixedDate = Date(timeIntervalSinceReferenceDate: 800_000_000)
     let expense = ExpenseItem(amount: 5, name: "Coffee", date: fixedDate)
@@ -405,7 +405,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let fixedDate = Date(timeIntervalSinceReferenceDate: 800_000_000)
     let expense = ExpenseItem(amount: 5, name: "Coffee", date: fixedDate)
@@ -433,7 +433,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense1 = ExpenseItem(amount: 5, name: "Coffee", date: Date())
     expense1.budget = budget
@@ -460,7 +460,7 @@ struct AddEditExpenseViewModelTests {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
 
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let existing = ExpenseItem(amount: 5, name: "Coffee", date: Date())
     existing.budget = budget
@@ -523,7 +523,7 @@ struct AddEditExpenseViewModelTests {
   @Test func saveMethod_doesNotRequireAppSettings() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Check", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Check", currencyCode: "USD", period: .daily)
     context.insert(budget)
     try context.save()
 
@@ -540,7 +540,7 @@ struct AddEditExpenseViewModelTests {
   @Test func deleteMethod_doesNotRequireAppSettings() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Check", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Check", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense = ExpenseItem(amount: 5, name: "Test", date: Date())
     expense.budget = budget
@@ -559,7 +559,7 @@ struct AddEditExpenseViewModelTests {
   @Test func addMode_isEditingIsFalse() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     try context.save()
 
@@ -571,7 +571,7 @@ struct AddEditExpenseViewModelTests {
   @Test func editMode_isEditingIsTrue() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
-    let budget = Budget(name: "Food", allocation: 100, currencyCode: "USD", period: .daily)
+    let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget)
     let expense = ExpenseItem(amount: 7, name: "Lunch")
     expense.budget = budget

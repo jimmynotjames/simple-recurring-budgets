@@ -29,12 +29,16 @@ extension BudgetPeriod {
         defaultValue: "Monthly",
         comment: "Budget period label for monthly budgets in the list"
       )
+    case .specificDates:
+      String(
+        localized: "period.specificDates",
+        defaultValue: "Specific Dates",
+        comment: "Budget period label for specific-dates budgets in the list"
+      )
     }
   }
 
   /// Inline/sentence form of the period name for use inside localized sentences.
-  /// Uses dedicated per-locale keys rather than `.lowercased()` so translators control
-  /// casing for their language (German capitalises nouns; Turkish has dotless-i rules).
   var inlineLabel: String {
     switch self {
     case .daily:
@@ -60,6 +64,12 @@ extension BudgetPeriod {
         localized: "period.monthly.inline",
         defaultValue: "monthly",
         comment: "Period name used inline in an accessibility sentence, e.g. 'remaining this monthly period'"
+      )
+    case .specificDates:
+      String(
+        localized: "period.specificDates.inline",
+        defaultValue: "specific dates",
+        comment: "Period name used inline in an accessibility sentence for a specific-dates budget"
       )
     }
   }

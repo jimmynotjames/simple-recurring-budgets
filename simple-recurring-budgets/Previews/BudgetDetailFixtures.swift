@@ -2,26 +2,13 @@
   import Foundation
   import SwiftData
 
-  /// Fixtures specific to `BudgetDetailView` previews and ad-hoc debugging.
-  ///
-  /// Each factory exercises a distinct edge case of the detail screen
-  /// (current-period only, mixed current/past, past-only, empty,
-  /// carry-over disabled, over-budget). Like the rest of `DebugData`, every
-  /// factory mints fresh `Budget` / `ExpenseItem` instances on each call so
-  /// they can be safely inserted into a new `ModelContext`, and accepts a
-  /// `now: Date` anchor for deterministic snapshots.
   extension DebugData {
     // MARK: - Detail-screen budget factories
 
-    /// Daily budget with 3 expenses all logged within the current day —
-    /// exercises the "Current Period" section in isolation.
     static func detailDailyCurrentOnly(now: Date = Date()) -> Budget {
-      let budget = Budget(
-        name: "Food & Coffee",
-        allocation: 25,
-        currencyCode: "USD",
-        period: .daily
-      )
+      let budget = Budget(name: "Food & Coffee", currencyCode: "USD", period: .daily)
+      let startDate = Calendar.current.startOfDay(for: now)
+      budget.startDate = startDate
       let hoursAgo: (Double) -> Date = { now.addingTimeInterval(-$0 * 3600) }
       let expenses = [
         ExpenseItem(amount: 4.50, name: "Morning coffee", date: hoursAgo(2)),
@@ -29,23 +16,17 @@
         ExpenseItem(amount: 2.50, name: "Afternoon snack", date: hoursAgo(1)),
       ]
       attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 25, startDate: startDate, to: budget)
       return budget
     }
 
-    /// Monthly budget with both current-month and past-month expenses
-    /// (spanning two prior months) — exercises both list sections plus a
-    /// nil-name row and a multi-line wrapping row.
     static func detailMonthlyCurrentAndPast(now: Date = Date()) -> Budget {
-      let budget = Budget(
-        name: "Monthly Discretionary",
-        allocation: 800,
-        currencyCode: "USD",
-        period: .monthly
-      )
+      let budget = Budget(name: "Monthly Discretionary", currencyCode: "USD", period: .monthly)
       let cal = Calendar.current
       let monthStart = cal.date(from: cal.dateComponents([.year, .month], from: now)) ?? now
       let lastMonthStart = cal.date(byAdding: .month, value: -1, to: monthStart) ?? monthStart
       let twoMonthsAgo = cal.date(byAdding: .month, value: -2, to: monthStart) ?? monthStart
+      budget.startDate = twoMonthsAgo // show multiple past months
 
       // swiftlint:disable large_tuple
       let currentExpenses: [(Decimal, String?, TimeInterval)] = [
@@ -65,6 +46,7 @@
         (34.20, "Gas station", twoMonthsAgo.addingTimeInterval(86400 * 14)),
         (72.00, "Electronics", twoMonthsAgo.addingTimeInterval(86400 * 7)),
       ]
+      // swiftlint:enable large_tuple
 
       var expenses: [ExpenseItem] = []
       for (amount, name, offset) in currentExpenses {
@@ -73,21 +55,16 @@
       for (amount, name, date) in pastExpenses {
         expenses.append(ExpenseItem(amount: amount, name: name, date: date))
       }
-      // swiftlint:enable large_tuple
       attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 800, startDate: twoMonthsAgo, to: budget)
       return budget
     }
 
-    /// Weekly budget whose only expenses fall before the current period —
-    /// exercises the "Past" section when "Current" is empty.
     static func detailWeeklyPastOnly(now: Date = Date()) -> Budget {
-      let budget = Budget(
-        name: "Fun Money",
-        allocation: 60,
-        currencyCode: "USD",
-        period: .weekly
-      )
+      let budget = Budget(name: "Fun Money", currencyCode: "USD", period: .weekly)
       let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: -21, to: cal.startOfDay(for: now))!
+      budget.startDate = startDate
       let daysAgo: (Int) -> Date = { cal.date(byAdding: .day, value: -$0, to: now) ?? now }
       let expenses = [
         ExpenseItem(amount: 12.00, name: "Coffee & snacks", date: daysAgo(10)),
@@ -96,81 +73,81 @@
         ExpenseItem(amount: 22.00, name: "Dinner out", date: daysAgo(18)),
       ]
       attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 60, startDate: startDate, to: budget)
       return budget
     }
 
-    /// Weekly budget with no expenses — exercises the empty-state row.
     static func detailWeeklyEmpty(now _: Date = Date()) -> Budget {
-      Budget(
-        name: "Beauty & Fashion",
-        allocation: 100,
-        currencyCode: "USD",
-        period: .weekly
-      )
+      let budget = Budget(name: "Beauty & Fashion", currencyCode: "USD", period: .weekly)
+      let startDate = Calendar.current.startOfDay(for: Date())
+      budget.startDate = startDate
+      addDetailChange(amount: 100, startDate: startDate, to: budget)
+      return budget
     }
 
-    /// Monthly budget with `isCarryOverEnabled = false` — exercises the
-    /// header layout when the carry-over chip is hidden.
     static func detailMonthlyCarryOverDisabled(now: Date = Date()) -> Budget {
       let budget = Budget(
         name: "Household Supplies",
-        allocation: 200,
         currencyCode: "USD",
         period: .monthly,
         isCarryOverEnabled: false
       )
       let cal = Calendar.current
       let monthStart = cal.date(from: cal.dateComponents([.year, .month], from: now)) ?? now
+      budget.startDate = monthStart
       let expenses = [
         ExpenseItem(amount: 28.40, name: "Cleaning products", date: monthStart.addingTimeInterval(86400 * 2)),
         ExpenseItem(amount: 18.50, name: "Paper goods", date: monthStart.addingTimeInterval(86400 * 8)),
       ]
       attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 200, startDate: monthStart, to: budget)
       return budget
     }
 
-    /// Weekly budget with current-period spending exceeding the allocation —
-    /// exercises the over-budget header colour and accessibility wording.
     static func detailWeeklyOverBudget(now: Date = Date()) -> Budget {
-      let budget = Budget(
-        name: "Fun Money",
-        allocation: 60,
-        currencyCode: "USD",
-        period: .weekly
-      )
+      let budget = Budget(name: "Fun Money", currencyCode: "USD", period: .weekly)
       let cal = Calendar.current
+      let dayStart = cal.startOfDay(for: now)
+      let weekday = cal.component(.weekday, from: dayStart)
+      let daysBack = (weekday - 1 + 7) % 7
+      let startDate = cal.date(byAdding: .day, value: -daysBack, to: dayStart)!
+      budget.startDate = startDate
       let daysAgo: (Int) -> Date = { cal.date(byAdding: .day, value: -$0, to: now) ?? now }
       let expenses = [
         ExpenseItem(amount: 48.00, name: "Concert tickets", date: daysAgo(1)),
         ExpenseItem(amount: 20.40, name: "Merch", date: daysAgo(1)),
       ]
       attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 60, startDate: startDate, to: budget)
       return budget
     }
 
     // MARK: - Insert helper
 
-    /// Inserts a detail-screen fixture budget and all its expenses into
-    /// `context` and saves. Mirrors the per-budget loop inside
-    /// `DebugData.seed(into:now:)` for single-budget previews.
     static func insertDetail(_ budget: Budget, into context: ModelContext) {
       context.insert(budget)
       for expense in budget.expenseItems {
         context.insert(expense)
+      }
+      for change in budget.allocationChanges {
+        context.insert(change)
       }
       try? context.save()
     }
 
     // MARK: - Private helpers
 
-    /// Wires `expenses` to `budget` on both sides of the relationship.
-    /// Duplicates `DebugData.attach(_:to:)` because that helper is
-    /// file-private to `DebugData.swift`.
     private static func attachToDetail(_ expenses: [ExpenseItem], to budget: Budget) {
       for expense in expenses {
         expense.budget = budget
       }
       budget.expenseItems = expenses
+    }
+
+    private static func addDetailChange(amount: Decimal, startDate: Date, to budget: Budget) {
+      let change = AllocationChange(effectiveFrom: startDate, amount: amount)
+      change.budget = budget
+      budget.allocationChangesStorage = [change]
     }
   }
 #endif

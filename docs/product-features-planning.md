@@ -441,7 +441,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-7.06: Pause and Resume a Budget
 
-- **Status:** Open. Scoped to be delivered by the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) §2.7, §5.5). Mark Implemented when the rewrite ships.
+- **Status:** Implemented. Implemented by change `pause-resume-budget`.
 - **Description:** Per-budget on/off capability. A user can **Pause** a budget and later **Resume** it, any number of times. While paused, no allocation accrues to new periods; the chip is frozen at the most-recent-pause value (modulo backdated edits to prior active periods); the Budget detail screen's primary Add Expense CTA is **replaced by a prominent Resume Budget button** (with a short caption directly below it), and Resume is also available from the toolbar overflow menu. A paused budget remains visible and clearly marked as paused. Pause and Resume operate at **period granularity**: the within-period timing of the action does not affect the math (the period containing the pause-action is calculated normally; the period containing the resume-action is fully active with no proration). Pause / Resume is distinct from `endDate`, which is **terminal** (no resume) — see F-7.07 — and from `specificDates`, which is a single fixed window with no recurrence — see F-2.08.
 - **Acceptance Criteria:**
   - **Toolbar action** — the Budget detail screen toolbar overflow menu hosts a **Pause Budget** / **Resume Budget** action that toggles based on current state (see F-2.02). Hidden for Specific Dates budgets (F-2.08) and rejected for budgets past `endDate` (F-7.07).

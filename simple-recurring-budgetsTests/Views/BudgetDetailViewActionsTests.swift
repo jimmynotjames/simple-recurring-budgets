@@ -215,3 +215,100 @@ struct ExpenseRowPushNavigationTests {
     #expect(routeA.hashValue == routeB.hashValue)
   }
 }
+
+// MARK: - Pause / Resume toolbar item visibility (F-7.06)
+
+private func utcDate(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0) -> Date {
+  var comps = DateComponents()
+  comps.year = year; comps.month = month; comps.day = day; comps.hour = hour
+  comps.timeZone = TimeZone(identifier: "UTC")
+  return Calendar(identifier: .gregorian).date(from: comps)!
+}
+
+struct PauseResumeToolbarVisibilityTests {
+  // Tests verify the showPauseResumeItem / isPaused computed properties driving the toolbar item,
+  // exercised via BudgetLifecycleService.pauseBudget / resumeBudget eligibility, which is the
+  // canonical source of truth for the view's isPostEnd / isSpecificDates gates.
+
+  @Test func pauseBudget_rejected_forSpecificDates_confirmsToolbarItemHidden() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let b = Budget(period: .specificDates)
+    b.startDate = utcDate(2026, 4, 1)
+    b.endDate = utcDate(2026, 4, 30)
+    let change = AllocationChange(effectiveFrom: utcDate(2026, 4, 1), amount: 100)
+    change.budget = b; ctx.insert(b); ctx.insert(change)
+    try ctx.save()
+
+    // Service rejects, confirming the toolbar item must be hidden for this budget type.
+    let result = BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    #expect(result == false)
+    #expect(b.lifecycleEvents.isEmpty)
+  }
+
+  @Test func pauseBudget_rejected_whenPastEndDate_confirmsToolbarItemHidden() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let b = Budget(period: .daily)
+    b.startDate = utcDate(2026, 4, 1)
+    b.endDate = utcDate(2026, 4, 10)
+    let change = AllocationChange(effectiveFrom: utcDate(2026, 4, 1), amount: 20)
+    change.budget = b; ctx.insert(b); ctx.insert(change)
+    try ctx.save()
+
+    // now > endDate → service rejects, confirming toolbar item must be hidden.
+    let result = BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    #expect(result == false)
+    #expect(b.lifecycleEvents.isEmpty)
+  }
+
+  @Test func resumeBudget_rejected_whenPastEndDate_confirmsToolbarItemHidden() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let b = Budget(period: .daily)
+    b.startDate = utcDate(2026, 4, 1)
+    b.endDate = utcDate(2026, 4, 10)
+    let change = AllocationChange(effectiveFrom: utcDate(2026, 4, 1), amount: 20)
+    let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: utcDate(2026, 4, 8))
+    change.budget = b; pauseEvent.budget = b
+    ctx.insert(b); ctx.insert(change); ctx.insert(pauseEvent)
+    try ctx.save()
+
+    // now > endDate → resume also rejected.
+    let result = BudgetLifecycleService.resumeBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    #expect(result == false)
+    #expect(b.lifecycleEvents.count == 1) // no resume event added
+  }
+
+  @Test func pauseBudget_accepted_forActiveDaily_confirmsToolbarItemVisible() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let b = Budget(period: .daily)
+    b.startDate = utcDate(2026, 4, 1)
+    let change = AllocationChange(effectiveFrom: utcDate(2026, 4, 1), amount: 20)
+    change.budget = b; ctx.insert(b); ctx.insert(change)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    #expect(result == true)
+    #expect(b.lifecycleEvents.count == 1)
+    #expect(b.lifecycleEvents[0].kind == .pause)
+  }
+
+  @Test func resumeBudget_accepted_whenPaused_confirmsToolbarItemShowsResume() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let b = Budget(period: .daily)
+    b.startDate = utcDate(2026, 4, 1)
+    let change = AllocationChange(effectiveFrom: utcDate(2026, 4, 1), amount: 20)
+    let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: utcDate(2026, 4, 10))
+    change.budget = b; pauseEvent.budget = b
+    ctx.insert(b); ctx.insert(change); ctx.insert(pauseEvent)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.resumeBudget(b, context: ctx, now: utcDate(2026, 4, 20))
+    #expect(result == true)
+    let resumeEvent = b.lifecycleEvents.first { $0.kind == .resume }
+    #expect(resumeEvent != nil)
+  }
+}

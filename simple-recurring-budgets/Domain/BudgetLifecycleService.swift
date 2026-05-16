@@ -5,10 +5,9 @@ import SwiftData
 
 /// The display-ready output of a `BudgetLifecycleService.result(for:)` call.
 ///
-/// Shape is preserved for view-site compatibility. `lifecycleState` and
-/// `effectiveAllocation` from the underlying snapshot are not exposed here;
-/// they will be plumbed when the new lifecycle UI features ship.
-struct BudgetLifecycleResult {
+/// `effectiveAllocation` from `BudgetSnapshot` is intentionally not exposed here — it
+/// will be plumbed when the start-date / end-date input UI ships (F-7.05 / F-7.07).
+struct BudgetLifecycleResult: Equatable {
   /// `effectiveAllocation − net expenses in current period`. May be negative.
   /// Not adjusted by carry-over (PRD §6.7).
   let remaining: Decimal
@@ -25,6 +24,11 @@ struct BudgetLifecycleResult {
   let periodStart: Date
   /// Exclusive end of the current budget period (start of the next period).
   let periodEnd: Date
+  /// The lifecycle classification at the snapshot instant (F-7.06).
+  let lifecycleState: BudgetLifecycleState
+  /// When `lifecycleState == .paused`, the `effectiveDate` of the most recent unbalanced
+  /// `.pause` `LifecycleEvent`. `nil` when the budget is not currently paused.
+  let pausedSince: Date?
 }
 
 // MARK: - BudgetLifecycleService
@@ -54,12 +58,33 @@ enum BudgetLifecycleService {
       now: now,
       calendar: calendar
     )
+    let pausedSince: Date? = snapshot.lifecycleState == .paused
+      ? Self.pausedSinceDate(from: budget.lifecycleEvents)
+      : nil
     return BudgetLifecycleResult(
       remaining: snapshot.remaining,
       carryOverAmount: snapshot.carryOver ?? 0,
       periodStart: snapshot.effectivePeriodStart,
-      periodEnd: snapshot.effectivePeriodEnd
+      periodEnd: snapshot.effectivePeriodEnd,
+      lifecycleState: snapshot.lifecycleState,
+      pausedSince: pausedSince
     )
+  }
+
+  /// Returns the `effectiveDate` of the most recent `.pause` event that is not followed by
+  /// a later `.resume` event. Returns `nil` when no such event exists.
+  private static func pausedSinceDate(from events: [LifecycleEvent]) -> Date? {
+    let sorted = events.sorted {
+      ($0.effectiveDate, $0.lastModified) < ($1.effectiveDate, $1.lastModified)
+    }
+    var latestPauseDate: Date?
+    for event in sorted {
+      switch event.kind {
+      case .pause: latestPauseDate = event.effectiveDate
+      case .resume: latestPauseDate = nil
+      }
+    }
+    return latestPauseDate
   }
 
   // MARK: - Write paths
@@ -144,5 +169,80 @@ enum BudgetLifecycleService {
     budget.lastResetDate = now
     budget.lastModified = now
     try? context.save()
+  }
+
+  // MARK: - Pause / Resume (F-7.06)
+
+  /// Pauses `budget` by inserting a `.pause` `LifecycleEvent`.
+  ///
+  /// Returns `false` without any mutation when:
+  /// - the budget's `period` is `.specificDates` (Specific Dates budgets are not pausable).
+  /// - the current `lifecycleState` is already `.paused` (no redundant write).
+  /// - the current `lifecycleState` is `.postEnd` (terminal — cannot pause or resume).
+  ///
+  /// The effective date is `now` clamped into `[startDate, endDate]` so that pausing
+  /// before `startDate` records the event at `startDate` per reqs §5.5.
+  @discardableResult
+  static func pauseBudget(
+    _ budget: Budget,
+    context: ModelContext,
+    now: Date = Date(),
+    calendar: Calendar = .autoupdatingCurrent
+  ) -> Bool {
+    guard BudgetPeriod(rawValue: budget.period) != .specificDates else { return false }
+    let snapshot = BudgetCalculator.snapshot(
+      budget: budget,
+      expenses: budget.expenseItems,
+      now: now,
+      calendar: calendar
+    )
+    guard snapshot.lifecycleState != .paused, snapshot.lifecycleState != .postEnd else { return false }
+
+    let effectiveDate = clamp(now, lower: budget.startDate, upper: budget.endDate)
+    let event = LifecycleEvent(kind: .pause, effectiveDate: effectiveDate)
+    event.budget = budget
+    context.insert(event)
+    budget.lastModified = now
+    try? context.save()
+    return true
+  }
+
+  /// Resumes `budget` by inserting a `.resume` `LifecycleEvent`.
+  ///
+  /// Returns `false` without any mutation when:
+  /// - the budget's `period` is `.specificDates`.
+  /// - the current `lifecycleState` is `.active` or `.preStart` (no redundant write).
+  /// - the current `lifecycleState` is `.postEnd` (`endDate` is terminal — cannot resume).
+  @discardableResult
+  static func resumeBudget(
+    _ budget: Budget,
+    context: ModelContext,
+    now: Date = Date(),
+    calendar: Calendar = .autoupdatingCurrent
+  ) -> Bool {
+    guard BudgetPeriod(rawValue: budget.period) != .specificDates else { return false }
+    let snapshot = BudgetCalculator.snapshot(
+      budget: budget,
+      expenses: budget.expenseItems,
+      now: now,
+      calendar: calendar
+    )
+    guard snapshot.lifecycleState == .paused else { return false }
+
+    let event = LifecycleEvent(kind: .resume, effectiveDate: now)
+    event.budget = budget
+    context.insert(event)
+    budget.lastModified = now
+    try? context.save()
+    return true
+  }
+
+  // MARK: - Private helpers
+
+  private static func clamp(_ date: Date, lower: Date?, upper: Date?) -> Date {
+    var result = date
+    if let lo = lower, result < lo { result = lo }
+    if let hi = upper, result > hi { result = hi }
+    return result
   }
 }

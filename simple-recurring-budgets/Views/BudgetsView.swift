@@ -152,6 +152,10 @@ struct BudgetRowView: View {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @State private var lifecycle: BudgetLifecycleResult?
 
+  private var isPaused: Bool {
+    lifecycle?.lifecycleState == .paused
+  }
+
   // Scale spacing and padding with the user's preferred text size,
   // except for add-expense button, which is fixed.
   @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 7
@@ -206,17 +210,28 @@ struct BudgetRowView: View {
               Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
                 .font(.largeTitle)
                 .monospacedDigit()
-                .foregroundStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit)
+                .foregroundStyle(dimmedStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit, when: isPaused))
                 .lineLimit(1)
 
-              Text(period.listLabel)
-                .font(.callout)
-                .foregroundStyle(.secondary)
+              VStack(alignment: .leading, spacing: 2) {
+                Text(period.listLabel)
+                  .font(.callout)
+                  .foregroundStyle(.secondary)
+                if isPaused, let pausedSince = lifecycle?.pausedSince {
+                  Text(String(
+                    localized: "chip.paused.caption.format",
+                    defaultValue: "Paused since \(pausedSince.formatted(date: .abbreviated, time: .omitted))",
+                    comment: "Caption shown when a budget is paused; argument is the abbreviated date the budget was paused"
+                  ))
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
+                }
+              }
             }
 
             // Line 3: Indicator bar (hidden from assistive technologies;
             // over-budget state is surfaced in the accessibility label instead).
-            RemainingBar(remainingFraction: remainingFraction, isOverBudget: remaining < 0)
+            RemainingBar(remainingFraction: remainingFraction, isOverBudget: remaining < 0, dimmed: isPaused)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
           .contentShape(Rectangle())
@@ -236,7 +251,8 @@ struct BudgetRowView: View {
           CarryOverChip(
             amount: lifecycle?.carryOverAmount ?? 0,
             currencyCode: budget.currencyCode,
-            display: settings.currencyDisplay
+            display: settings.currencyDisplay,
+            dimmed: isPaused
           )
           .padding(.top, chipTopSpacing)
         }
@@ -285,10 +301,18 @@ struct BudgetRowView: View {
     lifecycle = BudgetLifecycleService.result(for: budget)
   }
 
-  /// Builds the VoiceOver label for the row button, including period and — when the
-  /// budget is exceeded — an explicit "over budget" signal instead of a negative amount.
+  /// Builds the VoiceOver label for the row button.
   /// Intentionally set as computed var to handle hot-swapping localizations.
   private var rowAccessibilityLabel: String {
+    if isPaused, let pausedSince = lifecycle?.pausedSince {
+      let formattedRemaining = remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)
+      let formattedDate = pausedSince.formatted(date: .abbreviated, time: .omitted)
+      return String(
+        localized: "budget.row.accessibilityLabel.paused",
+        defaultValue: "\(budget.name), \(formattedRemaining) remaining this \(period.inlineLabel) period, paused since \(formattedDate)",
+        comment: "VoiceOver label for a paused budget row; arguments are the budget name, formatted remaining amount, period name, and pause date"
+      )
+    }
     if remaining < 0 {
       return String(
         localized: "budget.row.accessibilityLabel.overBudget",

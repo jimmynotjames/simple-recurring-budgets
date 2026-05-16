@@ -37,6 +37,23 @@ private func makeBudget(
 // MARK: - result(for:): pure read, no mutations
 
 struct BudgetLifecycleResultTests {
+  @Test func result_idempotent_includesNewFields() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10))
+    pauseEvent.budget = budget; ctx.insert(pauseEvent)
+    try ctx.save()
+
+    let r1 = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let r2 = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(r1 == r2)
+    #expect(r1.lifecycleState == .paused)
+    #expect(r1.pausedSince == d(2026, 4, 10))
+  }
+
   @Test func result_doesNotMutateBudget() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
@@ -302,5 +319,212 @@ struct BudgetLifecycleResetBudgetTests {
 
     #expect(budgetA.expenseItems.isEmpty)
     #expect(budgetB.expenseItems.count == 1)
+  }
+}
+
+// MARK: - pauseBudget write path
+
+struct BudgetLifecyclePauseTests {
+  @Test func pauseBudget_returnsTrue_insertsEvent_bumpsLastModified() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    try ctx.save()
+
+    let now = d(2026, 4, 15, hour: 10)
+    let result = BudgetLifecycleService.pauseBudget(budget, context: ctx, now: now, calendar: cal)
+
+    #expect(result == true)
+    #expect(budget.lifecycleEvents.count == 1)
+    #expect(budget.lifecycleEvents[0].kind == .pause)
+    #expect(budget.lifecycleEvents[0].effectiveDate == now)
+    #expect(budget.lastModified == now)
+  }
+
+  @Test func pauseBudget_clampsToStartDate_whenNowBeforeStart() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 5, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    try ctx.save()
+
+    let now = d(2026, 4, 10)
+    let result = BudgetLifecycleService.pauseBudget(budget, context: ctx, now: now, calendar: cal)
+
+    #expect(result == true)
+    #expect(budget.lifecycleEvents.count == 1)
+    #expect(budget.lifecycleEvents[0].effectiveDate == startDate)
+  }
+
+  @Test func pauseBudget_returnsFalse_forSpecificDates() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let b = Budget(period: .specificDates)
+    b.startDate = d(2026, 4, 1)
+    let change = AllocationChange(effectiveFrom: d(2026, 4, 1), amount: 100)
+    change.budget = b; ctx.insert(b); ctx.insert(change)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.pauseBudget(b, context: ctx, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result == false)
+    #expect(b.lifecycleEvents.isEmpty)
+  }
+
+  @Test func pauseBudget_returnsFalse_whenAlreadyPaused() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    // Pre-pause the budget
+    let ev = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10))
+    ev.budget = budget; ctx.insert(ev)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.pauseBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result == false)
+    #expect(budget.lifecycleEvents.count == 1) // no new event inserted
+  }
+
+  @Test func pauseBudget_returnsFalse_whenPastEndDate() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    budget.endDate = d(2026, 4, 10)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.pauseBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result == false)
+    #expect(budget.lifecycleEvents.isEmpty)
+  }
+}
+
+// MARK: - resumeBudget write path
+
+struct BudgetLifecycleResumeTests {
+  @Test func resumeBudget_returnsTrue_insertsEvent_bumpsLastModified() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    // Pre-pause the budget
+    let ev = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10))
+    ev.budget = budget; ctx.insert(ev)
+    try ctx.save()
+
+    let now = d(2026, 4, 20, hour: 9)
+    let result = BudgetLifecycleService.resumeBudget(budget, context: ctx, now: now, calendar: cal)
+
+    #expect(result == true)
+    #expect(budget.lifecycleEvents.count == 2)
+    let resumeEvent = budget.lifecycleEvents.first { $0.kind == .resume }
+    #expect(resumeEvent?.effectiveDate == now)
+    #expect(budget.lastModified == now)
+  }
+
+  @Test func resumeBudget_returnsFalse_forSpecificDates() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let b = Budget(period: .specificDates)
+    b.startDate = d(2026, 4, 1)
+    let change = AllocationChange(effectiveFrom: d(2026, 4, 1), amount: 100)
+    change.budget = b; ctx.insert(b); ctx.insert(change)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.resumeBudget(b, context: ctx, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result == false)
+    #expect(b.lifecycleEvents.isEmpty)
+  }
+
+  @Test func resumeBudget_returnsFalse_whenAlreadyActive() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.resumeBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result == false)
+    #expect(budget.lifecycleEvents.isEmpty)
+  }
+
+  @Test func resumeBudget_returnsFalse_whenPastEndDate() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    budget.endDate = d(2026, 4, 10)
+    // Pre-pause the budget (but it's post-endDate so still postEnd)
+    let ev = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 8))
+    ev.budget = budget; ctx.insert(ev)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.resumeBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result == false)
+    #expect(budget.lifecycleEvents.count == 1) // no resume event added
+  }
+}
+
+// MARK: - pausedSince computation in result(for:)
+
+struct BudgetLifecyclePausedSinceTests {
+  @Test func result_pausedSince_isNil_whenActive() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result.pausedSince == nil)
+    #expect(result.lifecycleState == .active)
+  }
+
+  @Test func result_pausedSince_isMostRecentPauseDate_whenPaused() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    let pause1 = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 5))
+    let resume1 = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 10))
+    let pause2 = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15))
+    for ev in [pause1, resume1, pause2] {
+      ev.budget = budget; ctx.insert(ev)
+    }
+    try ctx.save()
+
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 20), calendar: cal)
+
+    #expect(result.lifecycleState == .paused)
+    #expect(result.pausedSince == d(2026, 4, 15))
+  }
+
+  @Test func result_pausedSince_isNil_whenResumedAfterPause() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    let pause1 = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 5))
+    let resume1 = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 10))
+    for ev in [pause1, resume1] {
+      ev.budget = budget; ctx.insert(ev)
+    }
+    try ctx.save()
+
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result.lifecycleState == .active)
+    #expect(result.pausedSince == nil)
+  }
+
+  @Test func result_lifecycleState_isExposed() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 15), in: ctx)
+    try ctx.save()
+
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+
+    #expect(result.lifecycleState == .active)
   }
 }

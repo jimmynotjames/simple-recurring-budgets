@@ -18,34 +18,86 @@ final class AddEditExpenseViewModel {
 
   private let mode: Mode
 
+  /// Cached at init: the lifecycle snapshot for the bound budget at sheet-open time.
+  /// Avoids re-computing on every SwiftUI body evaluation. `nil` when no budget is
+  /// reachable (orphan edit case).
+  private let cachedBudgetSnapshot: BudgetSnapshot?
+
+  /// Latest most-recent `.pause` event for the bound budget; used to seed `date`
+  /// at sheet-open time and as the safe upper bound for the picker when paused.
+  private let cachedPauseEffectiveDate: Date?
+
   var isEditing: Bool {
     if case .edit = mode { return true }
     return false
   }
 
+  /// The budget driving this expense entry. Used for date-bounds validation.
+  private var budget: Budget? {
+    switch mode {
+    case let .add(budget): budget
+    case let .edit(expense): expense.budget
+    }
+  }
+
+  /// When non-nil, the selected date is outside the budget's active-period union and
+  /// Save must be blocked. Shown as an inline caption below the When card.
+  var dateOutOfRangeCaption: String? {
+    guard let budget, cachedBudgetSnapshot?.lifecycleState == .paused else { return nil }
+    // A date is valid when the hypothetical snapshot at that date is `.active`.
+    // This is the only date-dependent snapshot we need; recomputed only on date change.
+    let snapAtDate = BudgetCalculator.snapshot(
+      budget: budget, expenses: [], now: date, calendar: .autoupdatingCurrent
+    )
+    guard snapAtDate.lifecycleState == .active else {
+      return String(
+        localized: "addEditExpense.date.outOfRange.caption",
+        defaultValue: "Pick a date within an active period of this budget.",
+        comment: "Inline caption below the date picker when the selected date falls inside a paused period"
+      )
+    }
+    return nil
+  }
+
   var canSave: Bool {
-    (amount ?? 0) > 0
+    guard (amount ?? 0) > 0 else { return false }
+    return dateOutOfRangeCaption == nil
   }
 
   /// The allowed range for `date` in the picker. Lower bound is the owning budget's
-  /// `effectiveStartDate`; expenses dated earlier are silently dropped by the walker
-  /// (see `CarryOverWalker`) so the UI must constrain entry. Upper bound is open today;
-  /// F-2.04 / F-7.07 will tighten this to `endDate` and the budget's active-period union
-  /// when those UIs ship.
+  /// `effectiveStartDate`. When the budget is paused, the upper bound is the most
+  /// recent `.pause` event's `effectiveDate` (a moment guaranteed to lie inside an
+  /// active period since the pause-action period is itself active). Save-time
+  /// validation catches dates inside paused gaps for multi-cycle histories.
   var dateRange: ClosedRange<Date> {
-    let lower: Date = switch mode {
-    case let .add(budget): budget.effectiveStartDate
-    case let .edit(expense): expense.budget?.effectiveStartDate ?? .distantPast
+    guard let budget else {
+      return Date.distantPast ... Date.distantFuture
     }
-    return lower ... .distantFuture
+    let lower = budget.effectiveStartDate
+    if cachedBudgetSnapshot?.lifecycleState == .paused, let pauseDate = cachedPauseEffectiveDate {
+      return lower ... pauseDate
+    }
+    return lower ... Date.distantFuture
   }
 
   init(adding budget: Budget) {
     amount = nil
     name = ""
-    date = Date()
     currencyCode = budget.currencyCode
     mode = .add(budget)
+    let snapshot = BudgetCalculator.snapshot(
+      budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent
+    )
+    cachedBudgetSnapshot = snapshot
+    cachedPauseEffectiveDate = Self.latestPauseEffectiveDate(for: budget)
+    // Seed `date`: today by default; for paused budgets, fall back to the most recent
+    // pause event so the initial value lies inside an active period (and the picker
+    // doesn't open with an out-of-range default).
+    if snapshot.lifecycleState == .paused, let pauseDate = cachedPauseEffectiveDate {
+      date = pauseDate
+    } else {
+      date = max(Date(), budget.effectiveStartDate)
+    }
   }
 
   init(editing expense: ExpenseItem) {
@@ -54,6 +106,32 @@ final class AddEditExpenseViewModel {
     date = expense.date
     currencyCode = expense.budget?.currencyCode ?? (Locale.current.currency?.identifier ?? "USD")
     mode = .edit(expense)
+    if let budget = expense.budget {
+      cachedBudgetSnapshot = BudgetCalculator.snapshot(
+        budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent
+      )
+      cachedPauseEffectiveDate = Self.latestPauseEffectiveDate(for: budget)
+    } else {
+      cachedBudgetSnapshot = nil
+      cachedPauseEffectiveDate = nil
+    }
+  }
+
+  /// Returns the `effectiveDate` of the most recent `.pause` `LifecycleEvent` that
+  /// is not followed by a later `.resume`. Mirrors the helper in
+  /// `BudgetLifecycleService.result(for:)`.
+  private static func latestPauseEffectiveDate(for budget: Budget) -> Date? {
+    let sorted = budget.lifecycleEvents.sorted {
+      ($0.effectiveDate, $0.lastModified) < ($1.effectiveDate, $1.lastModified)
+    }
+    var latest: Date?
+    for event in sorted {
+      switch event.kind {
+      case .pause: latest = event.effectiveDate
+      case .resume: latest = nil
+      }
+    }
+    return latest
   }
 
   /// Convenience overload for tests and call sites without an `AnalyticsClient` in scope.
@@ -340,6 +418,12 @@ struct AddEditExpenseView: View {
       .datePickerStyle(.compact)
       .labelsHidden()
       .frame(maxWidth: .infinity, alignment: .leading)
+      if let caption = viewModel.dateOutOfRangeCaption {
+        Text(caption)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+      }
     } label: {
       sectionLabel(String(
         localized: "addEditExpense.section.when",

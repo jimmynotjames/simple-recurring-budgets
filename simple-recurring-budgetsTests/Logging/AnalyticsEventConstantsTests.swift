@@ -11,6 +11,8 @@ struct AnalyticsEventConstantsTests {
     #expect(AnalyticsEvent.budgetEdited == "budget_edited")
     #expect(AnalyticsEvent.budgetDeleted == "budget_deleted")
     #expect(AnalyticsEvent.budgetReset == "budget_reset")
+    #expect(AnalyticsEvent.budgetPaused == "budget_paused")
+    #expect(AnalyticsEvent.budgetResumed == "budget_resumed")
     #expect(AnalyticsEvent.carryOverReset == "carry_over_reset")
     #expect(AnalyticsEvent.expenseLogged == "expense_logged")
     #expect(AnalyticsEvent.expenseEdited == "expense_edited")

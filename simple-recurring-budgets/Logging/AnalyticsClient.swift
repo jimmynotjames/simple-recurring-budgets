@@ -40,6 +40,8 @@ enum AnalyticsEvent {
   nonisolated static let budgetEdited = "budget_edited"
   nonisolated static let budgetDeleted = "budget_deleted"
   nonisolated static let budgetReset = "budget_reset"
+  nonisolated static let budgetPaused = "budget_paused"
+  nonisolated static let budgetResumed = "budget_resumed"
   nonisolated static let carryOverReset = "carry_over_reset"
   nonisolated static let expenseLogged = "expense_logged"
   nonisolated static let expenseEdited = "expense_edited"

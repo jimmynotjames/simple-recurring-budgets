@@ -113,8 +113,41 @@ For deeper concurrency design (actor architectures, TaskGroup, AsyncSequence, re
 Skim and respect:
 
 - `docs/main-prd.md` — product constraints and glossary (including Over/Under vs remaining for the current Budget Period).
+- `docs/ux-design-brief.md` — high-level UX guidelines; consult for any UI-touching work.
 - `docs/product-features-planning.md` — feature IDs (F-x.xx) and acceptance criteria.
 - `docs/tech-design-doc.md` — architecture, persistence/sync, data model, i18n/a11y/testing expectations.
+
+## Swift / iOS conventions
+
+The full rules live in [`.cursor/rules/swift-ios.mdc`](.cursor/rules/swift-ios.mdc); non-Cursor agents (Claude Code, Codex, OpenSpec) should treat that file as canonical for this section. Quick rules:
+
+### Money and currency
+
+- Represent monetary amounts with **`Decimal`** (or storage patterns backed by `Decimal`), not `Double`.
+- **Currency is per Budget**, not a single global default. Format amounts using the budget's currency and the user's locale (F-3.04).
+
+### UI and system integration
+
+- Follow **Human Interface Guidelines**: system typography, spacing, and materials.
+- New views must support **Dynamic Type** and **Dark Mode** without extra toggles.
+
+### Screen architecture
+
+- **Default pattern:** screens are SwiftUI Views using `@Query` for reads, `@Environment(\.modelContext)` for writes, and domain services in `Domain/` (`BudgetLifecycleService`, `BudgetCalculator`, `PeriodCalculator`) for logic. **No ViewModel by default.**
+- **Escalate to an `@Observable` ViewModel only if** the screen has non-trivial draft/form state, owns `async` / `Task` work, chains a multi-step user action, or has expensive derived display state.
+- **VM rules when escalated:** `@Observable final class <Screen>ViewModel` owned by the view via `@State`. VM holds draft state + pure logic only. It does **not** store `ModelContext`, does **not** hold `@Query` results, and does **not** fetch. Methods that write take `(context: ModelContext, ...)` at the call site.
+- **Grey-area ping:** if a screen is on the fence, ask the user before scaffolding a VM. Mandatory ping triggers: >3 mutable form fields, a framework call (Vision, Speech, PhotosUI, SiriKit/App Intents, network), one input that mutates >1 model property or couples fields, or a screen expected to grow materially in the next 1–2 features.
+- Authoritative version: [`docs/tech-design-doc.md`](docs/tech-design-doc.md) §2.1.
+
+### Testing
+
+- Prefer **Swift Testing** for new tests. Place tests in the Xcode test target alongside or mirroring app modules.
+
+### Data, sync, and Xcode project
+
+- When changing models, sync, or app structure, align with [`docs/tech-design-doc.md`](docs/tech-design-doc.md).
+- When changing the schema, consider SwiftData models and CloudKit sync early: relationships, uniqueness, and migration impact (F-1.02).
+- When editing the Xcode project or schemes, keep target membership and test targets correct.
 
 ## Cross-cutting concerns
 

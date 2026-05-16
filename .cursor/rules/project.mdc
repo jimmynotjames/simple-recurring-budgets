@@ -36,7 +36,14 @@ When a change **materially** updates product constraints, feature IDs (F-x.xx), 
 
 ## Cross-cutting concerns (always-on)
 
-Accessibility, localized source strings, translations queue, and Mixpanel user-action events are **ongoing** concerns governed by [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns). Every code change that touches user-facing UI must address each as relevant — see [`AGENTS.md` > Cross-cutting concerns](AGENTS.md) for the full checklist.
+Some concerns are **ongoing**, not feature-shaped. Every code change that adds or modifies user-facing UI MUST address each of these in the same change. Failing to do so is a defect. Canonical rule: [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns).
+
+Quick checklist:
+
+- **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics), composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls, `.accessibilityAddTraits(.isHeader)` on headings, `swipeActions` paired with `.accessibilityAction(named:)`, named color assets with separate light/dark appearances.
+- **Localized source strings** — every new user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`. No hard-coded English in production views. Locale-invariant strings use `Text(verbatim:)`. Full rules: `docs/tech-design-doc.md` §5.1.
+- **Translations** — after adding new string keys, re-run `scripts/translate_catalog/` (extract → translate → merge → validate) for all 38 storefront locales before the change ships to users. Never omit the pipeline step.
+- **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary: `docs/analytics-spec.md` §17.
 
 ## Spec-driven workflow (OpenSpec)
 

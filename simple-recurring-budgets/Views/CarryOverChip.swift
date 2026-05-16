@@ -6,6 +6,9 @@ struct CarryOverChip: View {
   let amount: Decimal
   let currencyCode: String
   var display: CurrencyDisplayPreference = .symbol
+  /// When `true`, the chip's foreground value is rendered in `.secondary` style
+  /// (the paused-state presentation). The background capsule tint is unchanged.
+  var dimmed: Bool = false
 
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
@@ -24,11 +27,11 @@ struct CarryOverChip: View {
       }
       Text(carryOverDisplay.amount)
       Text(String(localized: "carryOver.label", defaultValue: "carry-over", comment: "Fixed label shown in the carry-over chip on the budgets list"))
-        .foregroundStyle(chipForeground.opacity(colorSchemeContrast == .increased ? 1.0 : 0.8))
+        .foregroundStyle(dimmedStyle(chipForeground.opacity(colorSchemeContrast == .increased ? 1.0 : 0.8), when: dimmed))
     }
     .font(.caption)
     .fontWeight(.medium)
-    .foregroundStyle(chipForeground)
+    .foregroundStyle(dimmedStyle(chipForeground, when: dimmed))
     .padding(.horizontal, chipHPadding)
     .padding(.vertical, chipVPadding)
     .background(Capsule().fill(chipBackground))

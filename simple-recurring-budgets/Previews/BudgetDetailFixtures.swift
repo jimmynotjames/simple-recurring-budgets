@@ -104,6 +104,27 @@
       return budget
     }
 
+    static func detailDailyPaused(now: Date = Date()) -> Budget {
+      let budget = Budget(name: "Entertainment", currencyCode: "USD", period: .daily)
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: -5, to: cal.startOfDay(for: now))!
+      budget.startDate = startDate
+      let expenses = [
+        ExpenseItem(amount: 8.00, name: "Streaming", date: startDate.addingTimeInterval(86400)),
+        ExpenseItem(amount: 12.50, name: "App purchase", date: startDate.addingTimeInterval(86400 * 2)),
+      ]
+      let pauseDate = cal.date(byAdding: .day, value: -2, to: cal.startOfDay(for: now))!
+      let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: pauseDate)
+      pauseEvent.budget = budget
+      for expense in expenses {
+        expense.budget = budget
+      }
+      budget.expenseItems = expenses
+      budget.lifecycleEventsStorage = [pauseEvent]
+      addDetailChange(amount: 25, startDate: startDate, to: budget)
+      return budget
+    }
+
     static func detailWeeklyOverBudget(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Fun Money", currencyCode: "USD", period: .weekly)
       let cal = Calendar.current
@@ -131,6 +152,9 @@
       }
       for change in budget.allocationChanges {
         context.insert(change)
+      }
+      for event in budget.lifecycleEvents {
+        context.insert(event)
       }
       try? context.save()
     }

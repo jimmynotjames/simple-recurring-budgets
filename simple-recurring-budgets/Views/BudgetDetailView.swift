@@ -18,6 +18,22 @@ struct BudgetDetailView: View {
   @State private var showResetCarryOverConfirm = false
   @State private var showResetBudgetConfirm = false
 
+  private var isPaused: Bool {
+    lifecycle?.lifecycleState == .paused
+  }
+
+  private var isPostEnd: Bool {
+    lifecycle?.lifecycleState == .postEnd
+  }
+
+  private var isSpecificDates: Bool {
+    BudgetPeriod(rawValue: budget.period) == .specificDates
+  }
+
+  private var showPauseResumeItem: Bool {
+    !isSpecificDates && !isPostEnd
+  }
+
   @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 10
   @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
   @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 16
@@ -63,36 +79,76 @@ struct BudgetDetailView: View {
 
       // ── Primary action ────────────────────────────────────────
       Section {
-        Button {
-          router.sheet = .addExpense(budget)
-        } label: {
-          let title = String(
-            localized: "budgetDetail.action.addExpense",
-            defaultValue: "Add Expense",
-            comment: "Label on the primary action button that opens the add expense form"
-          )
-          HStack(spacing: 8) {
-            Image(systemName: "plus")
-            Text(title)
+        VStack(spacing: 8) {
+          if isPaused {
+            Button {
+              resumeBudgetTapped()
+            } label: {
+              HStack(spacing: 8) {
+                Image(systemName: "play.circle")
+                Text(String(
+                  localized: "budgetDetail.action.resume",
+                  defaultValue: "Resume Budget",
+                  comment: "Label on the primary action button when the budget is paused"
+                ))
+              }
+              .font(.headline)
+              .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .accessibilityLabel(String(
+              localized: "budgetDetail.action.resume.accessibilityLabel",
+              defaultValue: "Resume \(budget.name)",
+              comment: "VoiceOver label for the resume budget button; argument is the budget name"
+            ))
+            .accessibilityHint(String(
+              localized: "budgetDetail.action.resume.accessibilityHint",
+              defaultValue: "Resumes the budget so you can log expenses again",
+              comment: "VoiceOver hint for the resume budget button"
+            ))
+            if let pausedSince = lifecycle?.pausedSince {
+              Text(String(
+                localized: "budgetDetail.action.resume.caption.format",
+                defaultValue: "Paused since \(pausedSince.formatted(date: .abbreviated, time: .omitted)). Resume to log expenses.",
+                comment: "Caption below the Resume Budget button; argument is the abbreviated pause date"
+              ))
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              .frame(maxWidth: .infinity, alignment: .center)
+            }
+          } else {
+            Button {
+              router.sheet = .addExpense(budget)
+            } label: {
+              HStack(spacing: 8) {
+                Image(systemName: "plus")
+                Text(String(
+                  localized: "budgetDetail.action.addExpense",
+                  defaultValue: "Add Expense",
+                  comment: "Label on the primary action button that opens the add expense form"
+                ))
+              }
+              .font(.headline)
+              .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .accessibilityLabel(String(
+              localized: "budgetDetail.action.addExpense.accessibilityLabel",
+              defaultValue: "Add expense to \(budget.name)",
+              comment: "VoiceOver label for the add expense button; argument is the budget name"
+            ))
+            .accessibilityHint(String(
+              localized: "budgetDetail.action.addExpense.accessibilityHint",
+              defaultValue: "Opens the add expense form",
+              comment: "VoiceOver hint for the add expense button"
+            ))
           }
-          .font(.headline)
-          .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-        .accessibilityLabel(String(
-          localized: "budgetDetail.action.addExpense.accessibilityLabel",
-          defaultValue: "Add expense to \(budget.name)",
-          comment: "VoiceOver label for the add expense button; argument is the budget name"
-        ))
-        .accessibilityHint(String(
-          localized: "budgetDetail.action.addExpense.accessibilityHint",
-          defaultValue: "Opens the add expense form",
-          comment: "VoiceOver hint for the add expense button"
-        ))
       }
 
       // ── Expense list ──────────────────────────────────────────
@@ -114,6 +170,31 @@ struct BudgetDetailView: View {
             systemImage: "pencil"
           ) {
             router.sheet = .editBudget(budget)
+          }
+          if showPauseResumeItem {
+            if isPaused {
+              Button(
+                String(
+                  localized: "budgetDetail.menu.resumeBudget",
+                  defaultValue: "Resume Budget",
+                  comment: "Menu item to resume a paused budget"
+                ),
+                systemImage: "play.circle"
+              ) {
+                resumeBudgetTapped()
+              }
+            } else {
+              Button(
+                String(
+                  localized: "budgetDetail.menu.pauseBudget",
+                  defaultValue: "Pause Budget",
+                  comment: "Menu item to pause an active budget"
+                ),
+                systemImage: "pause.circle"
+              ) {
+                pauseBudgetTapped()
+              }
+            }
           }
           Divider()
           Button(
@@ -209,15 +290,26 @@ struct BudgetDetailView: View {
           Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
             .font(.largeTitle)
             .monospacedDigit()
-            .foregroundStyle(isOverBudget ? Color.moneyDeficit : .primary)
+            .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
             .lineLimit(1)
 
-          Text(period.listLabel)
-            .font(.callout)
-            .foregroundStyle(.secondary)
+          VStack(alignment: .leading, spacing: 2) {
+            Text(period.listLabel)
+              .font(.callout)
+              .foregroundStyle(.secondary)
+            if isPaused, let pausedSince = lifecycle?.pausedSince {
+              Text(String(
+                localized: "chip.paused.caption.format",
+                defaultValue: "Paused since \(pausedSince.formatted(date: .abbreviated, time: .omitted))",
+                comment: "Caption shown when a budget is paused; argument is the abbreviated date the budget was paused"
+              ))
+              .font(.caption)
+              .foregroundStyle(.secondary)
+            }
+          }
         }
 
-        RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget)
+        RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget, dimmed: isPaused)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .accessibilityElement(children: .combine)
@@ -229,7 +321,8 @@ struct BudgetDetailView: View {
           CarryOverChip(
             amount: carryOverAmount,
             currencyCode: budget.currencyCode,
-            display: settings.currencyDisplay
+            display: settings.currencyDisplay,
+            dimmed: isPaused
           )
           Button(String(
             localized: "budgetDetail.resetCarryOver.button",
@@ -261,6 +354,8 @@ struct BudgetDetailView: View {
   func refreshLifecycle() {
     lifecycle = BudgetLifecycleService.result(for: budget)
   }
+
+  // pauseBudgetTapped / resumeBudgetTapped live in BudgetDetailView+PauseResume.swift
 
   private func resetCarryOver() {
     Logger.ui.debug(
@@ -309,7 +404,16 @@ struct BudgetDetailView: View {
   // MARK: - Accessibility
 
   private var headerA11yLabel: String {
-    isOverBudget
+    if isPaused, let pausedSince = lifecycle?.pausedSince {
+      let formattedRemaining = remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)
+      let formattedDate = pausedSince.formatted(date: .abbreviated, time: .omitted)
+      return String(
+        localized: "budgetDetail.header.accessibilityLabel.paused",
+        defaultValue: "\(formattedRemaining) remaining this \(period.inlineLabel) period, paused since \(formattedDate)",
+        comment: "VoiceOver label for the budget header when paused; arguments are the formatted remaining amount, period name, and pause date"
+      )
+    }
+    return isOverBudget
       ? String(
         localized: "budgetDetail.header.accessibilityLabel.overBudget",
         defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget this \(period.inlineLabel) period",
@@ -376,5 +480,10 @@ struct BudgetDetailView: View {
   #Preview("Dark · Over Budget") {
     BudgetDetailPreview(budget: DebugData.detailWeeklyOverBudget())
       .preferredColorScheme(.dark)
+  }
+
+  // Paused budget — primary slot shows Resume, header greyed.
+  #Preview("Paused") {
+    BudgetDetailPreview(budget: DebugData.detailDailyPaused())
   }
 #endif

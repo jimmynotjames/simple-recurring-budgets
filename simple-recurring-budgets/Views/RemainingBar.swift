@@ -7,6 +7,8 @@ import SwiftUI
 struct RemainingBar: View {
   let remainingFraction: Double
   let isOverBudget: Bool
+  /// When `true`, the filled bar renders in `.secondary` style (paused-state presentation).
+  var dimmed: Bool = false
 
   /// Conservative scale keeps the decorative bar from growing as fast as the text.
   @ScaledMetric(relativeTo: .caption2) private var barHeight: CGFloat = 4
@@ -19,7 +21,7 @@ struct RemainingBar: View {
         Capsule()
           .fill(Color.secondary.opacity(0.12))
         Capsule()
-          .fill(isOverBudget ? Color.moneyDeficit : Color("AccentColor"))
+          .fill(dimmed ? Color.secondary : (isOverBudget ? Color.moneyDeficit : Color("AccentColor")))
           .frame(width: isOverBudget ? geo.size.width : geo.size.width * remainingFraction)
       }
     }

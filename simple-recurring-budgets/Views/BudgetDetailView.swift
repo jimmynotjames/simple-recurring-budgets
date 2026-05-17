@@ -197,6 +197,24 @@ struct BudgetDetailView: View {
             }
           }
           Divider()
+          if budget.isCarryOverEnabled {
+            Button(
+              String(
+                localized: "budgetDetail.menu.resetCarryOver",
+                defaultValue: "Reset Carry-Over…",
+                comment: "Menu item that opens the reset carry-over confirmation alert; mirrors the 'Reset Budget…' menu item naming convention"
+              ),
+              systemImage: "arrow.counterclockwise.circle",
+              role: .destructive
+            ) {
+              showResetCarryOverConfirm = true
+            }
+            .accessibilityHint(String(
+              localized: "budgetDetail.menu.resetCarryOver.accessibilityHint",
+              defaultValue: "Clears the carry-over balance to zero. Expenses are not affected.",
+              comment: "VoiceOver hint for the Reset Carry-Over menu item, communicating the destructive (but non-cascading) consequence"
+            ))
+          }
           Button(
             String(
               localized: "budgetDetail.menu.resetBudget",
@@ -313,27 +331,7 @@ struct BudgetDetailView: View {
         currencyCode: budget.currencyCode,
         currencyDisplay: settings.currencyDisplay,
         topSpacing: chipTopSpacing
-      ) {
-        if budget.isCarryOverEnabled {
-          Button(String(
-            localized: "budgetDetail.resetCarryOver.button",
-            defaultValue: "Reset",
-            comment: "Label for the button that resets the carry-over balance to zero"
-          )) { showResetCarryOverConfirm = true }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel(String(
-              localized: "budgetDetail.resetCarryOver.button.accessibilityLabel",
-              defaultValue: "Reset carry-over to zero",
-              comment: "VoiceOver label for the reset carry-over button"
-            ))
-            .accessibilityHint(String(
-              localized: "budgetDetail.resetCarryOver.button.accessibilityHint",
-              defaultValue: "Resets the carry-over balance to zero. Expenses are not affected.",
-              comment: "VoiceOver hint for the Reset Carry-Over button, communicating the destructive (but non-cascading) consequence"
-            ))
-        }
-      }
+      )
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.vertical, rowVerticalPadding)

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 scripts/translate_catalog/extract.py:*)",
+      "Bash(python3 scripts/translate_catalog/dispatch_prompts.py:*)",
+      "Bash(python3 scripts/translate_catalog/validate.py:*)",
+      "Bash(python3 scripts/translate_catalog/merge.py:*)",
+      "Bash(python3 scripts/translate_catalog/locales.py:*)",
+      "Bash(python3 scripts/check_translations.py:*)",
+      "Bash(python3 scripts/check_source_strings.py:*)",
+      "Read(./tmp/translate-inputs/**)",
+      "Read(./tmp/translate-outputs/**)",
+      "Read(./tmp/translate-prompts/**)",
+      "Write(./tmp/translate-inputs/**)",
+      "Write(./tmp/translate-outputs/**)",
+      "Write(./tmp/translate-prompts/**)"
+    ]
+  }
+}

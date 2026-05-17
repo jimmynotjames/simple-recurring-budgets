@@ -158,9 +158,14 @@ enum BudgetCalculator {
       expenses: expenses, calendar: calendar
     )
 
+    // UI classification is moment-granular (flips as soon as a .pause event's
+    // effectiveDate is reached). Math classification (`isCurrentPaused` above) stays
+    // period-granular — the pause-action period contributes to the walker normally,
+    // and the `remaining = 0` short-circuit only fires for fully-paused periods.
+    let uiIsPaused = isPausedAtMoment(now: now, sortedLifecycleEvents: sortedLifecycleEvents)
     let lifecycleState: BudgetLifecycleState = if budget.endDate != nil, now >= effectiveEndExclusive {
       .postEnd
-    } else if isCurrentPaused {
+    } else if uiIsPaused {
       .paused
     } else {
       .active

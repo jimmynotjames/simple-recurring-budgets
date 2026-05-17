@@ -27,6 +27,10 @@ final class AddEditExpenseViewModel {
   /// at sheet-open time and as the safe upper bound for the picker when paused.
   private let cachedPauseEffectiveDate: Date?
 
+  /// Cached at init: the abbreviated rendering of `cachedPauseEffectiveDate`.
+  /// Used in the proactive paused caption; cached so we don't re-format on every body pass.
+  private let cachedPausedSinceFormatted: String?
+
   var isEditing: Bool {
     if case .edit = mode { return true }
     return false
@@ -40,28 +44,41 @@ final class AddEditExpenseViewModel {
     }
   }
 
-  /// When non-nil, the selected date is outside the budget's active-period union and
-  /// Save must be blocked. Shown as an inline caption below the When card.
-  var dateOutOfRangeCaption: String? {
-    guard let budget, cachedBudgetSnapshot?.lifecycleState == .paused else { return nil }
-    // A date is valid when the hypothetical snapshot at that date is `.active`.
-    // This is the only date-dependent snapshot we need; recomputed only on date change.
+  /// Returns `true` when the selected `date` lies inside one of the budget's active-period
+  /// intervals (or when the bound budget is not paused). Save eligibility uses this; the
+  /// proactive paused caption does not.
+  private var isDateValid: Bool {
+    guard let budget, cachedBudgetSnapshot?.lifecycleState == .paused else { return true }
     let snapAtDate = BudgetCalculator.snapshot(
       budget: budget, expenses: [], now: date, calendar: .autoupdatingCurrent
     )
-    guard snapAtDate.lifecycleState == .active else {
+    return snapAtDate.lifecycleState == .active
+  }
+
+  /// The single caption rendered below the When card. Returns the violation copy when the
+  /// picked date sits in a paused gap, the proactive paused copy when the bound budget is
+  /// paused and the date is valid, and `nil` otherwise. The view renders zero or one
+  /// caption — never both stacked.
+  var pausedCaption: String? {
+    guard cachedBudgetSnapshot?.lifecycleState == .paused else { return nil }
+    if !isDateValid {
       return String(
         localized: "addEditExpense.date.outOfRange.caption",
         defaultValue: "Pick a date within an active period of this budget.",
         comment: "Inline caption below the date picker when the selected date falls inside a paused period"
       )
     }
-    return nil
+    guard let formatted = cachedPausedSinceFormatted else { return nil }
+    return String(
+      localized: "addEditExpense.paused.caption.format",
+      defaultValue: "Paused since \(formatted). You can still add expenses dated before then.",
+      comment: "Proactive caption shown below the When card in Add/Edit Expense when the bound budget is paused; argument is the abbreviated pausedSince date"
+    )
   }
 
   var canSave: Bool {
     guard (amount ?? 0) > 0 else { return false }
-    return dateOutOfRangeCaption == nil
+    return isDateValid
   }
 
   /// The allowed range for `date` in the picker. Lower bound is the owning budget's
@@ -89,11 +106,13 @@ final class AddEditExpenseViewModel {
       budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent
     )
     cachedBudgetSnapshot = snapshot
-    cachedPauseEffectiveDate = Self.latestPauseEffectiveDate(for: budget)
+    let pauseDate = Self.latestPauseEffectiveDate(for: budget)
+    cachedPauseEffectiveDate = pauseDate
+    cachedPausedSinceFormatted = pauseDate?.formatted(date: .abbreviated, time: .omitted)
     // Seed `date`: today by default; for paused budgets, fall back to the most recent
     // pause event so the initial value lies inside an active period (and the picker
     // doesn't open with an out-of-range default).
-    if snapshot.lifecycleState == .paused, let pauseDate = cachedPauseEffectiveDate {
+    if snapshot.lifecycleState == .paused, let pauseDate {
       date = pauseDate
     } else {
       date = max(Date(), budget.effectiveStartDate)
@@ -110,10 +129,13 @@ final class AddEditExpenseViewModel {
       cachedBudgetSnapshot = BudgetCalculator.snapshot(
         budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent
       )
-      cachedPauseEffectiveDate = Self.latestPauseEffectiveDate(for: budget)
+      let pauseDate = Self.latestPauseEffectiveDate(for: budget)
+      cachedPauseEffectiveDate = pauseDate
+      cachedPausedSinceFormatted = pauseDate?.formatted(date: .abbreviated, time: .omitted)
     } else {
       cachedBudgetSnapshot = nil
       cachedPauseEffectiveDate = nil
+      cachedPausedSinceFormatted = nil
     }
   }
 
@@ -419,7 +441,7 @@ struct AddEditExpenseView: View {
       .datePickerStyle(.compact)
       .labelsHidden()
       .frame(maxWidth: .infinity, alignment: .leading)
-      if let caption = viewModel.dateOutOfRangeCaption {
+      if let caption = viewModel.pausedCaption {
         Text(caption)
           .font(.caption)
           .foregroundStyle(.secondary)

@@ -27,7 +27,8 @@ struct AddEditExpenseDateBoundsTests {
 
     let vm = AddEditExpenseViewModel(adding: budget)
     #expect(vm.dateRange.upperBound > utcDate(2100, 1, 1))
-    #expect(vm.dateOutOfRangeCaption == nil)
+    // Active budget never surfaces a paused caption (proactive or violation).
+    #expect(vm.pausedCaption == nil)
   }
 
   @Test func canSave_isFalse_whenDateInPausedGap() throws {
@@ -50,7 +51,8 @@ struct AddEditExpenseDateBoundsTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 12, hour: 10) // In the paused gap between pause1 and resume1
-    #expect(vm.dateOutOfRangeCaption != nil)
+    // Behavioral invariant: Save is blocked. Caption-text assertions live in
+    // AddEditExpensePausedCaptionTests.
     #expect(vm.canSave == false)
   }
 
@@ -70,7 +72,6 @@ struct AddEditExpenseDateBoundsTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 5, hour: 10) // In active period before pause
-    #expect(vm.dateOutOfRangeCaption == nil)
     #expect(vm.canSave == true)
   }
 
@@ -108,11 +109,10 @@ struct AddEditExpenseDateBoundsTests {
     try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget)
-    // Seed should land on the pause event date (inside the active pause-action period),
-    // not Date() (which would be in a paused gap).
+    // Seed should land on the pause event date (the precise upper bound of the active
+    // union under moment-granular UI), not Date() (which would be in a paused gap).
     #expect(vm.date == pauseDate)
     vm.amount = 5
-    #expect(vm.dateOutOfRangeCaption == nil)
     #expect(vm.canSave == true)
   }
 }

@@ -287,6 +287,7 @@ struct AddEditExpenseView: View {
         }
         .disabled(!viewModel.canSave)
         .fontWeight(.semibold)
+        .tint(.accentColor)
       }
     }
   }

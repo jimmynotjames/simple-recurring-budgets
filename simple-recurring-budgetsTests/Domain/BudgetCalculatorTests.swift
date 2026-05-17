@@ -381,25 +381,35 @@ struct BudgetCalculatorPausedTests {
     #expect(snap.remaining == 0)
   }
 
-  @Test func snapshot_pauseActionPeriod_isStillActive() {
+  @Test func snapshot_pauseActionPeriod_isActiveBeforePauseMoment() {
+    // Under the moment-granular UI classifier (F-7.06), the pause-action period is
+    // active for the UI only BEFORE the pause moment; after the pause moment, the UI
+    // flips to .paused even though the math (walker) still treats the whole period as
+    // active for carry-over accrual. See BudgetCalculatorMomentGranularPauseTests for
+    // the after-pause-moment sibling test.
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(startDate: startDate)
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 10))
     pauseEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent]
-    // now = Apr 10 itself (the pause-action period)
+    // now = midnight Apr 10 (in the pause-action period but BEFORE the pause moment).
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal)
     #expect(snap.lifecycleState == .active)
   }
 
-  @Test func snapshot_resumeActionPeriod_isActive() {
+  @Test func snapshot_resumeActionPeriod_isActiveAfterResumeMoment() {
+    // Under moment-granular UI (F-7.06), the resume-action period flips to .active only
+    // AFTER the resume moment. Before the resume moment in the same period, the budget
+    // is still paused (the resume hasn't taken effect yet). The math classifier still
+    // treats the whole resume-action period as active for walker accrual.
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(startDate: startDate)
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 10))
     let resumeEvent = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 15, hour: 10))
     pauseEvent.budget = budget; resumeEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent, resumeEvent]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    // now = 12:00 on Apr 15 — strictly after the resume moment.
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15, hour: 12), calendar: cal)
     #expect(snap.lifecycleState == .active)
   }
 

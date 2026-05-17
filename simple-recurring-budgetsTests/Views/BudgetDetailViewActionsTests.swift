@@ -312,3 +312,21 @@ struct PauseResumeToolbarVisibilityTests {
     #expect(resumeEvent != nil)
   }
 }
+
+// MARK: - Resume caption copy (pause-immediate-feedback change)
+
+struct ResumeCaptionCopyTests {
+  /// Lock in the source-string change "Resume to log expenses" → "Resume to log new expenses".
+  /// The caption is formatted with the pausedSince date; we don't care about the date format
+  /// here — just that the trailing clause acknowledges backdated entries remain available
+  /// (per F-7.06's two-clock model: Detail screen primary slot swaps, but backdated entry
+  /// via the Budgets-list `+` is still possible).
+  @Test func resumeCaptionFormat_includesLogNewExpenses_inEnglish() {
+    let formatted = String(
+      localized: "budgetDetail.action.resume.caption.format",
+      defaultValue: "Paused since %@. Resume to log new expenses.",
+      comment: "Caption below the Resume Budget button; argument is the abbreviated pause date"
+    )
+    #expect(formatted.contains("new expenses"))
+  }
+}

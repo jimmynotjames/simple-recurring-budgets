@@ -110,7 +110,7 @@ struct BudgetDetailView: View {
             if let pausedSince = lifecycle?.pausedSince {
               Text(String(
                 localized: "budgetDetail.action.resume.caption.format",
-                defaultValue: "Paused since \(pausedSince.formatted(date: .abbreviated, time: .omitted)). Resume to log expenses.",
+                defaultValue: "Paused since \(pausedSince.formatted(date: .abbreviated, time: .omitted)). Resume to log new expenses.",
                 comment: "Caption below the Resume Budget button; argument is the abbreviated pause date"
               ))
               .font(.caption)

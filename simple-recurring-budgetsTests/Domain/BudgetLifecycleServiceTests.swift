@@ -54,6 +54,28 @@ struct BudgetLifecycleResultTests {
     #expect(r1.pausedSince == d(2026, 4, 10))
   }
 
+  /// Locks in the service-seam contract: even when `now` is one minute after a mid-period
+  /// pause (same period as the pause), `BudgetLifecycleResult.lifecycleState` must already
+  /// be `.paused`. The snapshot-level moment-granular tests cover the math; this asserts the
+  /// adapter's pass-through is correct so view sites see the immediate flip.
+  @Test func result_lifecycleState_flipsPaused_immediately_onMidPeriodPause() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(startDate: startDate, in: ctx)
+    let pauseMoment = d(2026, 5, 16, hour: 10)
+    let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: pauseMoment)
+    pauseEvent.budget = budget; ctx.insert(pauseEvent)
+    try ctx.save()
+
+    // 60 seconds after the pause moment — still inside the pause-action period.
+    let oneMinuteAfter = pauseMoment.addingTimeInterval(60)
+    let result = BudgetLifecycleService.result(for: budget, now: oneMinuteAfter, calendar: cal)
+
+    #expect(result.lifecycleState == .paused)
+    #expect(result.pausedSince == pauseMoment)
+  }
+
   @Test func result_doesNotMutateBudget() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)

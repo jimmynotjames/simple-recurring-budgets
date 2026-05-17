@@ -203,7 +203,7 @@ struct BudgetDetailView: View {
               defaultValue: "Reset Budget…",
               comment: "Menu item that opens the reset budget confirmation dialog"
             ),
-            systemImage: "trash",
+            systemImage: "arrow.counterclockwise",
             role: .destructive
           ) {
             showResetBudgetConfirm = true

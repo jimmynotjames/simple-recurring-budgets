@@ -293,20 +293,9 @@ struct BudgetDetailView: View {
             .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
             .lineLimit(1)
 
-          VStack(alignment: .leading, spacing: 2) {
-            Text(period.listLabel)
-              .font(.callout)
-              .foregroundStyle(.secondary)
-            if isPaused, let pausedSince = lifecycle?.pausedSince {
-              Text(String(
-                localized: "chip.paused.caption.format",
-                defaultValue: "Paused since \(pausedSince.formatted(date: .abbreviated, time: .omitted))",
-                comment: "Caption shown when a budget is paused; argument is the abbreviated date the budget was paused"
-              ))
-              .font(.caption)
-              .foregroundStyle(.secondary)
-            }
-          }
+          Text(period.listLabel)
+            .font(.callout)
+            .foregroundStyle(.secondary)
         }
 
         RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget, dimmed: isPaused)
@@ -316,14 +305,16 @@ struct BudgetDetailView: View {
       .accessibilityLabel(headerA11yLabel)
       .accessibilityAddTraits(.isHeader)
 
-      if budget.isCarryOverEnabled {
-        HStack(alignment: .center, spacing: 8) {
-          CarryOverChip(
-            amount: carryOverAmount,
-            currencyCode: budget.currencyCode,
-            display: settings.currencyDisplay,
-            dimmed: isPaused
-          )
+      StatusChipRow(
+        isPaused: isPaused,
+        pausedSince: lifecycle?.pausedSince,
+        isCarryOverEnabled: budget.isCarryOverEnabled,
+        carryOverAmount: carryOverAmount,
+        currencyCode: budget.currencyCode,
+        currencyDisplay: settings.currencyDisplay,
+        topSpacing: chipTopSpacing
+      ) {
+        if budget.isCarryOverEnabled {
           Button(String(
             localized: "budgetDetail.resetCarryOver.button",
             defaultValue: "Reset",
@@ -342,7 +333,6 @@ struct BudgetDetailView: View {
               comment: "VoiceOver hint for the Reset Carry-Over button, communicating the destructive (but non-cascading) consequence"
             ))
         }
-        .padding(.top, chipTopSpacing)
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -403,17 +393,12 @@ struct BudgetDetailView: View {
 
   // MARK: - Accessibility
 
+  /// Builds the VoiceOver label for the header.
+  ///
+  /// The paused state is announced separately by `PausedChip`'s own VO element,
+  /// so this label only carries the data (remaining + period, or over-budget).
   private var headerA11yLabel: String {
-    if isPaused, let pausedSince = lifecycle?.pausedSince {
-      let formattedRemaining = remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)
-      let formattedDate = pausedSince.formatted(date: .abbreviated, time: .omitted)
-      return String(
-        localized: "budgetDetail.header.accessibilityLabel.paused",
-        defaultValue: "\(formattedRemaining) remaining this \(period.inlineLabel) period, paused since \(formattedDate)",
-        comment: "VoiceOver label for the budget header when paused; arguments are the formatted remaining amount, period name, and pause date"
-      )
-    }
-    return isOverBudget
+    isOverBudget
       ? String(
         localized: "budgetDetail.header.accessibilityLabel.overBudget",
         defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget this \(period.inlineLabel) period",

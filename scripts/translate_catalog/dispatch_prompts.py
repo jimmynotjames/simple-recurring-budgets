@@ -11,7 +11,13 @@ and {SOURCE_JSON} substituted. The SOURCE_JSON slice contains only the keys
 that locale actually needs.
 
 Usage:
-  python3 scripts/translate_catalog/dispatch_prompts.py
+  python3 scripts/translate_catalog/dispatch_prompts.py [--no-clean]
+
+By default, also deletes any pre-existing tmp/translate-outputs/{locale}.json
+files for the locales in the manifest, so subagents start from a clean slate
+and validate.py --subset doesn't trip on leftover keys from prior runs. Pass
+--no-clean to preserve those files (rare — generally only useful if you are
+manually iterating on a single locale).
 
 The parent agent then reads each {locale}.md and dispatches one subagent per
 locale with that prompt as the input. Subagents write their output JSON to
@@ -20,6 +26,7 @@ tmp/translate-outputs/{locale}.json.
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -27,6 +34,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 INPUTS_DIR = REPO_ROOT / "tmp" / "translate-inputs"
 PROMPTS_DIR = REPO_ROOT / "tmp" / "translate-prompts"
+OUTPUTS_DIR = REPO_ROOT / "tmp" / "translate-outputs"
 SOURCE_PATH = INPUTS_DIR / "source.json"
 MANIFEST_PATH = INPUTS_DIR / "manifest.json"
 TEMPLATE_PATH = Path(__file__).parent / "PROMPT_TEMPLATE.md"
@@ -49,7 +57,15 @@ REGIONAL_NOTES: dict[str, str] = {
 }
 
 
-def main() -> int:
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        "--no-clean",
+        action="store_true",
+        help="Do not delete pre-existing tmp/translate-outputs/{locale}.json files.",
+    )
+    args = parser.parse_args(argv)
+
     if not SOURCE_PATH.exists() or not MANIFEST_PATH.exists():
         print(
             "ERROR: missing source.json or manifest.json. "
@@ -73,6 +89,19 @@ def main() -> int:
     for existing in PROMPTS_DIR.glob("*.md"):
         existing.unlink()
 
+    # Clear stale per-locale output files for the locales we're about to dispatch,
+    # so subagents start from a clean slate and validate --subset doesn't trip on
+    # leftover keys from a prior run on a different branch.
+    if not args.no_clean and OUTPUTS_DIR.exists():
+        cleaned = 0
+        for locale in manifest:
+            stale = OUTPUTS_DIR / f"{locale}.json"
+            if stale.exists():
+                stale.unlink()
+                cleaned += 1
+        if cleaned:
+            print(f"Cleaned {cleaned} stale output file(s) from {OUTPUTS_DIR}")
+
     for locale in sorted(manifest):
         keys = manifest[locale]
         slice_source = {k: source[k] for k in keys if k in source}
@@ -95,4 +124,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

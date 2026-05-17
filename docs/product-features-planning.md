@@ -75,7 +75,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - **Lifecycle chip presentations** apply on each row:
     - **Pre-start** (`now < startDate`): "Starts on X" treatment; underlying value is 0.
     - **Post-end** (`now > endDate`): "Ended on X" treatment; chip frozen at the final tally.
-    - **Paused**: "Paused since X" treatment; the value can still change due to backdated edits to prior active periods.
+    - **Paused**: the row is clearly marked as paused and surfaces the pause date; the value can still change due to backdated edits to prior active periods.
   - **Drag-to-reorder budgets** — user can reorder the list via standard iOS edit-mode drag (and long-press drag where the platform supports it); the order is persisted via `Budget.sortOrder` so it survives app relaunch and syncs across the user's iCloud-paired devices.
   - This **Budgets screen** is the top level of the app.
 - **Edge Cases / Notes:** The Voice query feature (F-7.03) must return the same value the chip displays in every state above.
@@ -93,7 +93,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - **Lifecycle chip presentations** (applies to both header and inline `CarryOverChip`):
     - **Pre-start** (`now < startDate`): "Starts on X" treatment; underlying value is 0.
     - **Post-end** (`now > endDate`): "Ended on X" treatment; chip frozen at the final tally.
-    - **Paused**: "Paused since X" treatment; the chip is visible but visually marked paused (e.g., greyed value). The value can still change due to backdated edits to prior active periods.
+    - **Paused**: the chip is visible and clearly marked as paused, and the pause date is surfaced on the screen. The value can still change due to backdated edits to prior active periods.
   - **Status header** — large monospaced remaining amount (deficit-tinted when negative), period label, fuel-gauge `RemainingBar`, and — when carry-over is enabled and the period type is recurring — an inline `CarryOverChip` and a small **Reset** button for the manual carry-over reset.
   - **Adaptive header layout** — remaining amount and period label render side-by-side below `.xxxLarge` Dynamic Type; stacked vertically at `.xxxLarge` and above. Row spacing scales via `@ScaledMetric`.
   - **Primary action slot** — a full-width `.borderedProminent` button whose contents are state-driven:
@@ -453,7 +453,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - **Allocation edits while paused** take effect at the resume point — they apply to the period containing the Resume action and every subsequent active period (see F-2.03). "While paused" begins at the pause moment under the moment-granular UI, so an allocation edit made between the pause-tap and the next period boundary also defers to resume.
   - **Backdated expenses to prior active periods** are always accepted (whether the budget is currently paused or active) and recompute the carry-over of the period they fall in; that change propagates forward through all subsequent active periods. The Add/Edit Expense date picker is constrained to the union of active periods while paused with the pause moment as the upper bound (see F-2.04).
   - **Manual Reset Carry-Over** and **Reset Budget** remain available while paused (see F-2.02). The Edit Budget sheet stays open.
-  - **Chip presentation while paused:** the chip is visible but visually marked paused (e.g., greyed value, "Paused since X" caption) on both the Budgets screen and Budget detail screen (see F-2.01 and F-2.02). The value can still change while paused due to backdated edits to prior active periods.
+  - **Paused-state presentation:** on both the Budgets screen and Budget detail screen, the chip is visible and clearly marked as paused, and the pause date is surfaced (see F-2.01 and F-2.02). The value can still change while paused due to backdated edits to prior active periods.
   - **Pause before `startDate`:** if Pause is invoked while `startDate` is still in the future, the pause is recorded as if it occurred on `startDate`. The pre-start chip presentation is preserved until `startDate`; from `startDate` onward the budget is in a paused state until the user resumes.
   - **`endDate` is terminal:** once `endDate` is reached, the budget cannot be resumed. If `endDate` falls inside a paused period, no special handling is required — the chip is already frozen at the most-recent-pause value, and reaching `endDate` simply makes that frozen state terminal.
 - **Edge Cases / Notes:**

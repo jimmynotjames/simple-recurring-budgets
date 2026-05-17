@@ -161,6 +161,7 @@ struct BudgetRowView: View {
   @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 7
   @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
   @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 12
+  @ScaledMetric(relativeTo: .caption) private var statusChipSpacing: CGFloat = 6
   @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 6
 
   private var period: BudgetPeriod {
@@ -213,20 +214,9 @@ struct BudgetRowView: View {
                 .foregroundStyle(dimmedStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit, when: isPaused))
                 .lineLimit(1)
 
-              VStack(alignment: .leading, spacing: 2) {
-                Text(period.listLabel)
-                  .font(.callout)
-                  .foregroundStyle(.secondary)
-                if isPaused, let pausedSince = lifecycle?.pausedSince {
-                  Text(String(
-                    localized: "chip.paused.caption.format",
-                    defaultValue: "Paused since \(pausedSince.formatted(date: .abbreviated, time: .omitted))",
-                    comment: "Caption shown when a budget is paused; argument is the abbreviated date the budget was paused"
-                  ))
-                  .font(.caption)
-                  .foregroundStyle(.secondary)
-                }
-              }
+              Text(period.listLabel)
+                .font(.callout)
+                .foregroundStyle(.secondary)
             }
 
             // Line 3: Indicator bar (hidden from assistive technologies;
@@ -244,16 +234,15 @@ struct BudgetRowView: View {
           comment: "VoiceOver hint for a budget row; describes what happens when the user activates it"
         ))
 
-        // Line 4: Carry-over chip — separate from the button so VoiceOver
-        // can read it as a distinct static-text element. The chip itself
-        // owns its accessibilityElement / accessibilityLabel.
-        if budget.isCarryOverEnabled {
-          CarryOverChip(
-            amount: lifecycle?.carryOverAmount ?? 0,
-            currencyCode: budget.currencyCode,
-            display: settings.currencyDisplay,
-            dimmed: isPaused
-          )
+        // Line 4: Status chip row — paused + carry-over. Lives outside the
+        // button so VoiceOver reads each chip as its own static-text element.
+        // ViewThatFits drops to a vertical stack at large Dynamic Type when
+        // both chips together would exceed row width.
+        if showsStatusChipRow {
+          ViewThatFits(in: .horizontal) {
+            HStack(spacing: statusChipSpacing) { statusChips }
+            VStack(alignment: .leading, spacing: statusChipSpacing) { statusChips }
+          }
           .padding(.top, chipTopSpacing)
         }
       }
@@ -299,6 +288,25 @@ struct BudgetRowView: View {
 
   private func refreshLifecycle() {
     lifecycle = BudgetLifecycleService.result(for: budget)
+  }
+
+  private var showsStatusChipRow: Bool {
+    isPaused || budget.isCarryOverEnabled
+  }
+
+  @ViewBuilder
+  private var statusChips: some View {
+    if isPaused, let pausedSince = lifecycle?.pausedSince {
+      PausedChip(pausedSince: pausedSince)
+    }
+    if budget.isCarryOverEnabled {
+      CarryOverChip(
+        amount: lifecycle?.carryOverAmount ?? 0,
+        currencyCode: budget.currencyCode,
+        display: settings.currencyDisplay,
+        dimmed: isPaused
+      )
+    }
   }
 
   /// Builds the VoiceOver label for the row button.

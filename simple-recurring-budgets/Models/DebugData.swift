@@ -189,6 +189,20 @@
       return budget
     }
 
+    static func dailyPaused(now: Date = Date()) -> Budget {
+      let budget = Budget(name: "Daily – Paused", currencyCode: "USD", period: .daily)
+      let startDate = Calendar.current.startOfDay(for: daysAgo(30, from: now))
+      budget.startDate = startDate
+      let expenses = [
+        ExpenseItem(amount: 6.50, name: "Coffee", date: daysAgo(20, from: now)),
+        ExpenseItem(amount: 11.75, name: "Lunch", date: daysAgo(19, from: now)),
+      ]
+      attach(expenses, to: budget)
+      addInitialChange(amount: 25, startDate: startDate, to: budget)
+      addPauseEvent(effectiveDate: daysAgo(14, from: now), to: budget)
+      return budget
+    }
+
     static func monthlyWithDeficitCarryOver(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Monthly – Deficit Carry-Over", currencyCode: "USD", period: .monthly)
       let cal = Calendar.current
@@ -213,6 +227,7 @@
       [
         dailyWithSurplusCarryOver(now: now),
         monthlyWithDeficitCarryOver(now: now),
+        dailyPaused(now: now),
         dailyDefault(now: now),
         weeklyDefault(now: now),
         biweeklyDefault(now: now),
@@ -233,6 +248,9 @@
         for change in budget.allocationChanges {
           context.insert(change)
         }
+        for event in budget.lifecycleEvents {
+          context.insert(event)
+        }
       }
       try? context.save()
     }
@@ -250,6 +268,12 @@
       let change = AllocationChange(effectiveFrom: startDate, amount: amount)
       change.budget = budget
       budget.allocationChangesStorage = [change]
+    }
+
+    private static func addPauseEvent(effectiveDate: Date, to budget: Budget) {
+      let event = LifecycleEvent(kind: .pause, effectiveDate: effectiveDate)
+      event.budget = budget
+      budget.lifecycleEventsStorage = (budget.lifecycleEventsStorage ?? []) + [event]
     }
   }
 #endif

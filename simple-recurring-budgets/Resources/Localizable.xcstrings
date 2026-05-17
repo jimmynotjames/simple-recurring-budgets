@@ -18008,235 +18008,235 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يحذف جميع مصروفات هذه الميزانية نهائياً ويعيد الترحيل إلى الصفر."
+            "value": "يحذف بشكل دائم جميع نفقات هذه الميزانية، ويعيد تعيين الرصيد المحمول إلى صفر، ويستأنف الميزانية إذا كانت موقوفة."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentment totes les despeses d'aquest pressupost i posa el romanent a zero."
+            "value": "Suprimeix de forma permanent totes les despeses d'aquest pressupost, reestableix el saldo restant a zero i reprèn el pressupost si està pausat."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trvale odstraní všechny výdaje tohoto rozpočtu a resetuje přenesený zůstatek na nulu."
+            "value": "Trvale smaže všechny výdaje tohoto rozpočtu, vynuluje přenesený zůstatek a obnoví rozpočet, pokud je pozastaven."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sletter alle udgifter for dette budget permanent og nulstiller overførslen til nul."
+            "value": "Sletter permanent alle udgifter for dette budget, nulstiller overskabt til nul, og genoptager budgettet, hvis det er sat på pause."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Löscht alle Ausgaben für dieses Budget dauerhaft und setzt den Übertrag auf null zurück."
+            "value": "Löscht alle Ausgaben für dieses Budget dauerhaft, setzt den Übertrag auf null zurück und setzt das Budget fort, falls es pausiert ist."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Διαγράφει οριστικά όλα τα έξοδα αυτού του προϋπολογισμού και μηδενίζει τη μεταφορά υπολοίπου."
+            "value": "Διαγράφει μόνιμα κάθε δαπάνη γι' αυτό το προϋπολογισμό, επαναφέρει το υπόλοιπο μεταφοράς στο μηδέν και συνεχίζει το προϋπολογισμό εάν είναι σε παύση."
           }
         },
         "en": {
           "stringUnit": {
             "state": "new",
-            "value": "Permanently deletes every expense for this budget and resets carry-over to zero."
+            "value": "Permanently deletes every expense for this budget, resets carry-over to zero, and resumes the budget if it is paused."
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Permanently deletes every expense for this budget and resets carry-over to zero."
+            "value": "Permanently deletes every expense for this budget, resets carry-over to zero, and resumes the budget if it is paused."
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Permanently deletes every expense for this budget and resets carry-over to zero."
+            "value": "Permanently deletes every expense for this budget, resets carry-over to zero, and resumes the budget if it is paused."
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "Permanently deletes every expense for this budget and resets carry-over to zero."
+            "value": "Permanently deletes every expense for this budget, resets carry-over to zero, and resumes the budget if it is paused."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentemente todos los gastos de este presupuesto y restablece el saldo acumulado a cero."
+            "value": "Elimina permanentemente todos los gastos de este presupuesto, restablece el saldo acumulado a cero y reanuda el presupuesto si está pausado."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentemente todos los gastos de este presupuesto y restablece el saldo acumulado a cero."
+            "value": "Elimina permanentemente todos los gastos de este presupuesto, reinicia el saldo acumulado a cero y reanuda el presupuesto si está pausado."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poistaa pysyvästi kaikki tämän budjetin kulut ja nollaa siirron."
+            "value": "Poistaa tämän budjetin kaikki menot pysyvästi, nollaa siirtosaldon ja ottaa budjetin uudelleen käyttöön, jos se on pausolla."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprime définitivement toutes les dépenses de ce budget et remet le report à zéro."
+            "value": "Supprime définitivement toutes les dépenses de ce budget, réinitialise le solde reporté à zéro et reprend le budget s'il est en pause."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprime définitivement toutes les dépenses de ce budget et remet le solde reporté à zéro."
+            "value": "Supprime de façon permanente toutes les dépenses de ce budget, réinitialise le solde reporté à zéro, et reprend le budget s'il est en pause."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מוחק לצמיתות את כל ההוצאות בתקציב זה ומאפס את היתרה המועברת לאפס."
+            "value": "מוחק לצמיתות כל הוצאה בתקציב זה, מאפס את היתרה המובאה לאפס, וחוזר לתקציב אם הוא הושהה."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "इस बजट के सभी खर्च स्थायी रूप से हटा देता है और कैरी-ओवर शून्य पर रीसेट करता है।"
+            "value": "इस बजट के सभी खर्चों को स्थायी रूप से हटाता है, आगे ले जाई गई राशि को शून्य में रीसेट करता है, और यदि बजट रोका गया है, तो इसे फिर से चालू करता है।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trajno briše sve troškove ovog proračuna i postavlja preneseni saldo na nulu."
+            "value": "Trajno briše sve izdatke za ovaj proračun, resetira prebacivanje na nulu i nastavlja proračun ako je pauziran."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Véglegesen törli a büdzsé összes kiadását, és nullára állítja az áthozott egyenleget."
+            "value": "Véglegesen törli a költségvetés összes kiadását, visszaállítja az egyenleget nullára, és folytatja a költségvetést, ha szünetelt."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menghapus semua pengeluaran untuk anggaran ini secara permanen dan mereset saldo carryover ke nol."
+            "value": "Menghapus setiap pengeluaran untuk anggaran ini secara permanen, mereset saldo pembawaan ke nol, dan melanjutkan anggaran jika dijeda."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina definitivamente tutte le spese di questo budget e azzera il saldo riportato."
+            "value": "Elimina definitivamente tutte le spese di questo budget, azzera il riporto e riprende il budget se è in pausa."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この予算のすべての支出を完全に削除し、繰越残高をゼロにリセットします。"
+            "value": "この予算のすべての支出を完全に削除し、繰越額をゼロにリセットして、一時停止中の場合は予算を再開します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 예산의 모든 지출을 영구적으로 삭제하고 이월 잔액을 0으로 초기화해요."
+            "value": "이 예산의 모든 지출을 영구적으로 삭제하고, 이월액을 0으로 초기화하며, 일시 중지된 예산을 재개합니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Memadamkan semua perbelanjaan untuk belanjawan ini secara kekal dan menetapkan semula baki yang dibawa kepada sifar."
+            "value": "Memadamkan setiap perbelanjaan untuk bajet ini secara kekal, menetapkan semula bawa-ke-hadapan kepada sifar, dan menyambung semula bajet jika ia dijeda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sletter alle utgifter for dette budsjettet permanent og nullstiller overføringssaldoen."
+            "value": "Sletter permanent alle utgifter for dette budsjettet, nullstiller overføring, og gjenopptar budsjettet hvis det er pausert."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwijdert alle uitgaven voor dit budget permanent en reset het overgedragen saldo naar nul."
+            "value": "Verwijdert permanent alle uitgaven voor dit budget, zet de voorraadbehoud op nul en herstart het budget als het is onderbroken."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trwale usuwa wszystkie wydatki z tego budżetu i zeruje przeniesione saldo."
+            "value": "Trwale usuwa wszystkie wydatki dla tego budżetu, resetuje przeniesienie salda do zera i wznawia budżet, jeśli jest wstrzymany."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exclui permanentemente todas as despesas deste orçamento e redefine o saldo acumulado para zero."
+            "value": "Deleta permanentemente todas as despesas deste orçamento, reseta o saldo para zero e retoma o orçamento se estiver pausado."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentemente todas as despesas deste orçamento e repõe o saldo transitado a zero."
+            "value": "Elimina permanentemente todas as despesas deste orçamento, repõe o saldo a zero e retoma o orçamento se estiver pausado."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Șterge definitiv toate cheltuielile acestui buget și resetează soldul reportat la zero."
+            "value": "Șterge permanent fiecare cheltuială pentru acest buget, resetează soldul reportat la zero și reia bugetul dacă este pus în pauză."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Удаляет все расходы этого бюджета и обнуляет перенесённый баланс."
+            "value": "Окончательно удаляет все расходы этого бюджета, сбрасывает остаток на ноль и возобновляет бюджет, если он приостановлен."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Natrvalo odstráni všetky výdavky tohto rozpočtu a vynuluje prenesený zostatok."
+            "value": "Natrvalo odstráni všetky výdavky pre tento rozpočet, vynuluje prebytok a obnoví rozpočet, ak je pozastavený."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tar bort alla utgifter för den här budgeten permanent och återställer det överförda saldot till noll."
+            "value": "Tar bort alla utgifter permanent för denna budget, nollställer överföringsmängden och återupptar budgeten om den är pausad."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ลบรายจ่ายทั้งหมดของงบประมาณนี้อย่างถาวรและรีเซ็ตยอดยกมาเป็นศูนย์"
+            "value": "ลบรายการค่าใช้จ่ายทั้งหมดของงบประมาณนี้อย่างถาวร รีเซ็ตยอดเงินที่นำไปยังงวดถัดไปเป็นศูนย์ และเริ่มทำงานของงบประมาณอีกครั้งหากหยุดชั่วคราวอยู่"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bu bütçedeki tüm harcamaları kalıcı olarak siler ve devredilen bakiyeyi sıfırlar."
+            "value": "Bu bütçenin tüm harcamalarını kalıcı olarak siler, bakiyeyi sıfırlar ve duraklatılmışsa bütçeyi devam ettirir."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Остаточно видаляє всі витрати цього бюджету та скидає перенесений залишок до нуля."
+            "value": "Безповоротно видаляє всі видатки для цього бюджету, скидає залишок на нуль і возобновляє бюджет, якщо він призупинений."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa vĩnh viễn tất cả chi tiêu của ngân sách này và đặt lại số dư chuyển kỳ về không."
+            "value": "Xóa vĩnh viễn tất cả chi phí cho ngân sách này, đặt lại số dư chuyển tiếp về 0 và tiếp tục ngân sách nếu nó đang tạm dừng."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "永久删除此预算的所有支出，并将结转余额重置为零。"
+            "value": "永久删除此预算的所有支出，将结转余额重置为零，如预算已暂停则恢复预算。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "永久刪除此預算的所有支出，並將 Carry-Over 重設為零。"
+            "value": "永久刪除此預算的所有支出、將結餘結轉重設為零，以及若預算已暫停將恢復執行。"
           }
         }
       }
@@ -18727,235 +18727,235 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ستُحذف جميع المصروفات نهائياً وسيُعاد رصيد الترحيل إلى الصفر."
+            "value": "سيتم حذف جميع النفقات بشكل دائم، وإعادة تعيين الرصيد المحمول إلى صفر، وإذا كانت الميزانية موقوفة فستستأنف عملها."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Totes les despeses s'eliminaran permanentment i el saldo romanent es restablirà a zero."
+            "value": "Totes les despeses es suprimiran de forma permanent, el saldo restant es reestablirà a zero i, si està pausat, el pressupost es reprendrà."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Všechny výdaje budou trvale odstraněny a přenesený zůstatek bude resetován na nulu."
+            "value": "Všechny výdaje budou trvale smazány, přenesený zůstatek bude vynulován a pokud je rozpočet pozastaven, bude obnoben."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle udgifter slettes permanent og overførselsbalancen nulstilles."
+            "value": "Alle udgifter slettes permanent, overskabt nulstilles til nul, og hvis den er sat på pause, genoptages budgettet."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Ausgaben werden dauerhaft gelöscht und der Übertragsaldo auf null zurückgesetzt."
+            "value": "Alle Ausgaben werden dauerhaft gelöscht, der Übertrag wird auf null zurückgesetzt, und wenn das Budget pausiert ist, wird es fortgesetzt."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Όλα τα έξοδα θα διαγραφούν οριστικά και το υπόλοιπο μεταφοράς θα μηδενιστεί."
+            "value": "Όλες οι δαπάνες θα διαγραφούν μόνιμα, το υπόλοιπο μεταφοράς θα επανέρθει στο μηδέν και εάν είναι σε παύση, το προϋπολογισμό θα συνεχίσει."
           }
         },
         "en": {
           "stringUnit": {
-            "state": "translated",
-            "value": "All expenses will be permanently deleted and the carry-over balance will be reset to zero."
+            "state": "new",
+            "value": "All expenses will be permanently deleted, carry-over will reset to zero, and if paused, the budget will resume."
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "All expenses will be permanently deleted and the carry-over balance will be reset to zero."
+            "value": "All expenses will be permanently deleted, carry-over will reset to zero, and if paused, the budget will resume."
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "All expenses will be permanently deleted and the carry-over balance will be reset to zero."
+            "value": "All expenses will be permanently deleted, carry-over will reset to zero, and if paused, the budget will resume."
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "All expenses will be permanently deleted and the carry-over balance will be reset to zero."
+            "value": "All expenses will be permanently deleted, carry-over will reset to zero, and if paused, the budget will resume."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todos los gastos se eliminarán permanentemente y el saldo acumulado se restablecerá a cero."
+            "value": "Todos los gastos se eliminarán permanentemente, el saldo acumulado se restablecerá a cero y, si está pausado, el presupuesto se reanudará."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todos los gastos se eliminarán permanentemente y el saldo acumulado se restablecerá a cero."
+            "value": "Se eliminarán permanentemente todos los gastos, el saldo acumulado se reiniciará a cero y, si está pausado, el presupuesto se reanudará."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kaikki kulut poistetaan pysyvästi ja siirtosaldo nollataan."
+            "value": "Kaikki menot poistetaan pysyvästi, siirtosaldo nollataan ja jos budjetti on pausolla, se otetaan uudelleen käyttöön."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toutes les dépenses seront définitivement supprimées et le solde reporté sera remis à zéro."
+            "value": "Toutes les dépenses seront définitivement supprimées, le solde reporté sera réinitialisé à zéro, et le budget reprendra s'il est en pause."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toutes les dépenses seront définitivement supprimées et le solde reporté sera remis à zéro."
+            "value": "Toutes les dépenses seront supprimées de façon permanente, le solde reporté sera réinitialisé à zéro, et le budget reprendra s'il est en pause."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כל ההוצאות יימחקו לצמיתות והיתרה המועברת תאופס לאפס."
+            "value": "כל ההוצאות תימחקנה לצמיתות, היתרה המובאה תאופס לאפס, וההוצאה תחודש אם היא הושהתה."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "सभी खर्च स्थायी रूप से हटा दिए जाएंगे और कैरी-ओवर बैलेंस शून्य पर रीसेट हो जाएगा।"
+            "value": "सभी खर्च स्थायी रूप से हटा दिए जाएंगे, आगे ले जाई गई राशि शून्य में रीसेट हो जाएगी, और यदि बजट रोका गया है, तो यह फिर से चालू हो जाएगा।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Svi troškovi bit će trajno izbrisani, a preneseni saldo postavit će se na nulu."
+            "value": "Svi izdaci će biti trajno izbrisani, prebacivanje će se resetirati na nulu, a ako je pauziran, proračun će se nastaviti."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az összes kiadás véglegesen törlődik, és az áthozott egyenleg nullára áll vissza."
+            "value": "Az összes kiadás véglegesen törlésre kerül, az egyenleg vissza lesz állítva nullára, és ha szünetel, a költségvetés folytatódik."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Semua pengeluaran akan dihapus secara permanen dan saldo carryover akan direset ke nol."
+            "value": "Semua pengeluaran akan dihapus secara permanen, saldo pembawaan akan direset ke nol, dan jika dijeda, anggaran akan dilanjutkan kembali."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutte le spese verranno eliminate definitivamente e il saldo riportato sarà azzerato."
+            "value": "Tutte le spese verranno eliminate definitivamente, il riporto sarà azzerato e se il budget è in pausa, riprenderà."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべての支出が完全に削除され、繰越残高がゼロにリセットされます。"
+            "value": "すべての支出が完全に削除され、繰越額がゼロにリセットされ、一時停止中の場合は予算が再開されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 지출이 영구적으로 삭제되고 이월 잔액이 0으로 초기화돼요."
+            "value": "모든 지출이 영구적으로 삭제되고, 이월액이 0으로 초기화되며, 일시 중지된 경우 예산이 재개됩니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Semua perbelanjaan akan dipadamkan secara kekal dan baki yang dibawa akan ditetapkan semula kepada sifar."
+            "value": "Semua perbelanjaan akan dipadamkan secara kekal, bawa-ke-hadapan akan ditetapkan semula kepada sifar, dan jika dijeda, bajet akan disambung semula."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle utgifter slettes permanent og overført saldo nullstilles."
+            "value": "Alle utgifter blir permanent slettet, overføring nullstilles, og hvis budsjettet er pausert, vil det gjenoppta."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle uitgaven worden permanent verwijderd en het overgedragen saldo wordt gereset naar nul."
+            "value": "Alle uitgaven worden permanent verwijderd, de voorraadbehoud wordt teruggezet naar nul, en als het budget is onderbroken, wordt het hervat."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wszystkie wydatki zostaną trwale usunięte, a przeniesione saldo zostanie wyzerowane."
+            "value": "Wszystkie wydatki zostaną trwale usunięte, przeniesienie salda zostanie zresetowane do zera i jeśli budżet jest wstrzymany, zostanie wznowiony."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todas as despesas serão excluídas permanentemente e o saldo acumulado será redefinido para zero."
+            "value": "Todas as despesas serão deletadas permanentemente, o saldo será redefinido para zero e, se pausado, o orçamento será retomado."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todas as despesas serão eliminadas permanentemente e o saldo transitado será reposto a zero."
+            "value": "Todas as despesas serão eliminadas permanentemente, o saldo será reposto a zero e, se pausado, o orçamento será retomado."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toate cheltuielile vor fi șterse definitiv și soldul reportat va fi resetat la zero."
+            "value": "Toate cheltuielile vor fi șterse permanent, soldul reportat se va reseta la zero și, dacă este pus în pauză, bugetul va fi reluat."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Все расходы будут удалены безвозвратно, а перенесённый баланс обнулится."
+            "value": "Все расходы будут окончательно удалены, остаток переведёт в ноль, а если бюджет приостановлен, он возобновится."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Všetky výdavky budú natrvalo odstránené a prenesený zostatok bude vynulovaný."
+            "value": "Všetky výdavky budú natrvalo odstránené, prebytok sa vynuluje a ak je rozpočet pozastavený, bude obnovený."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alla utgifter tas bort permanent och det överförda saldot återställs till noll."
+            "value": "Alla utgifter tas bort permanent, överföringsmängden nollställs och budgeten återupptas om den är pausad."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "รายจ่ายทั้งหมดจะถูกลบอย่างถาวรและยอดยกมาจะถูกรีเซ็ตเป็นศูนย์"
+            "value": "รายการค่าใช้จ่ายทั้งหมดจะถูกลบอย่างถาวร ยอดเงินที่นำไปยังงวดถัดไปจะรีเซ็ตเป็นศูนย์ และหากงบประมาณหยุดชั่วคราวอยู่ จะเริ่มทำงานอีกครั้ง"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tüm harcamalar kalıcı olarak silinecek ve devredilen bakiye sıfırlanacak."
+            "value": "Tüm harcamalar kalıcı olarak silinecek, bakiye sıfırlanacak ve duraklatılmışsa bütçe devam edecektir."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Всі витрати будуть остаточно видалені, а перенесений залишок скинуто до нуля."
+            "value": "Усі видатки буде безповоротно видалено, залишок буде скинуто на нуль, а якщо бюджет призупинений, він возобновиться."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tất cả chi tiêu sẽ bị xóa vĩnh viễn và số dư chuyển kỳ sẽ được đặt lại về không."
+            "value": "Tất cả chi phí sẽ bị xóa vĩnh viễn, số dư chuyển tiếp sẽ được đặt lại về 0 và nếu ngân sách đang tạm dừng, nó sẽ được tiếp tục."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有支出将被永久删除，结转余额将重置为零。"
+            "value": "所有支出将被永久删除，结转余额将重置为零，如已暂停，预算将继续进行。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有支出將被永久刪除，Carry-Over 餘額將重設為零。"
+            "value": "所有支出將被永久刪除、結餘結轉將重設為零，以及若預算已暫停，將恢復執行。"
           }
         }
       }

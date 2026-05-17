@@ -1,53 +1,92 @@
 # Translation pipeline
 
-Translates `Localizable.xcstrings` from English into App Store storefront locales
-using AI subagents (Cursor `composer-2-fast`; swap for Haiku in environments where that model is available).
+Translates `Localizable.xcstrings` from English into the 38 App Store storefront locales
+using AI subagents (one per locale, dispatched in parallel by a parent agent).
+
+The skill at `.claude/skills/translate-new-strings/` encodes the canonical workflow for
+adding translations for newly-keyed strings; this README is the authority for *what each
+script does*. The skill is the authority for *when and how to invoke them*.
 
 ## Scripts
 
 | Script | Purpose |
 |---|---|
 | `locales.py` | Single source of truth: `LOCALES` list + `LOCALE_NAMES` map |
-| `extract.py` | Reads the catalog → writes `tmp/translate-inputs/source.json` |
-| `validate.py` | Validates `tmp/translate-outputs/{locale}.json` files against source |
-| `merge.py` | Merges validated outputs back into `Localizable.xcstrings` |
-| `PROMPT_TEMPLATE.md` | Template used by the parent agent when fanning out per-locale subagents |
-
-## One-time setup
+| `extract.py` | Read the catalog → write `tmp/translate-inputs/source.json` (and optionally `manifest.json`) |
+| `dispatch_prompts.py` | Compose per-locale prompt files in `tmp/translate-prompts/` from `manifest.json` + `PROMPT_TEMPLATE.md` |
+| `validate.py` | Validate `tmp/translate-outputs/{locale}.json` files against source |
+| `merge.py` | Merge validated outputs back into `Localizable.xcstrings` |
+| `PROMPT_TEMPLATE.md` | Template fed to per-locale subagents (placeholders substituted by `dispatch_prompts.py`) |
 
 No dependencies beyond Python 3 stdlib.
 
-## Full pipeline (initial backfill or re-generation)
+## Default flow — adding/changing a small set of strings
+
+Use this whenever you've added new `String(localized:)` / `LocalizedStringResource` keys
+or Xcode has flagged existing keys as `stale` / `needs_review`.
 
 ```bash
-# 1. Extract source
-python3 scripts/translate_catalog/extract.py
+# 1. Find what actually needs translating. Writes source.json AND manifest.json.
+python3 scripts/translate_catalog/extract.py --missing
 
-# 2. Fan out subagents — one per locale — each reads source.json, writes
-#    tmp/translate-outputs/{locale}.json.
-#    This step is driven by the parent Cursor agent using the Task tool.
-#    See PROMPT_TEMPLATE.md for the prompt each subagent receives.
+# 2. Compose ready-to-dispatch per-locale prompts.
+python3 scripts/translate_catalog/dispatch_prompts.py
 
-# 3. Validate all outputs (run after subagents finish)
-python3 scripts/translate_catalog/validate.py
+# 3. Parent agent: read each tmp/translate-prompts/{locale}.md and dispatch
+#    one subagent per locale with that prompt. Subagents must write their
+#    output JSON to tmp/translate-outputs/{locale}.json.
 
-# 4. Re-run failed locales (if any), then validate again
+# 4. Validate the partial outputs (subset mode — only checks keys actually translated).
+python3 scripts/translate_catalog/validate.py --subset
 
-# 5. Merge into catalog
+# 5. Merge into the catalog.
 python3 scripts/translate_catalog/merge.py
 
-# 6. Build + test
+# 6. Authoritative pre-push gate — must exit 0 before the work is done.
+python3 scripts/check_translations.py
+python3 scripts/check_source_strings.py
+
+# 7. Build + test
 make format && make lint-fix && make build && make test
 ```
 
-## Adding new strings in the future
+`check_translations.py` is the same script lefthook runs on pre-push (see `lefthook.yml`),
+so a clean exit here means the push will pass that gate.
 
-When Xcode auto-extracts new keys into `Localizable.xcstrings`:
+## Full backfill — regenerate every locale from scratch
 
-1. Run `extract.py` — it re-emits `source.json` with only the keys that exist in the catalog (including new ones).
-2. Fan out subagents for only the new keys (pass a subset JSON, or re-run all and let `merge.py` overwrite).
-3. Validate → merge as above.
+Only needed when changing the model, fixing a systemic prompt issue, or seeding a new
+catalog from scratch. Costs O(38 × all-keys).
 
-## Model note
+```bash
+python3 scripts/translate_catalog/extract.py                     # all keys, no manifest
+# Manually fan out subagents using PROMPT_TEMPLATE.md, one per locale, full source.json
+python3 scripts/translate_catalog/validate.py                    # strict — full source required
+python3 scripts/translate_catalog/merge.py
+python3 scripts/check_translations.py
+make format && make lint-fix && make build && make test
+```
 
-The pipeline was originally run with Cursor `composer-2-fast`. To regenerate with a different model (e.g. `claude-haiku-*` when available), update the `model` parameter in the Task tool calls and re-run steps 2–5 for any locale you want to improve.
+## Script flags reference
+
+`extract.py`:
+- (no flags) — emit every translatable key
+- `--keys k1,k2,...` — emit only those keys
+- `--keys-file PATH` — keys from a file, one per line
+- `--missing` — emit only keys missing/stale in any locale; also writes `manifest.json`
+
+`validate.py`:
+- `--subset` — only check keys present in each output file (partial-translation mode)
+- positional locale args — restrict to those locales
+
+`merge.py`:
+- `--keys k1,k2,...` / `--keys-file PATH` — only merge those keys, ignore others
+- positional locale args — restrict to those locales
+- Refuses to overwrite a catalog entry with an empty/non-string value (existing translation preserved)
+
+## Catalog assumptions
+
+- Keys with `"shouldTranslate": false` (locale-invariant identifiers) are skipped by `--missing`.
+- Plural / device variations (`"variations"` blocks) are not yet handled in `--missing` subset mode.
+  `check_translations.py` remains the authoritative gate and will catch any variation-shaped
+  issues at pre-push time.

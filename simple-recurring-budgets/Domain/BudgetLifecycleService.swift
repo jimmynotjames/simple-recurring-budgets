@@ -157,7 +157,16 @@ enum BudgetLifecycleService {
   }
 
   /// Deletes all expenses for `budget`, sets `Budget.lastResetDate = now`, and saves.
-  /// Preserves `AllocationChange` and `LifecycleEvent` rows.
+  /// Preserves `AllocationChange` and prior `LifecycleEvent` rows.
+  ///
+  /// If `budget.lifecycleState == .paused` at reset time, also inserts a `.resume`
+  /// `LifecycleEvent` with `effectiveDate == now` into the same context, so the
+  /// post-reset state is `.active` and the user is not left in a paused-but-empty
+  /// limbo. Does NOT call `resumeBudget(...)` — that method saves internally,
+  /// which would break the single-save atomicity guarantee. The inline insert is
+  /// safe because reaching `.paused` implies the budget is recurring (Specific
+  /// Dates budgets are not pausable per F-2.08) and not `.postEnd` (a terminal
+  /// budget cannot have `.paused` as its current state).
   static func resetBudget(
     _ budget: Budget,
     context: ModelContext,
@@ -168,6 +177,17 @@ enum BudgetLifecycleService {
     }
     budget.lastResetDate = now
     budget.lastModified = now
+    let snapshot = BudgetCalculator.snapshot(
+      budget: budget,
+      expenses: budget.expenseItems,
+      now: now,
+      calendar: .autoupdatingCurrent
+    )
+    if snapshot.lifecycleState == .paused {
+      let event = LifecycleEvent(kind: .resume, effectiveDate: now)
+      event.budget = budget
+      context.insert(event)
+    }
     try? context.save()
   }
 

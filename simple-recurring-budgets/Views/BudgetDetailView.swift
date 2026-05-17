@@ -210,7 +210,7 @@ struct BudgetDetailView: View {
           }
           .accessibilityHint(String(
             localized: "budgetDetail.menu.resetBudget.accessibilityHint",
-            defaultValue: "Permanently deletes every expense for this budget and resets carry-over to zero.",
+            defaultValue: "Permanently deletes every expense for this budget, resets carry-over to zero, and resumes the budget if it is paused.",
             comment: "VoiceOver hint for the destructive Reset Budget menu item, communicating the irreversible consequence"
           ))
         } label: {

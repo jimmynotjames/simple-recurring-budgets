@@ -161,7 +161,6 @@ struct BudgetRowView: View {
   @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 7
   @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
   @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 12
-  @ScaledMetric(relativeTo: .caption) private var statusChipSpacing: CGFloat = 6
   @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 6
 
   private var period: BudgetPeriod {
@@ -236,15 +235,15 @@ struct BudgetRowView: View {
 
         // Line 4: Status chip row — paused + carry-over. Lives outside the
         // button so VoiceOver reads each chip as its own static-text element.
-        // ViewThatFits drops to a vertical stack at large Dynamic Type when
-        // both chips together would exceed row width.
-        if showsStatusChipRow {
-          ViewThatFits(in: .horizontal) {
-            HStack(spacing: statusChipSpacing) { statusChips }
-            VStack(alignment: .leading, spacing: statusChipSpacing) { statusChips }
-          }
-          .padding(.top, chipTopSpacing)
-        }
+        StatusChipRow(
+          isPaused: isPaused,
+          pausedSince: lifecycle?.pausedSince,
+          isCarryOverEnabled: budget.isCarryOverEnabled,
+          carryOverAmount: lifecycle?.carryOverAmount ?? 0,
+          currencyCode: budget.currencyCode,
+          currencyDisplay: settings.currencyDisplay,
+          topSpacing: chipTopSpacing
+        )
       }
       .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -290,37 +289,12 @@ struct BudgetRowView: View {
     lifecycle = BudgetLifecycleService.result(for: budget)
   }
 
-  private var showsStatusChipRow: Bool {
-    isPaused || budget.isCarryOverEnabled
-  }
-
-  @ViewBuilder
-  private var statusChips: some View {
-    if isPaused, let pausedSince = lifecycle?.pausedSince {
-      PausedChip(pausedSince: pausedSince)
-    }
-    if budget.isCarryOverEnabled {
-      CarryOverChip(
-        amount: lifecycle?.carryOverAmount ?? 0,
-        currencyCode: budget.currencyCode,
-        display: settings.currencyDisplay,
-        dimmed: isPaused
-      )
-    }
-  }
-
   /// Builds the VoiceOver label for the row button.
   /// Intentionally set as computed var to handle hot-swapping localizations.
+  ///
+  /// The paused state is announced separately by `PausedChip`'s own VO element,
+  /// so this label only carries the data (name + remaining + period).
   private var rowAccessibilityLabel: String {
-    if isPaused, let pausedSince = lifecycle?.pausedSince {
-      let formattedRemaining = remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)
-      let formattedDate = pausedSince.formatted(date: .abbreviated, time: .omitted)
-      return String(
-        localized: "budget.row.accessibilityLabel.paused",
-        defaultValue: "\(budget.name), \(formattedRemaining) remaining this \(period.inlineLabel) period, paused since \(formattedDate)",
-        comment: "VoiceOver label for a paused budget row; arguments are the budget name, formatted remaining amount, period name, and pause date"
-      )
-    }
     if remaining < 0 {
       return String(
         localized: "budget.row.accessibilityLabel.overBudget",

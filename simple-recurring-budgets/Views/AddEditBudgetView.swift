@@ -118,6 +118,7 @@ struct AddEditBudgetView: View {
         role: .destructive
       ) {
         viewModel.delete(context: context, analytics: analytics)
+        router.path.removeAll()
         dismiss()
       }
     } message: {

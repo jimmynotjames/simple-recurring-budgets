@@ -10,10 +10,16 @@ Stable JSON ordering (sorted keys) keeps diffs clean.
 Preserves all existing catalog fields (comment, extractionState, etc.).
 
 Usage:
-  python3 scripts/translate_catalog/merge.py [locale ...]
+  python3 scripts/translate_catalog/merge.py [--keys k1,k2,...] [--keys-file PATH] [locale ...]
   # If no locales given, merges all locales in locales.py.
+  # --keys / --keys-file: only merge the specified keys (other keys present in
+  #   the output files are ignored). Use this when you want to be surgical
+  #   about which keys can be overwritten in the catalog.
 """
 
+from __future__ import annotations
+
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -36,8 +42,25 @@ def load_translations(locale: str) -> Optional[dict]:
         return json.load(f)
 
 
+def parse_keys(arg: str | None, path: Path | None) -> set[str] | None:
+    keys: list[str] = []
+    if arg:
+        keys.extend(k.strip() for k in arg.split(",") if k.strip())
+    if path:
+        with path.open(encoding="utf-8") as f:
+            keys.extend(line.strip() for line in f if line.strip() and not line.startswith("#"))
+    return set(keys) if keys else None
+
+
 def main(argv: list[str]) -> int:
-    locales = argv if argv else LOCALES
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--keys", help="Comma-separated list of keys; merge only these.")
+    parser.add_argument("--keys-file", type=Path, help="Path to a file with one key per line; merge only these.")
+    parser.add_argument("locales", nargs="*", help="Locales to merge (default: all in locales.py).")
+    args = parser.parse_args(argv)
+
+    locales = args.locales if args.locales else LOCALES
+    key_filter = parse_keys(args.keys, args.keys_file)
 
     if not CATALOG_PATH.exists():
         print(f"ERROR: catalog not found at {CATALOG_PATH}", file=sys.stderr)
@@ -49,6 +72,7 @@ def main(argv: list[str]) -> int:
     strings: dict = catalog.setdefault("strings", {})
     merged_count = 0
     skipped_locales: list[str] = []
+    rejected_empty = 0
 
     for locale in locales:
         translations = load_translations(locale)
@@ -58,13 +82,20 @@ def main(argv: list[str]) -> int:
 
         locale_merged = 0
         for key, translated_value in translations.items():
-            if key.startswith("_"):
+            if key.startswith("_") or key.endswith("__note"):
+                continue
+            if key_filter is not None and key not in key_filter:
                 continue
             # Accept both flat string and {"value": "...", ...} dict produced by some models
             if isinstance(translated_value, dict):
                 translated_value = translated_value.get("value", "")
             if key not in strings:
                 print(f"  WARN [{locale}] key {key!r} not in catalog — skipping", file=sys.stderr)
+                continue
+            if not isinstance(translated_value, str) or not translated_value.strip():
+                # Refuse to overwrite an existing good translation with an empty/non-string value.
+                print(f"  WARN [{locale}] key {key!r} has empty/invalid value — skipping", file=sys.stderr)
+                rejected_empty += 1
                 continue
             entry = strings[key]
             localizations = entry.setdefault("localizations", {})
@@ -86,6 +117,8 @@ def main(argv: list[str]) -> int:
     print(f"\nMerge complete: {merged_count} total key-locale pairs written to catalog.")
     if skipped_locales:
         print(f"Skipped (no output file): {skipped_locales}")
+    if rejected_empty:
+        print(f"Rejected {rejected_empty} empty/invalid value(s) — pre-existing translations preserved.")
     return 0
 
 

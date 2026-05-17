@@ -13,10 +13,16 @@ Checks each tmp/translate-outputs/{locale}.json file:
 Exits with code 0 only if all locales pass. Prints a summary table.
 
 Usage:
-  python3 scripts/translate_catalog/validate.py [locale ...]
+  python3 scripts/translate_catalog/validate.py [--subset] [locale ...]
   # If no locales given, validates all locales in locales.py.
+  # --subset: only validate keys present in each output file (does not require
+  #           the full source key set). Use this when the output came from a
+  #           partial translation run driven by `extract.py --missing`.
 """
 
+from __future__ import annotations
+
+import argparse
 import collections
 import json
 import re
@@ -49,8 +55,13 @@ def has_translatable_content(value: str) -> bool:
     return bool(re.search(r"[^\W\d]", stripped, re.UNICODE))
 
 
-def validate_locale(locale: str, source: dict) -> Tuple[list, list]:
-    """Return (errors, warnings). Only errors count toward the exit code."""
+def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[list, list]:
+    """Return (errors, warnings). Only errors count toward the exit code.
+
+    When ``subset`` is True, keys present in ``source`` but absent from the
+    output file are not flagged as errors — only the keys actually present in
+    the output file are checked.
+    """
     errors: list[str] = []
     warnings: list[str] = []
     output_path = OUTPUTS_DIR / f"{locale}.json"
@@ -71,6 +82,8 @@ def validate_locale(locale: str, source: dict) -> Tuple[list, list]:
         src_specs = specifier_multiset(src_value)
 
         if key not in translations:
+            if subset:
+                continue
             errors.append(f"[{locale}] Missing key: {key!r}")
             continue
 
@@ -122,6 +135,11 @@ def validate_locale(locale: str, source: dict) -> Tuple[list, list]:
 
 
 def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--subset", action="store_true", help="Only check keys present in each output file; do not require the full source set.")
+    parser.add_argument("locales", nargs="*", help="Locales to validate (default: all in locales.py).")
+    args = parser.parse_args(argv)
+
     if not SOURCE_PATH.exists():
         print(f"ERROR: source file not found at {SOURCE_PATH}. Run extract.py first.", file=sys.stderr)
         return 1
@@ -129,14 +147,14 @@ def main(argv: list[str]) -> int:
     with SOURCE_PATH.open(encoding="utf-8") as f:
         source: dict = json.load(f)
 
-    locales = argv if argv else LOCALES
+    locales = args.locales if args.locales else LOCALES
     all_errors: dict[str, list[str]] = {}
     all_warnings: dict[str, list[str]] = {}
     fail_count = 0
     warn_count = 0
 
     for locale in locales:
-        errors, warnings = validate_locale(locale, source)
+        errors, warnings = validate_locale(locale, source, subset=args.subset)
         all_errors[locale] = errors
         all_warnings[locale] = warnings
         if errors:

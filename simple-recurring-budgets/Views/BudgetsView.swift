@@ -149,7 +149,6 @@ struct BudgetRowView: View {
   @Environment(AppSettings.self) private var settings
   @Environment(Router.self) private var router
   @Environment(\.scenePhase) private var scenePhase
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @State private var lifecycle: BudgetLifecycleResult?
 
   private var isPaused: Bool {
@@ -181,12 +180,6 @@ struct BudgetRowView: View {
     return max(0, min(1, (ratio as NSDecimalNumber).doubleValue))
   }
 
-  private var amountLayout: AnyLayout {
-    dynamicTypeSize >= .xxxLarge
-      ? AnyLayout(VStackLayout(alignment: .leading, spacing: amountSpacing))
-      : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: amountSpacing))
-  }
-
   var body: some View {
     HStack(alignment: .center, spacing: 0) {
       // Outer VStack groups the tappable row content with the carry-over chip.
@@ -204,18 +197,31 @@ struct BudgetRowView: View {
               .lineLimit(2)
               .multilineTextAlignment(.leading)
 
-            // Line 2: Remaining amount + period
-            // Stacks vertically at accessibility1+ to give the amount more room.
-            amountLayout {
-              Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
-                .font(.largeTitle)
-                .monospacedDigit()
-                .foregroundStyle(dimmedStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit, when: isPaused))
-                .lineLimit(1)
-
-              Text(period.listLabel)
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            // Line 2: Remaining amount + period.
+            // ViewThatFits tries the HStack first; falls back to VStack when
+            // the content (especially a longer date range) doesn't fit inline.
+            ViewThatFits(in: .horizontal) {
+              HStack(alignment: .firstTextBaseline, spacing: amountSpacing) {
+                Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
+                  .font(.largeTitle)
+                  .monospacedDigit()
+                  .foregroundStyle(dimmedStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit, when: isPaused))
+                  .lineLimit(1)
+                Text(budget.periodDisplayLabel)
+                  .font(.callout)
+                  .foregroundStyle(.secondary)
+                  .lineLimit(1)
+              }
+              VStack(alignment: .leading, spacing: amountSpacing) {
+                Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
+                  .font(.largeTitle)
+                  .monospacedDigit()
+                  .foregroundStyle(dimmedStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit, when: isPaused))
+                  .lineLimit(1)
+                Text(budget.periodDisplayLabel)
+                  .font(.callout)
+                  .foregroundStyle(.secondary)
+              }
             }
 
             // Line 3: Indicator bar (hidden from assistive technologies;

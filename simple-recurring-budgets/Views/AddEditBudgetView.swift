@@ -82,6 +82,7 @@ struct AddEditBudgetView: View {
           }
           .disabled(!canSave)
           .fontWeight(.semibold)
+          .tint(.accentColor)
         }
       }
       .sheet(isPresented: $showCurrencyPicker) {
@@ -182,7 +183,7 @@ struct AddEditBudgetView: View {
         periodChip(.specificDates)
 
         if isSpecificDates {
-          Text("One window, one allocation — doesn't recur, so there's no carry-over.")
+          Text("Good for a trip, a birthday weekend, or any one-off spending window. When it's done, it's done. No repeating, no carry-over.")
             .font(.caption)
             .foregroundStyle(.secondary)
             .padding(.top, 4)
@@ -234,7 +235,7 @@ struct AddEditBudgetView: View {
 
         Text(String(
           localized: "addEditBudget.note.carryOver",
-          defaultValue: "Accumulates unspent or overspent amounts over time.",
+          defaultValue: "Cumulative over- and under-spending across periods.",
           comment: "Caption below the carry-over toggle explaining what carry-over does"
         ))
         .font(.caption)

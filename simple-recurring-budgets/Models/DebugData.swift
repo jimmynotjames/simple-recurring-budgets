@@ -221,12 +221,29 @@
       return budget
     }
 
+    static func specificDatesDefault(now: Date = Date()) -> Budget {
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: -10, to: cal.startOfDay(for: now))!
+      let endDate = cal.date(byAdding: .day, value: 7, to: cal.startOfDay(for: now))!
+      let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+      budget.startDate = startDate
+      budget.endDate = endDate
+      addInitialChange(amount: 1500, startDate: startDate, to: budget)
+      attach([
+        ExpenseItem(amount: 450, name: "Hotel", date: cal.date(byAdding: .day, value: -9, to: now)!),
+        ExpenseItem(amount: 85, name: "Dinner", date: cal.date(byAdding: .day, value: -3, to: now)!),
+        ExpenseItem(amount: 24, name: "Museum", date: cal.date(byAdding: .day, value: -1, to: now)!),
+      ], to: budget)
+      return budget
+    }
+
     // MARK: - Top-level accessors
 
     static func allBudgets(now: Date = Date()) -> [Budget] {
       [
         dailyWithSurplusCarryOver(now: now),
         monthlyWithDeficitCarryOver(now: now),
+        specificDatesDefault(now: now),
         dailyPaused(now: now),
         dailyDefault(now: now),
         weeklyDefault(now: now),

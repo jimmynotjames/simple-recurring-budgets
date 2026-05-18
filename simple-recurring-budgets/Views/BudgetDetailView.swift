@@ -12,7 +12,6 @@ struct BudgetDetailView: View {
   @Environment(Router.self) var router
   @Environment(\.analytics) var analytics
   @Environment(\.scenePhase) private var scenePhase
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   @State var lifecycle: BudgetLifecycleResult?
   @State private var showResetCarryOverConfirm = false
@@ -60,12 +59,6 @@ struct BudgetDetailView: View {
 
   private var isOverBudget: Bool {
     remaining < 0
-  }
-
-  private var amountLayout: AnyLayout {
-    dynamicTypeSize >= .xxxLarge
-      ? AnyLayout(VStackLayout(alignment: .leading, spacing: amountSpacing))
-      : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: amountSpacing))
   }
 
   var body: some View {
@@ -304,16 +297,28 @@ struct BudgetDetailView: View {
   private var headerRow: some View {
     VStack(alignment: .leading, spacing: 0) {
       VStack(alignment: .leading, spacing: rowSpacing) {
-        amountLayout {
-          Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
-            .font(.largeTitle)
-            .monospacedDigit()
-            .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
-            .lineLimit(1)
-
-          Text(period.listLabel)
-            .font(.callout)
-            .foregroundStyle(.secondary)
+        ViewThatFits(in: .horizontal) {
+          HStack(alignment: .firstTextBaseline, spacing: amountSpacing) {
+            Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
+              .font(.largeTitle)
+              .monospacedDigit()
+              .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
+              .lineLimit(1)
+            Text(budget.periodDisplayLabel)
+              .font(.callout)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+          VStack(alignment: .leading, spacing: amountSpacing) {
+            Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
+              .font(.largeTitle)
+              .monospacedDigit()
+              .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
+              .lineLimit(1)
+            Text(budget.periodDisplayLabel)
+              .font(.callout)
+              .foregroundStyle(.secondary)
+          }
         }
 
         RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget, dimmed: isPaused)
@@ -468,5 +473,15 @@ struct BudgetDetailView: View {
   // Paused budget — primary slot shows Resume, header greyed.
   #Preview("Paused") {
     BudgetDetailPreview(budget: DebugData.detailDailyPaused())
+  }
+
+  // Specific Dates — date range in header, no carry-over chip.
+  #Preview("Specific Dates · Light") {
+    BudgetDetailPreview(budget: DebugData.detailSpecificDates())
+  }
+
+  #Preview("Specific Dates · Dark") {
+    BudgetDetailPreview(budget: DebugData.detailSpecificDates())
+      .preferredColorScheme(.dark)
   }
 #endif

@@ -276,6 +276,50 @@ struct AddEditBudgetViewModelTests {
     #expect(changes.first?.amount == 1500)
   }
 
+  @Test func addMode_specificDates_save_clampsIsCarryOverEnabledToFalse() throws {
+    // Repro: user opens Add Budget with settings.defaultCarryOverEnabled=true (default).
+    // VM seeds isCarryOverEnabled=true. User then switches to .specificDates — UI hides
+    // the toggle but the VM value stays true. Without the saveNew clamp, the persisted
+    // budget would carry `isCarryOverEnabled=true`, polluting analytics events and
+    // Mixpanel cohorts that read `budget.isCarryOverEnabled` directly.
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let store = MockKeyValueStore()
+    store.set(true, forKey: AppSettings.defaultCarryOverEnabledKey)
+    let settings = AppSettings(store: store)
+
+    let vm = AddEditBudgetViewModel(settings: settings)
+    #expect(vm.isCarryOverEnabled == true) // seeded from settings default
+    vm.name = "Italy Trip"
+    vm.allocation = 1500
+    vm.period = .specificDates
+    let cal = Calendar.autoupdatingCurrent
+    vm.startDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 8))
+    vm.endDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 25))
+    vm.save(context: context)
+
+    let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
+    #expect(saved.isCarryOverEnabled == false)
+  }
+
+  @Test func addMode_recurring_save_preservesIsCarryOverEnabled() throws {
+    // Sanity check: the clamp only applies to .specificDates.
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let store = MockKeyValueStore()
+    store.set(true, forKey: AppSettings.defaultCarryOverEnabledKey)
+    let settings = AppSettings(store: store)
+
+    let vm = AddEditBudgetViewModel(settings: settings)
+    vm.name = "Groceries"
+    vm.allocation = 200
+    vm.period = .weekly
+    vm.save(context: context)
+
+    let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
+    #expect(saved.isCarryOverEnabled == true)
+  }
+
   @Test func editMode_specificDates_seedsStartAndEndFromBudget() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
@@ -379,22 +423,25 @@ struct AddEditBudgetViewModelTests {
   }
 
   @Test func snapForward_editModeSeeding_doesNotMutateEnd() throws {
-    // didSet must not fire during init, even though the seeded values would
-    // not normally trigger it. Belt-and-suspenders guard against a future
-    // refactor that calls the setter from within init.
+    // Seed Edit mode with an inverted window (start > end) so the snap-forward
+    // didSet WOULD fire if it leaked into init. The test passes only if Swift's
+    // didSet/init contract holds: `endDate` must remain the seeded value, NOT
+    // snap forward to `start + (end - start)` as it would on a regular setter call.
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let cal = Calendar.autoupdatingCurrent
-    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
-    let end = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+    let end = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
     let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
     budget.startDate = start; budget.endDate = end
-    let change = AllocationChange(effectiveFrom: start, amount: 1500)
+    let change = AllocationChange(effectiveFrom: end, amount: 1500)
     change.budget = budget; budget.allocationChangesStorage = [change]
     context.insert(budget)
 
     let vm = AddEditBudgetViewModel(editing: budget)
     #expect(vm.startDate == start)
+    // If didSet leaked into init, endDate would have snapped to `start` (duration=0
+    // collapse path). Seeding-preserved means didSet was correctly suppressed.
     #expect(vm.endDate == end)
   }
 

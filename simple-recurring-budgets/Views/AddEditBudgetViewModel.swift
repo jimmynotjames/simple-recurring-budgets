@@ -171,11 +171,17 @@ final class AddEditBudgetViewModel {
     let budgetCountBefore = (try? context.fetchCount(FetchDescriptor<Budget>())) ?? 0
     let isFirst = budgetCountBefore == 0
 
+    // Force `isCarryOverEnabled = false` for `.specificDates`: the UI hides the toggle,
+    // so the in-memory value can be stale from a pre-toggle session default. Without this
+    // clamp, the persisted row carries a `true` that pollutes analytics events and
+    // Mixpanel cohort properties that read `budget.isCarryOverEnabled` directly (the
+    // calculator already ignores it for this period type — see BudgetCalculator §A.4.2).
+    let resolvedCarryOver = period == .specificDates ? false : isCarryOverEnabled
     let budget = Budget(
       name: name,
       currencyCode: currencyCode,
       period: period,
-      isCarryOverEnabled: isCarryOverEnabled
+      isCarryOverEnabled: resolvedCarryOver
     )
     budget.startDate = computedStartDate
     budget.endDate = computedEndDate

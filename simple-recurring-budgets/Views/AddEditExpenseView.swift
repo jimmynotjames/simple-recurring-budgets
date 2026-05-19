@@ -86,19 +86,28 @@ final class AddEditExpenseViewModel {
   /// recent `.pause` event's `effectiveDate` (a moment guaranteed to lie inside an
   /// active period since the pause-action period is itself active). Save-time
   /// validation catches dates inside paused gaps for multi-cycle histories.
+  ///
+  /// For `.specificDates` budgets, the upper bound is the **last moment of `endDate`'s
+  /// day** (not `startOfDay(endDate)`). Per the `Budget.endDate` convention, `endDate`
+  /// is the inclusive last day of the window — clamping the picker at start-of-day
+  /// would exclude most of that day from the user's last-day picker entries.
   var dateRange: ClosedRange<Date> {
     guard let budget else {
       return Date.distantPast ... Date.distantFuture
     }
+    let calendar = Calendar.autoupdatingCurrent
     let lower = budget.effectiveStartDate
     let pauseUpper: Date? = cachedBudgetSnapshot?.lifecycleState == .paused
       ? cachedPauseEffectiveDate
       : nil
-    let endUpper = budget.endDate
-    // Clamp the upper bound by both pause (when paused) and endDate (when set).
-    // For `.specificDates` budgets, `endDate` is always set, so this enforces the
-    // [startDate, endDate] window per F-2.08. For recurring budgets, `endDate` is
-    // typically nil, so the upper bound is either pauseDate or distantFuture.
+    // Last moment of endDate's day: midnight of (endDate + 1 day) minus one second.
+    // Matches `BudgetCalculator.effectiveEndExclusive`'s "include all of endDate's day"
+    // semantic. Without this expansion, the picker rejects any expense time other
+    // than 00:00 on `endDate`.
+    let endUpper: Date? = budget.endDate.map { endDate in
+      let nextDayStart = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: endDate))!
+      return nextDayStart.addingTimeInterval(-1)
+    }
     let upper: Date = switch (pauseUpper, endUpper) {
     case let (.some(p), .some(e)): min(p, e)
     case let (.some(p), .none): p

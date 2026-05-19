@@ -31,13 +31,24 @@ struct AddEditExpenseDateBoundsTests {
 
     let vm = AddEditExpenseViewModel(adding: budget)
     #expect(vm.dateRange.lowerBound == startDate)
-    #expect(vm.dateRange.upperBound == endDate)
+    // Per Budget.endDate convention (inclusive day), the upper bound is the last
+    // moment of endDate's day — not startOfDay(endDate). Clamping at start-of-day
+    // would reject all times after 00:00 on endDate.
+    #expect(vm.dateRange.upperBound > endDate)
+    #expect(vm.dateRange.upperBound < utcDate(2026, 5, 26))
     // A date inside the window passes.
     vm.amount = 50
     vm.date = utcDate(2026, 5, 15)
     #expect(vm.canSave)
-    // A date exactly on endDate is admitted (inclusive upper bound).
+    // A date at midnight on endDate is admitted.
     vm.date = endDate
+    #expect(vm.canSave)
+    // A mid-day expense on endDate is admitted (this would have failed before the
+    // inclusive-day fix because upperBound was startOfDay(endDate) = midnight).
+    vm.date = utcDate(2026, 5, 25, hour: 14)
+    #expect(vm.canSave)
+    // The last hour of endDate is still admitted.
+    vm.date = utcDate(2026, 5, 25, hour: 23)
     #expect(vm.canSave)
   }
 

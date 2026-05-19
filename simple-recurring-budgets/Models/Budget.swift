@@ -22,6 +22,17 @@ final class Budget {
   var startDate: Date?
   /// When the budget stops calculating (terminal, no resume). Genuinely optional for
   /// recurring budgets; required for `.specificDates`.
+  ///
+  /// **Semantic convention: `endDate` is the inclusive last *day* of the window.**
+  /// Stored as `startOfDay(picked)` for consistency, but the day itself is part of
+  /// the budget: the user can log expenses anytime on `endDate`, and the budget
+  /// becomes `.postEnd` only after that day ends (i.e., once `now >= startOfDay(endDate + 1 day)`).
+  /// `BudgetCalculator` implements this by computing
+  /// `effectiveEndExclusive = startOfDay(endDate + 1 day)` and using `< effectiveEndExclusive`
+  /// for inclusion checks. Date-range UI sites (e.g., `AddEditExpenseView.dateRange`)
+  /// SHALL clamp their upper bound to the last moment of `endDate`'s day, not to
+  /// `startOfDay(endDate)` — clamping at start-of-day excludes most of the user's
+  /// last day from the picker.
   var endDate: Date?
   /// The most recent manual Reset Carry-Over or Reset Budget timestamp.
   /// `nil` means no manual reset has occurred.

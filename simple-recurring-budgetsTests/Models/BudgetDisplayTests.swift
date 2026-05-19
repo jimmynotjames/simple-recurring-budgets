@@ -33,6 +33,23 @@ struct BudgetDisplayTests {
     #expect(label.contains("25"))
   }
 
+  @Test func periodDisplayLabel_specificDates_sameDayWindow_rendersSingleDate() {
+    // A 1-day Specific Dates budget (start == end), reachable via the snap-forward
+    // collapse path on the VM. Display must render the single date alone — passing
+    // an empty Range<Date> to IntervalFormatStyle is undefined for empty ranges.
+    let budget = Budget(period: .specificDates)
+    let day = Self.d(2026, 5, 20)
+    budget.startDate = day
+    budget.endDate = day
+    let label = budget.periodDisplayLabel
+    #expect(label.contains("May"))
+    #expect(label.contains("20"))
+    // Sanity: should NOT contain a separator that would indicate a multi-day range.
+    // "–" (en-dash) or "-" or "to" would suggest a range. The single-date form
+    // renders just "May 20, 2026" (or locale equivalent).
+    #expect(!label.contains("–"))
+  }
+
   @Test func periodDisplayLabel_specificDates_yearCrossing_includesYear() {
     let budget = Budget(period: .specificDates)
     budget.startDate = Self.d(2025, 12, 28)

@@ -84,7 +84,11 @@ struct DateColumn: View {
 
   var body: some View {
     Button {
-      draft = date ?? minDate ?? Date()
+      // Floor the draft at minDate so it can never land below the picker's allowed
+      // range. The VM's snap-forward keeps `date >= minDate` in normal flow; this
+      // guard covers regressions and any future caller that wires `minDate` directly.
+      let floor = minDate ?? .distantPast
+      draft = max(date ?? minDate ?? Date(), floor)
       isPickerShown = true
     } label: {
       Text(displayText)

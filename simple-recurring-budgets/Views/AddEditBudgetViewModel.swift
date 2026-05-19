@@ -21,7 +21,19 @@ final class AddEditBudgetViewModel {
   var period: BudgetPeriod
   var isCarryOverEnabled: Bool
   /// Specific Dates window start. `nil` for recurring period types; required when `period == .specificDates`.
-  var startDate: Date?
+  ///
+  /// When this is set to a date that crosses past `endDate`, `endDate` is snapped
+  /// forward to preserve the original window duration (Apple Calendar pattern).
+  /// `didSet` does not fire during `init`, so seeding both dates in Edit mode is safe.
+  var startDate: Date? {
+    didSet {
+      guard let newStart = startDate, let end = endDate, newStart > end else { return }
+      let originalStart = oldValue ?? newStart
+      let duration = end.timeIntervalSince(originalStart)
+      endDate = newStart.addingTimeInterval(max(duration, 0))
+    }
+  }
+
   /// Specific Dates window end. `nil` for recurring period types; required when `period == .specificDates`.
   var endDate: Date?
 

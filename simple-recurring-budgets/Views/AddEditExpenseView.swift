@@ -105,7 +105,12 @@ final class AddEditExpenseViewModel {
     case let (.none, .some(e)): e
     case (.none, .none): Date.distantFuture
     }
-    return lower ... upper
+    // Defense-in-depth: `Budget.isWindowValid` ensures `endDate >= effectiveStartDate`
+    // for a healthy record; trip in debug if we ever build a range from an inverted
+    // window (e.g., partial CloudKit sync). In release, `max(lower, upper)` collapses
+    // the range to a single point so the date picker can't crash.
+    assert(budget.isWindowValid, "AddEditExpenseView.dateRange: inverted budget window — endDate < effectiveStartDate")
+    return lower ... max(lower, upper)
   }
 
   init(adding budget: Budget) {

@@ -63,4 +63,35 @@ struct BudgetDisplayTests {
     #expect(!inline.isEmpty)
     #expect(inline != BudgetPeriod.specificDates.inlineLabel || inline == "in this window")
   }
+
+  // MARK: - isWindowValid
+
+  @Test func isWindowValid_trueWhenEndDateNil() {
+    let budget = Budget(period: .daily)
+    budget.startDate = Self.d(2026, 5, 8)
+    budget.endDate = nil
+    #expect(budget.isWindowValid)
+  }
+
+  @Test func isWindowValid_trueWhenEndEqualsStart() {
+    let budget = Budget(period: .specificDates)
+    let date = Self.d(2026, 5, 8)
+    budget.startDate = date
+    budget.endDate = date
+    #expect(budget.isWindowValid)
+  }
+
+  @Test func isWindowValid_trueWhenEndAfterStart() {
+    let budget = Budget(period: .specificDates)
+    budget.startDate = Self.d(2026, 5, 8)
+    budget.endDate = Self.d(2026, 5, 25)
+    #expect(budget.isWindowValid)
+  }
+
+  @Test func isWindowValid_falseWhenEndBeforeStart() {
+    let budget = Budget(period: .specificDates)
+    budget.startDate = Self.d(2026, 5, 25)
+    budget.endDate = Self.d(2026, 5, 8)
+    #expect(!budget.isWindowValid)
+  }
 }

@@ -324,6 +324,80 @@ struct AddEditBudgetViewModelTests {
     #expect(changes.first?.effectiveFrom == start)
   }
 
+  // MARK: - Snap-forward: when startDate crosses past endDate, preserve window duration
+
+  @Test func snapForward_startMovesPastEnd_preservesOriginalDuration() throws {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.period = .specificDates
+    let cal = Calendar.autoupdatingCurrent
+    let originalStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
+    let originalEnd = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 15))) // 7-day window
+    vm.startDate = originalStart
+    vm.endDate = originalEnd
+
+    // Move start past end: snap end forward to maintain the 7-day window.
+    let newStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 20)))
+    vm.startDate = newStart
+
+    let expectedEnd = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 27)))
+    #expect(vm.endDate == expectedEnd)
+  }
+
+  @Test func snapForward_startMovesBeforeEnd_leavesEndAlone() throws {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.period = .specificDates
+    let cal = Calendar.autoupdatingCurrent
+    let originalStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
+    let originalEnd = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+    vm.startDate = originalStart
+    vm.endDate = originalEnd
+
+    let newStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 10)))
+    vm.startDate = newStart
+
+    #expect(vm.endDate == originalEnd)
+  }
+
+  @Test func snapForward_startSetWithEndNil_doesNothing() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.period = .specificDates
+    let cal = Calendar.autoupdatingCurrent
+    vm.startDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 8))
+    #expect(vm.endDate == nil)
+  }
+
+  @Test func snapForward_startSetFromNil_pastExistingEnd_collapsesToZeroWindow() throws {
+    // No prior startDate means there's no duration to preserve — snap to a 0-day window.
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.period = .specificDates
+    let cal = Calendar.autoupdatingCurrent
+    let end = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 10)))
+    vm.endDate = end
+    let newStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 20)))
+    vm.startDate = newStart
+    #expect(vm.endDate == newStart)
+  }
+
+  @Test func snapForward_editModeSeeding_doesNotMutateEnd() throws {
+    // didSet must not fire during init, even though the seeded values would
+    // not normally trigger it. Belt-and-suspenders guard against a future
+    // refactor that calls the setter from within init.
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
+    let end = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+    let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+    budget.startDate = start; budget.endDate = end
+    let change = AllocationChange(effectiveFrom: start, amount: 1500)
+    change.budget = budget; budget.allocationChangesStorage = [change]
+    context.insert(budget)
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    #expect(vm.startDate == start)
+    #expect(vm.endDate == end)
+  }
+
   @Test func editMode_specificDates_changingStartDate_realignsAllocationEffectiveFrom() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)

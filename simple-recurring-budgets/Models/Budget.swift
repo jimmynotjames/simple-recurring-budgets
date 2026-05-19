@@ -76,6 +76,15 @@ final class Budget {
     startDate ?? createdAt
   }
 
+  /// Whether the budget's `[effectiveStartDate, endDate]` window is well-ordered.
+  /// `true` when `endDate` is nil (recurring) or when `endDate >= effectiveStartDate`
+  /// (`.specificDates`). An inverted window is a data-integrity violation — typically
+  /// from a partial CloudKit sync — and callers building date ranges should assert
+  /// before constructing a `ClosedRange` that would trap on an inverted bound.
+  var isWindowValid: Bool {
+    endDate.map { $0 >= effectiveStartDate } ?? true
+  }
+
   /// The most-recent allocation amount by `(effectiveFrom, lastModified)`. Used for
   /// display contexts (analytics, RemainingBar denominator) where a quick "current
   /// allocation" lookup is sufficient. The algorithm uses `allocationInEffect(at:history:)`

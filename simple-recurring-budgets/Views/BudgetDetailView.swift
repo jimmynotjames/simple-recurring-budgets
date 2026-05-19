@@ -190,7 +190,7 @@ struct BudgetDetailView: View {
             }
           }
           Divider()
-          if budget.isCarryOverEnabled {
+          if budget.isCarryOverEnabled, !isSpecificDates {
             Button(
               String(
                 localized: "budgetDetail.menu.resetCarryOver",
@@ -250,10 +250,11 @@ struct BudgetDetailView: View {
             role: .destructive
           ) { resetBudget() }
         } message: {
-          Text(
-            "budgetDetail.resetBudget.dialog.message",
+          Text(String(
+            localized: "budgetDetail.resetBudget.dialog.message",
+            defaultValue: "All expenses will be permanently deleted, carry-over will reset to zero, and if paused, the budget will resume.",
             comment: "Body of the reset-budget confirmation dialog."
-          )
+          ))
         }
       }
     }
@@ -331,7 +332,7 @@ struct BudgetDetailView: View {
       StatusChipRow(
         isPaused: isPaused,
         pausedSince: lifecycle?.pausedSince,
-        isCarryOverEnabled: budget.isCarryOverEnabled,
+        isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates,
         carryOverAmount: carryOverAmount,
         currencyCode: budget.currencyCode,
         currencyDisplay: settings.currencyDisplay,
@@ -401,7 +402,20 @@ struct BudgetDetailView: View {
   /// The paused state is announced separately by `PausedChip`'s own VO element,
   /// so this label only carries the data (remaining + period, or over-budget).
   private var headerA11yLabel: String {
-    isOverBudget
+    if isSpecificDates {
+      return isOverBudget
+        ? String(
+          localized: "budgetDetail.header.accessibilityLabel.overBudget.specificDates",
+          defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget \(budget.periodInlineLabel)",
+          comment: "VoiceOver label for the Specific Dates budget detail header when over budget; first argument is the formatted overage amount, second is the inline period descriptor (e.g. \"in this window\")"
+        )
+        : String(
+          localized: "budgetDetail.header.accessibilityLabel.specificDates",
+          defaultValue: "\(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining \(budget.periodInlineLabel)",
+          comment: "VoiceOver label for the Specific Dates budget detail header; first argument is the remaining amount, second is the inline period descriptor (e.g. \"in this window\")"
+        )
+    }
+    return isOverBudget
       ? String(
         localized: "budgetDetail.header.accessibilityLabel.overBudget",
         defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget this \(period.inlineLabel) period",

@@ -14,6 +14,33 @@ private func utcDate(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0) -> Da
 
 @MainActor
 struct AddEditExpenseDateBoundsTests {
+  // MARK: - Specific Dates window bounds (F-2.08 / F-2.04)
+
+  @Test func dateRange_clampedByEndDate_forSpecificDates() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let startDate = utcDate(2026, 5, 8)
+    let endDate = utcDate(2026, 5, 25)
+    let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+    budget.startDate = startDate
+    budget.endDate = endDate
+    let change = AllocationChange(effectiveFrom: startDate, amount: 1500)
+    change.budget = budget
+    context.insert(budget); context.insert(change)
+    try context.save()
+
+    let vm = AddEditExpenseViewModel(adding: budget)
+    #expect(vm.dateRange.lowerBound == startDate)
+    #expect(vm.dateRange.upperBound == endDate)
+    // A date inside the window passes.
+    vm.amount = 50
+    vm.date = utcDate(2026, 5, 15)
+    #expect(vm.canSave)
+    // A date exactly on endDate is admitted (inclusive upper bound).
+    vm.date = endDate
+    #expect(vm.canSave)
+  }
+
   @Test func dateRange_isUnbounded_forActiveDaily() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)

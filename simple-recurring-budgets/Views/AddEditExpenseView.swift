@@ -91,10 +91,21 @@ final class AddEditExpenseViewModel {
       return Date.distantPast ... Date.distantFuture
     }
     let lower = budget.effectiveStartDate
-    if cachedBudgetSnapshot?.lifecycleState == .paused, let pauseDate = cachedPauseEffectiveDate {
-      return lower ... pauseDate
+    let pauseUpper: Date? = cachedBudgetSnapshot?.lifecycleState == .paused
+      ? cachedPauseEffectiveDate
+      : nil
+    let endUpper = budget.endDate
+    // Clamp the upper bound by both pause (when paused) and endDate (when set).
+    // For `.specificDates` budgets, `endDate` is always set, so this enforces the
+    // [startDate, endDate] window per F-2.08. For recurring budgets, `endDate` is
+    // typically nil, so the upper bound is either pauseDate or distantFuture.
+    let upper: Date = switch (pauseUpper, endUpper) {
+    case let (.some(p), .some(e)): min(p, e)
+    case let (.some(p), .none): p
+    case let (.none, .some(e)): e
+    case (.none, .none): Date.distantFuture
     }
-    return lower ... Date.distantFuture
+    return lower ... upper
   }
 
   init(adding budget: Budget) {

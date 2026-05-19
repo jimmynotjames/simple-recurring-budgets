@@ -102,11 +102,21 @@ enum BudgetLifecycleService {
     calendar: Calendar = .autoupdatingCurrent
   ) {
     guard let periodRaw = BudgetPeriod(rawValue: budget.period) else { return }
-    // Specific Dates uses latest-wins allocation semantics (F-2.08), which is a
-    // distinct write path from the recurring-budget insert-or-mutate convention.
-    // The F-2.08 UI is not yet wired; trip in debug if anything routes a
-    // specificDates budget here so the gap is loud, but no-op in release.
-    assert(periodRaw != .specificDates, "applyAllocationEdit: specificDates not supported here yet — see F-2.08")
+    // Specific Dates: latest-wins whole-window overwrite (F-2.08). One AllocationChange
+    // row exists for the entire window; mutate it in place rather than inserting a new
+    // row. No audit trail — the prior figure is not retrievable per F-2.08.
+    if periodRaw == .specificDates {
+      guard let mostRecent = budget.allocationChanges.max(by: { lhs, rhs in
+        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+        return lhs.lastModified < rhs.lastModified
+      }) else { return }
+      guard mostRecent.amount != newAmount else { return } // no-op when unchanged
+      mostRecent.amount = newAmount
+      mostRecent.lastModified = now
+      budget.lastModified = now
+      try? context.save()
+      return
+    }
     guard let period = RecurringBudgetPeriod(periodRaw) else { return }
 
     let effectiveStartDate = calendar.startOfDay(for: budget.effectiveStartDate)

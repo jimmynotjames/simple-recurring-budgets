@@ -213,6 +213,141 @@ struct AddEditBudgetViewModelTests {
     #expect(budget.lastModified == original)
   }
 
+  // MARK: - Specific Dates
+
+  @Test func addMode_specificDates_defaultsAreNil() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    #expect(vm.startDate == nil)
+    #expect(vm.endDate == nil)
+  }
+
+  @Test func addMode_specificDates_selectingPeriodDoesNotPrePopulateDates() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.period = .specificDates
+    #expect(vm.startDate == nil)
+    #expect(vm.endDate == nil)
+  }
+
+  @Test func canSave_specificDates_falseWhenDatesNil() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.name = "Trip"; vm.allocation = 1000; vm.period = .specificDates
+    #expect(!vm.canSave)
+  }
+
+  @Test func canSave_specificDates_falseWhenStartAfterEnd() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.name = "Trip"; vm.allocation = 1000; vm.period = .specificDates
+    let cal = Calendar.autoupdatingCurrent
+    vm.startDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 20))
+    vm.endDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 10))
+    #expect(!vm.canSave)
+  }
+
+  @Test func canSave_specificDates_trueWhenAllSet() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.name = "Trip"; vm.allocation = 1000; vm.period = .specificDates
+    let cal = Calendar.autoupdatingCurrent
+    vm.startDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 10))
+    vm.endDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 20))
+    #expect(vm.canSave)
+  }
+
+  @Test func addMode_specificDates_save_writesBothDatesNormalised() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let rawStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8, hour: 18)))
+    let rawEnd = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25, hour: 9)))
+
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.name = "Italy Trip"; vm.allocation = 1500
+    vm.period = .specificDates
+    vm.startDate = rawStart; vm.endDate = rawEnd
+    vm.save(context: context)
+
+    let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
+    #expect(saved.period == BudgetPeriod.specificDates.rawValue)
+    #expect(saved.startDate == cal.startOfDay(for: rawStart))
+    #expect(saved.endDate == cal.startOfDay(for: rawEnd))
+
+    let changes = try context.fetch(FetchDescriptor<AllocationChange>())
+    #expect(changes.count == 1)
+    #expect(changes.first?.effectiveFrom == cal.startOfDay(for: rawStart))
+    #expect(changes.first?.amount == 1500)
+  }
+
+  @Test func editMode_specificDates_seedsStartAndEndFromBudget() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
+    let end = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+
+    let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+    budget.startDate = start; budget.endDate = end
+    let change = AllocationChange(effectiveFrom: start, amount: 1500)
+    change.budget = budget; budget.allocationChangesStorage = [change]
+    context.insert(budget)
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    #expect(vm.period == .specificDates)
+    #expect(vm.startDate == start)
+    #expect(vm.endDate == end)
+    #expect(vm.allocation == 1500)
+  }
+
+  @Test func editMode_specificDates_changingEndDateOnly_updatesBudgetAndBumpsLastModified() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
+    let originalEnd = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+    let newEnd = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 30)))
+    let before = Date(timeIntervalSinceNow: -3600)
+
+    let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+    budget.startDate = start; budget.endDate = originalEnd
+    budget.lastModified = before
+    let change = AllocationChange(effectiveFrom: start, amount: 1500)
+    change.budget = budget; budget.allocationChangesStorage = [change]
+    context.insert(budget); try context.save()
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.endDate = newEnd
+    vm.save(context: context)
+
+    #expect(budget.endDate == newEnd)
+    #expect(budget.startDate == start)
+    #expect(budget.lastModified > before)
+    let changes = try context.fetch(FetchDescriptor<AllocationChange>())
+    #expect(changes.count == 1)
+    #expect(changes.first?.effectiveFrom == start)
+  }
+
+  @Test func editMode_specificDates_changingStartDate_realignsAllocationEffectiveFrom() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let originalStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
+    let newStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 9)))
+    let end = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+
+    let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+    budget.startDate = originalStart; budget.endDate = end
+    let change = AllocationChange(effectiveFrom: originalStart, amount: 1500)
+    change.budget = budget; budget.allocationChangesStorage = [change]
+    context.insert(budget); try context.save()
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.startDate = newStart
+    vm.save(context: context)
+
+    #expect(budget.startDate == newStart)
+    let changes = try context.fetch(FetchDescriptor<AllocationChange>())
+    #expect(changes.count == 1)
+    #expect(changes.first?.effectiveFrom == newStart)
+  }
+
   // MARK: - Delete
 
   @Test func delete_inEditMode_removesBudgetFromStore() throws {

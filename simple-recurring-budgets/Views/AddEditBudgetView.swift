@@ -14,10 +14,9 @@ struct AddEditBudgetView: View {
   @State var initialCurrencyCode: String = ""
   @FocusState private var isNameFocused: Bool
 
-  // WORKSHOP — Specific Dates draft state. Computed properties and view helpers
-  // for this feature live in `AddEditBudgetView+SpecificDates.swift`.
-  @State var startDate: Date?
-  @State var endDate: Date?
+  private var isSpecificDates: Bool {
+    viewModel.period == .specificDates
+  }
 
   var body: some View {
     NavigationStack {
@@ -80,7 +79,7 @@ struct AddEditBudgetView: View {
             viewModel.save(context: context, analytics: analytics, settings: settings, router: router)
             dismiss()
           }
-          .disabled(!canSave)
+          .disabled(!viewModel.canSave)
           .fontWeight(.semibold)
           .tint(.accentColor)
         }
@@ -183,11 +182,15 @@ struct AddEditBudgetView: View {
         periodChip(.specificDates)
 
         if isSpecificDates {
-          Text("Good for a trip, a birthday weekend, or any one-off spending window. When it's done, it's done. No repeating, no carry-over.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .padding(.top, 4)
-            .transition(.opacity.combined(with: .move(edge: .top)))
+          Text(String(
+            localized: "addEditBudget.note.specificDates",
+            defaultValue: "Good for a trip, a birthday weekend, or any one-off spending window. When it's done, it's done. No repeating, no carry-over.",
+            comment: "Caption shown below the Specific Dates period chip explaining that this budget type is non-recurring with no carry-over"
+          ))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .padding(.top, 4)
+          .transition(.opacity.combined(with: .move(edge: .top)))
         }
 
         if viewModel.isEditing {

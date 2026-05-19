@@ -166,6 +166,10 @@ struct BudgetRowView: View {
     BudgetPeriod(rawValue: budget.period) ?? .daily
   }
 
+  private var isSpecificDates: Bool {
+    period == .specificDates
+  }
+
   private var remaining: Decimal {
     lifecycle?.remaining ?? 0
   }
@@ -244,7 +248,7 @@ struct BudgetRowView: View {
         StatusChipRow(
           isPaused: isPaused,
           pausedSince: lifecycle?.pausedSince,
-          isCarryOverEnabled: budget.isCarryOverEnabled,
+          isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates,
           carryOverAmount: lifecycle?.carryOverAmount ?? 0,
           currencyCode: budget.currencyCode,
           currencyDisplay: settings.currencyDisplay,
@@ -301,6 +305,22 @@ struct BudgetRowView: View {
   /// The paused state is announced separately by `PausedChip`'s own VO element,
   /// so this label only carries the data (name + remaining + period).
   private var rowAccessibilityLabel: String {
+    if isSpecificDates {
+      // Specific Dates uses a different grammar fragment ("in this window") and
+      // therefore a distinct localization key from the recurring template.
+      if remaining < 0 {
+        return String(
+          localized: "budget.row.accessibilityLabel.overBudget.specificDates",
+          defaultValue: "\(budget.name), \((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget \(budget.periodInlineLabel)",
+          comment: "VoiceOver label for an over-budget Specific Dates row; arguments are the budget name, the positive overage amount, and the inline period descriptor (e.g. \"in this window\")"
+        )
+      }
+      return String(
+        localized: "budget.row.accessibilityLabel.specificDates",
+        defaultValue: "\(budget.name), \(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining \(budget.periodInlineLabel)",
+        comment: "VoiceOver label for a Specific Dates budget row; arguments are the budget name, the remaining amount, and the inline period descriptor (e.g. \"in this window\")"
+      )
+    }
     if remaining < 0 {
       return String(
         localized: "budget.row.accessibilityLabel.overBudget",

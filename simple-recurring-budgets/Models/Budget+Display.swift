@@ -15,4 +15,19 @@ extension Budget {
     }
     return p.listLabel
   }
+
+  /// The inline period descriptor used in VoiceOver labels (e.g. "remaining this *daily* period",
+  /// "remaining *in this window*"). For recurring periods returns `BudgetPeriod.inlineLabel`;
+  /// for `.specificDates` returns a dedicated localized string so the sentence reads naturally.
+  @MainActor var periodInlineLabel: String {
+    let p = BudgetPeriod(rawValue: period) ?? .daily
+    if p == .specificDates {
+      return String(
+        localized: "period.specificDates.inline.budgetRow",
+        defaultValue: "in this window",
+        comment: "Inline period descriptor used in VoiceOver labels for Specific Dates budgets in the Budgets list and Budget detail screens (e.g. \"$941.00 remaining in this window\")"
+      )
+    }
+    return p.inlineLabel
+  }
 }

@@ -14,6 +14,44 @@ private func utcDate(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0) -> Da
 
 @MainActor
 struct AddEditExpenseDateBoundsTests {
+  // MARK: - Specific Dates window bounds (F-2.08 / F-2.04)
+
+  @Test func dateRange_clampedByEndDate_forSpecificDates() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let startDate = utcDate(2026, 5, 8)
+    let endDate = utcDate(2026, 5, 25)
+    let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+    budget.startDate = startDate
+    budget.endDate = endDate
+    let change = AllocationChange(effectiveFrom: startDate, amount: 1500)
+    change.budget = budget
+    context.insert(budget); context.insert(change)
+    try context.save()
+
+    let vm = AddEditExpenseViewModel(adding: budget)
+    #expect(vm.dateRange.lowerBound == startDate)
+    // Per Budget.endDate convention (inclusive day), the upper bound is the last
+    // moment of endDate's day — not startOfDay(endDate). Clamping at start-of-day
+    // would reject all times after 00:00 on endDate.
+    #expect(vm.dateRange.upperBound > endDate)
+    #expect(vm.dateRange.upperBound < utcDate(2026, 5, 26))
+    // A date inside the window passes.
+    vm.amount = 50
+    vm.date = utcDate(2026, 5, 15)
+    #expect(vm.canSave)
+    // A date at midnight on endDate is admitted.
+    vm.date = endDate
+    #expect(vm.canSave)
+    // A mid-day expense on endDate is admitted (this would have failed before the
+    // inclusive-day fix because upperBound was startOfDay(endDate) = midnight).
+    vm.date = utcDate(2026, 5, 25, hour: 14)
+    #expect(vm.canSave)
+    // The last hour of endDate is still admitted.
+    vm.date = utcDate(2026, 5, 25, hour: 23)
+    #expect(vm.canSave)
+  }
+
   @Test func dateRange_isUnbounded_forActiveDaily() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)

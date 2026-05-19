@@ -22,6 +22,17 @@ final class Budget {
   var startDate: Date?
   /// When the budget stops calculating (terminal, no resume). Genuinely optional for
   /// recurring budgets; required for `.specificDates`.
+  ///
+  /// **Semantic convention: `endDate` is the inclusive last *day* of the window.**
+  /// Stored as `startOfDay(picked)` for consistency, but the day itself is part of
+  /// the budget: the user can log expenses anytime on `endDate`, and the budget
+  /// becomes `.postEnd` only after that day ends (i.e., once `now >= startOfDay(endDate + 1 day)`).
+  /// `BudgetCalculator` implements this by computing
+  /// `effectiveEndExclusive = startOfDay(endDate + 1 day)` and using `< effectiveEndExclusive`
+  /// for inclusion checks. Date-range UI sites (e.g., `AddEditExpenseView.dateRange`)
+  /// SHALL clamp their upper bound to the last moment of `endDate`'s day, not to
+  /// `startOfDay(endDate)` — clamping at start-of-day excludes most of the user's
+  /// last day from the picker.
   var endDate: Date?
   /// The most recent manual Reset Carry-Over or Reset Budget timestamp.
   /// `nil` means no manual reset has occurred.
@@ -76,15 +87,45 @@ final class Budget {
     startDate ?? createdAt
   }
 
-  /// The most-recent allocation amount by `(effectiveFrom, lastModified)`. Used for
-  /// display contexts (analytics, RemainingBar denominator) where a quick "current
-  /// allocation" lookup is sufficient. The algorithm uses `allocationInEffect(at:history:)`
-  /// for period-accurate values.
-  var currentAllocation: Decimal {
+  /// The `BudgetPeriod` enum value for this budget. `period` is stored as a `String` raw
+  /// value for human-readable CloudKit records; this helper centralises the
+  /// `BudgetPeriod(rawValue:) ?? .daily` decode so every call site uses the same fallback
+  /// when an unrecognised raw value is encountered (forward/backward compatibility
+  /// during schema migrations). Sites that need to *bail* on an unrecognised value
+  /// (rather than fall back) should keep calling `BudgetPeriod(rawValue:)` directly.
+  var periodEnum: BudgetPeriod {
+    BudgetPeriod(rawValue: period) ?? .daily
+  }
+
+  /// Whether the budget's `[effectiveStartDate, endDate]` window is well-ordered.
+  /// `true` when `endDate` is nil (recurring) or when `endDate >= effectiveStartDate`
+  /// (`.specificDates`). An inverted window is a data-integrity violation — typically
+  /// from a partial CloudKit sync — and callers building date ranges should assert
+  /// before constructing a `ClosedRange` that would trap on an inverted bound.
+  var isWindowValid: Bool {
+    endDate.map { $0 >= effectiveStartDate } ?? true
+  }
+
+  /// The single most-recent `AllocationChange` by `(effectiveFrom, lastModified)` —
+  /// the canonical "newest entry" sort key used wherever the algorithm or UI needs the
+  /// current allocation row. Returns `nil` only when `allocationChanges` is empty,
+  /// which should not happen for a saved budget.
+  ///
+  /// Centralising the tiebreak here keeps display, write-path, and lifecycle code in
+  /// sync — see `currentAllocation`, `BudgetLifecycleService.applyAllocationEdit`'s
+  /// specificDates branch, and `AddEditBudgetViewModel.applySpecificDatesDateEdits`.
+  var mostRecentAllocationChange: AllocationChange? {
     allocationChanges.max { lhs, rhs in
       if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
       return lhs.lastModified < rhs.lastModified
-    }?.amount ?? 0
+    }
+  }
+
+  /// The most-recent allocation amount. Used for display contexts (analytics,
+  /// RemainingBar denominator) where a quick "current allocation" lookup is sufficient.
+  /// The algorithm uses `allocationInEffect(at:history:)` for period-accurate values.
+  var currentAllocation: Decimal {
+    mostRecentAllocationChange?.amount ?? 0
   }
 
   init(

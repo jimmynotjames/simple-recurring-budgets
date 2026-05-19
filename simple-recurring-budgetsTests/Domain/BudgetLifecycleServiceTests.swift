@@ -210,6 +210,58 @@ struct BudgetLifecycleApplyAllocationEditTests {
     #expect(snap.carryOver == 275)
     #expect(snap.effectiveAllocation == 30)
   }
+
+  // MARK: - Specific Dates: latest-wins overwrite
+
+  @Test func applyAllocationEdit_specificDates_overwritesExistingRow() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let start = d(2026, 5, 8)
+    let end = d(2026, 5, 25)
+    let budget = Budget(period: .specificDates)
+    budget.startDate = start
+    budget.endDate = end
+    let change = AllocationChange(effectiveFrom: start, amount: 1500, lastModified: d(2026, 5, 7))
+    change.budget = budget
+    ctx.insert(budget); ctx.insert(change)
+    try ctx.save()
+
+    let now = d(2026, 5, 15)
+    BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 1800, context: ctx, now: now, calendar: cal)
+
+    #expect(budget.allocationChanges.count == 1) // no new row inserted
+    let only = try #require(budget.allocationChanges.first)
+    #expect(only.amount == 1800)
+    #expect(only.effectiveFrom == start)
+    #expect(only.lastModified == now)
+    #expect(budget.lastModified == now)
+  }
+
+  @Test func applyAllocationEdit_specificDates_noOpWhenAmountUnchanged() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let start = d(2026, 5, 8)
+    let priorLastModified = d(2026, 5, 7)
+    let priorBudgetLastModified = d(2026, 5, 7, hour: 1)
+    let budget = Budget(period: .specificDates)
+    budget.startDate = start
+    budget.endDate = d(2026, 5, 25)
+    budget.lastModified = priorBudgetLastModified
+    let change = AllocationChange(effectiveFrom: start, amount: 1500, lastModified: priorLastModified)
+    change.budget = budget
+    ctx.insert(budget); ctx.insert(change)
+    try ctx.save()
+
+    BudgetLifecycleService.applyAllocationEdit(
+      budget, newAmount: 1500, context: ctx, now: d(2026, 5, 15), calendar: cal
+    )
+
+    #expect(budget.allocationChanges.count == 1)
+    let only = try #require(budget.allocationChanges.first)
+    #expect(only.amount == 1500)
+    #expect(only.lastModified == priorLastModified) // unchanged — no-op
+    #expect(budget.lastModified == priorBudgetLastModified) // unchanged
+  }
 }
 
 // MARK: - resetCarryOver write path

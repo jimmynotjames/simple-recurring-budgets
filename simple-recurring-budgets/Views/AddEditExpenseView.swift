@@ -86,15 +86,40 @@ final class AddEditExpenseViewModel {
   /// recent `.pause` event's `effectiveDate` (a moment guaranteed to lie inside an
   /// active period since the pause-action period is itself active). Save-time
   /// validation catches dates inside paused gaps for multi-cycle histories.
+  ///
+  /// For `.specificDates` budgets, the upper bound is the **last moment of `endDate`'s
+  /// day** (not `startOfDay(endDate)`). Per the `Budget.endDate` convention, `endDate`
+  /// is the inclusive last day of the window — clamping the picker at start-of-day
+  /// would exclude most of that day from the user's last-day picker entries.
   var dateRange: ClosedRange<Date> {
     guard let budget else {
       return Date.distantPast ... Date.distantFuture
     }
+    let calendar = Calendar.autoupdatingCurrent
     let lower = budget.effectiveStartDate
-    if cachedBudgetSnapshot?.lifecycleState == .paused, let pauseDate = cachedPauseEffectiveDate {
-      return lower ... pauseDate
+    let pauseUpper: Date? = cachedBudgetSnapshot?.lifecycleState == .paused
+      ? cachedPauseEffectiveDate
+      : nil
+    // Last moment of endDate's day: midnight of (endDate + 1 day) minus one second.
+    // Matches `BudgetCalculator.effectiveEndExclusive`'s "include all of endDate's day"
+    // semantic. Without this expansion, the picker rejects any expense time other
+    // than 00:00 on `endDate`.
+    let endUpper: Date? = budget.endDate.map { endDate in
+      let nextDayStart = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: endDate))!
+      return nextDayStart.addingTimeInterval(-1)
     }
-    return lower ... Date.distantFuture
+    let upper: Date = switch (pauseUpper, endUpper) {
+    case let (.some(p), .some(e)): min(p, e)
+    case let (.some(p), .none): p
+    case let (.none, .some(e)): e
+    case (.none, .none): Date.distantFuture
+    }
+    // Defense-in-depth: `Budget.isWindowValid` ensures `endDate >= effectiveStartDate`
+    // for a healthy record; trip in debug if we ever build a range from an inverted
+    // window (e.g., partial CloudKit sync). In release, `max(lower, upper)` collapses
+    // the range to a single point so the date picker can't crash.
+    assert(budget.isWindowValid, "AddEditExpenseView.dateRange: inverted budget window — endDate < effectiveStartDate")
+    return lower ... max(lower, upper)
   }
 
   init(adding budget: Budget) {
@@ -177,7 +202,7 @@ final class AddEditExpenseViewModel {
       try? context.save()
 
       // expense_logged: NO ExpenseItem field transmitted — only categorical context.
-      let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+      let period = budget.periodEnum
       let elapsed = Date().timeIntervalSince(budget.createdAt)
       analytics.track(
         AnalyticsEvent.expenseLogged,
@@ -215,7 +240,7 @@ final class AddEditExpenseViewModel {
         try? context.save()
         // expense_edited: NO ExpenseItem field transmitted — only categorical context.
         let budget = expense.budget
-        let period = budget.map { BudgetPeriod(rawValue: $0.period) ?? .daily } ?? .daily
+        let period = budget?.periodEnum ?? .daily
         analytics.track(
           AnalyticsEvent.expenseEdited,
           properties: [

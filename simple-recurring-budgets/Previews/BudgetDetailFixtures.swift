@@ -145,6 +145,27 @@
 
     // MARK: - Insert helper
 
+    /// The "Italy Trip" Specific Dates fixture used by BudgetDetail previews. Mirrors
+    /// `DebugData.specificDatesDefault` (Budgets-list previews) — see that doc comment
+    /// for why the two fixtures are intentionally separate. Keep the date offsets,
+    /// allocation, and currency in sync when one changes.
+    static func detailSpecificDates(now: Date = Date()) -> Budget {
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: -10, to: cal.startOfDay(for: now))!
+      let endDate = cal.date(byAdding: .day, value: 7, to: cal.startOfDay(for: now))!
+      let budget = Budget(name: "Italy Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+      budget.startDate = startDate
+      budget.endDate = endDate
+      let expenses = [
+        ExpenseItem(amount: 450, name: "Hotel deposit", date: startDate.addingTimeInterval(3600)),
+        ExpenseItem(amount: 85, name: "Dinner", date: cal.date(byAdding: .day, value: -3, to: now)!),
+        ExpenseItem(amount: 24, name: "Museum tickets", date: cal.date(byAdding: .day, value: -1, to: now)!),
+      ]
+      attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 1500, startDate: startDate, to: budget)
+      return budget
+    }
+
     static func insertDetail(_ budget: Budget, into context: ModelContext) {
       context.insert(budget)
       for expense in budget.expenseItems {

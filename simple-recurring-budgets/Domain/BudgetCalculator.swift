@@ -36,7 +36,7 @@ enum BudgetCalculator {
     // Pre-start short-circuit
     if now < effectiveStartDate {
       let alloc = allocationInEffect(at: effectiveStartDate, sortedHistory: sortedAllocationChanges)
-      let periodRawForPreStart = BudgetPeriod(rawValue: budget.period) ?? .daily
+      let periodRawForPreStart = budget.periodEnum
       let preStartCarryOver: Decimal? = periodRawForPreStart == .specificDates ? nil : 0
       return BudgetSnapshot(
         lifecycleState: .preStart,
@@ -49,7 +49,7 @@ enum BudgetCalculator {
     }
 
     // Branch on period type
-    let periodRaw = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let periodRaw = budget.periodEnum
     if periodRaw == .specificDates {
       return specificDatesBranch(
         budget: budget,

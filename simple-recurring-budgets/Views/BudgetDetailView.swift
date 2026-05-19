@@ -12,7 +12,6 @@ struct BudgetDetailView: View {
   @Environment(Router.self) var router
   @Environment(\.analytics) var analytics
   @Environment(\.scenePhase) private var scenePhase
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   @State var lifecycle: BudgetLifecycleResult?
   @State private var showResetCarryOverConfirm = false
@@ -27,7 +26,7 @@ struct BudgetDetailView: View {
   }
 
   private var isSpecificDates: Bool {
-    BudgetPeriod(rawValue: budget.period) == .specificDates
+    budget.periodEnum == .specificDates
   }
 
   private var showPauseResumeItem: Bool {
@@ -40,7 +39,7 @@ struct BudgetDetailView: View {
   @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 8
 
   var period: BudgetPeriod {
-    BudgetPeriod(rawValue: budget.period) ?? .daily
+    budget.periodEnum
   }
 
   private var remaining: Decimal {
@@ -60,12 +59,6 @@ struct BudgetDetailView: View {
 
   private var isOverBudget: Bool {
     remaining < 0
-  }
-
-  private var amountLayout: AnyLayout {
-    dynamicTypeSize >= .xxxLarge
-      ? AnyLayout(VStackLayout(alignment: .leading, spacing: amountSpacing))
-      : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: amountSpacing))
   }
 
   var body: some View {
@@ -197,7 +190,7 @@ struct BudgetDetailView: View {
             }
           }
           Divider()
-          if budget.isCarryOverEnabled {
+          if budget.isCarryOverEnabled, !isSpecificDates {
             Button(
               String(
                 localized: "budgetDetail.menu.resetCarryOver",
@@ -257,10 +250,11 @@ struct BudgetDetailView: View {
             role: .destructive
           ) { resetBudget() }
         } message: {
-          Text(
-            "budgetDetail.resetBudget.dialog.message",
+          Text(String(
+            localized: "budgetDetail.resetBudget.dialog.message",
+            defaultValue: "All expenses will be permanently deleted, carry-over will reset to zero, and if paused, the budget will resume.",
             comment: "Body of the reset-budget confirmation dialog."
-          )
+          ))
         }
       }
     }
@@ -304,16 +298,28 @@ struct BudgetDetailView: View {
   private var headerRow: some View {
     VStack(alignment: .leading, spacing: 0) {
       VStack(alignment: .leading, spacing: rowSpacing) {
-        amountLayout {
-          Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
-            .font(.largeTitle)
-            .monospacedDigit()
-            .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
-            .lineLimit(1)
-
-          Text(period.listLabel)
-            .font(.callout)
-            .foregroundStyle(.secondary)
+        ViewThatFits(in: .horizontal) {
+          HStack(alignment: .firstTextBaseline, spacing: amountSpacing) {
+            Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
+              .font(.largeTitle)
+              .monospacedDigit()
+              .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
+              .lineLimit(1)
+            Text(budget.periodDisplayLabel)
+              .font(.callout)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+          VStack(alignment: .leading, spacing: amountSpacing) {
+            Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
+              .font(.largeTitle)
+              .monospacedDigit()
+              .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
+              .lineLimit(1)
+            Text(budget.periodDisplayLabel)
+              .font(.callout)
+              .foregroundStyle(.secondary)
+          }
         }
 
         RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget, dimmed: isPaused)
@@ -326,7 +332,7 @@ struct BudgetDetailView: View {
       StatusChipRow(
         isPaused: isPaused,
         pausedSince: lifecycle?.pausedSince,
-        isCarryOverEnabled: budget.isCarryOverEnabled,
+        isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates,
         carryOverAmount: carryOverAmount,
         currencyCode: budget.currencyCode,
         currencyDisplay: settings.currencyDisplay,
@@ -349,7 +355,7 @@ struct BudgetDetailView: View {
     Logger.ui.debug(
       "ui.action: resetCarryOver budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
-    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let period = budget.periodEnum
     BudgetLifecycleService.resetCarryOver(budget, context: context)
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
@@ -370,7 +376,7 @@ struct BudgetDetailView: View {
     Logger.ui.debug(
       "ui.action: resetBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
-    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let period = budget.periodEnum
     withAnimation {
       BudgetLifecycleService.resetBudget(budget, context: context)
     }
@@ -396,7 +402,20 @@ struct BudgetDetailView: View {
   /// The paused state is announced separately by `PausedChip`'s own VO element,
   /// so this label only carries the data (remaining + period, or over-budget).
   private var headerA11yLabel: String {
-    isOverBudget
+    if isSpecificDates {
+      return isOverBudget
+        ? String(
+          localized: "budgetDetail.header.accessibilityLabel.overBudget.specificDates",
+          defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget \(budget.periodInlineLabel)",
+          comment: "VoiceOver label for the Specific Dates budget detail header when over budget; first argument is the formatted overage amount, second is the inline period descriptor (e.g. \"in this window\")"
+        )
+        : String(
+          localized: "budgetDetail.header.accessibilityLabel.specificDates",
+          defaultValue: "\(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining \(budget.periodInlineLabel)",
+          comment: "VoiceOver label for the Specific Dates budget detail header; first argument is the remaining amount, second is the inline period descriptor (e.g. \"in this window\")"
+        )
+    }
+    return isOverBudget
       ? String(
         localized: "budgetDetail.header.accessibilityLabel.overBudget",
         defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget this \(period.inlineLabel) period",
@@ -468,5 +487,15 @@ struct BudgetDetailView: View {
   // Paused budget — primary slot shows Resume, header greyed.
   #Preview("Paused") {
     BudgetDetailPreview(budget: DebugData.detailDailyPaused())
+  }
+
+  // Specific Dates — date range in header, no carry-over chip.
+  #Preview("Specific Dates · Light") {
+    BudgetDetailPreview(budget: DebugData.detailSpecificDates())
+  }
+
+  #Preview("Specific Dates · Dark") {
+    BudgetDetailPreview(budget: DebugData.detailSpecificDates())
+      .preferredColorScheme(.dark)
   }
 #endif

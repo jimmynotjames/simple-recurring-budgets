@@ -20,6 +20,22 @@ final class AddEditBudgetViewModel {
   var currencyCode: String
   var period: BudgetPeriod
   var isCarryOverEnabled: Bool
+  /// Specific Dates window start. `nil` for recurring period types; required when `period == .specificDates`.
+  ///
+  /// When this is set to a date that crosses past `endDate`, `endDate` is snapped
+  /// forward to preserve the original window duration (Apple Calendar pattern).
+  /// `didSet` does not fire during `init`, so seeding both dates in Edit mode is safe.
+  var startDate: Date? {
+    didSet {
+      guard let newStart = startDate, let end = endDate, newStart > end else { return }
+      let originalStart = oldValue ?? newStart
+      let duration = end.timeIntervalSince(originalStart)
+      endDate = newStart.addingTimeInterval(max(duration, 0))
+    }
+  }
+
+  /// Specific Dates window end. `nil` for recurring period types; required when `period == .specificDates`.
+  var endDate: Date?
 
   private let mode: Mode
 
@@ -33,7 +49,13 @@ final class AddEditBudgetViewModel {
   // MARK: - Validation
 
   var canSave: Bool {
-    !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && (allocation ?? 0) > 0
+    let nameOK = !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    let allocOK = (allocation ?? 0) > 0
+    if period == .specificDates {
+      guard let s = startDate, let e = endDate else { return false }
+      return nameOK && allocOK && s <= e
+    }
+    return nameOK && allocOK
   }
 
   // MARK: - Init (Add mode)
@@ -44,6 +66,8 @@ final class AddEditBudgetViewModel {
     currencyCode = Locale.current.currency?.identifier ?? "USD"
     period = .daily
     isCarryOverEnabled = settings.defaultCarryOverEnabled
+    startDate = nil
+    endDate = nil
     mode = .add
   }
 
@@ -53,8 +77,10 @@ final class AddEditBudgetViewModel {
     name = budget.name
     allocation = budget.currentAllocation
     currencyCode = budget.currencyCode
-    period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    period = budget.periodEnum
     isCarryOverEnabled = budget.isCarryOverEnabled
+    startDate = budget.startDate
+    endDate = budget.endDate
     mode = .edit(budget)
   }
 
@@ -114,42 +140,56 @@ final class AddEditBudgetViewModel {
     let calendar = Calendar.autoupdatingCurrent
 
     // Compute startDate per period type so AppSettings.weekStartDay anchors weekly/biweekly.
-    let startDate: Date
+    let computedStartDate: Date
+    let computedEndDate: Date?
     switch period {
     case .daily:
-      startDate = calendar.startOfDay(for: now)
+      computedStartDate = calendar.startOfDay(for: now)
+      computedEndDate = nil
 
     case .weekly, .biweekly:
       // Most recent weekStartDay-aligned date at or before startOfDay(now).
       let dayStart = calendar.startOfDay(for: now)
       let weekday = calendar.component(.weekday, from: dayStart)
       let daysBack = (weekday - settings.weekStartDay.rawValue + 7) % 7
-      startDate = calendar.date(byAdding: .day, value: -daysBack, to: dayStart)!
+      computedStartDate = calendar.date(byAdding: .day, value: -daysBack, to: dayStart)!
+      computedEndDate = nil
 
     case .monthly:
       var comps = calendar.dateComponents([.year, .month], from: now)
       comps.day = 1; comps.hour = 0; comps.minute = 0; comps.second = 0
-      startDate = calendar.date(from: comps)!
+      computedStartDate = calendar.date(from: comps)!
+      computedEndDate = nil
 
     case .specificDates:
-      startDate = calendar.startOfDay(for: now)
+      // canSave gated both dates non-nil; defensive guards mirror the recurring guards.
+      guard let s = startDate, let e = endDate else { return }
+      computedStartDate = calendar.startOfDay(for: s)
+      computedEndDate = calendar.startOfDay(for: e)
     }
 
     let budgetCountBefore = (try? context.fetchCount(FetchDescriptor<Budget>())) ?? 0
     let isFirst = budgetCountBefore == 0
 
+    // Force `isCarryOverEnabled = false` for `.specificDates`: the UI hides the toggle,
+    // so the in-memory value can be stale from a pre-toggle session default. Without this
+    // clamp, the persisted row carries a `true` that pollutes analytics events and
+    // Mixpanel cohort properties that read `budget.isCarryOverEnabled` directly (the
+    // calculator already ignores it for this period type — see BudgetCalculator §A.4.2).
+    let resolvedCarryOver = period == .specificDates ? false : isCarryOverEnabled
     let budget = Budget(
       name: name,
       currencyCode: currencyCode,
       period: period,
-      isCarryOverEnabled: isCarryOverEnabled
+      isCarryOverEnabled: resolvedCarryOver
     )
-    budget.startDate = startDate
+    budget.startDate = computedStartDate
+    budget.endDate = computedEndDate
     budget.sortOrder = (try? Budget.nextSortOrder(for: context)) ?? 0
     context.insert(budget)
 
     // Insert the initial AllocationChange in the same save.
-    let initialChange = AllocationChange(effectiveFrom: startDate, amount: allocation, lastModified: now)
+    let initialChange = AllocationChange(effectiveFrom: computedStartDate, amount: allocation, lastModified: now)
     initialChange.budget = budget
     context.insert(initialChange)
 
@@ -204,6 +244,9 @@ final class AddEditBudgetViewModel {
       budget.isCarryOverEnabled = isCarryOverEnabled
       changed = true
     }
+    if period == .specificDates, applySpecificDatesDateEdits(to: budget) {
+      changed = true
+    }
     if changed {
       budget.lastModified = Date()
       try? context.save()
@@ -220,8 +263,47 @@ final class AddEditBudgetViewModel {
 
   // MARK: - Private helpers
 
+  /// Applies Edit-mode `startDate` / `endDate` diffs for `.specificDates` budgets.
+  ///
+  /// Both drafts are normalized with `calendar.startOfDay(for:)` before comparison.
+  /// A `startDate` change additionally triggers `realignMostRecentAllocationChange(to:on:)`
+  /// so the algorithm reads the new window — see that method for the rationale.
+  ///
+  /// - Returns: `true` if any field was mutated, `false` otherwise.
+  private func applySpecificDatesDateEdits(to budget: Budget) -> Bool {
+    let calendar = Calendar.autoupdatingCurrent
+    let now = Date()
+    var changed = false
+    if let s = startDate {
+      let normalized = calendar.startOfDay(for: s)
+      if budget.startDate != normalized {
+        budget.startDate = normalized
+        realignMostRecentAllocationChange(on: budget, to: normalized, now: now)
+        changed = true
+      }
+    }
+    if let e = endDate {
+      let normalized = calendar.startOfDay(for: e)
+      if budget.endDate != normalized {
+        budget.endDate = normalized
+        changed = true
+      }
+    }
+    return changed
+  }
+
+  /// Realigns the most-recent `AllocationChange.effectiveFrom` to `newStartDate` so the
+  /// algorithm reads the new window after a `.specificDates` startDate edit (latest-wins,
+  /// single-period semantics per F-2.08). No-op when the budget has no allocation rows
+  /// (should not happen for a saved budget).
+  private func realignMostRecentAllocationChange(on budget: Budget, to newStartDate: Date, now: Date) {
+    guard let mostRecent = budget.mostRecentAllocationChange else { return }
+    mostRecent.effectiveFrom = newStartDate
+    mostRecent.lastModified = now
+  }
+
   private func budgetEventProperties(budget: Budget) -> [String: any Sendable] {
-    let p = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let p = budget.periodEnum
     return [
       AnalyticsProperty.period: p.analyticsValue,
       AnalyticsProperty.carryOverEnabled: budget.isCarryOverEnabled,

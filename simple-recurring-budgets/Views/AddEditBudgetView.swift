@@ -2,17 +2,31 @@ import SwiftData
 import SwiftUI
 
 struct AddEditBudgetView: View {
+  // MARK: - View state
+
+  //
+  // Internal: cross-file extension access only.
+  //
+  // `viewModel`, `settings`, `showCurrencyPicker`, `initialCurrencyCode`, and the
+  // `sectionLabel` helper below are non-`private` solely because Swift extensions
+  // in `AddEditBudgetView+AllocationCard.swift` and `AddEditBudgetView+SpecificDates.swift`
+  // can't see `private` members. Treat them as if they were `private` to this view
+  // — do not consume from unrelated call sites.
   @State var viewModel: AddEditBudgetViewModel
   @Environment(\.modelContext) private var context
-  @Environment(AppSettings.self) private var settings
+  @Environment(AppSettings.self) var settings
   @Environment(Router.self) private var router
   @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
 
-  @State private var showCurrencyPicker = false
+  @State var showCurrencyPicker = false
   @State private var showDeleteConfirmation = false
-  @State private var initialCurrencyCode: String = ""
+  @State var initialCurrencyCode: String = ""
   @FocusState private var isNameFocused: Bool
+
+  private var isSpecificDates: Bool {
+    viewModel.period == .specificDates
+  }
 
   var body: some View {
     NavigationStack {
@@ -21,7 +35,11 @@ struct AddEditBudgetView: View {
           nameCard
           allocationCard
           periodCard
-          carryOverCard
+          if isSpecificDates {
+            datesCard
+          } else {
+            carryOverCard
+          }
           if viewModel.isEditing {
             deleteButton
           }
@@ -29,6 +47,7 @@ struct AddEditBudgetView: View {
         .padding(.horizontal)
         .padding(.top, 8)
         .padding(.bottom, 32)
+        .animation(.easeInOut(duration: 0.2), value: isSpecificDates)
       }
       .onAppear {
         initialCurrencyCode = viewModel.currencyCode
@@ -72,6 +91,7 @@ struct AddEditBudgetView: View {
           }
           .disabled(!viewModel.canSave)
           .fontWeight(.semibold)
+          .tint(.accentColor)
         }
       }
       .sheet(isPresented: $showCurrencyPicker) {
@@ -159,103 +179,28 @@ struct AddEditBudgetView: View {
     .backgroundStyle(Color("CellBackground"))
   }
 
-  private var allocationCard: some View {
-    GroupBox {
-      VStack(alignment: .leading, spacing: 8) {
-        HStack(alignment: .center, spacing: 12) {
-          HStack(alignment: .firstTextBaseline, spacing: 2) {
-            Text(currencyPrefix)
-              .font(.title2.weight(.semibold))
-              .foregroundStyle(.secondary)
-            TextField(
-              String(
-                localized: "addEditBudget.field.allocation.placeholder",
-                defaultValue: "0",
-                comment: "Placeholder in the allocation amount field when no value is entered"
-              ),
-              value: $viewModel.allocation,
-              format: OptionalDecimalFormatStyle()
-            )
-            .keyboardType(.decimalPad)
-            .font(.title2.weight(.semibold).monospacedDigit())
-            .accessibilityLabel(
-              String(
-                localized: "addEditBudget.field.allocation.accessibilityLabel",
-                defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
-                comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
-              )
-            )
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
-
-          Button {
-            showCurrencyPicker = true
-          } label: {
-            HStack(spacing: 4) {
-              Text(viewModel.currencyCode)
-                .font(.callout.weight(.medium))
-              Image(systemName: "chevron.up.chevron.down")
-                .font(.caption2)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Capsule().fill(Color.secondary.opacity(0.12)))
-            .foregroundStyle(.secondary)
-          }
-          .buttonStyle(.plain)
-          .accessibilityLabel(String(
-            localized: "addEditBudget.field.currency.accessibilityLabel",
-            defaultValue: "Currency, \(viewModel.currencyCode)",
-            comment: "VoiceOver label for the currency selection pill showing the current ISO code"
-          ))
-          .accessibilityHint(String(
-            localized: "addEditBudget.field.currency.accessibilityHint",
-            defaultValue: "Opens currency picker",
-            comment: "VoiceOver hint for the currency selection pill"
-          ))
-        }
-
-        if !initialCurrencyCode.isEmpty, viewModel.currencyCode != initialCurrencyCode {
-          Text(String(
-            localized: "addEditBudget.note.currencyLabelOnly",
-            defaultValue: "Changing currency only updates the label. I.e. No currency conversion.",
-            comment: "Inline note shown below the currency picker when the user selects a different currency, warning that no conversion is applied"
-          ))
-          .font(.caption)
-          .foregroundStyle(.secondary)
-          .transition(.opacity.combined(with: .move(edge: .top)))
-        }
-      }
-      .animation(.easeInOut(duration: 0.2), value: viewModel.currencyCode)
-    } label: {
-      sectionLabel(String(
-        localized: "addEditBudget.section.allocation",
-        defaultValue: "Allocation",
-        comment: "Section header above the allocation amount and currency fields"
-      ))
-    }
-    .backgroundStyle(Color("CellBackground"))
-    .onChange(of: viewModel.currencyCode) { _, newCode in
-      guard !initialCurrencyCode.isEmpty, newCode != initialCurrencyCode else { return }
-      let disclaimer = String(
-        localized: "addEditBudget.note.currencyLabelOnly",
-        defaultValue: "Changing currency only updates the label. I.e. No currency conversion.",
-        comment: "Inline note shown below the currency picker when the user selects a different currency, warning that no conversion is applied"
-      )
-      AccessibilityNotification.Announcement(disclaimer).post()
-    }
-  }
-
   private var periodCard: some View {
     GroupBox {
       let columns = [GridItem(.flexible()), GridItem(.flexible())]
       VStack(alignment: .leading, spacing: 8) {
         LazyVGrid(columns: columns, spacing: 8) {
-          // Intentionally excludes `.specificDates`: that period type's UI ships in a future change.
-          // See change `rewrite-budget-calculations` design.md, tasks.md §4.9.
-          ForEach(BudgetPeriod.allCases.filter { $0 != .specificDates }, id: \.self) { p in
+          ForEach([BudgetPeriod.daily, .weekly, .biweekly, .monthly], id: \.self) { p in
             periodChip(p)
           }
+        }
+        .padding(.top, 4)
+        periodChip(.specificDates)
+
+        if isSpecificDates {
+          Text(String(
+            localized: "addEditBudget.note.specificDates",
+            defaultValue: "Good for a trip, a birthday weekend, or any one-off spending window. When it's done, it's done. No repeating, no carry-over.",
+            comment: "Caption shown below the Specific Dates period chip explaining that this budget type is non-recurring with no carry-over"
+          ))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .padding(.top, 4)
+          .transition(.opacity.combined(with: .move(edge: .top)))
         }
 
         if viewModel.isEditing {
@@ -272,6 +217,7 @@ struct AddEditBudgetView: View {
           .padding(.top, 8)
         }
       }
+      .animation(.easeInOut(duration: 0.2), value: isSpecificDates)
     } label: {
       sectionLabel(String(
         localized: "addEditBudget.section.period",
@@ -302,7 +248,7 @@ struct AddEditBudgetView: View {
 
         Text(String(
           localized: "addEditBudget.note.carryOver",
-          defaultValue: "Accumulates unspent or overspent amounts over time.",
+          defaultValue: "Cumulative over- and under-spending across periods.",
           comment: "Caption below the carry-over toggle explaining what carry-over does"
         ))
         .font(.caption)
@@ -377,11 +323,9 @@ struct AddEditBudgetView: View {
 
   // MARK: - Helpers
 
-  private var currencyPrefix: String {
-    settings.currencyDisplay.prefix(for: viewModel.currencyCode)
-  }
-
-  private func sectionLabel(_ text: String) -> some View {
+  /// Internal: cross-file extension access only. See the comment on `viewModel` at the
+  /// top of this struct — used by `+AllocationCard.swift` and `+SpecificDates.swift`.
+  func sectionLabel(_ text: String) -> some View {
     Text(text)
       .font(.subheadline)
       .foregroundStyle(.secondary)

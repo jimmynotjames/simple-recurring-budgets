@@ -1,6 +1,6 @@
 # Budget detail screen
 
-Single-budget screen with remaining/carry-over header, period-aware expense sections, Add Expense, Edit Budget, Reset Carry-Over, Reset Budget, and swipe-to-delete. Synced from change `budget-detail-screen` (2026-04-29). Updated from change `pause-resume-budget` (2026-05-16).
+Single-budget screen with remaining/carry-over header, period-aware expense sections, Add Expense, Edit Budget, Reset Carry-Over, Reset Budget, and swipe-to-delete. Synced from change `budget-detail-screen` (2026-04-29). Updated from change `pause-resume-budget` (2026-05-16). Updated from change `specific-dates-period` (2026-05-18).
 
 ## Requirements
 
@@ -27,13 +27,15 @@ The screen SHALL render its primary content as a SwiftUI `List` with `listStyle(
 The first List section SHALL be a status header showing:
 
 - The current-period **remaining** amount, formatted with the budget's `currencyCode` and `AppSettings.currencyDisplay`, rendered in the system large-title font with `monospacedDigit()`. When remaining is negative, the amount SHALL be tinted with `Color.moneyDeficit`; when zero or positive, the primary text color.
-- The period label sourced from `BudgetPeriod.listLabel` ("Daily" / "Weekly" / "Biweekly" / "Monthly") rendered in the system callout font with secondary foreground.
+- The period label sourced from `Budget.periodDisplayLabel` rendered in the system callout font with secondary foreground. For recurring periods this resolves to "Daily" / "Weekly" / "Biweekly" / "Monthly" (via `BudgetPeriod.listLabel`). For `.specificDates` budgets this resolves to the formatted date range produced by `Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)` over `Budget.startDate ..< Budget.endDate`. See `data-models` for the `Budget.periodDisplayLabel` definition.
 - A `RemainingBar` decorative bar bound to `clamp(remaining / allocation, 0, 1)`, hidden from VoiceOver and following the same on-budget vs over-budget rules as the Budgets row (accent fill when remaining ≥ 0; full deficit fill when remaining < 0; empty when allocation is 0).
-- When `Budget.isCarryOverEnabled == true`, a row beneath the bar containing a `CarryOverChip` (passing `lifecycle?.carryOverAmount ?? budget.carryOverAmount`, `currencyCode`, and `AppSettings.currencyDisplay`). The header SHALL NOT render any trailing action control on this row — the manual carry-over reset trigger lives in the toolbar overflow Menu (see the separate "Toolbar overflow Menu" requirement below). When `isCarryOverEnabled == false`, this row SHALL be omitted entirely.
+- When `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`, a row beneath the bar containing a `CarryOverChip` (passing `lifecycle?.carryOverAmount ?? 0`, `currencyCode`, and `AppSettings.currencyDisplay`). The header SHALL NOT render any trailing action control on this row — the manual carry-over reset trigger lives in the toolbar overflow Menu (see the separate "Toolbar overflow Menu" requirement below). When `isCarryOverEnabled == false` OR `period == .specificDates`, this row SHALL be omitted entirely (per F-2.08, the Carry-Over chip is hidden for Specific Dates budgets regardless of the stored `isCarryOverEnabled` value).
 
 The header SHALL collapse the amount and period label into a single accessibility element with the composed VoiceOver label specified by the dedicated requirement below.
 
-The header's amount + period container SHALL switch from `HStackLayout` (`.firstTextBaseline` aligned) to `VStackLayout` (`.leading` aligned) when `dynamicTypeSize >= .xxxLarge`. Row spacing, amount-stack spacing, chip top spacing, and row vertical padding SHALL scale via `@ScaledMetric` relative to the relevant text style.
+The header's amount + period container SHALL use `ViewThatFits(in: .horizontal)` so the layout responds to actual content width rather than a fixed `dynamicTypeSize` threshold. The first (preferred) child SHALL be a horizontal `HStack(alignment: .firstTextBaseline, spacing: amountSpacing)` containing the amount text and the period label, both with `.lineLimit(1)` so `ViewThatFits` correctly detects overflow. The fallback child SHALL be a vertical `VStack(alignment: .leading, spacing: amountSpacing)` containing the same two texts; in this fallback the period label SHALL omit `.lineLimit(1)` so it can wrap naturally on its own line. Row spacing, amount-stack spacing, chip top spacing, and row vertical padding SHALL scale via `@ScaledMetric` relative to the relevant text style.
+
+This requirement explicitly replaces the prior fixed-threshold behaviour (HStack below `.xxxLarge`, VStack at `.xxxLarge` and above). The `ViewThatFits` approach handles both font-size scaling and content-width changes (notably the longer date-range label produced for `.specificDates` budgets) in a single rule.
 
 The header section SHALL set `listRowBackground(Color("CellBackground"))` and hide the row separator.
 
@@ -47,30 +49,45 @@ The header section SHALL set `listRowBackground(Color("CellBackground"))` and hi
 - **WHEN** the lifecycle service returns `remaining < 0` for the budget
 - **THEN** the amount text uses `Color.moneyDeficit` and the `RemainingBar` fills 100% of its width in `Color.moneyDeficit`
 
+#### Scenario: Recurring period label uses BudgetPeriod.listLabel
+
+- **WHEN** the header is rendered for a budget with period `.weekly`
+- **THEN** the period label renders the localized string "Weekly" (key `period.weekly`)
+
+#### Scenario: Specific Dates period label renders as a date range
+
+- **WHEN** the header is rendered for a `.specificDates` budget with `startDate = 2026-05-08` and `endDate = 2026-05-25` and the user's locale is en-US
+- **THEN** the period label renders "May 8 – May 25"
+
 #### Scenario: Carry-over chip omitted when toggle is off
 
 - **WHEN** `Budget.isCarryOverEnabled == false`
 - **THEN** the header SHALL NOT render the carry-over chip row, regardless of the underlying `carryOverAmount` value
 
-#### Scenario: Carry-over row visible when toggle is on
+#### Scenario: Carry-over chip omitted for Specific Dates regardless of stored toggle
 
-- **WHEN** `Budget.isCarryOverEnabled == true`
+- **WHEN** `Budget.period == .specificDates` AND `Budget.isCarryOverEnabled == true` (e.g., a record arriving via CloudKit before this change shipped)
+- **THEN** the header SHALL NOT render the carry-over chip row; `.specificDates` budgets never display the chip on this screen
+
+#### Scenario: Carry-over row visible when toggle is on and period is recurring
+
+- **WHEN** `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`
 - **THEN** the header renders a `CarryOverChip` on a row beneath the `RemainingBar`, with no trailing action button in the header; the manual carry-over reset is triggered exclusively from the toolbar overflow Menu
 
 #### Scenario: Header carry-over row is unaffected by the live carry-over magnitude
 
-- **WHEN** `Budget.isCarryOverEnabled == true` and the live `carryOverAmount` is zero, positive, or negative
-- **THEN** the header carry-over row renders in all three cases; the row's visibility depends only on `isCarryOverEnabled`, not on the magnitude or sign of `carryOverAmount`
+- **WHEN** `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates` AND the live `carryOverAmount` is zero, positive, or negative
+- **THEN** the header carry-over row renders in all three cases; the row's visibility depends only on `isCarryOverEnabled` and `period`, not on the magnitude or sign of `carryOverAmount`
 
-#### Scenario: Horizontal amount layout below xxxLarge
+#### Scenario: Horizontal layout when content fits
 
-- **WHEN** `dynamicTypeSize` is `.large`, `.xLarge`, or `.xxLarge`
-- **THEN** the amount and period label render side-by-side aligned to the first text baseline
+- **WHEN** the amount and period label together fit within the available header width at their ideal one-line size
+- **THEN** the layout uses the HStack child with both texts side-by-side aligned to the first text baseline
 
-#### Scenario: Vertical amount layout at xxxLarge and above
+#### Scenario: Vertical layout when content does not fit
 
-- **WHEN** `dynamicTypeSize` is `.xxxLarge` or any larger accessibility size
-- **THEN** the amount renders above the period label in a vertical stack aligned to the leading edge
+- **WHEN** the amount and period label together exceed the available header width (e.g. at larger Dynamic Type sizes, or for a long `.specificDates` date-range label)
+- **THEN** `ViewThatFits` selects the VStack child, rendering the amount above the period label aligned to the leading edge
 
 ---
 
@@ -78,20 +95,25 @@ The header section SHALL set `listRowBackground(Color("CellBackground"))` and hi
 
 The header SHALL provide a single combined accessibility element (`accessibilityElement(children: .combine)`) with a localized label that describes the current-period state:
 
-- When `remaining >= 0`, the label SHALL use key `budgetDetail.header.accessibilityLabel` and include the formatted remaining amount and the inline period name (e.g. "$12.50 remaining this daily period").
-- When `remaining < 0`, the label SHALL use key `budgetDetail.header.accessibilityLabel.overBudget` and include the **positive** overage amount (i.e. `|remaining|`) and the inline period name (e.g. "$5.00 over budget this daily period").
+- When `remaining >= 0`, the label SHALL use key `budgetDetail.header.accessibilityLabel` and include the formatted remaining amount and an inline period descriptor.
+- When `remaining < 0`, the label SHALL use key `budgetDetail.header.accessibilityLabel.overBudget` and include the **positive** overage amount (i.e. `|remaining|`) and an inline period descriptor.
 
-The inline period name SHALL be sourced from `BudgetPeriod.inlineLabel`, which is backed by dedicated per-locale strings rather than `.lowercased()` on the list label.
+The inline period descriptor SHALL be sourced from `Budget.periodInlineLabel`. For recurring periods this resolves via `BudgetPeriod.inlineLabel` to dedicated per-locale strings ("daily", "weekly", "biweekly", "monthly"). For `.specificDates` budgets it resolves to a dedicated string (key `period.specificDates.inline.budgetDetail`, English source: "in this window") so the announcement reads naturally (e.g. "$941.00 remaining in this window" rather than "$941.00 remaining this specific dates period").
 
-#### Scenario: On-budget header announces remaining
+#### Scenario: On-budget recurring header announces remaining
 
-- **WHEN** VoiceOver focuses the header and `remaining >= 0`
-- **THEN** the announced label uses key `budgetDetail.header.accessibilityLabel` and includes the formatted positive remaining amount and the inline period name
+- **WHEN** VoiceOver focuses the header for a recurring-period budget and `remaining >= 0`
+- **THEN** the announced label uses key `budgetDetail.header.accessibilityLabel` and includes the formatted positive remaining amount and the recurring inline period descriptor
+
+#### Scenario: On-budget Specific Dates header announces remaining
+
+- **WHEN** VoiceOver focuses the header for a `.specificDates` budget and `remaining >= 0`
+- **THEN** the announced label includes the formatted positive remaining amount and the Specific Dates inline descriptor (e.g. "$941.00 remaining in this window")
 
 #### Scenario: Over-budget header announces positive overage
 
 - **WHEN** VoiceOver focuses the header and `remaining < 0`
-- **THEN** the announced label uses key `budgetDetail.header.accessibilityLabel.overBudget` and includes the formatted **positive** overage amount and the inline period name; the negative sign is not announced literally
+- **THEN** the announced label uses key `budgetDetail.header.accessibilityLabel.overBudget` and includes the formatted **positive** overage amount and the inline period descriptor; the negative sign is not announced literally
 
 ---
 
@@ -150,7 +172,7 @@ The screen SHALL place a single `topBarTrailing` toolbar item rendered as a `Men
 1. **Edit Budget** (key `budgetDetail.menu.editBudget`, system image `pencil`) — activating it sets `router.sheet = .editBudget(budget)`. Visible in every lifecycle state.
 2. **Pause Budget** / **Resume Budget** (state-driven; see below).
 3. A `Divider`.
-4. **Reset Carry-Over…** (key `budgetDetail.menu.resetCarryOver`, system image `arrow.counterclockwise.circle`, `role: .destructive`) — activating it triggers the Reset Carry-Over confirmation flow. Visible only when `Budget.isCarryOverEnabled == true`; omitted entirely otherwise. Visible in every lifecycle state in which the screen is rendered, regardless of the live carry-over balance's magnitude or sign.
+4. **Reset Carry-Over…** (key `budgetDetail.menu.resetCarryOver`, system image `arrow.counterclockwise.circle`, `role: .destructive`) — activating it triggers the Reset Carry-Over confirmation flow. Visible only when `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`; omitted entirely otherwise (per F-2.08, Reset Carry-Over is hidden for Specific Dates budgets). Visible in every lifecycle state in which the screen is rendered, regardless of the live carry-over balance's magnitude or sign.
 5. **Reset Budget…** (key `budgetDetail.menu.resetBudget`, system image `arrow.counterclockwise`, `role: .destructive`) — activating it triggers the Reset Budget confirmation flow.
 
 The Pause/Resume item SHALL be:
@@ -188,20 +210,25 @@ The Menu SHALL provide a localized accessibility label (key `budgetDetail.menu.a
 - **WHEN** the user opens the ellipsis Menu in any lifecycle state
 - **THEN** the Reset Budget… item renders with system image `arrow.counterclockwise` and `role: .destructive` (red foreground)
 
-#### Scenario: Reset Carry-Over menu item is shown when carry-over is enabled
+#### Scenario: Reset Carry-Over menu item is shown for recurring budgets with carry-over enabled
 
-- **WHEN** the user opens the Menu on a budget with `Budget.isCarryOverEnabled == true`
-- **THEN** the Menu contains a "Reset Carry-Over…" item (key `budgetDetail.menu.resetCarryOver`, system image `arrow.counterclockwise.circle`, `role: .destructive`) positioned beneath the `Divider` and above the "Reset Budget…" item
+- **WHEN** the user opens the Menu on a recurring budget (any period other than `.specificDates`) with `Budget.isCarryOverEnabled == true`
+- **THEN** the Menu contains a "Reset Carry-Over…" item positioned beneath the `Divider` and above the "Reset Budget…" item
 
 #### Scenario: Reset Carry-Over menu item is omitted when carry-over is disabled
 
-- **WHEN** the user opens the Menu on a budget with `Budget.isCarryOverEnabled == false`
+- **WHEN** the user opens the Menu on a recurring budget with `Budget.isCarryOverEnabled == false`
 - **THEN** the Menu does NOT contain a "Reset Carry-Over…" item; the Divider is still present and Reset Budget… is still the only destructive item below it
+
+#### Scenario: Reset Carry-Over menu item is omitted for Specific Dates budgets
+
+- **WHEN** the user opens the Menu on a `.specificDates` budget (regardless of the stored `isCarryOverEnabled` value)
+- **THEN** the Menu does NOT contain a "Reset Carry-Over…" item; the Divider is still present and Reset Budget… is the only destructive item below it
 
 #### Scenario: Reset Carry-Over menu item is shown regardless of carry-over balance value
 
-- **WHEN** the user opens the Menu on a budget with `isCarryOverEnabled == true` and the live `carryOverAmount` is zero
-- **THEN** the Reset Carry-Over… item is still present and selectable; visibility is gated only by `isCarryOverEnabled`, not by the current balance
+- **WHEN** the user opens the Menu on a recurring budget with `isCarryOverEnabled == true` and the live `carryOverAmount` is zero
+- **THEN** the Reset Carry-Over… item is still present and selectable; visibility is gated only by `isCarryOverEnabled` and `period != .specificDates`, not by the current balance
 
 #### Scenario: Pause item is shown for active recurring budgets
 

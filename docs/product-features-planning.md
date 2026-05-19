@@ -121,7 +121,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.03: Add/Edit Budget screen
 
-- **Status:** Partially implemented. Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`). Delete Budget implemented by change `delete-budget-button`. Period immutability and currency-change disclaimer implemented by change `restrict-edit-budget-period`. Outstanding items are scoped to the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md)): the new `startDate` / `endDate` fields with per-period-type pre-population, the new `specificDates` option in the period selector, and the documented allocation-edit semantics. **The Reset Cadences feature is permanently removed** by the rewrite; it is no longer paused, and no Reset Cadence control ships in the Add/Edit Budget sheet.
+- **Status:** Partially implemented. Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`). Delete Budget implemented by change `delete-budget-button`. Period immutability and currency-change disclaimer implemented by change `restrict-edit-budget-period`. The `.specificDates` period chip, Dates card (start/end pickers, sheet-presented `.graphical` `DatePicker`), conditional Carry-Over hiding, and `startDate` / `endDate` save paths ship with `specific-dates-period` (see F-2.08). Outstanding items remain for the **recurring** period types: editable Start Date / End Date fields and per-period-type pre-population (see F-7.07). **The Reset Cadences feature is permanently removed** by the budget-calculations rewrite; it is no longer paused, and no Reset Cadence control ships in the Add/Edit Budget sheet.
 - **Description:** Screen to create or edit a Budget (entity).
 - **Acceptance Criteria:**
   - Same screen used to create and edit.
@@ -194,7 +194,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.07: Carry-over toggle switch
 
-- **Status:** Implemented. Per-budget toggle implemented as part of the `add-edit-budget-screen` change; global default implemented as part of the Settings screen. The Specific Dates qualifier below ships with the budget-calculations rewrite (see F-2.08).
+- **Status:** Implemented. Per-budget toggle implemented as part of the `add-edit-budget-screen` change; global default implemented as part of the Settings screen. The Specific Dates carve-out (toggle hidden on Add/Edit Budget, chip hidden on Budgets list and Budget detail) ships with change `specific-dates-period` (see F-2.08).
 - **Description:** Every **recurring** budget can have the carry-over calculation turned off. Carry-over is meaningless for Specific Dates budgets, so the toggle is hidden in the Add/Edit Budget UI for that period type and the algorithm ignores `isCarryOverEnabled` for that type (see F-2.08).
 - **Acceptance Criteria:**
   - Add/Edit Budget screen has a toggle to turn on/off the carry-over of the prior balances **for recurring period types**. The toggle is hidden for Specific Dates budgets.
@@ -206,7 +206,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.08: Specific Dates budget type
 
-- **Status:** Open. Scoped to be delivered by the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) §2.3, §2.5, §5.3).
+- **Status:** Implemented (by change `specific-dates-period`). The `BudgetPeriod.specificDates` case, schema (`Budget.endDate`), and algorithm (`BudgetCalculator.specificDatesBranch`) shipped with the budget-calculations rewrite; the Add/Edit Budget UI, list / detail-screen carve-outs (carry-over chip hidden, Reset Carry-Over and Pause/Resume hidden), latest-wins allocation edit, expense date-bounds clamping, and `Budget.periodDisplayLabel` (date-range label) ship with `specific-dates-period`.
 - **Description:** A one-shot / trip-style envelope budget. One window (`[startDate, endDate]`, both required), one allocation for the entire window, no recurrence. Example use case: "$350 total for the trip." Distinct from a recurring `daily` budget with `startDate` and `endDate` set (e.g., "$50/day for 7 days" is a `daily` budget, not a Specific Dates budget).
 - **Acceptance Criteria:**
   - A new `BudgetPeriod.specificDates` case is selectable in the Add/Edit Budget screen's period chip group (see F-2.03). Like the other period types, it is immutable after creation.

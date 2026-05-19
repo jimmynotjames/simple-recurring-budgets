@@ -163,7 +163,7 @@ struct BudgetRowView: View {
   @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 6
 
   private var period: BudgetPeriod {
-    BudgetPeriod(rawValue: budget.period) ?? .daily
+    budget.periodEnum
   }
 
   private var isSpecificDates: Bool {

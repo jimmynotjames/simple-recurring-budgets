@@ -2,6 +2,16 @@ import SwiftData
 import SwiftUI
 
 struct AddEditBudgetView: View {
+  // MARK: - View state
+
+  //
+  // Internal: cross-file extension access only.
+  //
+  // `viewModel`, `settings`, `showCurrencyPicker`, `initialCurrencyCode`, and the
+  // `sectionLabel` helper below are non-`private` solely because Swift extensions
+  // in `AddEditBudgetView+AllocationCard.swift` and `AddEditBudgetView+SpecificDates.swift`
+  // can't see `private` members. Treat them as if they were `private` to this view
+  // — do not consume from unrelated call sites.
   @State var viewModel: AddEditBudgetViewModel
   @Environment(\.modelContext) private var context
   @Environment(AppSettings.self) var settings
@@ -313,6 +323,8 @@ struct AddEditBudgetView: View {
 
   // MARK: - Helpers
 
+  /// Internal: cross-file extension access only. See the comment on `viewModel` at the
+  /// top of this struct — used by `+AllocationCard.swift` and `+SpecificDates.swift`.
   func sectionLabel(_ text: String) -> some View {
     Text(text)
       .font(.subheadline)

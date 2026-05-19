@@ -7,7 +7,7 @@ extension Budget {
   /// using `Date.IntervalFormatStyle` for full locale and RTL support. For all other period
   /// types, falls back to `BudgetPeriod.listLabel`.
   @MainActor var periodDisplayLabel: String {
-    let p = BudgetPeriod(rawValue: period) ?? .daily
+    let p = periodEnum
     if p == .specificDates, let start = startDate, let end = endDate {
       return (start ..< end).formatted(
         Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)
@@ -20,7 +20,7 @@ extension Budget {
   /// "remaining *in this window*"). For recurring periods returns `BudgetPeriod.inlineLabel`;
   /// for `.specificDates` returns a dedicated localized string so the sentence reads naturally.
   @MainActor var periodInlineLabel: String {
-    let p = BudgetPeriod(rawValue: period) ?? .daily
+    let p = periodEnum
     if p == .specificDates {
       return String(
         localized: "period.specificDates.inline.budgetRow",

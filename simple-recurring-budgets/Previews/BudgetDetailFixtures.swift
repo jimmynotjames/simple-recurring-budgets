@@ -145,6 +145,10 @@
 
     // MARK: - Insert helper
 
+    /// The "Italy Trip" Specific Dates fixture used by BudgetDetail previews. Mirrors
+    /// `DebugData.specificDatesDefault` (Budgets-list previews) — see that doc comment
+    /// for why the two fixtures are intentionally separate. Keep the date offsets,
+    /// allocation, and currency in sync when one changes.
     static func detailSpecificDates(now: Date = Date()) -> Budget {
       let cal = Calendar.current
       let startDate = cal.date(byAdding: .day, value: -10, to: cal.startOfDay(for: now))!

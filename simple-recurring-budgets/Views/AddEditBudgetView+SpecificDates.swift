@@ -72,6 +72,11 @@ extension AddEditBudgetView {
 /// Once a date is set, the chip shows the locale-aware abbreviated form (e.g. "May 18, 2026").
 /// Tapping the chip presents a sheet containing a `.graphical` `DatePicker`; Cancel discards,
 /// Done assigns. Single-tap UX: tap → sheet → pick → Done.
+///
+/// **Not a reusable component.** The `placeholder`, `accessibilityHint`, and
+/// `setStateAccessibilityLabel` closure are all wired to localization keys specific to
+/// the Add/Edit Budget Dates card. If a second site needs a similar chip+picker,
+/// extract a reusable shell first rather than reusing this struct as-is.
 struct DateColumn: View {
   let placeholder: String
   let accessibilityHint: String

@@ -77,7 +77,7 @@ final class AddEditBudgetViewModel {
     name = budget.name
     allocation = budget.currentAllocation
     currencyCode = budget.currencyCode
-    period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    period = budget.periodEnum
     isCarryOverEnabled = budget.isCarryOverEnabled
     startDate = budget.startDate
     endDate = budget.endDate
@@ -259,10 +259,9 @@ final class AddEditBudgetViewModel {
 
   /// Applies Edit-mode `startDate` / `endDate` diffs for `.specificDates` budgets.
   ///
-  /// Normalizes drafts with `calendar.startOfDay(for:)` before comparison. When `startDate`
-  /// changes, the most-recent `AllocationChange.effectiveFrom` is realigned to the new
-  /// start so the algorithm reads the new window (latest-wins, single-period semantics
-  /// per F-2.08).
+  /// Both drafts are normalized with `calendar.startOfDay(for:)` before comparison.
+  /// A `startDate` change additionally triggers `realignMostRecentAllocationChange(to:on:)`
+  /// so the algorithm reads the new window — see that method for the rationale.
   ///
   /// - Returns: `true` if any field was mutated, `false` otherwise.
   private func applySpecificDatesDateEdits(to budget: Budget) -> Bool {
@@ -273,13 +272,7 @@ final class AddEditBudgetViewModel {
       let normalized = calendar.startOfDay(for: s)
       if budget.startDate != normalized {
         budget.startDate = normalized
-        if let mostRecent = budget.allocationChanges.max(by: { lhs, rhs in
-          if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
-          return lhs.lastModified < rhs.lastModified
-        }) {
-          mostRecent.effectiveFrom = normalized
-          mostRecent.lastModified = now
-        }
+        realignMostRecentAllocationChange(on: budget, to: normalized, now: now)
         changed = true
       }
     }
@@ -293,8 +286,18 @@ final class AddEditBudgetViewModel {
     return changed
   }
 
+  /// Realigns the most-recent `AllocationChange.effectiveFrom` to `newStartDate` so the
+  /// algorithm reads the new window after a `.specificDates` startDate edit (latest-wins,
+  /// single-period semantics per F-2.08). No-op when the budget has no allocation rows
+  /// (should not happen for a saved budget).
+  private func realignMostRecentAllocationChange(on budget: Budget, to newStartDate: Date, now: Date) {
+    guard let mostRecent = budget.mostRecentAllocationChange else { return }
+    mostRecent.effectiveFrom = newStartDate
+    mostRecent.lastModified = now
+  }
+
   private func budgetEventProperties(budget: Budget) -> [String: any Sendable] {
-    let p = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let p = budget.periodEnum
     return [
       AnalyticsProperty.period: p.analyticsValue,
       AnalyticsProperty.carryOverEnabled: budget.isCarryOverEnabled,

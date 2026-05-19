@@ -193,7 +193,7 @@ final class AddEditExpenseViewModel {
       try? context.save()
 
       // expense_logged: NO ExpenseItem field transmitted — only categorical context.
-      let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+      let period = budget.periodEnum
       let elapsed = Date().timeIntervalSince(budget.createdAt)
       analytics.track(
         AnalyticsEvent.expenseLogged,
@@ -231,7 +231,7 @@ final class AddEditExpenseViewModel {
         try? context.save()
         // expense_edited: NO ExpenseItem field transmitted — only categorical context.
         let budget = expense.budget
-        let period = budget.map { BudgetPeriod(rawValue: $0.period) ?? .daily } ?? .daily
+        let period = budget?.periodEnum ?? .daily
         analytics.track(
           AnalyticsEvent.expenseEdited,
           properties: [

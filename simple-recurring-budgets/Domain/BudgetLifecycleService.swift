@@ -102,14 +102,18 @@ enum BudgetLifecycleService {
     calendar: Calendar = .autoupdatingCurrent
   ) {
     guard let periodRaw = BudgetPeriod(rawValue: budget.period) else { return }
-    // Specific Dates: latest-wins whole-window overwrite (F-2.08). One AllocationChange
-    // row exists for the entire window; mutate it in place rather than inserting a new
-    // row. No audit trail — the prior figure is not retrievable per F-2.08.
+    // Specific Dates: latest-wins whole-window overwrite (F-2.08). Exactly one
+    // AllocationChange row exists for the entire window; mutate it in place rather
+    // than inserting a new row. No audit trail — the prior figure is not retrievable
+    // per F-2.08. The count invariant is enforced at create (saveNew) and edit
+    // (this method); trip in debug if it ever drifts (e.g., a future feature
+    // introduces multi-row history for specificDates without updating this branch).
     if periodRaw == .specificDates {
-      guard let mostRecent = budget.allocationChanges.max(by: { lhs, rhs in
-        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
-        return lhs.lastModified < rhs.lastModified
-      }) else { return }
+      assert(
+        budget.allocationChanges.count == 1,
+        "applyAllocationEdit: specificDates expects exactly 1 AllocationChange row, got \(budget.allocationChanges.count) — see F-2.08"
+      )
+      guard let mostRecent = budget.mostRecentAllocationChange else { return }
       guard mostRecent.amount != newAmount else { return } // no-op when unchanged
       mostRecent.amount = newAmount
       mostRecent.lastModified = now
@@ -158,7 +162,7 @@ enum BudgetLifecycleService {
     // budget would write `lastResetDate` with no observable effect — trip in
     // debug to surface the UI bug, no-op in release.
     assert(
-      BudgetPeriod(rawValue: budget.period) != .specificDates,
+      budget.periodEnum != .specificDates,
       "resetCarryOver: not supported for specificDates — see F-2.08"
     )
     budget.lastResetDate = now
@@ -219,7 +223,7 @@ enum BudgetLifecycleService {
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
   ) -> Bool {
-    guard BudgetPeriod(rawValue: budget.period) != .specificDates else { return false }
+    guard budget.periodEnum != .specificDates else { return false }
     let snapshot = BudgetCalculator.snapshot(
       budget: budget,
       expenses: budget.expenseItems,
@@ -250,7 +254,7 @@ enum BudgetLifecycleService {
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
   ) -> Bool {
-    guard BudgetPeriod(rawValue: budget.period) != .specificDates else { return false }
+    guard budget.periodEnum != .specificDates else { return false }
     let snapshot = BudgetCalculator.snapshot(
       budget: budget,
       expenses: budget.expenseItems,

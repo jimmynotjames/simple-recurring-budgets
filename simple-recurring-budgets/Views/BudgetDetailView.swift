@@ -26,7 +26,7 @@ struct BudgetDetailView: View {
   }
 
   private var isSpecificDates: Bool {
-    BudgetPeriod(rawValue: budget.period) == .specificDates
+    budget.periodEnum == .specificDates
   }
 
   private var showPauseResumeItem: Bool {
@@ -39,7 +39,7 @@ struct BudgetDetailView: View {
   @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 8
 
   var period: BudgetPeriod {
-    BudgetPeriod(rawValue: budget.period) ?? .daily
+    budget.periodEnum
   }
 
   private var remaining: Decimal {
@@ -355,7 +355,7 @@ struct BudgetDetailView: View {
     Logger.ui.debug(
       "ui.action: resetCarryOver budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
-    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let period = budget.periodEnum
     BudgetLifecycleService.resetCarryOver(budget, context: context)
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
@@ -376,7 +376,7 @@ struct BudgetDetailView: View {
     Logger.ui.debug(
       "ui.action: resetBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
-    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let period = budget.periodEnum
     withAnimation {
       BudgetLifecycleService.resetBudget(budget, context: context)
     }

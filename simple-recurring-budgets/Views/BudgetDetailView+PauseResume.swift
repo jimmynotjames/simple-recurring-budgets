@@ -9,7 +9,7 @@ extension BudgetDetailView {
     Logger.ui.debug(
       "ui.action: pauseBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
-    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let period = budget.periodEnum
     let succeeded = BudgetLifecycleService.pauseBudget(budget, context: context)
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
@@ -32,7 +32,7 @@ extension BudgetDetailView {
     Logger.ui.debug(
       "ui.action: resumeBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
-    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let period = budget.periodEnum
     let succeeded = BudgetLifecycleService.resumeBudget(budget, context: context)
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.

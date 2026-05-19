@@ -90,6 +90,8 @@ extension AddEditBudgetView {
     }
   }
 
+  /// Internal: extension-local helper. Consumed by `allocationCard` above; no other
+  /// call site should read this.
   var currencyPrefix: String {
     settings.currencyDisplay.prefix(for: viewModel.currencyCode)
   }

@@ -103,7 +103,7 @@ extension BudgetDetailView {
     Logger.ui.debug(
       "ui.action: deleteExpense expense=\(String(describing: expense.persistentModelID), privacy: .private)"
     )
-    let period = BudgetPeriod(rawValue: budget.period) ?? .daily
+    let period = budget.periodEnum
     let isAddFunds = expense.isAddFunds
     withAnimation {
       budget.lastModified = Date()

@@ -76,6 +76,16 @@ final class Budget {
     startDate ?? createdAt
   }
 
+  /// The `BudgetPeriod` enum value for this budget. `period` is stored as a `String` raw
+  /// value for human-readable CloudKit records; this helper centralises the
+  /// `BudgetPeriod(rawValue:) ?? .daily` decode so every call site uses the same fallback
+  /// when an unrecognised raw value is encountered (forward/backward compatibility
+  /// during schema migrations). Sites that need to *bail* on an unrecognised value
+  /// (rather than fall back) should keep calling `BudgetPeriod(rawValue:)` directly.
+  var periodEnum: BudgetPeriod {
+    BudgetPeriod(rawValue: period) ?? .daily
+  }
+
   /// Whether the budget's `[effectiveStartDate, endDate]` window is well-ordered.
   /// `true` when `endDate` is nil (recurring) or when `endDate >= effectiveStartDate`
   /// (`.specificDates`). An inverted window is a data-integrity violation — typically
@@ -85,15 +95,26 @@ final class Budget {
     endDate.map { $0 >= effectiveStartDate } ?? true
   }
 
-  /// The most-recent allocation amount by `(effectiveFrom, lastModified)`. Used for
-  /// display contexts (analytics, RemainingBar denominator) where a quick "current
-  /// allocation" lookup is sufficient. The algorithm uses `allocationInEffect(at:history:)`
-  /// for period-accurate values.
-  var currentAllocation: Decimal {
+  /// The single most-recent `AllocationChange` by `(effectiveFrom, lastModified)` —
+  /// the canonical "newest entry" sort key used wherever the algorithm or UI needs the
+  /// current allocation row. Returns `nil` only when `allocationChanges` is empty,
+  /// which should not happen for a saved budget.
+  ///
+  /// Centralising the tiebreak here keeps display, write-path, and lifecycle code in
+  /// sync — see `currentAllocation`, `BudgetLifecycleService.applyAllocationEdit`'s
+  /// specificDates branch, and `AddEditBudgetViewModel.applySpecificDatesDateEdits`.
+  var mostRecentAllocationChange: AllocationChange? {
     allocationChanges.max { lhs, rhs in
       if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
       return lhs.lastModified < rhs.lastModified
-    }?.amount ?? 0
+    }
+  }
+
+  /// The most-recent allocation amount. Used for display contexts (analytics,
+  /// RemainingBar denominator) where a quick "current allocation" lookup is sufficient.
+  /// The algorithm uses `allocationInEffect(at:history:)` for period-accurate values.
+  var currentAllocation: Decimal {
+    mostRecentAllocationChange?.amount ?? 0
   }
 
   init(

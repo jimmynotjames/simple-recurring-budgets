@@ -157,31 +157,16 @@ struct BudgetRowView: View {
 
   // Scale spacing and padding with the user's preferred text size,
   // except for add-expense button, which is fixed.
-  @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 7
-  @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
-  @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 12
-  @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 6
-
-  private var period: BudgetPeriod {
-    budget.periodEnum
-  }
+  @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 10
+  @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 16
+  @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 8
 
   private var isSpecificDates: Bool {
-    period == .specificDates
+    budget.periodEnum == .specificDates
   }
 
   private var remaining: Decimal {
     lifecycle?.remaining ?? 0
-  }
-
-  /// Fraction of the allocation still available: 1.0 = full allocation remaining,
-  /// 0.0 = nothing left. Clamped to [0, 1]; over-budget collapses to 0 and is
-  /// signalled separately via `isOverBudget` on `RemainingBar`.
-  private var remainingFraction: Double {
-    let allocation = budget.currentAllocation
-    guard allocation > 0 else { return 0 }
-    let ratio = remaining / allocation
-    return max(0, min(1, (ratio as NSDecimalNumber).doubleValue))
   }
 
   var body: some View {
@@ -194,57 +179,42 @@ struct BudgetRowView: View {
           router.path.append(.budgetDetail(budget))
         } label: {
           VStack(alignment: .leading, spacing: rowSpacing) {
-            // Line 1: Budget name
             Text(budget.name)
               .font(.body)
               .foregroundStyle(.primary)
               .lineLimit(2)
               .multilineTextAlignment(.leading)
 
-            // Line 2: Remaining amount + period.
-            // ViewThatFits tries the HStack first; falls back to VStack when
-            // the content (especially a longer date range) doesn't fit inline.
-            ViewThatFits(in: .horizontal) {
-              HStack(alignment: .firstTextBaseline, spacing: amountSpacing) {
-                Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
-                  .font(.largeTitle)
-                  .monospacedDigit()
-                  .foregroundStyle(dimmedStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit, when: isPaused))
-                  .lineLimit(1)
-                Text(budget.periodDisplayLabel)
-                  .font(.callout)
-                  .foregroundStyle(.secondary)
-                  .lineLimit(1)
-              }
-              VStack(alignment: .leading, spacing: amountSpacing) {
-                Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
-                  .font(.largeTitle)
-                  .monospacedDigit()
-                  .foregroundStyle(dimmedStyle(remaining >= 0 ? Color.primary : Color.moneyDeficit, when: isPaused))
-                  .lineLimit(1)
-                Text(budget.periodDisplayLabel)
-                  .font(.callout)
-                  .foregroundStyle(.secondary)
-              }
-            }
-
-            // Line 3: Indicator bar (hidden from assistive technologies;
-            // over-budget state is surfaced in the accessibility label instead).
-            RemainingBar(remainingFraction: remainingFraction, isOverBudget: remaining < 0, dimmed: isPaused)
+            BudgetRemainingSummary(
+              remaining: remaining,
+              allocation: budget.currentAllocation,
+              periodDisplayLabel: budget.periodDisplayLabel,
+              currencyCode: budget.currencyCode,
+              currencyDisplay: settings.currencyDisplay,
+              isPaused: isPaused
+            )
           }
           .frame(maxWidth: .infinity, alignment: .leading)
           .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(rowAccessibilityLabel)
+        .accessibilityLabel(BudgetRemainingSummary.accessibilityLabel(
+          budgetName: budget.name,
+          remaining: remaining,
+          isSpecificDates: isSpecificDates,
+          periodInlineLabel: budget.periodInlineLabel,
+          currencyCode: budget.currencyCode,
+          currencyDisplay: settings.currencyDisplay
+        ))
         .accessibilityHint(String(
           localized: "budget.row.accessibilityHint",
           defaultValue: "Opens budget details",
           comment: "VoiceOver hint for a budget row; describes what happens when the user activates it"
         ))
 
-        // Line 4: Status chip row — paused + carry-over. Lives outside the
-        // button so VoiceOver reads each chip as its own static-text element.
+        // Chip row lives outside the Button so VoiceOver reads each chip as
+        // its own static-text element rather than swallowing them into the
+        // button's label.
         StatusChipRow(
           isPaused: isPaused,
           pausedSince: lifecycle?.pausedSince,
@@ -297,42 +267,6 @@ struct BudgetRowView: View {
 
   private func refreshLifecycle() {
     lifecycle = BudgetLifecycleService.result(for: budget)
-  }
-
-  /// Builds the VoiceOver label for the row button.
-  /// Intentionally set as computed var to handle hot-swapping localizations.
-  ///
-  /// The paused state is announced separately by `PausedChip`'s own VO element,
-  /// so this label only carries the data (name + remaining + period).
-  private var rowAccessibilityLabel: String {
-    if isSpecificDates {
-      // Specific Dates uses a different grammar fragment ("in this window") and
-      // therefore a distinct localization key from the recurring template.
-      if remaining < 0 {
-        return String(
-          localized: "budget.row.accessibilityLabel.overBudget.specificDates",
-          defaultValue: "\(budget.name), \((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget \(budget.periodInlineLabel)",
-          comment: "VoiceOver label for an over-budget Specific Dates row; arguments are the budget name, the positive overage amount, and the inline period descriptor (e.g. \"in this window\")"
-        )
-      }
-      return String(
-        localized: "budget.row.accessibilityLabel.specificDates",
-        defaultValue: "\(budget.name), \(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining \(budget.periodInlineLabel)",
-        comment: "VoiceOver label for a Specific Dates budget row; arguments are the budget name, the remaining amount, and the inline period descriptor (e.g. \"in this window\")"
-      )
-    }
-    if remaining < 0 {
-      return String(
-        localized: "budget.row.accessibilityLabel.overBudget",
-        defaultValue: "\(budget.name), \((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget this \(period.inlineLabel) period",
-        comment: "VoiceOver label for an over-budget row; arguments are the budget name, the positive overage amount, and the period name"
-      )
-    }
-    return String(
-      localized: "budget.row.accessibilityLabel",
-      defaultValue: "\(budget.name), \(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining this \(period.inlineLabel) period",
-      comment: "VoiceOver label for a budget row; states the budget name, remaining amount, and period"
-    )
   }
 }
 

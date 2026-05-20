@@ -33,8 +33,6 @@ struct BudgetDetailView: View {
     !isSpecificDates && !isPostEnd
   }
 
-  @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 10
-  @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
   @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 16
   @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 8
 
@@ -48,17 +46,6 @@ struct BudgetDetailView: View {
 
   private var carryOverAmount: Decimal {
     lifecycle?.carryOverAmount ?? 0
-  }
-
-  private var remainingFraction: Double {
-    let allocation = budget.currentAllocation
-    guard allocation > 0 else { return 0 }
-    let ratio = remaining / allocation
-    return max(0, min(1, (ratio as NSDecimalNumber).doubleValue))
-  }
-
-  private var isOverBudget: Bool {
-    remaining < 0
   }
 
   var body: some View {
@@ -297,36 +284,23 @@ struct BudgetDetailView: View {
 
   private var headerRow: some View {
     VStack(alignment: .leading, spacing: 0) {
-      VStack(alignment: .leading, spacing: rowSpacing) {
-        ViewThatFits(in: .horizontal) {
-          HStack(alignment: .firstTextBaseline, spacing: amountSpacing) {
-            Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
-              .font(.largeTitle)
-              .monospacedDigit()
-              .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
-              .lineLimit(1)
-            Text(budget.periodDisplayLabel)
-              .font(.callout)
-              .foregroundStyle(.secondary)
-              .lineLimit(1)
-          }
-          VStack(alignment: .leading, spacing: amountSpacing) {
-            Text(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay))
-              .font(.largeTitle)
-              .monospacedDigit()
-              .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : .primary, when: isPaused))
-              .lineLimit(1)
-            Text(budget.periodDisplayLabel)
-              .font(.callout)
-              .foregroundStyle(.secondary)
-          }
-        }
-
-        RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget, dimmed: isPaused)
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .accessibilityElement(children: .combine)
-      .accessibilityLabel(headerA11yLabel)
+      BudgetRemainingSummary(
+        remaining: remaining,
+        allocation: budget.currentAllocation,
+        periodDisplayLabel: budget.periodDisplayLabel,
+        currencyCode: budget.currencyCode,
+        currencyDisplay: settings.currencyDisplay,
+        isPaused: isPaused
+      )
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(BudgetRemainingSummary.accessibilityLabel(
+        budgetName: nil,
+        remaining: remaining,
+        isSpecificDates: isSpecificDates,
+        periodInlineLabel: budget.periodInlineLabel,
+        currencyCode: budget.currencyCode,
+        currencyDisplay: settings.currencyDisplay
+      ))
       .accessibilityAddTraits(.isHeader)
 
       StatusChipRow(
@@ -393,39 +367,6 @@ struct BudgetDetailView: View {
       ]
     )
     refreshLifecycle()
-  }
-
-  // MARK: - Accessibility
-
-  /// Builds the VoiceOver label for the header.
-  ///
-  /// The paused state is announced separately by `PausedChip`'s own VO element,
-  /// so this label only carries the data (remaining + period, or over-budget).
-  private var headerA11yLabel: String {
-    if isSpecificDates {
-      return isOverBudget
-        ? String(
-          localized: "budgetDetail.header.accessibilityLabel.overBudget.specificDates",
-          defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget \(budget.periodInlineLabel)",
-          comment: "VoiceOver label for the Specific Dates budget detail header when over budget; first argument is the formatted overage amount, second is the inline period descriptor (e.g. \"in this window\")"
-        )
-        : String(
-          localized: "budgetDetail.header.accessibilityLabel.specificDates",
-          defaultValue: "\(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining \(budget.periodInlineLabel)",
-          comment: "VoiceOver label for the Specific Dates budget detail header; first argument is the remaining amount, second is the inline period descriptor (e.g. \"in this window\")"
-        )
-    }
-    return isOverBudget
-      ? String(
-        localized: "budgetDetail.header.accessibilityLabel.overBudget",
-        defaultValue: "\((-remaining).formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) over budget this \(period.inlineLabel) period",
-        comment: "VoiceOver label for the budget header when over budget; first argument is the formatted overage amount, second is the period name"
-      )
-      : String(
-        localized: "budgetDetail.header.accessibilityLabel",
-        defaultValue: "\(remaining.formatted(currencyCode: budget.currencyCode, display: settings.currencyDisplay)) remaining this \(period.inlineLabel) period",
-        comment: "VoiceOver label for the budget header; first argument is the formatted remaining amount, second is the period name"
-      )
   }
 }
 

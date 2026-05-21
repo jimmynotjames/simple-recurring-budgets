@@ -151,8 +151,12 @@ struct BudgetRowView: View {
   @Environment(\.scenePhase) private var scenePhase
   @State private var lifecycle: BudgetLifecycleResult?
 
-  private var isPaused: Bool {
-    lifecycle?.lifecycleState == .paused
+  /// View-layer inactive-presentation reason (`nil` when the budget is active).
+  /// Drives the dimmed amount / full-width secondary bar / `InactiveStatusChip`
+  /// treatment uniformly across preStart, paused, and postEnd.
+  private var inactiveReason: BudgetInactiveReason? {
+    guard let lifecycle else { return nil }
+    return BudgetInactiveReason.from(lifecycle: lifecycle, budget: budget)
   }
 
   // Scale spacing and padding with the user's preferred text size,
@@ -191,7 +195,7 @@ struct BudgetRowView: View {
               periodDisplayLabel: budget.periodDisplayLabel,
               currencyCode: budget.currencyCode,
               currencyDisplay: settings.currencyDisplay,
-              isPaused: isPaused
+              inactiveReason: inactiveReason
             )
           }
           .frame(maxWidth: .infinity, alignment: .leading)
@@ -201,10 +205,12 @@ struct BudgetRowView: View {
         .accessibilityLabel(BudgetRemainingSummary.accessibilityLabel(
           budgetName: budget.name,
           remaining: remaining,
+          allocation: budget.currentAllocation,
           isSpecificDates: isSpecificDates,
           periodInlineLabel: budget.periodInlineLabel,
           currencyCode: budget.currencyCode,
-          currencyDisplay: settings.currencyDisplay
+          currencyDisplay: settings.currencyDisplay,
+          inactiveReason: inactiveReason
         ))
         .accessibilityHint(String(
           localized: "budget.row.accessibilityHint",
@@ -216,8 +222,7 @@ struct BudgetRowView: View {
         // its own static-text element rather than swallowing them into the
         // button's label.
         StatusChipRow(
-          isPaused: isPaused,
-          pausedSince: lifecycle?.pausedSince,
+          inactiveReason: inactiveReason,
           isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates,
           carryOverAmount: lifecycle?.carryOverAmount ?? 0,
           currencyCode: budget.currencyCode,

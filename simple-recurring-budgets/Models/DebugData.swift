@@ -203,6 +203,34 @@
       return budget
     }
 
+    /// Daily budget whose `startDate` is two weeks in the future — exercises the
+    /// `.preStart` inactive presentation on the Budgets list.
+    static func dailyPreStart(now: Date = Date()) -> Budget {
+      let budget = Budget(name: "Daily – Pre-start", currencyCode: "USD", period: .daily)
+      let startDate = Calendar.current.startOfDay(for: daysAgo(-14, from: now))
+      budget.startDate = startDate
+      addInitialChange(amount: 10, startDate: startDate, to: budget)
+      return budget
+    }
+
+    /// Weekly budget whose `endDate` has already passed — exercises the `.postEnd`
+    /// inactive presentation on the Budgets list.
+    static func weeklyPostEnd(now: Date = Date()) -> Budget {
+      let budget = Budget(name: "Weekly – Post-end", currencyCode: "USD", period: .weekly)
+      let cal = Calendar.current
+      let startDate = cal.startOfDay(for: daysAgo(60, from: now))
+      let endDate = cal.startOfDay(for: daysAgo(7, from: now))
+      budget.startDate = startDate
+      budget.endDate = endDate
+      let expenses = [
+        ExpenseItem(amount: 22.00, name: "Coffee + pastry", date: daysAgo(30, from: now)),
+        ExpenseItem(amount: 15.50, name: "Lunch", date: daysAgo(18, from: now)),
+      ]
+      attach(expenses, to: budget)
+      addInitialChange(amount: 150, startDate: startDate, to: budget)
+      return budget
+    }
+
     static func monthlyWithDeficitCarryOver(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Monthly – Deficit Carry-Over", currencyCode: "USD", period: .monthly)
       let cal = Calendar.current
@@ -251,6 +279,8 @@
         monthlyWithDeficitCarryOver(now: now),
         specificDatesDefault(now: now),
         dailyPaused(now: now),
+        dailyPreStart(now: now),
+        weeklyPostEnd(now: now),
         dailyDefault(now: now),
         weeklyDefault(now: now),
         biweeklyDefault(now: now),

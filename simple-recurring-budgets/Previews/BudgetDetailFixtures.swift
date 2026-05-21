@@ -143,7 +143,7 @@
       return budget
     }
 
-    // MARK: - Insert helper
+    // MARK: - Specific Dates fixture
 
     /// The "Italy Trip" Specific Dates fixture used by BudgetDetail previews. Mirrors
     /// `DebugData.specificDatesDefault` (Budgets-list previews) — see that doc comment
@@ -165,6 +165,71 @@
       addDetailChange(amount: 1500, startDate: startDate, to: budget)
       return budget
     }
+
+    // MARK: - Inactive-state fixtures (preStart / postEnd)
+
+    /// Daily budget whose `startDate` is in the future — exercises the `.preStart`
+    /// inactive presentation (allocation displayed, full-width secondary bar,
+    /// "Starts {date}" chip).
+    static func detailDailyPreStart(now: Date = Date()) -> Budget {
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: 14, to: cal.startOfDay(for: now))!
+      let budget = Budget(name: "Daily Coffee", currencyCode: "USD", period: .daily)
+      budget.startDate = startDate
+      addDetailChange(amount: 8, startDate: startDate, to: budget)
+      return budget
+    }
+
+    /// Monthly budget whose `endDate` has passed — exercises the `.postEnd`
+    /// inactive presentation (allocation displayed, full-width secondary bar,
+    /// "Ended {date}" chip).
+    static func detailMonthlyPostEnd(now: Date = Date()) -> Budget {
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .month, value: -3, to: cal.startOfDay(for: now))!
+      let endDate = cal.date(byAdding: .day, value: -7, to: cal.startOfDay(for: now))!
+      let budget = Budget(name: "Vacation Fund", currencyCode: "USD", period: .monthly)
+      budget.startDate = startDate
+      budget.endDate = endDate
+      let expenses = [
+        ExpenseItem(amount: 145.00, name: "Flights", date: cal.date(byAdding: .day, value: -45, to: now)!),
+        ExpenseItem(amount: 80.00, name: "Hotel", date: cal.date(byAdding: .day, value: -20, to: now)!),
+      ]
+      attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 400, startDate: startDate, to: budget)
+      return budget
+    }
+
+    /// Specific Dates budget whose window is in the future — exercises `.preStart`
+    /// for a non-recurring budget (no `CarryOverChip`).
+    static func detailSpecificDatesPreStart(now: Date = Date()) -> Budget {
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: 30, to: cal.startOfDay(for: now))!
+      let endDate = cal.date(byAdding: .day, value: 60, to: cal.startOfDay(for: now))!
+      let budget = Budget(name: "Wedding", currencyCode: "USD", period: .specificDates, isCarryOverEnabled: false)
+      budget.startDate = startDate
+      budget.endDate = endDate
+      addDetailChange(amount: 5000, startDate: startDate, to: budget)
+      return budget
+    }
+
+    /// Specific Dates budget whose window has already ended — exercises `.postEnd`
+    /// for a non-recurring budget.
+    static func detailSpecificDatesPostEnd(now: Date = Date()) -> Budget {
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: -40, to: cal.startOfDay(for: now))!
+      let endDate = cal.date(byAdding: .day, value: -10, to: cal.startOfDay(for: now))!
+      let budget = Budget(name: "Holiday Gifts", currencyCode: "USD", period: .specificDates, isCarryOverEnabled: false)
+      budget.startDate = startDate
+      budget.endDate = endDate
+      let expenses = [
+        ExpenseItem(amount: 240, name: "Family gifts", date: cal.date(byAdding: .day, value: -25, to: now)!),
+      ]
+      attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 500, startDate: startDate, to: budget)
+      return budget
+    }
+
+    // MARK: - Insert helper
 
     static func insertDetail(_ budget: Budget, into context: ModelContext) {
       context.insert(budget)

@@ -17,12 +17,26 @@ struct BudgetDetailView: View {
   @State private var showResetCarryOverConfirm = false
   @State private var showResetBudgetConfirm = false
 
+  /// Action-gating only: the primary slot swaps Add Expense → Resume Budget
+  /// while paused, per the existing budget-detail-screen primary-action
+  /// requirement. Presentation (header dimming, chip) reads `inactiveReason`
+  /// below, not this flag.
   private var isPaused: Bool {
     lifecycle?.lifecycleState == .paused
   }
 
+  /// Action-gating only: hides the Pause/Resume menu item past `endDate` per
+  /// F-7.07 (a terminal budget cannot be paused or resumed).
   private var isPostEnd: Bool {
     lifecycle?.lifecycleState == .postEnd
+  }
+
+  /// View-layer inactive-presentation reason (`nil` when the budget is active).
+  /// Drives the dimmed header amount / full-width secondary bar /
+  /// `InactiveStatusChip` treatment uniformly across preStart, paused, and postEnd.
+  private var inactiveReason: BudgetInactiveReason? {
+    guard let lifecycle else { return nil }
+    return BudgetInactiveReason.from(lifecycle: lifecycle, budget: budget)
   }
 
   private var isSpecificDates: Bool {
@@ -290,22 +304,23 @@ struct BudgetDetailView: View {
         periodDisplayLabel: budget.periodDisplayLabel,
         currencyCode: budget.currencyCode,
         currencyDisplay: settings.currencyDisplay,
-        isPaused: isPaused
+        inactiveReason: inactiveReason
       )
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(BudgetRemainingSummary.accessibilityLabel(
         budgetName: nil,
         remaining: remaining,
+        allocation: budget.currentAllocation,
         isSpecificDates: isSpecificDates,
         periodInlineLabel: budget.periodInlineLabel,
         currencyCode: budget.currencyCode,
-        currencyDisplay: settings.currencyDisplay
+        currencyDisplay: settings.currencyDisplay,
+        inactiveReason: inactiveReason
       ))
       .accessibilityAddTraits(.isHeader)
 
       StatusChipRow(
-        isPaused: isPaused,
-        pausedSince: lifecycle?.pausedSince,
+        inactiveReason: inactiveReason,
         isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates,
         carryOverAmount: carryOverAmount,
         currencyCode: budget.currencyCode,
@@ -438,5 +453,27 @@ struct BudgetDetailView: View {
   #Preview("Specific Dates · Dark") {
     BudgetDetailPreview(budget: DebugData.detailSpecificDates())
       .preferredColorScheme(.dark)
+  }
+
+  // Pre-start: budget hasn't started yet — allocation shown, full-width grey bar,
+  // "Starts {date}" chip.
+  #Preview("Pre-start · Daily") {
+    BudgetDetailPreview(budget: DebugData.detailDailyPreStart())
+  }
+
+  // Post-end: budget's endDate has passed — allocation shown, full-width grey bar,
+  // "Ended {date}" chip.
+  #Preview("Post-end · Monthly") {
+    BudgetDetailPreview(budget: DebugData.detailMonthlyPostEnd())
+  }
+
+  // Specific Dates pre-window: same inactive treatment, no carry-over chip.
+  #Preview("Specific Dates · Pre-window") {
+    BudgetDetailPreview(budget: DebugData.detailSpecificDatesPreStart())
+  }
+
+  // Specific Dates post-window: same inactive treatment, no carry-over chip.
+  #Preview("Specific Dates · Post-window") {
+    BudgetDetailPreview(budget: DebugData.detailSpecificDatesPostEnd())
   }
 #endif

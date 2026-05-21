@@ -3,9 +3,9 @@ import SwiftUI
 // MARK: - StatusChipRow
 
 /// Shared status-chip row used by `BudgetRowView` (Budgets list) and
-/// `BudgetDetailView` header. Renders an optional `PausedChip` and an optional
-/// `CarryOverChip`, with a trailing `@ViewBuilder` slot for surface-specific
-/// controls (e.g. the detail screen's Reset Carry-Over button).
+/// `BudgetDetailView` header. Renders an optional `InactiveStatusChip` and an
+/// optional `CarryOverChip`, with a trailing `@ViewBuilder` slot for
+/// surface-specific controls (e.g. the detail screen's Reset Carry-Over button).
 ///
 /// `ViewThatFits` drops the row to a vertical stack at large Dynamic Type when
 /// the chips together (plus any trailing content) would exceed the available
@@ -14,8 +14,9 @@ import SwiftUI
 /// Owns only its internal between-chip spacing — the parent decides the
 /// top padding to the surrounding row content.
 struct StatusChipRow<Trailing: View>: View {
-  let isPaused: Bool
-  let pausedSince: Date?
+  /// When non-nil, drives an `InactiveStatusChip` for the matching reason and
+  /// dims the `CarryOverChip`. See `BudgetInactiveReason`.
+  let inactiveReason: BudgetInactiveReason?
   let isCarryOverEnabled: Bool
   let carryOverAmount: Decimal
   let currencyCode: String
@@ -28,7 +29,7 @@ struct StatusChipRow<Trailing: View>: View {
   @ScaledMetric(relativeTo: .caption) private var chipSpacing: CGFloat = 6
 
   private var showsRow: Bool {
-    isPaused || isCarryOverEnabled
+    inactiveReason != nil || isCarryOverEnabled
   }
 
   var body: some View {
@@ -43,15 +44,15 @@ struct StatusChipRow<Trailing: View>: View {
 
   @ViewBuilder
   private var chips: some View {
-    if isPaused, let pausedSince {
-      PausedChip(pausedSince: pausedSince)
+    if let reason = inactiveReason {
+      InactiveStatusChip(reason: reason)
     }
     if isCarryOverEnabled {
       CarryOverChip(
         amount: carryOverAmount,
         currencyCode: currencyCode,
         display: currencyDisplay,
-        dimmed: isPaused
+        dimmed: inactiveReason != nil
       )
     }
     trailing()
@@ -61,8 +62,7 @@ struct StatusChipRow<Trailing: View>: View {
 extension StatusChipRow where Trailing == EmptyView {
   /// Convenience initializer for callers that don't need a trailing slot.
   init(
-    isPaused: Bool,
-    pausedSince: Date?,
+    inactiveReason: BudgetInactiveReason?,
     isCarryOverEnabled: Bool,
     carryOverAmount: Decimal,
     currencyCode: String,
@@ -70,8 +70,7 @@ extension StatusChipRow where Trailing == EmptyView {
     topSpacing: CGFloat = 0
   ) {
     self.init(
-      isPaused: isPaused,
-      pausedSince: pausedSince,
+      inactiveReason: inactiveReason,
       isCarryOverEnabled: isCarryOverEnabled,
       carryOverAmount: carryOverAmount,
       currencyCode: currencyCode,
@@ -95,8 +94,29 @@ private func rowPreview(_ content: some View) -> some View {
 #Preview("Paused only") {
   rowPreview(
     StatusChipRow(
-      isPaused: true,
-      pausedSince: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
+      inactiveReason: .paused(since: PreviewDates.pausedSince),
+      isCarryOverEnabled: false,
+      carryOverAmount: 0,
+      currencyCode: "USD"
+    )
+  )
+}
+
+#Preview("Pre-start only") {
+  rowPreview(
+    StatusChipRow(
+      inactiveReason: .preStart(startDate: PreviewDates.preStart),
+      isCarryOverEnabled: false,
+      carryOverAmount: 0,
+      currencyCode: "USD"
+    )
+  )
+}
+
+#Preview("Post-end only") {
+  rowPreview(
+    StatusChipRow(
+      inactiveReason: .postEnd(endDate: PreviewDates.postEnd),
       isCarryOverEnabled: false,
       carryOverAmount: 0,
       currencyCode: "USD"
@@ -107,8 +127,7 @@ private func rowPreview(_ content: some View) -> some View {
 #Preview("Carry-over only") {
   rowPreview(
     StatusChipRow(
-      isPaused: false,
-      pausedSince: nil,
+      inactiveReason: nil,
       isCarryOverEnabled: true,
       carryOverAmount: 42.50,
       currencyCode: "USD"
@@ -119,10 +138,31 @@ private func rowPreview(_ content: some View) -> some View {
 #Preview("Paused + carry-over") {
   rowPreview(
     StatusChipRow(
-      isPaused: true,
-      pausedSince: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
+      inactiveReason: .paused(since: PreviewDates.pausedSince),
       isCarryOverEnabled: true,
       carryOverAmount: -18.75,
+      currencyCode: "USD"
+    )
+  )
+}
+
+#Preview("Pre-start + carry-over") {
+  rowPreview(
+    StatusChipRow(
+      inactiveReason: .preStart(startDate: PreviewDates.preStart),
+      isCarryOverEnabled: true,
+      carryOverAmount: 12.00,
+      currencyCode: "USD"
+    )
+  )
+}
+
+#Preview("Post-end + carry-over") {
+  rowPreview(
+    StatusChipRow(
+      inactiveReason: .postEnd(endDate: PreviewDates.postEnd),
+      isCarryOverEnabled: true,
+      carryOverAmount: 0,
       currencyCode: "USD"
     )
   )
@@ -131,8 +171,7 @@ private func rowPreview(_ content: some View) -> some View {
 #Preview("With trailing Reset") {
   rowPreview(
     StatusChipRow(
-      isPaused: false,
-      pausedSince: nil,
+      inactiveReason: nil,
       isCarryOverEnabled: true,
       carryOverAmount: 42.50,
       currencyCode: "USD"
@@ -144,11 +183,10 @@ private func rowPreview(_ content: some View) -> some View {
   )
 }
 
-#Preview("All three at xxxLarge") {
+#Preview("Paused + carry-over + Reset at xxxLarge") {
   rowPreview(
     StatusChipRow(
-      isPaused: true,
-      pausedSince: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
+      inactiveReason: .paused(since: PreviewDates.pausedSince),
       isCarryOverEnabled: true,
       carryOverAmount: 42.50,
       currencyCode: "USD"

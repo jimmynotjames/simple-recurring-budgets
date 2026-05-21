@@ -495,6 +495,27 @@ struct BudgetLifecyclePausedSinceTests {
     #expect(result.pausedSince == d(2026, 4, 15))
   }
 
+  /// Regression: when a future-dated `.resume` follows a current-active `.pause`,
+  /// the unfiltered walker used to return `nil` for `pausedSince` while
+  /// `isPausedAtMoment(now)` returned `true`. Both must now agree.
+  @Test func result_pausedSince_ignoresFutureResume() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
+    let pauseNow = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10))
+    let resumeFuture = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 5, 1))
+    for ev in [pauseNow, resumeFuture] {
+      ev.budget = budget; ctx.insert(ev)
+    }
+    try ctx.save()
+
+    // `now` falls strictly between the pause and the future resume.
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 20), calendar: cal)
+
+    #expect(result.lifecycleState == .paused)
+    #expect(result.pausedSince == d(2026, 4, 10))
+  }
+
   @Test func result_pausedSince_isNil_whenResumedAfterPause() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)

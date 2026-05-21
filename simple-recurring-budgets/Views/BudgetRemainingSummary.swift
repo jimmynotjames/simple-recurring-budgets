@@ -3,11 +3,16 @@ import SwiftUI
 // MARK: - BudgetRemainingSummary
 
 /// Shared summary block used by `BudgetRowView` (Budgets list) and
-/// `BudgetDetailView` header. Renders the remaining-amount + period label
+/// `BudgetDetailView` header. Renders the displayed-amount + period label
 /// (`ViewThatFits` switches H→V at large Dynamic Type) above a `RemainingBar`.
 ///
 /// Presentational only — owns no lifecycle state. Callers pass in the values
-/// they've already derived from `BudgetLifecycleResult`.
+/// they've already derived from `BudgetLifecycleResult` and a
+/// `BudgetInactiveReason?` for the unified inactive presentation.
+///
+/// **Displayed amount** depends on the inactive reason:
+/// - `.preStart`, `.postEnd` → `allocation` (the budget's current allocation)
+/// - `.paused`, `nil` → `remaining` (the calculator's in-period figure)
 ///
 /// The view is `.accessibilityHidden(true)`; callers wrap it and apply their
 /// own `.accessibilityLabel` (use `BudgetRemainingSummary.accessibilityLabel(...)`)
@@ -24,13 +29,32 @@ struct BudgetRemainingSummary: View {
   let periodDisplayLabel: String
   let currencyCode: String
   let currencyDisplay: CurrencyDisplayPreference
-  let isPaused: Bool
+  /// When non-nil, applies the unified inactive presentation: dimmed amount
+  /// label and a full-width `.secondary` `RemainingBar`. For `.preStart` /
+  /// `.postEnd`, the displayed amount switches from `remaining` to `allocation`.
+  let inactiveReason: BudgetInactiveReason?
 
   @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 10
   @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
 
+  /// The amount shown by the large label. For `.preStart` / `.postEnd` this is
+  /// the budget's allocation (a meaningful summary when "remaining" has no
+  /// in-period interpretation); for `.paused` and `.active` it is the
+  /// calculator's `remaining`.
+  private var displayedAmount: Decimal {
+    switch inactiveReason {
+    case .preStart, .postEnd: allocation
+    case .paused, .none: remaining
+    }
+  }
+
+  /// Inactive presentation flag — drives dimming on the amount label and the bar.
+  private var isInactive: Bool {
+    inactiveReason != nil
+  }
+
   private var isOverBudget: Bool {
-    remaining < 0
+    displayedAmount < 0
   }
 
   /// Fraction of the allocation still available: 1.0 = full allocation remaining,
@@ -55,17 +79,17 @@ struct BudgetRemainingSummary: View {
         }
       }
 
-      RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget, dimmed: isPaused)
+      RemainingBar(remainingFraction: remainingFraction, isOverBudget: isOverBudget, dimmed: isInactive)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .accessibilityHidden(true)
   }
 
   private var amountText: some View {
-    Text(remaining.formatted(currencyCode: currencyCode, display: currencyDisplay))
+    Text(displayedAmount.formatted(currencyCode: currencyCode, display: currencyDisplay))
       .font(.largeTitle)
       .monospacedDigit()
-      .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : Color.primary, when: isPaused))
+      .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : Color.primary, when: isInactive))
       .lineLimit(1)
   }
 
@@ -90,46 +114,76 @@ extension BudgetRemainingSummary {
   ///
   /// Pass `budgetName: nil` when the surrounding context already announces
   /// the name (e.g. the detail screen's nav title).
+  ///
+  /// For `.preStart` / `.postEnd`, the helper dispatches to dedicated keys that
+  /// announce the displayed-allocation amount plus the lifecycle date. For
+  /// `.paused` and `.active`, the existing on-budget / over-budget keys are
+  /// reused — paused-state announcements are not introduced by this helper
+  /// (the chip carries the paused-since announcement separately).
   static func accessibilityLabel(
     budgetName: String?,
     remaining: Decimal,
+    allocation: Decimal,
     isSpecificDates: Bool,
     periodInlineLabel: String,
     currencyCode: String,
-    currencyDisplay: CurrencyDisplayPreference
+    currencyDisplay: CurrencyDisplayPreference,
+    inactiveReason: BudgetInactiveReason? = nil
   ) -> String {
-    let isOverBudget = remaining < 0
-    let amount = (isOverBudget ? -remaining : remaining)
-      .formatted(currencyCode: currencyCode, display: currencyDisplay)
     let prefix = budgetName.map { "\($0), " } ?? ""
 
-    let body = switch (isSpecificDates, isOverBudget) {
-    case (true, true):
-      String(
-        localized: "budget.summary.accessibilityLabel.overBudget.specificDates",
-        defaultValue: "\(amount) over budget \(periodInlineLabel)",
-        comment: "VoiceOver label body for an over-budget Specific Dates budget summary; args: positive overage amount, inline period descriptor (e.g. \"in this window\"). Callers may prepend the budget name."
+    switch inactiveReason {
+    case let .preStart(startDate):
+      let amount = allocation.formatted(currencyCode: currencyCode, display: currencyDisplay)
+      let formattedDate = startDate.formatted(date: .abbreviated, time: .omitted)
+      let body = String(
+        localized: "budget.summary.accessibilityLabel.preStart",
+        defaultValue: "\(amount) \(periodInlineLabel) starts \(formattedDate)",
+        comment: "VoiceOver label body for a budget summary that has not yet started; args: formatted allocation amount, inline period descriptor, abbreviated start date. Callers may prepend the budget name."
       )
-    case (true, false):
-      String(
-        localized: "budget.summary.accessibilityLabel.specificDates",
-        defaultValue: "\(amount) remaining \(periodInlineLabel)",
-        comment: "VoiceOver label body for a Specific Dates budget summary; args: remaining amount, inline period descriptor (e.g. \"in this window\"). Callers may prepend the budget name."
+      return prefix + body
+    case let .postEnd(endDate):
+      let amount = allocation.formatted(currencyCode: currencyCode, display: currencyDisplay)
+      let formattedDate = endDate.formatted(date: .abbreviated, time: .omitted)
+      let body = String(
+        localized: "budget.summary.accessibilityLabel.postEnd",
+        defaultValue: "\(amount) \(periodInlineLabel) ended \(formattedDate)",
+        comment: "VoiceOver label body for a budget summary whose end date has passed; args: formatted allocation amount, inline period descriptor, abbreviated end date. Callers may prepend the budget name."
       )
-    case (false, true):
-      String(
-        localized: "budget.summary.accessibilityLabel.overBudget",
-        defaultValue: "\(amount) over budget this \(periodInlineLabel) period",
-        comment: "VoiceOver label body for an over-budget recurring budget summary; args: positive overage amount, period name. Callers may prepend the budget name."
-      )
-    case (false, false):
-      String(
-        localized: "budget.summary.accessibilityLabel",
-        defaultValue: "\(amount) remaining this \(periodInlineLabel) period",
-        comment: "VoiceOver label body for a recurring budget summary; args: remaining amount, period name. Callers may prepend the budget name."
-      )
+      return prefix + body
+    case .paused, .none:
+      // Fall through to the existing recurring / specificDates × on-budget / over-budget label family.
+      let isOverBudget = remaining < 0
+      let amount = (isOverBudget ? -remaining : remaining)
+        .formatted(currencyCode: currencyCode, display: currencyDisplay)
+      let body = switch (isSpecificDates, isOverBudget) {
+      case (true, true):
+        String(
+          localized: "budget.summary.accessibilityLabel.overBudget.specificDates",
+          defaultValue: "\(amount) over budget \(periodInlineLabel)",
+          comment: "VoiceOver label body for an over-budget Specific Dates budget summary; args: positive overage amount, inline period descriptor (e.g. \"in this window\"). Callers may prepend the budget name."
+        )
+      case (true, false):
+        String(
+          localized: "budget.summary.accessibilityLabel.specificDates",
+          defaultValue: "\(amount) remaining \(periodInlineLabel)",
+          comment: "VoiceOver label body for a Specific Dates budget summary; args: remaining amount, inline period descriptor (e.g. \"in this window\"). Callers may prepend the budget name."
+        )
+      case (false, true):
+        String(
+          localized: "budget.summary.accessibilityLabel.overBudget",
+          defaultValue: "\(amount) over budget this \(periodInlineLabel) period",
+          comment: "VoiceOver label body for an over-budget recurring budget summary; args: positive overage amount, period name. Callers may prepend the budget name."
+        )
+      case (false, false):
+        String(
+          localized: "budget.summary.accessibilityLabel",
+          defaultValue: "\(amount) remaining this \(periodInlineLabel) period",
+          comment: "VoiceOver label body for a recurring budget summary; args: remaining amount, period name. Callers may prepend the budget name."
+        )
+      }
+      return prefix + body
     }
-    return prefix + body
   }
 }
 
@@ -140,7 +194,7 @@ extension BudgetRemainingSummary {
     var remaining: Decimal = 248.50
     var allocation: Decimal = 400
     var periodDisplayLabel: String = "this month"
-    var isPaused: Bool = false
+    var inactiveReason: BudgetInactiveReason?
 
     var body: some View {
       BudgetRemainingSummary(
@@ -149,7 +203,7 @@ extension BudgetRemainingSummary {
         periodDisplayLabel: periodDisplayLabel,
         currencyCode: "USD",
         currencyDisplay: .symbol,
-        isPaused: isPaused
+        inactiveReason: inactiveReason
       )
       .padding()
     }
@@ -169,11 +223,19 @@ extension BudgetRemainingSummary {
     }
 
     static var paused: SummaryPreview {
-      .init(isPaused: true)
+      .init(remaining: 7.50, allocation: 400, inactiveReason: .paused(since: PreviewDates.pausedSince))
     }
 
     static var pausedOverBudget: SummaryPreview {
-      .init(remaining: -57.25, allocation: 400, isPaused: true)
+      .init(remaining: -57.25, allocation: 400, inactiveReason: .paused(since: PreviewDates.pausedSince))
+    }
+
+    static var preStart: SummaryPreview {
+      .init(remaining: 0, allocation: 25, periodDisplayLabel: "daily", inactiveReason: .preStart(startDate: PreviewDates.preStart))
+    }
+
+    static var postEnd: SummaryPreview {
+      .init(remaining: 42, allocation: 400, inactiveReason: .postEnd(endDate: PreviewDates.postEnd))
     }
 
     static var longDateRange: SummaryPreview {
@@ -193,9 +255,10 @@ extension BudgetRemainingSummary {
     SummaryPreview.pausedOverBudget.preferredColorScheme(.dark)
   }
 
-  #Preview("xxxLarge") {
-    SummaryPreview.longDateRange.dynamicTypeSize(.xxxLarge)
-  }
-
+  #Preview("Pre-start") { SummaryPreview.preStart }
+  #Preview("Pre-start · Dark") { SummaryPreview.preStart.preferredColorScheme(.dark) }
+  #Preview("Post-end") { SummaryPreview.postEnd }
+  #Preview("Post-end · Dark") { SummaryPreview.postEnd.preferredColorScheme(.dark) }
+  #Preview("xxxLarge") { SummaryPreview.longDateRange.dynamicTypeSize(.xxxLarge) }
   #Preview("Zero allocation") { SummaryPreview.zeroAllocation }
 #endif

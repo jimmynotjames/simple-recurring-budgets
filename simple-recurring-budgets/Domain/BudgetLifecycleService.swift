@@ -59,7 +59,7 @@ enum BudgetLifecycleService {
       calendar: calendar
     )
     let pausedSince: Date? = snapshot.lifecycleState == .paused
-      ? Self.pausedSinceDate(from: budget.lifecycleEvents)
+      ? Self.pausedSinceDate(from: budget.lifecycleEvents, now: now)
       : nil
     return BudgetLifecycleResult(
       remaining: snapshot.remaining,
@@ -71,14 +71,25 @@ enum BudgetLifecycleService {
     )
   }
 
-  /// Returns the `effectiveDate` of the most recent `.pause` event that is not followed by
-  /// a later `.resume` event. Returns `nil` when no such event exists.
-  private static func pausedSinceDate(from events: [LifecycleEvent]) -> Date? {
+  /// Returns the `effectiveDate` of the most recent `.pause` event with
+  /// `effectiveDate < now` that is not followed by a later `.resume` event also
+  /// with `effectiveDate < now`. Returns `nil` when no such event exists.
+  ///
+  /// **Moment-granular contract.** The `< now` filter mirrors `isPausedAtMoment(now:)`
+  /// in `LifecycleClassification.swift`, which is the classifier that drives the
+  /// `.paused` lifecycle state. Without this filter the two classifiers can disagree —
+  /// e.g., events `pause(D1)` and `resume(D2)` with `D1 < now < D2` would give
+  /// `isPausedAtMoment == true` (the future resume is ignored) but the unfiltered
+  /// walker would clear `latestPauseDate` to `nil` when it processed the future
+  /// resume. That mismatch produced `lifecycleState == .paused && pausedSince == nil`,
+  /// which broke any view-layer code that expected the two to be consistent.
+  private static func pausedSinceDate(from events: [LifecycleEvent], now: Date) -> Date? {
     let sorted = events.sorted {
       ($0.effectiveDate, $0.lastModified) < ($1.effectiveDate, $1.lastModified)
     }
     var latestPauseDate: Date?
     for event in sorted {
+      if event.effectiveDate >= now { break }
       switch event.kind {
       case .pause: latestPauseDate = event.effectiveDate
       case .resume: latestPauseDate = nil

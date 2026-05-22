@@ -320,10 +320,19 @@ final class AddEditBudgetViewModel {
   /// reads the new window (F-2.08 latest-wins semantics).
   ///
   /// For recurring period types, a `startDate` edit updates `Budget.startDate`
-  /// (which, for weekly/biweekly, shifts the cycle anchor — see F-7.05) but does
-  /// **not** realign the `AllocationChange` history; that interaction is an open
-  /// product question and the safer default here is to leave allocation history
-  /// where the user put it.
+  /// only — the `AllocationChange` history is intentionally left alone. This is
+  /// correct, not a TODO: the calculator's `allocationInEffect` fallback (see
+  /// `Domain/AllocationInEffect.swift`, the "Falls back to the earliest row's
+  /// amount" branch) extends the earliest row's amount backward to any
+  /// `boundaryStart` that precedes its `effectiveFrom`, so back-dating
+  /// automatically credits the original allocation to the new back-dated window
+  /// without any data-mutation step. Forward-dating works symmetrically: the
+  /// walker starts at the new (later) `effectiveStartDate` and the
+  /// `AllocationChange` at the original earlier date still matches any query at
+  /// the new boundaries via the usual `last(where: effectiveFrom <= date)` rule.
+  /// For weekly/biweekly, `Budget.startDate.weekday` also becomes the cycle
+  /// anchor per F-7.05 — that's a deliberate consequence of the edit, not an
+  /// algorithm change.
   ///
   /// - Returns: `true` if any field was mutated, `false` otherwise.
   private func applyDateEdits(to budget: Budget) -> Bool {

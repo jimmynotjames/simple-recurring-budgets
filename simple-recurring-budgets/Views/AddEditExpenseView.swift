@@ -31,6 +31,14 @@ final class AddEditExpenseViewModel {
   /// Used in the proactive paused caption; cached so we don't re-format on every body pass.
   private let cachedPausedSinceFormatted: String?
 
+  /// Cached at init: the abbreviated rendering of `Budget.startDate` for the
+  /// pre-start clamped-default caption (F-2.04). `nil` outside the pre-start case.
+  private let cachedStartDateFormatted: String?
+
+  /// Cached at init: the abbreviated rendering of `Budget.endDate` for the
+  /// post-end clamped-default caption (F-2.04). `nil` outside the post-end case.
+  private let cachedEndDateFormatted: String?
+
   var isEditing: Bool {
     if case .edit = mode { return true }
     return false
@@ -55,25 +63,57 @@ final class AddEditExpenseViewModel {
     return snapAtDate.lifecycleState == .active
   }
 
-  /// The single caption rendered below the When card. Returns the violation copy when the
-  /// picked date sits in a paused gap, the proactive paused copy when the bound budget is
-  /// paused and the date is valid, and `nil` otherwise. The view renders zero or one
-  /// caption — never both stacked.
-  var pausedCaption: String? {
-    guard cachedBudgetSnapshot?.lifecycleState == .paused else { return nil }
-    if !isDateValid {
-      return String(
-        localized: "addEditExpense.date.outOfRange.caption",
-        defaultValue: "Pick a date within an active period of this budget.",
-        comment: "Inline caption below the date picker when the selected date falls inside a paused period"
-      )
+  /// The single caption rendered below the When card. Resolved in priority order:
+  ///
+  /// 1. Paused + date out of range → "Pick a date within an active period of this budget."
+  /// 2. Paused + date valid → "Paused since {date}. You can still add expenses dated before then."
+  /// 3. Add mode + pre-start (`now < startDate`) → "Budget starts on {startDate}." (F-2.04)
+  /// 4. Add mode + post-end (`now > endDate`) → "Budget ended on {endDate}." (F-2.04)
+  /// 5. Otherwise → `nil`.
+  ///
+  /// The pre-start / post-end captions are intentionally **Add-mode only**: in Edit
+  /// mode the existing expense already carries its stored date, so the clamped-default
+  /// rationale doesn't apply. They also persist for the sheet's lifetime in those
+  /// lifecycle states — they're not gated on whether the picker still shows the clamped
+  /// default — since the underlying `[startDate, endDate]` constraint still applies
+  /// after the user edits the field.
+  var dateContextCaption: String? {
+    if cachedBudgetSnapshot?.lifecycleState == .paused {
+      if !isDateValid {
+        return String(
+          localized: "addEditExpense.date.outOfRange.caption",
+          defaultValue: "Pick a date within an active period of this budget.",
+          comment: "Inline caption below the date picker when the selected date falls inside a paused period"
+        )
+      }
+      if let formatted = cachedPausedSinceFormatted {
+        return String(
+          localized: "addEditExpense.paused.caption.format",
+          defaultValue: "Paused since \(formatted). You can still add expenses dated before then.",
+          comment: "Proactive caption shown below the When card in Add/Edit Expense when the bound budget is paused; argument is the abbreviated pausedSince date"
+        )
+      }
+      return nil
     }
-    guard let formatted = cachedPausedSinceFormatted else { return nil }
-    return String(
-      localized: "addEditExpense.paused.caption.format",
-      defaultValue: "Paused since \(formatted). You can still add expenses dated before then.",
-      comment: "Proactive caption shown below the When card in Add/Edit Expense when the bound budget is paused; argument is the abbreviated pausedSince date"
-    )
+    guard !isEditing else { return nil }
+    switch cachedBudgetSnapshot?.lifecycleState {
+    case .preStart:
+      guard let formatted = cachedStartDateFormatted else { return nil }
+      return String(
+        localized: "addEditExpense.preStart.caption.format",
+        defaultValue: "Budget starts on \(formatted).",
+        comment: "Inline caption below the When card in Add Expense when the bound budget is pre-start (now < startDate); argument is the abbreviated start date. Explains why the date picker default isn't today."
+      )
+    case .postEnd:
+      guard let formatted = cachedEndDateFormatted else { return nil }
+      return String(
+        localized: "addEditExpense.postEnd.caption.format",
+        defaultValue: "Budget ended on \(formatted).",
+        comment: "Inline caption below the When card in Add Expense when the bound budget is post-end (now > endDate); argument is the abbreviated end date. Explains why the date picker default isn't today."
+      )
+    case .active, .paused, .none:
+      return nil
+    }
   }
 
   var canSave: Bool {
@@ -134,11 +174,22 @@ final class AddEditExpenseViewModel {
     let pauseDate = Self.latestPauseEffectiveDate(for: budget)
     cachedPauseEffectiveDate = pauseDate
     cachedPausedSinceFormatted = pauseDate?.formatted(date: .abbreviated, time: .omitted)
-    // Seed `date`: today by default; for paused budgets, fall back to the most recent
-    // pause event so the initial value lies inside an active period (and the picker
-    // doesn't open with an out-of-range default).
+    cachedStartDateFormatted = snapshot.lifecycleState == .preStart
+      ? budget.startDate?.formatted(date: .abbreviated, time: .omitted)
+      : nil
+    cachedEndDateFormatted = snapshot.lifecycleState == .postEnd
+      ? budget.endDate?.formatted(date: .abbreviated, time: .omitted)
+      : nil
+    // Seed `date` so the picker opens inside `dateRange`:
+    // - Paused: most recent pause moment (guaranteed inside an active period).
+    // - Post-end: end of `endDate`'s day, matching `dateRange`'s upper bound (F-2.04).
+    // - Pre-start / active / default: today, floored at `effectiveStartDate`.
     if snapshot.lifecycleState == .paused, let pauseDate {
       date = pauseDate
+    } else if snapshot.lifecycleState == .postEnd, let endDate = budget.endDate {
+      let calendar = Calendar.autoupdatingCurrent
+      let nextDayStart = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: endDate))!
+      date = nextDayStart.addingTimeInterval(-1)
     } else {
       date = max(Date(), budget.effectiveStartDate)
     }
@@ -162,6 +213,9 @@ final class AddEditExpenseViewModel {
       cachedPauseEffectiveDate = nil
       cachedPausedSinceFormatted = nil
     }
+    // Pre-start / post-end captions are Add-mode-only (F-2.04) — Edit mode never reads these.
+    cachedStartDateFormatted = nil
+    cachedEndDateFormatted = nil
   }
 
   /// Returns the `effectiveDate` of the most recent `.pause` `LifecycleEvent` that
@@ -453,25 +507,29 @@ struct AddEditExpenseView: View {
 
   private var whenCard: some View {
     GroupBox {
-      DatePicker(
-        String(
+      VStack(alignment: .leading) {
+        DatePicker(
+          selection: $viewModel.date,
+          in: viewModel.dateRange,
+          displayedComponents: [.date, .hourAndMinute]
+        ) {
+          EmptyView()
+        }
+        .datePickerStyle(.compact)
+        .labelsHidden()
+        .accessibilityLabel(String(
           localized: "addEditExpense.field.date.label",
           defaultValue: "When",
-          comment: "Label for the expense date and time picker"
-        ),
-        selection: $viewModel.date,
-        in: viewModel.dateRange,
-        displayedComponents: [.date, .hourAndMinute]
-      )
-      .datePickerStyle(.compact)
-      .labelsHidden()
-      .frame(maxWidth: .infinity, alignment: .leading)
-      if let caption = viewModel.pausedCaption {
-        Text(caption)
-          .font(.caption)
-          .foregroundStyle(.secondary)
-          .frame(maxWidth: .infinity, alignment: .leading)
+          comment: "VoiceOver label for the expense date and time picker (the visible section header above it carries the same word)"
+        ))
+        if let caption = viewModel.dateContextCaption {
+          Text(caption)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .padding(.top, 3)
+        }
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
     } label: {
       sectionLabel(String(
         localized: "addEditExpense.section.when",
@@ -495,65 +553,5 @@ struct AddEditExpenseView: View {
   }
 }
 
-// MARK: - Previews
-
-#if DEBUG
-  #Preview("Add — Light") {
-    NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
-    }
-    .modelContainer(PreviewContainer.make())
-    .environment(AppSettings())
-  }
-
-  #Preview("Add — Dark") {
-    NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.weeklyDefault()))
-    }
-    .modelContainer(PreviewContainer.make())
-    .environment(AppSettings())
-    .preferredColorScheme(.dark)
-  }
-
-  #Preview("Existing expense — Light") {
-    let budget = DebugData.dailyDefault()
-    return NavigationStack {
-      AddEditExpenseView(
-        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
-      )
-    }
-    .modelContainer(PreviewContainer.make())
-    .environment(AppSettings())
-  }
-
-  #Preview("Existing expense — Dark") {
-    let budget = DebugData.monthlyDefault()
-    return NavigationStack {
-      AddEditExpenseView(
-        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
-      )
-    }
-    .modelContainer(PreviewContainer.make())
-    .environment(AppSettings())
-    .preferredColorScheme(.dark)
-  }
-
-  #Preview("xxxLarge Type") {
-    NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
-    }
-    .modelContainer(PreviewContainer.make())
-    .environment(AppSettings())
-    .dynamicTypeSize(.xxxLarge)
-  }
-
-  #Preview("Empty — Save disabled") {
-    let vm = AddEditExpenseViewModel(adding: DebugData.dailyDefault())
-    vm.amount = nil
-    return NavigationStack {
-      AddEditExpenseView(viewModel: vm)
-    }
-    .modelContainer(PreviewContainer.make())
-    .environment(AppSettings())
-  }
-#endif
+// Previews live in `AddEditExpenseView+Previews.swift` so this file stays under
+// the project's 600-line per-file lint cap.

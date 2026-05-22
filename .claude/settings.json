@@ -1,11 +1,15 @@
 {
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "Bash(python3 scripts/translate_catalog/extract.py:*)",
       "Bash(python3 scripts/translate_catalog/dispatch_prompts.py:*)",
       "Bash(python3 scripts/translate_catalog/validate.py:*)",
       "Bash(python3 scripts/translate_catalog/merge.py:*)",
       "Bash(python3 scripts/translate_catalog/remove_keys.py:*)",
+      "Bash(python3 scripts/translate_catalog/add_keys.py:*)",
+      "Bash(python3 scripts/translate_catalog/update_keys.py:*)",
+      "Bash(python3 scripts/translate_catalog/rename_keys.py:*)",
       "Bash(python3 scripts/translate_catalog/locales.py:*)",
       "Bash(python3 scripts/check_translations.py:*)",
       "Bash(python3 scripts/check_source_strings.py:*)",
@@ -35,6 +39,9 @@
       "Bash(openspec new *)",
       "Bash(openspec show *)",
       "Bash(openspec list *)",
+      "Bash(python3 -m py_compile scripts/translate_catalog/add_keys.py)",
+      "Bash(python3 -m py_compile scripts/translate_catalog/update_keys.py)",
+      "Bash(python3 -m py_compile scripts/translate_catalog/rename_keys.py)",
       "Bash(python3 -m py_compile scripts/resolve_sim_spec.py)",
       "Bash(python3 -m py_compile scripts/resolve_booted_sim_udid.py)",
       "Bash(python3 -m py_compile scripts/sim_clean.py)",

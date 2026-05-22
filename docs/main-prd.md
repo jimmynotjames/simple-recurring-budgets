@@ -16,7 +16,9 @@ This app has not been released to production and is not in the App Store. It is 
 
 App Store Details:
 
-App Name: *Neatly – Fast Daily Spending Tracker* [TENTATIVE]
+App Name 1: *Neatly – Fast Daily Spending Tracker* [TENTATIVE]
+App Name 2: *Tidy Spending – Fast Daily Expense Tracker* [TENTATIVE]
+
 
 Subtitle: Simple budgeting and expense logging on the go [TENTATIVE]
 

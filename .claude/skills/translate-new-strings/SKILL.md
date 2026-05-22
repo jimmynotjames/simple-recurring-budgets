@@ -16,17 +16,101 @@ pass the translation gate.
 ## Hard rules
 
 - **Never write ad-hoc Python** (`python3 -c "..."` heredocs, throwaway `tmp/*.py`)
-  to slice `source.json`, filter outputs, remove catalog keys, or post-process anything.
-  Every operation in this pipeline has a flag on one of the existing scripts. If you
-  find yourself reaching for `python3 -c`, **stop** — the right move is to extend one
-  of the existing scripts (or add a new primitive to `scripts/translate_catalog/`) so
-  the workflow stays disciplined and the permission surface stays narrow. Treat the
-  urge to write inline Python as a signal that this skill is missing a primitive.
+  to slice `source.json`, filter outputs, add catalog keys, remove catalog keys, or
+  post-process anything. Every operation in this pipeline has a flag on one of the
+  existing scripts. If you find yourself reaching for `python3 -c`, **stop** — the
+  right move is to extend one of the existing scripts (or add a new primitive to
+  `scripts/translate_catalog/`) so the workflow stays disciplined and the permission
+  surface stays narrow. Treat the urge to write inline Python as a signal that this
+  skill is missing a primitive.
+  - **Adding keys → `add_keys.py`** (see Step 0a)
+  - **Updating English source text → `update_keys.py`** (see Step 0b)
+  - **Renaming keys → `rename_keys.py`** (see Step 0c)
 - **Never skip the pre-push checks** at the end. Treat anything less than `exit 0` from
   `check_translations.py` as not-done and loop back.
 - **All commands run from repo root.** Paths in this skill are repo-relative.
 
 ## Recipe
+
+### 0. Catalog maintenance (before translating)
+
+Run whichever of these applies before Step 1. All three scripts are pre-approved in
+`.claude/settings.json` and will not prompt. **Do not use inline Python for any of
+these operations.**
+
+Both invocation forms shown below work without prompting: the heredoc form (no temp
+file, preferred for small batches) and the temp-file form (useful for large batches).
+For the temp-file form, write JSON to `tmp/<anything>.json` — the `Write(tmp/**)` and
+`Bash(python3 scripts/translate_catalog/<script>:*)` permissions are both pre-approved.
+
+---
+
+#### 0a. Add new keys
+
+Use when `String(localized: "key.name")` exists in Swift but the key is not yet in
+`Localizable.xcstrings`. Inserts the key with `en.state: translated`; leaves all other
+locales absent so `extract.py --missing` flags them automatically.
+
+```bash
+python3 scripts/translate_catalog/add_keys.py - << 'EOF'
+{
+  "my.feature.title": {
+    "comment": "Title shown on the My Feature screen",
+    "value": "My Feature"
+  }
+}
+EOF
+```
+
+Input shape: `{ "key": { "comment": "...", "value": "English string" } }`.
+Existing keys are skipped unless `--force` is passed.
+
+---
+
+#### 0b. Update English source text
+
+Use when the displayed English text for an existing key changes (copy edit, wording
+change, etc.). Updates the `en` value and marks every existing non-`en` translation
+`needs_review` so the full re-translation round-trip runs automatically via Step 1.
+
+```bash
+python3 scripts/translate_catalog/update_keys.py - << 'EOF'
+{
+  "my.feature.title": {
+    "value": "Revised English text",
+    "comment": "Updated hint (optional — omit to keep existing comment)"
+  }
+}
+EOF
+```
+
+Input shape: `{ "key": { "value": "New English string", "comment": "..." } }`.
+`comment` is optional. Keys absent from the catalog are skipped with a warning.
+
+---
+
+#### 0c. Rename keys
+
+Use when a key identifier changes (e.g. a UI element moved to a different screen or
+section and the key path should reflect that) but the displayed text and all translations
+stay exactly the same. Copies the full entry — comment, `extractionState`, every locale
+translation — from the old key to the new key, then removes the old key. **No
+re-translation is needed after a pure rename.**
+
+```bash
+python3 scripts/translate_catalog/rename_keys.py - << 'EOF'
+{
+  "old.screen.featureName": "new.screen.featureName"
+}
+EOF
+```
+
+Input shape: `{ "old.key": "new.key" }`. Supports `--dry-run` to preview changes
+and `--force` to overwrite an existing new key.
+
+After renaming, update the Swift call sites to use the new key, then run
+`check_source_strings.py` (Step 5) to confirm no stale references remain. No need to
+run `extract.py --missing` unless you also changed the English text.
 
 ### 1. Detect what needs translating
 
@@ -174,6 +258,9 @@ For those, see "Full backfill" in `scripts/translate_catalog/README.md`.
 ```
 scripts/translate_catalog/
   locales.py            # LOCALES list + LOCALE_NAMES
+  add_keys.py           # Step 0a: register new en keys; JSON file or stdin
+  update_keys.py        # Step 0b: update en source text + invalidate translations; JSON file or stdin
+  rename_keys.py        # Step 0c: rename keys preserving all translations; --dry-run; JSON file or stdin
   extract.py            # --missing | --keys | --keys-file | (no flags = all)
   dispatch_prompts.py   # manifest + template → tmp/translate-prompts/; cleans stale outputs by default
   validate.py           # --subset for partial outputs

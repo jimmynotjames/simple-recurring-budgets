@@ -7,9 +7,10 @@ struct AddEditBudgetView: View {
   //
   // Internal: cross-file extension access only.
   //
-  // `viewModel`, `settings`, `showCurrencyPicker`, `initialCurrencyCode`, and the
-  // `sectionLabel` helper below are non-`private` solely because Swift extensions
-  // in `AddEditBudgetView+AllocationCard.swift` and `AddEditBudgetView+SpecificDates.swift`
+  // `viewModel`, `settings`, `showCurrencyPicker`, `initialCurrencyCode`,
+  // `isScheduleExpanded`, and the `sectionLabel` helper below are non-`private`
+  // solely because Swift extensions in `AddEditBudgetView+AllocationCard.swift`,
+  // `AddEditBudgetView+SpecificDates.swift`, and `AddEditBudgetView+Schedule.swift`
   // can't see `private` members. Treat them as if they were `private` to this view
   // — do not consume from unrelated call sites.
   @State var viewModel: AddEditBudgetViewModel
@@ -22,6 +23,7 @@ struct AddEditBudgetView: View {
   @State var showCurrencyPicker = false
   @State private var showDeleteConfirmation = false
   @State var initialCurrencyCode: String = ""
+  @State var isScheduleExpanded: Bool = false
   @FocusState private var isNameFocused: Bool
 
   private var isSpecificDates: Bool {
@@ -38,6 +40,7 @@ struct AddEditBudgetView: View {
           if isSpecificDates {
             datesCard
           } else {
+            scheduleCard
             carryOverCard
           }
           if viewModel.isEditing {

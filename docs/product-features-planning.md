@@ -166,7 +166,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - **Edit mode** shows only a trailing Save button; the system back button serves as the discard path.
 - **Edge Cases / Notes:**
   - The screen treats Edit and View as a single mode (per the "No Edit Mode" AC); fields are always directly editable without a mode toggle. "View" means opening the Edit sheet for an existing expense.
-  - Edit-mode Save preserves the sign of `ExpenseItem.amount`, so existing add-funds rows (F-6.01) survive an edit without flipping to a positive expense. Add mode unconditionally inserts a non-negative amount; the Add Funds toggle UI is part of F-6.01's future change.
+  - Save in both modes signs `ExpenseItem.amount` per the draft Add Funds toggle (F-6.01). In Edit mode, an existing add-funds row round-trips with its sign preserved when the toggle is left alone, and a user who flips the toggle (with or without changing the amount) gets the corresponding sign flip on Save.
   - Omitting Cancel in Edit mode avoids redundancy with the navigation back button and reduces toolbar clutter on the narrow pushed view.
 - **Dependencies:** F-2.02
 
@@ -365,11 +365,21 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-6.01: Allow manually adding funds
 
-- **Status:** Partially implemented. Model layer done (`isAddFunds`, `displayAmount` on `ExpenseItem`, negative-amount convention, edit sign preservation in `AddEditExpenseViewModel`). Budget detail screen shows add-funds rows with `Color.moneySurplus` tint and VoiceOver labels. UI toggle on the Add Expense screen to *create* an add-funds entry is not yet shipped.
-- **Description:** User can add a transaction where the amount adds to available funds instead of subtract from it. 
+- **Status:** Implemented. Model layer (`isAddFunds`, `displayAmount` on `ExpenseItem`, negative-amount convention) and Budget-detail row display (green tint, distinct VoiceOver label) shipped previously. The Add/Edit Expense form's Add Funds toggle, the sign-on-save in Add mode, the toggle-aware sign on Edit mode (including type-flipping an existing entry), the navigation-title flip, the amount-text tint, and the "Add funds" Description default seed all shipped with change `add-funds-toggle`.
+- **Description:** User can add a transaction where the amount adds to available funds instead of subtract from it.
 - **Acceptance Criteria:**
+  - The Add/Edit Expense form includes a discrete `Toggle("Add funds")` card as the fourth card (after Amount / Description / When, before the Delete button in Edit mode) with `.tint(.accentColor)` and an explanatory caption ("Adds to your remaining balance instead of subtracting.").
+  - When the toggle is on, the navigation title swaps from "Add Expense" → "Add Funds" (Add mode) and from "Expense" → "Add Funds" (Edit mode). The Edit-mode add-funds title intentionally matches the Add-mode title even though it breaks the Expense/Add Expense symmetry — "Funds" alone reads as an awkward noun-form title, while "Add Funds" is unambiguous in both contexts.
+  - When the toggle is on, the Amount card's currency-prefix text and numeric field both render in `Color.moneySurplus` (matching how add-funds rows already display in the Budget detail list). When off, default colors apply.
+  - Toggling the Add Funds toggle from off → on with an empty/whitespace Description field seeds the field with the localized default "Add funds". The seed is one-way: toggling back off does not clear the field, and a subsequent on transition with a non-empty Description does not overwrite. The seed never fires on Edit-mode init (existing rows keep their persisted name).
+  - Save in Add mode signs the inserted `ExpenseItem.amount` per the toggle (`signedAmount = isAddFunds ? -amount : amount`). The user-visible Amount field stays a non-negative numeric editor in every state.
+  - Save in Edit mode reads the **draft** `isAddFunds` (not the persisted `expense.isAddFunds`) when applying the sign, so a user who flips the toggle in Edit mode persists the corresponding sign flip. A standalone toggle flip with no other field change still counts as a change — it flips the sign of `expense.amount`, bumps `lastModified`, and triggers exactly one `context.save()` and one `expense_edited` analytics event.
+  - Tap-to-edit on an existing add-funds row in the Budget detail list reopens the Add/Edit Expense sheet with the toggle on, the amount tinted, and the title set to "Add Funds" — round-tripping the persisted sign.
+  - Analytics: the existing `AnalyticsProperty.isAddFunds` on `expense_logged` / `expense_edited` / `expense_deleted` correctly reflects the toggle-driven sign in both modes; no new events or properties were introduced.
 - **Edge Cases / Notes:**
-- **Dependencies:**
+  - The placeholder for an unnamed row was renamed from "Untitled expense" to "Untitled" (key `budgetDetail.expenseRow.unnamed`) so the same key reads naturally for both transaction types.
+  - There is no second entry point on the Budget detail or Budgets list (e.g., a toolbar "Add Funds…" menu item). The toggle inside the form is the single discrete affordance — frequency-matched placement; the title flip + amount tint + description seed provide the discoverability feedback.
+- **Dependencies:** F-2.02 (Budget detail surfaces row display), F-2.04 (Add/Edit Expense screen).
 
 ##### F-6.02: Expense Type on Expense Items
 

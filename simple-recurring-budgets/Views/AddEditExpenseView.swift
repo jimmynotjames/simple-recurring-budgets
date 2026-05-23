@@ -16,6 +16,26 @@ final class AddEditExpenseViewModel {
   var date: Date
   let currencyCode: String
 
+  /// F-6.01 Add Funds toggle state. Drives the navigation title flip, the amount-text
+  /// tint, the Description default-seed behavior, and the sign of `ExpenseItem.amount`
+  /// on Save in both Add and Edit mode.
+  var isAddFunds: Bool = false {
+    didSet {
+      guard isAddFunds, !oldValue else { return }
+      // Seed the description with a sensible default the first time the user toggles
+      // Add Funds on, but only if the field is empty/whitespace — never overwrite
+      // user-entered text. Intentionally one-way: toggling back off does not clear it.
+      let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+      if trimmed.isEmpty {
+        name = String(
+          localized: "addEditExpense.field.name.addFundsDefault",
+          defaultValue: "Add funds",
+          comment: "Default description seeded into the Description field when the user toggles Add Funds on with an empty description (F-6.01)"
+        )
+      }
+    }
+  }
+
   private let mode: Mode
 
   /// Cached at init: the lifecycle snapshot for the bound budget at sheet-open time.
@@ -201,6 +221,10 @@ final class AddEditExpenseViewModel {
     date = expense.date
     currencyCode = expense.budget?.currencyCode ?? (Locale.current.currency?.identifier ?? "USD")
     mode = .edit(expense)
+    // Seed F-6.01 toggle from the existing row so the title, amount tint, and Add Funds
+    // card all reflect the row the user tapped on. Bypasses the didSet (which seeds
+    // a default description) by assigning before the property's initial value matters.
+    isAddFunds = expense.isAddFunds
     if let budget = expense.budget {
       cachedBudgetSnapshot = BudgetCalculator.snapshot(
         budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent
@@ -235,6 +259,20 @@ final class AddEditExpenseViewModel {
     return latest
   }
 
+  /// The navigation bar title selected from the `isEditing × isAddFunds` matrix (F-6.01).
+  var navigationTitle: String {
+    switch (isEditing, isAddFunds) {
+    case (false, false):
+      String(localized: "addEditExpense.title.add", defaultValue: "Add Expense", comment: "Navigation bar title when adding a new expense")
+    case (false, true):
+      String(localized: "addEditExpense.title.add.addFunds", defaultValue: "Add Funds", comment: "Navigation bar title when adding funds (F-6.01)")
+    case (true, false):
+      String(localized: "addEditExpense.title.existing", defaultValue: "Expense", comment: "Navigation bar title for an existing expense (F-2.04)")
+    case (true, true):
+      String(localized: "addEditExpense.title.existing.addFunds", defaultValue: "Add Funds", comment: "Navigation bar title for an existing add-funds entry (F-6.01)")
+    }
+  }
+
   /// Convenience overload for tests and call sites without an `AnalyticsClient` in scope.
   func save(context: ModelContext) {
     save(context: context, analytics: ConsoleAnalyticsClient())
@@ -249,7 +287,10 @@ final class AddEditExpenseViewModel {
       // Guard per spec: "Save in Add mode inserts a new ExpenseItem attached to the in-flight Budget"
       guard canSave, let amount else { return }
       let now = Date()
-      let expense = ExpenseItem(amount: amount, name: trimmedName, date: date)
+      // F-6.01: sign the persisted amount per the Add Funds toggle. The user-visible
+      // Amount field is always non-negative; the toggle encodes the sign.
+      let signedAmount: Decimal = isAddFunds ? -amount : amount
+      let expense = ExpenseItem(amount: signedAmount, name: trimmedName, date: date)
       expense.budget = budget
       context.insert(expense)
       budget.lastModified = now
@@ -272,11 +313,14 @@ final class AddEditExpenseViewModel {
 
     case let .edit(expense):
       var changed = false
-      // Compare against displayAmount (absolute value) — mirrors how the field is seeded.
-      // Write preserves sign for isAddFunds rows (spec: "Edit-mode Save preserves the sign of ExpenseItem.amount").
-      if let newAmount = amount, expense.displayAmount != newAmount {
-        expense.amount = expense.isAddFunds ? -newAmount : newAmount
-        changed = true
+      // F-6.01: sign per the draft `isAddFunds` so an Edit-mode toggle flip rewrites
+      // the sign even when the magnitude is unchanged.
+      if let newAmount = amount {
+        let desired: Decimal = isAddFunds ? -newAmount : newAmount
+        if expense.amount != desired {
+          expense.amount = desired
+          changed = true
+        }
       }
       if expense.name != trimmedName {
         expense.name = trimmedName
@@ -334,6 +378,7 @@ struct AddEditExpenseView: View {
         amountCard
         nameCard
         whenCard
+        addFundsCard
         if viewModel.isEditing {
           deleteButton
         }
@@ -349,20 +394,7 @@ struct AddEditExpenseView: View {
         isAmountFocused = true
       }
     }
-    .navigationTitle(
-      viewModel.isEditing
-        ? String(
-          localized: "addEditExpense.title.existing",
-          defaultValue: "Expense",
-          comment:
-          "Navigation bar title for an existing expense (F-2.04: same surface for view and in-place edit; no separate Edit mode)"
-        )
-        : String(
-          localized: "addEditExpense.title.add",
-          defaultValue: "Add Expense",
-          comment: "Navigation bar title when adding a new expense"
-        )
-    )
+    .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)
     .appBackground()
     .toolbar {
@@ -449,7 +481,7 @@ struct AddEditExpenseView: View {
       HStack(alignment: .firstTextBaseline, spacing: 2) {
         Text(currencyPrefix)
           .font(.title2.weight(.semibold))
-          .foregroundStyle(.secondary)
+          .foregroundStyle(viewModel.isAddFunds ? Color.moneySurplus : .secondary)
         TextField(
           String(
             localized: "addEditExpense.field.amount.placeholder",
@@ -461,12 +493,20 @@ struct AddEditExpenseView: View {
         )
         .keyboardType(.decimalPad)
         .font(.title2.weight(.semibold).monospacedDigit())
+        .foregroundStyle(viewModel.isAddFunds ? Color.moneySurplus : .primary)
         .focused($isAmountFocused)
-        .accessibilityLabel(String(
-          localized: "addEditExpense.field.amount.accessibilityLabel",
-          defaultValue: "Expense amount",
-          comment: "VoiceOver label for the expense amount field"
-        ))
+        .accessibilityLabel(viewModel.isAddFunds
+          ? String(
+            localized: "addEditExpense.field.amount.accessibilityLabel.addFunds",
+            defaultValue: "Funds amount",
+            comment: "VoiceOver label for the amount field when Add Funds is toggled on (F-6.01)"
+          )
+          : String(
+            localized: "addEditExpense.field.amount.accessibilityLabel",
+            defaultValue: "Expense amount",
+            comment: "VoiceOver label for the expense amount field"
+          )
+        )
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     } label: {

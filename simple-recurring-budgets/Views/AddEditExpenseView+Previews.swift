@@ -78,4 +78,15 @@ import SwiftUI
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
   }
+
+  #Preview("Add Funds toggled on") {
+    let vm = AddEditExpenseViewModel(adding: DebugData.dailyDefault())
+    vm.isAddFunds = true
+    vm.amount = 25
+    return NavigationStack {
+      AddEditExpenseView(viewModel: vm)
+    }
+    .modelContainer(PreviewContainer.make())
+    .environment(AppSettings())
+  }
 #endif

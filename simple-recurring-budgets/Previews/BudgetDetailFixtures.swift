@@ -14,6 +14,8 @@
         ExpenseItem(amount: 4.50, name: "Morning coffee", date: hoursAgo(2)),
         ExpenseItem(amount: 9.25, name: "Lunch", date: hoursAgo(5.5)),
         ExpenseItem(amount: 2.50, name: "Afternoon snack", date: hoursAgo(1)),
+        // F-6.01: add-funds entry in the current period (negative amount).
+        ExpenseItem(amount: -10.00, name: "Found in jacket pocket", date: hoursAgo(3)),
       ]
       attachToDetail(expenses, to: budget)
       addDetailChange(amount: 25, startDate: startDate, to: budget)
@@ -29,10 +31,13 @@
       budget.startDate = twoMonthsAgo // show multiple past months
 
       // swiftlint:disable large_tuple
+      // F-6.01: negative amounts represent add-funds entries (one in current month,
+      // one in a past month).
       let currentExpenses: [(Decimal, String?, TimeInterval)] = [
         (87.40, "Groceries", 86400 * 2),
         (55.20, "Gas station", 86400 * 5),
         (24.85, "Pharmacy", 86400 * 8),
+        (-50.00, "Refund — returned shoes", 86400 * 10),
         (68.00, "Restaurant", 86400 * 12),
         (42.10, "Online order", 86400 * 16),
       ]
@@ -43,6 +48,7 @@
         (49.50, "Clothing", lastMonthStart.addingTimeInterval(86400 * 5)),
         (18.90, "Coffee shop", lastMonthStart.addingTimeInterval(86400 * 2)),
         (88.00, "Groceries", twoMonthsAgo.addingTimeInterval(86400 * 22)),
+        (-25.00, "Birthday cash", twoMonthsAgo.addingTimeInterval(86400 * 18)),
         (34.20, "Gas station", twoMonthsAgo.addingTimeInterval(86400 * 14)),
         (72.00, "Electronics", twoMonthsAgo.addingTimeInterval(86400 * 7)),
       ]
@@ -137,6 +143,8 @@
       let expenses = [
         ExpenseItem(amount: 48.00, name: "Concert tickets", date: daysAgo(1)),
         ExpenseItem(amount: 20.40, name: "Merch", date: daysAgo(1)),
+        // F-6.01: add-funds partially rescuing the over-budget state.
+        ExpenseItem(amount: -15.00, name: "Returned t-shirt", date: daysAgo(0)),
       ]
       attachToDetail(expenses, to: budget)
       addDetailChange(amount: 60, startDate: startDate, to: budget)

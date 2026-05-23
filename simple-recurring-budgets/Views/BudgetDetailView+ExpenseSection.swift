@@ -285,8 +285,8 @@ private struct ExpenseRowView: View {
     } else {
       Text(String(
         localized: "budgetDetail.expenseRow.unnamed",
-        defaultValue: "Untitled expense",
-        comment: "Placeholder name shown for an expense that has no title"
+        defaultValue: "Untitled",
+        comment: "Placeholder name shown for an expense or add-funds entry that has no title"
       ))
       .font(.body.italic())
       .foregroundStyle(.secondary)
@@ -297,8 +297,8 @@ private struct ExpenseRowView: View {
     let amountStr = expense.displayAmount.formatted(currencyCode: currencyCode, display: settings.currencyDisplay)
     let nameStr = expense.name ?? String(
       localized: "budgetDetail.expenseRow.unnamed",
-      defaultValue: "Untitled expense",
-      comment: "Placeholder name shown for an expense that has no title"
+      defaultValue: "Untitled",
+      comment: "Placeholder name shown for an expense or add-funds entry that has no title"
     )
     let dateStr = expense.date.formattedForExpenseList()
     return expense.isAddFunds

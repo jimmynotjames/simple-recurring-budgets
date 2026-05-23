@@ -53,3 +53,12 @@ Quick checklist:
 ## Platform targets
 
 - **Latest stable Swift** and **latest major OS** releases only (see PRD §6.1 / §7).
+
+## Commit, branch, and PR style
+
+**Canonical rules:** `AGENTS.md > Commit and PR style`. That section is the single source of truth. Quick summary:
+
+- **Branch:** `u/jimmyho/<tool>/<short-description>` — tool segment is `claude-code` for Claude Code, `cursor` for Cursor, combined with `+` for multi-tool work (e.g. `cursor+claude`). Kebab-case, no underscores.
+- **Commit subject:** past-tense verb, sentence case, ≤72 chars, ends with period and `(#N)`.
+- **Commit body:** high-level area bullets + `Why:` line + `Co-Authored-By:` footer.
+- **PR description:** `## What` (high-level area bullets, not file-by-file) / `## Why` (one sentence) / `## Test plan` (lightweight checklist).

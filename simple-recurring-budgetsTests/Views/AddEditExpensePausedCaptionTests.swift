@@ -36,7 +36,7 @@ struct AddEditExpensePausedCaptionTests {
     try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget)
-    let caption = vm.pausedCaption
+    let caption = vm.dateContextCaption
     #expect(caption != nil)
     #expect(caption != violationCopy()) // Sheet opens on a valid date → proactive, not violation.
     #expect(caption?.contains("You can still add expenses") == true)
@@ -57,7 +57,7 @@ struct AddEditExpensePausedCaptionTests {
 
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.date = utcDate(2026, 4, 5, hour: 9) // Earlier valid date inside the active interval.
-    let caption = vm.pausedCaption
+    let caption = vm.dateContextCaption
     #expect(caption != nil)
     #expect(caption != violationCopy())
   }
@@ -82,7 +82,7 @@ struct AddEditExpensePausedCaptionTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 12, hour: 10) // Inside the paused gap [Apr 10, Apr 15).
-    #expect(vm.pausedCaption == violationCopy())
+    #expect(vm.dateContextCaption == violationCopy())
     #expect(vm.canSave == false)
   }
 
@@ -105,12 +105,12 @@ struct AddEditExpensePausedCaptionTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 12, hour: 10) // Paused gap
-    #expect(vm.pausedCaption == violationCopy())
+    #expect(vm.dateContextCaption == violationCopy())
     #expect(vm.canSave == false)
     // User reverts to a valid date inside the second active interval (Apr 15 – Apr 20).
     vm.date = utcDate(2026, 4, 17, hour: 10)
-    #expect(vm.pausedCaption != nil)
-    #expect(vm.pausedCaption != violationCopy()) // Now proactive again.
+    #expect(vm.dateContextCaption != nil)
+    #expect(vm.dateContextCaption != violationCopy()) // Now proactive again.
     #expect(vm.canSave == true)
   }
 
@@ -126,7 +126,7 @@ struct AddEditExpensePausedCaptionTests {
     try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget)
-    #expect(vm.pausedCaption == nil)
+    #expect(vm.dateContextCaption == nil)
   }
 
   @Test func editMode_onPausedBudget_showsProactiveCaption() throws {
@@ -146,7 +146,7 @@ struct AddEditExpensePausedCaptionTests {
     try context.save()
 
     let vm = AddEditExpenseViewModel(editing: existing)
-    let caption = vm.pausedCaption
+    let caption = vm.dateContextCaption
     #expect(caption != nil)
     #expect(caption != violationCopy())
     #expect(vm.canSave == true)

@@ -215,13 +215,19 @@ struct AddEditBudgetViewModelTests {
 
   // MARK: - Specific Dates
 
-  @Test func addMode_specificDates_defaultsAreNil() {
+  @Test func addMode_default_dailyPreFillsStartDate() {
+    // The Add-mode VM seeds .daily as the initial period and pre-fills startDate
+    // to startOfDay(now) so the Schedule disclosure summary renders coherently
+    // from sheet-open. endDate stays nil (optional for recurring).
     let vm = AddEditBudgetViewModel(settings: AppSettings())
-    #expect(vm.startDate == nil)
+    let cal = Calendar.autoupdatingCurrent
+    #expect(vm.startDate == cal.startOfDay(for: Date()))
     #expect(vm.endDate == nil)
   }
 
-  @Test func addMode_specificDates_selectingPeriodDoesNotPrePopulateDates() {
+  @Test func addMode_specificDates_selectingPeriodClearsDates() {
+    // period.didSet clears both dates when transitioning to .specificDates so
+    // the user is forced to pick both (per the "both required" rule).
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.period = .specificDates
     #expect(vm.startDate == nil)

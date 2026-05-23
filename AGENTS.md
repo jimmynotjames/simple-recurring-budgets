@@ -234,8 +234,12 @@ One sentence: the user problem or product goal this PR advances.
 ## Test plan
 - [ ] Golden path: <how to verify the main flow works>
 - [ ] Edge case: <anything non-obvious worth checking>
+
+## Tools
+- <Tool or model name> — <optional one-liner on how it was used>
 ```
 
 - **What bullets are high-level.** One bullet per meaningful area, not per file, spec task, or acceptance criterion. If a feature is partially done, say so.
 - **Why** gives reviewers (and future-you) the motivation in plain language.
 - **Test plan** is a lightweight sanity-check list, not a QA spec. Two or three bullets is enough.
+- **Tools** lists AI tools and models used — one bullet each. Name the tool or model (e.g. `Claude Code (Opus 4.7)`, `openspec`, `Cursor (Sonnet 4.6)`). Add a short one-liner after an em dash only if it adds useful context (e.g. `— planning`, `— implementation`, `— code review`). Omit the one-liner when the role is obvious.

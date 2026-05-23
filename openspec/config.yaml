@@ -25,7 +25,7 @@ context: |
 
   Verify: compare implementation and specs to the three docs/*.md files; flag docs drift (missing or contradictory updates) as issues to fix before archive.
 
-  Archive: after handling delta spec sync as usual, assess whether docs/ need updates; prompt to update now or defer and warn if deferred.
+  Archive: when delta specs exist for the change being archived, sync them to the main specs automatically — do NOT prompt the user "do you want to sync?". The standing project preference is always yes. Invoke openspec-sync-specs inline (from the parent agent via the Skill tool; do not delegate to a sub-agent). Only prompt the user if the sync itself surfaces a genuine merge ambiguity (e.g. a MODIFIED block targets a non-existent requirement, or a delta conflicts with a parallel main-spec edit). After the archive, assess whether docs/ need updates; prompt to update now or defer and warn if deferred.
 
   Sync (delta to main specs): merging specs does not update docs/; if the change materially affects product or architecture, remind to update docs/ or call out conflicts with docs.
 

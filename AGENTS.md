@@ -210,6 +210,10 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 - The **`Why:` line** is the one thing the diff can't show. Always include it for feature work and architectural changes.
 - Always include the **`Co-Authored-By:` footer** on Claude-generated commits.
 
+### Merging
+
+Always use **Squash and merge**. One PR = one commit on `main`, with the PR number appended by GitHub.
+
 ### PR description
 
 ```markdown

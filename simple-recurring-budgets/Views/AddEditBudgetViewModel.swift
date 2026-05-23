@@ -18,9 +18,24 @@ final class AddEditBudgetViewModel {
   var name: String
   var allocation: Decimal?
   var currencyCode: String
-  var period: BudgetPeriod
+
+  /// Selected budget period. In Add mode, switching periods resets `startDate` /
+  /// `endDate` to per-period defaults (see `onPeriodChange`) — this gives the
+  /// user a calm "Starts {date} · No end date" pre-fill they can ignore. In Edit
+  /// mode the chip is locked, so the `didSet` short-circuits.
+  var period: BudgetPeriod {
+    didSet {
+      guard period != oldValue, !isEditing else { return }
+      onPeriodChange()
+    }
+  }
+
   var isCarryOverEnabled: Bool
-  /// Specific Dates window start. `nil` for recurring period types; required when `period == .specificDates`.
+
+  /// Budget window start. For recurring period types, pre-filled in Add mode per
+  /// the per-period anchor rules in F-2.03 (daily → start of today; weekly/biweekly →
+  /// most recent `weekStartDay`-aligned date; monthly → first of current month). For
+  /// `.specificDates` the user must pick a value before Save is enabled.
   ///
   /// When this is set to a date that crosses past `endDate`, `endDate` is snapped
   /// forward to preserve the original window duration (Apple Calendar pattern).
@@ -34,10 +49,19 @@ final class AddEditBudgetViewModel {
     }
   }
 
-  /// Specific Dates window end. `nil` for recurring period types; required when `period == .specificDates`.
+  /// Budget window end. Optional for recurring period types (the budget has no
+  /// terminal date when `nil`); required when `period == .specificDates`.
   var endDate: Date?
 
   private let mode: Mode
+
+  /// Captured at Add-mode `init` time and used by `onPeriodChange` to recompute
+  /// `startDate` when the user toggles between weekly/biweekly and other periods.
+  /// `nil` in Edit mode (where the period chip is locked, so `onPeriodChange`
+  /// never fires and this value is never read). `defaultStartDate(for:)`'s
+  /// weekly/biweekly branches guard with `preconditionFailure` so an unintended
+  /// Edit-mode hit surfaces immediately instead of producing wrong anchoring.
+  private let weekStartDay: Weekday?
 
   // MARK: - Mode introspection
 
@@ -66,7 +90,11 @@ final class AddEditBudgetViewModel {
     currencyCode = Locale.current.currency?.identifier ?? "USD"
     period = .daily
     isCarryOverEnabled = settings.defaultCarryOverEnabled
-    startDate = nil
+    weekStartDay = settings.weekStartDay
+    // Pre-fill startDate for the default (.daily) period so the Schedule disclosure
+    // can render a sensible summary ("Starts {today}") without the user touching it.
+    // Subsequent period changes re-anchor via `onPeriodChange`.
+    startDate = Calendar.autoupdatingCurrent.startOfDay(for: Date())
     endDate = nil
     mode = .add
   }
@@ -81,6 +109,7 @@ final class AddEditBudgetViewModel {
     isCarryOverEnabled = budget.isCarryOverEnabled
     startDate = budget.startDate
     endDate = budget.endDate
+    weekStartDay = nil // never read in Edit mode (period chip is locked)
     mode = .edit(budget)
   }
 
@@ -139,34 +168,15 @@ final class AddEditBudgetViewModel {
     let now = Date()
     let calendar = Calendar.autoupdatingCurrent
 
-    // Compute startDate per period type so AppSettings.weekStartDay anchors weekly/biweekly.
-    let computedStartDate: Date
-    let computedEndDate: Date?
-    switch period {
-    case .daily:
-      computedStartDate = calendar.startOfDay(for: now)
-      computedEndDate = nil
-
-    case .weekly, .biweekly:
-      // Most recent weekStartDay-aligned date at or before startOfDay(now).
-      let dayStart = calendar.startOfDay(for: now)
-      let weekday = calendar.component(.weekday, from: dayStart)
-      let daysBack = (weekday - settings.weekStartDay.rawValue + 7) % 7
-      computedStartDate = calendar.date(byAdding: .day, value: -daysBack, to: dayStart)!
-      computedEndDate = nil
-
-    case .monthly:
-      var comps = calendar.dateComponents([.year, .month], from: now)
-      comps.day = 1; comps.hour = 0; comps.minute = 0; comps.second = 0
-      computedStartDate = calendar.date(from: comps)!
-      computedEndDate = nil
-
-    case .specificDates:
-      // canSave gated both dates non-nil; defensive guards mirror the recurring guards.
-      guard let s = startDate, let e = endDate else { return }
-      computedStartDate = calendar.startOfDay(for: s)
-      computedEndDate = calendar.startOfDay(for: e)
-    }
+    // `startDate` is pre-filled by Add-mode init and re-anchored by `onPeriodChange`
+    // whenever the user toggles between period types, so it's always non-nil here.
+    // For weekly/biweekly the user can also override the pre-filled anchor via the
+    // Schedule disclosure — `Budget.effectiveStartDate` (and the calculator) reads
+    // the saved `startDate` as the cycle anchor (F-7.05). `endDate` is optional for
+    // recurring period types and required (by `canSave`) for `.specificDates`.
+    guard let pickedStart = startDate else { return }
+    let computedStartDate = calendar.startOfDay(for: pickedStart)
+    let computedEndDate: Date? = endDate.map { calendar.startOfDay(for: $0) }
 
     let budgetCountBefore = (try? context.fetchCount(FetchDescriptor<Budget>())) ?? 0
     let isFirst = budgetCountBefore == 0
@@ -223,10 +233,19 @@ final class AddEditBudgetViewModel {
     analytics: any AnalyticsClient,
     settings _: AppSettings
   ) {
-    var changed = false
+    // Per-field diff locals: `allocationChanged`, `startChanged`, `endChanged`
+    // feed the F-8.02 flags on `budget_edited` (see `docs/analytics-spec.md`
+    // §10.1). `nameChanged`, `currencyChanged`, `carryOverToggleChanged` are
+    // tracked only to compute the aggregate `changed` gate below — analytics
+    // doesn't surface them per F-8.02 scope. Add a corresponding analytics
+    // property here if F-8.02 ever expands to cover them.
+    var nameChanged = false
+    var allocationChanged = false
+    var currencyChanged = false
+    var carryOverToggleChanged = false
     if budget.name != name {
       budget.name = name
-      changed = true
+      nameChanged = true
     }
     if let newAlloc = allocation, budget.currentAllocation != newAlloc {
       BudgetLifecycleService.applyAllocationEdit(
@@ -234,25 +253,30 @@ final class AddEditBudgetViewModel {
         newAmount: newAlloc,
         context: context
       )
-      changed = true
+      allocationChanged = true
     }
     if budget.currencyCode != currencyCode {
       budget.currencyCode = currencyCode
-      changed = true
+      currencyChanged = true
     }
     if budget.isCarryOverEnabled != isCarryOverEnabled {
       budget.isCarryOverEnabled = isCarryOverEnabled
-      changed = true
+      carryOverToggleChanged = true
     }
-    if period == .specificDates, applySpecificDatesDateEdits(to: budget) {
-      changed = true
-    }
+    let dateEdits = applyDateEdits(to: budget)
+    let changed = nameChanged || allocationChanged || currencyChanged
+      || carryOverToggleChanged || dateEdits.startChanged || dateEdits.endChanged
     if changed {
       budget.lastModified = Date()
       try? context.save()
       analytics.track(
         AnalyticsEvent.budgetEdited,
-        properties: budgetEventProperties(budget: budget)
+        properties: budgetEventProperties(
+          budget: budget,
+          allocationChanged: allocationChanged,
+          startDateChanged: dateEdits.startChanged,
+          endDateChanged: dateEdits.endChanged
+        )
       )
       if let client = analytics as? MixpanelAnalyticsClient {
         let infos = budgetCohortInfos(context: context)
@@ -263,33 +287,113 @@ final class AddEditBudgetViewModel {
 
   // MARK: - Private helpers
 
-  /// Applies Edit-mode `startDate` / `endDate` diffs for `.specificDates` budgets.
+  /// Add-mode hook fired when the user taps a different period chip. Resets
+  /// `startDate` / `endDate` to the new period's defaults so the Schedule
+  /// disclosure (recurring) or Dates card (Specific Dates) always renders a
+  /// coherent state. Never runs in Edit mode (the chip is locked there).
+  private func onPeriodChange() {
+    switch period {
+    case .specificDates:
+      // Both dates are required and have no sensible default — let the user pick.
+      startDate = nil
+      endDate = nil
+    case .daily, .weekly, .biweekly, .monthly:
+      startDate = defaultStartDate(for: period)
+      endDate = nil
+    }
+  }
+
+  /// Per-period-type default for `startDate` in Add mode (F-2.03):
+  /// - `.daily` → start of today.
+  /// - `.weekly` / `.biweekly` → most recent `weekStartDay`-aligned date at or before today.
+  /// - `.monthly` → first of the current month.
+  /// - `.specificDates` → **unreachable.** `onPeriodChange` handles `.specificDates`
+  ///   by clearing both dates instead of calling this method; a hit here means a
+  ///   regression in `onPeriodChange`.
+  ///
+  /// Only called from `onPeriodChange` in Add mode. The weekly/biweekly branches
+  /// require a captured `weekStartDay` — Edit-mode would have `nil` there but
+  /// must never reach this method because the period chip is locked.
+  private func defaultStartDate(for period: BudgetPeriod) -> Date {
+    let now = Date()
+    let calendar = Calendar.autoupdatingCurrent
+    switch period {
+    case .daily:
+      return calendar.startOfDay(for: now)
+    case .weekly, .biweekly:
+      guard let weekStartDay else {
+        preconditionFailure(
+          "defaultStartDate called for \(period) without a captured weekStartDay — this should be unreachable from Edit mode (period chip is locked)."
+        )
+      }
+      let dayStart = calendar.startOfDay(for: now)
+      let weekday = calendar.component(.weekday, from: dayStart)
+      let daysBack = (weekday - weekStartDay.rawValue + 7) % 7
+      return calendar.date(byAdding: .day, value: -daysBack, to: dayStart)!
+    case .monthly:
+      var comps = calendar.dateComponents([.year, .month], from: now)
+      comps.day = 1; comps.hour = 0; comps.minute = 0; comps.second = 0
+      return calendar.date(from: comps)!
+    case .specificDates:
+      preconditionFailure(
+        "defaultStartDate has no value for .specificDates — onPeriodChange clears both dates instead. A hit here is a regression in onPeriodChange."
+      )
+    }
+  }
+
+  /// Applies Edit-mode `startDate` / `endDate` diffs for any period type.
   ///
   /// Both drafts are normalized with `calendar.startOfDay(for:)` before comparison.
-  /// A `startDate` change additionally triggers `realignMostRecentAllocationChange(to:on:)`
-  /// so the algorithm reads the new window — see that method for the rationale.
+  /// A `startDate` change on a `.specificDates` budget additionally triggers
+  /// `realignMostRecentAllocationChange(to:on:)` so the single-period algorithm
+  /// reads the new window (F-2.08 latest-wins semantics).
   ///
-  /// - Returns: `true` if any field was mutated, `false` otherwise.
-  private func applySpecificDatesDateEdits(to budget: Budget) -> Bool {
+  /// For recurring period types, a `startDate` edit updates `Budget.startDate`
+  /// only — the `AllocationChange` history is intentionally left alone. This is
+  /// correct, not a TODO: the calculator's `allocationInEffect` fallback (see
+  /// `Domain/AllocationInEffect.swift`, the "Falls back to the earliest row's
+  /// amount" branch) extends the earliest row's amount backward to any
+  /// `boundaryStart` that precedes its `effectiveFrom`, so back-dating
+  /// automatically credits the original allocation to the new back-dated window
+  /// without any data-mutation step. Forward-dating works symmetrically: the
+  /// walker starts at the new (later) `effectiveStartDate` and the
+  /// `AllocationChange` at the original earlier date still matches any query at
+  /// the new boundaries via the usual `last(where: effectiveFrom <= date)` rule.
+  /// For weekly/biweekly, `Budget.startDate.weekday` also becomes the cycle
+  /// anchor per F-7.05 — that's a deliberate consequence of the edit, not an
+  /// algorithm change.
+  ///
+  /// - Returns: A `(startChanged, endChanged)` tuple describing which date field
+  ///   was mutated. Both flags are `false` when no field changed. Consumed by
+  ///   `saveEdit` to feed the F-8.02 per-field flags on `budget_edited`.
+  private func applyDateEdits(to budget: Budget) -> (startChanged: Bool, endChanged: Bool) {
     let calendar = Calendar.autoupdatingCurrent
     let now = Date()
-    var changed = false
+    var startChanged = false
+    var endChanged = false
     if let s = startDate {
       let normalized = calendar.startOfDay(for: s)
       if budget.startDate != normalized {
         budget.startDate = normalized
-        realignMostRecentAllocationChange(on: budget, to: normalized, now: now)
-        changed = true
+        if period == .specificDates {
+          realignMostRecentAllocationChange(on: budget, to: normalized, now: now)
+        }
+        startChanged = true
       }
     }
     if let e = endDate {
       let normalized = calendar.startOfDay(for: e)
       if budget.endDate != normalized {
         budget.endDate = normalized
-        changed = true
+        endChanged = true
       }
+    } else if budget.endDate != nil {
+      // User cleared an optional end date (recurring only — `.specificDates`
+      // can't reach here because `canSave` requires both dates non-nil).
+      budget.endDate = nil
+      endChanged = true
     }
-    return changed
+    return (startChanged, endChanged)
   }
 
   /// Realigns the most-recent `AllocationChange.effectiveFrom` to `newStartDate` so the
@@ -311,6 +415,24 @@ final class AddEditBudgetViewModel {
       AnalyticsProperty.budgetName: budget.name,
       AnalyticsProperty.budgetAllocationAmount: (budget.currentAllocation as NSDecimalNumber).doubleValue,
     ]
+  }
+
+  /// `budgetEdited`-only variant that appends the F-8.02 per-field change flags
+  /// (`allocation_changed`, `start_date_changed`, `end_date_changed`) so analytics
+  /// can distinguish a name edit from a date edit from an allocation edit. These
+  /// flags are intentionally NOT emitted on `budgetCreated` (every field is "new"
+  /// by definition there) or any other event — see `docs/analytics-spec.md` §10.1.
+  private func budgetEventProperties(
+    budget: Budget,
+    allocationChanged: Bool,
+    startDateChanged: Bool,
+    endDateChanged: Bool
+  ) -> [String: any Sendable] {
+    var props = budgetEventProperties(budget: budget)
+    props[AnalyticsProperty.allocationChanged] = allocationChanged
+    props[AnalyticsProperty.startDateChanged] = startDateChanged
+    props[AnalyticsProperty.endDateChanged] = endDateChanged
+    return props
   }
 
   private func budgetCohortInfos(context: ModelContext) -> [BudgetCohortInfo] {

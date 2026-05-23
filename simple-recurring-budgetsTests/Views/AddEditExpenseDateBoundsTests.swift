@@ -66,7 +66,7 @@ struct AddEditExpenseDateBoundsTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     #expect(vm.dateRange.upperBound > utcDate(2100, 1, 1))
     // Active budget never surfaces a paused caption (proactive or violation).
-    #expect(vm.pausedCaption == nil)
+    #expect(vm.dateContextCaption == nil)
   }
 
   @Test func canSave_isFalse_whenDateInPausedGap() throws {

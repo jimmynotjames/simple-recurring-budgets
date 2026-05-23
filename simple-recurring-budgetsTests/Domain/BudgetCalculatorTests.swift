@@ -287,6 +287,65 @@ struct BudgetCalculatorWeeklyAnchorTests {
   }
 }
 
+// MARK: - Snapshot: startDate edit semantics (back-dating + forward-dating)
+
+//
+// These tests pin the load-bearing behavior of `allocationInEffect`'s earliest-
+// row fallback (see `Domain/AllocationInEffect.swift:25-27` and the unit test
+// `AllocationInEffectTests.noEligibleRow_fallsBackToEarliest`). When the user
+// back-dates `Budget.startDate` on a recurring budget, `AddEditBudgetViewModel.
+// applyDateEdits` intentionally does NOT realign the `AllocationChange` history;
+// the calculator instead absorbs the user's intent at read time by extending the
+// earliest row's amount backward to any `boundaryStart` that precedes its
+// `effectiveFrom`. A future refactor of the fallback would break the snapshot-
+// level expectations below.
+
+struct BudgetCalculatorStartDateEditTests {
+  @Test func snapshot_backDatedStartDate_extendsEarliestAllocationToNewWindow() {
+    // Setup: weekly budget originally starting Mon Apr 13 with one AllocationChange
+    // (effectiveFrom: Apr 13, amount: 100). User then back-dates Budget.startDate to
+    // Mon Apr 6 — exactly one week earlier. AddEditBudgetViewModel.applyDateEdits
+    // does NOT realign the AllocationChange row for recurring period types.
+    let originalStart = d(2026, 4, 13)
+    let budget = makeBudget(period: .weekly, allocation: 100, startDate: originalStart)
+    // Mutate the budget's startDate as the VM's recurring path would: write to
+    // Budget.startDate only; leave the AllocationChange's effectiveFrom untouched.
+    budget.startDate = d(2026, 4, 6)
+
+    // Snapshot on Mon Apr 20 — currentPeriodStart is Apr 20, so the walker covers
+    // two completed weeks: Apr 6–12 (back-dated) and Apr 13–19 (original).
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 20), calendar: cal)
+
+    #expect(snap.effectivePeriodStart == d(2026, 4, 20))
+    // Both completed weeks must be credited at allocation 100. The back-dated
+    // week (Apr 6) hits the fallback path in `allocationInEffect` because no
+    // AllocationChange row has `effectiveFrom <= Apr 6` — the fallback returns
+    // the earliest row's amount (100). Total walker = 2 weeks * 100 = 200.
+    #expect(snap.carryOver == 200)
+  }
+
+  @Test func snapshot_forwardDatedStartDate_walkerStartsAtNewStart() {
+    // Setup: weekly budget originally starting Mon Apr 13 with one AllocationChange
+    // (effectiveFrom: Apr 13, amount: 100). User then forward-dates Budget.startDate
+    // to Mon Apr 20 — exactly one week later. The AllocationChange row stays put;
+    // the walker honors the new effectiveStartDate (Apr 20) and ignores everything
+    // before it. No phantom credit for the orphaned Apr 13–19 period.
+    let originalStart = d(2026, 4, 13)
+    let budget = makeBudget(period: .weekly, allocation: 100, startDate: originalStart)
+    budget.startDate = d(2026, 4, 20)
+
+    // Snapshot on Mon Apr 27 — currentPeriodStart is Apr 27. Walker covers Apr 20–26
+    // (one completed week). Allocation at Apr 20 is satisfied by the existing
+    // AllocationChange at Apr 13 (effectiveFrom <= Apr 20) → amount 100.
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 27), calendar: cal)
+
+    #expect(snap.effectivePeriodStart == d(2026, 4, 27))
+    // Exactly one completed week credited (the original Apr 13–19 period must NOT
+    // be folded in because effectiveStartDate is now Apr 20).
+    #expect(snap.carryOver == 100)
+  }
+}
+
 // MARK: - Snapshot: allocation history (allocationInEffect)
 
 struct BudgetCalculatorAllocationHistoryTests {

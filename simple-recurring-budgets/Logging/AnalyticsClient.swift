@@ -71,6 +71,17 @@ enum AnalyticsProperty {
   /// Accepted-risk allow-listed per analytics-spec.md §5.4. Always paired with `currency_code`.
   nonisolated static let budgetAllocationAmount = "budget_allocation_amount"
 
+  // MARK: Per-event — budget_edited only (F-8.02 per-field change flags)
+
+  //
+  // Emitted on `budget_edited` so analytics can distinguish which fields the
+  // user actually edited (a name edit vs a date edit vs an allocation edit).
+  // Never emitted on `budget_created` (everything is "new" by definition).
+
+  nonisolated static let allocationChanged = "allocation_changed"
+  nonisolated static let startDateChanged = "start_date_changed"
+  nonisolated static let endDateChanged = "end_date_changed"
+
   // MARK: Per-event — expense_*
 
   nonisolated static let isAddFunds = "is_add_funds"

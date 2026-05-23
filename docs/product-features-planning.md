@@ -434,7 +434,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-7.05: Per-budget period start date
 
-- **Status:** Open. Scoped to be delivered by the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) §2.2, §2.4, §5.2). Mark Implemented when the rewrite ships.
+- **Status:** Implemented. Schema + algorithm shipped with `rewrite-budget-calculations`; recurring-period UI (collapsed `Schedule` disclosure in Add/Edit Budget), Add-mode per-period-type pre-population, Edit-mode editability, and snapshot-level back-dating coverage shipped with `finish-start-end-dates`.
 - **Description:** Allow each Budget to have its own period start date via a new `Budget.startDate` field. The start date may be in the past (back-filling), today, or in the future. For weekly and biweekly Budgets, `startDate` becomes the per-budget cycle anchor (`weekStart` = `startDate.weekday`; `biweeklyAnchor` = `startDate`), overriding `AppSettings.weekStartDay` at math-time (see F-5.01). For monthly Budgets, `startDate` is the start-of-month anchor. The Add/Edit Budget screen pre-populates `startDate` per period type and requires a value before Save.
 - **Acceptance Criteria:**
   - See F-2.03 for the **Start Date** field's UI behavior, including per-period-type pre-population and editability in Edit mode.
@@ -443,6 +443,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - No proration of partial first periods. The full per-period allocation applies regardless of whether the first period is partial at the boundary.
 - **Edge Cases / Notes:**
   - The field is stored as `Date?` purely because CloudKit-synced SwiftData fields must be optional; the UI guarantees a value before Save. If a nil value is ever encountered at read time (e.g., a malformed sync record), the algorithm falls back to `createdAt`.
+  - Back-dating `startDate` extends the earliest `AllocationChange` row's amount into the back-dated window via the calculator's `allocationInEffect` fallback (see `simple-recurring-budgets/Domain/AllocationInEffect.swift` and `AllocationInEffectTests.noEligibleRow_fallsBackToEarliest`); no `AllocationChange` realignment is required for recurring period types. Forward-dating works symmetrically — the walker starts at the new later `effectiveStartDate` and the existing `AllocationChange` still satisfies any allocation lookup at or after that date. The Specific Dates path continues to realign the most-recent `AllocationChange` per F-2.08 latest-wins semantics.
 - **Dependencies:** F-2.03
 
 ##### F-7.06: Pause and Resume a Budget
@@ -470,7 +471,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-7.07: Per-budget end date
 
-- **Status:** Open. Scoped to be delivered by the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) §2.2, §5.2).
+- **Status:** Implemented. Schema + algorithm shipped with `rewrite-budget-calculations`; recurring-period optional `endDate` UI (Schedule disclosure chip + "Clear end date" affordance), Specific Dates required `endDate`, and Add/Edit Expense pre-start / post-end clamped-default caption (F-2.04) all shipped with `finish-start-end-dates`. The per-field `start_date_changed` / `end_date_changed` flags on `budget_edited` analytics (F-8.02) also ship with this change.
 - **Description:** Allow each Budget to have an end date via a new `Budget.endDate` field. After `endDate`, the budget stops calculating and the chip is frozen at the final tally — `endDate` is **terminal** (distinct from Pause, which is reversible — see F-7.06). For recurring period types `endDate` is optional; for Specific Dates budgets it is **required** by the UI before Save (see F-2.08).
 - **Acceptance Criteria:**
   - See F-2.03 for the **End Date** field's UI behavior in Add and Edit modes.
@@ -481,6 +482,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:**
   - The field is stored as `Date?` because it is genuinely optional for recurring budgets; it is required by the UI only for Specific Dates budgets.
   - If `endDate` falls inside a paused period, no special handling is needed — the chip is already frozen at the most-recent-pause value, and `endDate` simply makes that frozen state terminal.
+  - Editing semantics mirror F-7.05: `Budget.endDate` is rewritten directly with no `AllocationChange` realignment. Clearing the optional end date on a recurring budget is supported via the "Clear end date" affordance on the Schedule disclosure.
 - **Dependencies:** F-2.03, F-7.05
 
 ---

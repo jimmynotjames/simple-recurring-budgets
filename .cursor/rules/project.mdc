@@ -62,4 +62,4 @@ Quick checklist:
 - **Commit subject:** past-tense verb, sentence case, ≤72 chars, ends with period and `(#N)`.
 - **Commit body:** high-level area bullets + `Why:` line + `Co-Authored-By:` footer.
 - **PR description:** `## What` (high-level area bullets, not file-by-file) / `## Why` (one sentence) / `## Test plan` (lightweight checklist).
-- **Merge method:** always **Squash and merge** — one PR = one commit on `main`.
+- **Merge method:** always **Squash and merge** — one PR = one commit on `main`. After merging, delete the remote branch (see `AGENTS.md > Commit and PR style > Merging`).

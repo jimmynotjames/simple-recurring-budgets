@@ -214,6 +214,12 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 Always use **Squash and merge**. One PR = one commit on `main`, with the PR number appended by GitHub.
 
+After merging, **delete the remote branch**:
+
+```bash
+gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/<branch-name> -X DELETE
+```
+
 ### PR description
 
 ```markdown

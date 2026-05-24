@@ -22,6 +22,7 @@ struct AddEditBudgetView: View {
 
   @State var showCurrencyPicker = false
   @State private var showDeleteConfirmation = false
+  @State private var showOrphanWarning = false
   @State var initialCurrencyCode: String = ""
   @State var isScheduleExpanded: Bool = false
   @FocusState private var isNameFocused: Bool
@@ -57,6 +58,9 @@ struct AddEditBudgetView: View {
         if !viewModel.isEditing {
           isNameFocused = true
         }
+        if viewModel.orphanedExpenseCount > 0 {
+          isScheduleExpanded = true
+        }
       }
       .navigationTitle(
         viewModel.isEditing
@@ -89,8 +93,11 @@ struct AddEditBudgetView: View {
             defaultValue: "Save",
             comment: "Button that saves the budget and dismisses the Add/Edit Budget sheet"
           )) {
-            viewModel.save(context: context, analytics: analytics, settings: settings, router: router)
-            dismiss()
+            if viewModel.orphanedExpenseCount > 0 {
+              showOrphanWarning = true
+            } else {
+              commitSave()
+            }
           }
           .disabled(!viewModel.canSave)
           .fontWeight(.semibold)
@@ -100,7 +107,37 @@ struct AddEditBudgetView: View {
       .sheet(isPresented: $showCurrencyPicker) {
         CurrencyPickerView(selection: $viewModel.currencyCode)
       }
+      .alert(
+        String(
+          localized: "addEditBudget.orphanWarning.title",
+          defaultValue: "Start date is after \(viewModel.orphanedExpenseCount) logged expenses",
+          comment: "Title of the alert shown when the user taps Save on Edit Budget and the drafted startDate is after at least one already-logged expense's date. The Int argument is the count of orphaned expenses."
+        ),
+        isPresented: $showOrphanWarning
+      ) {
+        Button(String(
+          localized: "addEditBudget.orphanWarning.cancel",
+          defaultValue: "Cancel",
+          comment: "Cancel button on the orphan-expense alert; returns the user to the Edit Budget form with draft state preserved."
+        ), role: .cancel) {}
+        Button(String(
+          localized: "addEditBudget.orphanWarning.confirm",
+          defaultValue: "Save Changes",
+          comment: "Confirm button on the orphan-expense alert; commits the Save and dismisses the Edit Budget sheet."
+        )) { commitSave() }
+      } message: {
+        Text(String(
+          localized: "addEditBudget.orphanWarning.message",
+          defaultValue: "Those expenses still show in your list but won't be counted by this budget.",
+          comment: "Body of the orphan-expense alert on the Edit Budget Save confirmation. Explains that orphaned expenses stay in the list but are not counted by the budget."
+        ))
+      }
     }
+  }
+
+  private func commitSave() {
+    viewModel.save(context: context, analytics: analytics, settings: settings, router: router)
+    dismiss()
   }
 
   // MARK: - Destructive Actions
@@ -383,6 +420,18 @@ struct AddEditBudgetView: View {
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.name = ""
     vm.allocation = nil
+    return AddEditBudgetView(viewModel: vm)
+      .modelContainer(PreviewContainer.make())
+      .environment(AppSettings())
+      .environment(Router())
+  }
+
+  #Preview("Edit — Orphaning start date") {
+    // weeklyDefault has expenses at day 0, -7, -21, -35.
+    // Moving startDate to 20 days ago orphans the day-21 and day-35 expenses (count = 2).
+    let budget = DebugData.weeklyDefault()
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.startDate = Calendar.current.date(byAdding: .day, value: -20, to: Calendar.current.startOfDay(for: Date()))
     return AddEditBudgetView(viewModel: vm)
       .modelContainer(PreviewContainer.make())
       .environment(AppSettings())

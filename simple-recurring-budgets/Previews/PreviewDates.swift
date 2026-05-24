@@ -18,5 +18,10 @@
 
     /// One week ago — drives the `.postEnd` chip preview ("Ended {date}").
     static let postEnd: Date = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+
+    /// ~2-month forward window — drives the long Specific Dates label preview that
+    /// exercises the `ViewThatFits` H→V fallback at large Dynamic Type.
+    static let specificDatesStart: Date = .init()
+    static let specificDatesEnd: Date = Calendar.current.date(byAdding: .day, value: 58, to: Date()) ?? Date()
   }
 #endif

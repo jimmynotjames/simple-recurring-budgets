@@ -193,7 +193,7 @@ extension BudgetRemainingSummary {
   private struct SummaryPreview: View {
     var remaining: Decimal = 248.50
     var allocation: Decimal = 400
-    var periodDisplayLabel: String = "this month"
+    var periodDisplayLabel: String = BudgetPeriod.monthly.listLabel
     var inactiveReason: BudgetInactiveReason?
 
     var body: some View {
@@ -231,7 +231,7 @@ extension BudgetRemainingSummary {
     }
 
     static var preStart: SummaryPreview {
-      .init(remaining: 0, allocation: 25, periodDisplayLabel: "daily", inactiveReason: .preStart(startDate: PreviewDates.preStart))
+      .init(remaining: 0, allocation: 25, periodDisplayLabel: BudgetPeriod.daily.listLabel, inactiveReason: .preStart(startDate: PreviewDates.preStart))
     }
 
     static var postEnd: SummaryPreview {
@@ -239,11 +239,14 @@ extension BudgetRemainingSummary {
     }
 
     static var longDateRange: SummaryPreview {
-      .init(periodDisplayLabel: "Jan 1 – Feb 28")
+      .init(periodDisplayLabel: Budget.specificDatesDisplayLabel(
+        start: PreviewDates.specificDatesStart,
+        end: PreviewDates.specificDatesEnd
+      ))
     }
 
     static var zeroAllocation: SummaryPreview {
-      .init(remaining: 0, allocation: 0, periodDisplayLabel: "this week")
+      .init(remaining: 0, allocation: 0, periodDisplayLabel: BudgetPeriod.weekly.listLabel)
     }
   }
 

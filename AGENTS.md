@@ -235,9 +235,26 @@ make test 2>&1 | tail -30                # ✓
 make format && make lint-fix             # ✓ both allowed, no file redirect
 ```
 
+### 6. One command per Bash call — no `${PIPESTATUS}`, no `rc=...; echo $rc`, no `|| echo "fallback"`
+
+The harness splits compound commands at `;` / `&&` / `||` and checks each segment against the allowlist. Shell-variable assignments and `${...}` expansions don't match any allowlist pattern, so they prompt. The Bash tool already surfaces non-zero exit codes — manual exit-code capture is dead weight.
+
+```bash
+make build 2>&1 | tail -50               # ✓ tool reports exit code itself
+make build 2>&1 | tee tmp/build.log      # ✓ if you need the log to persist
+```
+
+```bash
+make build 2>&1 | tee tmp/build.log; rc=${PIPESTATUS[0]}; echo "exit=$rc"   # ✗ prompts
+make build 2>&1 | tail -50 || echo "build failed"                            # ✗ prompts, pointless
+grep -E "error:" tmp/build.log || echo "no errors"                           # ✗ prompts
+```
+
+If you need both filtered output and full output, send **two Bash calls** — don't bundle them with `;` plus echo-separators in one call.
+
 ### Pre-flight check
 
-Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, or a one-off `python3 -c` / `python3 /tmp/...` heredoc — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
+Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one-off `python3 -c` / `python3 /tmp/...` heredoc, `${PIPESTATUS}`, `rc=$?`, or a `||`/`;`-chained fallback `echo` — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
 
 ## Commit and PR style
 

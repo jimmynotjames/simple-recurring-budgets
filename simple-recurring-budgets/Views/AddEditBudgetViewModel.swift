@@ -82,6 +82,15 @@ final class AddEditBudgetViewModel {
     return nameOK && allocOK
   }
 
+  /// Count of existing expenses on the bound budget whose `date` is before the
+  /// currently-drafted `startDate`. Non-zero only in Edit mode when the user has
+  /// moved the start forward past one or more logged expenses; those expenses
+  /// will remain in the list but be excluded from carry-over and remaining.
+  var orphanedExpenseCount: Int {
+    guard case let .edit(budget) = mode, let start = startDate else { return 0 }
+    return budget.expenseItems.count(where: { $0.date < start })
+  }
+
   // MARK: - Init (Add mode)
 
   init(settings: AppSettings) {
@@ -269,13 +278,24 @@ final class AddEditBudgetViewModel {
     if changed {
       budget.lastModified = Date()
       try? context.save()
+      // Post-save orphan count: expenses dated before the written Budget.startDate.
+      // Recurring budgets always have a non-nil startDate here (the canSave gate +
+      // Add-mode pre-fill + period.didSet re-anchoring guarantee it). For the
+      // .specificDates case where startDate could theoretically be nil mid-edit,
+      // the absence is treated as zero (the warning UI is recurring-only anyway).
+      let orphanedCount: Int = if let s = budget.startDate {
+        budget.expenseItems.count(where: { $0.date < s })
+      } else {
+        0
+      }
       analytics.track(
         AnalyticsEvent.budgetEdited,
         properties: budgetEventProperties(
           budget: budget,
           allocationChanged: allocationChanged,
           startDateChanged: dateEdits.startChanged,
-          endDateChanged: dateEdits.endChanged
+          endDateChanged: dateEdits.endChanged,
+          orphanedExpenseCount: orphanedCount
         )
       )
       if let client = analytics as? MixpanelAnalyticsClient {
@@ -422,16 +442,24 @@ final class AddEditBudgetViewModel {
   /// can distinguish a name edit from a date edit from an allocation edit. These
   /// flags are intentionally NOT emitted on `budgetCreated` (every field is "new"
   /// by definition there) or any other event — see `docs/analytics-spec.md` §10.1.
+  ///
+  /// The `orphanedExpenseCount` parameter (post-save state: number of expenses
+  /// dated before the new `Budget.startDate`) is included only when > 0; absence
+  /// of the key denotes "save did not produce an orphaned state".
   private func budgetEventProperties(
     budget: Budget,
     allocationChanged: Bool,
     startDateChanged: Bool,
-    endDateChanged: Bool
+    endDateChanged: Bool,
+    orphanedExpenseCount: Int
   ) -> [String: any Sendable] {
     var props = budgetEventProperties(budget: budget)
     props[AnalyticsProperty.allocationChanged] = allocationChanged
     props[AnalyticsProperty.startDateChanged] = startDateChanged
     props[AnalyticsProperty.endDateChanged] = endDateChanged
+    if orphanedExpenseCount > 0 {
+      props[AnalyticsProperty.orphanedExpenseCount] = orphanedExpenseCount
+    }
     return props
   }
 

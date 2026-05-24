@@ -122,6 +122,16 @@ extension AddEditBudgetView {
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, alignment: .trailing)
       }
+      if viewModel.orphanedExpenseCount > 0 {
+        Text(String(
+          localized: "addEditBudget.orphanWarning.inline",
+          defaultValue: "Start date is after \(viewModel.orphanedExpenseCount) logged expenses. Those expenses still show in your list but won't be counted by this budget.",
+          comment: "Inline warning in the Schedule disclosure on Edit Budget when the drafted startDate is after a logged expense. Quieter sibling of the Save alert. Int is the orphaned-expense count."
+        ))
+        .font(.caption)
+        .foregroundStyle(.orange)
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
     }
   }
 

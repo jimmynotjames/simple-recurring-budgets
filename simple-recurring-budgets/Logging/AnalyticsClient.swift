@@ -81,6 +81,9 @@ enum AnalyticsProperty {
   nonisolated static let allocationChanged = "allocation_changed"
   nonisolated static let startDateChanged = "start_date_changed"
   nonisolated static let endDateChanged = "end_date_changed"
+  /// Count of expenses dated before the new `Budget.startDate` after an Edit-mode
+  /// save. Present iff > 0; absence denotes "save did not produce an orphaned state".
+  nonisolated static let orphanedExpenseCount = "orphaned_expense_count"
 
   // MARK: Per-event — expense_*
 

@@ -21,14 +21,21 @@ extension Budget {
   @MainActor var periodDisplayLabel: String {
     let p = periodEnum
     if p == .specificDates, let start = startDate, let end = endDate {
-      if start == end {
-        return start.formatted(date: .abbreviated, time: .omitted)
-      }
-      return (start ..< end).formatted(
-        Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)
-      )
+      return Self.specificDatesDisplayLabel(start: start, end: end)
     }
     return p.listLabel
+  }
+
+  /// Renders the period label shown for a Specific Dates budget. Extracted so SwiftUI
+  /// previews can produce the same string production renders without duplicating the
+  /// formatter configuration.
+  static func specificDatesDisplayLabel(start: Date, end: Date) -> String {
+    if start == end {
+      return start.formatted(date: .abbreviated, time: .omitted)
+    }
+    return (start ..< end).formatted(
+      Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)
+    )
   }
 
   /// The inline period descriptor used in VoiceOver labels (e.g. "remaining this *daily* period",

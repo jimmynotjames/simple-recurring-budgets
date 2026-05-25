@@ -49,6 +49,7 @@
 
     static func dailyDefault(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Daily – Default", currencyCode: "USD", period: .daily)
+      budget.icon = "🍔"
       let startDate = Calendar.current.startOfDay(for: now)
       budget.startDate = startDate
       let expenses = [
@@ -63,6 +64,7 @@
 
     static func weeklyDefault(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Weekly – Groceries (EUR)", currencyCode: "EUR", period: .weekly)
+      budget.icon = "🛒"
       let cal = Calendar.current
       let dayStart = cal.startOfDay(for: now)
       let weekday = cal.component(.weekday, from: dayStart)
@@ -104,6 +106,7 @@
         currencyCode: "USD",
         period: .monthly
       )
+      budget.icon = "🛍️"
       let cal = Calendar.current
       var comps = cal.dateComponents([.year, .month], from: now)
       comps.day = 1; comps.hour = 0; comps.minute = 0; comps.second = 0
@@ -177,6 +180,7 @@
 
     static func dailyWithSurplusCarryOver(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Daily – Surplus Carry-Over", currencyCode: "USD", period: .daily)
+      budget.icon = "☕"
       let startDate = Calendar.current.startOfDay(for: daysAgo(5, from: now))
       budget.startDate = startDate
       let expenses = [

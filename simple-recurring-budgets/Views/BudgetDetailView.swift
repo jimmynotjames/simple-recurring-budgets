@@ -150,7 +150,9 @@ struct BudgetDetailView: View {
     }
     .listStyle(.insetGrouped)
     .scrollContentBackground(.hidden)
-    .navigationTitle(budget.name)
+    // Icon-prefixed name (e.g. "☕ Coffee"); VoiceOver reads the emoji as part of
+    // the title. See `Budget.iconPrefixedName`.
+    .navigationTitle(budget.iconPrefixedName)
     .appBackground()
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
@@ -392,7 +394,8 @@ struct BudgetDetailView: View {
     let budget: Budget
     let container: ModelContainer
 
-    init(budget: Budget) {
+    init(budget: Budget, icon: String? = nil) {
+      if let icon { budget.icon = icon }
       self.budget = budget
       let container = InMemoryModelContainer.makeEmpty()
       DebugData.insertDetail(budget, into: container.mainContext)
@@ -409,14 +412,14 @@ struct BudgetDetailView: View {
     }
   }
 
-  // Current-period expenses only (daily budget, all from today).
+  // Current-period expenses only (daily budget, all from today). With icon.
   #Preview("Current Period Only") {
-    BudgetDetailPreview(budget: DebugData.detailDailyCurrentOnly())
+    BudgetDetailPreview(budget: DebugData.detailDailyCurrentOnly(), icon: "🍔")
   }
 
-  // Both current and past period expenses (monthly, long — exceeds screen height).
+  // Both current and past period expenses (monthly, long — exceeds screen height). With icon.
   #Preview("Current & Past Months") {
-    BudgetDetailPreview(budget: DebugData.detailMonthlyCurrentAndPast())
+    BudgetDetailPreview(budget: DebugData.detailMonthlyCurrentAndPast(), icon: "🛍️")
   }
 
   // No current-period expenses; all expenses are from past periods (weekly budget).
@@ -429,9 +432,9 @@ struct BudgetDetailView: View {
     BudgetDetailPreview(budget: DebugData.detailWeeklyEmpty())
   }
 
-  // Carry-over disabled.
+  // Carry-over disabled. With icon.
   #Preview("Carry-Over Disabled") {
-    BudgetDetailPreview(budget: DebugData.detailMonthlyCarryOverDisabled())
+    BudgetDetailPreview(budget: DebugData.detailMonthlyCarryOverDisabled(), icon: "🏠")
   }
 
   // Dark mode, over budget.
@@ -440,14 +443,14 @@ struct BudgetDetailView: View {
       .preferredColorScheme(.dark)
   }
 
-  // Paused budget — primary slot shows Resume, header greyed.
+  // Paused budget — primary slot shows Resume, header greyed. With icon.
   #Preview("Paused") {
-    BudgetDetailPreview(budget: DebugData.detailDailyPaused())
+    BudgetDetailPreview(budget: DebugData.detailDailyPaused(), icon: "☕")
   }
 
-  // Specific Dates — date range in header, no carry-over chip.
+  // Specific Dates — date range in header, no carry-over chip. With icon.
   #Preview("Specific Dates · Light") {
-    BudgetDetailPreview(budget: DebugData.detailSpecificDates())
+    BudgetDetailPreview(budget: DebugData.detailSpecificDates(), icon: "✈️")
   }
 
   #Preview("Specific Dates · Dark") {
@@ -462,9 +465,9 @@ struct BudgetDetailView: View {
   }
 
   // Post-end: budget's endDate has passed — allocation shown, full-width grey bar,
-  // "Ended {date}" chip.
+  // "Ended {date}" chip. With icon.
   #Preview("Post-end · Monthly") {
-    BudgetDetailPreview(budget: DebugData.detailMonthlyPostEnd())
+    BudgetDetailPreview(budget: DebugData.detailMonthlyPostEnd(), icon: "🎁")
   }
 
   // Specific Dates pre-window: same inactive treatment, no carry-over chip.
@@ -472,8 +475,8 @@ struct BudgetDetailView: View {
     BudgetDetailPreview(budget: DebugData.detailSpecificDatesPreStart())
   }
 
-  // Specific Dates post-window: same inactive treatment, no carry-over chip.
+  // Specific Dates post-window: same inactive treatment, no carry-over chip. With icon.
   #Preview("Specific Dates · Post-window") {
-    BudgetDetailPreview(budget: DebugData.detailSpecificDatesPostEnd())
+    BudgetDetailPreview(budget: DebugData.detailSpecificDatesPostEnd(), icon: "🏝️")
   }
 #endif

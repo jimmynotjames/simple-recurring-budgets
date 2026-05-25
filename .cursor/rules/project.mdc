@@ -42,7 +42,7 @@ Quick checklist:
 
 - **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics), composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls, `.accessibilityAddTraits(.isHeader)` on headings, `swipeActions` paired with `.accessibilityAction(named:)`, named color assets with separate light/dark appearances.
 - **Localized source strings** — every new user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`. No hard-coded English in production views. Locale-invariant strings use `Text(verbatim:)`. Full rules: `docs/tech-design-doc.md` §5.1.
-- **Translations** — after adding new string keys, re-run `scripts/translate_catalog/` (extract → translate → merge → validate) for all 38 storefront locales before the change ships to users. Never omit the pipeline step.
+- **Translations** — after adding, renaming, or invalidating string keys, run the **`translate-new-strings` skill** — the preferred entry point that drives `scripts/translate_catalog/` in subset mode (extract → translate → merge → validate) with parallel per-locale subagents for all 38 storefront locales, ending on a clean `check_translations.py`. Run it **autonomously (no approval prompt)** using its temp-file invocations rather than ad-hoc `python3 -c`/heredocs. Never omit the pipeline step.
 - **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary: `docs/analytics-spec.md` §17.
 
 ## Spec-driven workflow (OpenSpec)

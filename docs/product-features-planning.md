@@ -321,23 +321,27 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-4.03: Support an icon for each Budget
 
-- **Status:** Open
-- **Description: User can pick an icon to help distinguish each Budget**
+- **Status:** Implemented (change `budget-icon-emoji`). Scoped to a single **emoji** chosen from the app's curated set. The feature is semantically a Budget "icon"; the chosen implementation is one emoji. Alternative icon sources were considered and **canceled** — see "Descoped" below.
+- **Description:** User can pick an optional **icon** to help distinguish each Budget. The icon is a single emoji selected from a curated set the app provides.
 - **Acceptance Criteria:**
-  - **Add/Edit Budget screen** includes icon selection for each Budget (entity).
-  - **Budget screen** and **Budgets screen** display the icon where applicable.
-  - If feasible, use LLM to guess default icon for each Budget.
-  - User can pick emoji
-  - If feasible, user can pick from Apple-native emoji-like icons that can be custom-generated.
-- **Edge Cases / Notes:**
+  - **Add/Edit Budget screen** offers icon selection: a picker presenting the app's curated emoji set. Choosing is optional.
+  - **Budgets screen** and **Budget detail screen** display the chosen icon (when set) as a prefix of the budget name.
+  - The icon is stored as a single optional `String` on the `Budget` entity (`Budget.icon`); `nil` when unset.
+  - The curated emoji set lives **in code** — the picker component is the **master source** for which emoji are offered. Do not enumerate the set in this doc (it will drift); read the code.
+- **Descoped (canceled — will not implement):** The following were deliberately dropped (not deferred) when this feature was scoped to the curated emoji set. They are not on the roadmap:
+  - SF Symbols / a symbol picker as an icon source.
+  - Genmoji or other Apple-native custom-generated emoji-like icons.
+  - LLM-guessed default-icon suggestion.
+  - Photo upload as an icon (was F-4.04 — now canceled; see below).
+- **Edge Cases / Notes:** The icon is decorative — VoiceOver announces the budget name without it. A budget with no icon renders name-only.
 - **Dependencies:**
 
 ##### F-4.04: Support for photo upload for icon for each Budget
 
-- **Status:** Open
-- **Description:** 
-- **Acceptance Criteria:**
-- **Edge Cases / Notes:**
+- **Status:** Canceled (descoped). Budget icons are scoped to the curated emoji set (see F-4.03); photo upload will **not** be implemented. The heading is retained so the feature ID isn't reused and the decision is on record.
+- **Description:** ~~Photo upload as a Budget icon.~~ Canceled — Budget icons are a single emoji per F-4.03.
+- **Acceptance Criteria:** —
+- **Edge Cases / Notes:** —
 - **Dependencies:**
 
 ---

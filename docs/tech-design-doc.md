@@ -373,8 +373,8 @@ Remaining items from the feature backlog that will require technical design when
 | Feature | Technical Surface |
 |---------|-------------------|
 | **F-4.01–02: Color themes** | Asset Catalog color sets, theme state in `NSUbiquitousKeyValueStore` (synced via iCloud) or SwiftData, `@Environment(\.colorScheme)` integration |
-| **F-4.03: Budget icons** | Emoji storage as `String` on `Budget`; SF Symbols picker; optional LLM call for default suggestion |
-| **F-4.04: Photo upload for icon** | PhotosUI (`PhotosPicker`), image resizing, binary storage (or file URL) in SwiftData, CloudKit asset limits |
+| **F-4.03: Budget icons (emoji)** | Single emoji stored as optional `String` on `Budget` (`Budget.icon`); picker presents the app's curated emoji set (the picker component is the master list). SF Symbols, Genmoji, and LLM default-suggestion are **descoped (canceled)** — see F-4.03. |
+| ~~**F-4.04: Photo upload for icon**~~ | **Canceled (descoped)** — Budget icons are scoped to emoji (F-4.03). Not implemented; row retained for the record. |
 | ~~**F-5.01: Start of week**~~ | **Shipped** — `NSUbiquitousKeyValueStore` storage, `Calendar` mutation, period calculation integration via `AppSettings.weekStartDay` and `PeriodCalculator`. Row removed from future table. |
 | **F-6.01: Adding funds** | Model layer done: negative `ExpenseItem.amount` convention, `isAddFunds` / `displayAmount` computed properties, edit-path sign preservation. Remaining: Add Funds toggle UI on the Add Expense screen. |
 | **F-6.02: Expense Type** | Schema done: `expenseType: String?` on `ExpenseItem`. Remaining: user-facing editor, user-defined values stored as a `Set<String>` in `NSUbiquitousKeyValueStore` (synced via iCloud) or a dedicated entity. |

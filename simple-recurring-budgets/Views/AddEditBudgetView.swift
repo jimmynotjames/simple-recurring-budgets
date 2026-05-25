@@ -23,6 +23,7 @@ struct AddEditBudgetView: View {
   @State var showCurrencyPicker = false
   @State private var showDeleteConfirmation = false
   @State private var showOrphanWarning = false
+  @State private var showIconPicker = false
   @State var initialCurrencyCode: String = ""
   @State var isScheduleExpanded: Bool = false
   @FocusState private var isNameFocused: Bool
@@ -194,21 +195,24 @@ struct AddEditBudgetView: View {
 
   private var nameCard: some View {
     GroupBox {
-      TextField(
-        String(
-          localized: "addEditBudget.field.name.placeholder",
-          defaultValue: "Budget",
-          comment: "Placeholder text for the budget name field"
-        ),
-        text: $viewModel.name
-      )
-      .font(.body)
-      .focused($isNameFocused)
-      .accessibilityLabel(String(
-        localized: "addEditBudget.field.name.accessibilityLabel",
-        defaultValue: "Budget name",
-        comment: "VoiceOver label for the budget name text field"
-      ))
+      HStack(spacing: 8) {
+        iconField
+        TextField(
+          String(
+            localized: "addEditBudget.field.name.placeholder",
+            defaultValue: "Budget",
+            comment: "Placeholder text for the budget name field"
+          ),
+          text: $viewModel.name
+        )
+        .font(.body)
+        .focused($isNameFocused)
+        .accessibilityLabel(String(
+          localized: "addEditBudget.field.name.accessibilityLabel",
+          defaultValue: "Budget name",
+          comment: "VoiceOver label for the budget name text field"
+        ))
+      }
     } label: {
       sectionLabel(String(
         localized: "addEditBudget.section.name",
@@ -217,6 +221,50 @@ struct AddEditBudgetView: View {
       ))
     }
     .backgroundStyle(Color("CellBackground"))
+  }
+
+  /// Optional icon prefix. A tappable chip that opens the budget icon picker
+  /// (`BudgetIconPicker`, a curated emoji grid). Shows the chosen icon, or a faint
+  /// smiley placeholder inviting the user to pick one.
+  private var iconField: some View {
+    Button {
+      showIconPicker = true
+    } label: {
+      Group {
+        if let icon = viewModel.icon, !icon.isEmpty {
+          Text(verbatim: icon)
+        } else {
+          Image(systemName: "face.smiling")
+            .foregroundStyle(.secondary)
+        }
+      }
+      .font(.title3)
+      .frame(width: 44, height: 36)
+      .background(
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+          .fill(Color.secondary.opacity(0.12))
+      )
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(String(
+      localized: "addEditBudget.field.icon.accessibilityLabel",
+      defaultValue: "Budget icon",
+      comment: "VoiceOver label for the optional icon chip shown before the budget name field"
+    ))
+    .accessibilityValue(viewModel.icon ?? String(
+      localized: "addEditBudget.field.icon.accessibilityValue.none",
+      defaultValue: "None",
+      comment: "VoiceOver value announced for the budget icon chip when no icon is chosen"
+    ))
+    .accessibilityHint(String(
+      localized: "addEditBudget.field.icon.accessibilityHint",
+      defaultValue: "Opens a picker to choose an icon for the budget.",
+      comment: "VoiceOver hint for the optional budget icon chip"
+    ))
+    .sheet(isPresented: $showIconPicker) {
+      BudgetIconPicker(selection: $viewModel.icon)
+    }
   }
 
   private var periodCard: some View {

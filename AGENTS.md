@@ -310,6 +310,8 @@ git fetch --prune                                                               
 
 ### PR description
 
+**Always pass the body via `--body-file`, never inline `--body`.** Write the description to `tmp/pr-body.md` (gitignored, `Write(./tmp/**)` is allowlisted) and run `gh pr create --title "…" --body-file tmp/pr-body.md`. PR bodies contain backticks (command-substitution syntax) and newlines; passing them inline forces a permission prompt even though `gh pr *` is allowlisted, because the matcher won't auto-approve a command containing command substitution. The same applies to long or backtick-laden commit messages — use `git commit -F tmp/commit-msg.txt` rather than a multi-line `-m`.
+
 ```markdown
 Closes #N
 

@@ -339,7 +339,7 @@ One sentence: the user problem or product goal this PR advances.
 
 ## Issue-driven workflow
 
-The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-for-issue` and `/merge-pr-resolve-issue` commands automate the two halves; this section is the canonical spec, so a plain-language trigger ("fix issue 110") follows the identical steps. The two halves are separated by a **manual review gate** — never merge on the same turn the PR is opened.
+The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-for-issue` and `/merge-pr` commands automate the two halves; this section is the canonical spec, so a plain-language trigger ("fix issue 110") follows the identical steps. The two halves are separated by a **manual review gate** — never merge on the same turn the PR is opened.
 
 **Front half — issue to open PR** (`/create-pr-for-issue <N>`):
 
@@ -350,7 +350,7 @@ The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-
 5. **Open the PR** — push the branch and `gh pr create`, body per the PR-description template, including issue linkage: `Closes #<N>` for a complete fix, or `Refs #<N>` plus a "what's still pending" note for a partial one.
 6. **Stop for review.** Report the PR URL and hand back. Merging waits for an explicit go-ahead from the user.
 
-**Back half — merge and resolve** (`/merge-pr-resolve-issue <N>`), only after the user says to land it:
+**Back half — merge and resolve** (`/merge-pr <PR>`), only after the user says to land it:
 
 7. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete **both** the remote branch (allowlisted `gh api … -X DELETE`) and the local branch (`git checkout main && git pull --ff-only && git branch -D <branch>`), and run `git fetch --prune` to clear the stale tracking ref. Deleting only the remote leaves a stale local branch — see § Merging.
 8. **Resolve the issue** — confirm state with `gh issue view <N> --json state,stateReason`:

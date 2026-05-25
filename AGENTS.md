@@ -306,6 +306,8 @@ gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/<branch-name>
 ### PR description
 
 ```markdown
+Closes #N
+
 ## What
 * Feature or area of change (complete / partial — what's still pending)
 * Architectural change, at the structural level
@@ -326,3 +328,26 @@ One sentence: the user problem or product goal this PR advances.
 - **Why** gives reviewers (and future-you) the motivation in plain language.
 - **Test plan** is a lightweight sanity-check list, not a QA spec. Two or three bullets is enough.
 - **Tools** lists AI tools and models used — one bullet each. Name the tool or model (e.g. `Claude Code (Opus 4.7)`, `openspec`, `Cursor (Sonnet 4.6)`). Add a short one-liner after an em dash only if it adds useful context (e.g. `— planning`, `— implementation`, `— code review`). Omit the one-liner when the role is obvious.
+- **Issue linkage** — when the PR addresses a tracked issue, put a reference in the body. Use a **closing keyword** (`Closes #N`, also `Fixes`/`Resolves`) for a **complete** fix, so GitHub auto-closes the issue when the PR squash-merges to `main`. For a **partial** fix, use a non-closing reference (`Refs #N`) and note what's still pending in the first `## What` bullet. Omit the line entirely for PRs with no associated issue.
+
+## Issue-driven workflow
+
+The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-for-issue` and `/merge-pr-resolve-issue` commands automate the two halves; this section is the canonical spec, so a plain-language trigger ("fix issue 110") follows the identical steps. The two halves are separated by a **manual review gate** — never merge on the same turn the PR is opened.
+
+**Front half — issue to open PR** (`/create-pr-for-issue <N>`):
+
+1. **Read the issue** — `gh issue view <N>` (add `--comments` if the thread is substantive). Restate the problem and intended fix in a sentence or two before writing code.
+2. **Branch** — `u/jimmyho/claude-code/<short-description>` per the branch-name convention above, off the latest `main`.
+3. **Fix** — implement in code. If the change alters product behavior, specs, or the data model, drive it through OpenSpec (`/opsx:propose` → `/opsx:apply`) rather than hand-editing specs, and honor the cross-cutting checklist (§ Cross-cutting concerns) for any UI-touching change.
+4. **Verify** — the four-step order: `make format` → `make lint-fix` → `make build` → `make test`.
+5. **Open the PR** — push the branch and `gh pr create`, body per the PR-description template, including issue linkage: `Closes #<N>` for a complete fix, or `Refs #<N>` plus a "what's still pending" note for a partial one.
+6. **Stop for review.** Report the PR URL and hand back. Merging waits for an explicit go-ahead from the user.
+
+**Back half — merge and resolve** (`/merge-pr-resolve-issue <N>`), only after the user says to land it:
+
+7. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete the remote branch via the allowlisted `gh api … -X DELETE` call (§ Merging).
+8. **Resolve the issue** — confirm state with `gh issue view <N> --json state,stateReason`:
+   - **Complete fix** — the closing keyword auto-closes it on merge. If it's somehow still open, close explicitly: `gh issue close <N> --comment "Fixed in #<PR>."`.
+   - **Partial fix** — the issue stays open by design; comment a pointer: `gh issue comment <N> --body "Partially addressed by #<PR>. Still pending: <summary>."`.
+
+No CI workflow or git hook is involved — closure rides on GitHub's native closing-keyword behavior plus the post-merge verification in step 8.

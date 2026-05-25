@@ -27,6 +27,13 @@ pre-commit:
 
 pre-push:
   commands:
+    no-direct-main-push:
+      run: |
+        if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ]; then
+          echo "error: direct push to main is not allowed - open a PR instead" >&2
+          exit 1
+        fi
+
     check-translations:
       run: python3 scripts/check_translations.py
 

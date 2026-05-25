@@ -72,6 +72,7 @@ Before sending any Bash command containing `/tmp/`, `sed -i`, `sed -n`, or a one
 
 **Canonical rules:** `AGENTS.md > Commit and PR style`. That section is the single source of truth. Quick summary:
 
+- **Never push directly to `main`** — all changes go through a PR. The `pre-push` lefthook blocks it.
 - **Branch:** `u/jimmyho/<tool>/<short-description>` — tool segment is `claude-code` for Claude Code, `cursor` for Cursor, combined with `+` for multi-tool work (e.g. `cursor+claude`). Kebab-case, no underscores.
 - **Commit subject:** past-tense verb, sentence case, ≤72 chars, ends with period and `(#N)`.
 - **Commit body:** high-level area bullets + `Why:` line + `Co-Authored-By:` footer.

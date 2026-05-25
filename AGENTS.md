@@ -352,15 +352,17 @@ The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-
 1. **Read the issue** — `gh issue view <N>` (add `--comments` if the thread is substantive). Restate the problem and intended fix in a sentence or two before writing code.
 2. **Branch** — `u/jimmyho/claude-code/<short-description>` per the branch-name convention above, off the latest `main`.
 3. **Fix** — implement in code. If the change alters product behavior, specs, or the data model, drive it through OpenSpec (`/opsx:propose` → `/opsx:apply`) rather than hand-editing specs, and honor the cross-cutting checklist (§ Cross-cutting concerns) for any UI-touching change.
-4. **Verify** — the four-step order: `make format` → `make lint-fix` → `make build` → `make test`.
-5. **Open the PR** — push the branch and `gh pr create`, body per the PR-description template, including issue linkage: `Closes #<N>` for a complete fix, or `Refs #<N>` plus a "what's still pending" note for a partial one.
-6. **Stop for review.** Report the PR URL and hand back. Merging waits for an explicit go-ahead from the user.
+4. **OpenSpec verify** — if the fix went through OpenSpec, run `/opsx:verify` and fix everything it flags autonomously. Always run it, even if `/opsx:apply` already verified — apply's check is not a substitute.
+5. **Fresh-eye code review** — review the full branch diff with fresh eyes and fix what you find autonomously: correctness bugs, architectural problems, and serious future-extensibility risks (not style nits the linter owns). Exercise best judgment; only stop to ask the user when a finding genuinely needs their call. Runs **after** the OpenSpec verify in step 4.
+6. **Verify** — the four-step order: `make format` → `make lint-fix` → `make build` → `make test`. Re-run after any step-4/5 fixes so the PR opens green.
+7. **Open the PR** — push the branch and `gh pr create`, body per the PR-description template, including issue linkage: `Closes #<N>` for a complete fix, or `Refs #<N>` plus a "what's still pending" note for a partial one.
+8. **Stop for review.** Report the PR URL and hand back. Merging waits for an explicit go-ahead from the user.
 
 **Back half — merge and resolve** (`/merge-pr <PR>`), only after the user says to land it:
 
-7. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete **both** the remote branch (allowlisted `gh api … -X DELETE`) and the local branch (`git checkout main && git pull --ff-only && git branch -D <branch>`), and run `git fetch --prune` to clear the stale tracking ref. Deleting only the remote leaves a stale local branch — see § Merging.
-8. **Resolve the issue** — confirm state with `gh issue view <N> --json state,stateReason`:
+9. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete **both** the remote branch (allowlisted `gh api … -X DELETE`) and the local branch (`git checkout main && git pull --ff-only && git branch -D <branch>`), and run `git fetch --prune` to clear the stale tracking ref. Deleting only the remote leaves a stale local branch — see § Merging.
+10. **Resolve the issue** — confirm state with `gh issue view <N> --json state,stateReason`:
    - **Complete fix** — the closing keyword auto-closes it on merge. If it's somehow still open, close explicitly: `gh issue close <N> --comment "Fixed in #<PR>."`.
    - **Partial fix** — the issue stays open by design; comment a pointer: `gh issue comment <N> --body "Partially addressed by #<PR>. Still pending: <summary>."`.
 
-No CI workflow or git hook is involved — closure rides on GitHub's native closing-keyword behavior plus the post-merge verification in step 8.
+No CI workflow or git hook is involved — closure rides on GitHub's native closing-keyword behavior plus the post-merge verification in step 10.

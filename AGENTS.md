@@ -297,11 +297,15 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 Always use **Squash and merge**. One PR = one commit on `main`, with the PR number appended by GitHub.
 
-After merging, **delete the remote branch**:
+After merging, **clean up both the remote and the local branch** — deleting only the remote leaves a stale local branch behind:
 
 ```bash
-gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/<branch-name> -X DELETE
+gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/<branch-name> -X DELETE   # remote
+git checkout main && git pull --ff-only                                                       # sync main
+git branch -D <branch-name>                                                                   # local
 ```
+
+`git branch -D` (not `-d`) is required: after a squash-merge the local branch tip isn't an ancestor of the new `main` commit, so `-d` warns or refuses. Only run it once the PR shows as merged.
 
 ### PR description
 
@@ -345,7 +349,7 @@ The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-
 
 **Back half — merge and resolve** (`/merge-pr-resolve-issue <N>`), only after the user says to land it:
 
-7. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete the remote branch via the allowlisted `gh api … -X DELETE` call (§ Merging).
+7. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete **both** the remote branch (allowlisted `gh api … -X DELETE`) and the local branch (`git checkout main && git pull --ff-only && git branch -D <branch>`). Deleting only the remote leaves a stale local branch — see § Merging.
 8. **Resolve the issue** — confirm state with `gh issue view <N> --json state,stateReason`:
    - **Complete fix** — the closing keyword auto-closes it on merge. If it's somehow still open, close explicitly: `gh issue close <N> --comment "Fixed in #<PR>."`.
    - **Partial fix** — the issue stays open by design; comment a pointer: `gh issue comment <N> --body "Partially addressed by #<PR>. Still pending: <summary>."`.

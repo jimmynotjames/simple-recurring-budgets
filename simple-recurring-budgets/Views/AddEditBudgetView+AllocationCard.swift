@@ -8,9 +8,7 @@ extension AddEditBudgetView {
       VStack(alignment: .leading, spacing: 8) {
         HStack(alignment: .center, spacing: 12) {
           HStack(alignment: .firstTextBaseline, spacing: 2) {
-            Text(currencyPrefix)
-              .font(.title2.weight(.semibold))
-              .foregroundStyle(.secondary)
+            allocationAffix(currencyAffixes.leading)
             TextField(
               String(
                 localized: "addEditBudget.field.allocation.placeholder",
@@ -18,7 +16,7 @@ extension AddEditBudgetView {
                 comment: "Placeholder in the allocation amount field when no value is entered"
               ),
               value: $viewModel.allocation,
-              format: OptionalDecimalFormatStyle()
+              format: OptionalDecimalFormatStyle(currencyCode: viewModel.currencyCode)
             )
             .keyboardType(.decimalPad)
             .font(.title2.weight(.semibold).monospacedDigit())
@@ -29,6 +27,7 @@ extension AddEditBudgetView {
                 comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
               )
             )
+            allocationAffix(currencyAffixes.trailing)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -91,8 +90,22 @@ extension AddEditBudgetView {
   }
 
   /// Internal: extension-local helper. Consumed by `allocationCard` above; no other
-  /// call site should read this.
-  var currencyPrefix: String {
-    settings.currencyDisplay.prefix(for: viewModel.currencyCode)
+  /// call site should read this. Leading/trailing currency decoration whose side follows
+  /// the locale's currency convention (see `CurrencyDisplayPreference.affixes(for:locale:)`).
+  var currencyAffixes: (leading: String, trailing: String) {
+    settings.currencyDisplay.affixes(for: viewModel.currencyCode)
+  }
+
+  /// Styled, VoiceOver-hidden currency affix shown beside the allocation field. Renders nothing for an
+  /// empty affix so only the locale-correct side appears. The amount's value is already announced by the
+  /// field's `accessibilityLabel`, so the affix is decorative.
+  @ViewBuilder
+  func allocationAffix(_ text: String) -> some View {
+    if !text.isEmpty {
+      Text(text)
+        .font(.title2.weight(.semibold))
+        .foregroundStyle(.secondary)
+        .accessibilityHidden(true)
+    }
   }
 }

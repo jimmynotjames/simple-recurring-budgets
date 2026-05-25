@@ -57,19 +57,53 @@ enum CurrencyDisplayPreference: String, CaseIterable, Identifiable, Codable {
     return Decimal(25).formatted(currencyCode: code, display: self, locale: locale)
   }
 
-  // MARK: - Prefix
+  // MARK: - Affixes
 
-  /// Currency symbol and/or ISO code for `currencyCode` in this display mode — not a full amount string.
-  func prefix(for currencyCode: String, locale: Locale = .autoupdatingCurrent) -> String {
-    let fmt = NumberFormatter()
-    fmt.numberStyle = .currency
-    fmt.currencyCode = currencyCode
-    fmt.locale = locale
-    let symbol = fmt.currencySymbol ?? currencyCode
+  /// Currency symbol / code text to place around an editable amount field, split into a `leading` part
+  /// (before the digits) and a `trailing` part (after the digits) — not a full amount string.
+  ///
+  /// The keypad-driven amount field can't bake the symbol into its editable text, so the view renders these
+  /// as adjacent decoration. Crucially, the side each part lands on is **derived from the same currency
+  /// `FormatStyle` the display path uses** (`Decimal.formatted(currencyCode:display:locale:)`), so the editor
+  /// agrees with the rest of the app: leading-symbol locales (e.g. "$25") get `leading = "$"`, trailing-symbol
+  /// locales (e.g. "25,00 €") get `trailing = " €"`, including any locale spacing.
+  func affixes(for currencyCode: String, locale: Locale = .autoupdatingCurrent) -> (leading: String, trailing: String) {
     switch self {
-    case .symbol: return symbol
-    case .code: return currencyCode
-    case .codeAndSymbol: return "\(currencyCode) \(symbol)"
+    case .symbol:
+      return Self.splitAffixes(.currency(code: currencyCode).locale(locale))
+    case .code:
+      return Self.splitAffixes(.currency(code: currencyCode).presentation(.isoCode).locale(locale))
+    case .codeAndSymbol:
+      // No native presentation matches the app's "USD $25" concat, so keep the ISO code leading and append
+      // it to whatever the symbol form produces.
+      let (leading, trailing) = Self.splitAffixes(.currency(code: currencyCode).locale(locale))
+      return (leading: "\(currencyCode) \(leading)", trailing: trailing)
     }
+  }
+
+  /// Splits a currency `FormatStyle` into the text before and after the numeric core by formatting a sentinel
+  /// amount as an `AttributedString` and partitioning its runs on the number-part / number-symbol attributes.
+  /// This keeps symbol position and locale spacing exactly aligned with the display formatter.
+  private static func splitAffixes(_ style: Decimal.FormatStyle.Currency) -> (leading: String, trailing: String) {
+    let attributed = Decimal(0).formatted(style.attributed)
+    let runs = Array(attributed.runs)
+
+    func isNumericCore(_ run: AttributedString.Runs.Run) -> Bool {
+      if run.numberPart != nil { return true }
+      switch run.numberSymbol {
+      case .decimalSeparator, .groupingSeparator, .sign: return true
+      default: return false
+      }
+    }
+
+    guard let first = runs.firstIndex(where: isNumericCore),
+          let last = runs.lastIndex(where: isNumericCore)
+    else {
+      return ("", "")
+    }
+    func text(_ slice: ArraySlice<AttributedString.Runs.Run>) -> String {
+      slice.map { String(attributed[$0.range].characters) }.joined()
+    }
+    return (leading: text(runs[..<first]), trailing: text(runs[(last + 1)...]))
   }
 }

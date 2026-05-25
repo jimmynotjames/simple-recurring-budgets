@@ -365,12 +365,12 @@ final class AddEditExpenseViewModel {
 struct AddEditExpenseView: View {
   @State var viewModel: AddEditExpenseViewModel
   @Environment(\.modelContext) private var context
-  @Environment(AppSettings.self) private var settings
+  @Environment(AppSettings.self) var settings
   @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
 
   @State private var showDeleteConfirmation = false
-  @FocusState private var isAmountFocused: Bool
+  @FocusState var isAmountFocused: Bool
 
   var body: some View {
     ScrollView {
@@ -476,49 +476,6 @@ struct AddEditExpenseView: View {
 
   // MARK: - Cards
 
-  private var amountCard: some View {
-    GroupBox {
-      HStack(alignment: .firstTextBaseline, spacing: 2) {
-        Text(currencyPrefix)
-          .font(.title2.weight(.semibold))
-          .foregroundStyle(viewModel.isAddFunds ? Color.moneySurplus : .secondary)
-        TextField(
-          String(
-            localized: "addEditExpense.field.amount.placeholder",
-            defaultValue: "0",
-            comment: "Placeholder in the expense amount field when no value is entered"
-          ),
-          value: $viewModel.amount,
-          format: OptionalDecimalFormatStyle()
-        )
-        .keyboardType(.decimalPad)
-        .font(.title2.weight(.semibold).monospacedDigit())
-        .foregroundStyle(viewModel.isAddFunds ? Color.moneySurplus : .primary)
-        .focused($isAmountFocused)
-        .accessibilityLabel(viewModel.isAddFunds
-          ? String(
-            localized: "addEditExpense.field.amount.accessibilityLabel.addFunds",
-            defaultValue: "Funds amount",
-            comment: "VoiceOver label for the amount field when Add Funds is toggled on (F-6.01)"
-          )
-          : String(
-            localized: "addEditExpense.field.amount.accessibilityLabel",
-            defaultValue: "Expense amount",
-            comment: "VoiceOver label for the expense amount field"
-          )
-        )
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-    } label: {
-      sectionLabel(String(
-        localized: "addEditExpense.section.amount",
-        defaultValue: "Amount",
-        comment: "Section header above the expense amount field"
-      ))
-    }
-    .backgroundStyle(Color("CellBackground"))
-  }
-
   private var nameCard: some View {
     GroupBox {
       TextField(
@@ -582,11 +539,7 @@ struct AddEditExpenseView: View {
 
   // MARK: - Helpers
 
-  private var currencyPrefix: String {
-    settings.currencyDisplay.prefix(for: viewModel.currencyCode)
-  }
-
-  private func sectionLabel(_ text: String) -> some View {
+  func sectionLabel(_ text: String) -> some View {
     Text(text)
       .font(.subheadline)
       .foregroundStyle(.secondary)

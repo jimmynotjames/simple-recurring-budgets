@@ -505,12 +505,12 @@ struct AddEditExpenseViewModelTests {
   }
 
   @Test func optionalDecimalFormat_nil_returnsEmpty() {
-    let style = OptionalDecimalFormatStyle()
+    let style = OptionalDecimalFormatStyle(currencyCode: "USD")
     #expect(style.format(nil) == "")
   }
 
   @Test func optionalDecimalFormat_nonNil_returnsFormattedNumber() {
-    let style = OptionalDecimalFormatStyle()
+    let style = OptionalDecimalFormatStyle(currencyCode: "USD")
     let result = style.format(Decimal(25))
     #expect(!result.isEmpty)
     // The formatted value should contain "25"

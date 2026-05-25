@@ -40,6 +40,13 @@ final class Budget {
 
   var isCarryOverEnabled: Bool = true
 
+  /// Optional decorative icon rendered as a prefix of the name across budget
+  /// surfaces (Budgets list, detail header). `nil` when the user hasn't picked
+  /// one. Stored as `String?` for CloudKit optionality. By convention holds a
+  /// single emoji grapheme; the picker enforces this. Named generically (`icon`,
+  /// not `emoji`) so the column survives if the icon source ever broadens. See F-4.03.
+  var icon: String?
+
   /// CloudKit requires every relationship to be optional. Use `allocationChanges` in app
   /// code — it always returns a non-optional array.
   @Relationship(deleteRule: .cascade, inverse: \AllocationChange.budget)
@@ -132,12 +139,14 @@ final class Budget {
     name: String = "Budget",
     currencyCode: String = Locale.current.currency?.identifier ?? "USD",
     period: BudgetPeriod = .daily,
-    isCarryOverEnabled: Bool = true
+    isCarryOverEnabled: Bool = true,
+    icon: String? = nil
   ) {
     self.name = name
     self.currencyCode = currencyCode
     self.period = period.rawValue
     self.isCarryOverEnabled = isCarryOverEnabled
+    self.icon = icon
   }
 }
 

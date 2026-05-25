@@ -16,6 +16,9 @@ final class AddEditBudgetViewModel {
   // MARK: - Draft state
 
   var name: String
+  /// Optional decorative icon (a single emoji) shown as a prefix of the name.
+  /// `nil` = none. Bound to the budget icon picker on the Add/Edit screen.
+  var icon: String?
   var allocation: Decimal?
   var currencyCode: String
 
@@ -95,6 +98,7 @@ final class AddEditBudgetViewModel {
 
   init(settings: AppSettings) {
     name = ""
+    icon = nil
     allocation = nil
     currencyCode = Locale.current.currency?.identifier ?? "USD"
     period = .daily
@@ -112,6 +116,7 @@ final class AddEditBudgetViewModel {
 
   init(editing budget: Budget) {
     name = budget.name
+    icon = budget.icon
     allocation = budget.currentAllocation
     currencyCode = budget.currencyCode
     period = budget.periodEnum
@@ -200,7 +205,8 @@ final class AddEditBudgetViewModel {
       name: name,
       currencyCode: currencyCode,
       period: period,
-      isCarryOverEnabled: resolvedCarryOver
+      isCarryOverEnabled: resolvedCarryOver,
+      icon: icon
     )
     budget.startDate = computedStartDate
     budget.endDate = computedEndDate
@@ -246,15 +252,21 @@ final class AddEditBudgetViewModel {
     // feed the F-8.02 flags on `budget_edited` (see `docs/analytics-spec.md`
     // §10.1). `nameChanged`, `currencyChanged`, `carryOverToggleChanged` are
     // tracked only to compute the aggregate `changed` gate below — analytics
-    // doesn't surface them per F-8.02 scope. Add a corresponding analytics
-    // property here if F-8.02 ever expands to cover them.
+    // doesn't surface them per F-8.02 scope. `iconChanged` is likewise
+    // gate-only (cosmetic field). Add a corresponding analytics property here if
+    // F-8.02 ever expands to cover them.
     var nameChanged = false
+    var iconChanged = false
     var allocationChanged = false
     var currencyChanged = false
     var carryOverToggleChanged = false
     if budget.name != name {
       budget.name = name
       nameChanged = true
+    }
+    if budget.icon != icon {
+      budget.icon = icon
+      iconChanged = true
     }
     if let newAlloc = allocation, budget.currentAllocation != newAlloc {
       BudgetLifecycleService.applyAllocationEdit(
@@ -273,7 +285,7 @@ final class AddEditBudgetViewModel {
       carryOverToggleChanged = true
     }
     let dateEdits = applyDateEdits(to: budget)
-    let changed = nameChanged || allocationChanged || currencyChanged
+    let changed = nameChanged || iconChanged || allocationChanged || currencyChanged
       || carryOverToggleChanged || dateEdits.startChanged || dateEdits.endChanged
     if changed {
       budget.lastModified = Date()

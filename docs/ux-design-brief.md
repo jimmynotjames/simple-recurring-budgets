@@ -36,4 +36,4 @@ A simple **nav stack** — Budgets → Budget → Expense — with Settings reac
 
 ## iOS Platform Notes
 
-Follow Apple HIG and industry UX best practices where not overridden above. Support Dynamic Type, Dark Mode, VoiceOver, and Reduce Motion as baseline (per PRD §6.4). Use **SF Symbols** throughout; no custom iconography in the default skin. Layouts must adapt cleanly across iPhone, iPad, and macOS targets (per PRD §6.1).
+Follow Apple HIG and industry UX best practices where not overridden above. Support Dynamic Type, Dark Mode, VoiceOver, and Reduce Motion as baseline (per PRD §6.4). Use **SF Symbols** throughout for app chrome and controls; no custom iconography in the default skin. (Exception: a user may choose an optional **emoji** as a per-Budget icon — that's user content, not app chrome — from the app's curated set; see F-4.03.) Layouts must adapt cleanly across iPhone, iPad, and macOS targets (per PRD §6.1).

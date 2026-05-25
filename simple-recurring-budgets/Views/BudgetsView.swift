@@ -173,6 +173,21 @@ struct BudgetRowView: View {
     lifecycle?.remaining ?? 0
   }
 
+  /// The budget name, optionally prefixed by the budget's `icon` emoji. The icon is
+  /// a separate leading view (not a string prefix) so it mirrors with layout
+  /// direction — in RTL it sits on the right, the leading edge. The trailing space
+  /// baked into the icon text reproduces a single text-space gap, so `spacing` is 0.
+  /// The emoji is decorative — VoiceOver reads the explicit `.accessibilityLabel`
+  /// below, which omits it.
+  private var nameText: some View {
+    HStack(alignment: .firstTextBaseline, spacing: 0) {
+      if let icon = budget.icon, !icon.isEmpty {
+        Text(verbatim: "\(icon) ")
+      }
+      Text(budget.name)
+    }
+  }
+
   var body: some View {
     HStack(alignment: .center, spacing: 0) {
       // Outer VStack groups the tappable row content with the carry-over chip.
@@ -183,7 +198,7 @@ struct BudgetRowView: View {
           router.path.append(.budgetDetail(budget))
         } label: {
           VStack(alignment: .leading, spacing: rowSpacing) {
-            Text(budget.name)
+            nameText
               .font(.body)
               .foregroundStyle(.primary)
               .lineLimit(2)
@@ -291,6 +306,8 @@ private struct BudgetsPreview: View {
   }
 }
 
+// Seeded fixtures carry icons on a few budgets (see DebugData), so these show the
+// emoji prefix on some rows and name-only on others.
 #Preview("Light Mode") { BudgetsPreview() }
 #Preview("Dark Mode") { BudgetsPreview().preferredColorScheme(.dark) }
 // Just below reformatting threshold.

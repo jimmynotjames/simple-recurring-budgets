@@ -303,9 +303,10 @@ After merging, **clean up both the remote and the local branch** — deleting on
 gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/<branch-name> -X DELETE   # remote
 git checkout main && git pull --ff-only                                                       # sync main
 git branch -D <branch-name>                                                                   # local
+git fetch --prune                                                                             # stale tracking ref
 ```
 
-`git branch -D` (not `-d`) is required: after a squash-merge the local branch tip isn't an ancestor of the new `main` commit, so `-d` warns or refuses. Only run it once the PR shows as merged.
+`git branch -D` (not `-d`) is required: after a squash-merge the local branch tip isn't an ancestor of the new `main` commit, so `-d` warns or refuses. Only run it once the PR shows as merged. `git fetch --prune` clears the stale `origin/<branch-name>` remote-tracking ref that `git pull --ff-only` leaves behind — without it the deleted branch lingers in `git branch -a`.
 
 ### PR description
 
@@ -349,7 +350,7 @@ The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-
 
 **Back half — merge and resolve** (`/merge-pr-resolve-issue <N>`), only after the user says to land it:
 
-7. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete **both** the remote branch (allowlisted `gh api … -X DELETE`) and the local branch (`git checkout main && git pull --ff-only && git branch -D <branch>`). Deleting only the remote leaves a stale local branch — see § Merging.
+7. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete **both** the remote branch (allowlisted `gh api … -X DELETE`) and the local branch (`git checkout main && git pull --ff-only && git branch -D <branch>`), and run `git fetch --prune` to clear the stale tracking ref. Deleting only the remote leaves a stale local branch — see § Merging.
 8. **Resolve the issue** — confirm state with `gh issue view <N> --json state,stateReason`:
    - **Complete fix** — the closing keyword auto-closes it on merge. If it's somehow still open, close explicitly: `gh issue close <N> --comment "Fixed in #<PR>."`.
    - **Partial fix** — the issue stays open by design; comment a pointer: `gh issue comment <N> --body "Partially addressed by #<PR>. Still pending: <summary>."`.

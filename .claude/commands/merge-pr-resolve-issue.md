@@ -11,6 +11,7 @@ The PR #$1 has been reviewed and approved to land. Execute the **Issue-driven wo
 4. Clean up **both** branches — deleting only the remote leaves a stale local branch:
    - Remote: `gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/<branch> -X DELETE`.
    - Local: `git checkout main && git pull --ff-only && git branch -D <branch>` (`-D`, since a squash-merge leaves the local tip un-ancestored).
+   - Stale tracking ref: `git fetch --prune` (clears the `origin/<branch>` ref that `git pull --ff-only` leaves behind).
 5. Resolve the linked issue:
    - **Complete fix** — verify it auto-closed with `gh issue view <N> --json state,stateReason`. If still open, close explicitly: `gh issue close <N> --comment "Fixed in #$1."`.
    - **Partial fix** — leave it open and comment a pointer: `gh issue comment <N> --body "Partially addressed by #$1. Still pending: <summary>."`.

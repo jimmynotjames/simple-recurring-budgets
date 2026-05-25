@@ -90,7 +90,7 @@
       "Bash(gh issue edit *)",
       "Bash(gh repo *)",
       "Bash(gh label *)",
-      "Bash(gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/* -X DELETE)",
+      "Bash(gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/*)",
       "Skill(openspec-sync-specs)",
       "Skill(openspec-apply-change)",
       "Skill(openspec-archive-change)",

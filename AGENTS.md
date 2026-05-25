@@ -258,6 +258,12 @@ Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one
 
 ## Commit and PR style
 
+### Never push directly to `main`
+
+All changes go through a PR. **Never push commits directly to `main`**, even for small fixes or config tweaks. The `pre-push` lefthook enforces this and will block the push.
+
+The correct flow: create a feature branch → commit → push the branch → open a PR → squash-merge.
+
 ### Branch names
 
 Format: `u/jimmyho/<tool>/<short-description>`

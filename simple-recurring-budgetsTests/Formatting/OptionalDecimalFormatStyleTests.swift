@@ -64,6 +64,22 @@ struct OptionalDecimalFormatStyleTests {
     let strategy = OptionalDecimalParseStrategy(locale: deDE)
     #expect(try strategy.parse("1,5") == Decimal(string: "1.5"))
   }
+
+  /// Regression: the `.decimalPad` emits Arabic-Indic digits in ar_EG / ar_SA, and the old
+  /// `Decimal(string:locale:)` returned nil for them, so the field rejected every keystroke.
+  @Test func parse_acceptsArabicIndicDigits() throws {
+    let strategy = OptionalDecimalParseStrategy(locale: Locale(identifier: "ar_EG"))
+    #expect(try strategy.parse("١٢٣") == Decimal(123))
+    #expect(try strategy.parse("١٢٣٫٥") == Decimal(string: "123.5"))
+  }
+
+  /// What the field actually does: render a value, then parse the rendered string back.
+  @Test func formatThenParse_roundTrips_arabicIndic() throws {
+    let arEG = Locale(identifier: "ar_EG")
+    let style = OptionalDecimalFormatStyle(currencyCode: "EGP", locale: arEG)
+    let rendered = style.format(Decimal(25))
+    #expect(try style.parseStrategy.parse(rendered) == Decimal(25))
+  }
 }
 
 @Suite("CurrencyDisplayPreference.affixes")

@@ -54,9 +54,10 @@ struct OptionalDecimalParseStrategy: ParseStrategy {
   func parse(_ value: String) throws -> Decimal? {
     let trimmed = value.trimmingCharacters(in: .whitespaces)
     guard !trimmed.isEmpty else { return nil }
-    guard let decimal = Decimal(string: trimmed, locale: locale) else {
-      throw CocoaError(.formatting)
-    }
-    return decimal
+    // Parse through a locale-aware `.number` style rather than `Decimal(string:locale:)`. The latter returns
+    // nil for non-Western digits — e.g. the Arabic-Indic numerals (٠١٢٣…) the `.decimalPad` emits in
+    // ar_EG / ar_SA — which made the field reject every keystroke in those locales. The FormatStyle parser
+    // accepts the same digits its formatter produces, plus Western input and locale grouping separators.
+    return try Decimal(trimmed, format: Decimal.FormatStyle(locale: locale))
   }
 }

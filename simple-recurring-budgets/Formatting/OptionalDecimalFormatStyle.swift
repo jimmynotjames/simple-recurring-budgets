@@ -6,7 +6,8 @@ import Foundation
 /// `TextField(value:format:)` rejects keystrokes whenever parsing throws (which broke entry in RTL /
 /// non-Western-digit locales) and `TextField(text:)` + `.onChange` into an `@Observable` model fails to
 /// render typed text until focus resigns. Callers seed the field via `editableText(_:)` and convert edits
-/// back with `parseStrategy`.
+/// back with `parseStrategy`. (If those SwiftUI bugs are fixed, this type can back a native `TextField`
+/// directly again — see issue #122.)
 ///
 /// It is **currency-aware**: `editableText(_:)` seeds an existing value at the currency's minor-unit
 /// precision (e.g. 3 digits for BHD, 0 for JPY); `parse` is locale-aware and accepts whatever numbering

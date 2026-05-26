@@ -16,6 +16,13 @@ import UIKit
 ///
 /// The delegate also caps input to the currency's minor-unit precision live: no decimal separator at all for
 /// 0-decimal currencies (JPY, KRW, …), and at most `maxFractionDigits` fraction digits otherwise.
+///
+/// **Revisit when SwiftUI improves (tracked in issue #122):** this is a workaround, not a preference. If
+/// either bug above is fixed in a future iOS, delete this wrapper and the UIKit interop and move back to a
+/// native SwiftUI field — `TextField(value:format:)` if the parse round-trip becomes reliable, or
+/// `TextField(text:)` + `.onChange` otherwise. `OptionalDecimalFormatStyle` already holds the
+/// conversion/seed/parse logic the native path would reuse, and `.decimalPad` + a number `FormatStyle` would
+/// cover most of the fraction capping done here by hand. Re-verify the Arabic / JPY / BHD / EUR cases first.
 struct DecimalInputField: UIViewRepresentable {
   let placeholder: String
   @Binding var text: String

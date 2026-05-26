@@ -476,44 +476,44 @@ struct AddEditExpenseViewModelTests {
     #expect(afterCount == originalCount)
   }
 
-  // MARK: - 5.19  OptionalDecimalFormatStyle parsing
+  // MARK: - 5.19  EditableAmountConverter parsing
 
   @Test func optionalDecimalParse_emptyString_returnsNil() throws {
-    let strategy = OptionalDecimalParseStrategy()
+    let strategy = EditableAmountParser()
     let result = try strategy.parse("")
     #expect(result == nil)
   }
 
   @Test func optionalDecimalParse_whitespaceOnly_returnsNil() throws {
-    let strategy = OptionalDecimalParseStrategy()
+    let strategy = EditableAmountParser()
     let result = try strategy.parse("   ")
     #expect(result == nil)
   }
 
   @Test func optionalDecimalParse_validNumber_returnsDecimal() throws {
-    let strategy = OptionalDecimalParseStrategy()
+    let strategy = EditableAmountParser()
     // Use a locale-agnostic integer string to keep the assertion deterministic
     let result = try strategy.parse("25")
     #expect(result == Decimal(25))
   }
 
   @Test func optionalDecimalParse_malformedString_throws() throws {
-    let strategy = OptionalDecimalParseStrategy()
+    let strategy = EditableAmountParser()
     #expect(throws: CocoaError.self) {
       try strategy.parse("abc")
     }
   }
 
-  @Test func optionalDecimalFormat_nil_returnsEmpty() {
-    let style = OptionalDecimalFormatStyle(currencyCode: "USD")
-    #expect(style.format(nil) == "")
+  @Test func optionalDecimalEditableText_nil_returnsEmpty() {
+    let style = EditableAmountConverter(currencyCode: "USD")
+    #expect(style.editableText(nil) == "")
   }
 
-  @Test func optionalDecimalFormat_nonNil_returnsFormattedNumber() {
-    let style = OptionalDecimalFormatStyle(currencyCode: "USD")
-    let result = style.format(Decimal(25))
+  @Test func optionalDecimalEditableText_nonNil_returnsSeedString() {
+    let style = EditableAmountConverter(currencyCode: "USD")
+    let result = style.editableText(Decimal(25))
     #expect(!result.isEmpty)
-    // The formatted value should contain "25"
+    // The seeded value should contain "25"
     #expect(result.contains("25"))
   }
 

@@ -370,10 +370,6 @@ struct AddEditExpenseView: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var showDeleteConfirmation = false
-  /// `String`-backed text for the Amount field (see `OptionalDecimalFormatStyle` for why the field is
-  /// text-backed rather than `value:format:`). Seeded from `viewModel.amount` on appear; parsed back to the
-  /// draft on change.
-  @State var amountText: String = ""
 
   var body: some View {
     ScrollView {
@@ -389,11 +385,6 @@ struct AddEditExpenseView: View {
       .padding(.horizontal)
       .padding(.top, 8)
       .padding(.bottom, 32)
-    }
-    .onAppear {
-      // Seed the field text from the draft. Auto-focus in Add mode is handled by
-      // `DecimalInputField(autoFocus:)` (spec: "Add mode auto-focuses the Amount field; Edit/View mode does not").
-      amountText = amountConverter.editableText(viewModel.amount)
     }
     .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)

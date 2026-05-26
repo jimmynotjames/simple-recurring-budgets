@@ -12,7 +12,7 @@ import UIKit
 ///
 /// Wrapping `UITextField` sidesteps both: the text view owns its text and reports edits via its delegate,
 /// with no SwiftUI binding round-trip during editing. Callers parse `text` into a `Decimal?` themselves
-/// (see `OptionalDecimalFormatStyle`). This mirrors how community currency-field libraries are built.
+/// (see `EditableAmountConverter`). This mirrors how community currency-field libraries are built.
 ///
 /// The delegate also caps input to the currency's minor-unit precision live: no decimal separator at all for
 /// 0-decimal currencies (JPY, KRW, …), and at most `maxFractionDigits` fraction digits otherwise.
@@ -20,7 +20,7 @@ import UIKit
 /// **Revisit when SwiftUI improves (tracked in issue #122):** this is a workaround, not a preference. If
 /// either bug above is fixed in a future iOS, delete this wrapper and the UIKit interop and move back to a
 /// native SwiftUI field — `TextField(value:format:)` if the parse round-trip becomes reliable, or
-/// `TextField(text:)` + `.onChange` otherwise. `OptionalDecimalFormatStyle` already holds the
+/// `TextField(text:)` + `.onChange` otherwise. `EditableAmountConverter` already holds the
 /// conversion/seed/parse logic the native path would reuse, and `.decimalPad` + a number `FormatStyle` would
 /// cover most of the fraction capping done here by hand. Re-verify the Arabic / JPY / BHD / EUR cases first.
 struct DecimalInputField: UIViewRepresentable {
@@ -38,20 +38,19 @@ struct DecimalInputField: UIViewRepresentable {
   var accessibilityLabel: String
 
   private var maxFractionDigits: Int {
-    OptionalDecimalFormatStyle.fractionDigits(for: currencyCode, locale: locale)
+    EditableAmountConverter.fractionDigits(for: currencyCode, locale: locale)
   }
 
-  /// Decimal-separator characters to recognize while capping fraction digits. Includes the locale's own
-  /// separator (what the `.decimalPad` emits) plus common variants so paste/edge cases are handled.
+  /// Decimal-separator character(s) to recognize while capping fraction digits: exactly the locale's own
+  /// separator — the only one the `.decimalPad` emits for this locale (".", ",", Arabic "٫", …). Deriving it
+  /// from the locale rather than hardcoding a dot/comma grab-bag keeps the cap correct in comma-decimal
+  /// locales, where a "." is a *grouping* separator and must not be miscounted as a second decimal point.
   private var separators: Set<Character> {
     let formatter = NumberFormatter()
     formatter.locale = locale
     formatter.numberStyle = .decimal
-    var set: Set<Character> = [".", ",", "\u{066B}"] // dot, comma, Arabic decimal separator
-    if let localeSeparator = formatter.decimalSeparator?.first {
-      set.insert(localeSeparator)
-    }
-    return set
+    guard let separator = formatter.decimalSeparator?.first else { return ["."] }
+    return [separator]
   }
 
   func makeUIView(context: Context) -> UITextField {

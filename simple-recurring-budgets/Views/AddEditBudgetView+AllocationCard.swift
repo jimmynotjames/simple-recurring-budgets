@@ -7,30 +7,21 @@ extension AddEditBudgetView {
     GroupBox {
       VStack(alignment: .leading, spacing: 8) {
         HStack(alignment: .center, spacing: 12) {
-          HStack(alignment: .firstTextBaseline, spacing: 2) {
-            allocationAffix(currencyAffixes.leading)
-            DecimalInputField(
-              placeholder: String(
-                localized: "addEditBudget.field.allocation.placeholder",
-                defaultValue: "0",
-                comment: "Placeholder in the allocation amount field when no value is entered"
-              ),
-              text: $allocationText,
-              currencyCode: viewModel.currencyCode,
-              accessibilityLabel: String(
-                localized: "addEditBudget.field.allocation.accessibilityLabel",
-                defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
-                comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
-              )
+          CurrencyAmountField(
+            value: $viewModel.allocation,
+            currencyCode: viewModel.currencyCode,
+            currencyDisplay: settings.currencyDisplay,
+            placeholder: String(
+              localized: "addEditBudget.field.allocation.placeholder",
+              defaultValue: "0",
+              comment: "Placeholder in the allocation amount field when no value is entered"
+            ),
+            accessibilityLabel: String(
+              localized: "addEditBudget.field.allocation.accessibilityLabel",
+              defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
+              comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
             )
-            .frame(maxWidth: .infinity)
-            .onAppear { allocationText = amountConverter.editableText(viewModel.allocation) }
-            .onChange(of: allocationText) { _, newValue in
-              viewModel.allocation = (try? amountConverter.parseStrategy.parse(newValue))
-            }
-            allocationAffix(currencyAffixes.trailing)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
+          )
 
           Button {
             showCurrencyPicker = true
@@ -87,31 +78,6 @@ extension AddEditBudgetView {
         comment: "Inline note shown below the currency picker when the user selects a different currency, warning that no conversion is applied"
       )
       AccessibilityNotification.Announcement(disclaimer).post()
-    }
-  }
-
-  /// Internal: extension-local helper. Consumed by `allocationCard` above; no other
-  /// call site should read this. Leading/trailing currency decoration whose side follows
-  /// the locale's currency convention (see `CurrencyDisplayPreference.affixes(for:locale:)`).
-  var currencyAffixes: (leading: String, trailing: String) {
-    settings.currencyDisplay.affixes(for: viewModel.currencyCode)
-  }
-
-  /// Converts between the draft `Decimal?` and the field's `String` for the budget's currency/locale.
-  var amountConverter: OptionalDecimalFormatStyle {
-    OptionalDecimalFormatStyle(currencyCode: viewModel.currencyCode)
-  }
-
-  /// Styled, VoiceOver-hidden currency affix shown beside the allocation field. Renders nothing for an
-  /// empty affix so only the locale-correct side appears. The amount's value is already announced by the
-  /// field's `accessibilityLabel`, so the affix is decorative.
-  @ViewBuilder
-  func allocationAffix(_ text: String) -> some View {
-    if !text.isEmpty {
-      Text(text)
-        .font(.title2.weight(.semibold))
-        .foregroundStyle(.secondary)
-        .accessibilityHidden(true)
     }
   }
 }

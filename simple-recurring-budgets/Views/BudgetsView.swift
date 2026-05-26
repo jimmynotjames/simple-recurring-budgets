@@ -106,6 +106,7 @@ struct BudgetsView: View {
         ))
       }
       .buttonStyle(.borderedProminent)
+      .controlSize(.large)
     }
   }
 

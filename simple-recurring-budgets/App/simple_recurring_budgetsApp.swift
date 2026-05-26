@@ -142,12 +142,26 @@ struct simple_recurring_budgetsApp: App {
   private static func makeProductionModelContainer() -> (ModelContainer, SyncStatus.ContainerBacking) {
     let schema = SchemaV1.swiftDataSchema
 
+    // Anchor both the CloudKit-enabled and local-only configurations to a single
+    // explicit on-disk store URL. Without this, the two configurations rely on
+    // SwiftData's *implicit* default store path; if those paths ever diverged
+    // (the "split-brain" risk in issue #1), an offline first launch would write
+    // to one file and a later online launch would open a different, empty file,
+    // making the user's first-session data appear to vanish. Asking SwiftData
+    // for the default configuration's own `url` (rather than hardcoding a path)
+    // guarantees we pin to the exact location existing installs already use, so
+    // both configurations resolve to the same file across launches — only the
+    // CloudKit mirroring differs.
+    let storeURL = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false).url
+
     // Try CloudKit-backed storage first. CloudKit requires an active iCloud account;
     // fall back to local-only storage when unavailable (e.g., Simulator without a
-    // signed-in account, or offline first launch).
+    // signed-in account, or offline first launch). Both paths share `storeURL`, so
+    // the local-only store is promoted to CloudKit-backed in place once iCloud
+    // becomes available — no data is stranded in a forked store.
     let cloudConfig = ModelConfiguration(
       schema: schema,
-      isStoredInMemoryOnly: false,
+      url: storeURL,
       cloudKitDatabase: .automatic
     )
     if let container = try? ModelContainer(
@@ -163,7 +177,7 @@ struct simple_recurring_budgetsApp: App {
 
     let localConfig = ModelConfiguration(
       schema: schema,
-      isStoredInMemoryOnly: false,
+      url: storeURL,
       cloudKitDatabase: .none
     )
     do {

@@ -131,6 +131,8 @@ This app has not shipped to the App Store — it is greenfield. Schema changes a
 
 SwiftData persistence with `cloudKitDatabase: .automatic` on `ModelConfiguration` enables CloudKit sync with the default container. This is the simplest integration path for SwiftData-backed CloudKit apps.
 
+**Single-store guarantee (split-brain prevention).** `makeProductionModelContainer` tries a CloudKit-enabled config first and falls back to a local-only (`cloudKitDatabase: .none`) config when iCloud is unavailable (offline / not signed in). Both configs are pinned to one shared on-disk store `url`, obtained from `ModelConfiguration(schema:isStoredInMemoryOnly:false).url` (SwiftData's own default path, so existing installs keep their current store). Pinning the URL guarantees the two configs can never resolve to different files: an offline first launch writes to the store, and a later online launch opens that **same** store and attaches CloudKit mirroring in place — the local data is promoted to the cloud rather than stranded in a forked, empty store. The `PersistentStoreURLTests` lock in the invariant that a config's `url` is independent of its `cloudKitDatabase` setting.
+
 ### 4.2 CloudKit Setup Requirements
 
 - **iCloud container identifier**: Must be set in entitlements (currently empty — needs a value like `iCloud.com.jimmyho.simple-recurring-budgets`).

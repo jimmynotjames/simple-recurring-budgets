@@ -1,4 +1,17 @@
 {
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/hooks/guard_bash_hygiene.sh"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "defaultMode": "acceptEdits",
     "allow": [
@@ -108,7 +121,6 @@
       "Agent(general-purpose)",
       "Agent(Explore)",
       "Bash(awk *)",
-      "Bash(sed -n *)",
       "Bash(jq *)",
       "Bash(tee tmp/*)",
       "Bash(rm -f tmp/*)",

@@ -7,30 +7,21 @@ extension AddEditBudgetView {
     GroupBox {
       VStack(alignment: .leading, spacing: 8) {
         HStack(alignment: .center, spacing: 12) {
-          HStack(alignment: .firstTextBaseline, spacing: 2) {
-            Text(currencyPrefix)
-              .font(.title2.weight(.semibold))
-              .foregroundStyle(.secondary)
-            TextField(
-              String(
-                localized: "addEditBudget.field.allocation.placeholder",
-                defaultValue: "0",
-                comment: "Placeholder in the allocation amount field when no value is entered"
-              ),
-              value: $viewModel.allocation,
-              format: OptionalDecimalFormatStyle()
+          CurrencyAmountField(
+            value: $viewModel.allocation,
+            currencyCode: viewModel.currencyCode,
+            currencyDisplay: settings.currencyDisplay,
+            placeholder: String(
+              localized: "addEditBudget.field.allocation.placeholder",
+              defaultValue: "0",
+              comment: "Placeholder in the allocation amount field when no value is entered"
+            ),
+            accessibilityLabel: String(
+              localized: "addEditBudget.field.allocation.accessibilityLabel",
+              defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
+              comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
             )
-            .keyboardType(.decimalPad)
-            .font(.title2.weight(.semibold).monospacedDigit())
-            .accessibilityLabel(
-              String(
-                localized: "addEditBudget.field.allocation.accessibilityLabel",
-                defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
-                comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
-              )
-            )
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
+          )
 
           Button {
             showCurrencyPicker = true
@@ -88,11 +79,5 @@ extension AddEditBudgetView {
       )
       AccessibilityNotification.Announcement(disclaimer).post()
     }
-  }
-
-  /// Internal: extension-local helper. Consumed by `allocationCard` above; no other
-  /// call site should read this.
-  var currencyPrefix: String {
-    settings.currencyDisplay.prefix(for: viewModel.currencyCode)
   }
 }

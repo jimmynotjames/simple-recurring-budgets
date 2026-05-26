@@ -9,24 +9,24 @@ extension AddEditBudgetView {
         HStack(alignment: .center, spacing: 12) {
           HStack(alignment: .firstTextBaseline, spacing: 2) {
             allocationAffix(currencyAffixes.leading)
-            TextField(
-              String(
+            DecimalInputField(
+              placeholder: String(
                 localized: "addEditBudget.field.allocation.placeholder",
                 defaultValue: "0",
                 comment: "Placeholder in the allocation amount field when no value is entered"
               ),
-              value: $viewModel.allocation,
-              format: OptionalDecimalFormatStyle(currencyCode: viewModel.currencyCode)
-            )
-            .keyboardType(.decimalPad)
-            .font(.title2.weight(.semibold).monospacedDigit())
-            .accessibilityLabel(
-              String(
+              text: $allocationText,
+              accessibilityLabel: String(
                 localized: "addEditBudget.field.allocation.accessibilityLabel",
                 defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
                 comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
               )
             )
+            .frame(maxWidth: .infinity)
+            .onAppear { allocationText = amountConverter.editableText(viewModel.allocation) }
+            .onChange(of: allocationText) { _, newValue in
+              viewModel.allocation = (try? amountConverter.parseStrategy.parse(newValue))
+            }
             allocationAffix(currencyAffixes.trailing)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
@@ -94,6 +94,11 @@ extension AddEditBudgetView {
   /// the locale's currency convention (see `CurrencyDisplayPreference.affixes(for:locale:)`).
   var currencyAffixes: (leading: String, trailing: String) {
     settings.currencyDisplay.affixes(for: viewModel.currencyCode)
+  }
+
+  /// Converts between the draft `Decimal?` and the field's `String` for the budget's currency/locale.
+  var amountConverter: OptionalDecimalFormatStyle {
+    OptionalDecimalFormatStyle(currencyCode: viewModel.currencyCode)
   }
 
   /// Styled, VoiceOver-hidden currency affix shown beside the allocation field. Renders nothing for an

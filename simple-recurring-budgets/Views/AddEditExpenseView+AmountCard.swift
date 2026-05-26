@@ -7,31 +7,31 @@ extension AddEditExpenseView {
     GroupBox {
       HStack(alignment: .firstTextBaseline, spacing: 2) {
         amountAffix(currencyAffixes.leading)
-        TextField(
-          String(
+        DecimalInputField(
+          placeholder: String(
             localized: "addEditExpense.field.amount.placeholder",
             defaultValue: "0",
             comment: "Placeholder in the expense amount field when no value is entered"
           ),
-          value: $viewModel.amount,
-          format: OptionalDecimalFormatStyle(currencyCode: viewModel.currencyCode)
+          text: $amountText,
+          autoFocus: !viewModel.isEditing,
+          textColor: viewModel.isAddFunds ? Color.moneySurplus : .primary,
+          accessibilityLabel: viewModel.isAddFunds
+            ? String(
+              localized: "addEditExpense.field.amount.accessibilityLabel.addFunds",
+              defaultValue: "Funds amount",
+              comment: "VoiceOver label for the amount field when Add Funds is toggled on (F-6.01)"
+            )
+            : String(
+              localized: "addEditExpense.field.amount.accessibilityLabel",
+              defaultValue: "Expense amount",
+              comment: "VoiceOver label for the expense amount field"
+            )
         )
-        .keyboardType(.decimalPad)
-        .font(.title2.weight(.semibold).monospacedDigit())
-        .foregroundStyle(viewModel.isAddFunds ? Color.moneySurplus : .primary)
-        .focused($isAmountFocused)
-        .accessibilityLabel(viewModel.isAddFunds
-          ? String(
-            localized: "addEditExpense.field.amount.accessibilityLabel.addFunds",
-            defaultValue: "Funds amount",
-            comment: "VoiceOver label for the amount field when Add Funds is toggled on (F-6.01)"
-          )
-          : String(
-            localized: "addEditExpense.field.amount.accessibilityLabel",
-            defaultValue: "Expense amount",
-            comment: "VoiceOver label for the expense amount field"
-          )
-        )
+        .frame(maxWidth: .infinity)
+        .onChange(of: amountText) { _, newValue in
+          viewModel.amount = (try? amountConverter.parseStrategy.parse(newValue))
+        }
         amountAffix(currencyAffixes.trailing)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,6 +49,11 @@ extension AddEditExpenseView {
   /// (see `CurrencyDisplayPreference.affixes(for:locale:)`), so the editor matches the display path.
   private var currencyAffixes: (leading: String, trailing: String) {
     settings.currencyDisplay.affixes(for: viewModel.currencyCode)
+  }
+
+  /// Converts between the draft `Decimal?` and the field's `String` for the expense's currency/locale.
+  var amountConverter: OptionalDecimalFormatStyle {
+    OptionalDecimalFormatStyle(currencyCode: viewModel.currencyCode)
   }
 
   /// Styled, VoiceOver-hidden currency affix shown beside the amount field. Renders nothing for an empty

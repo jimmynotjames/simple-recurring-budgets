@@ -25,6 +25,10 @@ struct AddEditBudgetView: View {
   @State private var showOrphanWarning = false
   @State private var showIconPicker = false
   @State var initialCurrencyCode: String = ""
+  /// `String`-backed text for the Allocation field (see `OptionalDecimalFormatStyle` for why the field is
+  /// text-backed rather than `value:format:`). Seeded from `viewModel.allocation` on appear; parsed back to
+  /// the draft on change.
+  @State var allocationText: String = ""
   @State var isScheduleExpanded: Bool = false
   @FocusState private var isNameFocused: Bool
 

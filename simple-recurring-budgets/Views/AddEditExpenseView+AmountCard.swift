@@ -14,6 +14,7 @@ extension AddEditExpenseView {
             comment: "Placeholder in the expense amount field when no value is entered"
           ),
           text: $amountText,
+          currencyCode: viewModel.currencyCode,
           autoFocus: !viewModel.isEditing,
           textColor: viewModel.isAddFunds ? Color.moneySurplus : .primary,
           accessibilityLabel: viewModel.isAddFunds

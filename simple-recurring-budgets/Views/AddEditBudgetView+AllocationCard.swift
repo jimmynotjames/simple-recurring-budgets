@@ -16,6 +16,7 @@ extension AddEditBudgetView {
                 comment: "Placeholder in the allocation amount field when no value is entered"
               ),
               text: $allocationText,
+              currencyCode: viewModel.currencyCode,
               accessibilityLabel: String(
                 localized: "addEditBudget.field.allocation.accessibilityLabel",
                 defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",

@@ -291,7 +291,10 @@ struct BudgetDetailView: View {
       guard newPhase == .active else { return }
       refreshLifecycle()
     }
-    .onChange(of: budget.lastModified) {
+    // Recompute when the budget OR any of its children change — including a CloudKit
+    // remote merge that brings in expenses without re-bumping `budget.lastModified`
+    // (issue #127). See `Budget.recomputeToken`.
+    .onChange(of: budget.recomputeToken) {
       refreshLifecycle()
     }
   }

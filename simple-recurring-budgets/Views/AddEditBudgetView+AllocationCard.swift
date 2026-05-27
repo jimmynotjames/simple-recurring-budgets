@@ -24,6 +24,9 @@ extension AddEditBudgetView {
           )
 
           Button {
+            // Retire the keyboard before the currency sheet covers it, so it doesn't
+            // spring back up when the sheet is dismissed.
+            dismissKeyboard()
             showCurrencyPicker = true
           } label: {
             HStack(spacing: 4) {

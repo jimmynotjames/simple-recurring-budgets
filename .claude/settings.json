@@ -138,6 +138,7 @@
       "Bash(head *)",
       "Bash(tail *)",
       "Bash(wc *)",
+      "Bash(cd *)",
       "Bash(plutil -convert xml1 -o - -)",
       "WebSearch",
       "WebFetch(domain:www.hackingwithswift.com)"

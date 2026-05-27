@@ -89,6 +89,10 @@ struct DateColumn: View {
 
   var body: some View {
     Button {
+      // Retire any keyboard left up by name/allocation editing before the picker sheet
+      // covers it. Without this, iOS restores the prior first responder when the sheet
+      // is dismissed and the keyboard springs back up over the form.
+      dismissKeyboard()
       // Floor the draft at minDate so it can never land below the picker's allowed
       // range. The VM's snap-forward keeps `date >= minDate` in normal flow; this
       // guard covers regressions and any future caller that wires `minDate` directly.

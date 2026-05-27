@@ -54,6 +54,7 @@ struct AddEditBudgetView: View {
         .padding(.bottom, 32)
         .animation(.easeInOut(duration: 0.2), value: isSpecificDates)
       }
+      .scrollDismissesKeyboard(.interactively)
       .onAppear {
         initialCurrencyCode = viewModel.currencyCode
         if !viewModel.isEditing {
@@ -384,6 +385,10 @@ struct AddEditBudgetView: View {
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     } else {
       Button {
+        // A Period chip is not a text field, so selecting one should retire the keyboard
+        // left up by prior name/allocation editing — otherwise it covers the Dates card
+        // that appears when switching to Specific Dates.
+        dismissKeyboard()
         withAnimation(.easeInOut(duration: 0.15)) {
           viewModel.period = p
         }

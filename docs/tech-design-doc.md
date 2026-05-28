@@ -179,6 +179,32 @@ Key constraints:
 
 **SyncStatus environment value:** `SyncStatus` is an `@Observable final class` injected into the SwiftUI environment via `.environment(syncStatus)` in `simple_recurring_budgetsApp`. It carries two properties: `containerBacking: ContainerBacking` (`.cloudKit` or `.localFallback`), which is determined once at launch from the outcome of `makeProductionModelContainer` and never mutated; and `accountStatus: AccountStatus` (`.checking`, `.available`, or `.unavailable`), which is updated asynchronously by `SettingsView` via `CKContainer.default().accountStatus()` and live `CKAccountChanged` / `NSUbiquityIdentityDidChange` notification observers. A derived `rowState: RowState` property combines both fields to produce the four-state view-state for the Settings iCloud row (`.checking`, `.available`, `.paused`, `.unavailable`). Screens consume it via `@Environment(SyncStatus.self) private var syncStatus`.
 
+### 4.6 Container creation recovery (no `fatalError`)
+
+`makeProductionModelContainer` is a throwing function. When both CloudKit-backed and local-only `ModelContainer` creation fail, the error is surfaced to the `@Observable AppStartup` model (`simple-recurring-budgets/App/AppStartup.swift`) and the `@main` body presents `ContainerFailureView` (Retry + Send Feedback) instead of crashing — see the `container-creation-recovery` capability. The `Logger.cloudKit.error("cloudkit.container.failed: …")` line still fires before the throw per the `diagnostic-logging` capability.
+
+Realistic causes of a both-paths failure in production (community-reported, ordered by likelihood for this app):
+
+1. **Disk full** (`NSFileWriteOutOfSpaceError` / Cocoa 640). SQLite's WAL/journal can't grow. Retry won't help until the user frees space.
+2. **Schema migration failure.** A future `BudgetMigrationPlan` step throwing — bad mapping, version-mismatch, or a failing `MigrationStage`. Retry occasionally succeeds (transient pressure releases). The recovery path of last resort is to wipe the store; we do not do this automatically.
+3. **Migration race condition between the app and any future extension** — see §4.7 below.
+4. **Corrupted SQLite store.** Power-loss mid-WAL-checkpoint, OS-update artifact. Retry rarely helps; Send Feedback is the escape hatch.
+5. **CloudKit account in transit.** User just signed out / switched Apple IDs / mid-mirror recovery. Often self-resolves on the next launch; Retry is a clean win here.
+
+### 4.7 Multi-process / extension considerations — **read before shipping any extension target**
+
+⚠️ **This app currently has no app extension targets** (no widget, no Live Activity, no Lock Screen widget, no Control Center widget, no App Clip, no Share / Action / Intents / Notification Service extension). The container model assumes a **single-process owner** of the on-disk store.
+
+**When a future change introduces any of the above, the following SHALL be re-evaluated in the same change** (the agent adding the extension owns this checklist):
+
+1. **App Group + shared store URL.** Decide whether the extension reads or writes the same SwiftData store. If yes, move the store to a shared App Group container (`FileManager.containerURL(forSecurityApplicationGroupIdentifier:)`) and update `makeProductionModelContainer` to anchor `ModelConfiguration.url` there instead of the default app-sandbox path. Treat this as a one-shot migration (copy the existing store file once, gated by a `NSUbiquitousKeyValueStore` flag, then read from the new path) — the per-config `url` invariant tested by `PersistentStoreURLTests` extends to the new path.
+2. **Migration race condition.** SwiftData / CoreData does **not** serialize `ModelContainer` creation across processes. If the host app and an extension both attempt to open the store during a schema migration (e.g. the user updates the app and the system wakes the widget at the same time), one or both `ModelContainer.init` calls can throw with no useful diagnostic. The community-recommended mitigation is a **process-level lockfile** wrapping the `ModelContainer(...)` call (write a sentinel file in the App Group container; second-comer waits on it with a short timeout). Add this in the same change as the extension; do not ship the extension without it.
+3. **Read-only vs read-write split.** If the extension only needs to *read*, prefer giving it a read-only `ModelContainer` (or a snapshot exported to a smaller cache file) so it cannot race with the host's migrations.
+4. **Background-launch + file protection.** If the extension can be launched while the device is locked (most widget refreshes can), the store file's data-protection class matters. Default is `NSFileProtectionCompleteUntilFirstUserAuthentication`, which is usually fine; verify before shipping.
+5. **Retry semantics with extensions.** `ContainerFailureView.Retry` only re-runs the host app's container creation. If the extension is the one that's wedged, the user has no recovery surface in the extension itself — extensions should fail silently (a stale widget) rather than show their own error UI, and rely on the host-app launch to repair the store.
+
+If the change you're working on is "add a widget" / "add a Live Activity" / "add an App Clip" / "add an Intents extension" / similar, treat the five points above as required reading. Driggers' "All the ways SwiftData's ModelContainer can Error on Creation" (2025) is the canonical community writeup of the race condition.
+
 ---
 
 ## 5. Internationalization, Accessibility, and Testing
@@ -370,7 +396,9 @@ The pre-push build needs a resolvable iOS Simulator (booted device or `SIMULATOR
 
 ## 9. Future Technical Considerations
 
-Remaining items from the feature backlog that will require technical design when prioritized:
+Remaining items from the feature backlog that will require technical design when prioritized.
+
+> ⚠️ **Any change that introduces an app extension target** (widget, Live Activity, Lock Screen widget, Control Center widget, App Clip, Share / Action / Intents / Notification Service extension) SHALL first read [§4.7 Multi-process / extension considerations](#47-multi-process--extension-considerations--read-before-shipping-any-extension-target). The store is single-process today; the SwiftData `ModelContainer` migration race across processes is a known production-crash class that must be mitigated in the same change that ships the extension.
 
 | Feature | Technical Surface |
 |---------|-------------------|

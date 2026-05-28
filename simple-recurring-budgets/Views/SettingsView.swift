@@ -6,8 +6,6 @@ import SwiftUI
 // MARK: - AppInfo
 
 private enum AppInfo {
-  static let feedbackEmail = FeedbackMailto.recipient
-  static let feedbackSubject = FeedbackMailto.defaultSubject
   // TODO: Replace with real privacy policy URL before launch.
   static let privacyPolicyURL = "https://example.com/privacy"
 }

@@ -39957,6 +39957,726 @@
         }
       }
     },
+    "feedback.email.body.intro": {
+      "comment": "First sentence of the auto-filled email body shown when the user taps Send Feedback after a repeated save failure. Reassures them that no personal data is included.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فشل الحفظ في التطبيق مرارًا وتكرارًا. سياق تشخيصي (بدون بيانات شخصية):"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S'ha fallat una dada a l'aplicació repetidament. Context de diagnòstic (sense dades personals):"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukládání v aplikaci se opakovně nezdařilo. Diagnostické informace (bez osobních údajů):"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En gemming i appen mislykkedes gentagne gange. Diagnostisk kontekst (ingen personlige data):"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Speichern in der App ist wiederholt fehlgeschlagen. Diagnosedaten (keine persönlichen Daten):"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αποτυχία αποθήκευσης στην εφαρμογή επανειλημμένα. Διαγνωστικό περιεχόμενο (χωρίς προσωπικά δεδομένα):"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A save in the app failed repeatedly. Diagnostic context (no personal data):"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A save in the app failed repeatedly. Diagnostic context (no personal data):"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A save in the app failed repeatedly. Diagnostic context (no personal data):"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A save in the app failed repeatedly. Diagnostic context (no personal data):"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un guardado en la app falló repetidamente. Contexto de diagnóstico (sin datos personales):"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falló un guardado en la app repetidamente. Contexto de diagnóstico (sin datos personales):"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sovelluksessa tallennus epäonnistui toistuvasti. Diagnostiikat (ei henkilötietoja):"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une sauvegarde dans l'app a échoué plusieurs fois. Contexte de diagnostic (aucune donnée personnelle) :"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une sauvegarde dans l'application a échoué à plusieurs reprises. Contexte de diagnostic (aucune donnée personnelle) :"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "שמירה באפליקציה נכשלה שוב ושוב. הקשר אבחון (ללא נתונים אישיים):"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ऐप में एक सेव बार-बार विफल हुआ। डायग्नोस्टिक संदर्भ (कोई व्यक्तिगत डेटा नहीं):"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremanje u aplikaciji nije uspjelo više puta. Dijagnostički kontekst (bez osobnih podataka):"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Az alkalmazásban egy mentés többször egymás után sikertelen volt. Diagnosztikai adatok (nincs személyes adat):"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Penyimpanan di aplikasi gagal berulang kali. Konteks diagnostik (tanpa data pribadi):"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un salvataggio nell'app non è andato a buon fine ripetutamente. Contesto diagnostico (nessun dato personale):"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリ内の保存が繰り返し失敗しました。診断情報（個人データなし）:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱에서 저장이 반복적으로 실패했습니다. 진단 정보 (개인 데이터 없음):"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simpanan dalam aplikasi gagal berulang kali. Konteks diagnostik (tiada data peribadi):"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En lagring i appen mislyktes gjentatte ganger. Diagnostisk kontekst (ingen personlige data):"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een opslaan in de app is herhaaldelijk mislukt. Diagnostische informatie (geen persoonlijke gegevens):"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisanie w aplikacji wielokrotnie się nie powiodło. Kontekst diagnostyczny (bez danych osobowych):"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um salvamento no app falhou repetidamente. Contexto de diagnóstico (sem dados pessoais):"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma gravação na aplicação falhou repetidamente. Contexto de diagnóstico (sem dados pessoais):"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O salvare în aplicație a eșuat în mod repetat. Context diagnostic (fără date personale):"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранение в приложении не удалось повторно. Диагностическая информация (без личных данных):"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uloženie v aplikácii zlyhalo viackrát. Diagnostické informácie (bez osobných údajov):"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En sparning i appen misslyckades upprepade gånger. Diagnostisk kontext (ingen personlig data):"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การบันทึกในแอปล้มเหลวซ้ำแล้วซ้ำเล่า ข้อมูลการวินิจฉัย (ไม่มีข้อมูลส่วนตัว):"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulamada bir kayıt işlemi tekrar tekrar başarısız oldu. Tanılama bilgisi (kişisel veri yok):"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Збереження в додатку не вдалося кілька разів. Діагностичні дані (без персональної інформації):"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lưu trong ứng dụng không thành công nhiều lần. Thông tin chẩn đoán (không bao gồm dữ liệu cá nhân):"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用中的保存失败重复出现。诊断信息(不含个人数据)："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "應用程式中的儲存作業重複失敗。診斷內容（不包含個人資料）："
+          }
+        }
+      }
+    },
+    "feedback.email.body.prompt": {
+      "comment": "Closing prompt at the end of the auto-filled email body, inviting the user to describe what they were doing when the save failed.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يرجى وصف ما كنت تفعله عندما حدثت هذه المشكلة:"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descriu si us plau què estaves fent quan ha passat això:"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prosím popište, co jste dělali, když se to stalo:"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beskrive venligst hvad du lavede, da dette skete:"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitte beschreibe, was du getan hast, als dies passiert ist:"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Παρακαλώ περιγράψτε τι κάνατε όταν συνέβη αυτό:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what you were doing when this happened:"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what you were doing when this happened:"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what you were doing when this happened:"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what you were doing when this happened:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por favor, describe qué estabas haciendo cuando ocurrió esto:"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por favor describe qué estabas haciendo cuando sucedió:"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuvaile, mitä teit, kun tämä tapahtui:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veuillez décrire ce que vous faisiez quand cela s'est produit :"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veuillez décrire ce que vous faisiez lorsque cela s'est produit :"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "אנא תאר מה עשית כשזה קרה:"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कृपया बताएं कि आप यह कब कर रहे थे जब ऐसा हुआ:"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Molimo opišite što ste radili kada se ovo dogodilo:"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kérjük, írja le, mit csinált, amikor ez történt:"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jelaskan apa yang Anda lakukan saat hal ini terjadi:"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descrivi cosa stavi facendo quando è accaduto:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この問題が発生した時に何をしていたかについて説明してください:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 문제가 발생했을 때 어떤 작업을 하고 있었는지 설명해 주세요:"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sila huraikan apa yang anda lakukan apabila perkara ini berlaku:"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vennligst beskriv hva du gjorde da dette skjedde:"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beschrijf alstublieft wat je aan het doen was toen dit gebeurde:"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opisz, co robiłeś, gdy to się stało:"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descreva o que você estava fazendo quando isso aconteceu:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descreva o que estava a fazer quando isto aconteceu:"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te rog descrie ce făceai când s-a întâmplat aceasta:"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пожалуйста, опишите, что вы делали, когда это произошло:"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popíšte, prosím, čo ste robili, keď sa to stalo:"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beskriver vad du gjorde när detta inträffade:"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โปรดอธิบายว่าคุณกำลังทำอะไรเมื่อเหตุการณ์นี้เกิดขึ้น:"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lütfen bu gerçekleştiğinde ne yaptığınızı açıklayın:"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Будь ласка, опишіть, що ви робили, коли це сталося:"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vui lòng mô tả những gì bạn đang làm khi lỗi này xảy ra:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请描述您在此时发生此情况时正在进行的操作："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請描述發生此問題時您正在執行的操作："
+          }
+        }
+      }
+    },
+    "feedback.email.subject": {
+      "comment": "Subject line of the email that opens when the user taps Send Feedback in Settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ملاحظات تطبيق Budgets"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentaris sobre l'aplicació Budgets"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zpětná vazba k aplikaci Budgets"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback til Budgets-appen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback zur Budgets-App"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ανατροφοδότηση εφαρμογής Budgets"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets app feedback"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets app feedback"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets app feedback"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets app feedback"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentarios sobre la app Budgets"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentarios sobre la app Budgets"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets-sovelluksen palaute"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commentaires sur l'app Budgets"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commentaires sur l'application Budgets"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "משוב בנוגע לאפליקציית Budgets"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets ऐप प्रतिक्रिया"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povratna informacija za aplikaciju Budgets"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets alkalmazás visszajelzés"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masukan aplikasi Budgets"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback app Budgets"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets アプリフィードバック"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets 앱 피드백"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maklum balas aplikasi Budgets"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tilbakemelding om Budgets-appen"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback voor Budgets-app"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opinia na temat aplikacji Budgets"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback do app Budgets"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentários sobre a aplicação Budgets"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback pentru aplicația Budgets"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отзыв о приложении Budgets"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spätná väzba aplikácie Budgets"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback för Budgets-appen"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ข้อเสนอแนะแอป Budgets"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets uygulaması geri bildirimi"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відгук про додаток Budgets"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phản hồi về ứng dụng Budgets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets 应用反馈"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budgets 應用程式回饋"
+          }
+        }
+      }
+    },
     "period.biweekly": {
       "comment": "Budget period label for biweekly budgets in the list",
       "localizations": {

@@ -16,7 +16,7 @@ Before touching this codebase, know these five things:
 
 1. **The architecture is "View + Services, ViewModels on demand."** Most screens read data via `@Query` or model relationships and delegate logic to pure Domain services. Only screens with non-trivial draft/form state (`AddEditBudgetView`, `AddEditExpenseView`) escalate to an `@Observable` ViewModel. Do not reflexively add a ViewModel for a new screen -- check the escalation criteria in `tech-design-doc.md` section 2.1 first.
 
-2. **~~All persistence saves silently discard errors.~~** **Resolved** by the `robust-persistence-error-handling` OpenSpec change (issue #9, 2026-05-27). Production saves now route through `ModelContext.saveChanges(operation:analytics:)`, which throws a typed `PersistenceError`, logs to `Logger.persistence.error`, and fires the narrow-scoped `persistence_save_failed` analytics event. Interactive screens present the standard `.saveErrorAlert` and do not dismiss on failure. Only `DebugData.swift` and `BudgetDetailFixtures.swift` retain `try?` (preview / dev seed only). The container-creation `fatalError` recovery (originally part of this risk) is tracked separately as issue #132.
+2. **~~All persistence saves silently discard errors.~~** **Resolved** by the `robust-persistence-error-handling` OpenSpec change (issue #9, 2026-05-27). Production saves now route through `ModelContext.saveChanges(operation:analytics:)`, which throws a typed `PersistenceError`, logs to `Logger.persistence.error`, and fires the narrow-scoped `persistence_save_failed` analytics event. Interactive screens present the standard `.saveErrorAlert` and do not dismiss on failure. Only `DebugData.swift` and `BudgetDetailFixtures.swift` retain `try?` (preview / dev seed only). The container-creation `fatalError` recovery (originally part of this risk) is resolved separately by the `container-creation-recovery` change (issue #132, 2026-05-28).
 
 3. **`BudgetLifecycleService` is the sole write-back path for carry-over math.** It orchestrates roll -> persist -> reset -> persist -> compute remaining. Screens call `refreshAndSave` eagerly (on `.task`, `scenePhase == .active`, and expense count changes). Do not call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly from views -- always go through `BudgetLifecycleService`.
 
@@ -189,7 +189,7 @@ Two `@Model` types in `SchemaV1`: `Budget` (parent) and `ExpenseItem` (child). O
   - `BudgetDetailView+ExpenseSection.deleteExpense` (line 84)
   - `BudgetsView.move` (line 130)
   - `simple_recurring_budgetsApp.deleteAllBudgets` (line 145, DEBUG only)
-- **`fatalError` on container creation.** If both CloudKit and local container creation fail, the app crashes. There is no recovery UI. This is acceptable for a v1 app (the failure mode is extremely unlikely on a real device), but be aware of it.
+- **~~`fatalError` on container creation.~~** **Resolved** by the `container-creation-recovery` change (issue #132, 2026-05-28). `makeProductionModelContainer` now `throws`, `AppStartup` owns the result, and the `@main` body presents `ContainerFailureView` (Retry + Send Feedback) instead of crashing when both creation paths fail.
 - **CloudKit connectivity after launch.** Once the container is created with `cloudKitDatabase: .automatic`, SwiftData/CloudKit handles intermittent connectivity internally (queuing changes for sync). Data is not lost if connectivity drops. However, the `containerBacking` never changes from `.cloudKit` to `.localFallback` mid-session -- it reflects the container type chosen at launch.
 
 **Open Questions:**
@@ -348,7 +348,7 @@ Ordered by risk (impact times likelihood). These are observations, not action it
 | 2 | **Lifecycle result staleness after CloudKit merge** | User sees incorrect remaining/carry-over until a refresh trigger fires (e.g., CloudKit merges an amount change but not a count change) | 3.2 |
 | 3 | **`BudgetLifecycleService` implicit main-actor assumption** | Data race if called from background context; no compile-time enforcement | 3.8 |
 | 4 | **No user-facing error surface** | User cannot distinguish "operation succeeded" from "operation silently failed" | 3.7 |
-| 5 | **`fatalError` on container creation failure** | App crashes with no recovery if both CloudKit and local container fail (extremely unlikely on real device) | 3.5, 3.7 |
+| 5 | ~~**`fatalError` on container creation failure**~~ — resolved by `container-creation-recovery` (#132, 2026-05-28) | App crashes with no recovery if both CloudKit and local container fail (extremely unlikely on real device) | 3.5, 3.7 |
 | 6 | **View-owned destructive actions tested by algorithm duplication** | Test and view code can diverge silently; test verifies algorithm, not the actual call path | 3.6 |
 | 7 | **No `NavigationSplitView` for iPad/Mac** | PRD and UX brief specify multi-column layout; current code is `NavigationStack` only | 3.9 |
 | 8 | **Dense `sortOrder` rewrites on reorder** | O(n) writes and CloudKit syncs on every drag-to-reorder; acceptable for <50 budgets | 3.4 |

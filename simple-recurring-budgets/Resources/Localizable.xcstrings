@@ -38284,6 +38284,1926 @@
         }
       }
     },
+    "containerFailure.action.retry": {
+      "comment": "Primary action button on the container-failure screen. Re-attempts container creation.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إعادة محاولة"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opakovat"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prøv igen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δοκιμάστε ξανά"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yritä uudelleen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "נסה שוב"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दोबारा कोशिश करें"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokušaj ponovno"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Újra"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coba Lagi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riprova"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もう一度試す"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 시도"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuba Lagi"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prøv igjen"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opnieuw proberen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spróbuj ponownie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentar novamente"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentar novamente"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Încearcă din nou"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skúsiť znova"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Försök igen"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลองใหม่"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeniden Dene"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторити"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử lại"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重試"
+          }
+        }
+      }
+    },
+    "containerFailure.action.retry.accessibilityHint": {
+      "comment": "VoiceOver hint for the Retry button on the container-failure screen.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "محاولة فتح بيانات التطبيق مجددًا."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intenta obrir les teves dades de nou."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokusí se znovu otevřít vaše data."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forsøger at åbne dine data igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versucht, deine Daten erneut zu öffnen."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Προσπαθεί να ανοίξει τα δεδομένα σας ξανά."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tries to open your data again."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tries to open your data again."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tries to open your data again."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tries to open your data again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intenta abrir tus datos de nuevo."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intenta abrir tus datos de nuevo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yrittää avata tietojasi uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tente d'ouvrir vos données à nouveau."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essaie d'ouvrir à nouveau vos données."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "מנסה לפתוח את הנתונים שלך שוב."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपके डेटा को फिर से खोलने की कोशिश करता है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokušava otvoriti vaše podatke ponovno."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megkísérli az adatok megnyitását."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mencoba membuka data Anda lagi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenta di aprire di nuovo i tuoi dati."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データを再度開くことを試みます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데이터를 다시 열어봅니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mencuba untuk membuka data anda sekali lagi."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forsøker å åpne dataene dine på nytt."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probeert je gegevens opnieuw te openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próbuje ponownie otworzyć Twoje dane."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenta abrir seus dados novamente."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenta abrir os seus dados novamente."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Încearcă să deschidă din nou datele tale."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Попытается снова открыть ваши данные."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skúsi otvoriť vaše údaje znova."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Försöker öppna dina data igen."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พยายามเปิดข้อมูลของคุณอีกครั้ง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verilerinizi açmayı yeniden dener."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Намагається відкрити ваші дані знову."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cố gắng mở dữ liệu của bạn lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尝试重新打开您的数据。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "嘗試再次開啟您的資料。"
+          }
+        }
+      }
+    },
+    "containerFailure.action.sendFeedback": {
+      "comment": "Secondary action button on the container-failure screen. Opens an email prefilled with non-PII error details (domain + code).",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إرسال ملاحظات"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar comentaris"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poslat zpětnou vazbu"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send feedback"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback senden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αποστολή σχολίων"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Feedback"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Feedback"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Feedback"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Feedback"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar opinión"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar comentarios"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähetä palaute"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer un commentaire"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer des commentaires"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "שלח משוב"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रतिक्रिया भेजें"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošalji povratnu informaciju"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visszajelzés küldése"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirim Umpan Balik"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia feedback"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードバックを送信"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드백 보내기"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hantar Maklum Balas"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send tilbakemelding"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback verzenden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyślij opinię"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar Feedback"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar comentário"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trimite feedback"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отправить отзыв"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poslať spätnu väzbu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skicka feedback"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ส่งข้อเสนอแนะ"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geri Bildirim Gönder"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Надіслати відгук"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gửi Phản hồi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送反馈"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳送意見反應"
+          }
+        }
+      }
+    },
+    "containerFailure.action.sendFeedback.accessibilityHint": {
+      "comment": "VoiceOver hint for the Send Feedback button on the container-failure screen.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فتح رسالة بريد إلكترونية تتضمن تفاصيل الخطأ بدون بيانات شخصية."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obri un correu electrònic amb els detalls de l'error, sense dades personals."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otevře e-mail s detaily chyby bez osobních údajů."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åbner en email med fejldetaljerne, uden personlige data."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet eine E-Mail mit den Fehlerdetails, keine persönlichen Daten."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ανοίγει ένα μήνυμα ηλεκτρονικού ταχυδρομείου με τις λεπτομέρειες του σφάλματος, χωρίς προσωπικά δεδομένα."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens an email with the error details, no personal data."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens an email with the error details, no personal data."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens an email with the error details, no personal data."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens an email with the error details, no personal data."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre un correo con los detalles del error, sin datos personales."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre un correo con los detalles del error, sin datos personales."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaa sähköpostin virheen tiedoilla ilman henkilökohtaisia tietoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre un e-mail avec les détails de l'erreur, sans données personnelles."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre un courriel avec les détails de l'erreur, sans données personnelles."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "פותח אימייל עם פרטי השגיאה, ללא נתונים אישיים."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "त्रुटि विवरण के साथ एक ईमेल खोलता है, कोई व्यक्तिगत डेटा नहीं।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvara e-poštu s detaljima greške, bez osobnih podataka."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Megnyit egy e-mailt a hiba részleteivel, személyes adatok nélkül."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Membuka email dengan detail error, tanpa data pribadi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apre un'email con i dettagli dell'errore, senza dati personali."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エラーの詳細を含むメールを開きます。個人データは含まれません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오류 세부 정보가 포함된 이메일을 열어줍니다. 개인 데이터는 포함되지 않습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Membuka e-mel dengan butiran ralat, tanpa data peribadi."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpner en e-post med feildetaljene, uten personlige data."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opent een e-mail met de foutdetails, zonder persoonlijke gegevens."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwiera wiadomość e-mail ze szczegółami błędu, bez danych osobowych."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre um email com os detalhes do erro, sem dados pessoais."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre um email com os detalhes do erro, sem dados pessoais."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deschide un email cu detaliile erorii, fără date personale."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открывает письмо с информацией об ошибке без личных данных."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvorí e-mail s podrobnosťami o chybe bez osobných údajov."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppnar ett e-postmeddelande med felinformation, ingen personlig data."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดอีเมลพร้อมรายละเอียดข้อผิดพลาด ไม่มีข้อมูลส่วนตัว"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hata ayrıntılarıyla birlikte bir e-posta açar, kişisel veri içermez."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкриває лист електронної пошти з деталями помилки без особистих даних."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở email với chi tiết lỗi, không có dữ liệu cá nhân."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开包含错误详情的邮件，不包含个人数据。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開啟包含錯誤詳情的電子郵件，不包含個人資料。"
+          }
+        }
+      }
+    },
+    "containerFailure.body": {
+      "comment": "Body text on the container-failure recovery screen. Reassures the user, invites Retry or Send Feedback. Should not mention the error code; the diagnostic context is carried in the Send Feedback email body.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حدث خطأ ما أثناء تحميل الميزانيات. حاول مجددًا، أو أرسل لنا التفاصيل لكي نتمكن من مساعدتك."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alguna cosa ha anat malament en carregar els teus pressupostos. Intenta-ho de nou o envia'ns els detalls perquè t'ajudem."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Při načítání vašich rozpočtů se něco pokazilo. Zkuste to znovu, nebo nám pošlete detaily, abychom vám mohli pomoci."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der gik noget galt med indlæsningen af dine budgetter. Prøv igen, eller send os detaljerne, så vi kan hjælpe."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Laden deiner Budgets ist ein Fehler aufgetreten. Versuche es erneut, oder sende uns die Details, damit wir dir helfen können."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Κάτι πήγε στραβά κατά τη φόρτωση των προϋπολογισμών σας. Δοκιμάστε ξανά ή στείλτε μας τις λεπτομέρειες για να σας βοηθήσουμε."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong loading your budgets. Try again, or send us the details so we can help."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong loading your budgets. Try again, or send us the details so we can help."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong loading your budgets. Try again, or send us the details so we can help."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong loading your budgets. Try again, or send us the details so we can help."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algo ha fallado al cargar tus presupuestos. Vuelve a intentarlo o envíanos los detalles para poder ayudarte."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algo salió mal al cargar tus presupuestos. Intenta de nuevo o envíanos los detalles para poder ayudarte."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budjetin lataaminen epäonnistui. Yritä uudelleen tai lähetä meille yksityiskohdat, jotta voimme auttaa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une erreur s'est produite lors du chargement de vos budgets. Réessayez ou envoyez-nous les détails pour que nous puissions vous aider."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une erreur est survenue lors du chargement de vos budgets. Réessayez, ou envoyez-nous les détails pour que nous puissions vous aider."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "משהו השתבש בעת טעינת התקציבים שלך. נסה שוב, או שלח לנו את הפרטים כדי שנוכל לעזור."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपके बजट लोड करने में कुछ गलत हुआ। फिर से कोशिश करें, या हमें विवरण भेजें ताकि हम मदद कर सकें।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nešto je pošlo po zlu pri učitavanju vaših proračuna. Pokušajte ponovno ili nam pošaljite detalje kako bismo vam pomogli."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valami hiba történt a költségvetések betöltésekor. Próbáld újra, vagy küldj nekünk részleteket, hogy tudjunk segíteni."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terjadi kesalahan saat memuat anggaran Anda. Coba lagi, atau kirim detail tersebut kepada kami agar kami dapat membantu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si è verificato un errore durante il caricamento dei tuoi budget. Riprova o inviaci i dettagli per poter aiutare."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予算の読み込み中に問題が発生しました。もう一度試すか、詳細情報をお知らせください。サポートいたします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "예산 데이터를 불러오는 중에 문제가 발생했습니다. 다시 시도하거나 세부 정보를 보내주시면 도움을 드리겠습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sesuatu tidak kena semasa memuatkan bajet anda. Cuba lagi, atau hantar butiran kepada kami agar kami dapat membantu."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noe gikk galt da vi skulle laste budsjettene dine. Prøv igjen, eller send oss detaljene så vi kan hjelpe."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er ging iets mis bij het laden van je budgetten. Probeer het opnieuw of stuur ons de details zodat we je kunnen helpen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coś poszło nie tak przy ładowaniu budżetów. Spróbuj ponownie lub wyślij nam szczegóły, abyśmy mogli Ci pomóc."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algo deu errado ao carregar seus orçamentos. Tente novamente ou envie-nos os detalhes para que possamos ajudar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocorreu um problema ao carregar os seus orçamentos. Tente novamente ou envie-nos os detalhes para podermos ajudar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceva nu a funcționat la încărcarea bugetelor tale. Încearcă din nou sau trimite-ne detaliile pentru a te ajuta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "При загрузке бюджетов произошла ошибка. Повторите попытку или отправьте нам сведения, чтобы мы могли помочь."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niečo sa pokazilo pri načítavaní vašich rozpočtov. Skúste znova alebo nám pošlite podrobnosti, aby sme vám mohli pomôcť."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Något gick fel när budgetarna laddades. Försök igen eller skicka oss informationen så kan vi hjälpa till."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เกิดข้อผิดพลาดระหว่างการโหลดงบประมาณของคุณ ลองใหม่อีกครั้ง หรือส่งรายละเอียดให้เราเพื่อที่เราจะได้ช่วยเหลือ"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bütçelerinizi yüklerken bir sorun oluştu. Tekrar deneyin veya yardımcı olabilmemiz için bize ayrıntıları gönderin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Під час завантаження ваших бюджетів сталася помилка. Спробуйте ще раз або надішліть нам деталі, щоб ми змогли допомогти."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Có lỗi khi tải ngân sách của bạn. Thử lại hoặc gửi thông tin cho chúng tôi để chúng tôi có thể giúp bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载预算时出错。请重试，或将详情发送给我们以便帮助您。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入預算時出錯。請重試，或將詳情傳送給我們，以便我們協助您解決。"
+          }
+        }
+      }
+    },
+    "containerFailure.email.body.intro": {
+      "comment": "First sentence of the auto-filled email body shown when the user taps Send Feedback on the container-creation failure screen. Reassures them that no personal data is included.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذر على التطبيق فتح مستودع البيانات. سياق التشخيص (بدون بيانات شخصية):"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'app no ha pogut obrir el teu emmagatzematge de dades. Context de diagnòstic (sense dades personals):"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikace nemohla otevřít vaše úložiště dat. Diagnostické informace (bez osobních údajů):"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appen kunne ikke åbne dit datalager. Diagnostiske oplysninger (uden personlige data):"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App konnte deinen Datenspeicher nicht öffnen. Diagnosekontexte (keine persönlichen Daten):"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η εφαρμογή δεν μπόρεσε να ανοίξει το χώρο αποθήκευσης δεδομένων σας. Διαγνωστικό περιεχόμενο (χωρίς προσωπικά δεδομένα):"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app couldn't open your data store. Diagnostic context (no personal data):"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app couldn't open your data store. Diagnostic context (no personal data):"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app couldn't open your data store. Diagnostic context (no personal data):"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app couldn't open your data store. Diagnostic context (no personal data):"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La app no ha podido abrir tu almacén de datos. Contexto de diagnóstico (sin datos personales):"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La app no pudo abrir tu almacén de datos. Contexto de diagnóstico (sin datos personales):"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sovellus ei voinut avata tietovarastoa. Diagnostiikkatiedot (ei henkilökohtaisia tietoja):"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'app n'a pas pu ouvrir votre magasin de données. Contexte de diagnostic (pas de données personnelles) :"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'app n'a pas pu ouvrir votre magasin de données. Contexte de diagnostic (sans données personnelles) :"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "האפליקציה לא יכלה לפתוח את אחסון הנתונים שלך. הקשר אבחון (ללא נתונים אישיים):"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ऐप आपके डेटा स्टोर को नहीं खोल सका। नैदानिक संदर्भ (कोई व्यक्तिगत डेटा नहीं):"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikacija nije mogla otvoriti vašu bazu podataka. Dijagnostički kontekst (bez osobnih podataka):"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Az alkalmazás nem tudta megnyitni az adattárat. Diagnosztikai adatok (személyes adatok nélkül):"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikasi tidak dapat membuka penyimpanan data Anda. Konteks diagnostik (tanpa data pribadi):"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'app non ha potuto aprire il tuo archivio dati. Contesto diagnostico (senza dati personali):"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリがデータストアを開くことができませんでした。診断情報（個人データは含まれません）："
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱이 데이터 저장소를 열 수 없습니다. 진단 정보(개인 데이터 제외):"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apl tidak dapat membuka simpanan data anda. Konteks diagnostik (tanpa data peribadi):"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appen kunne ikke åpne datalagringsstedet ditt. Diagnostisk kontekst (ingen personlige data):"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De app kon je gegevensopslag niet openen. Diagnostische context (geen persoonlijke gegevens):"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikacja nie mogła otworzyć magazynu danych. Kontekst diagnostyczny (bez danych osobowych):"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O app não conseguiu abrir seu armazenamento de dados. Contexto de diagnóstico (sem dados pessoais):"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A app não conseguiu abrir o seu armazenamento de dados. Contexto de diagnóstico (sem dados pessoais):"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicația nu a putut deschide depozitul tău de date. Context de diagnostic (fără date personale):"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приложению не удалось открыть ваше хранилище данных. Диагностическая информация (без личных данных):"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikácia nemohla otvoriť vaš datový úložný priestor. Diagnostický kontext (bez osobných údajov):"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appen kunde inte öppna datalager. Diagnostisk kontext (ingen personlig data):"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แอปไม่สามารถเปิดคลังข้อมูลของคุณ บริบทการวินิจฉัย (ไม่มีข้อมูลส่วนตัว):"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulama veri deponuzu açamadı. Tanılama bağlamı (kişisel veri yok):"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Додаток не зміг відкрити ваше сховище даних. Діагностична інформація (без особистих даних):"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ứng dụng không thể mở kho dữ liệu của bạn. Thông tin chẩn đoán (không có dữ liệu cá nhân):"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用无法打开您的数据存储。诊断信息（不包含个人数据）："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "應用程式無法開啟您的資料儲存。診斷資訊（不包含個人資料）："
+          }
+        }
+      }
+    },
+    "containerFailure.email.body.prompt": {
+      "comment": "Closing prompt at the end of the auto-filled email body on the container-failure surface, inviting the user to describe what was happening when the app couldn't open the data store.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرجاء وصف ما كان يحدث على جهازك عند بدء هذا الخطأ:"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si us plau, descriu què estava passant al teu dispositiu quan va començar:"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prosím, pište, co se dělo na vašem zařízení, když se to začalo dít:"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beskriv venligst, hvad der skete på din enhed, da problemet opstod:"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitte beschreibe, was auf deinem Gerät geschah, als dies begann:"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Περιγράψτε τι συνέβαινε στη συσκευή σας όταν ξεκίνησε αυτό:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what was happening on your device when this started:"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what was happening on your device when this started:"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what was happening on your device when this started:"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please describe what was happening on your device when this started:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por favor, describe qué estaba sucediendo en tu dispositivo cuando empezó esto:"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por favor describe qué estaba pasando en tu dispositivo cuando esto comenzó:"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuvaile, mitä tapahtui laitteelläsi, kun ongelma alkoi:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veuillez décrire ce que vous faisiez sur votre appareil quand ce problème a commencé :"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veuillez décrire ce qui se passait sur votre appareil quand cela a commencé :"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "אנא תאר מה היה קורה במכשיר שלך כאשר זה התחיל:"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कृपया बताएं कि जब यह शुरू हुआ तो आपके डिवाइस पर क्या चल रहा था:"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Molimo vas opišite što se događalo na vašoj mobilnoj popravi kada je ovo započelo:"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kérjük, írd le, mit csináltál az eszközödön, amikor ez a hiba lépett fel:"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Harap jelaskan apa yang sedang terjadi di perangkat Anda saat masalah ini dimulai:"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per favore descrivi che cosa stavi facendo sul tuo dispositivo quando questo è iniziato:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この問題が発生したときにデバイスで何をしていたかを説明してください："
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 문제가 발생했을 때 기기에서 어떤 작업을 하고 있었는지 알려주세요:"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sila terangkan apa yang sedang berlaku di peranti anda apabila ini bermula:"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vær så god og beskriv hva som skjedde på enheten din da problemet startet:"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beschrijf alstublieft wat er op je apparaat gebeurde toen dit begon:"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prosimy opisz, co było się działo na Twoim urządzeniu, gdy to się zaczęło:"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descreva o que estava acontecendo no seu dispositivo quando isso começou:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descreva o que estava a fazer no seu dispositivo quando isto começou:"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descrie te rog ce se întâmpla pe dispozitivul tău când a început:"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пожалуйста, опишите, что происходило на вашем устройстве, когда возникла эта ошибка:"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prosím opíšte, čo sa dialo na vašom zariadení, keď sa to začalo:"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beskriv vad som hände på din enhet när detta började:"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โปรดอธิบายว่าอุปกรณ์ของคุณกำลังทำอะไรอยู่เมื่อเกิดปัญหานี้:"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lütfen cihazınızda bu soruna başladığında neler olduğunu açıklayın:"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Будь ласка, опишіть, що відбувалося на вашому пристрої, коли це почалося:"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vui lòng mô tả những gì đang xảy ra trên thiết bị của bạn khi điều này bắt đầu:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请描述您的设备上发生此问题时的情况："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請描述當應用程式無法開啟資料儲存時，您的裝置上發生了什麼："
+          }
+        }
+      }
+    },
+    "containerFailure.title": {
+      "comment": "Title shown on the recovery screen when the app cannot create its SwiftData container at launch.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذر فتح بيانات التطبيق"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No s'ha pogut obrir les teves dades"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nelze otevřít vaše data"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kunne ikke åbne dine data"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Daten konnten nicht geöffnet werden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Δεν ήταν δυνατό να ανοίξετε τα δεδομένα σας"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your data"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your data"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your data"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your data"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha podido abrir tus datos"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron abrir tus datos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tietoja ei voitu avata"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'ouvrir vos données"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'ouvrir vos données"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "לא הצלחנו לפתוח את הנתונים שלך"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपका डेटा नहीं खोल सका"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nije se moglo otvoriti vaše podatke"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nem lehet megnyitni az adatokat"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidak dapat membuka data Anda"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile aprire i tuoi dati"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データを開くことができませんでした"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데이터를 열 수 없습니다"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidak dapat membuka data anda"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kunne ikke åpne dataene dine"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kon je gegevens niet openen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie można otworzyć Twoich danych"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir seus dados"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir os seus dados"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu s-au putut deschide datele tale"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось открыть ваши данные"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemohla sa otvoriť vaša data"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kunde inte öppna dina data"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่สามารถเปิดข้อมูลของคุณได้"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verileriniz açılamadı"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося відкрити ваші дані"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể mở dữ liệu của bạn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法打开您的数据"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法開啟您的資料"
+          }
+        }
+      }
+    },
     "currencyPicker.navigationTitle": {
       "comment": "Navigation bar title for the currency picker sheet",
       "localizations": {

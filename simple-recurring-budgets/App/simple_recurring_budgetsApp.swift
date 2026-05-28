@@ -8,16 +8,27 @@ struct simple_recurring_budgetsApp: App {
   @State private var settings: AppSettings
   @State private var router = Router()
   @State private var syncStatus: SyncStatus
+  @State private var startup: AppStartup
   private let analytics: any AnalyticsClient
-  var sharedModelContainer: ModelContainer
 
   init() {
     let mixpanelToken = MixpanelTokenSource.activeToken
 
-    let (container, backing) = Self.makeModelContainer()
-    sharedModelContainer = container
+    // Attempt container creation via AppStartup. On failure, the app body
+    // presents ContainerFailureView (Retry / Send Feedback) instead of
+    // crashing — see `container-creation-recovery` capability.
+    let initialStartup = AppStartup {
+      try Self.makeModelContainer()
+    }
+    _startup = State(initialValue: initialStartup)
+
     let initialSettings = AppSettings()
-    let initialSyncStatus = SyncStatus(containerBacking: backing)
+    // SyncStatus presents an iCloud indicator in Settings; on the failure
+    // path, no RootView/SettingsView are constructed, so the seed value
+    // doesn't matter. Default to `.localFallback` when no backing exists.
+    let initialSyncStatus = SyncStatus(
+      containerBacking: initialStartup.containerBacking ?? .localFallback
+    )
 
     // Narrow test-host escape hatch: when the app runs under any test type
     // (IS_TESTING=1 in the environment), the full @main App still launches
@@ -44,7 +55,11 @@ struct simple_recurring_budgetsApp: App {
           initialSettings.defaultCarryOverEnabled
         },
         syncStateProvider: { [initialSyncStatus] in initialSyncStatus.rowState.analyticsValue },
-        budgetsCountProvider: { [container] in
+        // Reads through `AppStartup`: on the failure path no container exists,
+        // so the count is zero. On the success path (the common case), the
+        // live container resolved at launch is captured here.
+        budgetsCountProvider: { [initialStartup] in
+          guard let container = initialStartup.container else { return 0 }
           let descriptor = FetchDescriptor<Budget>()
           return (try? container.mainContext.fetchCount(descriptor)) ?? 0
         }
@@ -61,16 +76,26 @@ struct simple_recurring_budgetsApp: App {
 
   var body: some Scene {
     WindowGroup {
-      RootView()
-        .environment(router)
-        .environment(settings)
-        .environment(syncStatus)
-        .environment(\.analytics, analytics)
-        .task {
-          analytics.track(AnalyticsEvent.appOpened)
+      if let container = startup.container {
+        RootView()
+          .modelContainer(container)
+          .environment(router)
+          .environment(settings)
+          .environment(syncStatus)
+          .environment(\.analytics, analytics)
+          .task {
+            analytics.track(AnalyticsEvent.appOpened)
+          }
+      } else if let error = startup.error {
+        // Recovery surface — see `container-creation-recovery` capability.
+        // Intentionally does NOT receive Router / AppSettings / SyncStatus /
+        // analytics: the wedged-store state may make those unsafe to use,
+        // and the failure view does not need them.
+        ContainerFailureView(error: error) {
+          startup.retry()
         }
+      }
     }
-    .modelContainer(sharedModelContainer)
   }
 
   // MARK: - Private
@@ -117,29 +142,29 @@ struct simple_recurring_budgetsApp: App {
   /// based on `appDatabaseLaunchMode` (DEBUG) or always production (Release).
   ///
   /// In-memory DEBUG containers always use `.localFallback` since they don't sync via CloudKit.
-  private static func makeModelContainer() -> (ModelContainer, SyncStatus.ContainerBacking) {
+  private static func makeModelContainer() throws -> (ModelContainer, SyncStatus.ContainerBacking) {
     #if DEBUG
       switch appDatabaseLaunchMode {
       case .emptyInMemory:
         return (InMemoryModelContainer.makeEmpty(), .localFallback)
       case .emptyPersistedThenClear:
-        let (container, backing) = makeProductionModelContainer()
+        let (container, backing) = try makeProductionModelContainer()
         deleteAllBudgets(in: container.mainContext)
         return (container, backing)
       case .debugDataSeededInMemory:
         return (InMemoryModelContainer.makeSeeded(), .localFallback)
       case .normal:
-        return makeProductionModelContainer()
+        return try makeProductionModelContainer()
       }
     #else
-      return makeProductionModelContainer()
+      return try makeProductionModelContainer()
     #endif
   }
 
   /// CloudKit if available, else local on disk — the production persistence stack.
   /// Returns the container and the `SyncStatus.ContainerBacking` that reflects
   /// which path was taken (`.cloudKit` or `.localFallback`).
-  private static func makeProductionModelContainer() -> (ModelContainer, SyncStatus.ContainerBacking) {
+  static func makeProductionModelContainer() throws -> (ModelContainer, SyncStatus.ContainerBacking) {
     let schema = SchemaV1.swiftDataSchema
 
     // Anchor both the CloudKit-enabled and local-only configurations to a single
@@ -189,8 +214,12 @@ struct simple_recurring_budgetsApp: App {
       Logger.cloudKit.info("cloudkit.container.localSuccess")
       return (container, .localFallback)
     } catch {
+      // Both creation paths failed. Log the diagnostic per the
+      // `diagnostic-logging` capability, then surface the error to
+      // `AppStartup` instead of crashing — `ContainerFailureView` presents
+      // Retry + Send Feedback. See `container-creation-recovery` spec.
       Logger.cloudKit.error("cloudkit.container.failed: \(error.localizedDescription, privacy: .public)")
-      fatalError("Could not create ModelContainer: \(error)")
+      throw error
     }
   }
 

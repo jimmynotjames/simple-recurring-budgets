@@ -7,6 +7,10 @@ struct BudgetsView: View {
   @Query(sort: \Budget.sortOrder) private var budgets: [Budget]
   @Environment(Router.self) private var router
   @Environment(\.modelContext) private var context
+  @Environment(\.analytics) private var analytics
+  /// Standard save-error alert state for the reorder save (`budgets-screen`
+  /// delta spec scenario "Failed reorder surfaces the save-error alert").
+  @State private var saveError: SaveErrorState?
 
   var body: some View {
     Group {
@@ -22,6 +26,7 @@ struct BudgetsView: View {
       comment: "Navigation bar title for the budgets list screen"
     ))
     .appBackground()
+    .saveErrorAlert($saveError)
     .toolbar {
       ToolbarItemGroup(placement: .topBarLeading) {
         Button {
@@ -138,7 +143,14 @@ struct BudgetsView: View {
       budget.sortOrder = index
       budget.lastModified = now
     }
-    try? context.save()
+    do {
+      try context.saveChanges(operation: .reorder, analytics: analytics)
+      saveError.clear()
+    } catch let error as PersistenceError {
+      saveError.setForFailure(error, retry: { move(from: source, to: destination) })
+    } catch {
+      // saveChanges only throws PersistenceError; exhaustive catch for safety.
+    }
   }
 }
 

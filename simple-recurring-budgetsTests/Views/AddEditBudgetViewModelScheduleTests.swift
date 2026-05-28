@@ -162,7 +162,7 @@ struct AddEditBudgetViewModelScheduleTests {
     // Thursday per F-7.05 (`weekStart = budget.startDate.weekday`).
     let userPick = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 30)))
     vm.startDate = userPick
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
     #expect(saved.startDate == cal.startOfDay(for: userPick))
@@ -181,7 +181,7 @@ struct AddEditBudgetViewModelScheduleTests {
     let cal = Calendar.autoupdatingCurrent
     let endPick = try #require(cal.date(from: DateComponents(year: 2026, month: 12, day: 31)))
     vm.endDate = endPick
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
     #expect(saved.endDate == cal.startOfDay(for: endPick))
@@ -208,7 +208,7 @@ struct AddEditBudgetViewModelScheduleTests {
     let vm = AddEditBudgetViewModel(editing: budget)
     let backDated = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 6)))
     vm.startDate = backDated
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.startDate == cal.startOfDay(for: backDated))
     // The lone AllocationChange row must NOT be realigned for recurring.
@@ -230,7 +230,7 @@ struct AddEditBudgetViewModelScheduleTests {
     let vm = AddEditBudgetViewModel(editing: budget)
     let endPick = try #require(cal.date(from: DateComponents(year: 2026, month: 12, day: 31)))
     vm.endDate = endPick
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.endDate == cal.startOfDay(for: endPick))
   }
@@ -249,7 +249,7 @@ struct AddEditBudgetViewModelScheduleTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.endDate = nil
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.endDate == nil)
   }
@@ -273,7 +273,7 @@ struct AddEditBudgetViewModelScheduleTests {
     let vm = AddEditBudgetViewModel(editing: budget)
     let newStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 9)))
     vm.startDate = newStart
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.startDate == cal.startOfDay(for: newStart))
     let allocs = try context.fetch(FetchDescriptor<AllocationChange>())

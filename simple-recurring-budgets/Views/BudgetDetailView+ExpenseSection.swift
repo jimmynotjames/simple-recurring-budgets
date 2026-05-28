@@ -105,13 +105,25 @@ extension BudgetDetailView {
     )
     let period = budget.periodEnum
     let isAddFunds = expense.isAddFunds
-    withAnimation {
-      budget.lastModified = Date()
-      context.delete(expense)
-      try? context.save()
+    do {
+      try withAnimation {
+        budget.lastModified = Date()
+        context.delete(expense)
+        try context.saveChanges(operation: .expenseDelete, analytics: analytics)
+      }
+    } catch let error as PersistenceError {
+      // Failed save: surface the standard save-error alert and skip the
+      // analytics emission (`budget-detail-screen` delta spec scenario
+      // "Failed swipe-delete surfaces the save-error alert").
+      saveError.setForFailure(error, retry: { [self] in deleteExpense(expense) })
+      return
+    } catch {
+      return
     }
+    saveError.clear()
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
+    // expense_deleted fires only on a successful save.
     analytics.track(
       AnalyticsEvent.expenseDeleted,
       properties: [

@@ -203,7 +203,10 @@ struct simple_recurring_budgetsApp: App {
       for budget in all {
         context.delete(budget)
       }
-      try? context.save()
+      // DEBUG-only emptyPersistedThenClear path: route through the shared helper
+      // so a failure still logs to Logger.persistence.error; swallow because
+      // there is no analytics client or presenting UI in this dev-only flow.
+      try? context.saveChanges(operation: .appLaunchDedup)
     }
   #endif
 }

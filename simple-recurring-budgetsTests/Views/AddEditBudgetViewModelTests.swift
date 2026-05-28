@@ -106,7 +106,7 @@ struct AddEditBudgetViewModelTests {
     vm.period = .weekly
     vm.isCarryOverEnabled = false
 
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let budgets = try context.fetch(FetchDescriptor<Budget>())
     #expect(budgets.count == 1)
@@ -131,7 +131,7 @@ struct AddEditBudgetViewModelTests {
 
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.name = "Groceries"; vm.allocation = nil
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let budgets = try context.fetch(FetchDescriptor<Budget>())
     #expect(budgets.isEmpty)
@@ -147,7 +147,7 @@ struct AddEditBudgetViewModelTests {
 
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.name = "C"; vm.allocation = 1
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let all = try context.fetch(FetchDescriptor<Budget>(sortBy: [SortDescriptor(\.sortOrder)]))
     #expect(all.last?.name == "C")
@@ -168,7 +168,7 @@ struct AddEditBudgetViewModelTests {
     context.insert(budget); try context.save()
 
     let vm = AddEditBudgetViewModel(editing: budget)
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.lastModified == original)
   }
@@ -186,7 +186,7 @@ struct AddEditBudgetViewModelTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.name = "Food"
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.name == "Food")
     #expect(budget.lastModified > before)
@@ -207,7 +207,7 @@ struct AddEditBudgetViewModelTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.period = .monthly
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.period == BudgetPeriod.weekly.rawValue)
     #expect(budget.lastModified == original)
@@ -269,7 +269,7 @@ struct AddEditBudgetViewModelTests {
     vm.name = "Italy Trip"; vm.allocation = 1500
     vm.period = .specificDates
     vm.startDate = rawStart; vm.endDate = rawEnd
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
     #expect(saved.period == BudgetPeriod.specificDates.rawValue)
@@ -302,7 +302,7 @@ struct AddEditBudgetViewModelTests {
     let cal = Calendar.autoupdatingCurrent
     vm.startDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 8))
     vm.endDate = cal.date(from: DateComponents(year: 2026, month: 5, day: 25))
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
     #expect(saved.isCarryOverEnabled == false)
@@ -320,7 +320,7 @@ struct AddEditBudgetViewModelTests {
     vm.name = "Groceries"
     vm.allocation = 200
     vm.period = .weekly
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
     #expect(saved.isCarryOverEnabled == true)
@@ -364,7 +364,7 @@ struct AddEditBudgetViewModelTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.endDate = newEnd
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.endDate == newEnd)
     #expect(budget.startDate == start)
@@ -467,7 +467,7 @@ struct AddEditBudgetViewModelTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.startDate = newStart
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.startDate == newStart)
     let changes = try context.fetch(FetchDescriptor<AllocationChange>())
@@ -485,7 +485,7 @@ struct AddEditBudgetViewModelTests {
     context.insert(budget); try context.save()
 
     let vm = AddEditBudgetViewModel(editing: budget)
-    vm.delete(context: context)
+    try vm.delete(context: context)
 
     #expect(try context.fetch(FetchDescriptor<Budget>()).isEmpty)
   }
@@ -498,7 +498,7 @@ struct AddEditBudgetViewModelTests {
     context.insert(existing); try context.save()
 
     let vm = AddEditBudgetViewModel(settings: AppSettings())
-    vm.delete(context: context)
+    try vm.delete(context: context)
 
     #expect(try context.fetch(FetchDescriptor<Budget>()).count == 1)
   }
@@ -516,7 +516,7 @@ struct AddEditBudgetViewModelTests {
     try context.save()
 
     let vm = AddEditBudgetViewModel(editing: budget)
-    vm.delete(context: context)
+    try vm.delete(context: context)
 
     #expect(try context.fetch(FetchDescriptor<ExpenseItem>()).isEmpty)
   }
@@ -528,7 +528,7 @@ struct AddEditBudgetViewModelTests {
     let context = ModelContext(container)
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.name = "SignatureCheck"; vm.allocation = 1
-    vm.save(context: context)
+    try vm.save(context: context)
     #expect(try context.fetch(FetchDescriptor<Budget>()).count == 1)
   }
 }

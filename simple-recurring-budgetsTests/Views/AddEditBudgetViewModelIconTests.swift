@@ -21,7 +21,7 @@ struct AddEditBudgetViewModelIconTests {
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.name = "Coffee"; vm.allocation = 7; vm.period = .daily
     vm.icon = "☕"
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
     #expect(saved.icon == "☕")
@@ -33,7 +33,7 @@ struct AddEditBudgetViewModelIconTests {
 
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.name = "Coffee"; vm.allocation = 7; vm.period = .daily
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let saved = try #require(try context.fetch(FetchDescriptor<Budget>()).first)
     #expect(saved.icon == nil)
@@ -67,7 +67,7 @@ struct AddEditBudgetViewModelIconTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.icon = "🍔"
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.icon == "🍔")
     #expect(budget.lastModified > before)
@@ -84,7 +84,7 @@ struct AddEditBudgetViewModelIconTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.icon = nil
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.icon == nil)
   }
@@ -104,7 +104,7 @@ struct AddEditBudgetViewModelIconTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.icon = "☕"
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(budget.icon == "☕")
     #expect(budget.lastModified > before)

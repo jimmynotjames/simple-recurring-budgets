@@ -6,8 +6,8 @@ import SwiftUI
 // MARK: - AppInfo
 
 private enum AppInfo {
-  static let feedbackEmail = "jimmyho.appfeedback@gmail.com"
-  static let feedbackSubject = "Budgets app feedback"
+  static let feedbackEmail = FeedbackMailto.recipient
+  static let feedbackSubject = FeedbackMailto.defaultSubject
   // TODO: Replace with real privacy policy URL before launch.
   static let privacyPolicyURL = "https://example.com/privacy"
 }
@@ -522,9 +522,7 @@ private extension SettingsView {
   }
 
   var feedbackMailtoURL: URL {
-    let subject = AppInfo.feedbackSubject
-      .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-    return URL(string: "mailto:\(AppInfo.feedbackEmail)?subject=\(subject)")!
+    FeedbackMailto.plainURL
   }
 
   var privacyPolicyURL: URL {

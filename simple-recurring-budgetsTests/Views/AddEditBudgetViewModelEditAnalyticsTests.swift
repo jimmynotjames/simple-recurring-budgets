@@ -51,7 +51,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.name = "Coffee + tea"
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.allocationChanged] == "false")
@@ -69,7 +69,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
     let cal = Calendar.autoupdatingCurrent
     let backDated = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 6)))
     vm.startDate = backDated
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.startDateChanged] == "true")
@@ -88,7 +88,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.endDate = nil
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.endDateChanged] == "true")
@@ -106,7 +106,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
     let cal = Calendar.autoupdatingCurrent
     let newEnd = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 30)))
     vm.endDate = newEnd
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.endDateChanged] == "true")
@@ -122,7 +122,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.allocation = 10
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.allocationChanged] == "true")
@@ -138,7 +138,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     // No mutations to drafts.
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     #expect(!spy.trackedEvents.contains(AnalyticsEvent.budgetEdited))
   }
@@ -154,7 +154,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
     vm.name = "Groceries"
     vm.allocation = 100
     vm.period = .weekly
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let createdProps = try #require(
       spy.trackCalls.first(where: { $0.event == AnalyticsEvent.budgetCreated })?.properties

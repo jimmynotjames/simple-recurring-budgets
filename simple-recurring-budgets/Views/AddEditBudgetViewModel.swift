@@ -129,25 +129,26 @@ final class AddEditBudgetViewModel {
 
   // MARK: - Delete
 
-  func delete(context: ModelContext) {
-    delete(context: context, analytics: ConsoleAnalyticsClient())
+  func delete(context: ModelContext) throws {
+    try delete(context: context, analytics: ConsoleAnalyticsClient())
   }
 
-  func delete(context: ModelContext, analytics: any AnalyticsClient) {
+  func delete(context: ModelContext, analytics: any AnalyticsClient) throws {
     guard case let .edit(budget) = mode else { return }
     Logger.ui.debug(
       "ui.action: deleteBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
     let props = budgetEventProperties(budget: budget)
     context.delete(budget)
-    try? context.save()
+    try context.saveChanges(operation: .budgetDelete, analytics: analytics)
+    // Analytics fires only on a successful save (per `add-edit-budget-screen` delta spec).
     analytics.track(AnalyticsEvent.budgetDeleted, properties: props)
   }
 
   // MARK: - Save
 
-  func save(context: ModelContext) {
-    save(
+  func save(context: ModelContext) throws {
+    try save(
       context: context,
       analytics: ConsoleAnalyticsClient(),
       settings: AppSettings(),
@@ -160,12 +161,12 @@ final class AddEditBudgetViewModel {
     analytics: any AnalyticsClient,
     settings: AppSettings,
     router: Router
-  ) {
+  ) throws {
     switch mode {
     case .add:
-      saveNew(context: context, analytics: analytics, settings: settings, router: router)
+      try saveNew(context: context, analytics: analytics, settings: settings, router: router)
     case let .edit(budget):
-      saveEdit(budget: budget, context: context, analytics: analytics, settings: settings)
+      try saveEdit(budget: budget, context: context, analytics: analytics, settings: settings)
     }
   }
 
@@ -176,7 +177,7 @@ final class AddEditBudgetViewModel {
     analytics: any AnalyticsClient,
     settings: AppSettings,
     router: Router
-  ) {
+  ) throws {
     guard canSave, let allocation else { return }
 
     let now = Date()
@@ -218,8 +219,9 @@ final class AddEditBudgetViewModel {
     initialChange.budget = budget
     context.insert(initialChange)
 
-    try? context.save()
+    try context.saveChanges(operation: .budgetCreate, analytics: analytics)
 
+    // Analytics fires only on a successful save (per `add-edit-budget-screen` delta spec).
     var props = budgetEventProperties(budget: budget)
     props[AnalyticsProperty.isFirstBudget] = isFirst
     if isFirst {
@@ -247,7 +249,7 @@ final class AddEditBudgetViewModel {
     context: ModelContext,
     analytics: any AnalyticsClient,
     settings _: AppSettings
-  ) {
+  ) throws {
     // Per-field diff locals: `allocationChanged`, `startChanged`, `endChanged`
     // feed the F-8.02 flags on `budget_edited` (see `docs/analytics-spec.md`
     // §10.1). `nameChanged`, `currencyChanged`, `carryOverToggleChanged` are
@@ -269,10 +271,11 @@ final class AddEditBudgetViewModel {
       iconChanged = true
     }
     if let newAlloc = allocation, budget.currentAllocation != newAlloc {
-      BudgetLifecycleService.applyAllocationEdit(
+      try BudgetLifecycleService.applyAllocationEdit(
         budget,
         newAmount: newAlloc,
-        context: context
+        context: context,
+        analytics: analytics
       )
       allocationChanged = true
     }
@@ -289,7 +292,8 @@ final class AddEditBudgetViewModel {
       || carryOverToggleChanged || dateEdits.startChanged || dateEdits.endChanged
     if changed {
       budget.lastModified = Date()
-      try? context.save()
+      try context.saveChanges(operation: .budgetEdit, analytics: analytics)
+      // Analytics fires only on a successful save (per `add-edit-budget-screen` delta spec).
       // Post-save orphan count: expenses dated before the written Budget.startDate.
       // Recurring budgets always have a non-nil startDate here (the canSave gate +
       // Add-mode pre-fill + period.didSet re-anchoring guarantee it). For the

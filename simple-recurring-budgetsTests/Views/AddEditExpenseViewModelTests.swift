@@ -144,7 +144,7 @@ struct AddEditExpenseViewModelTests {
     vm.amount = 5.00
     vm.name = "Coffee"
     vm.date = fixedDate
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let all = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(all.count == 1)
@@ -167,7 +167,7 @@ struct AddEditExpenseViewModelTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5
     vm.name = "  Coffee  "
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let all = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(all.first?.name == "Coffee")
@@ -182,7 +182,7 @@ struct AddEditExpenseViewModelTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5
     vm.name = "   "
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let all = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(all.first?.name == nil)
@@ -197,7 +197,7 @@ struct AddEditExpenseViewModelTests {
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 5
     vm.name = ""
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let all = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(all.first?.name == nil)
@@ -213,7 +213,7 @@ struct AddEditExpenseViewModelTests {
 
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = nil
-    vm.save(context: context)
+    try vm.save(context: context)
 
     let all = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(all.isEmpty)
@@ -235,7 +235,7 @@ struct AddEditExpenseViewModelTests {
     try context.save()
 
     let vm = AddEditExpenseViewModel(editing: expense)
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(expense.lastModified == originalLastModified)
   }
@@ -258,7 +258,7 @@ struct AddEditExpenseViewModelTests {
 
     let vm = AddEditExpenseViewModel(editing: expense)
     vm.name = "New name"
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(expense.name == "New name")
     #expect(expense.lastModified > originalLastModified)
@@ -282,7 +282,7 @@ struct AddEditExpenseViewModelTests {
     let vm = AddEditExpenseViewModel(editing: expense)
     // Seeded with displayAmount (10); user changes it to 15
     vm.amount = 15
-    vm.save(context: context)
+    try vm.save(context: context)
 
     // Sign must be restored: isAddFunds → amount = -15
     #expect(expense.amount == -15)
@@ -306,7 +306,7 @@ struct AddEditExpenseViewModelTests {
     let vm = AddEditExpenseViewModel(editing: expense)
     // amount is seeded as displayAmount = 10; leave it at 10 (no change)
     #expect(vm.amount == 10)
-    vm.save(context: context)
+    try vm.save(context: context)
 
     // No spurious flip; no lastModified bump
     #expect(expense.amount == -10)
@@ -331,7 +331,7 @@ struct AddEditExpenseViewModelTests {
     let vm = AddEditExpenseViewModel(editing: expense)
     vm.name = "New name"
     vm.amount = 99.99
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(expense.name == "New name")
     #expect(expense.amount == 99.99)
@@ -355,7 +355,7 @@ struct AddEditExpenseViewModelTests {
 
     let vm = AddEditExpenseViewModel(editing: expense)
     vm.name = "  New  "
-    vm.save(context: context)
+    try vm.save(context: context)
     #expect(expense.name == "New")
   }
 
@@ -371,7 +371,7 @@ struct AddEditExpenseViewModelTests {
 
     let vm = AddEditExpenseViewModel(editing: expense)
     vm.name = "   "
-    vm.save(context: context)
+    try vm.save(context: context)
     #expect(expense.name == nil)
   }
 
@@ -394,7 +394,7 @@ struct AddEditExpenseViewModelTests {
     let vm = AddEditExpenseViewModel(editing: expense)
     // Drift by 20 seconds — under the .minute granularity threshold
     vm.date = fixedDate.addingTimeInterval(20)
-    vm.save(context: context)
+    try vm.save(context: context)
 
     #expect(expense.lastModified == originalLastModified)
   }
@@ -447,7 +447,7 @@ struct AddEditExpenseViewModelTests {
     #expect(originalCount == 2)
 
     let vm = AddEditExpenseViewModel(editing: expense1)
-    vm.delete(context: context)
+    try vm.delete(context: context)
 
     let remaining = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(remaining.count == originalCount - 1)
@@ -470,7 +470,7 @@ struct AddEditExpenseViewModelTests {
     let originalCount = try context.fetch(FetchDescriptor<ExpenseItem>()).count
 
     let vm = AddEditExpenseViewModel(adding: budget)
-    vm.delete(context: context)
+    try vm.delete(context: context)
 
     let afterCount = try context.fetch(FetchDescriptor<ExpenseItem>()).count
     #expect(afterCount == originalCount)
@@ -529,7 +529,7 @@ struct AddEditExpenseViewModelTests {
 
     let vm = AddEditExpenseViewModel(adding: budget)
     vm.amount = 1
-    vm.save(context: context) // must compile with (context:) only
+    try vm.save(context: context) // must compile with (context:) only
     let all = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(all.count == 1)
   }
@@ -548,7 +548,7 @@ struct AddEditExpenseViewModelTests {
     try context.save()
 
     let vm = AddEditExpenseViewModel(editing: expense)
-    vm.delete(context: context) // must compile with (context:) only
+    try vm.delete(context: context) // must compile with (context:) only
     let remaining = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(remaining.isEmpty)
   }

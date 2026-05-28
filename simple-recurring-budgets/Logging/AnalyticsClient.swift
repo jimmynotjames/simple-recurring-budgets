@@ -49,6 +49,12 @@ enum AnalyticsEvent {
   nonisolated static let settingsOpened = "settings_opened"
   nonisolated static let settingChanged = "setting_changed"
   nonisolated static let analyticsConsentChanged = "analytics_consent_changed"
+  /// Diagnostic event fired by the shared persistence-save helper when
+  /// `context.save()` throws. Allow-listed under `docs/analytics-spec.md` §8/§17
+  /// as the single product-stream event whose source is the OSLog-shaped
+  /// failure path; payload is restricted to `operation`, `error_domain`,
+  /// `error_code` (see the `persistence-error-handling` capability).
+  nonisolated static let persistenceSaveFailed = "persistence_save_failed"
 }
 
 // MARK: - Canonical property keys
@@ -96,6 +102,15 @@ enum AnalyticsProperty {
   nonisolated static let settingName = "setting_name"
   nonisolated static let newValue = "new_value"
   nonisolated static let oldValue = "old_value"
+
+  // MARK: Per-event — persistence_save_failed (analytics-spec.md §8/§10)
+
+  /// `PersistenceOperation` raw value (snake_case enum, e.g. `budget_create`).
+  nonisolated static let operation = "operation"
+  /// `NSError.domain` of the underlying SwiftData failure.
+  nonisolated static let errorDomain = "error_domain"
+  /// `NSError.code` of the underlying SwiftData failure.
+  nonisolated static let errorCode = "error_code"
 
   // MARK: Super properties (analytics-spec.md §10.2)
 

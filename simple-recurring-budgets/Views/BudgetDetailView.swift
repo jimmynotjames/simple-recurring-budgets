@@ -16,6 +16,11 @@ struct BudgetDetailView: View {
   @State var lifecycle: BudgetLifecycleResult?
   @State private var showResetCarryOverConfirm = false
   @State private var showResetBudgetConfirm = false
+  /// Standard save-error alert state for interactive actions on this screen
+  /// (swipe-delete an expense, Reset Budget, Reset Carry-Over, Pause, Resume).
+  /// Populated by `present(_:retry:)` on a `PersistenceError` throw; cleared
+  /// by the alert's Cancel / Send Feedback buttons or a successful retry.
+  @State var saveError: SaveErrorState?
 
   /// Action-gating only: the primary slot swaps Add Expense → Resume Budget
   /// while paused, per the existing budget-detail-screen primary-action
@@ -154,6 +159,7 @@ struct BudgetDetailView: View {
     // the title. See `Budget.iconPrefixedName`.
     .navigationTitle(budget.iconPrefixedName)
     .appBackground()
+    .saveErrorAlert($saveError)
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Menu {
@@ -345,14 +351,25 @@ struct BudgetDetailView: View {
 
   // pauseBudgetTapped / resumeBudgetTapped live in BudgetDetailView+PauseResume.swift
 
-  private func resetCarryOver() {
+  func resetCarryOver() {
     Logger.ui.debug(
       "ui.action: resetCarryOver budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
     let period = budget.periodEnum
-    BudgetLifecycleService.resetCarryOver(budget, context: context)
+    do {
+      try BudgetLifecycleService.resetCarryOver(budget, context: context, analytics: analytics)
+    } catch let error as PersistenceError {
+      // Failed save: populate save-error state and skip the analytics event.
+      saveError.setForFailure(error, retry: { [self] in resetCarryOver() })
+      return
+    } catch {
+      // Helper only throws PersistenceError, but keep an exhaustive catch for safety.
+      return
+    }
+    saveError.clear()
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
+    // The analytics event fires only on a successful save (budget-lifecycle delta spec).
     analytics.track(
       AnalyticsEvent.carryOverReset,
       properties: [
@@ -366,16 +383,25 @@ struct BudgetDetailView: View {
     refreshLifecycle()
   }
 
-  private func resetBudget() {
+  func resetBudget() {
     Logger.ui.debug(
       "ui.action: resetBudget budget=\(String(describing: budget.persistentModelID), privacy: .private)"
     )
     let period = budget.periodEnum
-    withAnimation {
-      BudgetLifecycleService.resetBudget(budget, context: context)
+    do {
+      try withAnimation {
+        try BudgetLifecycleService.resetBudget(budget, context: context, analytics: analytics)
+      }
+    } catch let error as PersistenceError {
+      saveError.setForFailure(error, retry: { [self] in resetBudget() })
+      return
+    } catch {
+      return
     }
+    saveError.clear()
     // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
     // analytics.track below (F-8.02) are independent siblings. See design.md D6.
+    // The analytics event fires only on a successful save (budget-lifecycle delta spec).
     analytics.track(
       AnalyticsEvent.budgetReset,
       properties: [

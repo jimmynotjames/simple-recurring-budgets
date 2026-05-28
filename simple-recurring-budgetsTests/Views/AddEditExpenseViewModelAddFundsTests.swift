@@ -38,7 +38,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     vm.amount = 5
     vm.name = "Coffee"
     // isAddFunds defaults to false
-    vm.save(context: context, analytics: spy)
+    try vm.save(context: context, analytics: spy)
 
     let expense = try #require(budget.expenseItems.first)
     #expect(expense.amount == 5)
@@ -59,7 +59,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     vm.amount = 25
     vm.name = "Refund"
     vm.isAddFunds = true
-    vm.save(context: context, analytics: spy)
+    try vm.save(context: context, analytics: spy)
 
     let expense = try #require(budget.expenseItems.first)
     #expect(expense.amount == -25)
@@ -140,7 +140,7 @@ struct AddEditExpenseViewModelAddFundsTests {
 
     // Flip the toggle. Leave amount, name, date untouched.
     vm.isAddFunds = true
-    vm.save(context: context, analytics: spy)
+    try vm.save(context: context, analytics: spy)
 
     #expect(expense.amount == -5)
     #expect(expense.isAddFunds == true)
@@ -168,7 +168,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     #expect(vm.amount == 25)
 
     vm.isAddFunds = false
-    vm.save(context: context, analytics: spy)
+    try vm.save(context: context, analytics: spy)
 
     #expect(expense.amount == 25)
     #expect(expense.isAddFunds == false)
@@ -194,7 +194,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     let vm = AddEditExpenseViewModel(editing: expense)
     vm.isAddFunds = true
     vm.amount = 12
-    vm.save(context: context, analytics: spy)
+    try vm.save(context: context, analytics: spy)
 
     #expect(expense.amount == -12)
     #expect(expense.isAddFunds == true)

@@ -274,11 +274,11 @@ final class AddEditExpenseViewModel {
   }
 
   /// Convenience overload for tests and call sites without an `AnalyticsClient` in scope.
-  func save(context: ModelContext) {
-    save(context: context, analytics: ConsoleAnalyticsClient())
+  func save(context: ModelContext) throws {
+    try save(context: context, analytics: ConsoleAnalyticsClient())
   }
 
-  func save(context: ModelContext, analytics: any AnalyticsClient) {
+  func save(context: ModelContext, analytics: any AnalyticsClient) throws {
     // Trim whitespace; empty-after-trim collapses to nil (spec: "Form fields are Amount, Description, and When")
     let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedName: String? = trimmed.isEmpty ? nil : trimmed
@@ -294,9 +294,10 @@ final class AddEditExpenseViewModel {
       expense.budget = budget
       context.insert(expense)
       budget.lastModified = now
-      try? context.save()
+      try context.saveChanges(operation: .expenseCreate, analytics: analytics)
 
-      // expense_logged: NO ExpenseItem field transmitted — only categorical context.
+      // expense_logged fires only on a successful save (per `add-edit-expense-screen` delta spec).
+      // NO ExpenseItem field transmitted — only categorical context.
       let period = budget.periodEnum
       let elapsed = Date().timeIntervalSince(budget.createdAt)
       analytics.track(
@@ -335,8 +336,9 @@ final class AddEditExpenseViewModel {
         let now = Date()
         expense.lastModified = now
         expense.budget?.lastModified = now
-        try? context.save()
-        // expense_edited: NO ExpenseItem field transmitted — only categorical context.
+        try context.saveChanges(operation: .expenseEdit, analytics: analytics)
+        // expense_edited fires only on a successful save (per `add-edit-expense-screen` delta spec).
+        // NO ExpenseItem field transmitted — only categorical context.
         let budget = expense.budget
         let period = budget?.periodEnum ?? .daily
         analytics.track(
@@ -351,12 +353,17 @@ final class AddEditExpenseViewModel {
     }
   }
 
-  func delete(context: ModelContext) {
+  /// Convenience overload for tests and call sites without an `AnalyticsClient` in scope.
+  func delete(context: ModelContext) throws {
+    try delete(context: context, analytics: ConsoleAnalyticsClient())
+  }
+
+  func delete(context: ModelContext, analytics: any AnalyticsClient) throws {
     guard case let .edit(expense) = mode else { return }
     let budget = expense.budget
     context.delete(expense)
     budget?.lastModified = Date()
-    try? context.save()
+    try context.saveChanges(operation: .expenseDelete, analytics: analytics)
   }
 }
 
@@ -370,6 +377,8 @@ struct AddEditExpenseView: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var showDeleteConfirmation = false
+  /// Standard save-error alert state (`persistence-error-handling` capability).
+  @State private var saveError: SaveErrorState?
 
   var body: some View {
     ScrollView {
@@ -407,13 +416,39 @@ struct AddEditExpenseView: View {
           defaultValue: "Save",
           comment: "Button that saves the expense and dismisses the sheet"
         )) {
-          viewModel.save(context: context, analytics: analytics)
-          dismiss()
+          commitSave()
         }
         .disabled(!viewModel.canSave)
         .fontWeight(.semibold)
         .tint(.accentColor)
       }
+    }
+    .saveErrorAlert($saveError)
+  }
+
+  private func commitSave() {
+    do {
+      try viewModel.save(context: context, analytics: analytics)
+      saveError.clear()
+      dismiss()
+    } catch let error as PersistenceError {
+      // Per `add-edit-expense-screen` delta spec: sheet stays open with input
+      // intact; expense_logged/expense_edited not fired on failure.
+      saveError.setForFailure(error, retry: commitSave)
+    } catch {
+      // saveChanges only throws PersistenceError; exhaustive catch for safety.
+    }
+  }
+
+  private func commitDelete() {
+    do {
+      try viewModel.delete(context: context, analytics: analytics)
+      saveError.clear()
+      dismiss()
+    } catch let error as PersistenceError {
+      saveError.setForFailure(error, retry: commitDelete)
+    } catch {
+      // saveChanges only throws PersistenceError; exhaustive catch for safety.
     }
   }
 
@@ -454,8 +489,7 @@ struct AddEditExpenseView: View {
         ),
         role: .destructive
       ) {
-        viewModel.delete(context: context)
-        dismiss()
+        commitDelete()
       }
     } message: {
       Text(String(

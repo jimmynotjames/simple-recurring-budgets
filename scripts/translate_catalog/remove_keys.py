@@ -13,9 +13,15 @@ Usage:
   python3 scripts/translate_catalog/remove_keys.py --keys k1,k2,...
   python3 scripts/translate_catalog/remove_keys.py --keys-file PATH
   python3 scripts/translate_catalog/remove_keys.py --keys k1,k2 --dry-run
+  python3 scripts/translate_catalog/remove_keys.py --literal-keys-json PATH
 
 Exits non-zero if any requested key is not present in the catalog (so typos
 surface loudly).
+
+--literal-keys-json takes a path to a JSON array of strings and treats each
+entry as an exact key (no comma-splitting, no whitespace stripping). Use this
+when a key contains commas, leading/trailing whitespace, or is whitespace-only
+(e.g. orphaned auto-extracted Text(" ") keys).
 """
 
 from __future__ import annotations
@@ -29,13 +35,19 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 
 
-def parse_keys(arg: str | None, path: Path | None) -> set[str]:
+def parse_keys(arg: str | None, path: Path | None, literal_json: Path | None) -> set[str]:
     keys: list[str] = []
     if arg:
         keys.extend(k.strip() for k in arg.split(",") if k.strip())
     if path:
         with path.open(encoding="utf-8") as f:
             keys.extend(line.strip() for line in f if line.strip() and not line.startswith("#"))
+    if literal_json:
+        with literal_json.open(encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, list) or not all(isinstance(k, str) for k in data):
+            raise ValueError(f"{literal_json}: expected a JSON array of strings")
+        keys.extend(data)
     return set(keys)
 
 
@@ -44,15 +56,20 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--keys", help="Comma-separated list of keys to remove.")
     parser.add_argument("--keys-file", type=Path, help="Path to a file with one key per line.")
     parser.add_argument(
+        "--literal-keys-json",
+        type=Path,
+        help="Path to a JSON array of strings; each entry is treated as a literal key (no stripping, no comma-splitting).",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print what would be removed; do not write the catalog.",
     )
     args = parser.parse_args(argv)
 
-    keys = parse_keys(args.keys, args.keys_file)
+    keys = parse_keys(args.keys, args.keys_file, args.literal_keys_json)
     if not keys:
-        parser.error("must pass --keys or --keys-file with at least one key")
+        parser.error("must pass --keys, --keys-file, or --literal-keys-json with at least one key")
 
     if not CATALOG_PATH.exists():
         print(f"ERROR: catalog not found at {CATALOG_PATH}", file=sys.stderr)

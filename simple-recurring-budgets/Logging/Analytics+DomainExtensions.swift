@@ -83,3 +83,48 @@ func timeSinceBudgetCreatedBucket(seconds: TimeInterval) -> String {
   default: "≥1d"
   }
 }
+
+// MARK: - F-7.04 Recents bucketing helpers
+
+//
+// All three helpers produce the same shape of categorical output the rest of the
+// analytics-spec.md §10 pipeline expects: short, stable string labels with explicit
+// boundaries. Boundaries are deliberately coarse to avoid pseudo-identification.
+
+/// Buckets the number of Recents tiles visible in the section at tap time into the
+/// `recents_visible_count` property values. Inputs outside `[1, recentsDisplayLimit]`
+/// fold into the nearest bucket (negatives → `"0"`, beyond cap → `"8-15"`).
+func recentsVisibleCountBucket(_ count: Int) -> String {
+  switch count {
+  case ..<1: "0"
+  case 1: "1"
+  case 2 ... 3: "2-3"
+  case 4 ... 7: "4-7"
+  default: "8-15"
+  }
+}
+
+/// Buckets the 0-indexed position of the tapped Recents tile into the
+/// `recents_tap_position` property values. Positions `0` and `1` are kept as their own
+/// buckets because the canonical product question is "do users overwhelmingly tap the
+/// first one?" — collapsing them would erase that signal. Negative inputs fold into
+/// `"0"` (defensive; never reached from real call sites).
+func recentsTapPositionBucket(_ position: Int) -> String {
+  switch position {
+  case ..<1: "0"
+  case 1: "1"
+  case 2 ... 4: "2-4"
+  default: "5+"
+  }
+}
+
+/// Buckets the length of the user's typed Description query at tap time into the
+/// `name_query_length` property values. Distinguishes "open-and-tap" (`"0"`) from
+/// "type-then-tap" (everything else) without surfacing the raw character count.
+func nameQueryLengthBucket(_ length: Int) -> String {
+  switch length {
+  case ..<1: "0"
+  case 1 ... 2: "1-2"
+  default: "3+"
+  }
+}

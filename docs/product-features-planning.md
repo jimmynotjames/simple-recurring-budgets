@@ -441,18 +441,20 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-7.04: Recently used expenses
 
-- **Status:** Open
+- **Status:** Implemented. Implemented by change `finish-recently-used-expenses` (workshop design landed pre-change; cross-cutting concerns and tests landed with the change).
 - **Description:** Surface the user's recently logged expenses as tappable suggestions when adding a new Expense Item, so they can reuse a prior entry (name + amount) with one tap. This serves the "fast logging" signature element (UX brief) and Guiding Principle #2 (minimal user input) for the app's habitual, recurring-expense use case.
 - **Acceptance Criteria:**
   - **Reuse name + amount.** Tapping a suggestion populates **both** the name and the amount fields of the Add Expense form from the chosen prior entry — not the name alone. (Amount is the required field and the primary friction-saver; see F-2.04.)
   - **Fill, don't auto-save.** A tap populates the draft fields and leaves the user on the Add Expense sheet to review, edit, and Save. It does **not** log instantly. The amount remains visible and editable so a stale or wrong value is caught before Save (Guiding Principle #3, Clarity).
-  - **Suggestion → autocomplete on the same surface.** As the user types into the name field, the suggestion set filters to matching recents (and dismisses when there are no matches). There is no separate picker mode or screen.
+  - **Suggestion → autocomplete on the same surface.** As the user types into the name field, the suggestion set narrows to matching recents. There is no separate picker mode or screen; the surface stays anchored on the form rather than pulling the user off course.
   - **Per-budget scope.** Suggestions are drawn from the **current budget's** prior expenses only — never cross-budget. This is required because currency is per-budget (main-prd.md §7.2), so a cross-budget amount could surface under the wrong currency; it also keeps suggestions contextually relevant.
   - **No Settings toggle.** The feature is always on and is not user-configurable, per UX Simplicity (Guiding Principle #1) and the "Minimal" Settings directive (UX brief). Revisit only if real-world feedback shows a need to disable or clear recents.
   - **Date handling.** A reused entry takes **today's date, clamped to the budget's allowed range** per F-2.04's date-bounds rules — it does **not** inherit the original expense's date/time.
 - **Edge Cases / Notes:**
-  - **OPEN — Ranking definition.** Decide recency vs. frequency for ordering, and how duplicates collapse — specifically which amount rides along when the same name recurs at different amounts (e.g. last-used vs. most-common). To be resolved before implementation.
-  - **OPEN — Remaining edge cases.** To be resolved: empty state (a budget with no prior expenses — presumably the suggestion surface simply doesn't render); whether unnamed ("Untitled") expenses are eligible as suggestions; whether add-funds rows (F-6.01) are eligible; and handling of very long names.
+  - **Ranking.** Recency-driven; duplicates by description collapse to the most recent occurrence, whose amount rides along. Subject to revision once usage data accrues.
+  - **Excluded categories.** Add Funds entries (F-6.01) and unnamed expenses are not surfaced as suggestions.
+  - **Empty and no-match presentation.** When the budget has no candidate expenses, the suggestion surface is absent. How a typed query with no matches presents is left to the implementation, with stability of the form taking priority over the exact shape of the empty signal.
+  - **Long names** are visually bounded on the surface so no single entry dominates.
 - **Dependencies:** F-2.04
 
 ##### F-7.05: Per-budget period start date

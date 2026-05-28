@@ -46,6 +46,10 @@ enum AnalyticsEvent {
   nonisolated static let expenseLogged = "expense_logged"
   nonisolated static let expenseEdited = "expense_edited"
   nonisolated static let expenseDeleted = "expense_deleted"
+  /// F-7.04: fired when the user taps a Recents suggestion tile in Add Expense.
+  /// Properties are strictly categorical / bucketed; no `ExpenseItem` field is
+  /// transmitted (see analytics-spec.md §2.1 no-PII rule).
+  nonisolated static let expenseRecentReused = "expense_recent_reused"
   nonisolated static let settingsOpened = "settings_opened"
   nonisolated static let settingChanged = "setting_changed"
   nonisolated static let analyticsConsentChanged = "analytics_consent_changed"
@@ -96,6 +100,23 @@ enum AnalyticsProperty {
   nonisolated static let isAddFunds = "is_add_funds"
   nonisolated static let fromScreen = "from_screen"
   nonisolated static let timeSinceBudgetCreatedBucket = "time_since_budget_created_bucket"
+
+  // MARK: Per-event — expense_recent_reused (F-7.04)
+
+  //
+  // Categorical / bucketed signal about the F-7.04 Recents-reuse interaction. Never
+  // includes the description string or amount value; see analytics-spec.md §2.1.
+
+  /// Bucketed number of Recents tiles visible in the section at tap time
+  /// (e.g., `"1"`, `"2-3"`, `"4-7"`, `"8-15"`).
+  nonisolated static let recentsVisibleCount = "recents_visible_count"
+  /// Bucketed 0-indexed position of the tapped tile in the visible row
+  /// (e.g., `"0"`, `"1"`, `"2-4"`, `"5+"`).
+  nonisolated static let recentsTapPosition = "recents_tap_position"
+  /// Bucketed length of the user's typed Description query at the moment of the tap
+  /// (e.g., `"0"`, `"1-2"`, `"3+"`). Answers whether the user typed-then-tapped or
+  /// open-and-tapped.
+  nonisolated static let nameQueryLength = "name_query_length"
 
   // MARK: Per-event — setting_changed
 

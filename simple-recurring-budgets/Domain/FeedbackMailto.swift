@@ -82,4 +82,49 @@ enum FeedbackMailto {
       string: "mailto:\(recipient)?subject=\(subjectEncoded)&body=\(bodyEncoded)"
     )!
   }
+
+  /// Feedback URL for the container-creation failure recovery surface
+  /// (`container-creation-recovery` capability). Body contains only the
+  /// `NSError` domain + code — no user data, no model identifiers.
+  ///
+  /// Localized parts: subject prefix, body intro, closing user prompt.
+  /// English-only parts: `" — container failure (<domain> <code>)"` subject
+  /// suffix and the `Error domain:` / `Error code:` diagnostic labels.
+  static func containerFailureURL(
+    errorDomain: String,
+    errorCode: Int
+  ) -> URL {
+    let subject = "\(defaultSubject) — container failure (\(errorDomain) \(errorCode))"
+
+    let intro = String(
+      localized: "containerFailure.email.body.intro",
+      defaultValue: "The app couldn't open your data store. Diagnostic context (no personal data):",
+      comment: "First sentence of the auto-filled email body shown when the user taps Send Feedback on the container-creation failure screen. Reassures them that no personal data is included."
+    )
+    let prompt = String(
+      localized: "containerFailure.email.body.prompt",
+      defaultValue: "Please describe what was happening on your device when this started:",
+      comment: "Closing prompt at the end of the auto-filled email body on the container-failure surface, inviting the user to describe what was happening when the app couldn't open the data store."
+    )
+
+    let body = """
+    \(intro)
+
+    Error domain: \(errorDomain)
+    Error code: \(errorCode)
+
+    \(prompt)
+
+    """
+
+    let subjectEncoded = subject
+      .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+    let bodyEncoded = body
+      .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+    // swiftlint:disable:next force_unwrapping
+    return URL(
+      string: "mailto:\(recipient)?subject=\(subjectEncoded)&body=\(bodyEncoded)"
+    )!
+  }
 }

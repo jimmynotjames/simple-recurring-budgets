@@ -223,7 +223,7 @@ Read(path, offset=180, limit=45)   # ✓ instead of: sed -n '180,225p' FILE
 
 ### 4. Never write throwaway scripts to `/tmp/` or anywhere else ephemeral
 
-If a script needs to exist, add it under `scripts/` with a matching allowlist entry. For one-off data shaping, either inline as a heredoc piped to `python3 -`, or use the existing primitives — for string-catalog work specifically, always use `scripts/translate_catalog/*` rather than writing new ad-hoc Python.
+If a script needs to exist, add it under `scripts/` with a matching allowlist entry. For one-off data shaping, **reach for the allowlisted primitives first** — `jq`, `awk`, `grep`/`rg`, plus auto-allowed `sort`/`uniq`/`cut`/`tr` — since those run without prompting. Only when the task genuinely exceeds them (e.g. multi-file JSONL with shell-token parsing) fall back to a heredoc piped to `python3 -`; that path is *not* allowlistable (`python3` reading arbitrary stdin is arbitrary code execution), so expect a single permission prompt each time. For string-catalog work specifically, always use `scripts/translate_catalog/*` rather than writing new ad-hoc Python.
 
 ### 5. Use exact `make` targets with pipe-to-`tail`
 

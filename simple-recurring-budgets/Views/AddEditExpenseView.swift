@@ -59,13 +59,21 @@ final class AddEditExpenseViewModel {
   /// post-end clamped-default caption (F-2.04). `nil` outside the post-end case.
   private let cachedEndDateFormatted: String?
 
+  /// F-7.04 Recents candidates, memoized at sheet-open. Recomputing during typing would
+  /// re-sort and re-dedup `budget.expenseItems` on every keystroke; caching reduces the
+  /// per-keystroke filter cost to O(K). Always populated (including Edit mode, where the
+  /// section is hidden) so a future presentation change doesn't strand a stale empty.
+  /// See `AddEditExpenseView+RecentsSection.swift` for the algorithm.
+  let cachedRecentCandidates: [RecentExpenseSuggestion]
+
   var isEditing: Bool {
     if case .edit = mode { return true }
     return false
   }
 
-  /// The budget driving this expense entry. Used for date-bounds validation.
-  private var budget: Budget? {
+  /// The budget driving this expense entry. Used for date-bounds validation and (since
+  /// F-7.04) the Recents-section candidate query in `AddEditExpenseView+RecentsSection.swift`.
+  var budget: Budget? {
     switch mode {
     case let .add(budget): budget
     case let .edit(expense): expense.budget
@@ -200,6 +208,7 @@ final class AddEditExpenseViewModel {
     cachedEndDateFormatted = snapshot.lifecycleState == .postEnd
       ? budget.endDate?.formatted(date: .abbreviated, time: .omitted)
       : nil
+    cachedRecentCandidates = Self.computeRecentCandidates(for: budget)
     // Seed `date` so the picker opens inside `dateRange`:
     // - Paused: most recent pause moment (guaranteed inside an active period).
     // - Post-end: end of `endDate`'s day, matching `dateRange`'s upper bound (F-2.04).
@@ -240,6 +249,7 @@ final class AddEditExpenseViewModel {
     // Pre-start / post-end captions are Add-mode-only (F-2.04) — Edit mode never reads these.
     cachedStartDateFormatted = nil
     cachedEndDateFormatted = nil
+    cachedRecentCandidates = Self.computeRecentCandidates(for: expense.budget)
   }
 
   /// Returns the `effectiveDate` of the most recent `.pause` `LifecycleEvent` that
@@ -383,6 +393,7 @@ struct AddEditExpenseView: View {
   var body: some View {
     ScrollView {
       VStack(spacing: 16) {
+        recentsSection
         amountCard
         nameCard
         whenCard

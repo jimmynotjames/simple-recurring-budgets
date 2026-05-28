@@ -98,6 +98,8 @@
       "Bash(git pull *)",
       "Bash(git branch *)",
       "Bash(git remote *)",
+      "Bash(git rm *)",
+      "Bash(git mv *)",
       "Bash(gh pr *)",
       "Bash(gh issue view *)",
       "Bash(gh issue list *)",

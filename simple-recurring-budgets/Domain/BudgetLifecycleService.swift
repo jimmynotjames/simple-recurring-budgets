@@ -109,9 +109,10 @@ enum BudgetLifecycleService {
     _ budget: Budget,
     newAmount: Decimal,
     context: ModelContext,
+    analytics: (any AnalyticsClient)? = nil,
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
-  ) {
+  ) throws {
     guard let periodRaw = BudgetPeriod(rawValue: budget.period) else { return }
     // Specific Dates: latest-wins whole-window overwrite (F-2.08). Exactly one
     // AllocationChange row exists for the entire window; mutate it in place rather
@@ -129,7 +130,7 @@ enum BudgetLifecycleService {
       mostRecent.amount = newAmount
       mostRecent.lastModified = now
       budget.lastModified = now
-      try? context.save()
+      try context.saveChanges(operation: .lifecycleAllocationEdit, analytics: analytics)
       return
     }
     guard let period = RecurringBudgetPeriod(periodRaw) else { return }
@@ -156,7 +157,7 @@ enum BudgetLifecycleService {
     }
 
     budget.lastModified = now
-    try? context.save()
+    try context.saveChanges(operation: .lifecycleAllocationEdit, analytics: analytics)
   }
 
   /// Resets carry-over to zero from `now` forward by writing `Budget.lastResetDate`.
@@ -166,8 +167,9 @@ enum BudgetLifecycleService {
   static func resetCarryOver(
     _ budget: Budget,
     context: ModelContext,
+    analytics: (any AnalyticsClient)? = nil,
     now: Date = Date()
-  ) {
+  ) throws {
     // Reset Carry-Over is hidden in F-2.08 specificDates UI and the algorithm
     // ignores `lastResetDate` for that branch. Calling this on a specificDates
     // budget would write `lastResetDate` with no observable effect — trip in
@@ -178,7 +180,7 @@ enum BudgetLifecycleService {
     )
     budget.lastResetDate = now
     budget.lastModified = now
-    try? context.save()
+    try context.saveChanges(operation: .lifecycleResetCarryOver, analytics: analytics)
   }
 
   /// Deletes all expenses for `budget`, sets `Budget.lastResetDate = now`, and saves.
@@ -195,8 +197,9 @@ enum BudgetLifecycleService {
   static func resetBudget(
     _ budget: Budget,
     context: ModelContext,
+    analytics: (any AnalyticsClient)? = nil,
     now: Date = Date()
-  ) {
+  ) throws {
     for expense in Array(budget.expenseItems) {
       context.delete(expense)
     }
@@ -213,7 +216,7 @@ enum BudgetLifecycleService {
       event.budget = budget
       context.insert(event)
     }
-    try? context.save()
+    try context.saveChanges(operation: .lifecycleResetBudget, analytics: analytics)
   }
 
   // MARK: - Pause / Resume (F-7.06)
@@ -231,9 +234,10 @@ enum BudgetLifecycleService {
   static func pauseBudget(
     _ budget: Budget,
     context: ModelContext,
+    analytics: (any AnalyticsClient)? = nil,
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
-  ) -> Bool {
+  ) throws -> Bool {
     guard budget.periodEnum != .specificDates else { return false }
     let snapshot = BudgetCalculator.snapshot(
       budget: budget,
@@ -248,7 +252,7 @@ enum BudgetLifecycleService {
     event.budget = budget
     context.insert(event)
     budget.lastModified = now
-    try? context.save()
+    try context.saveChanges(operation: .lifecyclePause, analytics: analytics)
     return true
   }
 
@@ -262,9 +266,10 @@ enum BudgetLifecycleService {
   static func resumeBudget(
     _ budget: Budget,
     context: ModelContext,
+    analytics: (any AnalyticsClient)? = nil,
     now: Date = Date(),
     calendar: Calendar = .autoupdatingCurrent
-  ) -> Bool {
+  ) throws -> Bool {
     guard budget.periodEnum != .specificDates else { return false }
     let snapshot = BudgetCalculator.snapshot(
       budget: budget,
@@ -278,7 +283,7 @@ enum BudgetLifecycleService {
     event.budget = budget
     context.insert(event)
     budget.lastModified = now
-    try? context.save()
+    try context.saveChanges(operation: .lifecycleResume, analytics: analytics)
     return true
   }
 

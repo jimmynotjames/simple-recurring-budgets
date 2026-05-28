@@ -24,6 +24,10 @@ struct AddEditBudgetView: View {
   @State private var showDeleteConfirmation = false
   @State private var showOrphanWarning = false
   @State private var showIconPicker = false
+  /// Standard save-error alert state (`persistence-error-handling` capability).
+  /// Populated when `viewModel.save`/`viewModel.delete` throws a
+  /// `PersistenceError`; the sheet stays open with input intact.
+  @State private var saveError: SaveErrorState?
   @State var initialCurrencyCode: String = ""
   @State var isScheduleExpanded: Bool = false
   @FocusState private var isNameFocused: Bool
@@ -109,6 +113,7 @@ struct AddEditBudgetView: View {
       .sheet(isPresented: $showCurrencyPicker) {
         CurrencyPickerView(selection: $viewModel.currencyCode)
       }
+      .saveErrorAlert($saveError)
       .alert(
         String(
           localized: "addEditBudget.orphanWarning.title",
@@ -138,8 +143,31 @@ struct AddEditBudgetView: View {
   }
 
   private func commitSave() {
-    viewModel.save(context: context, analytics: analytics, settings: settings, router: router)
-    dismiss()
+    do {
+      try viewModel.save(context: context, analytics: analytics, settings: settings, router: router)
+      saveError.clear()
+      dismiss()
+    } catch let error as PersistenceError {
+      // Per `add-edit-budget-screen` delta spec: sheet stays open with input
+      // intact; alert presents Retry; the inserted-but-unsaved Budget remains
+      // in the context so Retry re-attempts the same save.
+      saveError.setForFailure(error, retry: commitSave)
+    } catch {
+      // saveChanges only throws PersistenceError; exhaustive catch for safety.
+    }
+  }
+
+  private func commitDelete() {
+    do {
+      try viewModel.delete(context: context, analytics: analytics)
+      saveError.clear()
+      router.path.removeAll()
+      dismiss()
+    } catch let error as PersistenceError {
+      saveError.setForFailure(error, retry: commitDelete)
+    } catch {
+      // saveChanges only throws PersistenceError; exhaustive catch for safety.
+    }
   }
 
   // MARK: - Destructive Actions
@@ -179,9 +207,7 @@ struct AddEditBudgetView: View {
         ),
         role: .destructive
       ) {
-        viewModel.delete(context: context, analytics: analytics)
-        router.path.removeAll()
-        dismiss()
+        commitDelete()
       }
     } message: {
       Text(String(

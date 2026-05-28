@@ -150,6 +150,7 @@ The default is **deny**. A field may only be transmitted to Mixpanel if it appea
 | Bucketed counts and durations                          | `budgets_count_bucket`, `time_since_budget_created_bucket`                                                                           | Bucketed before send; not user-typed.                                                                                                                              |
 | **Budget allocation amount**                           | The numeric allocation per Budget (e.g. `budget_allocation_amount`, paired with `currency_code`)                                     | **Explicitly allow-listed.** Allocation is a configured cap, not a transaction; it carries strong product signal (median allocation, allocation-vs-period mix) that no bucket can replicate well. Accepted as low-PII-risk because it's a self-set ceiling, not an itemized purchase. |
 | **Budget name** (raw string)                           | The user-typed name of a Budget (e.g. `budget_name`)                                                                                 | **Accepted-risk exception** — see §5.4. Allow-listed despite being free-text.                                                                                      |
+| **Persistence-save failure diagnostics**               | `operation` (static `PersistenceOperation` enum value), `error_domain` (`NSError.domain`), `error_code` (`NSError.code`) on the `persistence_save_failed` event only | **Narrowly-scoped diagnostic event** — see §8 boundary note and §17. No user-derived content (the operation is a compile-time enum; domain/code come from Apple framework `NSError`). Strictly bounded to these three properties; expansion requires a spec update. |
 
 ### 5.3 Explicitly denied (deny-list)
 
@@ -331,6 +332,7 @@ Canonical event names live as constants in `AnalyticsEvent` (in [simple-recurrin
 | `settings_opened`           | Settings sheet presented.                                                                                                               | §3.5                                     |
 | `setting_changed`           | An enumerated **product-meaningful** setting transitions to a new value. See §10.1 for the canonical `setting_name` enum.               | §3.5                                     |
 | `analytics_consent_changed` | Analytics opt-in toggle changes state. Sent **before** disabling so opt-outs are observable. (Kept distinct from `setting_changed` because consent transitions gate every other event.) | §3.6                                     |
+| `persistence_save_failed`   | SwiftData `context.save()` threw, surfaced by the shared persistence-save helper. **Narrowly-scoped diagnostic event** — see §8 boundary note and §17. Payload restricted to `operation`, `error_domain`, `error_code` (§5.2 / §10.1). Consent-gated, hence best-effort. | Issue #9 — dashboard visibility for save failures |
 
 ---
 
@@ -358,6 +360,9 @@ Canonical event names live as constants in `AnalyticsEvent` (in [simple-recurrin
 | `setting_changed` | `setting_name`                     | `default_carry_over_enabled` / `week_start_day` / `currency_display_preference` | Enumerated. Adding a new value requires updating §5 (no free-text). `analytics_opt_in` is **not** included here — it has its own dedicated event (`analytics_consent_changed`). |
 | `setting_changed` | `new_value`                        | Categorical, scoped to `setting_name`        | E.g. for `default_carry_over_enabled`: `true` / `false`. For `week_start_day`: `monday` / `sunday` / etc. Never raw user input. |
 | `setting_changed` | `old_value`                        | Categorical, scoped to `setting_name`        | Same domain as `new_value`. Optional on first-set transitions.         |
+| `persistence_save_failed` | `operation`                | Enumerated `PersistenceOperation` raw value (snake_case): `budget_create` / `budget_edit` / `budget_delete` / `expense_create` / `expense_edit` / `expense_delete` / `reorder` / `lifecycle_pause` / `lifecycle_resume` / `lifecycle_allocation_edit` / `lifecycle_reset_carry_over` / `lifecycle_reset_budget` / `lifecycle_rollover` / `app_launch_dedup` | Identifies the failing call site. Static enum value — not user-derived. |
+| `persistence_save_failed` | `error_domain`             | String, the underlying `NSError.domain` (e.g. `NSCocoaErrorDomain`) | Apple framework diagnostic — not user-derived. |
+| `persistence_save_failed` | `error_code`               | Int, the underlying `NSError.code`           | Apple framework diagnostic — not user-derived. **No** other properties may be added to this event; the allow-list is strict (§8 boundary note). |
 
 No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry only categorical context (`period`, `is_add_funds`, `from_screen`) and bucketed durations. Free-text other than `budget_name`, currency amounts other than `budget_allocation_amount`, and raw user-entered dates remain banned. See §5 for the canonical allow/deny list.
 
@@ -547,6 +552,8 @@ This subsection captures what existed in the repo before implementing F-8.02.
 
 A single user action can produce both — e.g., a successful Add Expense sends `expense_logged` to Mixpanel **and** writes an `ui`-category entry to OSLog. The two paths are independent and never cross.
 
+**Narrow allow-listed diagnostic event — `persistence_save_failed`.** A SwiftData `context.save()` failure is the one place where a diagnostic concern is also surfaced on the product-analytics channel. The shared persistence-save helper (`ModelContext.saveChanges(operation:analytics:)`) emits **one** `Logger.persistence.error` line **and** fires **one** `persistence_save_failed` event as sibling statements built from the same plain values (the `PersistenceOperation` identifier and the `NSError` domain/code). Rationale: an unreachable `OSLog.error` is invisible in the wild; routing one diagnostic event into the product stream gives the developer dashboard visibility into a failure that otherwise blocks the user. The event is restricted to **only** `operation`, `error_domain`, `error_code` — see §5.2 / §10.1. Because the event is consent-gated like all `AnalyticsClient` traffic, it is a best-effort signal; the on-device `OSLog.persistence` line is the complete record. This is the **only** approved diagnostic event in the product stream and SHALL NOT be generalized into a back-door for other diagnostic data.
+
 **Co-location (sibling-call) pattern — F-8.02 destructive-action funnels.** Four methods in the codebase contain both a `Logger.ui.debug(...)` call (F-8.01) and an `analytics.track(...)` call (F-8.02) in the same method body:
 
 | Method | Logger call | Analytics call |
@@ -555,6 +562,7 @@ A single user action can produce both — e.g., a successful Add Expense sends `
 | `BudgetDetailView.resetBudget(…)` | `Logger.ui.debug("ui.action: resetBudget …")` | `analytics.track(AnalyticsEvent.budgetReset, …)` |
 | `BudgetDetailView.resetCarryOver(…)` | `Logger.ui.debug("ui.action: resetCarryOver …")` | `analytics.track(AnalyticsEvent.carryOverReset, …)` |
 | `BudgetDetailView+ExpenseSection.deleteExpense(_:)` | `Logger.ui.debug("ui.action: deleteExpense …")` | `analytics.track(AnalyticsEvent.expenseDeleted, …)` |
+| `ModelContext.saveChanges(operation:analytics:)` (failure path) | `Logger.persistence.error("persistence.save.failed …")` | `analytics.track(AnalyticsEvent.persistenceSaveFailed, …)` |
 
 These are **independent sibling statements** — the Logger call does not feed the analytics call and vice versa. Each carries its own independently assembled arguments. This is the approved pattern for funnels where both diagnostic tracing and product measurement are warranted at the same action point. The "never cross" rule above means: the Logger argument MUST NOT be derived from an analytics property bag, and the analytics property bag MUST NOT be derived from a Logger call.
 

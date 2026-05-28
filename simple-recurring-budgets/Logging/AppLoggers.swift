@@ -11,4 +11,10 @@ extension Logger {
 
   /// Covers view lifecycle events and user-initiated UI actions.
   static let ui = Logger(subsystem: subsystem, category: "ui")
+
+  /// Covers SwiftData write failures surfaced by the shared persistence-save
+  /// helper. Success paths emit nothing on this channel. See the
+  /// `diagnostic-logging` capability and `docs/analytics-spec.md` §17 for the
+  /// architectural boundary with `AnalyticsClient`.
+  static let persistence = Logger(subsystem: subsystem, category: "persistence")
 }

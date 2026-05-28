@@ -143,7 +143,7 @@ struct AddEditBudgetViewModelOrphanWarningTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.startDate = try date(2026, 4, 10) // moves past the two March expenses
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.startDateChanged] == "true")
@@ -162,7 +162,7 @@ struct AddEditBudgetViewModelOrphanWarningTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.name = "Coffee + tea"
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.orphanedExpenseCount] == nil)
@@ -175,7 +175,7 @@ struct AddEditBudgetViewModelOrphanWarningTests {
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.name = "New"
     vm.allocation = 10
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let createdCall = spy.trackCalls.first(where: { $0.event == AnalyticsEvent.budgetCreated })
     let props = try #require(createdCall?.properties)
@@ -207,7 +207,7 @@ struct AddEditBudgetViewModelOrphanWarningTests {
     vm.startDate = try date(2026, 5, 11) // orphans the May 8 and May 10 expenses
     #expect(vm.orphanedExpenseCount == 2)
 
-    vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
+    try vm.save(context: context, analytics: spy, settings: AppSettings(), router: Router())
 
     let props = try #require(budgetEditedProperties(spy))
     #expect(props[AnalyticsProperty.startDateChanged] == "true")

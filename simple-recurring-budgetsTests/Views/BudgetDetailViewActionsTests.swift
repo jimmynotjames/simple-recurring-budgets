@@ -29,7 +29,7 @@ struct ResetBudgetAlgorithmTests {
     #expect(budget.expenseItems.count == 3)
 
     let now = Date()
-    BudgetLifecycleService.resetBudget(budget, context: context, now: now)
+    try BudgetLifecycleService.resetBudget(budget, context: context, now: now)
 
     #expect(budget.expenseItems.isEmpty)
     #expect(budget.lastResetDate != nil)
@@ -47,7 +47,7 @@ struct ResetBudgetAlgorithmTests {
     }
     try context.save()
 
-    BudgetLifecycleService.resetBudget(budget, context: context)
+    try BudgetLifecycleService.resetBudget(budget, context: context)
 
     let context2 = ModelContext(container)
     let found = try context2.fetch(FetchDescriptor<Budget>()).first { $0.id == budgetID }
@@ -62,7 +62,7 @@ struct ResetBudgetAlgorithmTests {
     let budget = makeBudget(in: context)
     try context.save()
 
-    BudgetLifecycleService.resetBudget(budget, context: context)
+    try BudgetLifecycleService.resetBudget(budget, context: context)
 
     #expect(budget.expenseItems.isEmpty)
   }
@@ -78,7 +78,7 @@ struct ResetBudgetAlgorithmTests {
     }
     try context.save()
 
-    BudgetLifecycleService.resetBudget(budgetA, context: context)
+    try BudgetLifecycleService.resetBudget(budgetA, context: context)
 
     #expect(budgetA.expenseItems.isEmpty)
     #expect(budgetB.expenseItems.count == 1)
@@ -94,7 +94,7 @@ struct ResetBudgetAlgorithmTests {
     let e2 = ExpenseItem(amount: 20); e2.budget = budget; context.insert(e2)
     try context.save()
 
-    BudgetLifecycleService.resetBudget(budget, context: context)
+    try BudgetLifecycleService.resetBudget(budget, context: context)
 
     let context2 = ModelContext(container)
     let allExpenses = try context2.fetch(FetchDescriptor<ExpenseItem>())
@@ -116,7 +116,7 @@ struct ResetCarryOverAlgorithmTests {
     try context.save()
 
     let now = Date()
-    BudgetLifecycleService.resetCarryOver(budget, context: context, now: now)
+    try BudgetLifecycleService.resetCarryOver(budget, context: context, now: now)
 
     #expect(budget.lastResetDate == now)
     #expect(budget.lastModified >= now)
@@ -136,7 +136,7 @@ struct ResetCarryOverAlgorithmTests {
     let cal = Calendar(identifier: .gregorian)
     let resetDate = try #require(cal.date(from: comps))
 
-    BudgetLifecycleService.resetCarryOver(budget, context: context, now: resetDate)
+    try BudgetLifecycleService.resetCarryOver(budget, context: context, now: resetDate)
 
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: resetDate, calendar: cal)
     #expect(snap.carryOver == 0)
@@ -241,7 +241,7 @@ struct PauseResumeToolbarVisibilityTests {
     try ctx.save()
 
     // Service rejects, confirming the toolbar item must be hidden for this budget type.
-    let result = BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    let result = try BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
     #expect(result == false)
     #expect(b.lifecycleEvents.isEmpty)
   }
@@ -257,7 +257,7 @@ struct PauseResumeToolbarVisibilityTests {
     try ctx.save()
 
     // now > endDate → service rejects, confirming toolbar item must be hidden.
-    let result = BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    let result = try BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
     #expect(result == false)
     #expect(b.lifecycleEvents.isEmpty)
   }
@@ -275,7 +275,7 @@ struct PauseResumeToolbarVisibilityTests {
     try ctx.save()
 
     // now > endDate → resume also rejected.
-    let result = BudgetLifecycleService.resumeBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    let result = try BudgetLifecycleService.resumeBudget(b, context: ctx, now: utcDate(2026, 4, 15))
     #expect(result == false)
     #expect(b.lifecycleEvents.count == 1) // no resume event added
   }
@@ -289,7 +289,7 @@ struct PauseResumeToolbarVisibilityTests {
     change.budget = b; ctx.insert(b); ctx.insert(change)
     try ctx.save()
 
-    let result = BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
+    let result = try BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15))
     #expect(result == true)
     #expect(b.lifecycleEvents.count == 1)
     #expect(b.lifecycleEvents[0].kind == .pause)
@@ -306,7 +306,7 @@ struct PauseResumeToolbarVisibilityTests {
     ctx.insert(b); ctx.insert(change); ctx.insert(pauseEvent)
     try ctx.save()
 
-    let result = BudgetLifecycleService.resumeBudget(b, context: ctx, now: utcDate(2026, 4, 20))
+    let result = try BudgetLifecycleService.resumeBudget(b, context: ctx, now: utcDate(2026, 4, 20))
     #expect(result == true)
     let resumeEvent = b.lifecycleEvents.first { $0.kind == .resume }
     #expect(resumeEvent != nil)

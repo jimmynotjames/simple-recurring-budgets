@@ -43,7 +43,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
     #expect(budget.expenseItems.count == 3)
 
-    BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15))
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15))
 
     #expect(budget.expenseItems.isEmpty)
   }
@@ -56,7 +56,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
 
     #expect(budget.lastResetDate == now)
     #expect(budget.lastModified == now)
@@ -69,7 +69,7 @@ struct BudgetLifecycleResetBudgetTests {
     let budget = makeBudget(startDate: startDate, in: ctx)
     try ctx.save()
 
-    BudgetLifecycleService.resetBudget(budget, context: ctx)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx)
 
     #expect(!budget.allocationChanges.isEmpty)
   }
@@ -88,7 +88,7 @@ struct BudgetLifecycleResetBudgetTests {
     resumeEvent.budget = budget; ctx.insert(resumeEvent)
     try ctx.save()
 
-    BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15))
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15))
 
     #expect(budget.lifecycleEvents.count == 2)
     #expect(budget.lifecycleEvents.contains { $0.kind == .pause && $0.effectiveDate == d(2026, 4, 5) })
@@ -109,7 +109,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
 
     #expect(budget.expenseItems.isEmpty)
     #expect(budget.lastResetDate == now)
@@ -131,7 +131,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
 
     #expect(budget.expenseItems.isEmpty)
     #expect(budget.lastResetDate == now)
@@ -162,7 +162,7 @@ struct BudgetLifecycleResetBudgetTests {
     }
     try ctx.save()
 
-    BudgetLifecycleService.resetBudget(budgetA, context: ctx)
+    try BudgetLifecycleService.resetBudget(budgetA, context: ctx)
 
     #expect(budgetA.expenseItems.isEmpty)
     #expect(budgetB.expenseItems.count == 1)

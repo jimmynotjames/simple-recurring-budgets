@@ -178,6 +178,10 @@ struct BudgetDetailView: View {
     }
     .listStyle(.insetGrouped)
     .scrollContentBackground(.hidden)
+    // Drop the inset-grouped list's default top inset so the title sits just below
+    // the nav bar (its own 8pt row inset is the only remaining gap), instead of the
+    // large grouped top margin (issue #117 follow-up).
+    .contentMargins(.top, 0, for: .scrollContent)
     // The budget title is rendered as a scroll-aware content header (issue #117),
     // not a string `navigationTitle`. Inline display mode frees the nav-bar center
     // for the custom collapsed title (the `.principal` toolbar item below).

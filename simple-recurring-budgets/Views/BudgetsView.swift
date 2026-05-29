@@ -308,26 +308,28 @@ struct BudgetRowView: View {
 
 // MARK: - Preview
 
-private struct BudgetsPreview: View {
-  var empty: Bool = false
+#if DEBUG
+  private struct BudgetsPreview: View {
+    var empty: Bool = false
 
-  var body: some View {
-    NavigationStack {
-      BudgetsView()
+    var body: some View {
+      NavigationStack {
+        BudgetsView()
+      }
+      .modelContainer(empty ? InMemoryModelContainer.makeEmpty() : PreviewContainer.make())
+      .environment(Router())
+      .environment(AppSettings())
+      .environment(SyncStatus(containerBacking: .cloudKit, accountStatus: .available))
     }
-    .modelContainer(empty ? InMemoryModelContainer.makeEmpty() : PreviewContainer.make())
-    .environment(Router())
-    .environment(AppSettings())
-    .environment(SyncStatus(containerBacking: .cloudKit, accountStatus: .available))
   }
-}
 
-// Seeded fixtures carry icons on a few budgets (see DebugData), so these show the
-// emoji prefix on some rows and name-only on others.
-#Preview("Light Mode") { BudgetsPreview() }
-#Preview("Dark Mode") { BudgetsPreview().preferredColorScheme(.dark) }
-// Just below reformatting threshold.
-#Preview("xxLarge") { BudgetsPreview().dynamicTypeSize(.xxLarge) }
-// Just at reformatting threshold. (Changes from horizontal stack to vertical).
-#Preview("xxxLarge") { BudgetsPreview().dynamicTypeSize(.xxxLarge) }
-#Preview("Empty state") { BudgetsPreview(empty: true) }
+  // Seeded fixtures carry icons on a few budgets (see DebugData), so these show the
+  // emoji prefix on some rows and name-only on others.
+  #Preview("Light Mode") { BudgetsPreview() }
+  #Preview("Dark Mode") { BudgetsPreview().preferredColorScheme(.dark) }
+  // Just below reformatting threshold.
+  #Preview("xxLarge") { BudgetsPreview().dynamicTypeSize(.xxLarge) }
+  // Just at reformatting threshold. (Changes from horizontal stack to vertical).
+  #Preview("xxxLarge") { BudgetsPreview().dynamicTypeSize(.xxxLarge) }
+  #Preview("Empty state") { BudgetsPreview(empty: true) }
+#endif

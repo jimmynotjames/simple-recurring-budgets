@@ -14,15 +14,19 @@
 
 This app has not been released to production and is not in the App Store. It is currently "greenfield."
 
-App Store Details:
+## App Store Details
 
-App Name 1: *Neatly – Fast Daily Spending Tracker* [TENTATIVE]
-App Name 2: *Tidy Spending – Fast Daily Expense Tracker* [TENTATIVE]
+App Name (<=30 chars): *Wren – Daily Expense Tracker* 
+App Icon Name: *Wren*
+Subtitle (<=30 chars): *Easy, fast budgeting on the go*
 
-
-Subtitle: Simple budgeting and expense logging on the go [TENTATIVE]
-
-App Icon Name: *Neatly* [TENTATIVE]
+Factors to consider:
+- App Icon Name should fit under app icon okay, preferably in all languages. 
+- Future Siri integration prefers a name that is more easily recognized by voice recognition. For example, perhaps avoid one-syllable names. That said, info.plist allows alternate names to be recognized by Siri, but increases education overhead for user slightly.
+- Resonates with customers. See User Stories section and the [ux-design-brief.md](ux-design-brief.md).
+- Try to stand out amongst many, many budgeting, expense tracking apps. 
+- Try to indicate quickly how this app is different from other budgeting apps. For example, this app is NOT a business travel expense tracker, NOT a master budgeting tool for a user's total personal finance, does NOT integrate with banking, etc. etc.
+- Be able to translate well into foreign languages, though this is less of an issue if we keep things culturally aware during the translations process.
 
 ---
 

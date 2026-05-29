@@ -1,9 +1,7 @@
 # Budget detail screen
 
 Single-budget screen with remaining/carry-over header, period-aware expense sections, Add Expense, Edit Budget, Reset Carry-Over, Reset Budget, and swipe-to-delete. Synced from change `budget-detail-screen` (2026-04-29). Updated from change `pause-resume-budget` (2026-05-16). Updated from change `specific-dates-period` (2026-05-18).
-
 ## Requirements
-
 ### Requirement: Budget detail screen is the resolved destination of `AppRoute.budgetDetail`
 
 `RootView` SHALL resolve `AppRoute.budgetDetail(Budget)` to `BudgetDetailView(budget:)` (no longer a placeholder `Text`). The screen SHALL set `navigationBarTitleDisplayMode(.inline)` and apply `appBackground()`. The screen SHALL NOT set a string `navigationTitle`; the budget title is rendered as scroll-aware content per the "Scroll-aware content-area budget title" requirement.
@@ -625,9 +623,9 @@ Each expense row SHALL expose a trailing `swipeActions(edge: .trailing, allowsFu
 
 There is no confirmation dialog for swipe-initiated expense deletion. The `@State` properties `expenseToDelete` and `showDeleteConfirm` SHALL NOT exist on `BudgetDetailView`.
 
-On invocation, within a single `withAnimation` block, the system SHALL `context.delete(expense)` and call `ModelContext.save()` exactly once, then re-invoke `BudgetLifecycleService.result(for:)`. The Budget itself SHALL NOT be modified except by the lifecycle service's normal roll-and-persist behavior.
+On invocation, within a single `withAnimation` block, the system SHALL `context.delete(expense)` and persist the deletion via the shared persistence-save helper (operation `expense_delete`) exactly once, then re-invoke `BudgetLifecycleService.result(for:)` on success. The Budget itself SHALL NOT be modified except by the lifecycle service's normal roll-and-persist behavior.
 
-The four localization keys that existed solely for the removed confirmation dialog SHALL NOT be present in `Localizable.xcstrings`:
+If the persistence-save helper throws, the deletion is surfaced as an *interactive* save failure: the system SHALL present the standard save-error alert (see the `persistence-error-handling` capability) over the Budget detail screen, the `expense_deleted` analytics event SHALL NOT fire, and Retry SHALL re-attempt the same delete-and-save. The four localization keys that existed solely for the removed confirmation dialog SHALL NOT be present in `Localizable.xcstrings`:
 - `budgetDetail.deleteExpense.dialog.title`
 - `budgetDetail.deleteExpense.dialog.confirm`
 - `budgetDetail.deleteExpense.dialog.message`
@@ -635,25 +633,28 @@ The four localization keys that existed solely for the removed confirmation dial
 
 #### Scenario: Full trailing swipe immediately deletes the expense
 
-- **WHEN** the user performs a full trailing swipe on an expense row
+- **WHEN** the user performs a full trailing swipe on an expense row and the save succeeds
 - **THEN** the expense is immediately deleted from the store; no confirmation dialog is presented
 
 #### Scenario: Partial swipe button tap immediately deletes the expense
 
-- **WHEN** the user partially swipes a row to reveal the red Delete button and taps it
+- **WHEN** the user partially swipes a row to reveal the red Delete button and taps it, and the save succeeds
 - **THEN** the expense is immediately deleted from the store; no confirmation dialog is presented
 
 #### Scenario: Deletion removes only the targeted expense
 
-- **WHEN** swipe-delete is invoked on one expense row
-- **THEN** that `ExpenseItem` is removed from the store, `ModelContext.save()` is called exactly once, no sibling `ExpenseItem`s are affected, and the lifecycle service is re-invoked so the header re-derives `remaining`
+- **WHEN** swipe-delete is invoked on one expense row and the save succeeds
+- **THEN** that `ExpenseItem` is removed from the store, the save helper is called exactly once, no sibling `ExpenseItem`s are affected, and the lifecycle service is re-invoked so the header re-derives `remaining`
 
 #### Scenario: Localized delete button label is unchanged
 
 - **WHEN** the user trailing-swipes any expense row
 - **THEN** the action button label reads the localized string under key `budgetDetail.deleteExpense.swipeAction` (en-US "Delete") and uses the `trash` SF Symbol
 
----
+#### Scenario: Failed swipe-delete surfaces the save-error alert
+
+- **WHEN** swipe-delete is invoked and the persistence-save helper throws
+- **THEN** the save-error alert is presented over the Budget detail screen, no `expense_deleted` analytics event is fired, and Retry re-attempts the same delete-and-save
 
 ### Requirement: Eager lifecycle refresh on task, scene-active, and expense-count change
 
@@ -780,3 +781,4 @@ In Edit mode, `AddEditExpenseView` provides a trailing Save toolbar button only 
 
 - **WHEN** VoiceOver focuses an expense row
 - **THEN** it announces the button trait (because the row is wrapped in a `Button`) in addition to the existing combined accessibility label (amount, name, date)
+

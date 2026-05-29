@@ -146,7 +146,9 @@
       "Bash(cd *)",
       "Bash(plutil -convert xml1 -o - -)",
       "WebSearch",
-      "WebFetch(domain:www.hackingwithswift.com)"
+      "WebFetch(domain:www.hackingwithswift.com)",
+      "Bash(git -C *)",
+      "mcp__ccd_session__mark_chapter"
     ]
   }
 }

@@ -80,17 +80,17 @@ On the Budgets screen, each budget row SHALL display the budget's icon (when set
 
 ### Requirement: Icon display on the Budget detail screen
 
-On the Budget detail screen, the navigation title SHALL be prefixed with the budget's icon (when set), separated by a single space; when no icon is set, the title SHALL be the budget name alone.
+On the Budget detail screen, the budget title SHALL render the budget's icon (when set) on the leading edge preceding the budget name — not as a string `navigationTitle` prefix — so the icon mirrors with layout direction (right edge in RTL), consistent with the Budgets list row. When no icon is set, the title SHALL render the budget name alone. The icon is decorative and SHALL NOT be announced by VoiceOver. (The full title behavior — wrapping and scroll collapse — is specified by the "Scroll-aware content-area budget title" requirement in the budget-detail-screen capability.)
 
 #### Scenario: Detail title with an icon
 
 - **WHEN** the Budget detail screen is shown for a budget that has an icon
-- **THEN** the navigation title SHALL be the icon followed by a single space and the budget name
+- **THEN** the title SHALL render the icon immediately before the budget name on the leading edge, in both LTR and RTL
 
 #### Scenario: Detail title without an icon
 
 - **WHEN** the Budget detail screen is shown for a budget with no icon
-- **THEN** the navigation title SHALL be the budget name alone
+- **THEN** the title SHALL render the budget name alone, with no leading icon
 
 ---
 

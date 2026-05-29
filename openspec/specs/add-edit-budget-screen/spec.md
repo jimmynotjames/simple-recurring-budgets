@@ -282,18 +282,23 @@ For recurring period types, `startDate` is pre-filled at Add-mode init and re-an
 
 ### Requirement: VM exposes a save method that takes ModelContext at the call site
 
-The `AddEditBudgetViewModel` SHALL expose `func save(context: ModelContext)` that performs the Add or Edit branch documented below. The view SHALL read `@Environment(\.modelContext)` and invoke `viewModel.save(context: context)` from inside `body`, then call `dismiss()`. The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The save body SHALL NOT consult `AppSettings` — `AppSettings` is read only at construction time via `init(settings:)` to seed the Add-mode Carry-Over default (per `docs/tech-design-doc.md` §2.1: "Methods that need to write take `(context: ModelContext, ...)` at the call site (and `AppSettings` similarly when relevant)" — for the save body, `AppSettings` is not relevant).
+The `AddEditBudgetViewModel` SHALL expose a `save` method that takes `ModelContext` at the call site and performs the Add or Edit branch documented below. The method SHALL surface a persistence-save failure to its caller — it SHALL be marked `throws` (or otherwise report failure), routing its `context.save()` through the shared persistence-save helper rather than `try? context.save()`. The view SHALL read `@Environment(\.modelContext)`, invoke the save method from inside `body`, and dismiss the sheet **only** when the call returns without error; on a thrown persistence error the view SHALL present the standard save-error alert and SHALL NOT dismiss (see the `persistence-error-handling` capability). The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The save body SHALL NOT consult `AppSettings` — `AppSettings` is read only at construction time via `init(settings:)` to seed the Add-mode Carry-Over default.
 
-#### Scenario: Save method signature does not include AppSettings
+#### Scenario: Save reports failure to the caller
 
-- **WHEN** the `AddEditBudgetViewModel.save(...)` method is inspected
-- **THEN** its signature SHALL be `func save(context: ModelContext)`; `AppSettings` SHALL NOT be a parameter of `save`
+- **WHEN** the `AddEditBudgetViewModel` save method is inspected
+- **THEN** it surfaces a persistence-save failure to its caller (e.g. it is marked `throws`) and routes its save through the shared persistence-save helper, not `try? context.save()`
+
+#### Scenario: View dismisses only on a successful save
+
+- **WHEN** the user activates Save and the save method returns without error
+- **THEN** the sheet dismisses; **AND WHEN** the save method throws a persistence error, the sheet stays open and the save-error alert is shown
 
 ### Requirement: Save in Add mode inserts a new Budget with the next sortOrder
 
 When the user activates Save in Add mode, the system SHALL:
 
-0. **Guard:** If validation would disable Save (`!canSave`), the implementation SHALL return without inserting a `Budget` (defence in depth if `save(context:)` is invoked without a valid draft).
+0. **Guard:** If validation would disable Save (`!canSave`), the implementation SHALL return without inserting a `Budget` (defence in depth if the save method is invoked without a valid draft).
 1. Build a `Budget` using `Budget.init` with the drafted `name` (post-trim, but the model stores the user's value as entered; trimming is for validation only), the drafted `currencyCode`, the drafted `period`, and the drafted `isCarryOverEnabled`.
 2. Set `budget.startDate = calendar.startOfDay(for: viewModel.startDate!)`. The drafted `startDate` is non-`nil` by canSave (specific dates) or by the Add-mode pre-fill + `period.didSet` re-anchoring rule (recurring). For weekly / biweekly the drafted value may be the AppSettings-derived anchor (default) or a user-overridden date — both paths are stored as the budget's `startDate`, which becomes the per-budget cycle anchor per F-7.05.
 3. Set `budget.endDate = viewModel.endDate.map { calendar.startOfDay(for: $0) }`. For `.specificDates`, `endDate` is non-`nil` by `canSave`. For recurring period types it is optional — `nil` is the common case for "no terminal date."
@@ -301,10 +306,10 @@ When the user activates Save in Add mode, the system SHALL:
 5. Set `budget.sortOrder = (try? Budget.nextSortOrder(for: context)) ?? 0` BEFORE inserting, so the fetch does not include the new instance.
 6. Call `context.insert(budget)`.
 7. Insert one initial `AllocationChange(effectiveFrom: budget.startDate!, amount: drafted allocation, lastModified: Date())` attached to the same budget.
-8. Call `try? context.save()`.
-9. Dismiss the sheet.
+8. Persist via the shared persistence-save helper (operation `budget_create`), which throws on failure; the method propagates that error to the caller instead of swallowing it with `try?`.
+9. On success, the view dismisses the sheet. On a thrown persistence error, the view presents the save-error alert and does not dismiss; the just-inserted (but unsaved) `Budget` remains in the context so a Retry re-attempts the same save.
 
-The new budget SHALL appear in the Budgets screen list immediately due to the existing `@Query(sort: \Budget.sortOrder)` reactivity. CloudKit sync SHALL propagate the new row through the existing pipeline; no new container or schema changes are introduced.
+The new budget SHALL appear in the Budgets screen list immediately due to the existing `@Query(sort: \Budget.sortOrder)` reactivity once the save succeeds. CloudKit sync SHALL propagate the new row through the existing pipeline; no new container or schema changes are introduced.
 
 #### Scenario: First budget gets sortOrder 0
 
@@ -318,8 +323,13 @@ The new budget SHALL appear in the Budgets screen list immediately due to the ex
 
 #### Scenario: Save inserts exactly one budget
 
-- **WHEN** the user activates Save in Add mode
+- **WHEN** the user activates Save in Add mode and the save succeeds
 - **THEN** the store contains exactly one new `Budget` whose fields match the drafted values
+
+#### Scenario: Failed Add-mode save keeps the sheet open
+
+- **WHEN** the user activates Save in Add mode and the persistence-save helper throws
+- **THEN** the sheet remains open with the drafted values intact and the save-error alert is presented
 
 #### Scenario: Recurring Save uses pre-filled startDate
 
@@ -348,80 +358,17 @@ The new budget SHALL appear in the Budgets screen list immediately due to the ex
 
 ### Requirement: Save in Edit mode mutates only changed fields and bumps lastModified once
 
-When the user activates Save in Edit mode, the system SHALL compare each editable field on the existing `Budget` to its corresponding draft value. For each field whose stored value differs from the draft value, the system SHALL write the draft value back to the `Budget`. The system SHALL set `Budget.lastModified = Date()` exactly once if at least one field changed. If no field changed, the system SHALL NOT mutate `Budget.lastModified` and SHALL NOT call `context.save()`. After mutating any field, the system SHALL call `try? context.save()` and dismiss the sheet.
+When the user activates Save in Edit mode, the system SHALL compare each editable field on the existing `Budget` to its corresponding draft value. For each field whose stored value differs from the draft value, the system SHALL write the draft value back to the `Budget`. The system SHALL set `Budget.lastModified = Date()` exactly once if at least one field changed. If no field changed, the system SHALL NOT mutate `Budget.lastModified` and SHALL NOT attempt a save. After mutating any field, the system SHALL persist via the shared persistence-save helper (operation `budget_edit`), which throws on failure. The view SHALL dismiss the sheet only when the save returns without error; on a thrown persistence error it SHALL present the save-error alert and SHALL NOT dismiss, leaving the mutated-but-unsaved `Budget` so a Retry re-attempts the same save.
 
-The fields compared are: `name`, `allocation`, `currencyCode`, `isCarryOverEnabled`, `startDate`, and `endDate`. `period` SHALL NOT be compared and SHALL NOT be written in Edit mode regardless of the draft value: a `Budget`'s Time Period is fixed at creation per F-2.03 and is enforced both by the UI (chips are non-interactive in Edit mode) and by the model layer (this requirement).
+#### Scenario: No-change Edit save does not persist or dismiss-as-saved
 
-For `allocation`, the implementation SHALL update the `Budget` only when the draft `allocation` is non-`nil` and differs from `Budget.currentAllocation` (a `nil` draft cannot accompany a successful Save while Save remains gated on `canSave`).
+- **WHEN** the user activates Save in Edit mode without changing any field
+- **THEN** no save is attempted and `Budget.lastModified` is not mutated
 
-For `startDate` and `endDate`, the implementation SHALL normalise the draft with `calendar.startOfDay(for:)` before comparison, regardless of period type. When a recurring budget's `startDate` changes, the implementation SHALL write `Budget.startDate` only — it SHALL NOT realign any `AllocationChange` row. The calculator's `allocationInEffect` fallback (`Domain/AllocationInEffect.swift`) extends the earliest row's amount backward to any `boundaryStart` that precedes its `effectiveFrom`, so back-dating credits the original allocation to the back-dated window without a data-mutation step; forward-dating works symmetrically via the walker starting at the new later `effectiveStartDate`.
+#### Scenario: Failed Edit-mode save keeps the sheet open
 
-For `.specificDates` only, when `startDate` changes the implementation SHALL also update `effectiveFrom` on the budget's most-recent `AllocationChange` to the new `startDate` (latest-wins semantics, see F-2.08). This single-period special-case does NOT apply to recurring period types.
-
-For `endDate`, the implementation SHALL handle three cases for any period type:
-
-- Draft and stored are both `nil` → no change.
-- Draft is non-`nil` and differs from stored (normalised) → write the new value.
-- Draft is `nil` and stored is non-`nil` (user cleared an optional end date — recurring only; `canSave` prevents this state for `.specificDates`) → set `Budget.endDate = nil`.
-
-The system SHALL NOT touch any other persisted field of `Budget` (notably `sortOrder`, `createdAt`, `period`, `lastResetDate`).
-
-The implementation SHALL emit `AnalyticsEvent.budgetEdited` with per-field change flags (see the "budget_edited analytics event carries per-field change flags" requirement).
-
-#### Scenario: No-op Save does not bump lastModified
-
-- **WHEN** the user opens the sheet for an existing `Budget`, makes no changes, and taps Save
-- **THEN** the `Budget`'s `lastModified` is unchanged from before the sheet was opened, and no `context.save()` write occurs as a result of this Save
-
-#### Scenario: Single-field change updates lastModified once
-
-- **WHEN** the user changes only the name on an existing `Budget` and taps Save
-- **THEN** the `Budget`'s `name` is updated, `lastModified` is set to a `Date()` greater than its prior value, and no other persisted field of the `Budget` is mutated
-
-#### Scenario: Multi-field change is batched into a single context.save()
-
-- **WHEN** the user changes both the name and the allocation on an existing `Budget` and taps Save
-- **THEN** both fields are written, `lastModified` is set to a single `Date()` value, and `context.save()` is called exactly once for the whole edit
-
-#### Scenario: Carry-over toggle off does not zero the persisted carry-over amount
-
-- **WHEN** the user flips `isCarryOverEnabled` from `true` to `false` and taps Save
-- **THEN** `Budget.isCarryOverEnabled` is set to `false`, but no other carry-over-related state on the `Budget` is mutated by this screen — those values continue to be maintained by `BudgetLifecycleService` per `docs/main-prd.md` §6.7
-
-#### Scenario: Period draft divergence is ignored on Edit-mode Save
-
-- **WHEN** the view model's `period` differs from the existing `Budget.period` at the time Save is activated in Edit mode (e.g. via a programmatic mutation of `viewModel.period`; the production UI cannot produce this state)
-- **THEN** `Budget.period` SHALL NOT be written, `Budget.lastModified` SHALL NOT be bumped on account of the period divergence alone, and no `context.save()` write SHALL occur unless some other field also changed
-
-#### Scenario: Period divergence alongside another field change writes the other field but not period
-
-- **WHEN** the view model's `name` differs from `Budget.name` AND `viewModel.period` differs from `Budget.period` at the time Save is activated in Edit mode
-- **THEN** `Budget.name` SHALL be written to the new value, `Budget.period` SHALL remain unchanged, `Budget.lastModified` SHALL be bumped exactly once, and `context.save()` SHALL be called exactly once
-
-#### Scenario: Recurring startDate edit writes Budget.startDate without realigning AllocationChange
-
-- **WHEN** the user opens Edit for a `.weekly` budget with `startDate == 2026-04-13` and a single `AllocationChange(effectiveFrom: 2026-04-13, amount: 100)`, edits `startDate` to `2026-04-06` (one week back) via the Schedule disclosure, and taps Save
-- **THEN** `Budget.startDate == startOfDay(2026-04-06)`, the `AllocationChange.effectiveFrom` remains `2026-04-13` (unchanged), and `Budget.lastModified` is bumped once. A subsequent `BudgetCalculator.snapshot` SHALL credit the 2026-04-06 to 2026-04-12 period at allocation 100 via `allocationInEffect`'s earliest-row fallback.
-
-#### Scenario: Recurring endDate edit writes Budget.endDate
-
-- **WHEN** the user opens Edit for a `.monthly` budget with `endDate == nil`, picks a future end date via the Schedule disclosure, and taps Save
-- **THEN** `Budget.endDate` is updated to the picked date at `startOfDay`, `Budget.lastModified` is bumped once
-
-#### Scenario: Recurring endDate clearing writes nil
-
-- **WHEN** the user opens Edit for a `.monthly` budget with `endDate == 2026-12-31`, taps "Clear end date" in the Schedule disclosure, and taps Save
-- **THEN** `Budget.endDate` is set to `nil`, `Budget.lastModified` is bumped once
-
-#### Scenario: Specific Dates Edit changes endDate only
-
-- **WHEN** the user opens Edit for a `.specificDates` budget and changes only `endDate` from `2026-05-25` to `2026-05-30`, then taps Save
-- **THEN** `Budget.endDate` is updated to `startOfDay(2026-05-30)`, `Budget.lastModified` is bumped once, no `AllocationChange` row is mutated, and no other `Budget` fields are written
-
-#### Scenario: Specific Dates Edit changes startDate (realignment preserved)
-
-- **WHEN** the user opens Edit for a `.specificDates` budget with start `2026-05-08` and the most-recent `AllocationChange.effectiveFrom == 2026-05-08`, changes start to `2026-05-09`, and taps Save
-- **THEN** `Budget.startDate` is updated to `startOfDay(2026-05-09)` AND the most-recent `AllocationChange.effectiveFrom` is updated to the same value, `Budget.lastModified` is bumped once, and `context.save()` is called exactly once
+- **WHEN** the user changes a field, activates Save, and the persistence-save helper throws
+- **THEN** the sheet remains open with the edits intact and the save-error alert is presented
 
 ### Requirement: Orphan-expense warning on Save when startDate moves past existing expenses
 
@@ -893,29 +840,32 @@ The dialog SHALL be presented from the `AddEditBudgetView` (sheet root) so it is
 
 ### Requirement: ViewModel exposes a delete method that takes ModelContext at the call site
 
-The `AddEditBudgetViewModel` SHALL expose `func delete(context: ModelContext)` with the following contract:
+The `AddEditBudgetViewModel` SHALL expose a `delete` method taking `ModelContext` at the call site with the following contract:
 
-- In **Edit mode**, the method SHALL invoke `context.delete(budget)` for the editing `Budget` and SHALL invoke `try? context.save()` once.
-- In **Add mode**, the method SHALL be a no-op: it SHALL NOT call `context.delete`, SHALL NOT call `context.save`, and SHALL NOT mutate any state.
+- In **Edit mode**, the method SHALL invoke `context.delete(budget)` for the editing `Budget` and SHALL persist via the shared persistence-save helper (operation `budget_delete`) once. The method SHALL surface a persistence-save failure to its caller (e.g. by being marked `throws`) rather than swallowing it with `try?`.
+- In **Add mode**, the method SHALL be a no-op: it SHALL NOT call `context.delete`, SHALL NOT save, and SHALL NOT mutate any state.
 
-The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The VM SHALL NOT consult `AppSettings` from `delete(...)` — `AppSettings` is read only at construction time via `init(settings:)` for Add-mode seeding, consistent with the existing save contract on the same VM.
-
-The method SHALL rely on the existing `Budget → ExpenseItem` cascade-delete relationship (`@Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)`) to remove the budget's `ExpenseItem` rows. The VM SHALL NOT manually fetch or delete child `ExpenseItem` instances.
+The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The VM SHALL NOT consult `AppSettings` from the delete method. The method SHALL rely on the existing `Budget → ExpenseItem` cascade-delete relationship (`@Relationship(deleteRule: .cascade, inverse: \ExpenseItem.budget)`) to remove the budget's `ExpenseItem` rows. The VM SHALL NOT manually fetch or delete child `ExpenseItem` instances. The view SHALL dismiss only on a successful delete; on failure it SHALL present the save-error alert and SHALL NOT dismiss.
 
 #### Scenario: Delete in Edit mode removes the budget and saves once
 
-- **WHEN** a test constructs an `AddEditBudgetViewModel` in Edit mode for an existing `Budget` and invokes `delete(context:)` against an in-memory `ModelContext`
-- **THEN** the `Budget` is removed from the store, `context.save()` is invoked exactly once, and the in-memory `ModelContext` no longer returns the budget from a `FetchDescriptor<Budget>` query
+- **WHEN** a test constructs an `AddEditBudgetViewModel` in Edit mode for an existing `Budget` and invokes the delete method against an in-memory `ModelContext`
+- **THEN** the `Budget` is removed from the store, the save helper is invoked exactly once, and the in-memory `ModelContext` no longer returns the budget from a `FetchDescriptor<Budget>` query
 
 #### Scenario: Delete is a no-op in Add mode
 
-- **WHEN** a test constructs an `AddEditBudgetViewModel` in Add mode (`init(settings:)`) and invokes `delete(context:)` against an in-memory `ModelContext` that contains zero or more pre-existing `Budget` rows
-- **THEN** the in-memory store contents are unchanged: no `Budget` is inserted, deleted, or mutated, and `context.save()` is not invoked as a result of the call
+- **WHEN** a test constructs an `AddEditBudgetViewModel` in Add mode (`init(settings:)`) and invokes the delete method against an in-memory `ModelContext` that contains zero or more pre-existing `Budget` rows
+- **THEN** the in-memory store contents are unchanged: no `Budget` is inserted, deleted, or mutated, and no save is invoked as a result of the call
 
 #### Scenario: Delete cascades to ExpenseItem rows in a single save
 
-- **WHEN** a test constructs an `AddEditBudgetViewModel` in Edit mode for a `Budget` that owns one or more `ExpenseItem` rows, and invokes `delete(context:)` against an in-memory `ModelContext`
+- **WHEN** a test constructs an `AddEditBudgetViewModel` in Edit mode for a `Budget` that owns one or more `ExpenseItem` rows, and invokes the delete method against an in-memory `ModelContext`
 - **THEN** after the call returns, neither the `Budget` nor any of its `ExpenseItem` rows can be fetched from the store; the cascade SHALL be performed by the SwiftData relationship's `deleteRule: .cascade`, not by any manual VM-side traversal
+
+#### Scenario: Failed delete keeps the sheet open
+
+- **WHEN** the user confirms Delete Budget in Edit mode and the persistence-save helper throws
+- **THEN** the sheet remains open and the save-error alert is presented
 
 ### Requirement: Localizable.xcstrings registers the Delete Budget-related keys
 

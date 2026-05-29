@@ -1,0 +1,8 @@
+# Appfile — non-secret identifiers only. Safe to commit.
+# Secrets (API key id/issuer/path) live in fastlane/.env (gitignored).
+
+app_identifier("com.jimmyho.simple-recurring-budgets")
+team_id("EDMB3Z5KAY") # Apple Developer Team ID
+
+# apple_id intentionally omitted: we authenticate with an App Store Connect
+# API key (see before_all in the Fastfile), not an Apple ID + 2FA login.

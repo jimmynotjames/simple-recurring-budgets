@@ -50,11 +50,19 @@ Icon
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
-# Fastlane (if used)
+# Fastlane
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# gym build output (.ipa / .xcarchive)
+build/
+
+# App Store Connect API keys — never commit (belt-and-suspenders;
+# the .p8 lives outside the repo, but block it everywhere just in case)
+*.p8
+AuthKey_*.p8
 
 # Env files
 .env

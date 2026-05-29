@@ -83,118 +83,120 @@ extension StatusChipRow where Trailing == EmptyView {
 
 // MARK: - Preview
 
-private func rowPreview(_ content: some View) -> some View {
-  VStack(alignment: .leading, spacing: 16) {
-    content
-    Spacer()
+#if DEBUG
+  private func rowPreview(_ content: some View) -> some View {
+    VStack(alignment: .leading, spacing: 16) {
+      content
+      Spacer()
+    }
+    .padding()
   }
-  .padding()
-}
 
-#Preview("Paused only") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: .paused(since: PreviewDates.pausedSince),
-      isCarryOverEnabled: false,
-      carryOverAmount: 0,
-      currencyCode: "USD"
+  #Preview("Paused only") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: .paused(since: PreviewDates.pausedSince),
+        isCarryOverEnabled: false,
+        carryOverAmount: 0,
+        currencyCode: "USD"
+      )
     )
-  )
-}
+  }
 
-#Preview("Pre-start only") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: .preStart(startDate: PreviewDates.preStart),
-      isCarryOverEnabled: false,
-      carryOverAmount: 0,
-      currencyCode: "USD"
+  #Preview("Pre-start only") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: .preStart(startDate: PreviewDates.preStart),
+        isCarryOverEnabled: false,
+        carryOverAmount: 0,
+        currencyCode: "USD"
+      )
     )
-  )
-}
+  }
 
-#Preview("Post-end only") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: .postEnd(endDate: PreviewDates.postEnd),
-      isCarryOverEnabled: false,
-      carryOverAmount: 0,
-      currencyCode: "USD"
+  #Preview("Post-end only") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: .postEnd(endDate: PreviewDates.postEnd),
+        isCarryOverEnabled: false,
+        carryOverAmount: 0,
+        currencyCode: "USD"
+      )
     )
-  )
-}
+  }
 
-#Preview("Carry-over only") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: nil,
-      isCarryOverEnabled: true,
-      carryOverAmount: 42.50,
-      currencyCode: "USD"
+  #Preview("Carry-over only") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: nil,
+        isCarryOverEnabled: true,
+        carryOverAmount: 42.50,
+        currencyCode: "USD"
+      )
     )
-  )
-}
+  }
 
-#Preview("Paused + carry-over") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: .paused(since: PreviewDates.pausedSince),
-      isCarryOverEnabled: true,
-      carryOverAmount: -18.75,
-      currencyCode: "USD"
+  #Preview("Paused + carry-over") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: .paused(since: PreviewDates.pausedSince),
+        isCarryOverEnabled: true,
+        carryOverAmount: -18.75,
+        currencyCode: "USD"
+      )
     )
-  )
-}
+  }
 
-#Preview("Pre-start + carry-over") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: .preStart(startDate: PreviewDates.preStart),
-      isCarryOverEnabled: true,
-      carryOverAmount: 12.00,
-      currencyCode: "USD"
+  #Preview("Pre-start + carry-over") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: .preStart(startDate: PreviewDates.preStart),
+        isCarryOverEnabled: true,
+        carryOverAmount: 12.00,
+        currencyCode: "USD"
+      )
     )
-  )
-}
+  }
 
-#Preview("Post-end + carry-over") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: .postEnd(endDate: PreviewDates.postEnd),
-      isCarryOverEnabled: true,
-      carryOverAmount: 0,
-      currencyCode: "USD"
+  #Preview("Post-end + carry-over") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: .postEnd(endDate: PreviewDates.postEnd),
+        isCarryOverEnabled: true,
+        carryOverAmount: 0,
+        currencyCode: "USD"
+      )
     )
-  )
-}
+  }
 
-#Preview("With trailing Reset") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: nil,
-      isCarryOverEnabled: true,
-      carryOverAmount: 42.50,
-      currencyCode: "USD"
-    ) {
-      Button("Reset") {}
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-    }
-  )
-}
+  #Preview("With trailing Reset") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: nil,
+        isCarryOverEnabled: true,
+        carryOverAmount: 42.50,
+        currencyCode: "USD"
+      ) {
+        Button("Reset") {}
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+      }
+    )
+  }
 
-#Preview("Paused + carry-over + Reset at xxxLarge") {
-  rowPreview(
-    StatusChipRow(
-      inactiveReason: .paused(since: PreviewDates.pausedSince),
-      isCarryOverEnabled: true,
-      carryOverAmount: 42.50,
-      currencyCode: "USD"
-    ) {
-      Button("Reset") {}
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-    }
-  )
-  .dynamicTypeSize(.xxxLarge)
-}
+  #Preview("Paused + carry-over + Reset at xxxLarge") {
+    rowPreview(
+      StatusChipRow(
+        inactiveReason: .paused(since: PreviewDates.pausedSince),
+        isCarryOverEnabled: true,
+        carryOverAmount: 42.50,
+        currencyCode: "USD"
+      ) {
+        Button("Reset") {}
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+      }
+    )
+    .dynamicTypeSize(.xxxLarge)
+  }
+#endif

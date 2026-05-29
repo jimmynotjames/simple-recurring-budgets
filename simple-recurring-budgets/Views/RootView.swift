@@ -39,10 +39,12 @@ struct RootView: View {
   }
 }
 
-#Preview {
-  RootView()
-    .modelContainer(PreviewContainer.make())
-    .environment(Router())
-    .environment(AppSettings())
-    .environment(SyncStatus(containerBacking: .cloudKit, accountStatus: .available))
-}
+#if DEBUG
+  #Preview {
+    RootView()
+      .modelContainer(PreviewContainer.make())
+      .environment(Router())
+      .environment(AppSettings())
+      .environment(SyncStatus(containerBacking: .cloudKit, accountStatus: .available))
+  }
+#endif

@@ -88,6 +88,9 @@ struct BudgetDetailView: View {
           .listRowSeparator(.hidden)
           .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
       }
+      // Tighten the gap below the title to roughly the old large-title→content
+      // spacing; without this the title gets the full inset-grouped section gap.
+      .listSectionSpacing(8)
 
       // ── Status header ─────────────────────────────────────────
       Section {

@@ -8,8 +8,8 @@ struct AddEditBudgetView: View {
   // Internal: cross-file extension access only.
   //
   // `viewModel`, `settings`, `showCurrencyPicker`, `initialCurrencyCode`,
-  // `isScheduleExpanded`, and the `sectionLabel` helper below are non-`private`
-  // solely because Swift extensions in `AddEditBudgetView+AllocationCard.swift`,
+  // `isScheduleExpanded`, `isNameFocused`, and the `sectionLabel` helper below are
+  // non-`private` solely because Swift extensions in `AddEditBudgetView+AllocationCard.swift`,
   // `AddEditBudgetView+SpecificDates.swift`, and `AddEditBudgetView+Schedule.swift`
   // can't see `private` members. Treat them as if they were `private` to this view
   // — do not consume from unrelated call sites.
@@ -30,7 +30,9 @@ struct AddEditBudgetView: View {
   @State private var saveError: SaveErrorState?
   @State var initialCurrencyCode: String = ""
   @State var isScheduleExpanded: Bool = false
-  @FocusState private var isNameFocused: Bool
+  /// Non-`private` for cross-file extension access — see the note above. The allocation
+  /// card (in `+AllocationCard.swift`) clears this when its amount field begins editing.
+  @FocusState var isNameFocused: Bool
 
   private var isSpecificDates: Bool {
     viewModel.period == .specificDates

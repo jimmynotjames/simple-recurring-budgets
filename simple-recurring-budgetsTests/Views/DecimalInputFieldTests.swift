@@ -1,5 +1,7 @@
 @testable import simple_recurring_budgets
+import SwiftUI
 import Testing
+import UIKit
 
 @Suite("DecimalInputField.isAcceptable — live fraction capping")
 struct DecimalInputFieldFractionTests {
@@ -54,5 +56,29 @@ struct DecimalInputFieldFractionTests {
     let arabic: Set<Character> = [",", "\u{066B}"]
     #expect(!DecimalInputField.isAcceptable("12\u{066B}5", maxFractionDigits: 0, separators: arabic))
     #expect(DecimalInputField.isAcceptable("12\u{066B}5", maxFractionDigits: 2, separators: arabic))
+  }
+}
+
+@Suite("DecimalInputField.Coordinator — begin-editing focus sync")
+@MainActor
+struct DecimalInputFieldBeginEditingTests {
+  private func makeCoordinator() -> DecimalInputField.Coordinator {
+    DecimalInputField.Coordinator(text: .constant(""), maxFractionDigits: 2, separators: ["."])
+  }
+
+  /// The begin-editing hook lets the budget screen clear the Name field's `@FocusState` so the
+  /// iPadOS 26 `.decimalPad` popover anchors to the amount field, not the stale Name field (issue #126).
+  @Test func beginEditing_invokesHandler() {
+    let coordinator = makeCoordinator()
+    var fired = false
+    coordinator.onBeginEditing = { fired = true }
+    coordinator.textFieldDidBeginEditing(UITextField())
+    #expect(fired)
+  }
+
+  @Test func beginEditing_withoutHandler_isNoOp() {
+    let coordinator = makeCoordinator()
+    // No handler wired (the expense screen leaves it nil) — must not crash.
+    coordinator.textFieldDidBeginEditing(UITextField())
   }
 }

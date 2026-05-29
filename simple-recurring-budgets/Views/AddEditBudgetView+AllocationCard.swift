@@ -20,7 +20,11 @@ extension AddEditBudgetView {
               localized: "addEditBudget.field.allocation.accessibilityLabel",
               defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
               comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
-            )
+            ),
+            // Clear the Name field's focus when the user moves to the amount field, so SwiftUI's
+            // `@FocusState` tracks the real first responder. Stale focus on the Name field mis-anchors
+            // the iPadOS 26 `.decimalPad` popover to it (issue #126).
+            onBeginEditing: { isNameFocused = false }
           )
 
           Button {

@@ -29,6 +29,10 @@ struct CurrencyAmountField: View {
   /// When non-nil, tints both the digits and the affix (the expense field tints green while Add Funds is
   /// on). When nil, digits use `.primary` and the affix uses `.secondary`.
   var tint: Color?
+  /// Called when the underlying field becomes first responder. The budget screen uses it to clear a
+  /// sibling `@FocusState` (the Name field) so SwiftUI focus tracks the real first responder — otherwise
+  /// the iPadOS 26 `.decimalPad` popover anchors to the stale Name field (issue #126).
+  var onBeginEditing: (() -> Void)?
 
   @State private var text: String = ""
   /// The last `value` we round-tripped through (seeded on appear; updated on every text→value parse).
@@ -54,7 +58,8 @@ struct CurrencyAmountField: View {
         currencyCode: currencyCode,
         autoFocus: autoFocus,
         textColor: tint ?? .primary,
-        accessibilityLabel: accessibilityLabel
+        accessibilityLabel: accessibilityLabel,
+        onBeginEditing: onBeginEditing
       )
       .frame(maxWidth: .infinity)
       affix(affixes.trailing)

@@ -36,6 +36,10 @@ struct DecimalInputField: UIViewRepresentable {
   var textColor: Color = .primary
   /// VoiceOver label (the field itself; the adjacent currency affix is decorative/hidden).
   var accessibilityLabel: String
+  /// Called when this field becomes first responder. Callers use it to keep a sibling SwiftUI
+  /// `@FocusState` in sync — without it, focus state lingers on a previously focused SwiftUI field,
+  /// which on iPadOS 26 mis-anchors the `.decimalPad` popover to that stale field (issue #126).
+  var onBeginEditing: (() -> Void)?
 
   private var maxFractionDigits: Int {
     EditableAmountConverter.fractionDigits(for: currencyCode, locale: locale)
@@ -94,6 +98,7 @@ struct DecimalInputField: UIViewRepresentable {
     // Keep the coordinator's capping rules current if the currency/locale changed.
     context.coordinator.maxFractionDigits = maxFractionDigits
     context.coordinator.separators = separators
+    context.coordinator.onBeginEditing = onBeginEditing
   }
 
   /// Semibold Title2 that scales with Dynamic Type.
@@ -128,11 +133,16 @@ struct DecimalInputField: UIViewRepresentable {
     var maxFractionDigits: Int
     var separators: Set<Character>
     var didAutoFocus = false
+    var onBeginEditing: (() -> Void)?
 
     init(text: Binding<String>, maxFractionDigits: Int, separators: Set<Character>) {
       _text = text
       self.maxFractionDigits = maxFractionDigits
       self.separators = separators
+    }
+
+    func textFieldDidBeginEditing(_: UITextField) {
+      onBeginEditing?()
     }
 
     func textField(

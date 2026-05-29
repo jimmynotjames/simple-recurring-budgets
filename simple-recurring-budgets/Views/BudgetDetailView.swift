@@ -16,6 +16,15 @@ struct BudgetDetailView: View {
   @State var lifecycle: BudgetLifecycleResult?
   @State private var showResetCarryOverConfirm = false
   @State private var showResetBudgetConfirm = false
+  /// Measured height of the content-area large title (issue #117). Drives the
+  /// scroll threshold at which the title collapses into the inline nav-bar title.
+  /// Varies with name length and Dynamic Type, so it's measured rather than fixed.
+  /// Internal (not `private`) so `BudgetDetailView+Title` can write it.
+  @State var titleHeight: CGFloat = 0
+  /// Whether the inline nav-bar title is shown. Toggles true once the content-area
+  /// large title has substantially scrolled beneath the navigation bar. Internal
+  /// (not `private`) so `BudgetDetailView+Title` can read it.
+  @State var showInlineTitle = false
   /// Standard save-error alert state for interactive actions on this screen
   /// (swipe-delete an expense, Reset Budget, Reset Carry-Over, Pause, Resume).
   /// Populated by `present(_:retry:)` on a `PersistenceError` throw; cleared
@@ -69,6 +78,23 @@ struct BudgetDetailView: View {
 
   var body: some View {
     List {
+      // ── Content-area large title ──────────────────────────────
+      // Scroll-aware title (issue #117): renders the icon as a leading view so it
+      // mirrors in RTL, wraps long names, and collapses into the inline nav-bar
+      // title on scroll — none of which `navigationTitle(String)` can do.
+      Section {
+        titleHeader
+          .listRowBackground(Color.clear)
+          .listRowSeparator(.hidden)
+          // Leading/trailing 0: align the title with the cards' outer edge (where
+          // the status-quo large title sat), not the text inside them. Inset-grouped
+          // row insets are measured from the card edge, so 0 = flush with the card.
+          .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+      }
+      // Tighten the gap below the title to roughly the old large-title→content
+      // spacing; without this the title gets the full inset-grouped section gap.
+      .listSectionSpacing(8)
+
       // ── Status header ─────────────────────────────────────────
       Section {
         headerRow
@@ -155,12 +181,34 @@ struct BudgetDetailView: View {
     }
     .listStyle(.insetGrouped)
     .scrollContentBackground(.hidden)
-    // Icon-prefixed name (e.g. "☕ Coffee"); VoiceOver reads the emoji as part of
-    // the title. See `Budget.iconPrefixedName`.
-    .navigationTitle(budget.iconPrefixedName)
+    // Drop the inset-grouped list's default top inset so the title sits just below
+    // the nav bar (its own 8pt row inset is the only remaining gap), instead of the
+    // large grouped top margin (issue #117 follow-up).
+    .contentMargins(.top, 0, for: .scrollContent)
+    // The budget title is rendered as a scroll-aware content header (issue #117),
+    // not a string `navigationTitle`. Inline display mode frees the nav-bar center
+    // for the custom collapsed title (the `.principal` toolbar item below).
+    .navigationBarTitleDisplayMode(.inline)
+    // Collapse the content title into the inline nav-bar title once it has
+    // substantially (~60%) scrolled beneath the bar. At rest the expression is 0
+    // (and `titleHeight` is 0 before first measurement), so the inline title stays
+    // hidden until the user scrolls down.
+    .onScrollGeometryChange(for: Bool.self) { geometry in
+      geometry.contentOffset.y + geometry.contentInsets.top > titleHeight * 0.6
+    } action: { _, collapsed in
+      withAnimation(.easeInOut(duration: 0.2)) {
+        showInlineTitle = collapsed
+      }
+    }
     .appBackground()
     .saveErrorAlert($saveError)
     .toolbar {
+      // Custom inline title (issue #117): fades in as the content-area large title
+      // scrolls under the bar. Renders the icon as a leading view (RTL-correct) and
+      // truncates to one line, matching the standard inline nav-title weight.
+      ToolbarItem(placement: .principal) {
+        inlineTitle
+      }
       ToolbarItem(placement: .topBarTrailing) {
         Menu {
           Button(
@@ -423,8 +471,9 @@ struct BudgetDetailView: View {
     let budget: Budget
     let container: ModelContainer
 
-    init(budget: Budget, icon: String? = nil) {
+    init(budget: Budget, icon: String? = nil, name: String? = nil) {
       if let icon { budget.icon = icon }
+      if let name { budget.name = name }
       self.budget = budget
       let container = InMemoryModelContainer.makeEmpty()
       DebugData.insertDetail(budget, into: container.mainContext)
@@ -507,5 +556,24 @@ struct BudgetDetailView: View {
   // Specific Dates post-window: same inactive treatment, no carry-over chip. With icon.
   #Preview("Specific Dates · Post-window") {
     BudgetDetailPreview(budget: DebugData.detailSpecificDatesPostEnd(), icon: "🏝️")
+  }
+
+  // Long name — content-area title wraps to multiple lines instead of truncating (issue #117).
+  #Preview("Long Name · Wrapping") {
+    BudgetDetailPreview(
+      budget: DebugData.detailDailyCurrentOnly(),
+      icon: "🛒",
+      name: "Weekend Groceries, Household Supplies & Sundry Bits"
+    )
+  }
+
+  // RTL — icon sits on the leading (right) edge, mirroring the list row (issue #117).
+  #Preview("Long Name · RTL") {
+    BudgetDetailPreview(
+      budget: DebugData.detailDailyCurrentOnly(),
+      icon: "🛒",
+      name: "ميزانية البقالة ومستلزمات المنزل لعطلة نهاية الأسبوع"
+    )
+    .environment(\.layoutDirection, .rightToLeft)
   }
 #endif

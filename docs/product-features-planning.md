@@ -325,7 +325,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Description:** User can pick an optional **icon** to help distinguish each Budget. The icon is a single emoji selected from a curated set the app provides.
 - **Acceptance Criteria:**
   - **Add/Edit Budget screen** offers icon selection: a picker presenting the app's curated emoji set. Choosing is optional.
-  - **Budgets screen** and **Budget detail screen** display the chosen icon (when set) as a prefix of the budget name.
+  - **Budgets screen** and **Budget detail screen** display the chosen icon (when set) ahead of the budget name. Both render the icon as a leading **view** (an `HStack` element, not a string prefix) so it sits on the leading edge and mirrors correctly in RTL. On the detail screen the icon + name is a scroll-aware content-area large title that wraps long names and collapses into the inline nav bar (issue #117), rather than a string `navigationTitle`.
   - The icon is stored as a single optional `String` on the `Budget` entity (`Budget.icon`); `nil` when unset.
   - The curated emoji set lives **in code** — the picker component is the **master source** for which emoji are offered. Do not enumerate the set in this doc (it will drift); read the code.
 - **Descoped (canceled — will not implement):** The following were deliberately dropped (not deferred) when this feature was scoped to the curated emoji set. They are not on the roadmap:

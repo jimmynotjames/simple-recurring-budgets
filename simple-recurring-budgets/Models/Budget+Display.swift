@@ -1,16 +1,6 @@
 import Foundation
 
 extension Budget {
-  /// The budget name, prefixed by its `icon` emoji and a single space when one is
-  /// set (e.g. "☕ Coffee"), or the bare name otherwise. Single source of truth for
-  /// the icon-as-name-prefix rule (F-4.03) used by `BudgetsView` (list rows) and
-  /// `BudgetDetailView` (nav title). The icon is decorative; callers that need
-  /// VoiceOver to read the name without it announce `name` separately.
-  @MainActor var iconPrefixedName: String {
-    guard let icon, !icon.isEmpty else { return name }
-    return "\(icon) \(name)"
-  }
-
   /// The period label to show in list rows and screen headers.
   ///
   /// For `.specificDates` budgets, returns the formatted date range (e.g. "May 18 – Jun 3")

@@ -86,7 +86,10 @@ struct BudgetDetailView: View {
         titleHeader
           .listRowBackground(Color.clear)
           .listRowSeparator(.hidden)
-          .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+          // Leading/trailing 0: align the title with the cards' outer edge (where
+          // the status-quo large title sat), not the text inside them. Inset-grouped
+          // row insets are measured from the card edge, so 0 = flush with the card.
+          .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
       }
       // Tighten the gap below the title to roughly the old large-title→content
       // spacing; without this the title gets the full inset-grouped section gap.

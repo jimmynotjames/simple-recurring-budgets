@@ -41,6 +41,20 @@ App Store Connect **API key** (no Apple ID / 2FA).
   `snapshot("01_budgets")` etc., make `SnapshotHelper.swift` a member of the
   `simple-recurring-budgetsUITests` target, then `fastlane screenshots`.
 
+## Build numbers (auto-incremented)
+
+`beta` and `release` set the build number automatically to **the highest build
+on TestFlight + 1** (`next_build_number` in the Fastfile). This:
+
+- never collides with an existing build (reads App Store Connect, which counts
+  builds still processing);
+- never rewrites `project.pbxproj` — the override is passed at build time via
+  `CURRENT_PROJECT_VERSION` in `xcargs`, so there's no version-bump commit and
+  the committed value stays `1`.
+
+You only bump `MARKETING_VERSION` (the user-facing version, e.g. `0.1` → `0.2`)
+by hand in Xcode / the project; the build number takes care of itself.
+
 ## Signing
 
 Xcode **automatic signing** (`-allowProvisioningUpdates`). For CI / multi-dev

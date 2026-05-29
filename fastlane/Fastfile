@@ -7,6 +7,21 @@ default_platform(:ios)
 
 SCHEME = "simple-recurring-budgets"
 OUTPUT_DIR = "./build"
+APP_IDENTIFIER = "com.jimmyho.simple-recurring-budgets"
+
+# Next build number = highest build currently on TestFlight + 1.
+#
+# Derived from App Store Connect (not the local project), so it never collides
+# with an existing build and never rewrites project.pbxproj. The ASC builds API
+# counts builds that are still processing, so a freshly-uploaded build is
+# included. `initial_build_number: 0` means a brand-new app/version starts at 1.
+def next_build_number
+  latest = latest_testflight_build_number(
+    app_identifier: APP_IDENTIFIER,
+    initial_build_number: 0
+  )
+  latest + 1
+end
 
 platform :ios do
   # Authenticate every lane with the App Store Connect API key.
@@ -28,7 +43,7 @@ platform :ios do
   desc "Verify App Store Connect API auth (read-only, builds nothing)"
   lane :verify_auth do
     build_number = latest_testflight_build_number(
-      app_identifier: "com.jimmyho.simple-recurring-budgets",
+      app_identifier: APP_IDENTIFIER,
       initial_build_number: 0
     )
     UI.success("Auth OK. Latest TestFlight build number: #{build_number}")
@@ -39,13 +54,16 @@ platform :ios do
   # ---------------------------------------------------------------------------
   desc "Build and upload a build to TestFlight"
   lane :beta do
+    build_number = next_build_number
+    UI.message("Auto-incrementing build number to #{build_number} (TestFlight latest + 1)")
     build_app(
       scheme: SCHEME,
       output_directory: OUTPUT_DIR,
       export_method: "app-store",
-      # Let Xcode automatic signing create/refresh the distribution cert
-      # and app-store provisioning profile on demand (solo-dev friendly).
-      xcargs: "-allowProvisioningUpdates"
+      # Override CFBundleVersion at build time without touching project.pbxproj.
+      # Combined with automatic signing: -allowProvisioningUpdates lets Xcode
+      # create/refresh the distribution cert and app-store profile on demand.
+      xcargs: "-allowProvisioningUpdates CURRENT_PROJECT_VERSION=#{build_number}"
     )
     upload_to_testflight(
       skip_waiting_for_build_processing: true
@@ -60,11 +78,13 @@ platform :ios do
   # ---------------------------------------------------------------------------
   desc "Build and submit a release to the App Store (metadata/screenshots skipped for now)"
   lane :release do
+    build_number = next_build_number
+    UI.message("Auto-incrementing build number to #{build_number} (TestFlight latest + 1)")
     build_app(
       scheme: SCHEME,
       output_directory: OUTPUT_DIR,
       export_method: "app-store",
-      xcargs: "-allowProvisioningUpdates"
+      xcargs: "-allowProvisioningUpdates CURRENT_PROJECT_VERSION=#{build_number}"
     )
     upload_to_app_store(
       skip_screenshots: true,   # TODO: set false when screenshots/ is populated

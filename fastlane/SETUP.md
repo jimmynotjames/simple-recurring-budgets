@@ -33,9 +33,15 @@ App Store Connect **API key** (no Apple ID / 2FA).
 - **Metadata** in `metadata/<storefront>/*.txt` uses **App Store Connect
   storefront codes** (`de-DE`, `fr-FR`, `no`, `nl-NL`), which differ from the
   app's runtime locale codes in `scripts/translate_catalog/locales.py`
-  (`de`, `fr`, `nb`, `nl`). Run `fastlane deliver init` once locales exist in
-  ASC to pull the exact folder set. Natural next step: a script mirroring the
-  `scripts/translate_catalog/` fan-out that writes translated `*.txt` here.
+  (`de`, `fr`, `nb`, `nl`). This is automated: author the English listing in
+  `metadata/en-US/*.txt`, then run the **`translate-app-store-metadata`** skill,
+  which drives `scripts/translate_metadata/` (extract → dispatch → per-storefront
+  Opus subagents → validate → merge) to transcreate all 38 storefronts here.
+  `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront
+  map, so there's no need to run `fastlane deliver init`. The gate is
+  `python3 scripts/translate_metadata/check_metadata.py` (exit 0 = ready).
+  Once green, `fastlane push_metadata` uploads metadata only, or flip
+  `skip_metadata:false` in the `release` lane.
 - **Screenshots**: `languages` in `Snapfile` uses the app's **runtime** locale
   codes (they launch the Simulator). Write a UI test calling
   `snapshot("01_budgets")` etc., make `SnapshotHelper.swift` a member of the

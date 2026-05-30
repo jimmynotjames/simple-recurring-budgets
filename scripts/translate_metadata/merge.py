@@ -80,8 +80,15 @@ def main(argv: list[str]) -> int:
             print(f"  SKIP {storefront}: output file not found at {path}", file=sys.stderr)
             skipped.append(storefront)
             continue
-        with path.open(encoding="utf-8") as f:
-            fields: dict = json.load(f)
+        raw = path.read_text(encoding="utf-8")
+        if not raw.strip():
+            # Empty stub (cleaned but never filled). Treat as "not produced"
+            # rather than crashing on json.load(""). Only locales with real
+            # content are merged.
+            print(f"  SKIP {storefront}: empty output (subagent not run / produced nothing)", file=sys.stderr)
+            skipped.append(storefront)
+            continue
+        fields: dict = json.loads(raw)
 
         count = 0
         for field, value in fields.items():

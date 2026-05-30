@@ -144,6 +144,14 @@ where each key is the field name and each value is the transcreated string.
    really type — common English loanwords (e.g. "budget"), romanizations, or
    accepted abbreviations where users actually use them in this language.
 
+   **The keyword limit is the most-violated rule in this pipeline — do not blow
+   it.** The 100-character budget counts every comma. Build the list in priority
+   order (highest-value search terms first) and **aim for ≤ 95 characters** to
+   leave a safety margin. When you near the limit, **stop adding terms** — it is
+   always better to ship fewer high-value keywords than to overflow. **Never**
+   trim by cutting a word mid-string; only ever drop whole trailing terms. Before
+   you finish, re-count the entire comma-joined string and confirm it is ≤ 100.
+
 5. **Tone & register for this market:** {CULTURAL_NOTE}
 
 6. **Apple-untranslated terms.** Leave "iCloud" and any other proper nouns Apple

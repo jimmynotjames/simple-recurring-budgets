@@ -61,19 +61,30 @@ def check_keywords(storefront: str, value: str) -> Tuple[list[str], list[str]]:
     return errors, warnings
 
 
-def validate_storefront(storefront: str, source: dict, subset: bool = False) -> Tuple[list, list]:
+def validate_storefront(storefront: str, source: dict, subset: bool = False) -> Tuple[list, list, str]:
+    """Return (errors, warnings, pending_reason).
+
+    pending_reason is "" for a normally-validated locale, or a short string when
+    the locale simply has not been produced yet (no file, or an empty stub left by
+    a cleaned run). PENDING is distinct from FAIL: it means "(re)dispatch this
+    storefront's subagent", not "the output is corrupt". It is still non-passing,
+    so an autonomous loop keeps going until every locale is filled.
+    """
     errors: list[str] = []
     warnings: list[str] = []
     output_path = OUTPUTS_DIR / f"{storefront}.json"
 
     if not output_path.exists():
-        return [f"[{storefront}] File missing: {output_path}"], []
+        return [], [], "no output file yet"
+
+    raw = output_path.read_text(encoding="utf-8")
+    if not raw.strip():
+        return [], [], "empty output (subagent not run / produced nothing)"
 
     try:
-        with output_path.open(encoding="utf-8") as f:
-            out: dict = json.load(f)
+        out: dict = json.loads(raw)
     except json.JSONDecodeError as exc:
-        return [f"[{storefront}] Invalid JSON: {exc}"], []
+        return [f"[{storefront}] Invalid JSON: {exc}"], [], ""
 
     is_english_variant = storefront.startswith("en-")
 
@@ -120,12 +131,17 @@ def validate_storefront(storefront: str, source: dict, subset: bool = False) -> 
     if extra:
         errors.append(f"[{storefront}] Unexpected extra field(s): {sorted(extra)}")
 
-    return errors, warnings
+    return errors, warnings, ""
 
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--subset", action="store_true", help="Only check fields present in each output file.")
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit a machine-readable JSON summary (for the skill to parse without ad-hoc code).",
+    )
     parser.add_argument("storefronts", nargs="*", help="Storefronts to validate (default: all).")
     args = parser.parse_args(argv)
 
@@ -137,39 +153,68 @@ def main(argv: list[str]) -> int:
         source: dict = json.load(f)
 
     storefronts = args.storefronts if args.storefronts else STOREFRONT_LOCALES
-    all_errors: dict[str, list[str]] = {}
-    all_warnings: dict[str, list[str]] = {}
+    results: dict[str, dict] = {}
     fail_count = 0
+    pending_count = 0
 
     for storefront in storefronts:
-        errors, warnings = validate_storefront(storefront, source, subset=args.subset)
-        all_errors[storefront] = errors
-        all_warnings[storefront] = warnings
+        errors, warnings, pending = validate_storefront(storefront, source, subset=args.subset)
         if errors:
+            status = "FAIL"
             fail_count += 1
+        elif pending:
+            status = "PENDING"
+            pending_count += 1
+        elif warnings:
+            status = "WARN"
+        else:
+            status = "PASS"
+        results[storefront] = {
+            "status": status,
+            "errors": errors,
+            "warnings": warnings,
+            "pending": pending,
+        }
+
+    if args.json:
+        summary = {
+            "pass": [s for s, r in results.items() if r["status"] in ("PASS", "WARN")],
+            "pending": [s for s, r in results.items() if r["status"] == "PENDING"],
+            "fail": [s for s, r in results.items() if r["status"] == "FAIL"],
+            "results": results,
+        }
+        print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
+        return 1 if (fail_count or pending_count) else 0
 
     print(f"\n{'Storefront':<12} {'Status':<8} {'Detail'}")
     print("-" * 60)
     for storefront in storefronts:
-        errors = all_errors[storefront]
-        warnings = all_warnings[storefront]
-        if errors:
-            status, detail = "FAIL", f"{len(errors)} error(s)"
-        elif warnings:
-            status, detail = "WARN", f"{len(warnings)} warning(s)"
+        r = results[storefront]
+        status = r["status"]
+        if status == "FAIL":
+            detail = f"{len(r['errors'])} error(s)"
+        elif status == "PENDING":
+            detail = r["pending"]
+        elif status == "WARN":
+            detail = f"{len(r['warnings'])} warning(s)"
         else:
-            status, detail = "PASS", ""
+            detail = ""
         print(f"{storefront:<12} {status:<8} {detail}")
-        for err in errors:
+        for err in r["errors"]:
             print(f"  ✗ {err}")
-        for warn in warnings:
+        for warn in r["warnings"]:
             print(f"  ⚠ {warn}")
 
     print()
-    if fail_count:
-        print(f"FAILED: {fail_count}/{len(storefronts)} storefront(s) had hard errors.")
+    if fail_count or pending_count:
+        parts = []
+        if fail_count:
+            parts.append(f"{fail_count} with hard error(s)")
+        if pending_count:
+            parts.append(f"{pending_count} pending (not produced yet)")
+        print(f"NOT READY: {', '.join(parts)} of {len(storefronts)} storefront(s). Re-dispatch those, then re-validate.")
         return 1
-    total_warnings = sum(len(w) for w in all_warnings.values())
+    total_warnings = sum(len(r["warnings"]) for r in results.values())
     print(
         f"PASSED: all {len(storefronts)} storefront(s) passed validation"
         + (f" ({total_warnings} informational warning(s))" if total_warnings else "")

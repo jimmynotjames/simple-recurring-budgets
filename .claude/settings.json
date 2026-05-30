@@ -32,6 +32,7 @@
       "Bash(python3 scripts/translate_metadata/merge.py:*)",
       "Bash(python3 scripts/translate_metadata/check_metadata.py:*)",
       "Bash(python3 scripts/translate_metadata/metadata_locales.py:*)",
+      "Bash(python3 scripts/translate_metadata/audit.py:*)",
       "Bash(mkdir -p tmp/translate-outputs)",
       "Bash(mkdir -p tmp/translate-prompts)",
       "Bash(mkdir -p tmp/translate-inputs)",

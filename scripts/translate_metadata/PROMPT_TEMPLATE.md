@@ -130,6 +130,14 @@ where each key is the field name and each value is the transcreated string.
    `subtitle` (30 chars) this is tight; prioritize a clean, punchy result that
    fits over a literal one that doesn't.
 
+   **Counting near-limit fields is where this pipeline fails most often — be
+   strict.** For every field whose natural transcreation lands close to its
+   `charLimit` (especially `promotional_text` at 170 and the 30-char `name` /
+   `subtitle`), **aim a few characters under the limit** rather than right at it,
+   and **re-count the finished string before you write it.** Many scripts run
+   longer than the English; a sentence that "feels" short can still be 175/170. A
+   slightly shorter line that fits always beats a fuller one that's rejected.
+
 3. **Follow the per-field `guidance`** in the source JSON. It explains what each
    field is and how to approach it. The `name` field in particular must begin
    with "{BRAND}" followed by a localized descriptor.

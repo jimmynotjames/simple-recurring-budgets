@@ -91,9 +91,17 @@ For every `tmp/metadata-prompts/{storefront}.md` that exists, invoke an `Agent`:
   > Write the resulting JSON object (nothing else) to
   > `/abs/path/tmp/metadata-outputs/de-DE.json`.
 
-**Send all subagent calls in a single message** so they run concurrently. Do not
-pass `subagent_type: general-purpose` — the narrow agent is what keeps the
+Do not pass `subagent_type: general-purpose` — the narrow agent is what keeps the
 dispatches auto-approvable in `.claude/settings.json`.
+
+**Batch the dispatches, and keep agent calls separate from shell/script calls.**
+Send the subagent calls concurrently in batches (e.g. ~8–12 per message) rather
+than all 38 plus shell commands in one giant message. Never mix `Agent` calls and
+`Bash` calls in the same message: if one tool call errors (a hygiene-blocked
+command, a "nothing to commit", etc.) the whole parallel batch is cancelled,
+killing in-flight subagents and wasting their work. Run scripts (extract,
+dispatch, validate, merge, audit) in their own single-purpose messages, and keep
+each `Bash` message to one command so one failure can't cascade.
 
 The prompt file already contains every rule (brand, char limits, keywords-as-search,
 tone/register, JSON-only). Do not modify it in the dispatch message.
@@ -104,13 +112,32 @@ tone/register, JSON-only). Do not modify it in the dispatch message.
 python3 scripts/translate_metadata/validate.py --subset
 ```
 
-`--subset` checks only the fields present in each output file. Most common
-failures and fixes:
-- **Over the character limit** (especially `name`/`subtitle` at 30) — re-dispatch
-  that storefront; the prompt tells the model to tighten until it fits.
-- **`name` missing the brand prefix** — re-dispatch.
-- **Keyword hygiene warnings** (spaces after commas, dupes) are warnings, not
-  failures, but re-dispatch if egregious.
+`--subset` checks only the fields present in each output file and reports one of
+three per-storefront states — your retry dashboard:
+- **PASS** — valid, within limits, ready to merge.
+- **PENDING** — empty/missing output: the subagent hasn't run or produced
+  nothing. Action: **(re)dispatch that one storefront.** Not an error.
+- **FAIL** — produced content but it's broken. Common causes:
+  - **Over the character limit** (especially `name`/`subtitle` at 30, and
+    `keywords` at 100 — the single most common failure) — re-dispatch; the prompt
+    tells the model to tighten until it fits.
+  - **`name` missing the brand prefix** — re-dispatch.
+  - **Keyword hygiene warnings** (spaces after commas, dupes) are warnings, not
+    failures, but re-dispatch if egregious.
+
+**To retry, re-dispatch only the PENDING/FAIL subagents** (the prompt files are
+still in `tmp/metadata-prompts/`). **Do NOT re-run `dispatch_prompts.py` to
+retry** — by default it clears every manifest locale's output, wiping locales that
+already succeeded. (Re-running the full extract→dispatch→merge loop is safe
+because merged locales drop out of the next manifest; it's only re-running
+`dispatch_prompts.py` *mid-fan-out* that's destructive.)
+
+**Do not write ad-hoc Python/`wc`/`cat`/`jq` to inspect outputs or count
+characters.** Everything you need is in two pre-approved tools:
+- `validate.py --subset [--json]` — pass/pending/fail + every hard error.
+- `audit.py [storefront …]` — per-field char counts vs. limits with OVER flags,
+  and the consolidated `_questions` batch (see Step 4a). Add `--json` for a
+  machine-readable summary, `--full` for untruncated values.
 
 Once `validate.py --subset` exits 0:
 
@@ -132,14 +159,22 @@ risky in-market, a load-bearing phrase that can't fit a 30-char field, or
 genuinely ambiguous source English). They always still write a best-effort
 translation, so the pipeline is never blocked.
 
-After merge, gather every `_questions` entry across all `tmp/metadata-outputs/*.json`
-files and present them to the human **in a single consolidated batch** (group by
-issue where the same question recurs across locales). For each, show the locale,
-field, the issue, and the subagent's default decision, so the human can accept the
-default or override. Use `AskUserQuestion` (or a concise written summary) — do
-**not** dribble out one prompt per locale, and do **not** stall the rest of the
-pipeline waiting on answers: the metadata is already merged and valid; these
-questions are about *improving* specific strings, not unblocking the run.
+Collect them with the pre-approved tool — **do not hand-roll this with `cat`/`jq`/
+`python3 -c`:**
+
+```bash
+python3 scripts/translate_metadata/audit.py --questions
+```
+
+This prints every `_questions` entry across all locales (locale, field, issue, and
+the subagent's default decision) in one batch, or "No content questions raised" if
+there are none. Present that batch to the human **in a single consolidated
+message** (group by issue where the same question recurs across locales) so they
+can accept each default or override it. Use `AskUserQuestion` (or a concise
+written summary) — do **not** dribble out one prompt per locale, and do **not**
+stall the rest of the pipeline waiting on answers: the metadata is already merged
+and valid; these questions are about *improving* specific strings, not unblocking
+the run.
 
 If there are **no** `_questions`, say so briefly and continue — this is the
 expected case. Do not invent questions or ask for approval you don't need.

@@ -12,9 +12,9 @@ struct CarryOverChip: View {
 
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
-  @ScaledMetric(relativeTo: .caption) private var chipSpacing: CGFloat = 3
-  @ScaledMetric(relativeTo: .caption) private var chipHPadding: CGFloat = 6
-  @ScaledMetric(relativeTo: .caption) private var chipVPadding: CGFloat = 3
+  @ScaledMetric(relativeTo: .footnote) private var chipSpacing: CGFloat = 3
+  @ScaledMetric(relativeTo: .footnote) private var chipHPadding: CGFloat = 6
+  @ScaledMetric(relativeTo: .footnote) private var chipVPadding: CGFloat = 3
 
   private var carryOverDisplay: CarryOverDisplay {
     CarryOverFormatter.display(amount, currencyCode: currencyCode, display: display)
@@ -29,7 +29,7 @@ struct CarryOverChip: View {
       Text(String(localized: "carryOver.label", defaultValue: "carry-over", comment: "Fixed label shown in the carry-over chip on the budgets list"))
         .foregroundStyle(dimmedStyle(chipForeground.opacity(colorSchemeContrast == .increased ? 1.0 : 0.8), when: dimmed))
     }
-    .font(.caption)
+    .font(.footnote)
     .fontWeight(.medium)
     .foregroundStyle(dimmedStyle(chipForeground, when: dimmed))
     .padding(.horizontal, chipHPadding)

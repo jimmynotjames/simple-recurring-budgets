@@ -18,6 +18,17 @@ This is the **metadata** pipeline (App Store listing). For in-app UI strings in
 different locale code systems (storefront vs runtime); `metadata_locales.py` owns
 the mapping.
 
+## Autonomy
+
+Run this whole pipeline **autonomously, end to end, without pausing for approval
+on mechanical steps** — extract, dispatch, fan-out, validate, merge, and the gate
+are all routine and pre-approved in `.claude/settings.json`. Do **not** ask "shall
+I proceed?" between steps, and do not ask permission to retry a failed locale.
+
+There is exactly **one** thing worth bringing to the human: **genuine content
+questions about the marketing copy itself** that the subagents flag (Step 4a).
+Surface those in a single batch; everything else you decide and execute yourself.
+
 ## Hard rules
 
 - **Never write ad-hoc Python** (`python3 -c`, throwaway `tmp/*.py`) to slice the
@@ -109,7 +120,33 @@ python3 scripts/translate_metadata/merge.py
 
 Writes each field to `fastlane/metadata/{storefront}/{field}.txt` and copies the
 URL files verbatim from en-US. Refuses to clobber a non-empty file with an empty
-value.
+value. The `_questions` arrays (if any) live only in the `tmp/metadata-outputs/`
+JSON — `merge.py` strips `_`-prefixed keys, so they never reach the metadata tree.
+
+### 4a. Collect and surface content questions (the one human checkpoint)
+
+The subagents are instructed to **work autonomously** and only attach a top-level
+`_questions` array when they hit a genuine *content* decision about the marketing
+copy (a concept with no natural equivalent, a claim that's culturally/legally
+risky in-market, a load-bearing phrase that can't fit a 30-char field, or
+genuinely ambiguous source English). They always still write a best-effort
+translation, so the pipeline is never blocked.
+
+After merge, gather every `_questions` entry across all `tmp/metadata-outputs/*.json`
+files and present them to the human **in a single consolidated batch** (group by
+issue where the same question recurs across locales). For each, show the locale,
+field, the issue, and the subagent's default decision, so the human can accept the
+default or override. Use `AskUserQuestion` (or a concise written summary) — do
+**not** dribble out one prompt per locale, and do **not** stall the rest of the
+pipeline waiting on answers: the metadata is already merged and valid; these
+questions are about *improving* specific strings, not unblocking the run.
+
+If there are **no** `_questions`, say so briefly and continue — this is the
+expected case. Do not invent questions or ask for approval you don't need.
+
+If the human overrides a default, apply the change by editing the relevant
+`fastlane/metadata/<storefront>/<field>.txt` directly (or re-dispatching that one
+locale with the added guidance), then re-run `validate.py` + `check_metadata.py`.
 
 ### 5. Authoritative gate
 

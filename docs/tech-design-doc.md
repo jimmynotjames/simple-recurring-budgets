@@ -246,6 +246,8 @@ Translations for all 38 App Store storefront locales were produced and merged by
 
 **Proper nouns kept in English:** "iCloud", "Carry-Over" (product concept), and App Store brand terms are intentionally left in English for all locales; `validate.py` issues informational warnings (not hard errors) for identical-to-source values.
 
+**App Store listing metadata** is a separate, parallel pipeline at `scripts/translate_metadata/` (driven by the `translate-app-store-metadata` skill, gate: `check_metadata.py`). It transcreates the listing copy (`name`, `subtitle`, `keywords`, `promotional_text`, `description`, `release_notes`) from `fastlane/metadata/en-US/` into all 38 storefronts under `fastlane/metadata/<storefront>/`. It is kept distinct from the in-app pipeline because App Store Connect uses *storefront* codes (`de-DE`, `no`, `nl-NL`, `ar-SA`) rather than the app's *runtime* codes; `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront map. Per-storefront subagents run on Opus (marketing transcreation, not literal translation) and enforce Apple's per-field character limits; the brand "Wren" is a proper noun kept verbatim in every locale (so no localized home-screen icon name is needed). See `scripts/translate_metadata/README.md`.
+
 ### 5.2 Accessibility
 
 - **Dynamic Type**: System text styles everywhere; no fixed frame heights that clip at larger sizes.

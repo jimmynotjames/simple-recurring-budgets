@@ -1,7 +1,7 @@
 # Product Features Planning
 
-**Version:** 0.8  
-**Last Updated:** 2026-05-10
+**Version:** 0.9  
+**Last Updated:** 2026-05-31
 **Author/Owner:** Jimmy Ho
 
 For north-star vision, guiding principles, and global constraints, see [main-prd.md](main-prd.md).
@@ -10,6 +10,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 | Version | Date       | Author   | Changes |
 | ------- | ---------- | -------- | ------- |
+| 0.9     | 2026-05-31 | Jimmy Ho | Retired the `Ongoing` feature status. The four cross-cutting concerns (Dynamic Type, VoiceOver, Dark Mode, Localization, Mixpanel user-action analytics) are no longer tracked as never-completing features here; their per-change maintenance requirements are now canonical in [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) (§6.8.1–§6.8.4). F-3.01/F-3.02/F-3.03/F-3.05 reframed as completed **initial build-outs** (Status → Implemented), with detailed checklists migrated to the PRD. F-8.02's duplicated "Ongoing concern" sub-bullet removed (it points to §6.8.4). Status legend updated. |
 | 0.8     | 2026-05-10 | Jimmy Ho | Synced features list with [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) (rewrite not yet shipped). Added F-2.08 (Specific Dates budget type) and F-7.07 (Per-budget end date). Updated F-2.01, F-2.02, F-2.03, F-2.04, F-2.07, F-5.01, F-7.05, F-7.06, and F-8.02 ACs / notes to reflect the rewrite's end state: mid-period chip refresh, Specific Dates carve-out, per-budget Start/End Date with weekly/biweekly anchoring, forward-only allocation-edit semantics, Pause / Resume capability, pre-start / post-end / paused chip presentations, expense date-bounds validation, and the new `budget_edited` property flags plus `budget_paused` / `budget_resumed` events. F-2.03 Reset Cadence picker permanently removed (Reset Cadences feature deleted, not paused). F-7.05 and F-7.06 scoped to be marked Implemented when the rewrite ships. |
 | 0.7     | 2026-05-03 | Jimmy Ho | F-3.03 → Ongoing. Translations for all 38 storefront locales now complete and merged; both source-string keying and running `scripts/translate_catalog/` are ongoing concerns per [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns). ACs updated to maintenance checklist. |
 | 0.6     | 2026-05-03 | Jimmy Ho | Added Status legend (Open / Partially implemented / Implemented / Ongoing / PAUSED). Updated T-3: F-3.01 and F-3.05 → Ongoing; F-3.02 → Ongoing; F-3.03 description updated to note source-string keying is an ongoing concern per [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) (F-3.03 split deferred to a separate change). F-8.02 Ongoing-concern sub-bullet added. Cross-cutting concerns governed by [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns). |
@@ -24,7 +25,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 | `Open` | Not started. |
 | `Partially implemented` | Feature has a defined end state but is not fully shipped yet. |
 | `Implemented` | Feature has reached its defined end state. |
-| `Ongoing` | Cross-cutting concern (see [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns)). Covers every currently shipped surface; every new code change must continue to maintain it. There is no terminal "Implemented" state for these features. |
+| `Implemented (initial build-out)` | The one-time build-out of a cross-cutting concern (accessibility, dark mode, localization, analytics) is complete and reached its defined end state. The durable per-change maintenance requirement is **not** tracked here — it is canonical in [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns). (Formerly the `Ongoing` status; cross-cutting concerns no longer live in this backlog as never-completing features.) |
 | `PAUSED` | Explicitly out of scope; retained for future un-pause. |
 
 ---
@@ -236,41 +237,35 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 #### Features
 
-##### F-3.01: Dynamic Type
+##### F-3.01: Dynamic Type — initial build-out
 
-- **Status:** Ongoing. All shipped screens use semantic text styles, `@ScaledMetric`, and adaptive layouts. See [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) for the ongoing-concern rule.
-- **Description:** Dynamic Type is supported. This is a cross-cutting ongoing concern — every new UI surface must continue to use semantic text styles and adaptive layouts.
-- **Acceptance Criteria (maintenance checklist — applies to every new UI surface):**
-  - Semantic system text styles used throughout (`Text`, `Label`, etc. with `.title`, `.body`, `.caption`, etc.); no fixed point sizes.
-  - `@ScaledMetric` used for any custom spacing or dimension that should scale with type size.
-  - No fixed frame heights that clip text at `.xxxLarge` Dynamic Type or above.
-  - Layouts remain usable and readable at `.xxxLarge` accessibility size (sample-tested at least once per major new screen).
-- **Edge Cases / Notes:** None
+- **Status:** Implemented. The one-time Dynamic Type build-out is complete: all shipped screens use semantic text styles, `@ScaledMetric`, and adaptive layouts. The durable per-change maintenance requirement now lives in [main-prd.md §6.8.1](main-prd.md#68-cross-cutting-ongoing-concerns); this entry covers only the historical build-out.
+- **Description:** Dynamic Type support was built out across every screen shipped to date. Ongoing maintenance (every new UI surface) is a cross-cutting requirement — see PRD §6.8.1, not this entry.
+- **Acceptance Criteria (initial build-out — all met):**
+  - Semantic system text styles used throughout; no fixed point sizes.
+  - `@ScaledMetric` used for custom spacing / dimensions that scale with type size.
+  - Layouts verified usable and readable at `.xxxLarge` accessibility size on shipped screens.
+- **Edge Cases / Notes:** Per-change maintenance checklist migrated to PRD §6.8.1.
 - **Dependencies:** None
 
-##### F-3.02: VoiceOver
+##### F-3.02: VoiceOver — initial build-out
 
-- **Status:** Ongoing. All shipped screens audited and remediated under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md); pending full interactive walkthrough on hardware. See [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) for the ongoing-concern rule.
-- **Description:** VoiceOver is supported. This is a cross-cutting ongoing concern — every new UI surface must continue to ship with complete VoiceOver support.
-- **Acceptance Criteria (maintenance checklist — applies to every new UI surface):**
-  - All interactive and informational UI elements carry meaningful `.accessibilityLabel` values.
-  - Custom composite views (e.g. carry-over chip, currency picker rows, section headers) collapse to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with a composed `.accessibilityLabel(...)`.
-  - Section headings on `List` / form screens use `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them.
-  - Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) carry an `.accessibilityHint(...)` describing the irreversible consequence.
-  - `swipeActions` are paired with `.accessibilityAction(named:)` mirroring the gesture so VoiceOver users can invoke them via the rotor.
-- **Edge Cases / Notes:** Live VoiceOver walkthrough and pseudo-loc smoke procedures are documented in [Appendices B and C of the audit](audits/localization+voiceover-audit-2026-04-30.md); they are delegated to the human verifier on real hardware.
+- **Status:** Implemented. The one-time VoiceOver build-out is complete: all shipped screens were audited and remediated under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md) (full interactive walkthrough on hardware is delegated to the human verifier). The durable per-change maintenance requirement now lives in [main-prd.md §6.8.1](main-prd.md#68-cross-cutting-ongoing-concerns); this entry covers only the historical build-out.
+- **Description:** VoiceOver support was built out across every screen shipped to date. Ongoing maintenance (every new UI surface) is a cross-cutting requirement — see PRD §6.8.1, not this entry.
+- **Acceptance Criteria (initial build-out — all met):**
+  - All shipped interactive and informational elements carry meaningful `.accessibilityLabel` values.
+  - Custom composite views collapse to a single VoiceOver element; section headings expose the `.isHeader` trait; destructive controls carry consequence-describing hints; `swipeActions` are mirrored by `.accessibilityAction(named:)`.
+- **Edge Cases / Notes:** Per-change maintenance checklist migrated to PRD §6.8.1. Live VoiceOver walkthrough and pseudo-loc smoke procedures are in [Appendices B and C of the audit](audits/localization+voiceover-audit-2026-04-30.md).
 - **Dependencies:** F-3.03
 
-##### F-3.03: Internationalization of text
+##### F-3.03: Internationalization of text — initial build-out
 
-- **Status:** Ongoing. **English source coverage** is complete and audited under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md). **Translations for all 38 App Store storefront locales** (`ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`) are complete and merged. Both source-string keying and translations are now ongoing maintenance concerns — see [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns).
-- **Description:** All user-facing text is keyed and translatable; labels change automatically to match the device's locale. This is a cross-cutting ongoing concern — every new user-facing string added to production views must be keyed immediately AND translations must be produced via the `scripts/translate_catalog/` pipeline before the change ships to users.
-- **Acceptance Criteria (maintenance checklist — applies to every new user-facing string):**
-  - Every user-facing string in production views uses `Text("key", comment:)` or `String(localized: KEY, defaultValue:, comment:)`; no hard-coded English literals remain.
-  - The catalog has no orphan keys and every key carries a translator-friendly `comment:`.
-  - All 38 storefront locales have translations for all catalog keys — maintained by re-running `scripts/translate_catalog/` (extract → translate → merge → validate) after any new keys are added.
-  - Human pseudo-loc and per-locale spot checks remain part of release verification.
-- **Edge Cases / Notes:** Pseudo-localization smoke procedure documented in [Appendix B of the audit](audits/localization+voiceover-audit-2026-04-30.md). Full keying rules in `docs/tech-design-doc.md` §5.1.
+- **Status:** Implemented. The one-time i18n build-out is complete: English source coverage was keyed and audited under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md), and translations for all 38 App Store storefront locales are complete and merged. The durable per-change maintenance requirement (keying every new string + re-running the translation pipeline) now lives in [main-prd.md §6.8.3](main-prd.md#68-cross-cutting-ongoing-concerns); this entry covers only the historical build-out.
+- **Description:** All user-facing text shipped to date is keyed and translatable; labels change automatically to match the device's locale. Ongoing maintenance (every new string) is a cross-cutting requirement — see PRD §6.8.3, not this entry.
+- **Acceptance Criteria (initial build-out — all met):**
+  - All shipped user-facing strings use `Text("key", comment:)` or `String(localized: KEY, defaultValue:, comment:)`; no hard-coded English literals; every key carries a translator-friendly `comment:` and the catalog has no orphan keys.
+  - All 38 storefront locales have translations for all catalog keys (produced via `scripts/translate_catalog/`). The canonical storefront list lives in PRD §6.8.3.
+- **Edge Cases / Notes:** Per-change maintenance checklist and storefront list migrated to PRD §6.8.3. Pseudo-localization smoke procedure in [Appendix B of the audit](audits/localization+voiceover-audit-2026-04-30.md); full keying rules in `docs/tech-design-doc.md` §5.1.
 - **Dependencies:** None
 
 ##### F-3.04: Internationalization of currency
@@ -286,15 +281,13 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 - **Edge Cases / Notes:** None
 - **Dependencies:** F-2.03, F-3.03
 
-##### F-3.05: Dark Mode
+##### F-3.05: Dark Mode — initial build-out
 
-- **Status:** Ongoing. Named color assets with light/dark appearances used on all shipped screens; semantic system colors throughout. See [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) for the ongoing-concern rule.
-- **Description:** Dark Mode is supported. This is a cross-cutting ongoing concern — every new UI surface must continue to use named color assets with separate light/dark appearances, never hard-coded color literals.
-- **Acceptance Criteria (maintenance checklist — applies to every new UI surface):**
-  - Named color assets from `Resources/Assets.xcassets` with separate light/dark appearances used for all custom colors (see `docs/tech-design-doc.md` §5.5 for the color asset table and `appBackground()` modifier pattern).
-  - Semantic system colors used throughout; no hard-coded color literals.
-  - Exceptions: `Color.moneySurplus` / `Color.moneyDeficit` (defined in `Views/Color+Money.swift`), iCloud sync-status system colors, and `.tint(.red)` for destructive controls are permitted system-palette exceptions per `docs/tech-design-doc.md` §5.5.
-- **Edge Cases / Notes:** None
+- **Status:** Implemented. The one-time Dark Mode build-out is complete: named color assets with separate light/dark appearances and semantic system colors are used throughout all shipped screens. The durable per-change maintenance requirement now lives in [main-prd.md §6.8.2](main-prd.md#68-cross-cutting-ongoing-concerns); this entry covers only the historical build-out.
+- **Description:** Dark Mode support was built out across every screen shipped to date. Ongoing maintenance (every new UI surface) is a cross-cutting requirement — see PRD §6.8.2, not this entry.
+- **Acceptance Criteria (initial build-out — all met):**
+  - Named color assets from `Resources/Assets.xcassets` with separate light/dark appearances used for all custom colors; semantic system colors throughout; no hard-coded color literals (permitted system-palette exceptions documented in PRD §6.8.2 and `docs/tech-design-doc.md` §5.5).
+- **Edge Cases / Notes:** Per-change maintenance checklist migrated to PRD §6.8.2.
 - **Dependencies:** None
 
 ---
@@ -531,9 +524,8 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-8.02: Mixpanel Phase 1 — foundation and basic stats
 
-- **Status:** Implemented (change `mixpanel-phase-1-foundation`, 2026-05-03). **Ongoing concern** — the event surface must be maintained with every code change; see note below.
-- **Description:** Establish the product analytics foundation. Phase 1 is the smallest viable Mixpanel integration that still answers the most fundamental questions about who is using the app, what they are using it for, and whether they come back — and that informs how we develop future features. Detailed events, properties, dashboards, identity, consent jurisdictions, and architecture live in [analytics-spec.md](analytics-spec.md). Mixpanel is the chosen vendor; rationale and weaknesses we sidestep are in spec §1 (Vendor Choice).
-  - **Ongoing concern ([main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns)):** Every new user-initiated action that materially changes app state (new destructive action, new screen with a primary CTA, new toggle whose value affects retention or feature usage) MUST ship with the corresponding `AnalyticsClient.track(...)` event per [analytics-spec.md](analytics-spec.md). No PII; respect consent. This applies to every change going forward — not only to Phase 1 or Phase 2 milestones.
+- **Status:** Implemented (change `mixpanel-phase-1-foundation`, 2026-05-03). This is a discrete Phase-1 build-out. The durable per-change requirement that every new user action ship its analytics event is a cross-cutting concern tracked in [main-prd.md §6.8.4](main-prd.md#68-cross-cutting-ongoing-concerns), not here.
+- **Description:** Establish the product analytics foundation. Phase 1 is the smallest viable Mixpanel integration that still answers the most fundamental questions about who is using the app, what they are using it for, and whether they come back — and that informs how we develop future features. Detailed events, properties, dashboards, identity, consent jurisdictions, and architecture live in [analytics-spec.md](analytics-spec.md). Mixpanel is the chosen vendor; rationale and weaknesses we sidestep are in spec §1 (Vendor Choice). The ongoing requirement to instrument every new user action lives in [main-prd.md §6.8.4](main-prd.md#68-cross-cutting-ongoing-concerns).
 - **Acceptance Criteria:**
   - **Constraints:** see [analytics-spec.md §2 (Canonical Constraints)](analytics-spec.md#2-canonical-constraints). That section is the single source of truth for the locale-aware consent default, no-PII guarantee, OSLog boundary, copy-keying, and lazy-SDK-init rules that gate this feature.
   - **Product questions Phase 1 must be able to answer:** see [analytics-spec.md §3 (Product Questions — Phase 1)](analytics-spec.md#3-product-questions--phase-1) for the canonical list, and [§11 (Phase 1 Dashboards)](analytics-spec.md#11-phase-1-dashboards) for the report each question lands on. Phase 1 ships only when each question in §3 has a corresponding dashboard or report in §11.

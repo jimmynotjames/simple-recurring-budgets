@@ -166,6 +166,9 @@
       "WebSearch",
       "WebFetch(domain:www.hackingwithswift.com)",
       "Bash(git -C *)",
+      "Bash(rmdir *)",
+      "Skill(merge-pr)",
+      "Skill(create-pr-for-issue)",
       "mcp__ccd_session__mark_chapter"
     ]
   }

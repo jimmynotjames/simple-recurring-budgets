@@ -33,7 +33,7 @@ struct BudgetIconPicker: View {
     // Transit & commute
     "🚗", "⛽", "🚌", "🚆", "🚲", "🛵",
     // Home & household
-    "🏠", "🛋️", "🧺", "🧻", "🔧",
+    "🏠", "🛋️", "🧺", "🧻", "🔧", "🛏️",
     // Health & wellness — incl. yoga/meditation, hiking, boating
     "💊", "🏥", "🧘", "🪷", "🏋️", "💪", "🥾", "⛰️", "🏕️", "⛵", "🚣", "🛶",
     // Travel
@@ -45,7 +45,7 @@ struct BudgetIconPicker: View {
     // Gifts & money
     "🎁", "💳", "💰", "📦",
     // Cheeky / just for fun
-    "🚬", "🍑", "💦", "🌶️", "🍒", "🍌", "👅", "💋", "🔥", "🛏️", "😏", "🍆",
+    "🚬", "🍑", "💦", "🌶️", "🍒", "🍌", "💋", "🔥", "😏", "🍆", "🔗", "🪢", "🎈",
   ]
 
   private let columns = [GridItem(.adaptive(minimum: 48), spacing: 12)]

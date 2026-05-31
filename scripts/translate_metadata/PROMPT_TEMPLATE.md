@@ -82,9 +82,11 @@ wording.
    tomorrow. This is Wren's distinctive mechanic — keep it, don't cut it as filler.
 5. **Calm, elegant, glanceable** — a tidy ledger, not a busy dashboard. No
    charts-for-charts'-sake, no gamification.
-6. **Private** — syncs through iCloud, no servers, no bank integration. A quiet
-   point of pride; state it plainly. (Weak selling point in some markets — defer
-   to the per-market note if it says so.)
+6. **Private** — two facets, both reflected as their own feature bullets in the
+   source: (a) **iCloud sync** across the user's devices, and (b) **data kept
+   on-device and in iCloud only** — no third-party servers, no bank integration.
+   A quiet point of pride; state it plainly. (Weak selling point in some markets —
+   defer to the per-market note if it says so.)
 
 **Priority drives what you cut.** When a character limit forces a choice, keep
 the higher-priority message and drop the lower one — never the reverse. In the
@@ -111,10 +113,12 @@ The listing's first three screenshots carry their own message, and they sit righ
 next to the text fields. **Treat them as already-said.** Don't spend scarce
 characters re-describing what the user can plainly see in them — *unless* a point
 is important enough to reinforce (e.g. the hero "see what's left" foresight or the
-fast-logging message, worth landing in both words and pictures). Prefer adding
-what the screenshots *can't*
-convey (the feel, the privacy stance, the carry-over payoff, the anti-positioning)
-over narrating what they already do.
+fast-logging message, worth landing in both words and pictures). Where the source
+copy gives you a choice of what to stress, prefer stressing what the screenshots
+*can't* convey (the feel, the privacy stance, the carry-over payoff, the
+anti-positioning) over narrating what they already do. This is about *which
+existing copy to emphasize* — it is **not** license to add new bullets, lines, or
+claims the English source doesn't contain (see rule 8 on structure fidelity).
 
 The screenshots, in order:
 
@@ -171,6 +175,13 @@ where each key is the field name and each value is the transcreated string.
    even in a header, for emphasis, or where local title-casing conventions might
    otherwise push you to. The brand's capitalization is fixed.
 
+   **Name separator:** when the `name` is "{BRAND}" + a descriptor, separate them
+   with a spaced en-dash — "{BRAND} – descriptor" — exactly as the English does.
+   Do **not** substitute an em-dash ("—") or a hyphen ("-"). For scripts that
+   don't use the en-dash idiomatically (e.g. Chinese, Japanese), a single
+   space or a script-appropriate full-width separator is fine — just pick the
+   natural one for the script and don't mix conventions within the field.
+
 2. **Respect the character limit on every field.** Each field in the source JSON
    has a `charLimit` (counted in characters, not bytes — this is what App Store
    Connect enforces). Your output **must not exceed it.** If a natural
@@ -225,6 +236,9 @@ where each key is the field name and each value is the transcreated string.
    always better to ship fewer high-value keywords than to overflow. **Never**
    trim by cutting a word mid-string; only ever drop whole trailing terms. Before
    you finish, re-count the entire comma-joined string and confirm it is ≤ 100.
+   **Your character estimate is least reliable in non-Latin scripts (Cyrillic,
+   Greek, Arabic, Hebrew, Devanagari, Thai, CJK) — do not trust a "feels short"
+   judgment there; count deliberately and lean to ≤ 90 to absorb the error.**
 
 5. **Tone & register for this market:** {CULTURAL_NOTE}
 
@@ -236,8 +250,23 @@ where each key is the field name and each value is the transcreated string.
 7. **Numbers, currency, and dates** should follow local convention where they
    appear in prose, but do not invent specifics that aren't in the source.
 
-8. **Preserve structure** in long fields (`description`, `release_notes`): keep
-   paragraph breaks, the bulleted feature list, and the closing line.
+8. **Preserve structure — and only the structure — in long fields**
+   (`description`, `release_notes`): keep the paragraph breaks, the bulleted
+   feature list, and the closing line.
+   - **Match the source's bullet list exactly: same number of bullets, same
+     order, one source bullet → one translated bullet.** Do **not** add, split,
+     merge, reorder, or drop bullets. In particular, do **not** spin a value from
+     the messaging brief (foresight, etc.) into a *new* bullet the English source
+     doesn't have — the brief tells you what to *emphasize within* the existing
+     copy, not license to grow the feature list. Whatever bullet count the source
+     JSON's `description` has, your output has the same count. (The source keeps
+     iCloud *sync* and on-device *storage* as two separate privacy bullets —
+     render both, and don't collapse them into one or add a third.)
+   - **Don't add sentences or lines the source doesn't have.** `release_notes`
+     especially: match the source's sentence/line count — transcreate the warmth,
+     don't append an extra well-wish or tagline line.
+   - Emphasis the brief calls for (e.g. the privacy stance) belongs in the
+     surrounding *prose*, never as an invented bullet or an extra line.
 
 9. **Output only the JSON object.** No markdown fences. No text before or after.
 

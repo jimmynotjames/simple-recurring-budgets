@@ -1,1 +1,1 @@
-spending,money,finance,savings,cash,wallet,bills,spend log,money manager,personal finance
+spending,budget,money,finance,personal,savings,expenses,cash,manager,weekly,monthly,wallet

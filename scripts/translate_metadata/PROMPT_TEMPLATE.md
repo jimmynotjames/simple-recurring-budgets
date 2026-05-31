@@ -31,6 +31,14 @@ formal/polite address in app marketing **regardless of audience age** (e.g. Hind
 false informality reads as wrong, not young. The per-market note below gives the
 specific choice for this locale; follow it.
 
+- **First-person singular voice.** Write as "I", not "we" — there is one
+  independent developer behind this app, and the voice should feel personal and
+  direct ("I built Wren to…", "I hope it helps you…"). If first-person singular
+  is genuinely jarring or culturally inappropriate in {LOCALE_NAME} marketing
+  copy — even for a younger, modern audience — switch to whatever register *is*
+  natural (e.g. an impersonal construction, brand-as-subject, or second-person
+  framing). The goal is warmth and personality, not a forced "I" where it reads
+  as odd.
 - **Calm & understated.** Confident and plain, never hype. No exclamation marks,
   no ALL-CAPS shouting, no "!!!", no salesy superlatives ("the best", "amazing",
   "revolutionary").
@@ -59,18 +67,22 @@ wording.
 
 **Value propositions, in priority order:**
 
-1. **Speed of logging** — add an expense in one tap, in seconds; "logging, not
-   filling out a form." This is the #1 differentiator versus heavyweight apps.
-   It is the hero message.
-2. **Effortless simplicity** — no bank logins, no spreadsheets, no setup
-   marathon. Built for *everyday, recurring* spending (daily food, weekly
-   groceries), not your entire financial life.
-3. **Carry-Over** — unspent money rolls forward (surplus/deficit); a good day
-   gives tomorrow a little cushion. This is Wren's distinctive mechanic — keep it,
-   don't cut it as filler.
-4. **Calm, elegant, glanceable** — "see what's left" at a glance; a tidy ledger,
-   not a busy dashboard. No charts-for-charts'-sake, no gamification.
-5. **Private** — syncs through iCloud, no servers, no bank integration. A quiet
+1. **Foresight — "know what you can spend, before you spend it."** See what's
+   left at a glance, in the moment, so you make the call *before* you spend, not
+   after. This is the **hero message** — the hook the listing opens on. It reframes
+   budgeting as confident everyday spending, not after-the-fact accounting.
+2. **Speed & simplicity of logging** — add an expense in one tap, in seconds;
+   "logging, not filling out a form." This is the *fast and simple* half of
+   "everyday spending decisions, fast and simple," and the #1 differentiator
+   versus heavyweight apps. Pair it close behind the foresight hook.
+3. **Effortless setup & scope** — easy set-up, no bank logins, no spreadsheets,
+   no setup marathon. Built for *everyday, recurring* spending broken into
+   daily / weekly / biweekly / monthly limits — not your entire financial life.
+4. **Carry-Over** — unspent money rolls forward; what you save today rolls into
+   tomorrow. This is Wren's distinctive mechanic — keep it, don't cut it as filler.
+5. **Calm, elegant, glanceable** — a tidy ledger, not a busy dashboard. No
+   charts-for-charts'-sake, no gamification.
+6. **Private** — syncs through iCloud, no servers, no bank integration. A quiet
    point of pride; state it plainly. (Weak selling point in some markets — defer
    to the per-market note if it says so.)
 
@@ -79,25 +91,59 @@ the higher-priority message and drop the lower one — never the reverse. In the
 tight 30-char fields specifically:
 - **`name`** (after "{BRAND}"): the descriptor should convey the *category*
   (expense/spending tracker) so the listing is findable.
-- **`subtitle`**: lead with the **#1 benefit — speed/ease of everyday logging**.
-  This keeps the hero message consistent across every market. Do not let the
-  subtitle drift to a lower-priority benefit just because it translates more
-  neatly.
+- **`subtitle`**: the foresight hero ("know what you can spend") is hard to
+  compress into 30 characters, so the subtitle leads instead with the **everyday
+  fast/easy budgeting benefit** (as the English subtitle does). Reserve the
+  foresight hook to lead the roomier fields (`promotional_text`, `description`).
+  Do not let the subtitle drift to a still-lower-priority benefit just because it
+  translates more neatly.
 
 **Anti-positioning — what Wren is NOT** (never imply these, in any market):
-- NOT a business / travel expense tool
-- NOT a whole-life personal-finance or master-budgeting suite
+- NOT a business / travel expense tool or tax / receipt logger
+- NOT a whole-life personal-finance or master-budgeting suite (Wren doesn't
+  impose a financial *system* on you)
 - NOT bank- or card-integrated (no account linking, no transaction import)
 - NOT a charts-and-graphs analytics dashboard
+
+## What the screenshots already show (avoid redundancy)
+
+The listing's first three screenshots carry their own message, and they sit right
+next to the text fields. **Treat them as already-said.** Don't spend scarce
+characters re-describing what the user can plainly see in them — *unless* a point
+is important enough to reinforce (e.g. the hero "see what's left" foresight or the
+fast-logging message, worth landing in both words and pictures). Prefer adding
+what the screenshots *can't*
+convey (the feel, the privacy stance, the carry-over payoff, the anti-positioning)
+over narrating what they already do.
+
+The screenshots, in order:
+
+1. **The main budgets overview** — a summary of all budgets at a glance, with
+   familiar everyday categories ("Coffee/Tea", "Food", "Clothes", and a playful
+   one like "Cat Toys") on Daily and Weekly periods. This visually establishes
+   *what the app is* (a tidy, glanceable ledger of everyday budgets) and *the
+   "see what's left" feeling* — which is the **hero foresight message**, so prose
+   doesn't need to laboriously explain the category-and-period concept from
+   scratch, but the foresight benefit is still worth landing in words.
+2. **Adding an expense** — the add/edit expense screen with a Recents section
+   populated, which visually makes the *speed/ease of logging* point (value
+   prop #2, so reinforcing it in words is still worthwhile).
+3. **A single budget's detail** — the per-budget detail view, showing how one
+   budget tracks over its period.
+
+This screenshot context is informational, not a character limit override: the
+character-limit rules below still bind absolutely.
 
 ## Avoid these machine-translation tells
 
 These are the things that make localized copy feel auto-translated. Actively
 avoid them:
 
-- **Don't calque English idioms or metaphors.** "Make every day a little
-  lighter", "stay on top of your money", "setup marathon" — render the *idea* in
-  a native idiom, never word-for-word.
+- **Don't calque English idioms or metaphors.** "Make every day more easeful",
+  "stay on top of your money", "setup marathon" — render the *idea* in a native
+  idiom, never word-for-word. ("Easeful" especially: it's a soft, slightly poetic
+  English word with no literal equivalent in most languages — carry the *feeling*
+  of an easier, lighter day, don't hunt for a one-word match.)
 - **Don't keep English sentence rhythm.** Restructure clause order and sentence
   length to what reads naturally in {LOCALE_NAME}. Vary sentence length; avoid a
   monotone string of equal-length sentences.
@@ -120,7 +166,10 @@ where each key is the field name and each value is the transcreated string.
 1. **The brand "{BRAND}" is a proper noun.** Keep it exactly as "{BRAND}" in
    every field. Never translate it, transliterate it into another script, or
    explain what it means (do **not** add glosses like "(a small bird)"). It is
-   simply the product's name.
+   simply the product's name. **Always use the exact casing "{BRAND}" — initial
+   capital only.** Never write it in all-caps ("WREN") or all-lowercase ("wren"),
+   even in a header, for emphasis, or where local title-casing conventions might
+   otherwise push you to. The brand's capitalization is fixed.
 
 2. **Respect the character limit on every field.** Each field in the source JSON
    has a `charLimit` (counted in characters, not bytes — this is what App Store
@@ -151,6 +200,23 @@ where each key is the field name and each value is the transcreated string.
    this market, add the local high-volume ones, and include the forms people
    really type — common English loanwords (e.g. "budget"), romanizations, or
    accepted abbreviations where users actually use them in this language.
+
+   **Treat `name`, `subtitle`, and `keywords` as one combined search index.**
+   Apple indexes the words from all three fields together and *automatically
+   recombines them* into multi-word queries — a user searching "money manager"
+   matches when `money` and `manager` appear anywhere across the three fields,
+   even as separate entries in different fields. Two consequences for {LOCALE_NAME}:
+   - **Never spend a keyword on a word already in `name` or `subtitle`** (or
+     duplicate across fields). It is already indexed; repeating it buys nothing
+     and wastes characters. Mentally subtract every `name`/`subtitle` word from
+     your candidate keyword list first, then fill the remaining space with *new*
+     terms.
+   - **Unbundle multi-word phrases into single comma-separated words.** A phrase
+     like "money manager" or "personal finance" wastes a character on the space
+     *and* prevents recombination. List the component words separately
+     (`manager`, `personal`) — Apple still forms the original phrase, plus bonus
+     combinations ("finance manager", "personal budget") at no extra cost. Only
+     keep a multi-word entry when splitting it genuinely destroys the meaning.
 
    **The keyword limit is the most-violated rule in this pipeline — do not blow
    it.** The 100-character budget counts every comma. Build the list in priority

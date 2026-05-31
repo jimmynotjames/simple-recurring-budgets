@@ -1,5 +1,1 @@
-Hello from Wren! This is our very first release.
-
-Track your daily spending in seconds, set simple budgets, and let Carry-Over roll unspent money into tomorrow. Everything syncs privately through iCloud.
-
-We'd love to hear what you think — thanks for giving Wren a try.
+First release. Welcome!

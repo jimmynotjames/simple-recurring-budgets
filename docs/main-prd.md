@@ -3,8 +3,8 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.0        |
-| **Last Updated**   | 2026-05-03 |
+| **Version**        | 1.1        |
+| **Last Updated**   | 2026-05-31 |
 | **Author / Owner** | Jimmy Ho   |
 
 
@@ -145,13 +145,52 @@ See §6.8 for the ongoing-concern rule that applies to every code change.
 
 The following concerns are **not** features that complete — they are durable requirements that every feature and code change must uphold. Failing to address them in the same change that introduces new user-facing UI is a defect, not a follow-up. These concerns apply regardless of how a change is described (new feature, bug fix, refactor); whenever UI is added or modified, each concern below must be reviewed and updated as applicable.
 
-- **Accessibility (Dynamic Type + VoiceOver + Dark Mode)** — tracked under T-3 (F-3.01, F-3.02, F-3.05). Every new UI surface must ship with semantic text styles (`@ScaledMetric` for custom metrics), composed `.accessibilityLabel`/`.accessibilityHint` on composite and destructive controls, `swipeActions` paired with `.accessibilityAction(named:)`, and named color assets with separate light/dark appearances.
+The one-time **initial build-out** of each concern below has shipped and is recorded as a completed feature in [`docs/product-features-planning.md`](product-features-planning.md) (Accessibility and Dark Mode under T-3 — F-3.01, F-3.02, F-3.05; Localization under F-3.03; Analytics under F-8.02 — all marked Implemented). The durable, per-change maintenance requirements are canonical **here**; those feature entries cover only the historical build-out and point back to this section.
 
-- **Localization — source strings and translations** — tracked under F-3.03. Translations for all 38 App Store storefront locales are shipped and must be kept current. Every new user-facing string in a production view must be (1) keyed in `Localizable.xcstrings` with a translator-friendly `comment:` — no hard-coded English literals, locale-invariant strings use `Text(verbatim:)` — and (2) translated via the `scripts/translate_catalog/` pipeline (extract → translate → merge → validate) before the change ships to users. See `docs/tech-design-doc.md` §5.1 for full keying rules.
+#### 6.8.1 Accessibility
 
-- **Mixpanel analytics for user actions** — tracked under F-8.02 (and later F-8.03). Every new user-initiated action that materially changes app state (new destructive action, new CTA, new toggle that affects usage or retention) must ship with the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](analytics-spec.md), respecting the consent and no-PII rules in that spec. See `docs/tech-design-doc.md` §7 for the implementation boundary.
+**Dynamic Type.** Every new UI surface must:
 
-Implementation rules for all four concerns live in `docs/tech-design-doc.md` §§5.1–5.2 and §7, and in `docs/analytics-spec.md`. Per-feature tracking lives in `docs/product-features-planning.md` T-3 and T-8.
+- Use semantic system text styles (`Text`, `Label`, etc. with `.title`, `.body`, `.caption`, …); no fixed point sizes.
+- Use `@ScaledMetric` for any custom spacing or dimension that should scale with type size.
+- Avoid fixed frame heights that clip text at `.xxxLarge` Dynamic Type or above.
+- Remain usable and readable at `.xxxLarge` accessibility size (sample-tested at least once per major new screen).
+
+**VoiceOver.** Every new UI surface must:
+
+- Give all interactive and informational elements meaningful `.accessibilityLabel` values.
+- Collapse custom composite views (e.g. carry-over chip, currency picker rows, section headers) to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with a composed `.accessibilityLabel(...)`.
+- Mark section headings on `List` / form screens with `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them.
+- Give destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) an `.accessibilityHint(...)` describing the irreversible consequence.
+- Pair every `swipeActions` with an `.accessibilityAction(named:)` mirroring the gesture so VoiceOver users can invoke it via the rotor.
+
+Live VoiceOver walkthrough and pseudo-loc smoke procedures are documented in Appendices B and C of [`docs/audits/localization+voiceover-audit-2026-04-30.md`](audits/localization+voiceover-audit-2026-04-30.md) and are delegated to the human verifier on real hardware.
+
+#### 6.8.2 Dark Mode
+
+Every new UI surface must:
+
+- Use named color assets from `Resources/Assets.xcassets` with separate light/dark appearances for all custom colors (see `docs/tech-design-doc.md` §5.5 for the color asset table and `appBackground()` modifier pattern).
+- Use semantic system colors throughout; no hard-coded color literals.
+- Permitted system-palette exceptions: `Color.moneySurplus` / `Color.moneyDeficit` (defined in `Views/Color+Money.swift`), iCloud sync-status system colors, and `.tint(.red)` for destructive controls (per `docs/tech-design-doc.md` §5.5).
+
+#### 6.8.3 Localization — source strings and translations
+
+Translations for all 38 App Store storefront locales are shipped and must be kept current. Every new user-facing string in a production view must:
+
+- Use `Text("key", comment:)` or `String(localized: KEY, defaultValue:, comment:)`, keyed in `Localizable.xcstrings` — no hard-coded English literals; locale-invariant strings use `Text(verbatim:)`.
+- Carry a translator-friendly `comment:`; the catalog must have no orphan keys.
+- Be translated to all 38 storefront locales via the `scripts/translate_catalog/` pipeline (extract → translate → merge → validate) before the change ships to users.
+
+The 38 storefronts are: `ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`. Human pseudo-loc and per-locale spot checks remain part of release verification (procedure in Appendix B of the audit linked above). Full keying rules are in `docs/tech-design-doc.md` §5.1.
+
+#### 6.8.4 Mixpanel analytics for user actions
+
+Every new user-initiated action that materially changes app state (a new destructive action, a new screen with a primary CTA, a new toggle whose value affects retention or feature usage) must ship with the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](analytics-spec.md), respecting the consent and no-PII rules in that spec. This applies to every change going forward — not only to a particular Mixpanel phase milestone. See `docs/tech-design-doc.md` §7 for the implementation boundary.
+
+---
+
+Implementation rules for all four concerns live in `docs/tech-design-doc.md` §§5.1–5.2, §5.5, and §7, and in `docs/analytics-spec.md`. The historical build-out features are tracked in `docs/product-features-planning.md` T-3 and T-8.
 
 ---
 
@@ -295,6 +334,7 @@ None
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 1.1     | 2026-05-31 | Jimmy Ho | §6.8 is now the canonical home for the per-change maintenance requirements of all four cross-cutting concerns. Migrated the detailed maintenance checklists (Dynamic Type, VoiceOver, Dark Mode, Localization source-strings + translations, Mixpanel user-action analytics) from `product-features-planning.md` F-3.01/F-3.02/F-3.03/F-3.05/F-8.02 into new subsections §6.8.1–§6.8.4. Those feature entries are reframed as completed initial build-outs. |
 | 1.0     | 2026-05-03 | Jimmy Ho |                  |
 | 0.2     | 2026-05-03 | Jimmy Ho | §6.8 Cross-cutting ongoing concerns (Accessibility, source-string coverage, translations queue, Mixpanel user-action analytics); §6.4 and §6.5 cross-references to §6.8. |
 | 0.1     | 2026-04-10 | Jimmy Ho | Initial template |

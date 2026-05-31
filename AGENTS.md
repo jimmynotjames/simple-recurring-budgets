@@ -151,7 +151,7 @@ The full rules live in [`.cursor/rules/swift-ios.mdc`](.cursor/rules/swift-ios.m
 
 ## Cross-cutting concerns
 
-Some concerns are **ongoing**, not feature-shaped. Every substantive code change that adds or modifies user-facing UI MUST address each of these in the same change (or add an explicit follow-up task before the change is treated complete). Failing to do so is a defect, not a follow-up. The canonical rule lives in [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns); per-feature tracking lives in `docs/product-features-planning.md` (F-3.01, F-3.02, F-3.03, F-3.05, F-8.02).
+Some concerns are **ongoing**, not feature-shaped. Every substantive code change that adds or modifies user-facing UI MUST address each of these in the same change (or add an explicit follow-up task before the change is treated complete). Failing to do so is a defect, not a follow-up. The canonical per-change rule lives in [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns) (Accessibility §6.8.1, Dark Mode §6.8.2, Localization §6.8.3, Mixpanel analytics §6.8.4). The one-time build-outs are recorded as completed features in `docs/product-features-planning.md` (F-3.01, F-3.02, F-3.03, F-3.05, F-8.02, now marked Implemented) — those entries are historical and are **not** the place to look up the maintenance rule.
 
 Quick checklist for every UI-touching change:
 

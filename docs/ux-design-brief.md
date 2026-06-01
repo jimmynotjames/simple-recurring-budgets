@@ -1,5 +1,8 @@
 # UX Design Brief
 
+**Last Updated:** 2026-05-31  
+**Author/Owner:** Jimmy Ho
+
 > See `main-prd.md` for product vision, scope, personas, and constraints. This document governs **visual and interaction design only**. The app will eventually support **multiple skins** that may deviate from these guidelines, but these are the default.
 
 ## Concept
@@ -16,19 +19,16 @@ The app should feel **calm, tidy, quietly warm**, and **low-key delightful** at 
 - **Color:** A restrained, **system-first** palette — dynamic background tones plus one or two muted accents (examples: soft sage, dusty teal, or warm slate, or similar). Surplus and deficit use **semantic colors** that softly indicate positive or negative values. Avoid gradients, saturated colors, and hard black.
 - **Layout & Components:** Standard iOS idioms that are aligned with industry best practices —  Content should feel **breathable and scannable**; budgets read like a well-organized accounting ledger, not a dashboard.
 - **Progress & Feedback:** Progress is **calm, never scolding**. Indicators like "remaining this period" should be elegant. Carry-over (surplus / deficit) is a small, clearly labeled chip — no streaks, trophies, or alarm reds. Haptics on successful log are soft; nothing loud.
-- **Signature Element:** **Fast expense logging.** From the main budgets screen, there should be only one tap to open a form to add an Expense Item to a Budget. Logging should feel efficient and fast, not filling out a form.
+- **Signature Element:** **Fast expense logging.** From the main budgets screen, one tap opens the Add Expense form for a budget. Recents autocomplete on that form (name + amount) further reduces typing for habitual entries. Logging should feel efficient and fast, not like filling out a long form.
 
 ## Key Screens
 
-- **Budgets (root):** Grouped list of Recurring Budgets; each row shows name, remaining this period, and an optional carry-over chip. Glanceable, no dashboard sprawl.
-- **Budget detail:** One budget's expense history with current-period state pinned at top; primary **Add Expense** action always within thumb reach.
-- **Add/Edit Expense (sheet for add, push for edit):** Amount field focused on open; everything else optional. Designed to dismiss in seconds.
-- **Add/Edit Budget (sheet):** Lower-frequency setup — allocation, period, carry-over toggle, ~~reset cadence~~.
+- **Budgets (root):** List of budgets; each row shows optional emoji icon, name, remaining this period, and an optional carry-over chip. Rows in inactive lifecycle states (pre-start, paused, ended) use a dimmed presentation with a single status chip. Glanceable, no dashboard sprawl.
+- **Budget detail:** One budget's expense history with current-period state pinned at top; primary **Add Expense** action within thumb reach (swaps to **Resume Budget** when the budget is paused). Toolbar overflow menu hosts lifecycle and destructive actions (edit, pause/resume, reset carry-over, reset budget).
+- **Add/Edit Expense (sheet for add, push for edit):** Amount field focused on open; description and date optional. Recents suggestions narrow as the user types. Add Funds toggle for entries that increase remaining. Designed to dismiss in seconds.
+- **Add/Edit Budget (sheet):** Lower-frequency setup — allocation, period (including Specific Dates trip-style windows), optional Schedule start/end dates for recurring types, carry-over toggle, optional emoji icon. Reset cadence was permanently removed and does not appear in the UI.
 
-> [!NOTE]
-> **PAUSED — Reset Cadences feature is not in scope.** Do not include a Reset Cadence control in the Add/Edit Budget sheet (or any UI) while paused. The strikethrough above marks it as inactive; the text is retained for future reference.
-
-- **Settings:** Start of week, currency display, iCloud sync status, support, About. **Skin selection** is future (F-4.01–02). Minimal.
+- **Settings:** Start of week, currency display, analytics opt-in, iCloud sync status, support links, About. First-run analytics consent sheet in strict-opt-in locales. **Skin selection** is future (F-4.01–02). Minimal.
 
 ## Navigation
 
@@ -36,4 +36,13 @@ A simple **nav stack** — Budgets → Budget → Expense — with Settings reac
 
 ## iOS Platform Notes
 
-Follow Apple HIG and industry UX best practices where not overridden above. Support Dynamic Type, Dark Mode, VoiceOver, and Reduce Motion as baseline (per PRD §6.4). Use **SF Symbols** throughout for app chrome and controls; no custom iconography in the default skin. (Exception: a user may choose an optional **emoji** as a per-Budget icon — that's user content, not app chrome — from the app's curated set; see F-4.03.) Layouts must adapt cleanly across iPhone, iPad, and macOS targets (per PRD §6.1).
+Follow Apple HIG and industry UX best practices where not overridden above. Support Dynamic Type, Dark Mode, VoiceOver, and Reduce Motion as baseline (per PRD §6.8). Use **SF Symbols** throughout for app chrome and controls; no custom iconography in the default skin. (Exception: a user may choose an optional **emoji** as a per-Budget icon — that's user content, not app chrome — from the app's curated set; see F-4.03.) Layouts must adapt cleanly across iPhone, iPad, and macOS targets (per PRD §6.1).
+
+---
+
+## Revision history
+
+| Version | Date       | Author   | Changes |
+| ------- | ---------- | -------- | ------- |
+| 0.2     | 2026-05-31 | Jimmy Ho | Synced with shipped v1 UX: recents, add funds, Specific Dates, pause/resume, inactive row presentation, Settings analytics, reset cadence permanently removed. |
+| 0.1     | (prior)    | Jimmy Ho | Initial brief. |

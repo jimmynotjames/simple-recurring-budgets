@@ -1,6 +1,6 @@
 # Product Features Planning
 
-**Version:** 0.9  
+**Version:** 1.0  
 **Last Updated:** 2026-05-31
 **Author/Owner:** Jimmy Ho
 
@@ -10,6 +10,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 | Version | Date       | Author   | Changes |
 | ------- | ---------- | -------- | ------- |
+| 1.0     | 2026-05-31 | Jimmy Ho | Synced feature statuses to shipped codebase: F-2.01, F-2.02, F-2.03, F-2.04, and F-3.04 → Implemented; removed stale "budget-calculations rewrite outstanding" status prose; fixed broken links to deleted `budget-calculations-rewrite.md` (now point to `budget-calculations-rewrite-algorithm.md` where retained); F-2.02/F-2.05/F-8.02 prose fixes (Untitled placeholder, seven Settings sections, rewrite analytics events shipped). |
 | 0.9     | 2026-05-31 | Jimmy Ho | Retired the `Ongoing` feature status. The four cross-cutting concerns (Dynamic Type, VoiceOver, Dark Mode, Localization, Mixpanel user-action analytics) are no longer tracked as never-completing features here; their per-change maintenance requirements are now canonical in [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) (§6.8.1–§6.8.4). F-3.01/F-3.02/F-3.03/F-3.05 reframed as completed **initial build-outs** (Status → Implemented), with detailed checklists migrated to the PRD. F-8.02's duplicated "Ongoing concern" sub-bullet removed (it points to §6.8.4). Status legend updated. |
 | 0.8     | 2026-05-10 | Jimmy Ho | Synced features list with [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) (rewrite not yet shipped). Added F-2.08 (Specific Dates budget type) and F-7.07 (Per-budget end date). Updated F-2.01, F-2.02, F-2.03, F-2.04, F-2.07, F-5.01, F-7.05, F-7.06, and F-8.02 ACs / notes to reflect the rewrite's end state: mid-period chip refresh, Specific Dates carve-out, per-budget Start/End Date with weekly/biweekly anchoring, forward-only allocation-edit semantics, Pause / Resume capability, pre-start / post-end / paused chip presentations, expense date-bounds validation, and the new `budget_edited` property flags plus `budget_paused` / `budget_resumed` events. F-2.03 Reset Cadence picker permanently removed (Reset Cadences feature deleted, not paused). F-7.05 and F-7.06 scoped to be marked Implemented when the rewrite ships. |
 | 0.7     | 2026-05-03 | Jimmy Ho | F-3.03 → Ongoing. Translations for all 38 storefront locales now complete and merged; both source-string keying and running `scripts/translate_catalog/` are ongoing concerns per [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns). ACs updated to maintenance checklist. |
@@ -65,7 +66,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.01: Budgets screen
 
-- **Status:** Partially implemented. Implemented by change `budgets-screen` and `finish-budgets-screen`. Outstanding items are scoped to the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md)): mid-period Carry-over chip refresh, Specific Dates chip carve-out, and pre-start / post-end / paused chip presentations.
+- **Status:** Implemented. Shipped by changes `budgets-screen`, `finish-budgets-screen`, `rewrite-budget-calculations`, and `unify-inactive-budget-states`.
 - **Description:** Top-level screen: list of Budget (entity) rows and where the user stands.
 - **Acceptance Criteria:**
   - Name of budget field
@@ -87,7 +88,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.02: Budget screen
 
-- **Status:** Partially implemented (excluding F-6.01). Core screen implemented by change `budget-detail-screen`; tap-to-edit on expense rows implemented by change `expense-row-push-navigation`. Outstanding items are scoped to the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md)): mid-period chip refresh, Specific Dates chip carve-out, pre-start / post-end / paused chip presentations, the Pause / Resume toolbar actions, and the state-driven primary-action slot (Add Expense ↔ Resume Budget) while paused.
+- **Status:** Implemented. Shipped by changes `budget-detail-screen`, `expense-row-push-navigation`, `rewrite-budget-calculations`, `pause-resume-budget`, `unify-inactive-budget-states`, and `add-funds-toggle`.
 - **Description:** Screen that lists Expense Items for a single Budget (entity).
 - **Acceptance Criteria:**
   - Shows vertical scrolling list of transactions as a list of most-recent to least-recent.
@@ -119,15 +120,15 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - For each Expense Item, shows the following fields:
     - Date and time (relative: "Today HH:mm" / "Yesterday HH:mm" / locale-aware beyond yesterday)
     - Amount of expense (absolute value; `Color.moneySurplus` tint for add-funds entries per F-6.01 display path)
-    - Name of expense (or an italic "Untitled expense" placeholder when nil)
+    - Name of expense (or an italic "Untitled" placeholder when nil)
   - **Lifecycle refresh** on task initialization, `scenePhase == .active`, and `onChange(of: budget.expenseItems.count)`.
   - **VoiceOver** — composed accessibility labels on the header (on-budget and over-budget variants) and on each expense row (standard and add-funds variants).
-- **Edge Cases / Notes:** The add-funds display path for `ExpenseItem.isAddFunds` is present but no UI to create one exists until F-6.01 (PAUSED).
+- **Edge Cases / Notes:** None
 - **Dependencies:** F-2.01
 
 ##### F-2.03: Add/Edit Budget screen
 
-- **Status:** Partially implemented. Implemented by change `add-edit-budget-screen`; uses Foundation's system currency catalog (`Locale.commonISOCurrencyCodes` + `Locale.localizedString(forCurrencyCode:)`). Delete Budget implemented by change `delete-budget-button`. Period immutability and currency-change disclaimer implemented by change `restrict-edit-budget-period`. The `.specificDates` period chip, Dates card (start/end pickers, sheet-presented `.graphical` `DatePicker`), conditional Carry-Over hiding, and `startDate` / `endDate` save paths ship with `specific-dates-period` (see F-2.08). Outstanding items remain for the **recurring** period types: editable Start Date / End Date fields and per-period-type pre-population (see F-7.07). **The Reset Cadences feature is permanently removed** by the budget-calculations rewrite; it is no longer paused, and no Reset Cadence control ships in the Add/Edit Budget sheet.
+- **Status:** Implemented. Shipped by changes `add-edit-budget-screen`, `delete-budget-button`, `restrict-edit-budget-period`, `specific-dates-period`, `finish-start-end-dates`, and `add-orphan-expense-warning`. Uses Foundation's system currency catalog. **The Reset Cadences feature is permanently removed** — no Reset Cadence control ships in the Add/Edit Budget sheet. The symmetric **end-date orphan warning** (moving End Date earlier past expenses) remains a known deferred gap; the start-date orphan warning shipped.
 - **Description:** Screen to create or edit a Budget (entity).
 - **Acceptance Criteria:**
   - Same screen used to create and edit.
@@ -154,7 +155,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-2.04: Add/Edit/View Expense Item screen
 
-- **Status:** Partially implemented (changes `add-edit-expense-screen`, `edit-expense-omit-cancel`). The date-bounds rule below is outstanding and scoped to the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md)).
+- **Status:** Implemented. Shipped by changes `add-edit-expense-screen`, `edit-expense-omit-cancel`, `rewrite-budget-calculations`, `finish-start-end-dates`, and `finish-recently-used-expenses`.
 - **Description:** A full screen (or partial screen) that shows all the editable fields of an Expense Item (entity).
 - **Acceptance Criteria:**
   - Shows editable name of expense (optional)
@@ -175,12 +176,13 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 ##### F-2.05: Settings screen
 
 - **Status:** Implemented. Implemented by change `settings-screen`.
-- **Description:** A modal Settings sheet accessible from the Budgets navigation bar. Contains six sections with functional controls, a Done button, and no ViewModel (plain SwiftUI view).
+- **Description:** A modal Settings sheet accessible from the Budgets navigation bar. Contains seven sections with functional controls, a Done button, and no ViewModel (plain SwiftUI view).
 - **Acceptance Criteria:**
   - A Settings entry-point button is placed in the canonical location in the Budgets navigation bar; tapping it presents a modal sheet.
   - **Budgets section** — Default Carry-Over toggle: bound to `AppSettings.defaultCarryOverEnabled`; see F-2.07 for carry-over semantics.
   - **Calendar section** — Week Starts On picker: shows a confirmation alert before applying the selected weekday; confirmed value writes to `AppSettings.weekStartDay`; see F-5.01 for week-start semantics.
   - **Display section** — Currency Display preference picker: bound to `AppSettings.currencyDisplay`; picker row labels show `"<option label> — <locale-aware example>"` where the example is derived live from `Locale.autoupdatingCurrent` using the canonical `Decimal.formatted(currencyCode:display:locale:)` formatter; value is persisted to `NSUbiquitousKeyValueStore` and applied app-wide to all monetary rendering; see F-3.04 for currency display requirements.
+  - **Diagnostics & Analytics section** — Analytics opt-in toggle bound to `AppSettings.analyticsOptIn`; see F-8.02 and [analytics-spec.md](analytics-spec.md).
   - **iCloud Sync Status section** — Shows a tri-state row derived from `SyncStatus.rowState`: `.checking` (spinner), `.available` (green checkmark icon, syncing), `.paused` (orange exclamation icon, local-only container despite iCloud sign-in), `.unavailable` (orange x icon, not signed in); section footer appears only for `.unavailable` and `.paused` states; account status is re-queried live on `CKAccountChanged` notifications.
   - **Support section** — "Send Feedback" (opens `mailto:` link), "Rate the App" (invokes `requestReview()`), "Privacy Policy" (opens URL in browser; URL is TBD until launch).
   - **About section** — Displays app version and build number from `CFBundleShortVersionString` / `CFBundleVersion`.
@@ -270,7 +272,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.04: Internationalization of currency
 
-- **Status:** Partially implemented. Per-budget currency picker (`CurrencyPickerView`) and locale-aware formatting shipped with `add-edit-budget-screen`; currency display preference shipped with `settings-screen`. ISO currency display names in the picker come from Foundation (`localizedString(forCurrencyCode:)`) and follow the device locale; any catalog-backed UI copy on that flow is covered by F-3.03.
+- **Status:** Implemented. Per-budget currency picker (`CurrencyPickerView`) and locale-aware formatting shipped with `add-edit-budget-screen`; currency display preference shipped with `settings-screen`. ISO currency display names in the picker come from Foundation (`localizedString(forCurrencyCode:)`) and follow the device locale; any catalog-backed UI copy on that flow is covered by F-3.03.
 - **Description:** Currency is **per Budget** (entity) — see **Add/Edit Budget screen** (F-2.03) — not a single global app default. This feature covers formatting, symbols, and the currency catalog used when choosing a Budget’s currency.
 - **Acceptance Criteria:**
   - **Add/Edit Budget screen** includes a currency picker; all supported currency codes are available there (not on **Settings screen** as a global override). *(Implemented by `add-edit-budget-screen` change.)*
@@ -345,7 +347,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-5.01: Configurable start of week.
 
-- **Status:** Implemented. `AppSettings.weekStartDay` with Settings picker and confirmation alert; implemented by change `settings-screen`. The scope clarification below ships with the budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) §2.4).
+- **Status:** Implemented. `AppSettings.weekStartDay` with Settings picker and confirmation alert; implemented by change `settings-screen`. Scope clarification below shipped with `rewrite-budget-calculations`.
 - **Description:** Choose start day of week for weekly and biweekly Budgets that don't already have a per-budget `startDate` anchor.
 - **Acceptance Criteria:**
   - Default value is determined by locale's official week starting day. For example, Sunday in the USA, Monday in most of Europe.
@@ -393,7 +395,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 ##### F-6.03: App Store rating prompt
 
 - **Status:** Open
-- **Description:** Prompt the user to rate the app in the App Store after meaningful product use and/or after a minimum elapsed time period.
+- **Description:** Prompt the user to rate the app in the App Store after meaningful product use and/or after a minimum elapsed time period. Settings already exposes a manual **Rate the App** control (`requestReview()`); this feature covers **automatic** eligibility-based prompting with cooldown — not the manual entry point.
 - **Acceptance Criteria:**
   - The app requests an App Store rating only after eligibility conditions are met, based on meaningful usage and/or elapsed time.
   - Eligibility thresholds and exact trigger formula are explicitly **TBD** and will be finalized later.
@@ -537,11 +539,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - Mixpanel is **not** a crash reporter or time-series telemetry log; crash and lifecycle data stays on `OSLog` (F-8.01) and Apple-native frameworks (MetricKit). The full F-8.01 boundary is in [analytics-spec.md](analytics-spec.md) §17.
   - Final per-event property list, super properties, people properties, and dashboards live in [analytics-spec.md](analytics-spec.md). Treat that doc as the implementation contract; this entry is intentionally high-level.
   - **Historical implementation starting state.** Pre-F-8.02 scaffolding refactors are recorded in [analytics-spec.md §16.1](analytics-spec.md#161-implementation-starting-state-codebase-snapshot-historical-record) (now a historical record). All refactors are complete.
-  - **Budget-calculations rewrite (see [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) §2.11) — events / properties to add when the rewrite ships:**
-    - `budget_edited` gains property flags `allocation_changed: bool`, `start_date_changed: bool`, `end_date_changed: bool`.
-    - New dedicated event `budget_paused` (fired when the user pauses a budget — see F-7.06).
-    - New dedicated event `budget_resumed` (fired when the user resumes a budget — see F-7.06).
-    - Any cadence-related event properties tied to the deleted Reset Cadences feature must be removed from [analytics-spec.md](analytics-spec.md) in the same change.
+  - **Budget-calculations rewrite analytics** — shipped with `rewrite-budget-calculations` and `finish-start-end-dates`: `budget_edited` property flags (`allocation_changed`, `start_date_changed`, `end_date_changed`), dedicated `budget_paused` / `budget_resumed` events (F-7.06). Cadence-related properties from the deleted Reset Cadences feature were removed from [analytics-spec.md](analytics-spec.md) in the same effort.
 - **Dependencies:** F-2.05 (Settings — for the opt-in toggle), F-3.03 (i18n of consent + Settings copy), F-8.01 (OSLog boundary; SHOULD ship before F-8.02)
 
 ##### F-8.03: Mixpanel Phase 2 — reactive deepening and experimentation seam

@@ -3,7 +3,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.1        |
+| **Version**        | 1.2        |
 | **Last Updated**   | 2026-05-31 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -267,9 +267,8 @@ The companion technical reference for implementation and tooling is [tech-design
 
 High-level entities include:
 
-- Recurring Budget - A spending allowance that repeats. Carries configuration for Budget Period, allocation (via `AllocationChange` history), **currency (per budget)**, optional `startDate` / `endDate` bounds, and lifecycle events (pause/resume).
-- Expense Item
-  - A single expense
+- **Budget** — A spending allowance that repeats (daily, weekly, biweekly, monthly) or spans a fixed window (**Specific Dates** trip-style budgets). Carries configuration for Budget Period, allocation history (`AllocationChange`), **currency (per budget)**, optional `startDate` / `endDate` bounds, lifecycle events (pause/resume via `LifecycleEvent`), optional emoji **icon**, and carry-over toggle.
+- **Expense Item** — A single expense or add-funds entry. Amount is signed at persistence (`negative` = add funds). Optional `expenseType` field exists in schema; user-facing editor not yet shipped (F-6.02).
 
 ### 7.3 Third-Party Dependencies Policy
 
@@ -306,6 +305,8 @@ Screens:
 - Add/Edit/View Expense Item screen — Create, edit, or view an Expense Item (entity).
 - Settings screen
 
+In strict-opt-in analytics jurisdictions, a first-run consent sheet may appear before the user creates their first budget; ongoing opt-in/out lives in Settings (see [analytics-spec.md](analytics-spec.md) and F-8.02).
+
 ---
 
 ## 9. Open Questions
@@ -318,8 +319,10 @@ Screens:
 
 ### 10.1 Glossary
 
-- Recurring Budget (AKA Budget) - An allocation of available spending that repeats the allocation at regular time intervals. The supported period values are defined in app code (see `BudgetPeriod` or equivalent).
+- Recurring Budget (AKA Budget) - An allocation of available spending that repeats the allocation at regular time intervals, or — for **Specific Dates** budgets — a single fixed window with one allocation. The supported period values are defined in app code (see `BudgetPeriod` or equivalent).
 - Expense Item (AKA Expense or Transaction) - A specific expense.
+- **Specific Dates budget** — A one-window trip-style budget: required start and end dates, one allocation for the whole window, no recurrence, no carry-over chip. Distinct from a recurring budget whose start/end dates bound its lifetime.
+- **Paused budget** — A recurring budget temporarily stopped via Pause; reversible with Resume. Distinct from a budget past its terminal **end date**, which cannot be resumed.
 - Budget Period - The repeating time interval the Budget allocates funds to. The canonical set of cases and their string values are defined in app code (see `BudgetPeriod` or equivalent).
 - Carry-over Amount (AKA CarryOver) - A per-budget, signed cumulative total: surplus (under-spent relative to allocation over time) or deficit (over-spent). It is **shown separately** from “remaining for this Budget Period” (which is not adjusted by carry-over for display). Computed live per [§6.7](#67-carry-over-behavior) as the sum of completed prior active periods plus the *committed* portion of the current period's overflow (asymmetric live coupling: overspend and add-funds excess land immediately; ordinary mid-period slack waits for the period to close). Can be cleared manually via Reset Carry-Over or Reset Budget.
 - Reset Budget - A destructive action on the Budget detail screen that deletes every Expense Item for a given Budget and sets `lastResetDate = now` so carry-over starts from zero, while leaving the Budget entity itself intact. If the budget is currently paused at reset time, the same atomic write also inserts a `.resume` `LifecycleEvent` so the post-reset state is active rather than a paused-but-empty limbo. Distinct from Reset Carry-Over (which only resets carry-over) and Delete Budget (which removes the Budget entity and cascades to its Expense Items). See §6.7 and F-2.02.
@@ -334,6 +337,7 @@ None
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 1.2     | 2026-05-31 | Jimmy Ho | §7.2 expanded data model (Specific Dates, LifecycleEvent, icon, add-funds); §8.3 analytics consent sheet note; §10.1 glossary entries for Specific Dates and Paused budget. |
 | 1.1     | 2026-05-31 | Jimmy Ho | §6.8 is now the canonical home for the per-change maintenance requirements of all four cross-cutting concerns. Migrated the detailed maintenance checklists (Dynamic Type, VoiceOver, Dark Mode, Localization source-strings + translations, Mixpanel user-action analytics) from `product-features-planning.md` F-3.01/F-3.02/F-3.03/F-3.05/F-8.02 into new subsections §6.8.1–§6.8.4. Those feature entries are reframed as completed initial build-outs. |
 | 1.0     | 2026-05-03 | Jimmy Ho |                  |
 | 0.2     | 2026-05-03 | Jimmy Ho | §6.8 Cross-cutting ongoing concerns (Accessibility, source-string coverage, translations queue, Mixpanel user-action analytics); §6.4 and §6.5 cross-references to §6.8. |

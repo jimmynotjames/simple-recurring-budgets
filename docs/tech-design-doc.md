@@ -2,8 +2,8 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.17                           |
-| **Last Updated**   | 2026-05-02                     |
+| **Version**        | 0.19                           |
+| **Last Updated**   | 2026-05-31                     |
 | **Author / Owner** | Jimmy Ho                       |
 
 > Master technical reference for the Simple Recurring Budgets app. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
@@ -58,8 +58,13 @@ Pure display-only subviews (row cells, badges, amount formatters) remain logic-f
 
 **Implemented View + Services screens:**
 
-- `BudgetsView` — root list; `@Query` drives the row list; `BudgetLifecycleService.result(for:)` called from each row's `.task(id:)`, `onChange(of: scenePhase)`, and `onChange(of: budget.lastModified)`.
-- `BudgetDetailView` — Budget detail; lifecycle refresh invoked from the view body via `.task(id: budget.persistentModelID)`, `onChange(of: scenePhase)`, and `onChange(of: budget.lastModified)`. Destructive actions (`resetBudget`, `resetCarryOver`, `deleteExpense`) are short imperative methods on the view that write through `@Environment(\.modelContext)` and call `BudgetLifecycleService` afterward. None of the §2.1 escalation triggers apply.
+- `BudgetsView` — root list; `@Query` drives the row list; `BudgetLifecycleService.result(for:)` called from each row's `.task(id:)`, `onChange(of: scenePhase)`, and `onChange(of: budget.recomputeToken)`.
+- `BudgetDetailView` — Budget detail; lifecycle refresh invoked from `.task(id: budget.persistentModelID)`, `onChange(of: scenePhase)`, and `onChange(of: budget.recomputeToken)`. Destructive actions are short imperative methods on the view that write through `@Environment(\.modelContext)` and call `BudgetLifecycleService` afterward.
+
+**Escalated ViewModel screens (draft/form state):**
+
+- `AddEditBudgetViewModel` — Add/Edit Budget sheet: cross-field validation, orphan-expense warning, allocation/start/end save paths, and `budget_edited` analytics property flags.
+- `AddEditExpenseViewModel` — Add/Edit Expense: date-bounds validation, Add Funds toggle + sign-on-save, recents candidates (F-7.04).
 
 ### 2.2 Navigation: `NavigationStack` with value-based routing
 
@@ -98,6 +103,7 @@ The user-facing entry point for deleting a `Budget` is the **Delete Budget** but
 | `endDate` | `Date?` | Terminal cutoff; `nil` for open-ended recurring budgets |
 | `lastResetDate` | `Date?` | Most recent manual Reset Carry-Over or Reset Budget timestamp; `nil` means no reset |
 | `isCarryOverEnabled` | `Bool` | Display toggle; algorithm always computes carry-over internally |
+| `icon` | `String?` | Optional emoji budget icon (F-4.03); `nil` when unset |
 | `allocationChangesStorage` | `[AllocationChange]?` | Allocation history; use `allocationChanges` computed accessor |
 | `lifecycleEventsStorage` | `[LifecycleEvent]?` | Pause/resume history; use `lifecycleEvents` computed accessor |
 | `expenses` | `[ExpenseItem]?` | Expense rows; use `expenseItems` computed accessor |
@@ -135,7 +141,7 @@ SwiftData persistence with `cloudKitDatabase: .automatic` on `ModelConfiguration
 
 ### 4.2 CloudKit Setup Requirements
 
-- **iCloud container identifier**: Must be set in entitlements (currently empty — needs a value like `iCloud.com.jimmyho.simple-recurring-budgets`).
+- **iCloud container identifier**: `iCloud.com.jimmyho.simple-recurring-budgets` (set in entitlements).
 - **Capabilities**: iCloud (CloudKit) + Push Notifications (background remote-notification already in `Info.plist`).
 - **Dashboard**: Register the container in CloudKit Dashboard; schema is auto-created from SwiftData models on first push.
 
@@ -265,10 +271,10 @@ Translations for all 38 App Store storefront locales were produced and merged by
 Services in `Domain/` implement all budget math with no SwiftUI dependencies:
 
 - **`PeriodCalculator`** — Pure date math: computes period start/end dates and enumerates period boundaries. Accepts `RecurringBudgetPeriod` (excludes `.specificDates` at compile time). All methods take an injected `Calendar`. Weekly/biweekly anchoring derives from `Budget.startDate`, not `AppSettings.weekStartDay` (which only seeds the pre-populated value at budget creation time).
-- **`BudgetCalculator.snapshot(budget:expenses:now:calendar:) -> BudgetSnapshot`** — The single pure read entry point. Stateless; never mutates anything. Computes carry-over via `walkCarryOver(...)` (live walker over completed active prior periods), adds the asymmetric `currentPeriodSpillover(...)` for the in-progress period, and looks up allocation history via `allocationInEffect(at:history:)`. **Two classifiers split math from UI** (see F-7.06): `isActive(periodStart:periodEnd:sortedLifecycleEvents:)` is period-granular and drives the carry-over walker and the `remaining = 0` short-circuit for fully-paused periods; `isPausedAtMoment(now:sortedLifecycleEvents:)` is moment-granular and drives `BudgetSnapshot.lifecycleState`, flipping `.paused` immediately when a `.pause` event's `effectiveDate` is reached. Returns a `BudgetSnapshot` containing `lifecycleState`, `effectiveAllocation`, `remaining`, `carryOver` (`nil` for `.specificDates`), `effectivePeriodStart`, `effectivePeriodEnd`.
+- **`BudgetCalculator.snapshot(budget:expenses:now:calendar:) -> BudgetSnapshot`** — The single pure read entry point. Stateless; never mutates anything. Computes carry-over via `walkCarryOver(...)` (live walker over completed active prior periods), adds the asymmetric `currentPeriodSpillover(...)` for the in-progress period, and looks up allocation history via `allocationInEffect(at:history:)`. A dedicated **`specificDatesBranch`** handles one-window trip budgets. **Two classifiers split math from UI** (see F-7.06): `isActive(periodStart:periodEnd:sortedLifecycleEvents:)` is period-granular and drives the carry-over walker and the `remaining = 0` short-circuit for fully-paused periods; `isPausedAtMoment(now:sortedLifecycleEvents:)` is moment-granular and drives `BudgetSnapshot.lifecycleState`, flipping `.paused` immediately when a `.pause` event's `effectiveDate` is reached. Returns a `BudgetSnapshot` containing `lifecycleState`, `effectiveAllocation`, `remaining`, `carryOver` (`nil` for `.specificDates`), `effectivePeriodStart`, `effectivePeriodEnd`. Algorithm details: [`docs/budget-calculations-rewrite-algorithm.md`](budget-calculations-rewrite-algorithm.md).
 - **`BudgetLifecycleService`** — Compatibility adapter between `BudgetCalculator.snapshot` and the existing view-layer `BudgetLifecycleResult` contract. `result(for:)` is a pure read (calls `snapshot`, maps result, takes no `ModelContext`). Five write-path methods mutate state and `context.save()`: `applyAllocationEdit(_:newAmount:context:)` (insert-or-mutate `AllocationChange`), `resetCarryOver(_:context:)` (sets `lastResetDate`), `resetBudget(_:context:)` (deletes all expenses + sets `lastResetDate`), `pauseBudget(_:context:now:) -> Bool` (inserts `LifecycleEvent(.pause)` if eligible; rejects for `.specificDates`, already paused, or past `endDate`), `resumeBudget(_:context:now:) -> Bool` (inserts `LifecycleEvent(.resume)` if eligible; same rejections). All write-path methods bump `Budget.lastModified = now` before saving.
 
-**Refresh trigger:** Every user-initiated write (expense add/edit/delete, allocation edit, manual reset) bumps `Budget.lastModified = now` in the same `context.save()`. Views observe `.onChange(of: budget.lastModified)` to refresh the chip, alongside `.task(id:)` and `.onChange(of: scenePhase)`. This single signal replaces the old `expenseItems.count` observer and covers expense Edit (previously unhandled).
+**Refresh trigger:** Every user-initiated write (expense add/edit/delete, allocation edit, pause/resume, manual reset) bumps `Budget.lastModified = now` in the same `context.save()`. Views also observe **`budget.recomputeToken`** (derived from `lastModified`, expense count, and lifecycle/allocation child timestamps — see `Budget+RecomputeToken.swift`) so chip refresh covers expense edits and CloudKit merges that do not re-bump `lastModified`. Refresh is additionally driven by `.task(id:)` and `onChange(of: scenePhase == .active)`.
 
 **Biweekly anchor:** The cycle anchor for weekly/biweekly periods is `Budget.startDate`. `AppSettings.weekStartDay` seeds the pre-populated value in the Add Budget form; it is not consulted by the algorithm.
 
@@ -340,7 +346,7 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 ## 7. Security and Privacy
 
 - **Encryption at rest**: Apple encrypts app data by default (Data Protection). No additional encryption is needed.
-- **No network calls**: Beyond CloudKit sync (managed by the OS), the app makes no network requests.
+- **Network surface**: The app has **no app-owned backend**. CloudKit sync is managed by the OS. The only third-party network client is **Mixpanel** (product analytics), gated by user consent — see §7 product-analytics paragraph and `docs/analytics-spec.md`. All other release traffic is Apple framework traffic (CloudKit, iCloud KV).
 - **On-device diagnostics**: Uses Apple's unified logging (`OSLog`) directly via `Logger` constants in `AppLoggers.swift` (categories: `bootstrap`, `cloudkit`, `ui`, `persistence`). These are the canonical four categories; any addition or rename requires a matching update to this section and to the `diagnostic-logging` capability spec. Canonical call-site map: `Logger.bootstrap` — one `info` entry per launch recording the resolved `AppDatabaseLaunchMode`; `Logger.cloudKit` — existing container-backing entries in `makeProductionModelContainer` plus one `notice` entry per iCloud account-status transition in `SettingsView`; `Logger.ui` — one `debug` entry per user-initiated destructive action (`resetBudget`, `resetCarryOver`, `deleteBudget`, `deleteExpense`), recording the entity's `persistentModelID` at `privacy: .private`; `Logger.persistence` — one `error` entry per SwiftData `context.save()` failure surfaced through the shared persistence-save helper (`ModelContext.saveChanges(operation:analytics:)`), interpolating the `PersistenceOperation` identifier and the underlying `NSError`'s `localizedDescription` at `privacy: .public` (both non-user-derived). Every interpolated value at a `Logger.*` call site carries an explicit `privacy:` argument. Diagnostic call sites write to these loggers directly — they never pass through `AnalyticsClient`. The one narrowly-scoped exception (the `persistence_save_failed` sibling event) is codified in [`docs/analytics-spec.md` §17](analytics-spec.md#17-boundary-with-f-801-oslog). Logs stay on device and are not transmitted.
 - **Product analytics**: The `AnalyticsClient` protocol is product-only (no diagnostic routing). The default implementation (`ConsoleAnalyticsClient`) prints events in **Debug builds** only (`#if DEBUG`); release builds are silent no-ops and transmit nothing. `MixpanelAnalyticsClient` is the production implementation, shipped as part of F-8.02 (`mixpanel-phase-1-foundation`). Consent is **locale-aware**: default off (explicit opt-in required) in strict-opt-in jurisdictions (EU/EEA/UK/Switzerland and other regimes such as South Korea, China, Brazil, Turkey, Thailand, and Quebec — canonical list in `docs/analytics-spec.md` §7.2), default on (auto opt-in, user can opt out from Settings) in all other locales. No PII is ever transmitted regardless of jurisdiction (no-PII rule operationalized in `docs/analytics-spec.md` §5). The Mixpanel SDK is initialized **lazily**: `Mixpanel.initialize` is NOT called in `init`; the first opted-in `track`/`identify` call triggers lazy initialization guarded by `NSLock`; an opted-out launch incurs zero `MixpanelInstance` creation and no network activity. The "Diagnostics & Analytics" toggle in Settings drives `AppSettings.analyticsOptIn`; toggle-off fires `analytics_consent_changed` then calls `reset()` to wipe the Mixpanel identity. The canonical client-selection table (DEBUG → Console; Release opted-out → Console; Release opted-in → Mixpanel lazy), launch-time event ordering, and consent-transition ordering are in `docs/analytics-spec.md` §§8 and 8.1. The historical implementation starting state (pre-F-8.02 scaffold) is recorded in `docs/analytics-spec.md` §16.1. Fully specified in `docs/analytics-spec.md` §§2–8.
 - **App Transport Security**: Default configuration is sufficient (no custom domains).
@@ -405,14 +411,13 @@ Remaining items from the feature backlog that will require technical design when
 | Feature | Technical Surface |
 |---------|-------------------|
 | **F-4.01–02: Color themes** | Asset Catalog color sets, theme state in `NSUbiquitousKeyValueStore` (synced via iCloud) or SwiftData, `@Environment(\.colorScheme)` integration |
-| **F-4.03: Budget icons (emoji)** | Single emoji stored as optional `String` on `Budget` (`Budget.icon`); picker presents the app's curated emoji set (the picker component is the master list). SF Symbols, Genmoji, and LLM default-suggestion are **descoped (canceled)** — see F-4.03. |
-| ~~**F-4.04: Photo upload for icon**~~ | **Canceled (descoped)** — Budget icons are scoped to emoji (F-4.03). Not implemented; row retained for the record. |
-| ~~**F-5.01: Start of week**~~ | **Shipped** — `NSUbiquitousKeyValueStore` storage, `Calendar` mutation, period calculation integration via `AppSettings.weekStartDay` and `PeriodCalculator`. Row removed from future table. |
-| **F-6.01: Adding funds** | Model layer done: negative `ExpenseItem.amount` convention, `isAddFunds` / `displayAmount` computed properties, edit-path sign preservation. Remaining: Add Funds toggle UI on the Add Expense screen. |
 | **F-6.02: Expense Type** | Schema done: `expenseType: String?` on `ExpenseItem`. Remaining: user-facing editor, user-defined values stored as a `Set<String>` in `NSUbiquitousKeyValueStore` (synced via iCloud) or a dedicated entity. |
+| **F-6.03: App Store rating prompt** | Eligibility logic + cooldown state (likely `NSUbiquitousKeyValueStore` or local defaults); `requestReview()` already exposed manually from Settings |
 | **F-7.01: Receipt scanning** | Vision framework (`VNRecognizeTextRequest`), on-device OCR, regex extraction for amounts |
 | **F-7.02–03: Voice input/query** | SiriKit intents or App Intents framework, on-device NLP, `SFSpeechRecognizer` for in-app voice |
 | **F-8.03: Mixpanel Phase 2** | React to Phase 1 evidence; add experimentation seam; extend event coverage per `docs/analytics-spec.md` §§12–15. Operationalized in `docs/analytics-spec.md` §4 / §12–15. |
+
+**Shipped (removed from future table):** F-4.03 budget emoji icons, F-5.01 week start, F-6.01 add funds, F-7.04–07 recents / lifecycle dates / pause-resume, F-8.01–02 OSLog + Mixpanel Phase 1.
 
 ---
 
@@ -439,6 +444,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.19    | 2026-05-31 | Jimmy Ho | Doc/code sync: §4.2 CloudKit container ID set in entitlements; §2.1 documents `AddEditBudgetViewModel` / `AddEditExpenseViewModel`; §3.1 `Budget.icon`; §5.4 `recomputeToken` refresh + `specificDatesBranch` pointer; §7 network surface (Mixpanel + CloudKit, no app backend); §9 future table refreshed (shipped features removed). |
 | 0.18    | 2026-05-03 | Jimmy Ho | §4.5 KV-key table: add `analyticsOptIn`, `analyticsDistinctId`, and `analyticsFirstOpenAt` rows (F-8.02). §7 product-analytics paragraph: document lazy Mixpanel SDK init, consent toggle wiring, and PII contract; update §16.1 reference to historical. §9 future table: add F-8.03 Phase 2 row. |
 | 0.17    | 2026-05-02 | Jimmy Ho | §7 expanded the on-device diagnostics entry: canonical call-site map for `bootstrap`, `cloudkit`, and `ui` categories; explicit `privacy:` annotation rule; cross-reference to `docs/analytics-spec.md` §17 for the OSLog ↔ `AnalyticsClient` boundary. (F-8.01 implemented by change `oslog-diagnostic-logging`.) |
 | 0.16    | 2026-05-02 | Jimmy Ho | §7 expanded the product-analytics paragraph to call out Mixpanel SDK lazy init, the canonical client-selection table, and cross-references to `docs/analytics-spec.md` §§8 / 8.1 (ordering) and §16.1 (implementation starting state) ahead of F-8.01 / F-8.02 OpenSpec planning. |

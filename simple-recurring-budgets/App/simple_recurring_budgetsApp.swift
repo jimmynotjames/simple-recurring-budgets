@@ -143,30 +143,14 @@ struct simple_recurring_budgetsApp: App {
   ///
   /// In-memory DEBUG containers always use `.localFallback` since they don't sync via CloudKit.
   private static func makeModelContainer() throws -> (ModelContainer, SyncStatus.ContainerBacking) {
-    // UI test isolation: use an ephemeral in-memory store so every test launch
-    // starts with a clean, empty database. Data created in one test cannot bleed
-    // into subsequent tests, removing the need for explicit teardown.
+    // UI test isolation: every test launch gets a clean ephemeral in-memory store.
+    // Seeding for journey-test preconditions is handled by InMemoryModelContainer.
     if isRunningTests {
-      let container = InMemoryModelContainer.makeEmpty()
-      // SEED_BUDGETS: comma-separated budget names injected via launchEnvironment
-      // by makeApp(seedBudgets:) in UITestHelpers. Creates one monthly $100 budget
-      // per name so journey tests can skip UI creation and test the feature itself.
-      if let seedList = ProcessInfo.processInfo.environment["SEED_BUDGETS"] {
-        let now = Date()
-        let startDate = Calendar.current.startOfDay(for: now)
-        for name in seedList.split(separator: ",").map(String.init).filter({ !$0.isEmpty }) {
-          let budget = Budget(name: name, period: .monthly)
-          budget.startDate = startDate
-          budget.sortOrder = (try? Budget.nextSortOrder(for: container.mainContext)) ?? 0
-          let change = AllocationChange(effectiveFrom: startDate, amount: 100)
-          change.budget = budget
-          budget.allocationChangesStorage = [change]
-          container.mainContext.insert(budget)
-          container.mainContext.insert(change)
-        }
-        try? container.mainContext.save()
-      }
-      return (container, .localFallback)
+      #if DEBUG
+        return (InMemoryModelContainer.makeForUITests(), .localFallback)
+      #else
+        return (InMemoryModelContainer.makeEmpty(), .localFallback)
+      #endif
     }
     #if DEBUG
       switch appDatabaseLaunchMode {

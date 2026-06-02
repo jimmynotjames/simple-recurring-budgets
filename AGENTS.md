@@ -17,6 +17,8 @@ Run in this exact order from the repo root. Fix failures before advancing to the
 
 `make test-ui` — runs only the UI test pass (`AccessibilityAuditTests` + `UserJourneyTests`). Use when iterating on UI test failures after `make test-unit` is green. Does not re-run unit tests. The simulator must have hosted at least one prior app lifecycle (i.e. run `make test-unit` or `make initialize-sims && make build` first in a fresh session).
 
+**Running a subset of tests (ad-hoc):** use `make test-only ONLY="<id> [more...] [--ui]"` or `bash scripts/test-only.sh <id> ...` — each identifier becomes an `-only-testing:<id>` filter (`Target/Suite` or `Target/Suite/method()`). Example: `make test-only ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"`. This routes through the sandboxed sim + DerivedData and is a single allowlisted command. **Do not** hand-build `source scripts/_destination.sh && xcodebuild test -only-testing:...` — the `source` segment triggers a permission prompt and bypasses the sandbox; `test-only.sh` exists precisely to avoid that.
+
 Steps 1–3 are seconds-cheap and let you fix lint/compile errors before paying the simulator boot + full-suite cost.
 
 ### Per-repo simulator sandbox

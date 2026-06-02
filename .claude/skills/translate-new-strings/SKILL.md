@@ -187,6 +187,26 @@ python3 scripts/translate_catalog/merge.py
 
 Merge only writes catalog entries for keys present in the output files, and refuses to
 overwrite a non-empty entry with an empty value, so existing translations are safe.
+For each key it merges, `merge.py` also promotes that key's English source from
+`state: "new"` → `"translated"` (Xcode auto-extraction lands new keys as `"new"`). This
+means a key that went through this pipeline will **not** trip the `NEW [en] (source)`
+gate in step 5 — the previous manual `add_keys.py --force` + re-merge dance is no longer
+needed for pipeline keys.
+
+**Fast path — steps 4 and 5 in one shot.** Once the subagents have written
+`tmp/translate-outputs/`, run the deterministic tail as a single command (every
+sub-command is individually allowlisted, so it never prompts):
+
+```bash
+python3 scripts/translate_catalog/validate.py --subset \
+  && python3 scripts/translate_catalog/merge.py \
+  && python3 scripts/check_translations.py \
+  && python3 scripts/check_source_strings.py
+```
+
+If `validate.py --subset` fails for a locale, re-dispatch that locale's subagent and
+re-run the chain. Don't split these into four separate tool calls — that's slower and
+was the source of past friction.
 
 ### 5. Authoritative pre-push gate
 
@@ -206,6 +226,13 @@ Both are run by `lefthook.yml` on `pre-push`.
   A failure here means there's an un-keyed string in production code — fix that first
   (add to xcstrings, then re-run this skill), since untranslated keys are downstream of
   un-keyed strings.
+- `NEW [en] '<key>' (source)` means the key's English source state is still `"new"`
+  (Xcode-extracted, not yet reviewed). For keys you just translated this is now
+  auto-resolved by `merge.py` (see step 4). It can still surface for a key whose 38
+  locales were *already* complete (so nothing merged) but whose en stayed `"new"` — in
+  that rare case run `extract.py --keys <key>` then the step-4 fast-path chain, or
+  re-run `merge.py` (the existing `tmp/translate-outputs/<locale>.json` are reused and
+  the en promotion fires). Do not hand-edit the catalog.
 
 If `check_translations.py` reports keys that exist in the catalog but no longer have a
 Swift reference (i.e. the code dropped the `String(localized: ...)` call), those keys

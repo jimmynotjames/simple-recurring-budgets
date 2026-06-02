@@ -73,6 +73,7 @@ def main(argv: list[str]) -> int:
     merged_count = 0
     skipped_locales: list[str] = []
     rejected_empty = 0
+    en_finalized = 0
 
     for locale in locales:
         translations = load_translations(locale)
@@ -107,6 +108,16 @@ def main(argv: list[str]) -> int:
             }
             locale_merged += 1
 
+            # Finalize the English source. A key auto-extracted by Xcode lands with
+            # en.stringUnit.state == "new"; once we've translated it the source is
+            # effectively reviewed, so promote it to "translated". Otherwise
+            # check_translations.py flags `NEW [en] '<key>' (source)` and blocks the
+            # push even though every locale is translated. Idempotent across locales.
+            en_unit = localizations.get("en", {}).get("stringUnit")
+            if isinstance(en_unit, dict) and en_unit.get("state") == "new":
+                en_unit["state"] = "translated"
+                en_finalized += 1
+
         print(f"  Merged {locale_merged} keys for {locale}")
         merged_count += locale_merged
 
@@ -115,6 +126,8 @@ def main(argv: list[str]) -> int:
         f.write("\n")
 
     print(f"\nMerge complete: {merged_count} total key-locale pairs written to catalog.")
+    if en_finalized:
+        print(f"Promoted {en_finalized} English source string(s) from 'new' → 'translated'.")
     if skipped_locales:
         print(f"Skipped (no output file): {skipped_locales}")
     if rejected_empty:

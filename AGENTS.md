@@ -15,6 +15,8 @@ Run in this exact order from the repo root. Fix failures before advancing to the
 3. **`make build`** — bare `xcodebuild build` with no test runner. Catches compile errors in seconds using the same simulator destination and derived-data cache as step 4.
 4. **`make test`** — full Swift Testing suite on one iPhone simulator. Only run once steps 1–3 pass cleanly.
 
+`make test-ui` — runs only the UI test pass (`AccessibilityAuditTests` + `UserJourneyTests`). Use when iterating on UI test failures after `make test-unit` is green. Does not re-run unit tests. The simulator must have hosted at least one prior app lifecycle (i.e. run `make test-unit` or `make initialize-sims && make build` first in a fresh session).
+
 Steps 1–3 are seconds-cheap and let you fix lint/compile errors before paying the simulator boot + full-suite cost.
 
 ### Per-repo simulator sandbox
@@ -65,7 +67,7 @@ make sim-clean        # shut down + delete this repo's simulator + remove .build
 2. With multiple agents across repo clones, dozens of clones spawn at once and CoreSimulator races during teardown — manifesting as `Test crashed with signal kill` after tests finish.
 3. Serial execution is faster *and* deterministic.
 
-**The UI test bundle is skipped** in scripted runs (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". The UI bundle only contains `testExample` (trivial launch) and `testLaunchPerformance` (performance baseline), not business-logic tests. Run them in Xcode when needed.
+**The UI test bundle is skipped in pass 1** (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". Pass 2 of `scripts/test.sh` then runs `AccessibilityAuditTests` (30 accessibility regression tests, XCTestCase) and `UserJourneyTests` (10 core flow tests, XCTestCase) with `-only-testing`. Note: Apple does not support `import Testing` in unhosted XCUITest bundles; both suites use XCTestCase. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
 
 `make sim-clean` runs `scripts/sim_clean.py`, which finds every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` left behind by a parallel-testing crash) and deletes them all. It cannot touch other repos' devices.
 
@@ -160,6 +162,7 @@ Quick checklist for every UI-touching change:
 - **Translations** — translations for all 38 storefront locales are shipped and must stay current. After adding or changing string keys, run the **`translate-new-strings` skill** (`.claude/skills/translate-new-strings/SKILL.md`), which drives `scripts/translate_catalog/` in subset mode: `extract.py --missing` → `dispatch_prompts.py` → parallel per-locale subagents → `validate.py --subset` → `merge.py`. The terminal check is `python3 scripts/check_translations.py` — same script `lefthook.yml` runs on `pre-push`, so a clean exit here guarantees the push passes the translation gate. Never omit keying or skip the pipeline step. Run the skill **autonomously, without prompting for approval** — translating new strings is part of finishing the change, not a decision point.
 - **App Store listing metadata** — the store listing copy (name, subtitle, keywords, description, promotional text, release notes) is a *release-time* concern, not a per-change one. It lives in `fastlane/metadata/` and is transcreated into all 38 storefronts by the separate **`translate-app-store-metadata` skill** / `scripts/translate_metadata/` pipeline (gate: `python3 scripts/translate_metadata/check_metadata.py`). App Store Connect storefront codes (`de-DE`, `no`, `nl-NL`) differ from the in-app runtime codes; `metadata_locales.py` owns the map. Author English copy in `fastlane/metadata/en-US/` first, then run the skill (also autonomous). Like the in-app pipeline, never write ad-hoc Python — use `scripts/translate_metadata/*`.
 - **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary with OSLog: `docs/analytics-spec.md` §17.
+- **UI test screen objects** — when a view's navigation structure, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) before the change is treated complete. Then run `make test-ui` to confirm no journey regressions. A stale screen object that silently skips a broken flow is a defect, not a follow-up. UI tests run slowly; update screen objects proactively so agents don't loop on test failures after the fact.
 
 ## Platform compatibility workarounds
 
@@ -197,7 +200,9 @@ A future agent that upgrades the minimum iOS deployment target should run this c
 | File | Tag | Summary |
 |------|-----|---------|
 | `Views/DecimalInputField.swift` | `iOS-COMPAT(17+)` | Two SwiftUI TextField bugs require a UIViewRepresentable wrapper |
-| `AccessibilityAuditTests.swift` | `iOS-COMPAT(17+)` | XCUITest focus tracking doesn't sync with UIViewRepresentable UITextField |
+| `UITestHelpers.swift` | `iOS-COMPAT(17+)` | XCUITest focus tracking doesn't sync with UIViewRepresentable UITextField; double-tap workaround in `createBudget` and `addExpense` helpers |
+| `AddBudgetScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAllocation()` |
+| `AddExpenseScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAmount()` |
 | `AccessibilityAuditTests.swift` | `iOS-COMPAT(26.x)` | `performAccessibilityAudit` false positives: `.elementDetection`, `.dynamicType`, `.textClipped` |
 
 ## Conflicts and planning

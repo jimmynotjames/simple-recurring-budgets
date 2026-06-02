@@ -143,11 +143,14 @@ struct simple_recurring_budgetsApp: App {
   ///
   /// In-memory DEBUG containers always use `.localFallback` since they don't sync via CloudKit.
   private static func makeModelContainer() throws -> (ModelContainer, SyncStatus.ContainerBacking) {
-    // UI test isolation: use an ephemeral in-memory store so every test launch
-    // starts with a clean, empty database. Data created in one test cannot bleed
-    // into subsequent tests, removing the need for explicit teardown.
+    // UI test isolation: every test launch gets a clean ephemeral in-memory store.
+    // Seeding for journey-test preconditions is handled by InMemoryModelContainer.
     if isRunningTests {
-      return (InMemoryModelContainer.makeEmpty(), .localFallback)
+      #if DEBUG
+        return (InMemoryModelContainer.makeForUITests(), .localFallback)
+      #else
+        return (InMemoryModelContainer.makeEmpty(), .localFallback)
+      #endif
     }
     #if DEBUG
       switch appDatabaseLaunchMode {

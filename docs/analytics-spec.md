@@ -2,8 +2,8 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.12       |
-| **Last Updated**   | 2026-05-02 |
+| **Version**        | 0.15       |
+| **Last Updated**   | 2026-06-02 |
 | **Author / Owner** | Jimmy Ho   |
 
 > Companion design + instrumentation spec for **F-8.02** (Mixpanel Phase 1) and **F-8.03** (Mixpanel Phase 2) in [product-features-planning.md](product-features-planning.md). The features doc carries the high-level constraints and the product questions the work must answer; this doc captures the detailed instrumentation, identity, consent, and architectural decisions that produce those answers. Phase 1 establishes the measurement foundation and answers first-tier product questions; Phase 2 reacts to Phase 1 evidence and adds an experimentation seam.
@@ -122,8 +122,9 @@ Phase 2 deepens Phase 1's picture and adds the experimentation seam. Phase 2 que
 
 ### 4.4 Rating prompt (F-6.03)
 
-- When do users meet the "meaningful usage" threshold defined by F-6.03?
-- Once F-6.03 ships: distribution of rating-prompt outcomes (shown / dismissed / rated).
+- When do users meet the "meaningful usage" threshold defined by F-6.03? (`rating_prompt_eligible`.)
+- Of the users who become eligible, for how many do we actually call `requestReview` (`rating_prompt_requested`), and how long after eligibility?
+- **Outcome (shown / dismissed / rated) is intentionally not a question we can answer.** F-6.03 uses Apple's native `requestReview` (`@Environment(\.requestReview)`), which neither reports whether StoreKit decided to present the dialog nor the user's choice. There is no callback. We deliberately do **not** add a custom pre-prompt to manufacture that signal (review-gating hurts ratings and conflicts with the no-engagement-pressure constraint in §2.1.7). The deepest observable point is `rating_prompt_requested`.
 
 ### 4.5 Experimentation
 
@@ -435,9 +436,8 @@ Final scope is re-validated against actual Phase 1 dashboard evidence; this is t
 | `add_expense_started`          | Add Expense sheet presented. Paired with `expense_logged` to size abandonment.                                                                                                          | §4.1             |
 | `add_budget_started`           | Add Budget sheet presented. Optional; only if Phase 1 evidence motivates it.                                                                                                            | §4.1             |
 | `screen_viewed`                | Top-level screen presented. `screen_name` is enum. Optional and sampled if event volume is high.                                                                                        | (flow analysis)  |
-| `rating_prompt_eligible`       | The first time a user meets the F-6.03 "meaningful usage" threshold. Fires **once per user** — gated by the `rating_prompt_first_eligible_at` people property in §13.2.                | §4.4             |
-| `rating_prompt_shown`          | The OS rating prompt is actually presented (subject to the system's per-app throttling). Fires **at most once per presentation**.                                                      | §4.4             |
-| `rating_prompt_resolved`       | The user dismisses or rates after `rating_prompt_shown`. Carries `outcome` and `time_to_resolution_bucket` (see §13.1). Some `rating_prompt_shown` events have no resolution (background / kill); accept that natural fall-off. | §4.4             |
+| `rating_prompt_eligible`       | The first time a user meets the F-6.03 "meaningful usage" threshold. Fires **once per user** — gated by the `rating_prompt_first_eligible_at` people property in §13.2. **Shipped with F-6.03** (`rating-prompt`), pulled forward from Phase 2. | §4.4             |
+| `rating_prompt_requested`      | The app calls Apple's native `requestReview` after an eligible user completes a qualifying action (F-6.03). Fires when we **request** a review — StoreKit then decides whether to actually present the dialog and reports nothing back, so this is the deepest observable point. De-duplicated per app version (matching the local once-per-version guard in F-6.03). **No `outcome` is observable** — see §4.4. **Shipped with F-6.03** (`rating-prompt`), pulled forward from Phase 2. | §4.4             |
 | `feature_flag_exposed`         | First time per app session per flag that the client reads a flag value with effect on UI / behavior. Carries `flag_key` and `variant` (see §13.1). De-duplicated client-side per session to keep volume bounded. | §4.5             |
 
 ---
@@ -450,8 +450,7 @@ Final scope is re-validated against actual Phase 1 dashboard evidence; this is t
 | ------------------------ | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `app_opened`             | `cold_start_to_budgets_visible_ms`  | Measured via `os_signpost` between app entry and Budgets first body render.                        |
 | `expense_logged`         | `taps_from_budgets_list`            | Validates the [ux-design-brief.md](ux-design-brief.md) fast-logging promise.                       |
-| `rating_prompt_resolved` | `outcome`                           | `dismissed` / `rated`. Drives §4.4 outcome distribution.                                           |
-| `rating_prompt_resolved` | `time_to_resolution_bucket`         | `<5s` / `<30s` / `<5m` / `≥5m`. Bucketed gap between `rating_prompt_shown` and `rating_prompt_resolved`. |
+| `rating_prompt_requested` | `time_since_first_eligible_bucket` | `<1d` / `<7d` / `<30d` / `≥30d`. Bucketed gap between `rating_prompt_first_eligible_at` and the request. Answers §4.4 "how long after eligibility do we ask?" without a raw timestamp. |
 | `feature_flag_exposed`   | `flag_key`                          | Categorical, matches the keys defined for `FeatureFlagClient` in §15.                              |
 | `feature_flag_exposed`   | `variant`                           | Categorical (e.g. `control` / `variant_a`). `null` / absent if the flag returned a default fallback. |
 
@@ -465,7 +464,7 @@ Final scope is re-validated against actual Phase 1 dashboard evidence; this is t
 | `uses_multiple_currencies`        | Bool. True if more than one distinct `currency_code` across the user's Budgets. Recomputed alongside `default_currency_code`.               |
 | `last_expense_logged_at`          | Timestamp; used for retention math only. **Not** surfaced in-app as a streak metric per [ux-design-brief.md](ux-design-brief.md).           |
 | `rating_prompt_first_eligible_at` | Timestamp set the first time the F-6.03 threshold is met. Gates the one-shot `rating_prompt_eligible` event so it fires at most once.       |
-| `rating_prompt_last_outcome`      | `dismissed` / `rated` / `unresolved`. Refreshed on each `rating_prompt_resolved`; also lets dashboards segment retention by prompt outcome. |
+| `rating_prompt_last_requested_at` | Timestamp refreshed each time the app calls `requestReview` (fires `rating_prompt_requested`). Lets dashboards segment retention by whether/when we asked. **No outcome is stored** — StoreKit does not report dismiss/rate (see §4.4). |
 
 ---
 
@@ -477,7 +476,7 @@ Final scope is re-validated against actual Phase 1 dashboard evidence; this is t
 | Fast-logging UX validation                 | Insights — distribution / median / p90 of `taps_from_budgets_list` on `expense_logged`; `cold_start_to_budgets_visible_ms` on `app_opened`.        | §4.2    |
 | Cohort retention                           | Retention — anchored on `expense_logged`, segmented by `dominant_period`, `uses_carry_over`, `has_multiple_budgets`, `uses_multiple_currencies`.   | §4.3    |
 | Rating-prompt eligibility timeline         | Insights — `rating_prompt_eligible` over time; people-property histogram of `rating_prompt_first_eligible_at` vs `first_seen_at`.                  | §4.4    |
-| Rating-prompt outcomes                     | Insights — `rating_prompt_resolved` outcome distribution; funnel `rating_prompt_shown → rating_prompt_resolved` with unresolved share.             | §4.4    |
+| Rating-prompt request rate                 | Funnels — `rating_prompt_eligible → rating_prompt_requested`, with `time_since_first_eligible_bucket` distribution. **No outcome step** — StoreKit does not report whether the dialog was shown, dismissed, or rated (see §4.4). | §4.4    |
 | Feature-flag exposure & impact             | Insights — `feature_flag_exposed` totals by `flag_key` × `variant`; Retention / Funnels segmented by `variant` for any active flag (the experimentation seam itself; no live experiment ships in F-8.03). | §4.5    |
 
 ---
@@ -623,6 +622,8 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.15    | 2026-06-02 | Jimmy Ho | F-6.03 implemented by change `rating-prompt`. The two rating-prompt events (`rating_prompt_eligible`, `rating_prompt_requested`) and their `rating_prompt_first_eligible_at` / `rating_prompt_last_requested_at` people properties are **pulled forward from Phase 2 (F-8.03)** and ship with F-6.03; §12, §13.2 annotated accordingly. No PII-contract change. |
+| 0.14    | 2026-06-02 | Jimmy Ho | F-6.03 rating-prompt analytics reconciled with Apple's native `requestReview` API, which reports neither whether the dialog was shown nor the user's choice. Replaced the unobservable `rating_prompt_shown` / `rating_prompt_resolved` events (and their `outcome` / `time_to_resolution_bucket` properties and `rating_prompt_last_outcome` people property) with a single observable `rating_prompt_requested` event (+ `time_since_first_eligible_bucket` property, `rating_prompt_last_requested_at` people property). `rating_prompt_eligible` retained. §4.4, §12, §13.1, §13.2, §14 updated; §4.4 records that no custom pre-prompt will be added to manufacture an outcome signal. |
 | 0.13    | 2026-05-03 | Jimmy Ho | F-8.02 implemented by change `mixpanel-phase-1-foundation`. §16.1 rewritten as historical record. §17 — formalized co-location (sibling-call) pattern at four destructive-action funnels. §19 — all F-8.02 rows marked done. |
 | 0.12    | 2026-05-02 | Jimmy Ho | §19 F-8.01 row marked done (implemented by change `oslog-diagnostic-logging`). |
 | 0.11    | 2026-05-02 | Jimmy Ho | Fork-pollution defense. Added `bundle_id` to §10.2 super-property table — registered explicitly via `registerSuperProperties`, not auto-attached — with rationale (fork filtering) and §11 / §16 cross-references. Added "Universal project filter" paragraph in §11 instructing every Mixpanel dashboard to filter on `bundle_id`, with a note on the residual case (forker who doesn't change bundle ID) and its practical negligibility. |

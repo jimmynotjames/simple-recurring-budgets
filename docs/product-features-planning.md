@@ -1,7 +1,7 @@
 # Product Features Planning
 
-**Version:** 1.0  
-**Last Updated:** 2026-05-31
+**Version:** 1.2  
+**Last Updated:** 2026-06-02
 **Author/Owner:** Jimmy Ho
 
 For north-star vision, guiding principles, and global constraints, see [main-prd.md](main-prd.md).
@@ -10,6 +10,8 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 | Version | Date       | Author   | Changes |
 | ------- | ---------- | -------- | ------- |
+| 1.2     | 2026-06-02 | Jimmy Ho | F-6.03 (App Store rating prompt) **Implemented** by change `rating-prompt`: `RatingPromptCoordinator` + KV-backed `RatingPromptState`, Add-mode expense-save trigger hook, root-level `ratingPromptPresenter()`, and the `rating_prompt_eligible` / `rating_prompt_requested` analytics events (pulled forward from F-8.03). Paired with analytics-spec.md v0.15 and tech-design-doc.md §4.5 KV-key additions. |
+| 1.1     | 2026-06-02 | Jimmy Ho | F-6.03 (App Store rating prompt) reworked around Apple's native `requestReview`: clarified it uses `@Environment(\.requestReview)` with no custom dialog / pre-prompt; replaced the unworkable "tracks prompt outcomes" AC (the native API has no shown/dismiss/rate callback) with platform-throttling + local once-per-version guard; added positive-moment trigger rule, analytics-consent-independent eligibility counters, the `rating_prompt_eligible` / `rating_prompt_requested` analytics ACs, and a TestFlight-validation note. Finalized the eligibility thresholds (balanced profile: ≥ 7 days installed, ≥ 3 distinct logging days, ≥ 10 lifetime expenses, non-deficit triggering log, once-per-version guard). Paired with analytics-spec.md v0.14 (removed `rating_prompt_shown` / `rating_prompt_resolved`). |
 | 1.0     | 2026-05-31 | Jimmy Ho | Synced feature statuses to shipped codebase: F-2.01, F-2.02, F-2.03, F-2.04, and F-3.04 → Implemented; removed stale "budget-calculations rewrite outstanding" status prose; fixed broken links to deleted `budget-calculations-rewrite.md` (now point to `budget-calculations-rewrite-algorithm.md` where retained); F-2.02/F-2.05/F-8.02 prose fixes (Untitled placeholder, seven Settings sections, rewrite analytics events shipped). |
 | 0.9     | 2026-05-31 | Jimmy Ho | Retired the `Ongoing` feature status. The four cross-cutting concerns (Dynamic Type, VoiceOver, Dark Mode, Localization, Mixpanel user-action analytics) are no longer tracked as never-completing features here; their per-change maintenance requirements are now canonical in [main-prd.md §6.8](main-prd.md#68-cross-cutting-ongoing-concerns) (§6.8.1–§6.8.4). F-3.01/F-3.02/F-3.03/F-3.05 reframed as completed **initial build-outs** (Status → Implemented), with detailed checklists migrated to the PRD. F-8.02's duplicated "Ongoing concern" sub-bullet removed (it points to §6.8.4). Status legend updated. |
 | 0.8     | 2026-05-10 | Jimmy Ho | Synced features list with [`docs/budget-calculations-rewrite.md`](budget-calculations-rewrite.md) (rewrite not yet shipped). Added F-2.08 (Specific Dates budget type) and F-7.07 (Per-budget end date). Updated F-2.01, F-2.02, F-2.03, F-2.04, F-2.07, F-5.01, F-7.05, F-7.06, and F-8.02 ACs / notes to reflect the rewrite's end state: mid-period chip refresh, Specific Dates carve-out, per-budget Start/End Date with weekly/biweekly anchoring, forward-only allocation-edit semantics, Pause / Resume capability, pre-start / post-end / paused chip presentations, expense date-bounds validation, and the new `budget_edited` property flags plus `budget_paused` / `budget_resumed` events. F-2.03 Reset Cadence picker permanently removed (Reset Cadences feature deleted, not paused). F-7.05 and F-7.06 scoped to be marked Implemented when the rewrite ships. |
@@ -394,14 +396,25 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-6.03: App Store rating prompt
 
-- **Status:** Open
-- **Description:** Prompt the user to rate the app in the App Store after meaningful product use and/or after a minimum elapsed time period. Settings already exposes a manual **Rate the App** control (`requestReview()`); this feature covers **automatic** eligibility-based prompting with cooldown — not the manual entry point.
+- **Status:** Implemented. Shipped by change `rating-prompt`. `RatingPromptCoordinator` + KV-backed `RatingPromptState` own the eligibility logic; the trigger is hooked from the Add-mode expense-save path (`AddEditExpenseView+RatingPrompt.swift`) and the native `requestReview` is presented from a root-level `ratingPromptPresenter()` modifier after the Add Expense sheet dismisses.
+- **Description:** Prompt the user to rate the app in the App Store after meaningful product use and/or after a minimum elapsed time period. Settings already exposes a manual **Rate the App** control (`requestReview()`); this feature covers **automatic** eligibility-based prompting — not the manual entry point. Both paths use Apple's native `requestReview` (`@Environment(\.requestReview)`); we do **not** build a custom rating dialog or a "do you like the app?" pre-prompt (review-gating hurts ratings and conflicts with the no-engagement-pressure constraint in [main-prd.md §3](main-prd.md) / [ux-design-brief.md](ux-design-brief.md)).
 - **Acceptance Criteria:**
-  - The app requests an App Store rating only after eligibility conditions are met, based on meaningful usage and/or elapsed time.
-  - Eligibility thresholds and exact trigger formula are explicitly **TBD** and will be finalized later.
+  - The app calls `requestReview` only after eligibility conditions are met, and only at a positive moment — never on launch, never mid-task, never on a destructive or over-budget moment.
+  - **Trigger point:** evaluated immediately after a successful **expense log (Add mode)** whose resulting Remaining for the period is **≥ 0** (non-deficit). Edits, deletes, add-funds, and destructive actions are not trigger points.
+  - **Eligibility gate (balanced profile — all must hold):**
+    - Install age **≥ 7 days**.
+    - **≥ 3 distinct calendar days** on which an expense was logged.
+    - **≥ 10 expenses** logged lifetime.
+    - The triggering log left the period **non-deficit** (Remaining ≥ 0).
+    - The app has **not already requested a review for the current app version** (local once-per-version guard).
+  - **Re-prompt prevention relies on the platform, not on observing the result.** Apple's native `requestReview` automatically throttles to at most 3 prompts per user per 365-day window and suppresses re-prompts for an app version already acted on; on top of that the app keeps a local **once-per-app-version** guard so it asks at most once per version. The native API reports **neither** whether StoreKit actually presented the dialog **nor** the user's choice (dismiss / rate) — there is no callback — so no logic may depend on a prompt "outcome".
+  - **Eligibility counters are not gated behind analytics consent.** Install date and the usage counters that drive eligibility are stored in `UserDefaults` / `NSUbiquitousKeyValueStore` (not `AppSettings.analyticsFirstOpenAt`, which is analytics-gated) so eligibility works identically for users who declined analytics.
   - Prompting behavior is respectful and non-intrusive (not shown too frequently, and not shown on every launch).
-  - The app tracks prompt outcomes so a recent dismissal or rating action prevents immediate re-prompting.
-- **Edge Cases / Notes:** Final trigger logic, cooldown duration, and definition of "meaningful usage" are **TBD**.
+  - **Analytics:** instrument `rating_prompt_eligible` (once per user, when the threshold is first met) and `rating_prompt_requested` (when the app calls `requestReview`), per [analytics-spec.md](analytics-spec.md) §4.4 / §12 / §13. The unobservable `rating_prompt_shown` / `rating_prompt_resolved` events were removed from the spec — do not reintroduce them. These two events were **pulled forward from Phase 2 (F-8.03)** and ship with this change (`rating-prompt`).
+- **Edge Cases / Notes:**
+  - Cooldown is platform-managed: Apple's `requestReview` throttling (≤ 3 / year, suppressed per acted-on version) plus the local once-per-version guard. There is no app-defined cooldown timer to tune.
+  - The thresholds above (balanced profile) are intentionally simple, fixed constants. If Phase 2 analytics (`rating_prompt_eligible`) shows users hit eligibility too early or too rarely, revisit the numbers — they're a one-line change, and the rating-prompt thresholds are a candidate for the F-8.03 feature-flag seam ([analytics-spec.md](analytics-spec.md) §15).
+  - The native rating dialog never appears in TestFlight builds, so the prompt itself can only be validated in App Store builds; the eligibility/trigger logic is what gets unit-tested.
 - **Dependencies:** None
 
 ---

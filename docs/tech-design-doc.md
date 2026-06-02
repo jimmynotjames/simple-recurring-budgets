@@ -2,8 +2,8 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.20                           |
-| **Last Updated**   | 2026-05-31                     |
+| **Version**        | 0.22                           |
+| **Last Updated**   | 2026-06-02                     |
 | **Author / Owner** | Jimmy Ho                       |
 
 > Master technical reference for the Simple Recurring Budgets app. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
@@ -180,6 +180,12 @@ Key constraints:
 | `"analyticsOptIn"` | `Bool` | `AppSettings` | User's analytics opt-in preference. Written only on first explicit user action; absent key means "not yet decided". Default is locale-aware (`ConsentJurisdiction`): `.required` regions default to `false`; `.autoOptin` regions default to `true`. See `docs/analytics-spec.md` §7. |
 | `"analyticsDistinctId"` | `String` (UUIDv4) | `AppSettings` | Stable Mixpanel distinct ID generated on first read and synced via iCloud KV. Read-only after creation. See `docs/analytics-spec.md` §6. |
 | `"analyticsFirstOpenAt"` | `Double` (seconds since epoch, `Date.timeIntervalSinceReferenceDate`) | `AppSettings` | Timestamp of first app open, generated on first read. Used for `time_since_first_app_open_bucket` super-property. See `docs/analytics-spec.md` §10.2. |
+| `"ratingPromptInstalledAt"` | `String` (`Date.timeIntervalSinceReferenceDate`) | `RatingPromptState` | First-launch timestamp for the F-6.03 rating prompt, stamped once. **Not** analytics-gated — distinct from `analyticsFirstOpenAt`. |
+| `"ratingPromptLoggedExpenseCount"` | `Int64` | `RatingPromptState` | Lifetime count of successful Add-mode expense logs (F-6.03 eligibility). |
+| `"ratingPromptDistinctLogDayCount"` | `Int64` | `RatingPromptState` | Count of distinct calendar days an expense was logged (F-6.03 eligibility). |
+| `"ratingPromptLastLogDayStart"` | `String` (`Date.timeIntervalSinceReferenceDate`) | `RatingPromptState` | Start-of-day of the most recent logging day; detects a new distinct day. |
+| `"ratingPromptFirstEligibleAt"` | `String` (`Date.timeIntervalSinceReferenceDate`) | `RatingPromptState` | When the rating thresholds were first met; one-shot gate for `rating_prompt_eligible`. |
+| `"ratingPromptLastRequestedVersion"` | `String` (`CFBundleShortVersionString`) | `RatingPromptState` | App version a review was last requested for; the once-per-version guard (F-6.03). |
 
 > **Orphaned key:** The string `"seededV1"` was used by a prior first-run seeder (removed in change `remove-first-run-seeder`) and is now a harmless leftover on upgraded installs. It SHALL NOT be reused as a new KV key; the `"V1"` suffix remains reserved per convention so any future one-time-reseed change introduces a distinct key name (e.g., `"seededV2"`).
 
@@ -419,7 +425,7 @@ Remaining items from the feature backlog that will require technical design when
 |---------|-------------------|
 | **F-4.01–02: Color themes** | Asset Catalog color sets, theme state in `NSUbiquitousKeyValueStore` (synced via iCloud) or SwiftData, `@Environment(\.colorScheme)` integration |
 | **F-6.02: Expense Type** | Schema done: `expenseType: String?` on `ExpenseItem`. Remaining: user-facing editor, user-defined values stored as a `Set<String>` in `NSUbiquitousKeyValueStore` (synced via iCloud) or a dedicated entity. |
-| **F-6.03: App Store rating prompt** | Eligibility logic + cooldown state (likely `NSUbiquitousKeyValueStore` or local defaults); `requestReview()` already exposed manually from Settings |
+| ~~**F-6.03: App Store rating prompt**~~ ✓ Implemented (`rating-prompt`) | `RatingPromptCoordinator` + KV-backed `RatingPromptState` (§4.5 `ratingPrompt*` keys); Add-mode expense-save trigger hook; root `ratingPromptPresenter()` calls the native `requestReview`. Cooldown is platform-managed (Apple throttle + once-per-version guard). |
 | **F-7.01: Receipt scanning** | Vision framework (`VNRecognizeTextRequest`), on-device OCR, regex extraction for amounts |
 | **F-7.02–03: Voice input/query** | SiriKit intents or App Intents framework, on-device NLP, `SFSpeechRecognizer` for in-app voice |
 | **F-8.03: Mixpanel Phase 2** | React to Phase 1 evidence; add experimentation seam; extend event coverage per `docs/analytics-spec.md` §§12–15. Operationalized in `docs/analytics-spec.md` §4 / §12–15. |
@@ -451,6 +457,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.22    | 2026-06-02 | Jimmy Ho | §4.5 KV-key table: add six `ratingPrompt*` keys (owner `RatingPromptState`, consent-independent) for F-6.03. §9 future table: mark F-6.03 implemented (`rating-prompt`). See `product-features-planning.md` F-6.03 and `analytics-spec.md` §12. |
 | 0.21    | 2026-06-01 | Jimmy Ho | §5.3: rewrite testing section — two-pass UI script strategy, `UserJourneyTests` (10 flows, XCTestCase), `AccessibilityAuditTests` runs in pass 2 (not excluded), screen objects, `make test-ui`. Note that Swift Testing is not supported in XCUITest targets. |
 | 0.20    | 2026-05-31 | Jimmy Ho | §5.3 add accessibility-audit test note: `AccessibilityAuditTests.swift`, `performAccessibilityAudit()`, excluded from `make test`. |
 | 0.19    | 2026-05-31 | Jimmy Ho | Doc/code sync: §4.2 CloudKit container ID set in entitlements; §2.1 documents `AddEditBudgetViewModel` / `AddEditExpenseViewModel`; §3.1 `Budget.icon`; §5.4 `recomputeToken` refresh + `specificDatesBranch` pointer; §7 network surface (Mixpanel + CloudKit, no app backend); §9 future table refreshed (shipped features removed). |

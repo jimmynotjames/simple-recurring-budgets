@@ -93,7 +93,7 @@ The system SHALL host the primary `NavigationStack` and the single sheet present
 
 ### Requirement: Placeholder destinations are exempt from the no-hard-coded-English rule until replaced
 
-The Add/Edit Budget sheet (`SheetRoute.addBudget` and `SheetRoute.editBudget(Budget)`) renders the real, fully-localized `AddEditBudgetView`. The Settings sheet (`SheetRoute.settings`) renders the real `SettingsView`. The Add Expense sheet (`SheetRoute.addExpense(Budget)`) renders the real `AddEditExpenseView` in Add mode. The existing-expense edit path (`AppRoute.expenseDetail(ExpenseItem)`) renders `AddEditExpenseView` in Edit mode via push navigation; it is no longer a sheet.
+All `AppRoute` and `SheetRoute` cases SHALL resolve to real, fully-localized screens — no placeholder bodies remain. The Add/Edit Budget sheet (`SheetRoute.addBudget` and `SheetRoute.editBudget(Budget)`) renders the real, fully-localized `AddEditBudgetView`. The Settings sheet (`SheetRoute.settings`) renders the real `SettingsView`. The Add Expense sheet (`SheetRoute.addExpense(Budget)`) renders the real `AddEditExpenseView` in Add mode. The existing-expense edit path (`AppRoute.expenseDetail(ExpenseItem)`) renders `AddEditExpenseView` in Edit mode via push navigation; it is no longer a sheet.
 
 All placeholder exemptions have been retired. There are no remaining `AppRoute` or `SheetRoute` cases with placeholder bodies.
 
@@ -121,4 +121,19 @@ All placeholder exemptions have been retired. There are no remaining `AppRoute` 
 
 - **WHEN** any caller sets `Router.sheet = .settings`
 - **THEN** `RootView` SHALL render the real `SettingsView`; no placeholder is used and the i18n exemption does not apply
+
+### Requirement: Root view hosts the rating-prompt presenter
+
+The root view SHALL host the rating-prompt presenter, which reads `@Environment(\.requestReview)` and, when the rating-prompt coordinator has a pending request and the scene phase is active, requests a review via the native API, instructs the coordinator to record the requested version, and clears the pending signal. The presenter MUST be hosted once at the root so it functions regardless of which screen the user returns to after dismissing the Add Expense sheet, and MUST NOT present any custom rating UI.
+
+#### Scenario: Pending request is presented when the scene is active
+
+- **WHEN** the coordinator's request-pending signal is set and the scene phase becomes (or is) active
+- **THEN** the root presenter requests a review via `requestReview`
+- **AND** the coordinator records the current app version and clears the pending signal
+
+#### Scenario: Presenter is inert without a pending request
+
+- **WHEN** there is no pending request
+- **THEN** the root presenter takes no action and presents no UI
 

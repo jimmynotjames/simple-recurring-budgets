@@ -13,7 +13,7 @@ final class ClearAmountButtonUITests: XCTestCase {
   /// Baseline: open Add Expense on a budget with NO prior expenses.
   /// Recents section does not render. Validates the sheet opens cleanly.
   @MainActor
-  func testOpenAddExpenseNoRecents() throws {
+  func testOpenAddExpenseNoRecents() {
     let app = makeApp()
     app.launch()
     createBudget(named: "Test", in: app)
@@ -28,7 +28,7 @@ final class ClearAmountButtonUITests: XCTestCase {
   /// Open Add Expense on a budget that already has a named expense.
   /// Recents section WILL render — exercises the Recents + amount card layout together.
   @MainActor
-  func testOpenAddExpenseWithRecents() throws {
+  func testOpenAddExpenseWithRecents() {
     let app = makeApp()
     app.launch()
     createBudget(named: "Test", in: app)
@@ -46,7 +46,7 @@ final class ClearAmountButtonUITests: XCTestCase {
   /// Type an amount in Add Expense so viewModel.amount goes from nil → non-nil.
   /// This is when the clear button's opacity flips from 0 to 1.
   @MainActor
-  func testTypeAmountMakesClearButtonVisible() throws {
+  func testTypeAmountMakesClearButtonVisible() {
     let app = makeApp()
     app.launch()
     createBudget(named: "Test", in: app)
@@ -69,7 +69,7 @@ final class ClearAmountButtonUITests: XCTestCase {
 
   /// Type an amount then tap the clear button; Save should re-disable.
   @MainActor
-  func testClearButtonResetsAmount() throws {
+  func testClearButtonResetsAmount() {
     let app = makeApp()
     app.launch()
     createBudget(named: "Test", in: app)
@@ -96,7 +96,7 @@ final class ClearAmountButtonUITests: XCTestCase {
 
   /// Tap a Recents tile; verifies amount is filled and clear button appears.
   @MainActor
-  func testRecentsTileFillsAmount() throws {
+  func testRecentsTileFillsAmount() {
     let app = makeApp()
     app.launch()
     createBudget(named: "Test", in: app)

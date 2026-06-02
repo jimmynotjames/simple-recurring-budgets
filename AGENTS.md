@@ -219,6 +219,25 @@ These overrides apply whenever the corresponding OpenSpec skill or `/opsx-*` com
 
 - **`openspec-archive-change` / `/opsx:archive`** — when delta specs exist, **sync them automatically** without prompting "do you want to sync?". The standing preference is always yes. Invoke `openspec-sync-specs` inline (via the Skill tool from the parent agent — do not delegate to a sub-agent). Only prompt the user if the sync itself surfaces a genuine merge ambiguity (e.g. a MODIFIED block targets a requirement that doesn't exist in main, or a delta conflicts with a parallel main-spec edit).
 
+## Custom commands — Claude Code ↔ Cursor sync
+
+Hand-authored slash commands live in **both** `.claude/commands/*.md` and `.cursor/commands/*.md`. When you create or edit one, update both copies. This does **not** apply to the OpenSpec-generated `opsx-*` / `openspec-*` command files (those are regenerated and must not be hand-edited — see § OpenSpec above).
+
+Cursor frontmatter differs from Claude's — use this shape:
+
+```markdown
+---
+name: /<cmd>
+id: <cmd>
+category: Workflow
+description: One-line description.
+---
+```
+
+Cursor does not expand `$ARGUMENTS`, so write the body with prose placeholders (`<N>`, `<PR>`) rather than `$1`-style tokens.
+
+`AGENTS.md` is the canonical spec for what each command does. Update it first, then keep both `.claude/commands/` and `.cursor/commands/` in sync with it.
+
 ## Bash command hygiene (prevents permission prompts)
 
 The harness permission system prompts when a Bash command touches resources outside the allowlist. The patterns below cause prompts that the user has explicitly told agents to stop. Treat as hard rules — they apply to **every** agent / tool that runs Bash in this repo (Claude Code, Cursor, etc.).
@@ -292,9 +311,24 @@ grep -E "error:" tmp/build.log || echo "no errors"                           # �
 
 If you need both filtered output and full output, send **two Bash calls** — don't bundle them with `;` plus echo-separators in one call.
 
+### 7. Never prefix a command with `cd <repo-root> && …`
+
+The Bash tool's working directory already persists at the repo root across calls. Adding `cd /Users/jimmynotjames/dev/budgets2 && …` in a compound command triggers a permission prompt every time even though the cwd is already correct.
+
+```bash
+make build 2>&1 | tail -50       # ✓ cwd is already the repo root
+git status                        # ✓ same
+```
+
+```bash
+cd /Users/jimmynotjames/dev/budgets2 && make build   # ✗ prompts
+```
+
+If you genuinely need to operate in a subdirectory, use an absolute path flag rather than `cd`: `git -C /some/path`, `make -C subdir`, etc.
+
 ### Pre-flight check
 
-Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one-off `python3 -c` / `python3 /tmp/...` heredoc, `${PIPESTATUS}`, `rc=$?`, or a `||`/`;`-chained fallback `echo` — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
+Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one-off `python3 -c` / `python3 /tmp/...` heredoc, `${PIPESTATUS}`, `rc=$?`, or a `||`/`;`-chained fallback `echo`, or a leading `cd <path> &&` — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
 
 ## Commit and PR style
 
@@ -303,6 +337,8 @@ Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one
 All changes go through a PR. **Never push commits directly to `main`**, even for small fixes or config tweaks. The `pre-push` lefthook enforces this and will block the push.
 
 The correct flow: create a feature branch → commit → push the branch → open a PR → squash-merge.
+
+**Create the branch before the first `git add`.** Run `git checkout -b u/jimmyho/claude-code/<description>` as the very first step, before staging or committing anything. Committing on `main` and then trying to move the commit to a branch requires a force-push to reset `main`, which is destructive and requires user intervention.
 
 ### Branch names
 

@@ -69,7 +69,7 @@ func createBudget(named name: String, in app: XCUIApplication) {
 @MainActor
 func addExpense(description: String, amount: String, in app: XCUIApplication) {
   let amountField = app.textFields.matching(
-    NSPredicate(format: "label BEGINSWITH 'Amount'")
+    NSPredicate(format: "label BEGINSWITH 'Expense amount'")
   ).firstMatch
   XCTAssertTrue(amountField.waitForExistence(timeout: 2))
   // iOS-COMPAT(17+): same UIViewRepresentable focus workaround as the allocation field.

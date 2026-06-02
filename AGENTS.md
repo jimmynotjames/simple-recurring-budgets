@@ -67,7 +67,7 @@ make sim-clean        # shut down + delete this repo's simulator + remove .build
 2. With multiple agents across repo clones, dozens of clones spawn at once and CoreSimulator races during teardown — manifesting as `Test crashed with signal kill` after tests finish.
 3. Serial execution is faster *and* deterministic.
 
-**The UI test bundle is skipped in pass 1** (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". Pass 2 of `scripts/test.sh` then runs `AccessibilityAuditTests` (30 accessibility regression tests, XCTestCase) and `UserJourneyTests` (10 core flow tests, Swift Testing) with `-only-testing`. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
+**The UI test bundle is skipped in pass 1** (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". Pass 2 of `scripts/test.sh` then runs `AccessibilityAuditTests` (30 accessibility regression tests, XCTestCase) and `UserJourneyTests` (10 core flow tests, XCTestCase) with `-only-testing`. Note: Apple does not support `import Testing` in unhosted XCUITest bundles; both suites use XCTestCase. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
 
 `make sim-clean` runs `scripts/sim_clean.py`, which finds every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` left behind by a parallel-testing crash) and deletes them all. It cannot touch other repos' devices.
 
@@ -200,7 +200,9 @@ A future agent that upgrades the minimum iOS deployment target should run this c
 | File | Tag | Summary |
 |------|-----|---------|
 | `Views/DecimalInputField.swift` | `iOS-COMPAT(17+)` | Two SwiftUI TextField bugs require a UIViewRepresentable wrapper |
-| `AccessibilityAuditTests.swift` | `iOS-COMPAT(17+)` | XCUITest focus tracking doesn't sync with UIViewRepresentable UITextField |
+| `UITestHelpers.swift` | `iOS-COMPAT(17+)` | XCUITest focus tracking doesn't sync with UIViewRepresentable UITextField; double-tap workaround in `createBudget` and `addExpense` helpers |
+| `AddBudgetScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAllocation()` |
+| `AddExpenseScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAmount()` |
 | `AccessibilityAuditTests.swift` | `iOS-COMPAT(26.x)` | `performAccessibilityAudit` false positives: `.elementDetection`, `.dynamicType`, `.textClipped` |
 
 ## Conflicts and planning

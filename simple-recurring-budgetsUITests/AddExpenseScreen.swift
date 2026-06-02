@@ -6,7 +6,7 @@ struct AddExpenseScreen {
   let app: XCUIApplication
 
   var amountField: XCUIElement {
-    app.textFields.matching(NSPredicate(format: "label BEGINSWITH 'Amount'")).firstMatch
+    app.textFields.matching(NSPredicate(format: "label BEGINSWITH 'Expense amount'")).firstMatch
   }
 
   var descriptionField: XCUIElement {

@@ -262,11 +262,16 @@ Translations for all 38 App Store storefront locales were produced and merged by
 
 ### 5.3 Testing
 
-**Swift Testing** for all new tests; XCTest for UI tests where needed. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure, testable services with minimal or no SwiftData/UI dependencies.
+**Swift Testing** for all new unit tests. XCUITest targets use XCTestCase — Apple does not support `import Testing` in unhosted UI test bundles. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure, testable services with minimal or no SwiftData/UI dependencies.
 
-**Test Runs**: When supporting only iPhone and iPad, we only need to run the unit test suites for one iPhone model using the latest OS version available. For UI tests, run the tests for the appropriate platform for platform-specific tests, defaulting to iPhone when not specified. Again, unless tests are specifically testing different device models or OS versions, only one combination of one arbitrary device model + latest available OS version is necessary.
+**Test Runs**: One iPhone simulator, latest OS. No need to run multiple device models or OS versions unless a test is device-specific.
 
-**Accessibility audits** (`simple-recurring-budgetsUITests/AccessibilityAuditTests.swift`) use `XCUIApplication.performAccessibilityAudit()` (Xcode 15+) to verify VoiceOver labels, touch-target sizes, Dynamic Type adoption, and text clipping across every major screen. These are excluded from `make test` (the UI test target is skipped in `scripts/test.sh` due to simulator IPC reliability constraints) and must be run from Xcode or a dedicated CI lane targeting `simple-recurring-budgetsUITests`.
+**Two-pass UI test strategy** (`scripts/test.sh`): Unit tests run first (`-skip-testing:simple-recurring-budgetsUITests`) to warm the simulator — XCUITest requires the sim to have hosted at least one app lifecycle before its IPC socket is reliable. Pass 2 then runs the two XCUITest classes with `-only-testing`:
+
+- **`AccessibilityAuditTests`** — 30 tests using `XCUIApplication.performAccessibilityAudit()` (Xcode 15+) to verify VoiceOver labels, touch-target sizes, Dynamic Type adoption, and text clipping across every major screen.
+- **`UserJourneyTests`** — 10 end-to-end flow tests (create budget, navigate to detail, add expense ×2, edit budget, pause/resume, delete/edit expense, delete budget, settings round-trip). Uses XCTestCase with `continueAfterFailure = false`.
+
+Five **screen objects** (`BudgetsScreen`, `BudgetDetailScreen`, `AddBudgetScreen`, `AddExpenseScreen`, `SettingsScreen`) in `simple-recurring-budgetsUITests/` encapsulate element queries. When view labels or navigation change, update the matching screen object. `make test-ui` runs only the UI pass (no unit re-run), useful when iterating on failures.
 
 ### 5.4 Budget Math Service Layer
 
@@ -446,6 +451,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.21    | 2026-06-01 | Jimmy Ho | §5.3: rewrite testing section — two-pass UI script strategy, `UserJourneyTests` (10 flows, XCTestCase), `AccessibilityAuditTests` runs in pass 2 (not excluded), screen objects, `make test-ui`. Note that Swift Testing is not supported in XCUITest targets. |
 | 0.20    | 2026-05-31 | Jimmy Ho | §5.3 add accessibility-audit test note: `AccessibilityAuditTests.swift`, `performAccessibilityAudit()`, excluded from `make test`. |
 | 0.19    | 2026-05-31 | Jimmy Ho | Doc/code sync: §4.2 CloudKit container ID set in entitlements; §2.1 documents `AddEditBudgetViewModel` / `AddEditExpenseViewModel`; §3.1 `Budget.icon`; §5.4 `recomputeToken` refresh + `specificDatesBranch` pointer; §7 network surface (Mixpanel + CloudKit, no app backend); §9 future table refreshed (shipped features removed). |
 | 0.18    | 2026-05-03 | Jimmy Ho | §4.5 KV-key table: add `analyticsOptIn`, `analyticsDistinctId`, and `analyticsFirstOpenAt` rows (F-8.02). §7 product-analytics paragraph: document lazy Mixpanel SDK init, consent toggle wiring, and PII contract; update §16.1 reference to historical. §9 future table: add F-8.03 Phase 2 row. |

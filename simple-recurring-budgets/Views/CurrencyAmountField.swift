@@ -33,6 +33,10 @@ struct CurrencyAmountField: View {
   /// sibling `@FocusState` (the Name field) so SwiftUI focus tracks the real first responder — otherwise
   /// the iPadOS 26 `.decimalPad` popover anchors to the stale Name field (issue #126).
   var onBeginEditing: (() -> Void)?
+  /// When non-nil and `value` is non-nil, renders a trailing ✕ button inside the field row that calls
+  /// this closure. Placing the button inside the existing HStack avoids wrapping the UIViewRepresentable
+  /// in a new outer container, which crashes on iOS 26 during autoFocus first-responder setup.
+  var onClear: (() -> Void)?
 
   @State private var text: String = ""
   /// The last `value` we round-tripped through (seeded on appear; updated on every text→value parse).
@@ -63,6 +67,19 @@ struct CurrencyAmountField: View {
       )
       .frame(maxWidth: .infinity)
       affix(affixes.trailing)
+      if let onClear, value != nil {
+        Button(action: onClear) {
+          Image(systemName: "xmark.circle.fill")
+            .foregroundStyle(.secondary)
+            .font(.body)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(String(
+          localized: "currencyAmountField.clearButton.accessibilityLabel",
+          defaultValue: "Clear amount",
+          comment: "VoiceOver label for the trailing clear button inside CurrencyAmountField"
+        ))
+      }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .onAppear {

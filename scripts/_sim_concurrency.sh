@@ -6,7 +6,8 @@
 # SRB_SIM_MAX = max simulators this repo's test run may use at once.
 #   1  -> serial, single sim (lightest). Same as the historical default.
 #   2  -> default. xcodebuild parallel testing with up to 2 sim clones.
-#   3  -> only with headroom (RAM-heavy on a 16 GB MacBook Air M4).
+#   3  -> only with headroom (RAM-heavy). Default of 2 assumes a ~16 GB
+#         Apple-silicon laptop; adjust for the machine actually running.
 # Out-of-range values are clamped to 1..3 with a warning.
 #
 # After sourcing, the following are available:
@@ -60,7 +61,7 @@ print_sim_concurrency_reminder() {
             echo "   Upshift (only with headroom): SRB_SIM_MAX=2 make test"
         else
             echo " sim concurrency: SRB_SIM_MAX=${SRB_SIM_MAX}  (parallel testing ENABLED)"
-            echo " ⚠ Up to ${SRB_SIM_MAX} simulators may run at once — RAM-heavy on 16 GB."
+            echo " ⚠ Up to ${SRB_SIM_MAX} simulators may run at once — RAM-heavy."
             echo "   Downshift (lightest): SRB_SIM_MAX=1 make test"
             echo "   Upshift  (only with headroom): SRB_SIM_MAX=3 make test"
         fi

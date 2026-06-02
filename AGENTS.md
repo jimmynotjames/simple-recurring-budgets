@@ -63,10 +63,12 @@ make sim-clean        # shut down + delete this repo's simulator + remove .build
 
 **Simulator concurrency knob — `SRB_SIM_MAX`** (default `2`, range `1–3`, set by `scripts/_sim_concurrency.sh`). Controls how many simulators the **UI pass** may use at once via xcodebuild parallel testing. Every test run prints a resource-use reminder.
 
+> **Reference machine.** The default of `2` is tuned for an assumed baseline of roughly **16 GB RAM on an Apple-silicon laptop** (e.g. a fanless M4 MacBook Air) running at most ~2 repo clones at once. These are illustrative specs, not a requirement — adjust `SRB_SIM_MAX` for the machine actually running: lower it on tighter RAM or when many repos run concurrently, raise it on a machine with more memory/cores and active cooling.
+
 | `SRB_SIM_MAX` | UI pass | When to use |
 | --- | --- | --- |
 | `1` | `-parallel-testing-enabled NO` (serial, 1 sim) | Lightest. Downshift here if the UI pass flakes, or when several repos run at once. |
-| `2` (default) | `-parallel-testing-enabled YES -maximum-concurrent-test-simulator-destinations 2` | Tuned for a 16 GB MacBook Air M4 running ≤ 2 repos at once. |
+| `2` (default) | `-parallel-testing-enabled YES -maximum-concurrent-test-simulator-destinations 2` | Tuned for the reference machine above (≈16 GB, Apple silicon) running ≤ 2 repos at once. |
 | `3` | …`-destinations 3` | Only with headroom — RAM-heavy. |
 
 ```bash
@@ -76,7 +78,7 @@ SRB_SIM_MAX=3 make test-ui  # upshift: only if the machine is clear
 
 Rationale and rules:
 
-- **RAM is the binding constraint** on 16 GB (the M4 Air is also fanless, so sustained all-core load throttles). ~2 simulators fills the budget with a browser + Mail open; 3 risks swap. Cross-repo parallelism is "free" — just run separate repos; each is its own sim, so there is **no machine-wide coordination or shared state**.
+- **RAM is usually the binding constraint** (on the ~16 GB reference machine; a fanless laptop also thermally throttles under sustained all-core load). At that size ~2 simulators fills the budget with a browser + Mail open and 3 risks swap — scale the cap with available memory. Cross-repo parallelism is "free" — just run separate repos; each is its own sim, so there is **no machine-wide coordination or shared state**.
 - **The unit pass is always serial** (`-parallel-testing-enabled NO`, ignores `SRB_SIM_MAX`). Swift Testing already parallelizes the unit suite *in-process* on one sim, so clones add boot cost with no benefit — and running unit serially on the base device is the warm-up the UI pass depends on (below).
 - **Flake retry:** when parallel (`>= 2`), the UI pass adds `-retry-tests-on-failure -test-iterations 2` (one retry). The accessibility-audit tests are timing-sensitive and occasionally flake under CPU contention; the retry absorbs that while a genuine failure still fails on both attempts. Serial runs (`=1`) are deterministic and add no retry.
 - **Clone risk:** clones of a per-repo device once timed out for the XCUITest pass ("while preparing to run tests"), which is why parallel testing was previously off; that no longer reproduces (validated June 2026, Xcode iPhone 17 runtime) as long as the unit pass warms the base sim first. `SRB_SIM_MAX=1` remains the fallback if `2`/`3` flake.

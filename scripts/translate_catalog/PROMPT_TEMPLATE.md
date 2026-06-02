@@ -1,6 +1,6 @@
 # Translation Task — {LOCALE_NAME} ({LOCALE_CODE})
 
-You are translating the UI strings for a native iOS budgeting app called **Budgets** from English into **{LOCALE_NAME}**.
+You are translating the UI strings for a native iOS budgeting app called **Wren** from English into **{LOCALE_NAME}**.
 
 ## Your task
 
@@ -28,7 +28,7 @@ Return a **single JSON object** (no markdown fences, no prose, no commentary) wh
 
 4. **Numbers, currencies, and dates** are handled by `FormatStyle` at runtime. Do not translate or alter the format specifiers — just keep them verbatim.
 
-5. **"iCloud"**, **"Carry-Over"** (as a product concept), and any proper nouns that Apple does not translate in their own UI should be left in English.
+5. **"Wren"** (the app's name) must be kept exactly as "Wren" — never translate or transliterate it, even though it is also an English word for a small bird. **"iCloud"**, **"Carry-Over"** (as a product concept), and any proper nouns that Apple does not translate in their own UI should likewise be left in English.
 
 6. **Every key in the input MUST appear in your output.** If a string is genuinely untranslatable (rare), copy the English verbatim and add a separate `"<key>__note"` sibling entry explaining why.
 

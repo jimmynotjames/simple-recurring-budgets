@@ -71,9 +71,13 @@ Three workstreams. A is the root-cause fix and the rubric the audit grades again
 it lands first. B is the new audit machinery. C is the targeted fix loop, which reuses
 the **existing** translate pipeline unchanged.
 
-Everything new lives inside `scripts/translate_catalog/` (self-contained, reuses
-`locales.py`), mirroring the existing extract → dispatch → fan-out → validate → report
-shape and the precedent of `scripts/translate_metadata/audit.py`.
+Track A's prompt/notes changes are edits inside `scripts/translate_catalog/`. The **new
+audit machinery (Track B) lives in its own dedicated folder, `scripts/translate_audit/`,
+with its own `README.md`** so future agents can navigate it without untangling it from the
+translate pipeline. It mirrors the existing extract → dispatch → fan-out → validate →
+report shape and the precedent of `scripts/translate_metadata/audit.py`, and **reuses**
+`scripts/translate_catalog/locales.py` and its `REGIONAL_NOTES`/`_GENERIC_NOTE` via import
+(no copying) rather than duplicating them.
 
 ### Track A — Strengthen the translation prompt + register/cultural notes + length
 
@@ -127,15 +131,24 @@ ahead of the audit. Verification: `python3 -m py_compile dispatch_prompts.py`; r
 nothing) to confirm the template still composes; eyeball a generated prompt for one
 locale to confirm the new sections + length budget render.
 
-### Track B — Audit sub-pipeline (`scripts/translate_catalog/`)
+### Track B — Audit sub-pipeline (new folder `scripts/translate_audit/`)
 
 **Status: ⬜ Not started.** Mirrors the translate flow but reads *existing* translations
-and produces *findings*.
+and produces *findings*. **All Track-B scripts and the audit prompt template live in a
+dedicated `scripts/translate_audit/` folder** (kept separate from the translate pipeline
+so it's self-contained and discoverable), each path below relative to that folder. The
+folder imports `locales.py` and `REGIONAL_NOTES`/`_GENERIC_NOTE` from
+`scripts/translate_catalog/` (via a `sys.path` insert) — reuse, not duplication.
 
+0. **`README.md`** (new) — the navigation entry point for the folder: what each script does,
+   the run order (`audit_extract` → `audit_dispatch` → fan out `translation-audit-locale`
+   subagents → `audit_report`), the `tmp/translate-audit-*` artifact layout, where the
+   shared `locales.py`/notes come from, and the char-ratio-is-a-heuristic caveat. Modeled on
+   `scripts/translate_catalog/README.md` so the two read consistently.
 1. **`audit_extract.py`** (new) — like `extract.py` but emits, per key, English value +
    comment + format specifiers **plus the current translation for each target locale**, to
    `tmp/translate-audit-inputs/audit_source.json`. Reuses catalog-parse logic from
-   `extract.py:57-67`. All 38 locales by default; optional locale filter + `--keys`.
+   `translate_catalog/extract.py:57-67`. All 38 locales by default; optional locale filter + `--keys`.
 2. **`AUDIT_PROMPT_TEMPLATE.md`** (new) — auditor instructions: the same voice + register +
    **length** rubric as Track A, a `{REGIONAL_NOTE}` slot for the locale's cultural note,
    and the per-locale source block (English + comment + current translation + both char
@@ -202,11 +215,13 @@ residual item for owner review rather than looping indefinitely.
 
 **Status: ⬜ Not started.**
 - **`.claude/settings.json`** — add (additive only) allowlist entries:
-  `Bash(python3 scripts/translate_catalog/audit_extract.py:*)`, `…/audit_dispatch.py:*`,
+  `Bash(python3 scripts/translate_audit/audit_extract.py:*)`, `…/audit_dispatch.py:*`,
   `…/audit_report.py:*`, and `Agent(translation-audit-locale)`. (Never remove/narrow
   existing entries.)
-- **`scripts/translate_catalog/README.md`** — document the new audit scripts + flow + the
-  char-ratio-is-a-heuristic caveat.
+- **`scripts/translate_audit/README.md`** — the folder's navigation doc (created as Track B
+  item 0; documents the scripts, flow, artifacts, and the char-ratio caveat).
+- **`scripts/translate_catalog/README.md`** — add a short cross-reference pointing to the
+  new `scripts/translate_audit/` folder for the quality-audit flow.
 - **`.claude/skills/audit-translations/SKILL.md`** (new) — orchestration recipe mirroring
   `translate-new-strings/SKILL.md`, so the fan-out/permissions stay disciplined.
 
@@ -224,11 +239,11 @@ pseudo-localization, and watch for clipped/wrapped labels. Not part of this roun
 
 **Modify** — `scripts/translate_catalog/PROMPT_TEMPLATE.md` (A);
 `scripts/translate_catalog/dispatch_prompts.py` (A); `.claude/settings.json` (supporting);
-`scripts/translate_catalog/README.md` (supporting).
+`scripts/translate_catalog/README.md` (supporting — add cross-reference).
 
-**Create** — `scripts/translate_catalog/audit_extract.py`, `AUDIT_PROMPT_TEMPLATE.md`,
-`audit_dispatch.py`, `audit_report.py`; `.claude/agents/translation-audit-locale.md`;
-`.claude/skills/audit-translations/SKILL.md`.
+**Create** — new folder **`scripts/translate_audit/`** containing `README.md`,
+`audit_extract.py`, `AUDIT_PROMPT_TEMPLATE.md`, `audit_dispatch.py`, `audit_report.py`;
+plus `.claude/agents/translation-audit-locale.md`; `.claude/skills/audit-translations/SKILL.md`.
 
 **Reuse unchanged** — `extract.py`, `validate.py`, `merge.py`, `locales.py`,
 `check_translations.py`, the `translation-locale` subagent, and the whole
@@ -258,7 +273,14 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
 - **2026-06-02 (Track A):** `REGIONAL_NOTES` is now keyed by catalog locale codes; the
   Norwegian note moved from metadata's `no` to this catalog's `nb`. Confirmed all 38
   `locales.py` codes are covered, with `_GENERIC_NOTE` as a safety fallback.
-- **2026-06-02 (Track A):** The catalog `PROMPT_TEMPLATE.md` still opens with "called
-  **Budgets**" while the metadata pipeline brands the app **Wren**. Left as-is for Track A
-  (out of scope; UI strings rarely reference the brand) — **flagged for owner**: decide
-  whether the in-app translation prompt should also say "Wren".
+- **2026-06-02 (Track A):** The app has been renamed **Budgets → Wren** (now confirmed by
+  owner; the metadata pipeline already used Wren). Updated the brand reference in the catalog
+  `PROMPT_TEMPLATE.md` ("called **Wren**") and the `translation-locale` subagent definition,
+  and added a rule keeping "Wren" untranslated (it's also the English word for a bird). Scoped
+  to this translation-pipeline change only — the app-wide rename (display name, bundle, PRD,
+  other docs) is a separate effort, not part of this audit.
+- **2026-06-02 (plan, Track B):** Per owner, the Track-B audit scripts will live in their own
+  dedicated folder `scripts/translate_audit/` with a `README.md` for future-agent navigation,
+  rather than alongside the translate pipeline in `scripts/translate_catalog/`. The new folder
+  imports `locales.py` and the register/cultural notes from `translate_catalog/` (reuse, not
+  copy). Updated the Approach, Track B, Supporting, and Files sections accordingly.

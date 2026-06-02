@@ -116,15 +116,18 @@ struct BudgetIconPicker: View {
   private struct BudgetIconPickerPreviewHost: View {
     @State var selection: String?
     @State private var showing = true
+    var colorScheme: ColorScheme? = nil
 
-    init(initial: String?) {
+    init(initial: String?, colorScheme: ColorScheme? = nil) {
       _selection = State(initialValue: initial)
+      self.colorScheme = colorScheme
     }
 
     var body: some View {
       Color.clear
         .sheet(isPresented: $showing) {
           BudgetIconPicker(selection: $selection)
+            .preferredColorScheme(colorScheme)
         }
     }
   }
@@ -134,6 +137,6 @@ struct BudgetIconPicker: View {
   }
 
   #Preview("Budget icon picker — Dark") {
-    BudgetIconPickerPreviewHost(initial: "☕").preferredColorScheme(.dark)
+    BudgetIconPickerPreviewHost(initial: "☕", colorScheme: .dark)
   }
 #endif

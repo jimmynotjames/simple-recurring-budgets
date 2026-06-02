@@ -13,11 +13,16 @@ cd "$ROOT"
 # `make initialize-sims && make build`) at least once per fresh simulator session
 # before relying on this script alone.
 #
-# DESTINATION, SIM_DERIVED, and SIM_RESULTS_DIR are set by _destination.sh.
+# DESTINATION, SIM_DERIVED, SIM_RESULTS_DIR, and SIM_PARALLEL_FLAGS are set by
+# _destination.sh. Honors SRB_SIM_MAX (default 2 → up to 2 sim clones; 1 → serial).
 source "${ROOT}/scripts/_destination.sh"
+
+print_sim_concurrency_reminder
 
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 
+# NOTE: clones of a per-repo device have historically timed out for the UI pass;
+# if this flakes, downshift with `SRB_SIM_MAX=1`.
 xcodebuild test \
     -project simple-recurring-budgets.xcodeproj \
     -scheme simple-recurring-budgets \
@@ -25,6 +30,7 @@ xcodebuild test \
     -destination-timeout 300 \
     -derivedDataPath "${SIM_DERIVED}" \
     -resultBundlePath "${SIM_RESULTS_DIR}/${TIMESTAMP}-ui.xcresult" \
-    -parallel-testing-enabled NO \
+    "${SIM_PARALLEL_FLAGS[@]}" \
     -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
-    -only-testing:simple-recurring-budgetsUITests/UserJourneyTests
+    -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
+    -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests

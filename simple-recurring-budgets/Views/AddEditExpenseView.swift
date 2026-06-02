@@ -385,6 +385,10 @@ struct AddEditExpenseView: View {
   @Environment(AppSettings.self) var settings
   @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
+  /// F-6.03 rating-prompt coordinator. Not `private` — read by
+  /// `notifyRatingPromptIfNeeded()` in `AddEditExpenseView+RatingPrompt.swift`.
+  /// Optional so Previews / unit hosts that don't inject it no-op rather than crash.
+  @Environment(RatingPromptCoordinator.self) var ratingPrompt: RatingPromptCoordinator?
 
   @State private var showDeleteConfirmation = false
   /// Standard save-error alert state (`persistence-error-handling` capability).
@@ -441,6 +445,7 @@ struct AddEditExpenseView: View {
     do {
       try viewModel.save(context: context, analytics: analytics)
       saveError.clear()
+      notifyRatingPromptIfNeeded()
       dismiss()
     } catch let error as PersistenceError {
       // Per `add-edit-expense-screen` delta spec: sheet stays open with input

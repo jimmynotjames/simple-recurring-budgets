@@ -59,6 +59,21 @@ enum AnalyticsEvent {
   /// failure path; payload is restricted to `operation`, `error_domain`,
   /// `error_code` (see the `persistence-error-handling` capability).
   nonisolated static let persistenceSaveFailed = "persistence_save_failed"
+
+  // MARK: Rating prompt (F-6.03; analytics-spec.md §12)
+
+  //
+  // Pulled forward from the Phase 2 (F-8.03) catalog because they are F-6.03's
+  // learning loop. The native `requestReview` API reports neither presentation
+  // nor outcome, so there is intentionally no `rating_prompt_shown` /
+  // `rating_prompt_resolved` event — do not reintroduce them.
+
+  /// Fired **once per user**, the first time the rating-prompt eligibility
+  /// thresholds are met (gated by the persisted first-eligible timestamp).
+  nonisolated static let ratingPromptEligible = "rating_prompt_eligible"
+  /// Fired when the app calls the native `requestReview`. De-duplicated per app
+  /// version (matching the once-per-version guard). No outcome is observable.
+  nonisolated static let ratingPromptRequested = "rating_prompt_requested"
 }
 
 // MARK: - Canonical property keys
@@ -133,6 +148,12 @@ enum AnalyticsProperty {
   /// `NSError.code` of the underlying SwiftData failure.
   nonisolated static let errorCode = "error_code"
 
+  // MARK: Per-event — rating_prompt_requested (F-6.03; analytics-spec.md §13.1)
+
+  /// Bucketed gap between the first-eligible timestamp and the request
+  /// (`<1d` / `<7d` / `<30d` / `≥30d`). Never a raw timestamp.
+  nonisolated static let timeSinceFirstEligibleBucket = "time_since_first_eligible_bucket"
+
   // MARK: Super properties (analytics-spec.md §10.2)
 
   nonisolated static let appVersion = "app_version"
@@ -158,4 +179,11 @@ enum AnalyticsProperty {
   nonisolated static let hasDisabledCarryOver = "has_disabled_carry_over"
   nonisolated static let budgetsWithCarryOverOnCountBucket = "budgets_with_carry_over_on_count_bucket"
   nonisolated static let defaultCurrencyCode = "default_currency_code"
+
+  // MARK: People properties — rating prompt (F-6.03; analytics-spec.md §13.2)
+
+  /// Timestamp set the first time the rating-prompt threshold is met (set-once).
+  nonisolated static let ratingPromptFirstEligibleAt = "rating_prompt_first_eligible_at"
+  /// Timestamp refreshed each time the app calls `requestReview`. No outcome is stored.
+  nonisolated static let ratingPromptLastRequestedAt = "rating_prompt_last_requested_at"
 }

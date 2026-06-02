@@ -9,6 +9,7 @@ struct simple_recurring_budgetsApp: App {
   @State private var router = Router()
   @State private var syncStatus: SyncStatus
   @State private var startup: AppStartup
+  @State private var ratingPrompt: RatingPromptCoordinator
   private let analytics: any AnalyticsClient
 
   init() {
@@ -65,6 +66,15 @@ struct simple_recurring_budgetsApp: App {
         }
       )
     }
+    // F-6.03 rating prompt. Counters live in the iCloud KV store (synced, consent-
+    // independent) — same `NSUbiquitousKeyValueStore.default` as AppSettings, in
+    // every build including tests. Coordinator-logic tests inject their own
+    // in-memory store directly.
+    _ratingPrompt = State(initialValue: RatingPromptCoordinator(
+      state: RatingPromptState(),
+      analytics: analytics
+    ))
+
     _settings = State(initialValue: initialSettings)
     _syncStatus = State(initialValue: initialSyncStatus)
     #if DEBUG
@@ -78,10 +88,16 @@ struct simple_recurring_budgetsApp: App {
     WindowGroup {
       if let container = startup.container {
         RootView()
+          // `.ratingPromptPresenter()` MUST stay above (inner to) the `.environment`
+          // calls below: it reads `Router` / `RatingPromptCoordinator` from the
+          // environment, so those must be injected by an outer modifier. Reordering it
+          // below the `.environment(...)` lines would crash on launch (missing env).
+          .ratingPromptPresenter()
           .modelContainer(container)
           .environment(router)
           .environment(settings)
           .environment(syncStatus)
+          .environment(ratingPrompt)
           .environment(\.analytics, analytics)
           .task {
             analytics.track(AnalyticsEvent.appOpened)

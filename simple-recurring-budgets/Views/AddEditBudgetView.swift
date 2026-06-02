@@ -268,7 +268,7 @@ struct AddEditBudgetView: View {
         }
       }
       .font(.title3)
-      .frame(width: 44, height: 36)
+      .frame(minWidth: 44, minHeight: 44)
       .background(
         RoundedRectangle(cornerRadius: 8, style: .continuous)
           .fill(Color.secondary.opacity(0.12))

@@ -48,6 +48,7 @@ extension AddEditBudgetView {
           .foregroundStyle(.secondary)
           .rotationEffect(.degrees(isScheduleExpanded ? 180 : 0))
       }
+      .frame(minHeight: 44)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)

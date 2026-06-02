@@ -26,7 +26,8 @@ extension AddEditExpenseView {
             comment: "VoiceOver label for the expense amount field"
           ),
         autoFocus: !viewModel.isEditing,
-        tint: viewModel.isAddFunds ? Color.moneySurplus : nil
+        tint: viewModel.isAddFunds ? Color.moneySurplus : nil,
+        onClear: { viewModel.amount = nil }
       )
     } label: {
       sectionLabel(String(

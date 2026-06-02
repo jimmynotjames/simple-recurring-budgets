@@ -13,6 +13,18 @@ func makeApp() -> XCUIApplication {
   return app
 }
 
+/// Returns an app that will launch with pre-seeded budgets in the in-memory store.
+///
+/// Each name becomes a monthly $100 budget inserted before the root view renders,
+/// letting journey tests skip UI creation and focus on the feature under test.
+/// The store is still ephemeral — data never persists between test processes.
+@MainActor
+func makeApp(seedBudgets names: [String]) -> XCUIApplication {
+  let app = makeApp()
+  app.launchEnvironment["SEED_BUDGETS"] = names.joined(separator: ",")
+  return app
+}
+
 /// Returns an app pre-configured with the largest system accessibility text size.
 @MainActor
 func largeTextApp() -> XCUIApplication {

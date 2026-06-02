@@ -30,6 +30,16 @@ struct AddBudgetScreen {
     nameField.typeText(name)
   }
 
+  /// Replaces any existing name with `name`. Use when editing a budget whose
+  /// name field is already populated.
+  func replaceName(_ name: String) {
+    nameField.tap()
+    if let current = nameField.value as? String, !current.isEmpty {
+      nameField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
+    }
+    nameField.typeText(name)
+  }
+
   func fillAllocation(_ amount: String) {
     // iOS-COMPAT(17+): UIViewRepresentable UITextField focus workaround.
     // Tap the GroupBox label to dismiss alpha keyboard, then double-tap the field.
@@ -47,9 +57,14 @@ struct AddBudgetScreen {
     cancelButton.tap()
   }
 
-  /// Taps "Delete Budget", then confirms the destructive alert.
+  /// Taps "Delete Budget" in the form, then confirms via the action sheet.
+  /// Uses app.sheets to scope the confirmation tap and avoid ambiguity with
+  /// the form's own "Delete Budget" button (which stays in the hierarchy
+  /// when the confirmation sheet presents on top).
   func tapDeleteAndConfirm() {
     deleteBudgetButton.tap()
-    app.buttons["Delete Budget"].tap() // confirmation dialog button
+    let sheet = app.sheets.firstMatch
+    XCTAssertTrue(sheet.waitForExistence(timeout: 2))
+    sheet.buttons["Delete Budget"].tap()
   }
 }

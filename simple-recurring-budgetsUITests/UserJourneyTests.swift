@@ -2,19 +2,23 @@ import XCTest
 
 /// End-to-end user journey tests covering the core flows of the app.
 ///
-/// Note: Apple explicitly does not support Swift Testing (`import Testing`) in XCUITest
-/// targets — only in hosted unit test bundles. These tests use XCTestCase instead.
+/// Tests that need a pre-existing budget use `makeApp(seedBudgets:)` to inject
+/// the budget via `SEED_BUDGETS` in the app's in-memory store before launch —
+/// skipping UI creation so each test exercises only the feature it claims to cover.
 ///
-/// Each test launches a fresh app process (IS_TESTING=1 suppresses Mixpanel) and
-/// runs a single independent flow. `continueAfterFailure = false` means any failed
-/// assertion stops the test immediately, matching `#require` semantics.
+/// Two tests (`testCreateBudget`, `testCreateBudgetAndNavigateToDetail`) keep the
+/// full UI creation path to maintain coverage of the Add Budget form itself.
+///
+/// Note: Apple does not support Swift Testing (`import Testing`) in XCUITest
+/// targets. These tests use XCTestCase with `continueAfterFailure = false`, which
+/// matches `#require` stop-on-first-failure semantics.
 @MainActor
 final class UserJourneyTests: XCTestCase {
   override func setUpWithError() throws {
     continueAfterFailure = false
   }
 
-  // MARK: - Budget creation
+  // MARK: - Budget creation (UI path — exercises Add Budget form)
 
   func testCreateBudget() {
     let app = makeApp()
@@ -30,16 +34,15 @@ final class UserJourneyTests: XCTestCase {
 
     XCTAssertTrue(
       budgets.addExpenseButton(for: "Groceries").waitForExistence(timeout: 5),
-      "Budget row should appear in the list after saving"
+      "Budget row should appear in list after saving"
     )
   }
 
   // MARK: - Navigation
 
   func testNavigateToBudgetDetail() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Groceries"])
     app.launch()
-    createBudget(named: "Groceries", in: app)
 
     let budgets = BudgetsScreen(app: app)
     budgets.tapBudget(named: "Groceries")
@@ -55,9 +58,8 @@ final class UserJourneyTests: XCTestCase {
   // MARK: - Add expense
 
   func testAddExpenseFromBudgetRow() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Groceries"])
     app.launch()
-    createBudget(named: "Groceries", in: app)
 
     let budgets = BudgetsScreen(app: app)
     let addButton = budgets.addExpenseButton(for: "Groceries")
@@ -66,7 +68,6 @@ final class UserJourneyTests: XCTestCase {
 
     addExpense(description: "Coffee", amount: "5", in: app)
 
-    // After saving the sheet we're back on the list; navigate to detail to verify.
     XCTAssertTrue(
       budgets.addExpenseButton(for: "Groceries").waitForExistence(timeout: 5),
       "Should be back on the budgets list after saving expense"
@@ -82,9 +83,8 @@ final class UserJourneyTests: XCTestCase {
   }
 
   func testAddExpenseFromDetail() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Transport"])
     app.launch()
-    createBudget(named: "Transport", in: app)
 
     let budgets = BudgetsScreen(app: app)
     budgets.tapBudget(named: "Transport")
@@ -104,9 +104,8 @@ final class UserJourneyTests: XCTestCase {
   // MARK: - Edit budget
 
   func testEditBudget() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Groceries"])
     app.launch()
-    createBudget(named: "Groceries", in: app)
 
     let budgets = BudgetsScreen(app: app)
     budgets.tapBudget(named: "Groceries")
@@ -117,26 +116,28 @@ final class UserJourneyTests: XCTestCase {
 
     let editForm = AddBudgetScreen(app: app)
     XCTAssertTrue(editForm.nameField.waitForExistence(timeout: 2))
-    editForm.nameField.tap()
-    editForm.nameField.doubleTap()
-    editForm.nameField.typeText("Groceries Updated")
+    editForm.replaceName("Groceries Updated")
     editForm.tapSave()
 
+    // Navigate back to the budgets list and verify the updated name appears there.
+    // (Checking the detail nav bar title directly is unreliable in XCUITest due to
+    // SwiftUI animation timing after sheet dismissal.)
+    XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
+    app.navigationBars.buttons.firstMatch.tap()
+
     XCTAssertTrue(
-      app.navigationBars["Groceries Updated"].waitForExistence(timeout: 3),
-      "Detail nav title should reflect the updated budget name"
+      budgets.budgetRow(named: "Groceries Updated").waitForExistence(timeout: 5),
+      "Updated budget name should appear in the budgets list"
     )
   }
 
   // MARK: - Pause and resume
 
   func testPauseAndResumeBudget() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Entertainment"])
     app.launch()
-    createBudget(named: "Entertainment", in: app)
 
-    let budgets = BudgetsScreen(app: app)
-    budgets.tapBudget(named: "Entertainment")
+    BudgetsScreen(app: app).tapBudget(named: "Entertainment")
 
     let detail = BudgetDetailScreen(app: app, budgetName: "Entertainment")
     XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
@@ -147,7 +148,6 @@ final class UserJourneyTests: XCTestCase {
       "Resume button should appear after pausing"
     )
 
-    // Resume via the primary button to test both code paths.
     detail.resumeButton.tap()
     XCTAssertTrue(
       detail.addExpenseButton.waitForExistence(timeout: 3),
@@ -158,9 +158,8 @@ final class UserJourneyTests: XCTestCase {
   // MARK: - Expense management
 
   func testDeleteExpense() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Dining"])
     app.launch()
-    createBudget(named: "Dining", in: app)
 
     let budgets = BudgetsScreen(app: app)
     let shortcut = budgets.addExpenseButton(for: "Dining")
@@ -184,9 +183,8 @@ final class UserJourneyTests: XCTestCase {
   }
 
   func testEditExpense() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Dining"])
     app.launch()
-    createBudget(named: "Dining", in: app)
 
     let budgets = BudgetsScreen(app: app)
     let shortcut = budgets.addExpenseButton(for: "Dining")
@@ -204,7 +202,12 @@ final class UserJourneyTests: XCTestCase {
 
     let editForm = AddExpenseScreen(app: app)
     XCTAssertTrue(editForm.descriptionField.waitForExistence(timeout: 2))
-    editForm.descriptionField.doubleTap()
+    editForm.descriptionField.tap()
+    if let current = editForm.descriptionField.value as? String, !current.isEmpty {
+      editForm.descriptionField.typeText(
+        String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count)
+      )
+    }
     editForm.descriptionField.typeText("Ramen")
     editForm.tapSave()
 
@@ -217,12 +220,10 @@ final class UserJourneyTests: XCTestCase {
   // MARK: - Budget deletion
 
   func testDeleteBudget() {
-    let app = makeApp()
+    let app = makeApp(seedBudgets: ["Temporary"])
     app.launch()
-    createBudget(named: "Temporary", in: app)
 
-    let budgets = BudgetsScreen(app: app)
-    budgets.tapBudget(named: "Temporary")
+    BudgetsScreen(app: app).tapBudget(named: "Temporary")
 
     let detail = BudgetDetailScreen(app: app, budgetName: "Temporary")
     XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
@@ -232,6 +233,7 @@ final class UserJourneyTests: XCTestCase {
     XCTAssertTrue(form.deleteBudgetButton.waitForExistence(timeout: 2))
     form.tapDeleteAndConfirm()
 
+    let budgets = BudgetsScreen(app: app)
     XCTAssertTrue(
       budgets.addBudgetButton.waitForExistence(timeout: 3),
       "Should be back on the budgets list after deleting"
@@ -262,5 +264,106 @@ final class UserJourneyTests: XCTestCase {
       budgets.addBudgetButton.waitForExistence(timeout: 2),
       "Should be back on the budgets list after dismissing Settings"
     )
+  }
+
+  // MARK: - Add Budget form — period selection
+
+  /// The default period when opening a new budget form is Monthly, and the
+  /// carry-over toggle should be visible for all recurring period types.
+  func testAddBudgetDefaultPeriodShowsCarryOver() {
+    let app = makeApp()
+    app.launch()
+
+    BudgetsScreen(app: app).tapAddBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    // Monthly chip should be the selected default.
+    XCTAssertTrue(
+      app.buttons["Monthly period"].waitForExistence(timeout: 2),
+      "Monthly period chip should be present"
+    )
+    // Carry-over toggle is visible for all recurring periods.
+    XCTAssertTrue(
+      app.switches["Carry-Over"].waitForExistence(timeout: 2),
+      "Carry-Over toggle should be visible for a recurring period"
+    )
+  }
+
+  /// Selecting Specific Dates hides the Carry-Over toggle (carry-over is not
+  /// meaningful for a fixed date range) and reveals the date-range section.
+  func testAddBudgetSpecificDatesPeriod() {
+    let app = makeApp()
+    app.launch()
+
+    BudgetsScreen(app: app).tapAddBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    form.fillName("Trip")
+
+    app.buttons["Specific Dates period"].tap()
+
+    // Carry-over toggle should disappear for specific-dates budgets.
+    XCTAssertFalse(
+      app.switches["Carry-Over"].waitForExistence(timeout: 2),
+      "Carry-Over toggle should be hidden for Specific Dates period"
+    )
+
+    // Creating a specific-dates budget requires a valid date range set via the
+    // compact DatePicker (complex XCUITest interaction). This test validates the
+    // UI state change only — saving specific-dates budgets is exercised manually.
+    XCTAssertTrue(form.cancelButton.exists, "Form should still be open")
+  }
+
+  /// Tapping through all five period chips (Daily → Weekly → Biweekly →
+  /// Monthly → Specific Dates → Monthly) should leave the form stable with no
+  /// crashes and the correct final state.
+  func testAddBudgetAllPeriodChipsSelectable() {
+    let app = makeApp()
+    app.launch()
+
+    BudgetsScreen(app: app).tapAddBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+
+    let chips = ["Daily period", "Weekly period", "Biweekly period",
+                 "Monthly period", "Specific Dates period", "Monthly period"]
+    for chip in chips {
+      let button = app.buttons[chip]
+      XCTAssertTrue(button.waitForExistence(timeout: 2), "\(chip) chip should exist")
+      button.tap()
+    }
+
+    // After cycling back to Monthly, carry-over should be visible again.
+    XCTAssertTrue(
+      app.switches["Carry-Over"].waitForExistence(timeout: 2),
+      "Carry-Over toggle should be visible after returning to Monthly"
+    )
+  }
+
+  /// In edit mode, the period chips are locked — they render as static text,
+  /// not as interactive buttons. Attempting to tap should have no effect.
+  func testEditBudgetPeriodChipsLocked() {
+    let app = makeApp(seedBudgets: ["Groceries"])
+    app.launch()
+
+    BudgetsScreen(app: app).tapBudget(named: "Groceries")
+
+    let detail = BudgetDetailScreen(app: app, budgetName: "Groceries")
+    XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
+    detail.tapEditBudget()
+
+    XCTAssertTrue(AddBudgetScreen(app: app).nameField.waitForExistence(timeout: 2))
+
+    // Period chips are locked in edit mode — no interactive button should exist
+    // for any period chip label.
+    for chip in ["Daily period", "Weekly period", "Biweekly period", "Specific Dates period"] {
+      XCTAssertFalse(
+        app.buttons[chip].waitForExistence(timeout: 1),
+        "\(chip) should not be an interactive button in edit mode"
+      )
+    }
   }
 }

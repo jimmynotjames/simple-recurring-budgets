@@ -46,9 +46,11 @@ struct AddExpenseScreen {
     cancelButton.tap()
   }
 
-  /// Taps "Delete Expense", then confirms the destructive alert.
+  /// Taps "Delete Expense" in the form, then confirms via the action sheet.
   func tapDeleteAndConfirm() {
     deleteExpenseButton.tap()
-    app.buttons["Delete Expense"].tap() // confirmation dialog button
+    let sheet = app.sheets.firstMatch
+    XCTAssertTrue(sheet.waitForExistence(timeout: 2))
+    sheet.buttons["Delete Expense"].tap()
   }
 }

@@ -20,9 +20,10 @@ struct BudgetDetailScreen {
     app.buttons["Resume \(budgetName)"]
   }
 
-  /// An expense row cell whose accessibility label contains the given description text.
+  /// An expense row button whose accessibility label contains the given description text.
+  /// In BudgetDetailView, expense rows are navigable buttons (they push the edit expense form).
   func expenseRow(containing text: String) -> XCUIElement {
-    app.cells.matching(NSPredicate(format: "label CONTAINS[c] %@", text)).firstMatch
+    app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", text)).firstMatch
   }
 
   /// Opens the "Budget options" menu (ellipsis toolbar button).

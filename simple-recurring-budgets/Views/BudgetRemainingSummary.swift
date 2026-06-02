@@ -91,6 +91,12 @@ struct BudgetRemainingSummary: View {
       .monospacedDigit()
       .foregroundStyle(dimmedStyle(isOverBudget ? Color.moneyDeficit : Color.primary, when: isInactive))
       .lineLimit(1)
+      .truncationMode(.tail)
+      .minimumScaleFactor(0.8)
+      // fixedSize(vertical: true) prevents the parent container from giving the
+      // text less height than its natural line height, which causes vertical
+      // clipping detected by the accessibility textClipped audit.
+      .fixedSize(horizontal: false, vertical: true)
   }
 
   private var periodText: some View {

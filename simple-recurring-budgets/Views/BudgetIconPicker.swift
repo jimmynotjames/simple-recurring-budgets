@@ -48,7 +48,7 @@ struct BudgetIconPicker: View {
     "🚬", "🍑", "💦", "🌶️", "🍒", "🍌", "💋", "🔥", "😏", "🍆", "🔗", "🪢", "🎈",
   ]
 
-  private let columns = [GridItem(.adaptive(minimum: 48), spacing: 12)]
+  private let columns = [GridItem(.adaptive(minimum: 56), spacing: 12)]
 
   var body: some View {
     NavigationStack {
@@ -61,7 +61,8 @@ struct BudgetIconPicker: View {
             } label: {
               Text(verbatim: item)
                 .font(.largeTitle)
-                .frame(width: 48, height: 48)
+                .lineLimit(1)
+                .frame(width: 56, height: 56)
                 .background(
                   RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(selection == item ? Color.accentColor.opacity(0.25) : Color.clear)

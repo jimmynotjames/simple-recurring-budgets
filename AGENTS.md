@@ -161,6 +161,45 @@ Quick checklist for every UI-touching change:
 - **App Store listing metadata** — the store listing copy (name, subtitle, keywords, description, promotional text, release notes) is a *release-time* concern, not a per-change one. It lives in `fastlane/metadata/` and is transcreated into all 38 storefronts by the separate **`translate-app-store-metadata` skill** / `scripts/translate_metadata/` pipeline (gate: `python3 scripts/translate_metadata/check_metadata.py`). App Store Connect storefront codes (`de-DE`, `no`, `nl-NL`) differ from the in-app runtime codes; `metadata_locales.py` owns the map. Author English copy in `fastlane/metadata/en-US/` first, then run the skill (also autonomous). Like the in-app pipeline, never write ad-hoc Python — use `scripts/translate_metadata/*`.
 - **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary with OSLog: `docs/analytics-spec.md` §17.
 
+## Platform compatibility workarounds
+
+When a workaround exists solely because of a known platform bug, framework limitation, or SDK false positive — not because of app logic — tag it with a structured comment so it can be found and reassessed without reading every file.
+
+### Tag format
+
+```
+// iOS-COMPAT(VERSION): one-line summary of the bug.
+//   Optional additional detail, reproduction conditions, issue number, etc.
+//   When fixed upstream: what to remove or revert.
+```
+
+Use `iOS-COMPAT(17+)` for bugs first seen on iOS 17, `iOS-COMPAT(26.x)` for bugs specific to iOS 26.x, etc. Use `iOS-COMPAT(?)` when the exact version is unknown.
+
+### Rules
+
+- Add the tag **on the comment immediately before the workaround code**, not in a distant docstring. The tag must be greppable at the callsite.
+- Include: what the bug is, which platform version introduced it, and what condition would allow removal.
+- Cross-link related workarounds with "Search `iOS-COMPAT`…" so a future agent can find the full set.
+- **Do not suppress test failures, hide elements from accessibility, or add layout hacks without this tag** when the root cause is a platform bug rather than app code.
+
+### Auditing
+
+To find every workaround in the repo:
+
+```bash
+grep -rn "iOS-COMPAT" . --include="*.swift"
+```
+
+A future agent that upgrades the minimum iOS deployment target should run this command, evaluate each tagged site against the new SDK, and remove the workaround + tag if the platform bug is resolved.
+
+### Current inventory (as of iOS 26.x)
+
+| File | Tag | Summary |
+|------|-----|---------|
+| `Views/DecimalInputField.swift` | `iOS-COMPAT(17+)` | Two SwiftUI TextField bugs require a UIViewRepresentable wrapper |
+| `AccessibilityAuditTests.swift` | `iOS-COMPAT(17+)` | XCUITest focus tracking doesn't sync with UIViewRepresentable UITextField |
+| `AccessibilityAuditTests.swift` | `iOS-COMPAT(26.x)` | `performAccessibilityAudit` false positives: `.elementDetection`, `.dynamicType`, `.textClipped` |
+
 ## Conflicts and planning
 
 - If the planned direction contradicts those files, say so with a short **Conflict with docs** block (file, summary, resolution: update doc / change plan / intentional exception).

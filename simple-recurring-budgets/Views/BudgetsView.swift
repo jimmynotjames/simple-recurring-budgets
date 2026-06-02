@@ -8,6 +8,7 @@ struct BudgetsView: View {
   @Environment(Router.self) private var router
   @Environment(\.modelContext) private var context
   @Environment(\.analytics) private var analytics
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   /// Standard save-error alert state for the reorder save (`budgets-screen`
   /// delta spec scenario "Failed reorder surfaces the save-error alert").
   @State private var saveError: SaveErrorState?
@@ -60,11 +61,17 @@ struct BudgetsView: View {
           HStack(spacing: 4) {
             Image(systemName: "plus")
               .fontWeight(.semibold)
-            Text(String(
-              localized: "toolbar.addBudget.label",
-              defaultValue: "New Budget",
-              comment: "Label for the Add Budget toolbar button"
-            ))
+            // Hide the text label at accessibility sizes: the HStack clips inside
+            // the fixed-height toolbar at Accessibility Extra Large and above.
+            // The explicit .accessibilityLabel below keeps VoiceOver working.
+            if !dynamicTypeSize.isAccessibilitySize {
+              Text(String(
+                localized: "toolbar.addBudget.label",
+                defaultValue: "New Budget",
+                comment: "Label for the Add Budget toolbar button"
+              ))
+              .lineLimit(1)
+            }
           }
         }
         .tint(Color("AccentColor"))
@@ -85,22 +92,35 @@ struct BudgetsView: View {
   // MARK: - Private views
 
   private var emptyStateView: some View {
-    ContentUnavailableView {
-      Label(
-        String(
+    // Custom empty state rather than ContentUnavailableView: the system component
+    // imposes an undocumented line limit on its description view that causes the
+    // long description string to clip on some iOS versions. Custom layout gives
+    // full control over text wrapping.
+    VStack(spacing: 16) {
+      Image(systemName: "tray")
+        .font(.system(size: 56))
+        .foregroundStyle(.secondary)
+      VStack(spacing: 4) {
+        Text(String(
           localized: "budgets.empty.title",
           defaultValue: "No budgets yet",
           comment: "Empty-state title on the Budgets screen when no budgets exist"
-        ),
-        systemImage: "tray"
-      )
-    } description: {
-      Text(String(
-        localized: "budgets.empty.description",
-        defaultValue: "Create your first recurring budget to start tracking what you spend each day, week, biweek, or month.",
-        comment: "Empty-state description on the Budgets screen"
-      ))
-    } actions: {
+        ))
+        .font(.title2.bold())
+        .lineLimit(1)
+        .allowsTightening(true)
+        .fixedSize(horizontal: false, vertical: true)
+        Text(String(
+          localized: "budgets.empty.description",
+          defaultValue: "Create your first recurring budget to start tracking what you spend each day, week, biweek, or month.",
+          comment: "Empty-state description on the Budgets screen"
+        ))
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+        .lineLimit(nil)
+        .fixedSize(horizontal: false, vertical: true)
+      }
       Button {
         router.sheet = .addBudget
       } label: {
@@ -113,6 +133,8 @@ struct BudgetsView: View {
       .buttonStyle(.borderedProminent)
       .controlSize(.large)
     }
+    .padding(.horizontal, 32)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 
   private var populatedListView: some View {

@@ -7,7 +7,7 @@ cd "$ROOT"
 # (which sources _sim_sandbox.sh). See those files for env-var overrides.
 source "${ROOT}/scripts/_destination.sh"
 
-RESULT_BUNDLE="${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S).xcresult"
+TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 
 # -parallel-testing-enabled NO: the scheme has parallelizable=YES for IDE runs,
 # but scripted runs use serial execution on the single warm base sim. Reasons:
@@ -15,19 +15,31 @@ RESULT_BUNDLE="${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S).xcresult"
 #   2. With multiple agents across repo clones, dozens of clones spawn at once
 #      and CoreSimulator races during teardown, causing the UI runner to die with
 #      "Test crashed with signal kill".
-#
-# -skip-testing:simple-recurring-budgetsUITests: XCUITest requires the sim to
-# have hosted at least one real app lifecycle before its IPC socket becomes
-# reliable. On a fresh per-repo sim (which agents create on first run), the UI
-# test runner times out "while preparing to run tests" every time. The UI bundle
-# only contains testExample (trivial launch) and testLaunchPerformance (perf
-# baseline) — not business-logic tests. Run them manually in Xcode when needed.
-exec xcodebuild test \
+
+# Step 1 — Unit tests (fast, always reliable).
+# -skip-testing:UITests: the UI runner is started in a second pass below so the
+# sim has hosted at least one app lifecycle before the XCUITest IPC socket opens.
+xcodebuild test \
     -project simple-recurring-budgets.xcodeproj \
     -scheme simple-recurring-budgets \
     -destination "${DESTINATION}" \
     -destination-timeout 300 \
     -derivedDataPath "${SIM_DERIVED}" \
-    -resultBundlePath "${RESULT_BUNDLE}" \
+    -resultBundlePath "${SIM_RESULTS_DIR}/${TIMESTAMP}-unit.xcresult" \
     -parallel-testing-enabled NO \
     -skip-testing:simple-recurring-budgetsUITests
+
+# Step 2 — Accessibility UI tests (AccessibilityAuditTests).
+# Run after unit tests so the simulator has hosted at least one app lifecycle,
+# making the XCUITest IPC socket reliable. -parallel-testing-enabled NO prevents
+# xcodebuild from cloning the sim; the clone path consistently times out on a
+# fresh per-repo device even after the app has been installed.
+xcodebuild test \
+    -project simple-recurring-budgets.xcodeproj \
+    -scheme simple-recurring-budgets \
+    -destination "${DESTINATION}" \
+    -destination-timeout 300 \
+    -derivedDataPath "${SIM_DERIVED}" \
+    -resultBundlePath "${SIM_RESULTS_DIR}/${TIMESTAMP}-ui.xcresult" \
+    -parallel-testing-enabled NO \
+    -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests

@@ -1,4 +1,4 @@
-.PHONY: format lint-fix build test lint hooks-install system initialize-sims sim-status sim-shutdown sim-clean
+.PHONY: format lint-fix build test test-unit lint hooks-install system initialize-sims sim-status sim-shutdown sim-clean
 
 system:
 	bash scripts/system-setup.sh
@@ -14,6 +14,9 @@ build:
 
 test:
 	bash scripts/test.sh
+
+test-unit:
+	bash scripts/test-unit.sh
 
 lint:
 	swiftlint lint --strict

@@ -2,7 +2,7 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.19                           |
+| **Version**        | 0.20                           |
 | **Last Updated**   | 2026-05-31                     |
 | **Author / Owner** | Jimmy Ho                       |
 
@@ -266,6 +266,8 @@ Translations for all 38 App Store storefront locales were produced and merged by
 
 **Test Runs**: When supporting only iPhone and iPad, we only need to run the unit test suites for one iPhone model using the latest OS version available. For UI tests, run the tests for the appropriate platform for platform-specific tests, defaulting to iPhone when not specified. Again, unless tests are specifically testing different device models or OS versions, only one combination of one arbitrary device model + latest available OS version is necessary.
 
+**Accessibility audits** (`simple-recurring-budgetsUITests/AccessibilityAuditTests.swift`) use `XCUIApplication.performAccessibilityAudit()` (Xcode 15+) to verify VoiceOver labels, touch-target sizes, Dynamic Type adoption, and text clipping across every major screen. These are excluded from `make test` (the UI test target is skipped in `scripts/test.sh` due to simulator IPC reliability constraints) and must be run from Xcode or a dedicated CI lane targeting `simple-recurring-budgetsUITests`.
+
 ### 5.4 Budget Math Service Layer
 
 Services in `Domain/` implement all budget math with no SwiftUI dependencies:
@@ -444,6 +446,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.20    | 2026-05-31 | Jimmy Ho | §5.3 add accessibility-audit test note: `AccessibilityAuditTests.swift`, `performAccessibilityAudit()`, excluded from `make test`. |
 | 0.19    | 2026-05-31 | Jimmy Ho | Doc/code sync: §4.2 CloudKit container ID set in entitlements; §2.1 documents `AddEditBudgetViewModel` / `AddEditExpenseViewModel`; §3.1 `Budget.icon`; §5.4 `recomputeToken` refresh + `specificDatesBranch` pointer; §7 network surface (Mixpanel + CloudKit, no app backend); §9 future table refreshed (shipped features removed). |
 | 0.18    | 2026-05-03 | Jimmy Ho | §4.5 KV-key table: add `analyticsOptIn`, `analyticsDistinctId`, and `analyticsFirstOpenAt` rows (F-8.02). §7 product-analytics paragraph: document lazy Mixpanel SDK init, consent toggle wiring, and PII contract; update §16.1 reference to historical. §9 future table: add F-8.03 Phase 2 row. |
 | 0.17    | 2026-05-02 | Jimmy Ho | §7 expanded the on-device diagnostics entry: canonical call-site map for `bootstrap`, `cloudkit`, and `ui` categories; explicit `privacy:` annotation rule; cross-reference to `docs/analytics-spec.md` §17 for the OSLog ↔ `AnalyticsClient` boundary. (F-8.01 implemented by change `oslog-diagnostic-logging`.) |

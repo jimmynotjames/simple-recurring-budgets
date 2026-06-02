@@ -32,6 +32,17 @@ alwaysApply: false
 
 - New user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent gate. See `docs/tech-design-doc.md` §7 for the implementation boundary.
 
+## Platform compatibility workarounds
+
+When a workaround exists because of a known platform bug or SDK false positive (not app logic), tag it at the callsite:
+
+```swift
+// iOS-COMPAT(VERSION): one-line description of the bug.
+//   Detail, issue number, and what to remove when the bug is fixed.
+```
+
+Full convention (format, rules, audit command, current inventory) is in [`AGENTS.md` §Platform compatibility workarounds](../../AGENTS.md). To find every workaround: `grep -rn "iOS-COMPAT" . --include="*.swift"`.
+
 ## Testing
 
 - Prefer **Swift Testing** for new tests. Place tests in the Xcode test target (or project convention) alongside or mirroring app modules.

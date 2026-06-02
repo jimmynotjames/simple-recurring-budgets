@@ -1,6 +1,15 @@
 import SwiftUI
 import UIKit
 
+// iOS-COMPAT(17+): two SwiftUI TextField bugs make a UIViewRepresentable wrapper necessary here.
+//   Bug 1 — TextField(value:format:) rejects keystrokes when the parse strategy throws; silently blocks
+//            all input on Arabic and other non-Western-digit locales. Unresolved as of iOS 26.x.
+//   Bug 2 — TextField(text:)+.onChange on an @Observable model fails to render typed characters until the
+//            field resigns first responder. Confirmed iOS 17+ regression.
+//   When fixed upstream: remove this file and the UIKit interop; return to a native SwiftUI TextField.
+//   Related workaround: the XCUITest double-tap in AccessibilityAuditTests.createBudget compensates for
+//   the same UIViewRepresentable first-responder focus quirk. Search "iOS-COMPAT" to find all tagged sites.
+
 /// A money-amount text field backed by `UITextField` rather than SwiftUI's `TextField`.
 ///
 /// SwiftUI's `TextField` proved unreliable for this field in two distinct ways:

@@ -1,4 +1,4 @@
-.PHONY: format lint-fix build test test-unit test-ui lint hooks-install system initialize-sims sim-status sim-shutdown sim-clean
+.PHONY: format lint-fix build test test-unit test-only test-ui lint hooks-install system initialize-sims sim-status sim-shutdown sim-clean
 
 system:
 	bash scripts/system-setup.sh
@@ -17,6 +17,12 @@ test:
 
 test-unit:
 	bash scripts/test-unit.sh
+
+# Ad-hoc subset run. ONLY holds one or more -only-testing identifiers (space-separated).
+#   make test-only ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"
+# Add --ui inside ONLY to include the UI target. See scripts/test-only.sh.
+test-only:
+	bash scripts/test-only.sh $(ONLY)
 
 test-ui:
 	bash scripts/test-ui.sh

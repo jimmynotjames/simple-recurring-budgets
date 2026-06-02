@@ -7,6 +7,11 @@ cd "$ROOT"
 # (which sources _sim_sandbox.sh). See those files for env-var overrides.
 source "${ROOT}/scripts/_destination.sh"
 
+# Unit tests are ALWAYS serial: Swift Testing parallelizes the suite in-process
+# on one sim, so SRB_SIM_MAX (which controls UI-pass sim clones) does not apply
+# here. This run also serves as the warm-up that `make test-ui` depends on.
+echo "sim concurrency: unit tests run serially on 1 sim (Swift Testing parallelizes in-process); SRB_SIM_MAX affects the UI pass only." >&2
+
 RESULT_BUNDLE="${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S)-unit.xcresult"
 
 # Unit tests only — skips the accessibility UI test suite.

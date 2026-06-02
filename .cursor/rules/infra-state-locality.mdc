@@ -1,0 +1,18 @@
+---
+description: Prefer self-contained per-repo infra over machine-global or shared state
+alwaysApply: true
+---
+
+# Infra and state locality
+
+Prefer self-contained, per-repo solutions over machine-global or shared state.
+
+When designing infra (test concurrency, locks, caches, coordination), do **not**
+introduce folders or state that live outside the repo or are shared across
+clones. Cap resources per-repo with a static knob instead.
+
+Multiple clones of a repo are already independent, so cross-repo parallelism is
+effectively free — favor a small per-repo cap over a shared coordinator. This is
+why the simulator concurrency control is the per-repo `SRB_SIM_MAX` knob (see
+`AGENTS.md > Build and test`) rather than a machine-wide semaphore in a shared
+cache directory.

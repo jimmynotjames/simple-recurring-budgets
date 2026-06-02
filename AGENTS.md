@@ -61,13 +61,30 @@ make sim-clean        # shut down + delete this repo's simulator + remove .build
 - `-derivedDataPath .build/sim/DerivedData` — build cache stays per-clone.
 - `-resultBundlePath .build/sim/results/<timestamp>.xcresult` — test results per run.
 
-**Parallel testing is disabled** for scripted runs (`-parallel-testing-enabled NO`). The scheme has `parallelizable = "YES"` so Xcode's IDE runs can still use per-class clones, but `scripts/test.sh` runs serially on the single warm base sim. Reasons:
+**Simulator concurrency knob — `SRB_SIM_MAX`** (default `2`, range `1–3`, set by `scripts/_sim_concurrency.sh`). Controls how many simulators the **UI pass** may use at once via xcodebuild parallel testing. Every test run prints a resource-use reminder.
 
-1. Each clone re-boots from the base sim (~30–90 s overhead per clone).
-2. With multiple agents across repo clones, dozens of clones spawn at once and CoreSimulator races during teardown — manifesting as `Test crashed with signal kill` after tests finish.
-3. Serial execution is faster *and* deterministic.
+> **Reference machine.** The default of `2` is tuned for an assumed baseline of roughly **16 GB RAM on an Apple-silicon laptop** (e.g. a fanless M4 MacBook Air) running at most ~2 repo clones at once. These are illustrative specs, not a requirement — adjust `SRB_SIM_MAX` for the machine actually running: lower it on tighter RAM or when many repos run concurrently, raise it on a machine with more memory/cores and active cooling.
 
-**The UI test bundle is skipped in pass 1** (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". Pass 2 of `scripts/test.sh` then runs `AccessibilityAuditTests` (30 accessibility regression tests, XCTestCase) and `UserJourneyTests` (10 core flow tests, XCTestCase) with `-only-testing`. Note: Apple does not support `import Testing` in unhosted XCUITest bundles; both suites use XCTestCase. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
+| `SRB_SIM_MAX` | UI pass | When to use |
+| --- | --- | --- |
+| `1` | `-parallel-testing-enabled NO` (serial, 1 sim) | Lightest. Downshift here if the UI pass flakes, or when several repos run at once. |
+| `2` (default) | `-parallel-testing-enabled YES -maximum-concurrent-test-simulator-destinations 2` | Tuned for the reference machine above (≈16 GB, Apple silicon) running ≤ 2 repos at once. |
+| `3` | …`-destinations 3` | Only with headroom — RAM-heavy. |
+
+```bash
+SRB_SIM_MAX=1 make test     # downshift: serial, lightest
+SRB_SIM_MAX=3 make test-ui  # upshift: only if the machine is clear
+```
+
+Rationale and rules:
+
+- **RAM is usually the binding constraint** (on the ~16 GB reference machine; a fanless laptop also thermally throttles under sustained all-core load). At that size ~2 simulators fills the budget with a browser + Mail open and 3 risks swap — scale the cap with available memory. Cross-repo parallelism is "free" — just run separate repos; each is its own sim, so there is **no machine-wide coordination or shared state**.
+- **The unit pass is always serial** (`-parallel-testing-enabled NO`, ignores `SRB_SIM_MAX`). Swift Testing already parallelizes the unit suite *in-process* on one sim, so clones add boot cost with no benefit — and running unit serially on the base device is the warm-up the UI pass depends on (below).
+- **Flake retry:** when parallel (`>= 2`), the UI pass adds `-retry-tests-on-failure -test-iterations 2` (one retry). The accessibility-audit tests are timing-sensitive and occasionally flake under CPU contention; the retry absorbs that while a genuine failure still fails on both attempts. Serial runs (`=1`) are deterministic and add no retry.
+- **Clone risk:** clones of a per-repo device once timed out for the XCUITest pass ("while preparing to run tests"), which is why parallel testing was previously off; that no longer reproduces (validated June 2026, Xcode iPhone 17 runtime) as long as the unit pass warms the base sim first. `SRB_SIM_MAX=1` remains the fallback if `2`/`3` flake.
+- The low cap (≤ 3) keeps this far from the old "dozens of clones across many agents → `Test crashed with signal kill`" teardown race.
+
+**The UI test bundle is skipped in pass 1** (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". Pass 2 of `scripts/test.sh` then runs `AccessibilityAuditTests` (accessibility regression tests, XCTestCase), `UserJourneyTests` (core flow tests, XCTestCase), and `ClearAmountButtonUITests` with `-only-testing`. Note: Apple does not support `import Testing` in unhosted XCUITest bundles; these suites use XCTestCase. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
 
 `make sim-clean` runs `scripts/sim_clean.py`, which finds every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` left behind by a parallel-testing crash) and deletes them all. It cannot touch other repos' devices.
 
@@ -75,13 +92,13 @@ make sim-clean        # shut down + delete this repo's simulator + remove .build
 
 > These commands affect **all** simulators on the machine, including those owned by other repo clones and by Xcode. They will break parallel agent sessions.
 
-- ❌ `pkill Simulator`
-- ❌ `killall Simulator`
-- ❌ `xcrun simctl shutdown all`
-- ❌ `xcrun simctl erase all`
+- ❌ `pkill Simulator` — **hard-blocked** by the PreToolUse hook (`scripts/hooks/guard_bash_hygiene.sh`, rule 5)
+- ❌ `killall Simulator` — **hard-blocked**
+- ❌ `xcrun simctl shutdown all` / `erase all` / `delete all` — **hard-blocked**
+- ❌ `xcrun simctl delete unavailable` — **hard-blocked** (can remove another repo's device whose runtime is temporarily gone)
 - ❌ Opening Simulator.app on a device an agent is actively using
 
-Use `make sim-shutdown` or `make sim-clean` instead — they operate on this repo's specific UDID only.
+The hook denies only the machine-wide `all` / `unavailable` / `pkill` / `killall` forms; scoped commands (`simctl shutdown <udid>`, `simctl delete <udid>`) stay allowed. Use `make sim-shutdown` or `make sim-clean` instead — they operate on this repo's specific UDID / slug only.
 
 Also: all clones must share the same `xcode-select` path. Switching Xcode versions while agents are running restarts CoreSimulatorService and kills booted sims.
 
@@ -204,6 +221,12 @@ A future agent that upgrades the minimum iOS deployment target should run this c
 | `AddBudgetScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAllocation()` |
 | `AddExpenseScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAmount()` |
 | `AccessibilityAuditTests.swift` | `iOS-COMPAT(26.x)` | `performAccessibilityAudit` false positives: `.elementDetection`, `.dynamicType`, `.textClipped` |
+
+## Infra and state locality
+
+Prefer self-contained, per-repo solutions over machine-global or shared state. When designing infra (test concurrency, locks, caches, coordination), do **not** introduce folders or state that live outside the repo or are shared across clones; cap resources per-repo with a static knob instead. Multiple clones of a repo are already independent, so cross-repo parallelism is effectively free — favor a small per-repo cap over a shared coordinator. (This is why simulator concurrency is the per-repo `SRB_SIM_MAX` knob in § Build and test rather than a machine-wide semaphore.)
+
+> Mirrored in `.cursor/rules/infra-state-locality.mdc` and the global `~/.claude/CLAUDE.md`; these copies are intentionally redundant so Claude Code and Cursor stay in sync at both repo and user scope.
 
 ## Conflicts and planning
 

@@ -188,9 +188,15 @@ The 38 storefronts are: `ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `e
 
 Every new user-initiated action that materially changes app state (a new destructive action, a new screen with a primary CTA, a new toggle whose value affects retention or feature usage) must ship with the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](analytics-spec.md), respecting the consent and no-PII rules in that spec. This applies to every change going forward — not only to a particular Mixpanel phase milestone. See `docs/tech-design-doc.md` §7 for the implementation boundary.
 
+#### 6.8.5 UI test screen objects
+
+The app has a suite of 10 user-journey tests in `simple-recurring-budgetsUITests/UserJourneyTests.swift` (Swift Testing, serialized) covering create budget, navigate to detail, add expense (from row and from detail), edit budget, pause/resume, delete expense, edit expense, delete budget, and settings round-trip. Five screen objects encapsulate element queries: `BudgetsScreen`, `BudgetDetailScreen`, `AddBudgetScreen`, `AddExpenseScreen`, and `SettingsScreen`.
+
+**Per-change rule:** when a view's navigation structure, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` before treating the change complete. Run `make test-ui` (UI-only pass, no unit re-run) to confirm no journey regressions. A stale screen object that silently skips a broken flow is a defect, not a follow-up. UI tests run slowly; update screen objects proactively so agents do not loop on test failures after the fact.
+
 ---
 
-Implementation rules for all four concerns live in `docs/tech-design-doc.md` §§5.1–5.2, §5.5, and §7, and in `docs/analytics-spec.md`. The historical build-out features are tracked in `docs/product-features-planning.md` T-3 and T-8.
+Implementation rules for all five concerns live in `docs/tech-design-doc.md` §§5.1–5.2, §5.5, and §7, `docs/analytics-spec.md`, and `AGENTS.md` §Cross-cutting concerns. The historical build-out features are tracked in `docs/product-features-planning.md` T-3 and T-8.
 
 ---
 

@@ -29,11 +29,12 @@ xcodebuild test \
     -parallel-testing-enabled NO \
     -skip-testing:simple-recurring-budgetsUITests
 
-# Step 2 — Accessibility UI tests (AccessibilityAuditTests).
+# Step 2 — Accessibility and user-journey UI tests.
 # Run after unit tests so the simulator has hosted at least one app lifecycle,
 # making the XCUITest IPC socket reliable. -parallel-testing-enabled NO prevents
 # xcodebuild from cloning the sim; the clone path consistently times out on a
 # fresh per-repo device even after the app has been installed.
+# testExample and testLaunchPerformance are intentionally excluded from scripted runs.
 xcodebuild test \
     -project simple-recurring-budgets.xcodeproj \
     -scheme simple-recurring-budgets \
@@ -42,4 +43,5 @@ xcodebuild test \
     -derivedDataPath "${SIM_DERIVED}" \
     -resultBundlePath "${SIM_RESULTS_DIR}/${TIMESTAMP}-ui.xcresult" \
     -parallel-testing-enabled NO \
-    -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests
+    -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
+    -only-testing:simple-recurring-budgetsUITests/UserJourneyTests

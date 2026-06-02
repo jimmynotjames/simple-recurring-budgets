@@ -7,11 +7,7 @@ final class simple_recurring_budgetsUITestsLaunchTests: XCTestCase {
 
   @MainActor
   func testLaunch() {
-    let app = XCUIApplication()
-    // IS_TESTING suppresses Mixpanel analytics in the app under test.
-    // The app is a separate process and does not inherit the test runner's
-    // environment, so this must be set explicitly before every launch().
-    app.launchEnvironment["IS_TESTING"] = "1"
+    let app = makeApp() // shared factory from UITestHelpers.swift
     app.launch()
 
     let attachment = XCTAttachment(screenshot: app.screenshot())

@@ -268,8 +268,6 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
   }
 
-  // MARK: - Helpers
-
   // MARK: - Issue handlers
 
   /// Shared issue handler used by every `performAccessibilityAudit` call.
@@ -343,66 +341,6 @@ final class AccessibilityAuditTests: XCTestCase {
     }
     return false
   }
-
-  // MARK: - App factories
-
-  /// Returns an `XCUIApplication` pre-configured to suppress Mixpanel analytics.
-  @MainActor
-  private func makeApp() -> XCUIApplication {
-    let app = XCUIApplication()
-    app.launchEnvironment["IS_TESTING"] = "1"
-    return app
-  }
-
-  /// Returns an app pre-configured with the largest system accessibility text size.
-  @MainActor
-  private func largeTextApp() -> XCUIApplication {
-    let app = makeApp()
-    app.launchArguments += [
-      "-UIPreferredContentSizeCategoryName",
-      "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
-    ]
-    return app
-  }
-
-  /// Navigates through the Add Budget form, fills in `name` and a $100
-  /// allocation, saves, and waits for the budgets list to reappear.
-  ///
-  /// Precondition: the budgets list is the current screen.
-  @MainActor
-  private func createBudget(named name: String, in app: XCUIApplication) {
-    app.buttons["Add budget"].tap()
-
-    let nameField = app.textFields["Budget name"]
-    XCTAssertTrue(nameField.waitForExistence(timeout: 2))
-    nameField.tap()
-    nameField.typeText(name)
-
-    let amountField = app.textFields.matching(
-      NSPredicate(format: "label BEGINSWITH 'Allocation amount'")
-    ).firstMatch
-    XCTAssertTrue(amountField.waitForExistence(timeout: 2))
-    // iOS-COMPAT(17+): UIViewRepresentable UITextField focus in XCUITest.
-    // DecimalInputField wraps UITextField because of iOS 17+ SwiftUI binding bugs
-    // (see DecimalInputField.swift). A side effect is that XCUITest's focus tracking
-    // doesn't sync reliably with the UITextField's first-responder state. Workaround:
-    // tap a non-interactive label to dismiss the alpha keyboard cleanly, then double-tap
-    // the field — the second tap forces focus to register before calling typeText().
-    app.staticTexts["Allocation"].tap()
-    amountField.tap()
-    amountField.tap()
-    amountField.typeText("100")
-
-    app.buttons["Save"].tap()
-
-    // Wait for the budget-specific "Add expense for NAME" button: it only exists
-    // on the budgets LIST (not the form), so this confirms both that the sheet
-    // dismissed AND that SwiftData's @Query refreshed the row before the caller
-    // interacts with it. Checking cells.firstMatch would match form rows (the
-    // form is a List) before the sheet has fully dismissed.
-    XCTAssertTrue(
-      app.buttons["Add expense for \(name)"].waitForExistence(timeout: 5),
-      "Budget row should appear after saving"
-    )
-  }
 }
+
+// makeApp(), largeTextApp(), and createBudget(named:in:) are provided by UITestHelpers.swift.

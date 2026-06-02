@@ -222,6 +222,12 @@ A future agent that upgrades the minimum iOS deployment target should run this c
 | `AddExpenseScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAmount()` |
 | `AccessibilityAuditTests.swift` | `iOS-COMPAT(26.x)` | `performAccessibilityAudit` false positives: `.elementDetection`, `.dynamicType`, `.textClipped` |
 
+## Infra and state locality
+
+Prefer self-contained, per-repo solutions over machine-global or shared state. When designing infra (test concurrency, locks, caches, coordination), do **not** introduce folders or state that live outside the repo or are shared across clones; cap resources per-repo with a static knob instead. Multiple clones of a repo are already independent, so cross-repo parallelism is effectively free — favor a small per-repo cap over a shared coordinator. (This is why simulator concurrency is the per-repo `SRB_SIM_MAX` knob in § Build and test rather than a machine-wide semaphore.)
+
+> Mirrored in `.cursor/rules/infra-state-locality.mdc` and the global `~/.claude/CLAUDE.md`; these copies are intentionally redundant so Claude Code and Cursor stay in sync at both repo and user scope.
+
 ## Conflicts and planning
 
 - If the planned direction contradicts those files, say so with a short **Conflict with docs** block (file, summary, resolution: update doc / change plan / intentional exception).

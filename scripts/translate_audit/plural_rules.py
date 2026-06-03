@@ -1,0 +1,48 @@
+"""Per-locale CLDR cardinal plural categories — GENERATED, do not hand-edit.
+
+Source: babel 2.18.0 (bundled CLDR). Regenerate with
+scripts/translate_audit/_gen_plural_rules.py. See that file for the definitions of
+`required` (integer-reachable, 0..999, + other) vs `valid` (full rule tag set).
+"""
+
+# locale -> {"required": [...integer-reachable...], "valid": [...full set...]}
+PLURAL_RULES: dict[str, dict[str, list[str]]] = {
+    "ar": {"required": ['zero', 'one', 'two', 'few', 'many', 'other'], "valid": ['zero', 'one', 'two', 'few', 'many', 'other']},
+    "ca": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "cs": {"required": ['one', 'few', 'other'], "valid": ['one', 'few', 'many', 'other']},
+    "da": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "de": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "el": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "en-AU": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "en-CA": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "en-GB": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "es": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "es-MX": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "fi": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "fr": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "fr-CA": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "he": {"required": ['one', 'two', 'other'], "valid": ['one', 'two', 'other']},
+    "hi": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "hr": {"required": ['one', 'few', 'other'], "valid": ['one', 'few', 'other']},
+    "hu": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "id": {"required": ['other'], "valid": ['other']},
+    "it": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "ja": {"required": ['other'], "valid": ['other']},
+    "ko": {"required": ['other'], "valid": ['other']},
+    "ms": {"required": ['other'], "valid": ['other']},
+    "nb": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "nl": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "pl": {"required": ['one', 'few', 'many', 'other'], "valid": ['one', 'few', 'many', 'other']},
+    "pt-BR": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "pt-PT": {"required": ['one', 'other'], "valid": ['one', 'many', 'other']},
+    "ro": {"required": ['one', 'few', 'other'], "valid": ['one', 'few', 'other']},
+    "ru": {"required": ['one', 'few', 'many', 'other'], "valid": ['one', 'few', 'many', 'other']},
+    "sk": {"required": ['one', 'few', 'other'], "valid": ['one', 'few', 'many', 'other']},
+    "sv": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "th": {"required": ['other'], "valid": ['other']},
+    "tr": {"required": ['one', 'other'], "valid": ['one', 'other']},
+    "uk": {"required": ['one', 'few', 'many', 'other'], "valid": ['one', 'few', 'many', 'other']},
+    "vi": {"required": ['other'], "valid": ['other']},
+    "zh-Hans": {"required": ['other'], "valid": ['other']},
+    "zh-Hant": {"required": ['other'], "valid": ['other']},
+}

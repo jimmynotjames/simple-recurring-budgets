@@ -39,6 +39,7 @@
       "Bash(python3 scripts/translate_audit/audit_dispatch.py:*)",
       "Bash(python3 scripts/translate_audit/audit_report.py:*)",
       "Bash(python3 scripts/translate_audit/consistency_check.py:*)",
+      "Bash(python3 scripts/translate_audit/plural_completeness.py:*)",
       "Bash(python3 scripts/translate_catalog/glossary_build.py:*)",
       "Bash(python3 scripts/translate_catalog/glossary_sync.py:*)",
       "Bash(mkdir -p tmp/translate-outputs)",

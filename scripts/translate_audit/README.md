@@ -29,6 +29,8 @@ The full design and status live in `docs/audits/translation-quality-audit-2026-0
 | `audit_dispatch.py` | Compose ready-to-dispatch per-locale audit prompts in `tmp/translate-audit-prompts/{locale}.md`. |
 | `audit_report.py` | Aggregate the per-locale findings into a triage report; deterministic length pre-filter; `--write-manifest` to feed the re-translation step. Categories are free-form, incl. `consistency`. |
 | `consistency_check.py` | **Deterministic** (no LLM): find keys that share the same English but got different translations within a locale. Tags `word-choice` vs `casing-only`; `--write-manifest` for the glossary-aware re-translation. Run it before the LLM fan-out. |
+| `plural_completeness.py` | **Deterministic** (no LLM): for every plural key, flag locales missing a CLDR-required plural category or carrying a spurious one; `--write-manifest` to re-translate. Required set = integer-reachable CLDR categories from the committed `plural_rules.py`. |
+| `plural_rules.py` | Generated per-locale CLDR plural categories (`required` integer-reachable + `valid` full set). Regenerate with `_gen_plural_rules.py` (needs `babel`); the check itself is dependency-free. |
 
 The per-locale auditor subagent is `.claude/agents/translation-audit-locale.md`
 (Read+Write only, **Opus** — it must out-class the model that produced the translations).

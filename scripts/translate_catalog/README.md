@@ -7,6 +7,12 @@ The skill at `.claude/skills/translate-new-strings/` encodes the canonical workf
 adding translations for newly-keyed strings; this README is the authority for *what each
 script does*. The skill is the authority for *when and how to invoke them*.
 
+> **Auditing existing translations for quality** (tone, register, cultural fit, length) is a
+> separate pipeline: see `scripts/translate_audit/` (the `audit-translations` skill). It reads
+> this folder's `locales.py` and `REGIONAL_NOTES`/`_GENERIC_NOTE`, grades the translations
+> already in the catalog, and can emit a re-translation manifest that feeds back into the flow
+> below.
+
 ## Scripts
 
 | Script | Purpose |

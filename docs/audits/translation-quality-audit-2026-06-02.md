@@ -12,9 +12,9 @@
 | Track | Scope | Status | Landed in |
 | --- | --- | --- | --- |
 | **A** | Strengthen translation prompt + register/cultural notes + length discipline | ✅ Complete | `translations-audit-track-a` |
-| **B** | Audit sub-pipeline (extract-with-translations, auditor, report) | ⬜ Not started | — |
+| **B** | Audit sub-pipeline (extract-with-translations, auditor, report) | ✅ Complete | `translations-audit-track-a` |
 | **C** | Triage → targeted re-translation → re-audit | ⬜ Not started | — |
-| **Supporting** | settings allowlist, README, audit-translations skill | ⬜ Not started | — |
+| **Supporting** | settings allowlist, README, audit-translations skill | ✅ Complete | `translations-audit-track-a` |
 | **Follow-up** | Layout-truncation UI verification (optional) | ⬜ Deferred | — |
 
 Legend: ⬜ not started · 🟡 in progress · ✅ complete · ⛔ blocked · ⏸ deferred.
@@ -133,7 +133,15 @@ locale to confirm the new sections + length budget render.
 
 ### Track B — Audit sub-pipeline (new folder `scripts/translate_audit/`)
 
-**Status: ⬜ Not started.** Mirrors the translate flow but reads *existing* translations
+**Status: ✅ Complete — branch `translations-audit-track-a`.** Built the dedicated
+`scripts/translate_audit/` folder (README + `audit_extract.py` + `AUDIT_PROMPT_TEMPLATE.md` +
+`audit_dispatch.py` + `audit_report.py`), the Opus `translation-audit-locale` subagent, and
+the `audit-translations` skill. Verified end-to-end on `de`/`ja`: extract pulled 249 keys ×
+current translations, dispatch composed per-locale prompts, and the report aggregated a
+synthetic finding + the deterministic length filter and wrote a valid re-translation manifest.
+Not yet *run* against all 38 locales with real auditor subagents — that's the start of Track C.
+
+Mirrors the translate flow but reads *existing* translations
 and produces *findings*. **All Track-B scripts and the audit prompt template live in a
 dedicated `scripts/translate_audit/` folder** (kept separate from the translate pipeline
 so it's self-contained and discoverable), each path below relative to that folder. The
@@ -213,7 +221,8 @@ residual item for owner review rather than looping indefinitely.
 
 ### Supporting changes
 
-**Status: ⬜ Not started.**
+**Status: ✅ Complete — branch `translations-audit-track-a`** (done alongside Track B so the
+pipeline is runnable end-to-end).
 - **`.claude/settings.json`** — add (additive only) allowlist entries:
   `Bash(python3 scripts/translate_audit/audit_extract.py:*)`, `…/audit_dispatch.py:*`,
   `…/audit_report.py:*`, and `Agent(translation-audit-locale)`. (Never remove/narrow
@@ -284,3 +293,16 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
   rather than alongside the translate pipeline in `scripts/translate_catalog/`. The new folder
   imports `locales.py` and the register/cultural notes from `translate_catalog/` (reuse, not
   copy). Updated the Approach, Track B, Supporting, and Files sections accordingly.
+- **2026-06-02 (Track B):** Did the Supporting changes (settings allowlist, READMEs, skill) in
+  the same commit as Track B rather than separately, so the audit pipeline is runnable as a unit.
+- **2026-06-02 (Track B):** The dry-run revealed the deterministic length `[ratio]` flag is
+  noisy on very short strings (German "Retry"→"Erneut versuchen" is 3.2× but a fine 16-char
+  button). Added a `--min-chars` floor (default 20) so the ratio flag focuses on genuinely long
+  strings where truncation actually matters; tiny-string ratios are unstable and rarely truncate.
+  The LLM auditor still judges length on all strings; `[ratio]` is only the deterministic
+  backstop. Even with the floor, German legitimately trips many `[ratio]` flags — expected; the
+  Opus auditor's justified-vs-avoidable call (which suppresses the matching `[ratio]`) is the
+  real verdict, so do not bulk-re-translate on `[ratio]` alone.
+- **2026-06-02 (Track B):** `audit_report.py` exit code is 1 whenever findings exist at/above
+  `--min-severity` (including `[ratio]`), so a first full run will "fail" by design — that's the
+  gating signal for an autonomous loop, not a build error.

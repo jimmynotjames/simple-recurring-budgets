@@ -167,7 +167,16 @@ step 4's `validate.py --subset` doesn't trip on leftover keys from a prior run o
 different branch. Pass `--no-clean` only if you're manually iterating on one locale's
 output and want to preserve the others.
 
-### 3. Dispatch one `translation-locale` subagent per locale, in parallel
+### 3. Translate each locale's slice
+
+> **Cross-tool execution.** On **Claude Code**, dispatch one `translation-locale` subagent per locale
+> in parallel (below). On **Cursor** or any tool without a subagent primitive, run the same step
+> **inline and serially**: for each `tmp/translate-prompts/{locale}.md`, read it, produce the
+> translation JSON yourself, and write `tmp/translate-outputs/{locale}.json` — then continue to
+> step 4. Same scripts, same gates, same result. Canonical: `AGENTS.md > Cross-cutting concerns >
+> Running the translation pipelines`.
+
+#### Claude Code — one `translation-locale` subagent per locale, in parallel
 
 For every `tmp/translate-prompts/{locale}.md` that exists, invoke an `Agent` with:
 

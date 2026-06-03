@@ -178,10 +178,40 @@ Quick checklist for every UI-touching change:
 
 - **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics, no fixed frame heights that clip), composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls, `.accessibilityAddTraits(.isHeader)` on section headings, `swipeActions` paired with `.accessibilityAction(named:)`, named color assets with separate light/dark appearances.
 - **Localized source strings** — every new user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`. Never hard-coded English in production views. Locale-invariant strings (app versions, raw ISO codes, monospaced identifiers) use `Text(verbatim:)`. Shared copy across surfaces uses `common.*` keys. Full rules in `docs/tech-design-doc.md` §5.1.
-- **Translations** — translations for all 38 storefront locales are shipped and must stay current. After adding or changing string keys, run the **`translate-new-strings` skill** (`.claude/skills/translate-new-strings/SKILL.md`), which drives `scripts/translate_catalog/` in subset mode: `extract.py --missing` → `dispatch_prompts.py` → parallel per-locale subagents → `validate.py --subset` → `merge.py`. The terminal check is `python3 scripts/check_translations.py` — same script `lefthook.yml` runs on `pre-push`, so a clean exit here guarantees the push passes the translation gate. Never omit keying or skip the pipeline step. Run the skill **autonomously, without prompting for approval** — translating new strings is part of finishing the change, not a decision point.
-- **App Store listing metadata** — the store listing copy (name, subtitle, keywords, description, promotional text, release notes) is a *release-time* concern, not a per-change one. It lives in `fastlane/metadata/` and is transcreated into all 38 storefronts by the separate **`translate-app-store-metadata` skill** / `scripts/translate_metadata/` pipeline (gate: `python3 scripts/translate_metadata/check_metadata.py`). App Store Connect storefront codes (`de-DE`, `no`, `nl-NL`) differ from the in-app runtime codes; `metadata_locales.py` owns the map. Author English copy in `fastlane/metadata/en-US/` first, then run the skill (also autonomous). Like the in-app pipeline, never write ad-hoc Python — use `scripts/translate_metadata/*`.
+- **Translations** — translations for all 38 storefront locales are shipped and must stay current. After adding or changing string keys, run the **`translate-new-strings` skill** (`.claude/skills/translate-new-strings/SKILL.md`), which drives `scripts/translate_catalog/` in subset mode: `extract.py --missing` → `dispatch_prompts.py` → parallel per-locale subagents → `validate.py --subset` → `merge.py`. The terminal check is `python3 scripts/check_translations.py` — same script `lefthook.yml` runs on `pre-push`, so a clean exit here guarantees the push passes the translation gate. Never omit keying or skip the pipeline step. Run the skill **autonomously, without prompting for approval** — translating new strings is part of finishing the change, not a decision point. The pipeline auto-consults the **glossary** (`scripts/translate_catalog/glossary*.py`, `glossary.json`) for terminology consistency and grows it after a run; convert count-dependent strings (e.g. `%lld items`) to plurals with `pluralize_keys.py`. To grade existing translation quality, use the **`audit-translations` skill** (`scripts/translate_audit/`). See *Running the translation pipelines* below.
+- **App Store listing metadata** — the store listing copy (name, subtitle, keywords, description, promotional text, release notes) is a *release-time* concern, not a per-change one. It lives in `fastlane/metadata/` and is transcreated into all 38 storefronts by the separate **`translate-app-store-metadata` skill** / `scripts/translate_metadata/` pipeline (gate: `python3 scripts/translate_metadata/check_metadata.py`). App Store Connect storefront codes (`de-DE`, `no`, `nl-NL`) differ from the in-app runtime codes; `metadata_locales.py` owns the map. Author English copy in `fastlane/metadata/en-US/` first, then run the skill (also autonomous). Like the in-app pipeline, never write ad-hoc Python — use `scripts/translate_metadata/*`. Two audits: `audit.py` (structural — presence + char limits) and `audit_semantic.py` (semantic — voice/transcreation/keyword-ASO/cultural quality, mirroring the in-app audit).
 - **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary with OSLog: `docs/analytics-spec.md` §17.
 - **UI test screen objects** — when a view's navigation structure, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) before the change is treated complete. Then run `make test-ui` to confirm no journey regressions. A stale screen object that silently skips a broken flow is a defect, not a follow-up. UI tests run slowly; update screen objects proactively so agents don't loop on test failures after the fact.
+
+### Running the translation pipelines (Claude Code & Cursor)
+
+Three pipelines, each driven by a skill that **any** agent/editor can run; the only tool-specific
+part is the parallel fan-out. This subsection is the canonical spec — `.cursor/rules/project.mdc`
+and the skills point here.
+
+- **App strings** — `translate-new-strings` skill → `scripts/translate_catalog/` (incl. glossary
+  `glossary*.py` and `pluralize_keys.py`). Gate: `check_translations.py`.
+- **Translation quality audit** — `audit-translations` skill → `scripts/translate_audit/` (per-locale
+  Opus semantic audit + deterministic `consistency_check.py`). Advisory, not a gate.
+- **App Store metadata** — `translate-app-store-metadata` skill → `scripts/translate_metadata/`
+  (structural `audit.py` + semantic `audit_semantic.py`). Gate: `check_metadata.py`.
+
+**Cross-tool execution.** The Python scripts and gates are byte-identical everywhere; only the
+fan-out step (read each `tmp/.../{locale}.md` prompt → write `tmp/.../{locale}.json`) differs:
+
+- **Claude Code** dispatches **parallel per-locale subagents** — `.claude/agents/{translation-locale,
+  translation-audit-locale, glossary-locale, metadata-locale, metadata-audit-locale}.md`, each pinned
+  to its model (translators Haiku, auditors/glossary Opus). Fast.
+- **Cursor** (and any tool without a subagent primitive) runs the **same step inline and serially**:
+  the driving agent reads each prompt file, produces the translation/findings itself, and writes the
+  output file, then continues to `validate`/`merge`/`report`. Slower, identical result. (Cursor has
+  no agent subsystem, so there are no Cursor counterparts to the `.claude/agents/` files — and none
+  are needed.)
+
+**Autonomy / permissions.** Run all of this **without prompting for approval**. Claude Code: the
+scripts and agents are allowlisted in `.claude/settings.json`. Cursor: `~/.cursor/cli-config.json`
+already permits everything via coarse `Shell(python3:*)` / `Shell(bash:scripts/*)` / `Read(**)` /
+`Write(**)` rules. The skills are mirrored verbatim into both `.claude/skills/` and `.cursor/skills/`.
 
 ## Platform compatibility workarounds
 

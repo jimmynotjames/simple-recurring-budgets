@@ -80,7 +80,16 @@ Writes one ready-to-dispatch prompt per storefront to
 gaps, annotated with char limits and per-field guidance) substituted. Also clears
 stale output files for those storefronts.
 
-### 3. Dispatch one `metadata-locale` subagent per storefront, in parallel
+### 3. Transcreate each storefront's slice
+
+> **Cross-tool execution.** On **Claude Code**, dispatch one `metadata-locale` subagent per storefront
+> in parallel (below). On **Cursor** or any tool without a subagent primitive, run the same step
+> **inline and serially**: for each `tmp/metadata-prompts/{storefront}.md`, read it, produce the
+> transcreation JSON yourself, and write `tmp/metadata-outputs/{storefront}.json` — then continue.
+> Same scripts, same gates, same result. Canonical: `AGENTS.md > Cross-cutting concerns > Running the
+> translation pipelines`.
+
+#### Claude Code — one `metadata-locale` subagent per storefront, in parallel
 
 For every `tmp/metadata-prompts/{storefront}.md` that exists, invoke an `Agent`:
 

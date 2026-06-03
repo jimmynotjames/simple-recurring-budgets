@@ -57,7 +57,16 @@ python3 scripts/translate_audit/audit_dispatch.py
 Writes one `tmp/translate-audit-prompts/{locale}.md` per locale (all locales that have a
 translation), and clears stale outputs for those locales. Restrict with positional locales.
 
-### 3. Dispatch one `translation-audit-locale` subagent per locale, in parallel
+### 3. Audit each locale's slice
+
+> **Cross-tool execution.** On **Claude Code**, dispatch one `translation-audit-locale` (Opus)
+> subagent per locale in parallel (below). On **Cursor** or any tool without a subagent primitive,
+> run the same step **inline and serially**: for each `tmp/translate-audit-prompts/{locale}.md`, read
+> it, produce the findings JSON yourself, and write `tmp/translate-audit-outputs/{locale}.json` — then
+> continue to step 4. Same scripts, same result. Canonical: `AGENTS.md > Cross-cutting concerns >
+> Running the translation pipelines`.
+
+#### Claude Code — one `translation-audit-locale` subagent per locale, in parallel
 
 For every `tmp/translate-audit-prompts/{locale}.md`, invoke an `Agent` with
 `subagent_type: translation-audit-locale` and a short dispatch prompt, e.g.:

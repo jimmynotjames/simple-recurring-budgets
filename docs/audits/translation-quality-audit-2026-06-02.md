@@ -222,11 +222,12 @@ Results:
   `el`, `hr`, `ro`). Per the autonomy rule, stopped after one retry — residuals are logged for
   owner review, not looped.
 
-> **Top actionable follow-up:** the audit surfaced that the **English source string**
-> `feedback.email.subject` = "Budgets app feedback" still carries the old brand. Until it's
-> renamed to "Wren" in the source, every locale keeps flagging it. Fixing it is a source-copy
-> change (+ a one-key re-translation across locales), part of the app-wide rename — out of scope
-> here, flagged for the owner.
+> **Top actionable follow-up — ✅ DONE (2026-06-03):** the audit surfaced that the **English
+> source string** `feedback.email.subject` = "Budgets app feedback" still carried the old brand.
+> Per owner decision, the source was changed to **"Feedback for Wren"** (`update_keys.py`) and the
+> key re-translated across all 38 locales (Sonnet) — clearing the ~12 source-blocked residuals and
+> also fixing the pre-existing inconsistency where some locales already said "Wren" and others
+> "Budgets". No "Budgets" remains in this key; `check_translations` + `make build` green.
 
 1. `audit_report.py --write-manifest --min-severity medium` → drops the flagged subset
    into `tmp/translate-inputs/`.

@@ -1,14 +1,14 @@
-# Simple Recurring Budgets App PRD
+# Wren Product Requirements Document
 
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.2        |
-| **Last Updated**   | 2026-05-31 |
+| **Version**        | 1.3        |
+| **Last Updated**   | 2026-06-02 |
 | **Author / Owner** | Jimmy Ho   |
 
 
-> This document is the governing source of truth for the app. It defines the north star, guiding principles, and global constraints that every feature, design decision, and technical choice must align with. For more details about specific features, see [product-features-planning.md](product-features-planning.md). For more information UX guidelines, see [ux-design-brief.md](ux-design-brief.md).
+> This document is the governing source of truth for **Wren**. It defines the north star, guiding principles, and global constraints that every feature, design decision, and technical choice must align with. For more details about specific features, see [product-features-planning.md](product-features-planning.md). For more information UX guidelines, see [ux-design-brief.md](ux-design-brief.md).
 
 ## Release Status
 
@@ -299,7 +299,8 @@ High-level entities include:
 
 ### 8.2 Branding
 
-- Vibes: Simple, elegant, and cute.
+- **Product name:** **Wren** is the in-doc product brand and home-screen icon name. App Store listing name and subtitle are defined in [§App Store Details](#app-store-details) (*Wren – Daily Expense Tracker* / *Easy, fast budgeting on the go*). Do not use the legacy working title "Simple Recurring Budgets" in product-facing copy.
+- **Vibes:** Simple, elegant, and cute.
 
 ### 8.3 Information Architecture
 
@@ -325,6 +326,7 @@ In strict-opt-in analytics jurisdictions, a first-run consent sheet may appear b
 
 ### 10.1 Glossary
 
+- **Wren** — The product brand and home-screen icon name. App Store listing name: *Wren – Daily Expense Tracker* (see [§App Store Details](#app-store-details)). Distinct from a **Budget** (entity).
 - Recurring Budget (AKA Budget) - An allocation of available spending that repeats the allocation at regular time intervals, or — for **Specific Dates** budgets — a single fixed window with one allocation. The supported period values are defined in app code (see `BudgetPeriod` or equivalent).
 - Expense Item (AKA Expense or Transaction) - A specific expense.
 - **Specific Dates budget** — A one-window trip-style budget: required start and end dates, one allocation for the whole window, no recurrence, no carry-over chip. Distinct from a recurring budget whose start/end dates bound its lifetime.
@@ -343,6 +345,7 @@ None
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 1.3     | 2026-06-02 | Jimmy Ho | Rebrand doc sync: title → Wren Product Requirements Document; §8.2 branding expanded; §10.1 Wren glossary entry. |
 | 1.2     | 2026-05-31 | Jimmy Ho | §7.2 expanded data model (Specific Dates, LifecycleEvent, icon, add-funds); §8.3 analytics consent sheet note; §10.1 glossary entries for Specific Dates and Paused budget. |
 | 1.1     | 2026-05-31 | Jimmy Ho | §6.8 is now the canonical home for the per-change maintenance requirements of all four cross-cutting concerns. Migrated the detailed maintenance checklists (Dynamic Type, VoiceOver, Dark Mode, Localization source-strings + translations, Mixpanel user-action analytics) from `product-features-planning.md` F-3.01/F-3.02/F-3.03/F-3.05/F-8.02 into new subsections §6.8.1–§6.8.4. Those feature entries are reframed as completed initial build-outs. |
 | 1.0     | 2026-05-03 | Jimmy Ho |                  |

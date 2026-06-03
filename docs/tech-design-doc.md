@@ -2,17 +2,17 @@
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
-| **Version**        | 0.22                           |
+| **Version**        | 0.23                           |
 | **Last Updated**   | 2026-06-02                     |
 | **Author / Owner** | Jimmy Ho                       |
 
-> Master technical reference for the Simple Recurring Budgets app. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
+> Master technical reference for **Wren**. Complements [main-prd.md](main-prd.md) (product source of truth) and [product-features-planning.md](product-features-planning.md) (feature backlog). Intended as durable context for both human and agentic development.
 
 ---
 
 ## 1. System Overview
 
-A native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending against simple recurring budgets. There is no app-owned backend; all data lives on-device via SwiftData and syncs across the user's devices through CloudKit.
+**Wren** is a native Apple-platform app (iOS, iPadOS, macOS) that helps users track spending against recurring budgets. There is no app-owned backend; all data lives on-device via SwiftData and syncs across the user's devices through CloudKit.
 
 ### 1.1 Key Technical Constraints (from PRD)
 
@@ -256,7 +256,7 @@ Translations for all 38 App Store storefront locales were produced and merged by
 
 **Model used:** Composer 2 (`composer-2-fast`). The `PROMPT_TEMPLATE.md` in the same directory documents model requirements; if Haiku or another model is available in a future run, swap the slug there.
 
-**Proper nouns kept in English:** "iCloud", "Carry-Over" (product concept), and App Store brand terms are intentionally left in English for all locales; `validate.py` issues informational warnings (not hard errors) for identical-to-source values.
+**Proper nouns kept in English:** "Wren" (product brand), "iCloud", "Carry-Over" (product concept), and App Store brand terms are intentionally left in English for all locales; `validate.py` issues informational warnings (not hard errors) for identical-to-source values.
 
 **App Store listing metadata** is a separate, parallel pipeline at `scripts/translate_metadata/` (driven by the `translate-app-store-metadata` skill, gate: `check_metadata.py`). It transcreates the listing copy (`name`, `subtitle`, `keywords`, `promotional_text`, `description`, `release_notes`) from `fastlane/metadata/en-US/` into all 38 storefronts under `fastlane/metadata/<storefront>/`. It is kept distinct from the in-app pipeline because App Store Connect uses *storefront* codes (`de-DE`, `no`, `nl-NL`, `ar-SA`) rather than the app's *runtime* codes; `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront map. Per-storefront subagents run on Opus (marketing transcreation, not literal translation) and enforce Apple's per-field character limits; the brand "Wren" is a proper noun kept verbatim in every locale (so no localized home-screen icon name is needed). See `scripts/translate_metadata/README.md`.
 
@@ -457,6 +457,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.23    | 2026-06-02 | Jimmy Ho | Rebrand doc sync: intro and §1 use Wren as product name; §5.1 proper-noun list adds Wren. |
 | 0.22    | 2026-06-02 | Jimmy Ho | §4.5 KV-key table: add six `ratingPrompt*` keys (owner `RatingPromptState`, consent-independent) for F-6.03. §9 future table: mark F-6.03 implemented (`rating-prompt`). See `product-features-planning.md` F-6.03 and `analytics-spec.md` §12. |
 | 0.21    | 2026-06-01 | Jimmy Ho | §5.3: rewrite testing section — two-pass UI script strategy, `UserJourneyTests` (10 flows, XCTestCase), `AccessibilityAuditTests` runs in pass 2 (not excluded), screen objects, `make test-ui`. Note that Swift Testing is not supported in XCUITest targets. |
 | 0.20    | 2026-05-31 | Jimmy Ho | §5.3 add accessibility-audit test note: `AccessibilityAuditTests.swift`, `performAccessibilityAudit()`, excluded from `make test`. |

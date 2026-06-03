@@ -1,13 +1,13 @@
 # UX Design Brief
 
-**Last Updated:** 2026-05-31  
+**Last Updated:** 2026-06-02  
 **Author/Owner:** Jimmy Ho
 
 > See `main-prd.md` for product vision, scope, personas, and constraints. This document governs **visual and interaction design only**. The app will eventually support **multiple skins** that may deviate from these guidelines, but these are the default.
 
 ## Concept
 
-A recurring-expense tracker that should feel like a first-party Apple app. Aesthetic: **"Tidy and Warm"** — system-default typography and structure, with a small amount of restrained personality so the app reads as cared-for rather than generic.
+**Wren** is a recurring-expense tracker that should feel like a first-party Apple app. Aesthetic: **"Tidy and Warm"** — system-default typography and structure, with a small amount of restrained personality so the app reads as cared-for rather than generic.
 
 ## Tone & Vibe
 
@@ -44,5 +44,6 @@ Follow Apple HIG and industry UX best practices where not overridden above. Supp
 
 | Version | Date       | Author   | Changes |
 | ------- | ---------- | -------- | ------- |
+| 0.3     | 2026-06-02 | Jimmy Ho | Concept leads with Wren product brand. |
 | 0.2     | 2026-05-31 | Jimmy Ho | Synced with shipped v1 UX: recents, add funds, Specific Dates, pause/resume, inactive row presentation, Settings analytics, reset cadence permanently removed. |
 | 0.1     | (prior)    | Jimmy Ho | Initial brief. |

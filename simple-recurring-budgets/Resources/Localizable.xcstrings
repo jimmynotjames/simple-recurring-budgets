@@ -9819,237 +9819,783 @@
       "extractionState": "manual",
       "localizations": {
         "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "تاريخ البدء متأخر عن %lld مصروف مسجل. تظهر هذه المصروفات في قائمتك ولكن لن يتم احتسابها بواسطة هذه الميزانية."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروفات مسجّلة. تظل هذه المصروفات ظاهرة في قائمتك لكن لن تحتسبها هذه الميزانية."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروفاً مسجّلاً. تظل هذه المصروفات ظاهرة في قائمتك لكن لن تحتسبها هذه الميزانية."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروف مسجّل. يظل هذا المصروف ظاهراً في قائمتك لكن لن تحتسبه هذه الميزانية."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروف مسجّل. تظل هذه المصروفات ظاهرة في قائمتك لكن لن تحتسبها هذه الميزانية."
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروفين مسجّلين. يظل هذان المصروفان ظاهرين في قائمتك لكن لن تحتسبهما هذه الميزانية."
+                }
+              },
+              "zero": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروف مسجّل. تظل المصروفات ظاهرة في قائمتك لكن لن تحتسبها هذه الميزانية."
+                }
+              }
+            }
           }
         },
         "ca": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La data d'inici és posterior a %lld despeses registrades. Aquestes despeses segueixen mostrant-se a la llista però no es comptabilitzaran per a aquest pressupost."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La data d'inici és posterior a %lld despesa registrada. Aquesta despesa segueix apareixent a la llista però no serà comptabilitzada per aquest pressupost."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La data d'inici és posterior a %lld despeses registrades. Aquestes despeses segueixen apareixent a la llista però no seran comptabilitzades per aquest pressupost."
+                }
+              }
+            }
           }
         },
         "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Datum začátku je po %lld zaznamenaných výdajích. Tyto výdaje se stále zobrazují v seznamu, ale tento rozpočet je nezapočítá."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum začátku je po %lld zaznamenané výdajích. Tyto výdaje se stále zobrazují v seznamu, ale nebudou počítány tímto rozpočtem."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum začátku je po %lld zaznamenané výdaji. Tento výdaj se stále zobrazuje v seznamu, ale nebude počítán tímto rozpočtem."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum začátku je po %lld zaznamenané výdajích. Tyto výdaje se stále zobrazují v seznamu, ale nebudou počítány tímto rozpočtem."
+                }
+              }
+            }
           }
         },
         "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdatoen er efter %lld registrerede udgifter. Disse udgifter vises stadig på listen, men tælles ikke med i dette budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er efter %lld logget udgift. Den udgift vises stadig på listen, men bliver ikke talt af dette budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er efter %lld loggede udgifter. Disse udgifter vises stadig på listen, men bliver ikke talt af dette budget."
+                }
+              }
+            }
           }
         },
         "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das Startdatum liegt nach %lld erfassten Ausgaben. Diese Ausgaben werden in deiner Liste angezeigt, werden aber von diesem Budget nicht berücksichtigt."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum liegt nach %lld erfasster Ausgabe. Diese Ausgabe wird weiterhin in deiner Liste angezeigt, wird aber von diesem Budget nicht berücksichtigt."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum liegt nach %lld erfassten Ausgaben. Diese Ausgaben werden weiterhin in deiner Liste angezeigt, werden aber von diesem Budget nicht berücksichtigt."
+                }
+              }
+            }
           }
         },
         "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Η ημερομηνία έναρξης είναι μετά από %lld καταγεγραμμένα έξοδα. Αυτά τα έξοδα εξακολουθούν να εμφανίζονται στη λίστα σου, αλλά δεν θα υπολογίζονται σε αυτόν τον προϋπολογισμό."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Η ημερομηνία έναρξης είναι μετά από %lld καταγεγραμμένο έξοδο. Αυτό το έξοδο εξακολουθεί να εμφανίζεται στη λίστα σας αλλά δεν θα υπολογιστεί από αυτόν τον προϋπολογισμό."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Η ημερομηνία έναρξης είναι μετά από %lld καταγεγραμμένα έξοδα. Αυτά τα έξοδα εξακολουθούν να εμφανίζονται στη λίστα σας αλλά δεν θα υπολογιστούν από αυτόν τον προϋπολογισμό."
+                }
+              }
+            }
           }
         },
         "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense. That expense still shows in your list but won't be counted by this budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+                }
+              }
+            }
           }
         },
         "en-AU": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense. That expense still shows in your list but won't be counted by this budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+                }
+              }
+            }
           }
         },
         "en-CA": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense. That expense still shows in your list but won't be counted by this budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+                }
+              }
+            }
           }
         },
         "en-GB": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense. That expense still shows in your list but won't be counted by this budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses. Those expenses still show in your list but won't be counted by this budget."
+                }
+              }
+            }
           }
         },
         "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La fecha de inicio es posterior a %lld gastos registrados. Estos gastos se siguen mostrando en tu lista, pero no serán contabilizados por este presupuesto."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Fecha de inicio es posterior a %lld gasto registrado. Ese gasto sigue apareciendo en tu lista pero no se contará en este presupuesto."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Fecha de inicio es posterior a %lld gastos registrados. Esos gastos siguen apareciendo en tu lista pero no se contarán en este presupuesto."
+                }
+              }
+            }
           }
         },
         "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La fecha de inicio es posterior a %lld gastos registrados. Estos gastos siguen apareciendo en tu lista pero no se contarán en este presupuesto."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La fecha de inicio es posterior a %lld gasto registrado. Este gasto sigue apareciendo en tu lista, pero no será contado por este presupuesto."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La fecha de inicio es posterior a %lld gastos registrados. Estos gastos siguen apareciendo en tu lista, pero no serán contados por este presupuesto."
+                }
+              }
+            }
           }
         },
         "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alkamispäivä on %lld kirjatun kulutustapahtuman jälkeen. Nämä kulutustapahtumat näkyvät edelleen luettelossasi, mutta niitä ei lasketa tähän budjettiin."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alkamispäivä on %lld kirjatun menon jälkeen. Tämä meno näkyy silti luettelossasi, mutta tätä budjettia laskettaessa sitä ei oteta huomioon."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alkamispäivä on %lld kirjatun menon jälkeen. Nämä menot näkyvät silti luettelossasi, mutta tätä budjettia laskettaessa niitä ei oteta huomioon."
+                }
+              }
+            }
           }
         },
         "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La date de début est postérieure à %lld dépense(s) enregistrée(s). Ces dépenses figurent toujours dans votre liste, mais ne seront pas comptabilisées par ce budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Date de début après %lld dépense enregistrée. Cette dépense s'affiche toujours dans votre liste mais ne sera pas comptée par ce budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Date de début après %lld dépenses enregistrées. Ces dépenses s'affichent toujours dans votre liste mais ne seront pas comptées par ce budget."
+                }
+              }
+            }
           }
         },
         "fr-CA": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La date de début est après %lld dépenses enregistrées. Ces dépenses s'affichent toujours dans votre liste, mais ne seront pas comptabilisées par ce budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La date de début est après %lld dépense enregistrée. Cette dépense figure toujours dans ta liste, mais ne sera pas comptabilisée par ce budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La date de début est après %lld dépenses enregistrées. Ces dépenses figurent toujours dans ta liste, mais ne seront pas comptabilisées par ce budget."
+                }
+              }
+            }
           }
         },
         "he": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "תאריך ההתחלה הוא אחרי %lld הוצאות שנרשמו. הוצאות אלו עדיין מופיעות ברשימה שלך, אך לא יספרו על ידי תקציב זה."
+          "variations": {
+            "plural": {
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו. הוצאות אלו עדיין מופיעות ברשימה שלך אך לא יספרו על ידי תקציב זה."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאה שנרשמה. הוצאה זו עדיין מופיעה ברשימה שלך אך לא תיספר על ידי תקציב זה."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו. הוצאות אלו עדיין מופיעות ברשימה שלך אך לא יספרו על ידי תקציב זה."
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו. הוצאות אלו עדיין מופיעות ברשימה שלך אך לא יספרו על ידי תקציב זה."
+                }
+              }
+            }
           }
         },
         "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "शुरुआत की तारीख %lld दर्ज खर्चों के बाद है। वे खर्च आपकी सूची में दिखते रहेंगे, लेकिन इस budget में नहीं गिने जाएंगे।"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "आरंभ तारीख %lld खर्च के बाद है। वह खर्च आपकी सूची में दिखता है लेकिन इस बजट द्वारा नहीं गिना जाएगा।"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "आरंभ तारीख %lld खर्चों के बाद है। वे खर्च आपकी सूची में दिखते हैं लेकिन इस बजट द्वारा नहीं गिने जाएंगे।"
+                }
+              }
+            }
           }
         },
         "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Datum početka je nakon %lld evidentiranih rashoda. Ti rashodi se i dalje prikazuju na vašoj listi, ali se neće brojati prema ovom proračunu."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum početka je nakon %lld upisana troška. Ti troškovi se i dalje prikazuju na vašoj listi, ali ih ovaj proračun neće zbrojiti."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum početka je nakon %lld upisanog troška. Taj trošak se i dalje prikazuje na vašoj listi, ali ga ovaj proračun neće zbrojiti."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum početka je nakon %lld upisanih troškova. Ti troškovi se i dalje prikazuju na vašoj listi, ali ih ovaj proračun neće zbrojiti."
+                }
+              }
+            }
           }
         },
         "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A kezdési dátum %lld már rögzített tranzakció után van. Ezek a tranzakciók még mindig megjelennek a listában, de erre a költségvetésre nem vonatkoznak."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A kezdődátum %lld naplózott kiadás után kezdődik. Ez a kiadás továbbra is látható a listában, de ezt a költségkeretet nem számítja."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A kezdődátum %lld naplózott kiadás után kezdődik. Ezek a kiadások továbbra is láthatók a listában, de ezt a költségkeretet nem számítják."
+                }
+              }
+            }
           }
         },
         "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tanggal mulai adalah setelah %lld pengeluaran yang dicatat. Pengeluaran tersebut masih ditampilkan dalam daftar Anda tetapi tidak akan dihitung oleh anggaran ini."
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tanggal mulai lebih besar daripada %lld pengeluaran tercatat. Pengeluaran tersebut masih ditampilkan dalam daftar Anda namun tidak akan diperhitungkan oleh Anggaran ini."
+                }
+              }
+            }
           }
         },
         "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La data di inizio è successiva a %lld spese registrate. Queste spese vengono visualizzate nell'elenco ma non verranno conteggiate da questo budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data di inizio è successiva a %lld spesa registrata. Questa spesa è ancora visibile nel tuo elenco ma non verrà conteggiata da questo budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data di inizio è successiva a %lld spese registrate. Queste spese sono ancora visibili nel tuo elenco ma non verranno conteggiate da questo budget."
+                }
+              }
+            }
           }
         },
         "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開始日が%lld件の記録済み支出より後になっています。それらの支出はリストに表示されますが、この予算には集計されません。"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日が%lldつの記録済み支出より後に設定されています。この支出はリストに表示されますが、この予算には含まれません。"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日が%lld個の記録済み支出より後に設定されています。これらの支出はリストに表示されますが、この予算には含まれません。"
+                }
+              }
+            }
           }
         },
         "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "시작 날짜가 %lld개의 기록된 거래보다 늦습니다. 이 거래들은 목록에 계속 표시되지만 이 예산에 포함되지 않습니다."
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "시작일이 기록된 지출 %lld개보다 뒤에 있습니다. 해당 지출들은 목록에 표시되지만 이 예산에 포함되지 않습니다."
+                }
+              }
+            }
           }
         },
         "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tarikh mula adalah selepas %lld perbelanjaan yang telah dicatat. Perbelanjaan tersebut masih muncul dalam senarai anda tetapi tidak akan dikira oleh belanjawan ini."
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tarikh mula adalah selepas %lld perbelanjaan yang telah dicatat. Perbelanjaan itu masih muncul dalam senarai anda tetapi tidak akan dikira oleh bajet ini."
+                }
+              }
+            }
           }
         },
         "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdatoen er etter %lld loggførte utgifter. Disse utgiftene vises fortsatt i listen, men blir ikke talt med i dette budsjettet."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er etter %lld registrert utgift. Utgiften vises fortsatt i listen din, men vil ikke telles med i budsjettet."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er etter %lld registrerte utgifter. Utgiftene vises fortsatt i listen din, men vil ikke telles med i budsjettet."
+                }
+              }
+            }
           }
         },
         "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdatum is na %lld geregistreerde uitgaven. Deze uitgaven worden nog steeds in je lijst weergegeven, maar worden niet meegeteld door dit budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum ligt na %lld geregistreerde Uitgave. Die Uitgave staat nog in je lijst maar wordt niet meegerekend door dit Budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum ligt na %lld geregistreerde Uitgaven. Die Uitgaven staan nog in je lijst maar worden niet meegerekend door dit Budget."
+                }
+              }
+            }
           }
         },
         "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Data początkowa jest po %lld zarejestrowanych wydatkach. Te wydatki nadal są widoczne na liście, ale nie będą liczone w tym budżecie."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanych wydatkach. Te wydatki wciąż się pojawiają na liście, ale nie będą zaliczane do tego budżetu."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanych wydatkach. Te wydatki wciąż się pojawiają na liście, ale nie będą zaliczane do tego budżetu."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanym wydatku. Ten wydatek wciąż się pojawia na liście, ale nie będzie zaliczany do tego budżetu."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanych wydatkach. Te wydatki wciąż się pojawiają na liście, ale nie będą zaliczane do tego budżetu."
+                }
+              }
+            }
           }
         },
         "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A data de início é posterior a %lld despesas registradas. Essas despesas ainda aparecem na sua lista, mas não serão contadas por este orçamento."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesa registrada. Essa despesa ainda aparece na sua lista mas não será contabilizada por este orçamento."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesas registradas. Essas despesas ainda aparecem na sua lista mas não serão contabilizadas por este orçamento."
+                }
+              }
+            }
           }
         },
         "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A data de início é posterior a %lld despesas registadas. Essas despesas continuam a aparecer na sua lista, mas não serão contabilizadas por este orçamento."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesa registada. Esta despesa continua a aparecer na tua lista mas não será contabilizada por este Orçamento."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesas registadas. Estas despesas continuam a aparecer na tua lista mas não serão contabilizadas por este Orçamento."
+                }
+              }
+            }
           }
         },
         "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Data de începere este după %lld cheltuieli înregistrate. Aceste cheltuieli apar în continuare în lista ta, dar nu vor fi numărate de acest buget."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de început este după %lld cheltuieli înregistrate. Aceste cheltuieli apar în lista dvs., dar nu vor fi numărate de acest buget."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de început este după %lld cheltuială înregistrată. Această cheltuială apare în lista dvs., dar nu va fi numărată de acest buget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de început este după %lld de cheltuieli înregistrate. Aceste cheltuieli apar în lista dvs., dar nu vor fi numărate de acest buget."
+                }
+              }
+            }
           }
         },
         "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Дата начала позже %lld зарегистрированных расходов. Эти расходы по-прежнему отображаются в вашем списке, но не будут учтены в этом бюджете."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанных расходов. Эти расходы всё ещё видны в списке, но не учитываются этим бюджетом."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанных расходов. Эти расходы всё ещё видны в списке, но не учитываются этим бюджетом."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанного расхода. Этот расход всё ещё виден в списке, но не учитывается этим бюджетом."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанных расходов. Эти расходы всё ещё видны в списке, но не учитываются этим бюджетом."
+                }
+              }
+            }
           }
         },
         "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dátum začiatku je po %lld zaznamenaných výdavkoch. Tieto výdavky sú stále viditeľné na vašom zozname, ale nebudú počítané v tomto rozpočte."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovaných výdavkoch. Tieto výdavky sa stále zobrazujú v zozname, ale nebudú zahrnuté v tomto rozpočte."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovaných výdavkoch. Tieto výdavky sa stále zobrazujú v zozname, ale nebudú zahrnuté v tomto rozpočte."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovanom výdavku. Tento výdavok sa stále zobrazuje v zozname, ale nebude zahrnutý v tomto rozpočte."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovaných výdavkoch. Tieto výdavky sa stále zobrazujú v zozname, ale nebudú zahrnuté v tomto rozpočte."
+                }
+              }
+            }
           }
         },
         "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdatumet är senare än %lld sparade utgifter. Dessa utgifter visas fortfarande i din lista men räknas inte för denna budget."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum är efter %lld loggad utgift. Den utgiften visas fortfarande i din lista men räknas inte av denna budget."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum är efter %lld loggade utgifter. Dessa utgifter visas fortfarande i din lista men räknas inte av denna budget."
+                }
+              }
+            }
           }
         },
         "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "วันที่เริ่มต้นอยู่หลังค่าใช้จ่ายที่บันทึกไว้ %lld รายการ ค่าใช้จ่ายเหล่านั้นจะปรากฏในรายการของคุณ แต่จะไม่นับรวมในงบประมาณนี้"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld รายจ่ายยังคงแสดงในรายการของคุณ แต่จะไม่นับรวมในงบประมาณนี้"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld รายจ่ายเหล่านี้ยังคงแสดงในรายการของคุณ แต่จะไม่นับรวมในงบประมาณนี้"
+                }
+              }
+            }
           }
         },
         "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Başlangıç tarihi, kayıtlı %lld giderden sonra. Bu giderler listende görünür ama bu bütçe tarafından sayılmaz."
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Başlangıç tarihi %lld kaydedilmiş harcamadan sonra. Bu harcama hala listenizde görünür ama bu bütçe tarafından sayılmayacak."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Başlangıç tarihi %lld kaydedilmiş harcamadan sonra. Bu harcamalar hala listenizde görünür ama bu bütçe tarafından sayılmayacak."
+                }
+              }
+            }
           }
         },
         "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Дата початку пізніша за %lld записаних видатків. Ці видатки все ще видно у вашому списку, але вони не враховуватимуться цим бюджетом."
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованих витрат. Ці витрати все ще видні в вашому списку, але не будуть враховуватися цим бюджетом."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованих витрат. Ці витрати все ще видні в вашому списку, але не будуть враховуватися цим бюджетом."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованої витрати. Ця витрата все ще видна в вашому списку, але не буде враховуватися цим бюджетом."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованих витрат. Ці витрати все ще видні в вашому списку, але не будуть враховуватися цим бюджетом."
+                }
+              }
+            }
           }
         },
         "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ngày bắt đầu sau %lld khoản chi phí đã ghi nhật ký. Các khoản chi phí đó vẫn hiển thị trong danh sách của bạn nhưng sẽ không được tính bằng ngân sách này."
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ngày bắt đầu sau %lld khoản chi đã ghi. Những khoản chi này vẫn hiển thị trong danh sách nhưng không được tính bởi ngân sách này."
+                }
+              }
+            }
           }
         },
         "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开始日期晚于 %lld 笔已记录的支出。这些支出仍会显示在列表中，但不会计入此预算。"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "开始日期在 %lld 条已记录支出之后。这条支出仍会显示在列表中，但不会被此预算计入。"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "开始日期在 %lld 条已记录支出之后。这些支出仍会显示在列表中，但不会被此预算计入。"
+                }
+              }
+            }
           }
         },
         "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開始日期晚於 %lld 筆已記錄的費用。這些費用仍會顯示在您的列表中，但本預算不會計算它們。"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日期在 %lld 筆已紀錄支出之後。該支出仍會顯示在您的清單中，但不會由此預算計算。"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日期在 %lld 筆已紀錄支出之後。這些支出仍會顯示在您的清單中，但不會由此預算計算。"
+                }
+              }
+            }
           }
         }
       }
@@ -10299,237 +10845,783 @@
       "extractionState": "manual",
       "localizations": {
         "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "تاريخ البدء متأخر عن %lld مصروف مسجل"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروفات مسجّلة"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروفاً مسجّلاً"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروف مسجّل"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروف مسجّل"
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروفين مسجّلين"
+                }
+              },
+              "zero": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "تاريخ البدء يقع بعد %lld مصروف مسجّل"
+                }
+              }
+            }
           }
         },
         "ca": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La data d'inici és posterior a %lld despeses registrades"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La data d'inici és posterior a %lld despesa registrada"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La data d'inici és posterior a %lld despeses registrades"
+                }
+              }
+            }
           }
         },
         "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Datum začátku je po %lld zaznamenaných výdajích"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum začátku je po %lld zaznamenané výdajích"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum začátku je po %lld zaznamenané výdaji"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum začátku je po %lld zaznamenané výdajích"
+                }
+              }
+            }
           }
         },
         "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdato er efter %lld registrerede udgifter"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er efter %lld logget udgift"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er efter %lld loggede udgifter"
+                }
+              }
+            }
           }
         },
         "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das Startdatum liegt nach %lld erfassten Ausgaben"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum liegt nach %lld erfasster Ausgabe"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum liegt nach %lld erfassten Ausgaben"
+                }
+              }
+            }
           }
         },
         "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Η ημερομηνία έναρξης είναι μετά από %lld καταγεγραμμένα έξοδα"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Η ημερομηνία έναρξης είναι μετά από %lld καταγεγραμμένο έξοδο"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Η ημερομηνία έναρξης είναι μετά από %lld καταγεγραμμένα έξοδα"
+                }
+              }
+            }
           }
         },
         "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses"
+                }
+              }
+            }
           }
         },
         "en-AU": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses"
+                }
+              }
+            }
           }
         },
         "en-CA": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses"
+                }
+              }
+            }
           }
         },
         "en-GB": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start date is after %lld logged expenses"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expense"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Start date is after %lld logged expenses"
+                }
+              }
+            }
           }
         },
         "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La fecha de inicio es posterior a %lld gastos registrados"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Fecha de inicio es posterior a %lld gasto registrado"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Fecha de inicio es posterior a %lld gastos registrados"
+                }
+              }
+            }
           }
         },
         "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La fecha de inicio es posterior a %lld gastos registrados"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La fecha de inicio es posterior a %lld gasto registrado"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La fecha de inicio es posterior a %lld gastos registrados"
+                }
+              }
+            }
           }
         },
         "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alkamispäivä on %lld kirjatun kulutustapahtuman jälkeen"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alkamispäivä on %lld kirjatun menon jälkeen"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alkamispäivä on %lld kirjatun menon jälkeen"
+                }
+              }
+            }
           }
         },
         "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La date de début est postérieure à %lld dépense(s) enregistrée(s)"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Date de début après %lld dépense enregistrée"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Date de début après %lld dépenses enregistrées"
+                }
+              }
+            }
           }
         },
         "fr-CA": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La date de début est après %lld dépenses enregistrées"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La date de début est après %lld dépense enregistrée"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "La date de début est après %lld dépenses enregistrées"
+                }
+              }
+            }
           }
         },
         "he": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "תאריך ההתחלה הוא אחרי %lld הוצאות שנרשמו"
+          "variations": {
+            "plural": {
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאה שנרשמה"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו"
+                }
+              },
+              "two": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו"
+                }
+              }
+            }
           }
         },
         "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "शुरुआत की तारीख %lld दर्ज खर्चों के बाद है"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "आरंभ तारीख %lld खर्च के बाद है"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "आरंभ तारीख %lld खर्चों के बाद है"
+                }
+              }
+            }
           }
         },
         "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Datum početka je nakon %lld evidentiranih rashoda"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum početka je nakon %lld upisana troška"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum početka je nakon %lld upisanog troška"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Datum početka je nakon %lld upisanih troškova"
+                }
+              }
+            }
           }
         },
         "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A kezdési dátum %lld már rögzített tranzakció után van"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A kezdődátum %lld naplózott kiadás után kezdődik"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "A kezdődátum %lld naplózott kiadás után kezdődik"
+                }
+              }
+            }
           }
         },
         "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tanggal mulai adalah setelah %lld pengeluaran yang dicatat"
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tanggal mulai lebih besar daripada %lld pengeluaran tercatat"
+                }
+              }
+            }
           }
         },
         "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La data di inizio è successiva a %lld spese registrate"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data di inizio è successiva a %lld spesa registrata"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data di inizio è successiva a %lld spese registrate"
+                }
+              }
+            }
           }
         },
         "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開始日が%lld件の記録済み支出より後です"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日が%lldつの記録済み支出より後に設定されています"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日が%lld個の記録済み支出より後に設定されています"
+                }
+              }
+            }
           }
         },
         "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "시작 날짜가 %lld개의 기록된 거래보다 늦습니다"
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "시작일이 기록된 지출 %lld개보다 뒤에 있습니다"
+                }
+              }
+            }
           }
         },
         "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tarikh mula adalah selepas %lld perbelanjaan yang telah dicatat"
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tarikh mula adalah selepas %lld perbelanjaan yang dicatat"
+                }
+              }
+            }
           }
         },
         "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdatoen er etter %lld loggførte utgifter"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er etter %lld registrert utgift"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdato er etter %lld registrerte utgifter"
+                }
+              }
+            }
           }
         },
         "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdatum is na %lld geregistreerde uitgaven"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum ligt na %lld geregistreerde Uitgave"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum ligt na %lld geregistreerde Uitgaven"
+                }
+              }
+            }
           }
         },
         "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Data początkowa jest po %lld zarejestrowanych wydatkach"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanych wydatkach"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanych wydatkach"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanym wydatku"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data początkowa jest po %lld zalogowanych wydatkach"
+                }
+              }
+            }
           }
         },
         "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A data de início é posterior a %lld despesas registradas"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesa registrada"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesas registradas"
+                }
+              }
+            }
           }
         },
         "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A data de início é posterior a %lld despesas registadas"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesa registada"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de início é posterior a %lld despesas registadas"
+                }
+              }
+            }
           }
         },
         "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Data de începere este după %lld cheltuieli înregistrate"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de început este după %lld cheltuieli înregistrate"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de început este după %lld cheltuială înregistrată"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Data de început este după %lld de cheltuieli înregistrate"
+                }
+              }
+            }
           }
         },
         "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Дата начала позже %lld зарегистрированных расходов"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанных расходов"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанных расходов"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанного расхода"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата начала позже %lld записанных расходов"
+                }
+              }
+            }
           }
         },
         "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dátum začiatku je po %lld zaznamenaných výdavkoch"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovaných výdavkoch"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovaných výdavkoch"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovanom výdavku"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Dátum začiatku je po %lld zaregistrovaných výdavkoch"
+                }
+              }
+            }
           }
         },
         "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startdatumet är senare än %lld sparade utgifter"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum är efter %lld loggad utgift"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Startdatum är efter %lld loggade utgifter"
+                }
+              }
+            }
           }
         },
         "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "วันที่เริ่มต้นอยู่หลังค่าใช้จ่ายที่บันทึกไว้ %lld รายการ"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld"
+                }
+              }
+            }
           }
         },
         "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Başlangıç tarihi %lld kaydedilmiş giderden sonra"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Başlangıç tarihi %lld kaydedilmiş harcamadan sonra"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Başlangıç tarihi %lld kaydedilmiş harcamadan sonra"
+                }
+              }
+            }
           }
         },
         "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Дата початку пізніша за %lld записаних видатків"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованих витрат"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованих витрат"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованої витрати"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Дата початку після %lld залогованих витрат"
+                }
+              }
+            }
           }
         },
         "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ngày bắt đầu sau %lld khoản chi phí đã ghi nhật ký"
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Ngày bắt đầu sau %lld khoản chi đã ghi"
+                }
+              }
+            }
           }
         },
         "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开始日期晚于 %lld 笔已记录的支出"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "开始日期在 %lld 条已记录支出之后"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "开始日期在 %lld 条已记录支出之后"
+                }
+              }
+            }
           }
         },
         "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開始日期晚於 %lld 筆已記錄的費用"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日期在 %lld 筆已紀錄支出之後"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "開始日期在 %lld 筆已紀錄支出之後"
+                }
+              }
+            }
           }
         }
       }

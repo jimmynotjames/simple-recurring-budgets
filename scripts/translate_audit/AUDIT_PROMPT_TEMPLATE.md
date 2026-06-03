@@ -37,9 +37,19 @@ specifiers (`%@`, `%lld`, `%1$@`, …) must be **preserved exactly** — same co
 grammar/spelling errors. **"Wren"** (the app name — also the English word for a bird),
 **"iCloud"**, and **"Carry-Over"** must be left as-is, not translated or transliterated.
 
+### Glossary consistency
+If a **Glossary** section appears below, it lists app terms with their agreed {LOCALE_NAME}
+translation. Flag (`category: consistency`) a string that renders one of those terms **differently**
+from the glossary without a good contextual reason — using a synonym or a different inflection
+breaks app-wide consistency. The glossary also applies to **parts** of a string (e.g. the "Add" and
+"Expense" inside "Add Expense"). Use the glossary translation as the `suggestion`. Do **not** flag a
+deviation that is genuinely required for the string to read naturally — note that in the `issue`.
+
 ## Regional / cultural note for {LOCALE_NAME}
 
 {REGIONAL_NOTE}
+
+{GLOSSARY}
 
 ## Your task
 
@@ -55,7 +65,7 @@ Return a **single JSON object** — no markdown fences, no prose before or after
     {
       "key": "<the key>",
       "severity": "high | medium | low",
-      "category": "tone | register | cultural | accuracy | grammar | length",
+      "category": "tone | register | cultural | accuracy | grammar | length | consistency",
       "current": "<the current translation, verbatim>",
       "back_translation": "<a literal English back-translation of the CURRENT translation>",
       "issue": "<what is wrong, referencing the rule it breaks>",

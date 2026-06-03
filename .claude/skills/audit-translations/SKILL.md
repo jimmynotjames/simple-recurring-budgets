@@ -28,6 +28,18 @@ Script reference: `scripts/translate_audit/README.md`.
 
 ## Recipe
 
+### 0. Deterministic consistency check (no LLM — run first)
+
+```bash
+python3 scripts/translate_audit/consistency_check.py            # report
+python3 scripts/translate_audit/consistency_check.py --ignore-casing   # word-choice only
+```
+Finds keys that share the same English but got **different** translations within a locale
+("Add Funds" → two renderings in de). This is free and exact — run it before the LLM fan-out. To
+fix divergences, `--write-manifest` emits the divergent set for the glossary-aware translate flow
+(see the glossary docs in `scripts/translate_catalog/README.md`). The LLM auditor independently
+raises `category: consistency` findings; the two complement each other.
+
 ### 1. Extract current translations
 
 ```bash
@@ -53,7 +65,9 @@ For every `tmp/translate-audit-prompts/{locale}.md`, invoke an `Agent` with
 > findings JSON (nothing else) to `/abs/path/tmp/translate-audit-outputs/ja.json`.
 
 **Send all subagent calls in a single message** so they run concurrently. The prompt already
-contains the full rubric and the locale's regional note — do not modify it.
+contains the full rubric, the locale's regional note, and (when `glossary.json` is populated) the
+agreed glossary translations for terms in that slice — so the auditor can raise `consistency`
+findings. Do not modify it.
 
 **Dry-run first.** On the initial run, do step 1–3 for a single locale (`de`) and check
 `audit_report.py de` before fanning out to all 38 — if the findings shape or signal looks

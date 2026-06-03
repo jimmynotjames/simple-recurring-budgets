@@ -39,7 +39,7 @@ TEMPLATE_PATH = Path(__file__).parent / "AUDIT_PROMPT_TEMPLATE.md"
 
 sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES, LOCALE_NAMES  # noqa: E402
-from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE  # noqa: E402
+from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE, build_glossary_block  # noqa: E402
 
 
 def build_slice(locale: str, source: dict) -> dict:
@@ -94,10 +94,14 @@ def main(argv: list[str]) -> int:
         if not slice_source:
             continue
         regional_note = REGIONAL_NOTES.get(locale, _GENERIC_NOTE)
+        glossary_block = build_glossary_block(
+            [e.get("english", "") for e in slice_source.values()], locale, LOCALE_NAMES.get(locale, locale)
+        )
         prompt = (
             template.replace("{LOCALE_NAME}", LOCALE_NAMES.get(locale, locale))
             .replace("{LOCALE_CODE}", locale)
             .replace("{REGIONAL_NOTE}", regional_note)
+            .replace("{GLOSSARY}", glossary_block)
             .replace("{SOURCE_JSON}", json.dumps(slice_source, ensure_ascii=False, indent=2, sort_keys=True))
         )
         (PROMPTS_DIR / f"{locale}.md").write_text(prompt, encoding="utf-8")

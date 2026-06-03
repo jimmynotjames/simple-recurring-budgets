@@ -27,10 +27,15 @@ The full design and status live in `docs/audits/translation-quality-audit-2026-0
 | `audit_extract.py` | Read the catalog → write `tmp/translate-audit-inputs/audit_source.json` (English source + comment + format specifiers + **every locale's current translation**). |
 | `AUDIT_PROMPT_TEMPLATE.md` | Per-locale auditor prompt template (placeholders substituted by `audit_dispatch.py`): the tone/register/length/accuracy rubric + the locale's regional note + the source block. |
 | `audit_dispatch.py` | Compose ready-to-dispatch per-locale audit prompts in `tmp/translate-audit-prompts/{locale}.md`. |
-| `audit_report.py` | Aggregate the per-locale findings into a triage report; deterministic length pre-filter; `--write-manifest` to feed the re-translation step. |
+| `audit_report.py` | Aggregate the per-locale findings into a triage report; deterministic length pre-filter; `--write-manifest` to feed the re-translation step. Categories are free-form, incl. `consistency`. |
+| `consistency_check.py` | **Deterministic** (no LLM): find keys that share the same English but got different translations within a locale. Tags `word-choice` vs `casing-only`; `--write-manifest` for the glossary-aware re-translation. Run it before the LLM fan-out. |
 
 The per-locale auditor subagent is `.claude/agents/translation-audit-locale.md`
 (Read+Write only, **Opus** — it must out-class the model that produced the translations).
+
+`consistency_check.py` is the deterministic complement to the LLM `consistency` finding: it catches
+exact divergences for free; the auditor catches subtler synonym/inflection drift against the glossary
+(`scripts/translate_catalog/glossary.json`, injected into the audit prompt as a `{GLOSSARY}` block).
 
 ## Flow
 

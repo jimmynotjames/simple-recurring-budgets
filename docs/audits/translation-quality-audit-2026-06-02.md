@@ -393,3 +393,24 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
     `el`, `hr`, `ro`) — mostly length/accuracy on accessibility strings and `*.caption.format`.
     Per the autonomy rule ("leave after one retry, log for review, don't loop"), these are left as
     the improved re-translation and flagged for owner review rather than re-run again.
+- **2026-06-03 (Consistency + glossary system — follow-on):** Measured cross-key consistency and
+  found it unenforced: 31 English strings reused across keys, **190 word-choice divergences** within
+  locales (same English, different translation). Built, per owner sign-off:
+  - **`consistency_check.py`** (deterministic, `scripts/translate_audit/`) — groups keys by normalized
+    English, flags per-locale divergence (`word-choice` vs `casing-only`); `--write-manifest` feeds the
+    standard flow. Advisory, not a hard push gate.
+  - **Glossary system** (`scripts/translate_catalog/glossary.json` + `glossary_build.py` /
+    `glossary_sync.py` + curation/translate prompts + `glossary-locale` Opus agent): canonical per-locale
+    translation for recurring terms, **including sub-string terms** ("Add Expense" reuses "Add"+"Expense"),
+    with a coherence self-check in the prompt rule. Consulted by `dispatch_prompts.py` **and**
+    `audit_dispatch.py` via a shared `{GLOSSARY}` block builder; grown by `glossary_sync.py --detect`
+    (auto-add exact repeats, propose the rest). New `consistency` audit category.
+  - **Decisions:** glossary growth = auto-add high-confidence + propose rest; divergence fix =
+    glossary-guided re-translate (not blind overwrite); scope = Opus-curated focused set; metadata kept
+    separate (only the protected-noun invariant is shared). Glossary always built on **Opus**.
+  - **Initial glossary:** Opus curated **63 terms** (protected nouns, domain nouns, action verbs, key
+    phrases); 38-locale Opus fan-out; all 63 complete across 38 locales; compositional coherence verified
+    (de "Add Funds"=`Guthaben hinzufügen` = Funds+Add; fr "Add Expense"=`Ajouter une dépense`).
+  - **Agent-registration note:** the new `glossary-locale` agent isn't picked up mid-session, so this run
+    used `general-purpose` with a `model: opus` override (same model). The `glossary-locale.md` definition
+    is correct and will be used by future sessions; scripts/skills/settings all reference it.

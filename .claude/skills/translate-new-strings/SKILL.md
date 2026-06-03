@@ -135,8 +135,14 @@ python3 scripts/translate_catalog/dispatch_prompts.py
 
 This writes one ready-to-dispatch prompt per locale to
 `tmp/translate-prompts/{locale}.md`. Each prompt has `{LOCALE_NAME}`, `{LOCALE_CODE}`,
-`{REGIONAL_NOTE}`, and `{SOURCE_JSON}` (sliced to just that locale's missing keys)
+`{REGIONAL_NOTE}`, `{GLOSSARY}`, and `{SOURCE_JSON}` (sliced to just that locale's missing keys)
 already substituted.
+
+`{GLOSSARY}` is filled automatically from `scripts/translate_catalog/glossary.json`: for each
+locale, `dispatch_prompts.py` injects the agreed translations of any glossary term that appears in
+that slice, so new strings stay terminologically consistent with the rest of the app (rule 6 in the
+template tells the subagent how to use them, including for sub-parts of a string). Nothing to do
+here — it just works when the glossary is populated.
 
 By default this also deletes any stale `tmp/translate-outputs/{locale}.json` files
 for the locales in the manifest, so step 3's subagents start from a clean slate and
@@ -207,6 +213,31 @@ python3 scripts/translate_catalog/validate.py --subset \
 If `validate.py --subset` fails for a locale, re-dispatch that locale's subagent and
 re-run the chain. Don't split these into four separate tool calls — that's slower and
 was the source of past friction.
+
+### 4b. Keep the glossary current (after merge)
+
+New features often introduce terminology that now recurs across keys. Keep the glossary
+(`scripts/translate_catalog/glossary.json`) in step with it:
+
+```bash
+python3 scripts/translate_catalog/glossary_sync.py --detect
+```
+
+This is deterministic (no LLM). It detects **high-confidence** new terms — an English string now
+reused across ≥2 keys but not yet in the glossary — and writes them to `tmp/glossary/terms.json`;
+more ambiguous frequent words go to `tmp/glossary/candidates_review.json` for you to skim. If it
+reports new high-confidence terms, add them to the glossary (Opus):
+
+```bash
+python3 scripts/translate_catalog/glossary_build.py --dispatch
+# fan out one glossary-locale (Opus) agent per tmp/glossary/prompts/{locale}.md, in a single
+# message; each writes tmp/glossary/outputs/{locale}.json (see the audit/glossary docs)
+python3 scripts/translate_catalog/glossary_build.py --merge
+```
+
+`--merge` appends to `glossary.json` (it never drops existing terms). Skip this step entirely if
+`--detect` reports nothing new. The fuller glossary build/rebuild flow lives in
+`scripts/translate_catalog/README.md`.
 
 ### 5. Authoritative pre-push gate
 

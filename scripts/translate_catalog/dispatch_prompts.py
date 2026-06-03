@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -38,9 +39,57 @@ OUTPUTS_DIR = REPO_ROOT / "tmp" / "translate-outputs"
 SOURCE_PATH = INPUTS_DIR / "source.json"
 MANIFEST_PATH = INPUTS_DIR / "manifest.json"
 TEMPLATE_PATH = Path(__file__).parent / "PROMPT_TEMPLATE.md"
+GLOSSARY_PATH = Path(__file__).parent / "glossary.json"
 
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALE_NAMES  # noqa: E402
+
+_GLOSSARY_CACHE: dict | None = None
+
+
+def load_glossary() -> dict:
+    """Load glossary.json once; tolerate absence (returns empty terms)."""
+    global _GLOSSARY_CACHE
+    if _GLOSSARY_CACHE is None:
+        if GLOSSARY_PATH.exists():
+            with GLOSSARY_PATH.open(encoding="utf-8") as f:
+                _GLOSSARY_CACHE = json.load(f)
+        else:
+            _GLOSSARY_CACHE = {"terms": {}}
+    return _GLOSSARY_CACHE
+
+
+def build_glossary_block(values, locale: str, locale_name: str | None = None) -> str:
+    """Render a Markdown glossary block of the agreed `locale` translations for every glossary
+    term that appears (whole-word / phrase) in any of the given English `values`. Returns "" when
+    the glossary is empty or no term matches, so the {GLOSSARY} placeholder collapses cleanly.
+
+    Importable so audit_dispatch.py injects the identical block (no duplication).
+    """
+    terms = load_glossary().get("terms", {})
+    if not terms:
+        return ""
+    haystack = "\n".join(values)
+    matched: list[tuple[str, str]] = []
+    for term_en in sorted(terms, key=lambda t: (-len(t), t.casefold())):  # longest-first
+        entry = terms[term_en]
+        translation = entry.get("translations", {}).get(locale)
+        if not translation:
+            continue
+        if re.search(rf"\b{re.escape(term_en)}\b", haystack, flags=re.IGNORECASE):
+            matched.append((term_en, translation))
+    if not matched:
+        return ""
+    name = locale_name or locale
+    lines = [
+        f"## Glossary — agreed {name} translations (rule 6: use these for consistency)",
+        "",
+        "Reuse these for the matching terms (incl. as parts of a longer string); keep the full "
+        "string natural and coherent.",
+        "",
+    ]
+    lines += [f'- "{en}" → "{tr}"' for en, tr in matched]
+    return "\n".join(lines)
 
 # Per-locale register/dialect/cultural notes inlined into the prompt where they
 # materially help the model pick the right formality register, script variant, or
@@ -158,10 +207,14 @@ def main(argv: list[str]) -> int:
             continue
         locale_name = LOCALE_NAMES.get(locale, locale)
         regional_note = REGIONAL_NOTES.get(locale, _GENERIC_NOTE)
+        glossary_block = build_glossary_block(
+            [e.get("value", "") for e in slice_source.values()], locale, locale_name
+        )
         prompt = (
             template.replace("{LOCALE_NAME}", locale_name)
             .replace("{LOCALE_CODE}", locale)
             .replace("{REGIONAL_NOTE}", regional_note)
+            .replace("{GLOSSARY}", glossary_block)
             .replace("{SOURCE_JSON}", json.dumps(slice_source, ensure_ascii=False, indent=2, sort_keys=True))
         )
         out_path = PROMPTS_DIR / f"{locale}.md"

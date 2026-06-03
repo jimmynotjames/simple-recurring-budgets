@@ -484,6 +484,27 @@ re-translated already-canonical keys; (5) the English plural source copy ("after
 | Plurals (translate + audit) | ✅ Pipeline support added; `de` trial only | PR #174 |
 | Metadata semantic audit | ✅ Built; unrun (metadata not localized) | PR #174 |
 | Minor fixes #1/#2/#4 | ✅ Fixed | PR #174 |
-| Truncation/RTL, CI, notes-dedupe | ⬜ Filed | #171, #172, #173 |
-| Real plural conversion + full plural translation/audit | ⏸ Deferred (awaiting go) | — |
+| Truncation/RTL, CI, notes-dedupe, plural-completeness check | ⬜ Filed | #171, #172, #173, #176 |
+| Real plural conversion + full plural translation/audit | ✅ Complete | PR #175 |
+| **Audit findings remediated** (medium+ `[llm]` subset, glossary-guided re-translation) | ✅ Complete | PR #175 |
 | App Store metadata localization run | ⏸ Out of scope this round | — |
+
+### Second audit round — full run + remediation (2026-06-03, PR #175)
+
+The plural conversion that had been gated above was greenlit, which became the first **full-scale**
+exercise of the whole stack: convert the two count strings to plurals → translate across all 38
+locales → run the full 38-locale Opus audit → **remediate**. All of it ran **autonomously and
+prompt-free in a single audit run** (no script/skill fixes needed; the rerun budget never triggered)
+— validating the cross-editor autonomy work from PR #174.
+
+- **Plurals:** both `addEditBudget.orphanWarning.{title,inline}` are now CLDR `variations.plural` in
+  all 38 locales. Default Haiku produced correct categories for 37/38; **Arabic** under-generated
+  (`one/other` only) and the auditor missed it — re-done on Opus to the full `zero/one/two/few/many/other`.
+  That gap is why the deterministic plural-completeness check is filed as **#176**.
+- **Audit:** 768 findings at/above medium (incl. the new `consistency` category working); 2 locales clean.
+- **Remediation:** the medium+ **`[llm]`-judged** subset — **135 keys / 436 (key,locale) pairs across
+  36 locales** — was re-translated on Sonnet through the standard flow with the glossary auto-injected,
+  fixing the flagged tone/register/consistency/grammar issues and converging terminology. Advisory
+  `[ratio]` flags (331) were excluded. Post-remediation word-choice divergences: 10 (low). Also fixed a
+  bug `audit_report.py --write-manifest` had with plural keys (now carries `plural` source, not just
+  `value`). `check_translations` + `check_source_strings` + `make build` all green.

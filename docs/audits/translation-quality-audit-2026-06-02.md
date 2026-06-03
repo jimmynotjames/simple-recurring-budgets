@@ -414,3 +414,11 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
   - **Agent-registration note:** the new `glossary-locale` agent isn't picked up mid-session, so this run
     used `general-purpose` with a `model: opus` override (same model). The `glossary-locale.md` definition
     is correct and will be used by future sessions; scripts/skills/settings all reference it.
+  - **Divergence fix result (Phase F):** with the glossary active, re-translated the 57-key / 464-pair
+    word-choice divergent set across 35 locales (Sonnet, glossary-guided) → merged. **Word-choice
+    divergences dropped 190 → 2.** The 2 residuals are benign: `tr` "Biweekly" is a Turkish dotted/dotless
+    İ casing artifact (not a real word difference), and `de` "Starts %@" is a legitimate context difference
+    ("Ab %@" schedule summary vs "Beginnt %@" chip) not covered by a glossary term. Casing-only divergences
+    (~217) were left intentionally — they're mostly the legitimate title-case-label vs sentence-case-inline
+    pattern (the English source itself cases by context). `check_translations` + `check_source_strings` +
+    `make build` all green.

@@ -131,6 +131,12 @@ def main(argv: list[str]) -> int:
         keys = [k for k, v in strings.items() if is_translatable(v)]
 
     entries = {k: build_entry(k, strings, locales) for k in sorted(keys)}
+    # Drop keys with no flat English value (plural/device `variations`): they have nothing to
+    # audit in subset mode and would otherwise clutter the source with 0-char entries.
+    skipped = sorted(k for k, v in entries.items() if not v["value"])
+    entries = {k: v for k, v in entries.items() if v["value"]}
+    if skipped:
+        print(f"Skipped {len(skipped)} key(s) with no flat English value (plural/variation): {skipped[:5]}")
     write_source(entries)
     return 0
 

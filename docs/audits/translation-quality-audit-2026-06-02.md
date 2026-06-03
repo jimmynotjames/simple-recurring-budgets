@@ -306,3 +306,19 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
 - **2026-06-02 (Track B):** `audit_report.py` exit code is 1 whenever findings exist at/above
   `--min-severity` (including `[ratio]`), so a first full run will "fail" by design — that's the
   gating signal for an autonomous loop, not a build error.
+- **2026-06-02 (Track C prep — script audit + permissions):** Hardened the audit scripts for an
+  unattended run and closed permission gaps:
+  - `audit_report.load_findings` now parses tolerantly (strips ```json fences / surrounding
+    prose, falls back to first-`{`…last-`}`) so a single non-conforming subagent output doesn't
+    silently drop a locale and force a re-dispatch. Verified against a fenced output.
+  - `--write-manifest` now skips + warns on any flagged key absent from `audit_source.json`
+    (e.g. an auditor-hallucinated key), so the manifest can't list a key with no source entry.
+  - `audit_extract.py` drops keys with no flat English value (plural/`variations`) from
+    `audit_source.json` instead of emitting 0-char clutter.
+  - `.claude/settings.json`: added `Agent(translation-audit-locale)` (the 38-way auditor
+    fan-out would otherwise prompt per locale) and `Skill(audit-translations)`. git/gh/make/
+    test were already allowlisted. **Track C can now run without permission prompts.**
+  - Orchestration notes for the run (not code): dispatch all auditor subagents in one message
+    and have each reply with only a one-line count (findings live in the file) to keep parent
+    context lean; run `audit_report.py` standalone (don't `&&`-chain — exit 1 on findings);
+    re-translate flagged strings via `translation-locale` with a `model: sonnet`/`opus` override.

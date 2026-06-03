@@ -51,7 +51,27 @@ sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES  # noqa: E402
 
 SEVERITY_RANK = {"high": 3, "medium": 2, "low": 1}
-VALID_CATEGORIES = {"tone", "register", "cultural", "accuracy", "grammar", "length"}
+
+
+def loads_tolerant(raw: str) -> dict:
+    """Parse a findings JSON object, tolerating ```json fences or surrounding prose that a
+    subagent may emit despite the JSON-only contract — so one stray locale doesn't force a
+    re-dispatch during an unattended run."""
+    text = raw.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        start, end = text.find("{"), text.rfind("}")
+        if start != -1 and end > start:
+            return json.loads(text[start:end + 1])
+        raise
 
 
 def ratio_severity(ratio: float) -> str:
@@ -71,7 +91,7 @@ def load_findings(locale: str) -> tuple[list[dict], str, str]:
     if not raw.strip():
         return [], "", "empty"
     try:
-        data = json.loads(raw)
+        data = loads_tolerant(raw)
     except json.JSONDecodeError:
         return [], "", "badjson"
     findings = []
@@ -136,9 +156,16 @@ def deterministic_length_findings(
 
 def write_manifest(findings: list[dict], source: dict) -> None:
     by_locale: dict[str, set[str]] = {}
+    dropped: set[str] = set()
     for f in findings:
+        if f["key"] not in source:  # e.g. an auditor-hallucinated key — don't emit a key with no source
+            dropped.add(f["key"])
+            continue
         by_locale.setdefault(f["locale"], set()).add(f["key"])
-    manifest = {loc: sorted(keys) for loc, keys in sorted(by_locale.items())}
+    if dropped:
+        sample = sorted(dropped)[:5]
+        print(f"  ⚠ {len(dropped)} flagged key(s) absent from audit_source.json — skipped: {sample}")
+    manifest = {loc: sorted(keys) for loc, keys in sorted(by_locale.items()) if keys}
     union_keys = sorted({k for keys in by_locale.values() for k in keys})
     source_out = {
         k: {

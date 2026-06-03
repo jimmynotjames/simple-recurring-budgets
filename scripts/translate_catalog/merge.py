@@ -31,6 +31,7 @@ OUTPUTS_DIR = REPO_ROOT / "tmp" / "translate-outputs"
 
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALES  # noqa: E402
+from extract import CLDR_CATEGORIES  # noqa: E402
 
 
 def load_translations(locale: str) -> Optional[dict]:
@@ -87,26 +88,40 @@ def main(argv: list[str]) -> int:
                 continue
             if key_filter is not None and key not in key_filter:
                 continue
-            # Accept both flat string and {"value": "...", ...} dict produced by some models
-            if isinstance(translated_value, dict):
-                translated_value = translated_value.get("value", "")
             if key not in strings:
                 print(f"  WARN [{locale}] key {key!r} not in catalog — skipping", file=sys.stderr)
                 continue
-            if not isinstance(translated_value, str) or not translated_value.strip():
-                # Refuse to overwrite an existing good translation with an empty/non-string value.
-                print(f"  WARN [{locale}] key {key!r} has empty/invalid value — skipping", file=sys.stderr)
-                rejected_empty += 1
-                continue
             entry = strings[key]
             localizations = entry.setdefault("localizations", {})
-            localizations[locale] = {
-                "stringUnit": {
-                    "state": "translated",
-                    "value": translated_value,
+            en_is_plural = "plural" in localizations.get("en", {}).get("variations", {})
+
+            if en_is_plural:
+                # Plural key: expect a CLDR-category → string object; write a variations.plural block.
+                cats = {}
+                if isinstance(translated_value, dict):
+                    cats = {c: v for c, v in translated_value.items()
+                            if c in CLDR_CATEGORIES and isinstance(v, str) and v.strip()}
+                if "other" not in cats:
+                    print(f"  WARN [{locale}] key {key!r} plural missing 'other' / invalid — skipping", file=sys.stderr)
+                    rejected_empty += 1
+                    continue
+                localizations[locale] = {
+                    "variations": {
+                        "plural": {c: {"stringUnit": {"state": "translated", "value": v}}
+                                   for c, v in cats.items()}
+                    }
                 }
-            }
-            locale_merged += 1
+                locale_merged += 1
+            else:
+                # Flat key. Accept a flat string or a {"value": "..."} dict some models emit.
+                flat = translated_value.get("value", "") if isinstance(translated_value, dict) else translated_value
+                if not isinstance(flat, str) or not flat.strip():
+                    # Refuse to overwrite an existing good translation with an empty/non-string value.
+                    print(f"  WARN [{locale}] key {key!r} has empty/invalid value — skipping", file=sys.stderr)
+                    rejected_empty += 1
+                    continue
+                localizations[locale] = {"stringUnit": {"state": "translated", "value": flat}}
+                locale_merged += 1
 
             # Finalize the English source. A key auto-extracted by Xcode lands with
             # en.stringUnit.state == "new"; once we've translated it the source is

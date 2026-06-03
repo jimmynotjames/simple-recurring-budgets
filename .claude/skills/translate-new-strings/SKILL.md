@@ -112,6 +112,23 @@ After renaming, update the Swift call sites to use the new key, then run
 `check_source_strings.py` (Step 5) to confirm no stale references remain. No need to
 run `extract.py --missing` unless you also changed the English text.
 
+#### 0d. Convert count strings to plurals
+
+Use when a string interpolates a count (`%lld`) and reads wrong at 1 (e.g. "1 logged
+expenses"). Converts the key's English to a CLDR `variations.plural` block and clears the
+non-en locales so they re-translate as plurals (each locale gets the categories *it* needs).
+
+```bash
+python3 scripts/translate_catalog/pluralize_keys.py - << 'EOF'
+{ "my.count.key": { "one": "%lld item", "other": "%lld items" } }
+EOF
+```
+
+`other` is required. Then run Step 1 onward — the pipeline emits/validates/merges plural keys
+end to end (subagents return a `{ "key": {"one": …, "other": …} }` object for plural keys per
+rule 7 in the template). The pre-push gate (`check_translations.py`) already validates plural
+variations.
+
 ### 1. Detect what needs translating
 
 ```bash

@@ -32,9 +32,15 @@ Return a **single JSON object** (no markdown fences, no prose, no commentary) wh
 
 6. **Use the glossary for consistency.** If a **Glossary** section appears below, it lists app terms that already have an agreed {LOCALE_NAME} translation. When a source string contains one of these terms, render that term using the glossary's translation so it reads **identically everywhere** in the app. The glossary applies to **parts** of a string too: for "Add Expense", reuse the glossary's "Add" and "Expense". **Coherence wins, though** — after composing, re-read your full translation; if mechanically stitching the glossary terms together is awkward or ungrammatical in {LOCALE_NAME}, write the natural rendering instead while keeping the key terms recognizable. If the *whole* source string is itself a glossary term, use that entry directly. (No Glossary section = no pinned terms for these strings.)
 
-7. **Every key in the input MUST appear in your output.** If a string is genuinely untranslatable (rare), copy the English verbatim and add a separate `"<key>__note"` sibling entry explaining why.
+7. **Plurals.** Most entries have a `"value"` string — translate it normally and map the key to a single translated string. But an entry with a **`"plural"`** object instead (e.g. `{"one": "%lld logged expense", "other": "%lld logged expenses"}`) is a count-dependent string. For those keys:
+   - Map the key to a **JSON object of CLDR plural categories** → translated strings, e.g. `"key": {"one": "…", "other": "…"}`.
+   - Use the categories **{LOCALE_NAME} actually needs** — not necessarily the same ones as English. Many languages need more (e.g. `one`/`few`/`many`/`other`) or fewer (`other` only). Always include **`other`**. Valid categories: `zero`, `one`, `two`, `few`, `many`, `other`.
+   - Keep the count format specifier (`%lld`) in **every** category form.
+   - Get the grammar right for each category (the number that replaces `%lld`, agreement, word endings).
 
-8. **Output only the JSON object.** Do not wrap it in markdown fences. Do not add any prose before or after it.
+8. **Every key in the input MUST appear in your output.** If a string is genuinely untranslatable (rare), copy the English verbatim and add a separate `"<key>__note"` sibling entry explaining why.
+
+9. **Output only the JSON object.** Do not wrap it in markdown fences. Do not add any prose before or after it.
 
 {REGIONAL_NOTE}
 

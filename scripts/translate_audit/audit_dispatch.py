@@ -43,11 +43,19 @@ from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE, build_glossary_block
 
 
 def build_slice(locale: str, source: dict) -> dict:
-    """Per-key audit input for one locale: English + current translation + char lengths."""
+    """Per-key audit input for one locale: English + current translation + char lengths.
+    Plural keys carry per-category objects instead of flat strings + char counts."""
     out: dict[str, dict] = {}
     for key, entry in source.items():
         current = entry.get("translations", {}).get(locale)
         if not current:
+            continue
+        if "plural" in entry:
+            out[key] = {
+                "englishPlural": entry["plural"],
+                "comment": entry.get("comment", ""),
+                "currentPlural": current,
+            }
             continue
         english = entry.get("value", "")
         out[key] = {

@@ -37,6 +37,16 @@ specifiers (`%@`, `%lld`, `%1$@`, …) must be **preserved exactly** — same co
 grammar/spelling errors. **"Wren"** (the app name — also the English word for a bird),
 **"iCloud"**, and **"Carry-Over"** must be left as-is, not translated or transliterated.
 
+### Plurals
+Some entries are **count-dependent plurals**: they carry `englishPlural` (the English per-category
+forms, e.g. `{"one": "%lld expense", "other": "%lld expenses"}`) and `currentPlural` (the current
+translation's category → string map) instead of `current`/`english`. Grade these for: (1) the
+**right CLDR categories for {LOCALE_NAME}** — many languages need more than English's one/other
+(e.g. Russian needs `one`/`few`/`many`/`other`); a missing required category or only copying
+English's two forms is a real bug (`category: accuracy`, often high); (2) correct grammar/agreement
+in each category; (3) the count specifier (`%lld`) preserved in every form. Put the per-category
+fix in `suggestion` (as a small object or readable text).
+
 ### Glossary consistency
 If a **Glossary** section appears below, it lists app terms with their agreed {LOCALE_NAME}
 translation. Flag (`category: consistency`) a string that renders one of those terms **differently**

@@ -105,3 +105,23 @@ Edit the relevant `fastlane/metadata/en-US/*.txt`, then re-run the recipe. To
 force a full re-transcreation of a field across all storefronts (e.g. you
 rewrote the description), delete that field's `.txt` in the target folders first,
 or just delete the target folders and let `extract.py --missing` flag everything.
+
+## Auditing metadata quality
+
+Two complementary audits:
+
+- **`audit.py`** — *structural*: presence + char-limit (`OVER`/`PENDING`) over the `tmp/`
+  fan-out, plus the consolidated `_questions` checkpoint. Already part of the translate recipe.
+- **`audit_semantic.py`** — *semantic*: grades the **committed** localized listing
+  (`fastlane/metadata/<storefront>/`) for voice, transcreation (native vs. calqued), **keyword/ASO
+  effectiveness**, cultural fit, brand, and false claims — one Opus auditor per storefront, mirroring
+  the in-app `scripts/translate_audit/` pipeline.
+
+  ```bash
+  python3 scripts/translate_metadata/audit_semantic.py --dispatch          # → tmp/metadata-audit-prompts/{sf}.md
+  # fan out one metadata-audit-locale (Opus) agent per prompt → tmp/metadata-audit-outputs/{sf}.json
+  python3 scripts/translate_metadata/audit_semantic.py --report --min-severity medium
+  ```
+
+  It only audits storefronts that actually have localized metadata (reports "nothing to audit"
+  otherwise). Run it after a transcreation round to catch quality issues a length check can't.

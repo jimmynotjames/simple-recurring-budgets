@@ -7,6 +7,12 @@ The skill at `.claude/skills/translate-new-strings/` encodes the canonical workf
 adding translations for newly-keyed strings; this README is the authority for *what each
 script does*. The skill is the authority for *when and how to invoke them*.
 
+> **Auditing existing translations for quality** (tone, register, cultural fit, length) is a
+> separate pipeline: see `scripts/translate_audit/` (the `audit-translations` skill). It reads
+> this folder's `locales.py` and `REGIONAL_NOTES`/`_GENERIC_NOTE`, grades the translations
+> already in the catalog, and can emit a re-translation manifest that feeds back into the flow
+> below.
+
 ## Scripts
 
 | Script | Purpose |
@@ -90,3 +96,34 @@ make format && make lint-fix && make build && make test
 - Plural / device variations (`"variations"` blocks) are not yet handled in `--missing` subset mode.
   `check_translations.py` remains the authoritative gate and will catch any variation-shaped
   issues at pre-push time.
+
+## Glossary (terminology consistency)
+
+`glossary.json` pins **one canonical per-locale translation for recurring app terms** ("Add",
+"Expense", "Budget", "Add Funds", …) so that two keys with the same English don't drift, and so a
+compound like "Add Expense" reuses the agreed "Add" + "Expense". It is **consulted automatically**:
+`dispatch_prompts.py` injects the relevant terms into each translation prompt as a `{GLOSSARY}` block
+(rule 6 in `PROMPT_TEMPLATE.md` tells the model to use them but keep the full string coherent), and
+`audit_dispatch.py` injects the same block so the auditor can raise `consistency` findings. Protected
+nouns (Wren, iCloud, Carry-Over) map to themselves.
+
+Build / grow it with **Opus** agents (the `glossary-locale` agent, pinned to `model: opus`):
+
+```bash
+# Initial build (one-time):
+python3 scripts/translate_catalog/glossary_build.py --candidates           # mine duplicate strings + frequent terms
+python3 scripts/translate_catalog/glossary_build.py --write-curation-prompt # → tmp/glossary/curation_prompt.md
+#   dispatch ONE glossary-locale (Opus) agent → tmp/glossary/terms.json (the curated term set)
+python3 scripts/translate_catalog/glossary_build.py --dispatch              # → tmp/glossary/prompts/{locale}.md
+#   fan out one glossary-locale (Opus) agent per locale → tmp/glossary/outputs/{locale}.json
+python3 scripts/translate_catalog/glossary_build.py --merge                 # → glossary.json
+
+# Grow it after new strings land (run from the translate-new-strings skill, step 4b):
+python3 scripts/translate_catalog/glossary_sync.py --detect                 # high-confidence repeats → terms.json
+#   then --dispatch / fan out / --merge for just the new terms (merge appends, never drops)
+```
+
+`glossary_sync.py --detect` auto-collects exact English strings now reused across ≥2 keys (the
+high-confidence growth set) and writes ambiguous frequent words to `candidates_review.json` for a
+human to skim. The deterministic divergence finder lives at
+`scripts/translate_audit/consistency_check.py`.

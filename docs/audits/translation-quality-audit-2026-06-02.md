@@ -13,7 +13,7 @@
 | --- | --- | --- | --- |
 | **A** | Strengthen translation prompt + register/cultural notes + length discipline | ✅ Complete | `translations-audit-track-a` |
 | **B** | Audit sub-pipeline (extract-with-translations, auditor, report) | ✅ Complete | `translations-audit-track-a` |
-| **C** | Triage → targeted re-translation → re-audit | 🟡 In progress (`de` dry run done) | `translations-audit-track-a` |
+| **C** | Triage → targeted re-translation → re-audit | ✅ Complete (84% of flagged pairs cleared) | `translations-audit-track-a` |
 | **Supporting** | settings allowlist, README, audit-translations skill | ✅ Complete | `translations-audit-track-a` |
 | **Follow-up** | Layout-truncation UI verification (optional) | ⬜ Deferred | — |
 
@@ -202,10 +202,31 @@ folder imports `locales.py` and `REGIONAL_NOTES`/`_GENERIC_NOTE` from
 
 ### Track C — Triage → targeted re-translation → re-audit
 
-**Status: 🟡 In progress — `de` dry run complete.** Ran the full audit pipeline end-to-end
-on German (`audit_extract.py` → `audit_dispatch.py` → one `translation-audit-locale` Opus
-subagent → `audit_report.py`). Mechanics are clean and prompt-free; one signal fix landed
-(manifest is now `[llm]`-only — see decision log). Full 38-locale wave not yet run.
+**Status: ✅ Complete (2026-06-03).** Ran the full pipeline across all 38 locales, re-translated
+the flagged subset with a stronger model, and re-audited. **84% of flagged pairs cleared.**
+
+Results:
+- **Audit (38 locales, 249 keys, Opus auditors).** 2 locales fully clean (`en-AU`, `en-CA`).
+  730 findings at/above medium; after excluding 354 advisory `[ratio]` flags, the `[llm]`-judged
+  re-translation manifest was **376 (key,locale) pairs across 36 locales, 90 distinct keys**.
+  Heaviest: `tr` (27), `pt-PT` (22), `da` (20), `ca` (19), `id` (18).
+- **Re-translation (Sonnet override).** All 376 pairs re-translated through the existing
+  `translate-new-strings` flow (improved Track A prompt + per-locale register notes), validated
+  `--subset` (only benign "identical to English" warnings, all on the protected `Carry-Over`
+  term), and merged. `check_translations` + `make build` green.
+- **Re-audit (90 keys × 36 locales).** **316/376 pairs cleared (84%).** 60 residuals
+  (26 high / 20 medium / 14 low) — but these are dominated by **non-defects** (see decision log):
+  ~12 are `feedback.email.subject`, blocked on the **English source** still saying "Budgets app
+  feedback"; several are `carryOver` capitalization that correctly mirrors the source's own mixed
+  case. The genuine deferred residuals concentrate in the historically-heavy locales (`fr-CA`,
+  `el`, `hr`, `ro`). Per the autonomy rule, stopped after one retry — residuals are logged for
+  owner review, not looped.
+
+> **Top actionable follow-up:** the audit surfaced that the **English source string**
+> `feedback.email.subject` = "Budgets app feedback" still carries the old brand. Until it's
+> renamed to "Wren" in the source, every locale keeps flagging it. Fixing it is a source-copy
+> change (+ a one-key re-translation across locales), part of the app-wide rename — out of scope
+> here, flagged for the owner.
 
 1. `audit_report.py --write-manifest --min-severity medium` → drops the flagged subset
    into `tmp/translate-inputs/`.
@@ -342,3 +363,32 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
   with concrete tighter suggestions). `[ratio]` stays advisory in the human-readable report.
   For `de`/medium this cut the manifest from 24 → 10 keys — exactly the real defects. Updated
   `audit_report.py`, `scripts/translate_audit/README.md`, and the `audit-translations` skill.
+- **2026-06-03 (Track C — full 38-locale run):** Audited all 38 locales (Opus), re-translated
+  the 376-pair `[llm]` subset with a **Sonnet** override through the existing flow, re-audited.
+  84% cleared. Notes for the record:
+  - **`validate.py --subset` scope gotcha.** `--subset` only relaxes the *key-set* check; it
+    still iterates **all 38 `LOCALES`** unless given an explicit list, so it reported "File
+    missing" for the clean locales (`en-AU`/`en-CA`, no re-translation) and stale-key errors on
+    their leftover output files. Correct invocation for a subset run is to pass the manifest's
+    locale list: `validate.py --subset $(jq -r 'keys|join(" ")' …/manifest.json)`. Also deleted
+    two stale `tmp/translate-outputs/{en-AU,en-CA}.json` left from a prior run. (No code change;
+    documented here so the next run doesn't misread it as a failure.)
+  - **Re-translation model.** Used `model: sonnet` on the `translation-locale` dispatches (the
+    plan's default for the fix round) — these are the strings Haiku got wrong. Worked well; no
+    structural failures across 36 locales.
+- **2026-06-03 (Track C — residuals are mostly non-defects; stopped after one retry):** Of the
+  60 residual pairs that still flagged on re-audit:
+  - **Source-blocked (~12, the single biggest cluster):** `feedback.email.subject` — the English
+    source itself reads "Budgets app feedback". Translators faithfully rendered the stale brand;
+    the auditor wants "Wren". **Re-translation cannot fix this** — the *source string* must change
+    first. Logged as the top owner follow-up (part of the app-wide rename; out of scope here, and
+    a product-copy decision so not made unilaterally). The related `*.email.body.prompt` keys are
+    similar.
+  - **Source-mirroring (`carryOver` capitalization, ~6):** the English source uses lowercase
+    "carry-over" mid-sentence but "Carry-Over" as a label; translations correctly match the source
+    case-for-case, and the auditor over-flags the lowercase as a "protected term" violation. Not a
+    real defect; the source's own mixed casing is the root.
+  - **Genuine deferred (~remainder):** concentrate in the historically-heavy locales (`fr-CA`,
+    `el`, `hr`, `ro`) — mostly length/accuracy on accessibility strings and `*.caption.format`.
+    Per the autonomy rule ("leave after one retry, log for review, don't loop"), these are left as
+    the improved re-translation and flagged for owner review rather than re-run again.

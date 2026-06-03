@@ -183,14 +183,21 @@ def write_manifest(findings: list[dict], source: dict) -> None:
               "(any flags at/above the threshold were advisory [ratio] only).")
         return
     union_keys = sorted({k for keys in by_locale.values() for k in keys})
-    source_out = {
-        k: {
-            "value": source[k].get("value", ""),
+    source_out = {}
+    for k in union_keys:
+        if k not in source:
+            continue
+        entry = {
             "comment": source[k].get("comment", ""),
             "formatSpecifiers": source[k].get("formatSpecifiers", []),
         }
-        for k in union_keys if k in source
-    }
+        # Carry plural source as `plural` (not `value`) so plural keys re-translate correctly;
+        # the translate pipeline keys off this exactly like extract.py --missing does.
+        if "plural" in source[k]:
+            entry["plural"] = source[k]["plural"]
+        else:
+            entry["value"] = source[k].get("value", "")
+        source_out[k] = entry
     TRANSLATE_INPUTS_DIR.mkdir(parents=True, exist_ok=True)
     with (TRANSLATE_INPUTS_DIR / "source.json").open("w", encoding="utf-8") as f:
         json.dump(source_out, f, ensure_ascii=False, indent=2, sort_keys=True)

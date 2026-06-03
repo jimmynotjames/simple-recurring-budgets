@@ -336,7 +336,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מחק תקציב"
+            "value": "מחיקת תקציב"
           }
         },
         "hi": {
@@ -354,7 +354,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé törlése"
+            "value": "Költségkeret törlése"
           }
         },
         "id": {
@@ -384,7 +384,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Padam Belanjawan"
+            "value": "Padam Bajet"
           }
         },
         "nb": {
@@ -438,7 +438,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort budget"
+            "value": "Radera budget"
           }
         },
         "th": {
@@ -814,7 +814,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שמור"
+            "value": "שמירה"
           }
         },
         "hi": {
@@ -1280,13 +1280,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouillé. La période ne peut pas être modifiée après la création de votre budget."
+            "value": "Verrouillé. La période ne peut pas être modifiée après la création du budget."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouillé. La période ne peut pas être modifiée après la création de votre budget."
+            "value": "Verrouillé. La période ne peut pas être modifiée après la création du budget."
           }
         },
         "he": {
@@ -1340,7 +1340,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dikunci. Tempoh tidak boleh diubah selepas membuat belanjawan anda."
+            "value": "Dikunci. Tempoh tidak boleh diubah selepas bajet dibuat."
           }
         },
         "nb": {
@@ -1352,7 +1352,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vergrendeld. De periode kan niet worden gewijzigd nadat je budget is aangemaakt."
+            "value": "Vergrendeld. Periode kan niet worden gewijzigd na het aanmaken van je budget."
           }
         },
         "pl": {
@@ -1370,7 +1370,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. O período não pode ser alterado após criar o seu orçamento."
+            "value": "Bloqueado. O período não pode ser alterado após criar o orçamento."
           }
         },
         "ro": {
@@ -1758,7 +1758,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terminé"
+            "value": "OK"
           }
         },
         "fr-CA": {
@@ -2009,7 +2009,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מחק תקציב"
+            "value": "מחיקת תקציב"
           }
         },
         "hi": {
@@ -2027,7 +2027,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé törlése"
+            "value": "Költségkeret törlése"
           }
         },
         "id": {
@@ -2057,7 +2057,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Padam Belanjawan"
+            "value": "Padam Bajet"
           }
         },
         "nb": {
@@ -2111,7 +2111,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort budget"
+            "value": "Radera budget"
           }
         },
         "th": {
@@ -2505,7 +2505,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Törli a büdzsét?"
+            "value": "Törli a költségkeretet?"
           }
         },
         "id": {
@@ -2535,7 +2535,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Padam Belanjawan?"
+            "value": "Padam Bajet?"
           }
         },
         "nb": {
@@ -2589,7 +2589,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort budget?"
+            "value": "Radera budget?"
           }
         },
         "th": {
@@ -2780,7 +2780,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beløp, %@"
+            "value": "Tildelingsbeløp, %@"
           }
         },
         "nl": {
@@ -2822,7 +2822,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Výška príspevku, %@"
+            "value": "Suma pridelenia, %@"
           }
         },
         "sv": {
@@ -4376,7 +4376,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre un calendario para seleccionar una fecha de finalización opcional."
+            "value": "Abre un calendario para elegir una fecha de fin opcional."
           }
         },
         "fi": {
@@ -6605,7 +6605,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Membuka pemilih untuk memilih ikon untuk belanjawan."
+            "value": "Membuka pemilih untuk memilih ikon bagi bajet."
           }
         },
         "nb": {
@@ -6635,7 +6635,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre um selecionador para escolher um ícone para o orçamento."
+            "value": "Abre um seletor para escolher um ícone para o orçamento."
           }
         },
         "ro": {
@@ -6671,7 +6671,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bütçe için bir ikon seçmek için açıcı açar."
+            "value": "Bütçe için simge seçmek üzere bir seçici açar."
           }
         },
         "uk": {
@@ -6845,7 +6845,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ikon belanjawan"
+            "value": "Ikon bajet"
           }
         },
         "nb": {
@@ -7294,7 +7294,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé neve"
+            "value": "Költségkeret neve"
           }
         },
         "id": {
@@ -7324,7 +7324,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nama belanjawan"
+            "value": "Nama bajet"
           }
         },
         "nb": {
@@ -7533,7 +7533,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé"
+            "value": "Költségkeret"
           }
         },
         "id": {
@@ -7563,7 +7563,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanjawan"
+            "value": "Bajet"
           }
         },
         "nb": {
@@ -7965,13 +7965,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar"
+            "value": "Quitar"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar"
+            "value": "Quitar"
           }
         },
         "fi": {
@@ -7983,13 +7983,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer"
+            "value": "Retirer"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer"
+            "value": "Retirer"
           }
         },
         "he": {
@@ -8037,7 +8037,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "제거"
+            "value": "지우기"
           }
         },
         "ms": {
@@ -8277,7 +8277,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택 사항 아이콘"
+            "value": "선택 아이콘"
           }
         },
         "ms": {
@@ -8355,13 +8355,13 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Іконка (необов'язково)"
+            "value": "Необов'язковий значок"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Biểu tượng Tùy chọn"
+            "value": "Biểu tượng tùy chọn"
           }
         },
         "zh-Hans": {
@@ -8396,7 +8396,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kumulativní přesčasy a podčasy mezi obdobími."
+            "value": "Kumulativní přečerpání a nedočerpání napříč obdobími."
           }
         },
         "da": {
@@ -8450,7 +8450,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gastos e ingresos acumulados a lo largo de los períodos."
+            "value": "Acumula el exceso y el déficit de gasto entre periodos."
           }
         },
         "fi": {
@@ -8480,7 +8480,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अवधियों में संचयी अधिक और कम व्यय।"
+            "value": "अवधियों में संचित अधिक- और कम-खर्च।"
           }
         },
         "hr": {
@@ -8492,7 +8492,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A túlköltekezés és megtakarítás összesítése időszakonként."
+            "value": "Felhalmozódó túl- és alulköltés az időszakok között."
           }
         },
         "id": {
@@ -8516,13 +8516,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기간 간 누적된 초과 지출 및 미사용 금액."
+            "value": "기간별 초과 및 미달 지출이 누적 적용됩니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terkumpul untuk lebihan dan kekurangan perbelanjaan merentas tempoh."
+            "value": "Jumlah lebih dan kurang belanja terkumpul merentas tempoh."
           }
         },
         "nb": {
@@ -8564,19 +8564,19 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Накопительный перерасход и недотрата по периодам."
+            "value": "Накопленный перерасход и остаток суммируются по периодам."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kumulatívny prebytok a deficit v jednotlivých obdobiach."
+            "value": "Kumulatívne prekročenie a úspora výdavkov naprieč obdobiami."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kumulativ över- och underspending mellan perioder."
+            "value": "Kumulativt över- och underspendande mellan perioder."
           }
         },
         "th": {
@@ -8600,7 +8600,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tích lũy chi tiêu dôi dư và thiếu hụt qua các kỳ."
+            "value": "Tích lũy chi tiêu vượt và thiếu ngân sách qua các kỳ."
           }
         },
         "zh-Hans": {
@@ -8612,7 +8612,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在多個期間內累積結餘和透支。"
+            "value": "累計各週期的超支與結餘金額。"
           }
         }
       }
@@ -8689,7 +8689,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambiar la divisa solo actualiza la etiqueta. Es decir, no se aplica ninguna conversión de divisa."
+            "value": "Cambiar la moneda solo actualiza la etiqueta. No aplica conversión de moneda."
           }
         },
         "fi": {
@@ -8707,7 +8707,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changer la devise met à jour l'étiquette seulement. Aucune conversion de devise n'est appliquée."
+            "value": "Changer la devise met à jour l'étiquette seulement. Aucune conversion n'est appliquée."
           }
         },
         "he": {
@@ -8737,7 +8737,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mengubah mata uang hanya memperbarui label. Tidak ada konversi mata uang."
+            "value": "Mengganti mata uang hanya mengubah label. Tidak ada konversi mata uang."
           }
         },
         "it": {
@@ -8779,13 +8779,13 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zmiana waluty aktualizuje tylko etykietę. Nie jest stosowane przeliczanie walut."
+            "value": "Zmiana waluty aktualizuje tylko etykietę. Tj. brak przeliczenia walut."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alterar a moeda atualiza apenas o rótulo. Ou seja, nenhuma conversão de moeda é aplicada."
+            "value": "Alterar a moeda atualiza apenas o rótulo. Ou seja, sem conversão de moeda."
           }
         },
         "pt-PT": {
@@ -8940,13 +8940,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cela ne peut pas être modifié après la création de votre budget."
+            "value": "Impossible de modifier cela après la création du budget."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ceci ne peut pas être modifié après la création de votre budget."
+            "value": "Impossible de modifier ça après la création du budget."
           }
         },
         "he": {
@@ -9030,7 +9030,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Isto não pode ser alterado após criar o seu orçamento."
+            "value": "Não pode ser alterado após criar o orçamento."
           }
         },
         "ro": {
@@ -9203,7 +9203,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idealno za putovanje, vikend rođendana ili bilo koji jednokratni period trošenja. Kada je gotovo, gotovo je. Bez ponavljanja, bez Carry-Over."
+            "value": "Prikladno za putovanje, vikend za rođendan ili bilo koji jednokratni period potrošnje. Kad završi, završi. Bez ponavljanja, bez Carry-Over."
           }
         },
         "hu": {
@@ -9233,7 +9233,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여행, 생일 주말, 또는 일회성 지출 기간에 적합해요. 기간이 끝나면 그걸로 완료예요. 반복도, Carry-Over도 없어요."
+            "value": "여행, 생일 주말 등 일회성 지출 기간에 적합합니다. 기간이 끝나면 종료됩니다. 반복이나 Carry-Over는 없습니다."
           }
         },
         "ms": {
@@ -9245,7 +9245,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perfekt for en tur, en bursdagshelg eller en engangs utgiftsperiode. Når det er ferdig, er det ferdig. Ingen gjentakelse, ingen Carry-Over."
+            "value": "Passer for en tur, en bursdagshelg eller et annet engangstidsrom. Når det er over, er det over. Ingen gjentagelse, ingen Carry-Over."
           }
         },
         "nl": {
@@ -9311,7 +9311,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Для подорожі, дня народження чи будь-якого разового видатків. Коли закінчиться — готово. Без повторень, без перенесення залишку."
+            "value": "Підходить для поїздки, святкового вікенду або будь-якого разового вікна витрат. Коли все завершено — завершено. Без повторень і без Carry-Over."
           }
         },
         "vi": {
@@ -10034,13 +10034,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Fecha de inicio es posterior a %lld gasto registrado. Ese gasto sigue apareciendo en tu lista pero no se contará en este presupuesto."
+                  "value": "La fecha de inicio es posterior a %lld gasto registrado. Ese gasto sigue apareciendo en tu lista, pero este presupuesto no lo tendrá en cuenta."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Fecha de inicio es posterior a %lld gastos registrados. Esos gastos siguen apareciendo en tu lista pero no se contarán en este presupuesto."
+                  "value": "La fecha de inicio es posterior a %lld gastos registrados. Esos gastos siguen apareciendo en tu lista, pero este presupuesto no los tendrá en cuenta."
                 }
               }
             }
@@ -10304,13 +10304,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Startdatum ligt na %lld geregistreerde Uitgave. Die Uitgave staat nog in je lijst maar wordt niet meegerekend door dit Budget."
+                  "value": "Startdatum is na %lld vastgelegde uitgave. Die uitgave is nog zichtbaar in je lijst, maar wordt niet meegeteld door dit budget."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Startdatum ligt na %lld geregistreerde Uitgaven. Die Uitgaven staan nog in je lijst maar worden niet meegerekend door dit Budget."
+                  "value": "Startdatum is na %lld vastgelegde uitgaven. Die uitgaven zijn nog zichtbaar in je lijst, maar worden niet meegeteld door dit budget."
                 }
               }
             }
@@ -10388,19 +10388,19 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Data de început este după %lld cheltuieli înregistrate. Aceste cheltuieli apar în lista dvs., dar nu vor fi numărate de acest buget."
+                  "value": "Data de început este după %lld cheltuieli înregistrate. Acele cheltuieli apar în continuare în lista ta, dar nu vor fi contabilizate de acest buget."
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Data de început este după %lld cheltuială înregistrată. Această cheltuială apare în lista dvs., dar nu va fi numărată de acest buget."
+                  "value": "Data de început este după %lld cheltuială înregistrată. Acea cheltuială apare în continuare în lista ta, dar nu va fi contabilizată de acest buget."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Data de început este după %lld de cheltuieli înregistrate. Aceste cheltuieli apar în lista dvs., dar nu vor fi numărate de acest buget."
+                  "value": "Data de început este după %lld de cheltuieli înregistrate. Acele cheltuieli apar în continuare în lista ta, dar nu vor fi contabilizate de acest buget."
                 }
               }
             }
@@ -10526,25 +10526,25 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Дата початку після %lld залогованих витрат. Ці витрати все ще видні в вашому списку, але не будуть враховуватися цим бюджетом."
+                  "value": "Дата початку пізніша за %lld зареєстровані витрати. Ці витрати досі відображаються у вашому списку, але не враховуватимуться цим бюджетом."
                 }
               },
               "many": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Дата початку після %lld залогованих витрат. Ці витрати все ще видні в вашому списку, але не будуть враховуватися цим бюджетом."
+                  "value": "Дата початку пізніша за %lld зареєстрованих витрат. Ці витрати досі відображаються у вашому списку, але не враховуватимуться цим бюджетом."
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Дата початку після %lld залогованої витрати. Ця витрата все ще видна в вашому списку, але не буде враховуватися цим бюджетом."
+                  "value": "Дата початку пізніша за %lld зареєстровану витрату. Ця витрата досі відображається у вашому списку, але не враховуватиметься цим бюджетом."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Дата початку після %lld залогованих витрат. Ці витрати все ще видні в вашому списку, але не будуть враховуватися цим бюджетом."
+                  "value": "Дата початку пізніша за %lld зареєстрованих витрат. Ці витрати досі відображаються у вашому списку, але не враховуватимуться цим бюджетом."
                 }
               }
             }
@@ -10637,7 +10637,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Αυτά τα έξοδα εξακολουθούν να εμφανίζονται στη λίστα σου, αλλά δεν θα υπολογίζονται σε αυτόν τον προϋπολογισμό."
+            "value": "Αυτά τα έξοδα εξακολουθούν να εμφανίζονται στη λίστα σου, αλλά δεν θα υπολογίζονται από αυτόν τον προϋπολογισμό."
           }
         },
         "en": {
@@ -10691,7 +10691,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ces dépenses s'affichent toujours dans votre liste, mais ne seront pas comptabilisées par ce budget."
+            "value": "Ces dépenses restent dans ta liste, mais ne seront pas comptées par ce budget."
           }
         },
         "he": {
@@ -10709,7 +10709,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ti rashodi se i dalje prikazuju na vašoj listi, ali se neće brojati prema ovom proračunu."
+            "value": "Ti troškovi i dalje se prikazuju u popisu, ali ovaj proračun ih neće uzeti u obzir."
           }
         },
         "hu": {
@@ -10745,7 +10745,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perbelanjaan tersebut masih muncul dalam senarai anda tetapi tidak akan dikira oleh belanjawan ini."
+            "value": "Perbelanjaan tersebut masih tersenarai tetapi tidak akan dikira dalam bajet ini."
           }
         },
         "nb": {
@@ -11060,13 +11060,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Fecha de inicio es posterior a %lld gasto registrado"
+                  "value": "La fecha de inicio es posterior a %lld gasto registrado"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Fecha de inicio es posterior a %lld gastos registrados"
+                  "value": "La fecha de inicio es posterior a %lld gastos registrados"
                 }
               }
             }
@@ -11330,13 +11330,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Startdatum ligt na %lld geregistreerde Uitgave"
+                  "value": "Startdatum is na %lld vastgelegde uitgave"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Startdatum ligt na %lld geregistreerde Uitgaven"
+                  "value": "Startdatum is na %lld vastgelegde uitgaven"
                 }
               }
             }
@@ -11693,13 +11693,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar fecha de fin"
+            "value": "Borrar fecha de fin"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Borrar fecha de finalización"
+            "value": "Borrar fecha de fin"
           }
         },
         "fi": {
@@ -11723,7 +11723,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "נקה תאריך סיום"
+            "value": "ניקוי תאריך סיום"
           }
         },
         "hi": {
@@ -11939,7 +11939,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toca para mostrar u ocultar los controles de fecha de inicio y fecha de finalización."
+            "value": "Toca para mostrar u ocultar los controles de fecha de inicio y fecha de fin."
           }
         },
         "fi": {
@@ -12119,7 +12119,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Planificació. %@"
+            "value": "Calendari. %@"
           }
         },
         "cs": {
@@ -12179,7 +12179,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calendario. %@"
+            "value": "Programación. %@"
           }
         },
         "fi": {
@@ -12281,7 +12281,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Agenda. %@"
+            "value": "Calendarização. %@"
           }
         },
         "ro": {
@@ -13324,7 +13324,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přidělení"
+            "value": "Rozpočtená částka"
           }
         },
         "da": {
@@ -13384,7 +13384,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kohdistus"
+            "value": "Budjetoitu summa"
           }
         },
         "fr": {
@@ -13444,7 +13444,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "배정"
+            "value": "할당액"
           }
         },
         "ms": {
@@ -13456,7 +13456,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beløp"
+            "value": "Tildeling"
           }
         },
         "nl": {
@@ -13498,7 +13498,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Príspevok"
+            "value": "Pridelenie"
           }
         },
         "sv": {
@@ -13563,7 +13563,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přenesený zůstatek"
+            "value": "Carry-Over"
           }
         },
         "da": {
@@ -13647,13 +13647,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "कैरी-ओवर"
+            "value": "Carry-Over"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preneseni saldo"
+            "value": "Carry-Over"
           }
         },
         "hu": {
@@ -13671,7 +13671,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saldo riportato"
+            "value": "Carry-Over"
           }
         },
         "ja": {
@@ -13695,7 +13695,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Overføring"
+            "value": "Carry-Over"
           }
         },
         "nl": {
@@ -13725,19 +13725,19 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sold reportat"
+            "value": "Carry-Over"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенос остатка"
+            "value": "Carry-Over"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prenesený zostatok"
+            "value": "Carry-Over"
           }
         },
         "sv": {
@@ -13749,7 +13749,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ยอดยกมา"
+            "value": "Carry-Over"
           }
         },
         "tr": {
@@ -14514,7 +14514,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Planificació"
+            "value": "Calendari"
           }
         },
         "cs": {
@@ -14574,7 +14574,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calendario"
+            "value": "Programación"
           }
         },
         "fi": {
@@ -14670,13 +14670,13 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Agendamento"
+            "value": "Agenda"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Agenda"
+            "value": "Calendarização"
           }
         },
         "ro": {
@@ -14855,7 +14855,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Új büdzsé"
+            "value": "Új költségkeret"
           }
         },
         "id": {
@@ -14885,7 +14885,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanjawan Baharu"
+            "value": "Bajet Baharu"
           }
         },
         "nb": {
@@ -15094,7 +15094,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé szerkesztése"
+            "value": "Költségkeret szerkesztése"
           }
         },
         "id": {
@@ -15124,7 +15124,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edit Belanjawan"
+            "value": "Edit Bajet"
           }
         },
         "nb": {
@@ -15309,7 +15309,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quand activé, les montants non dépensés ou dépassés sont reportés d'une période à l'autre"
+            "value": "Quand activé, les montants non dépensés ou dépassés sont reportés aux périodes suivantes"
           }
         },
         "he": {
@@ -15363,7 +15363,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apabila dihidupkan, jumlah yang tidak dibelanjakan atau dibelanjakan berlebihan dibawa ke tempoh berikutnya"
+            "value": "Bila dihidupkan, amaun yang tidak dibelanjakan atau terlebih belanja akan dibawa ke tempoh seterusnya"
           }
         },
         "nb": {
@@ -15775,7 +15775,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poista kulu"
+            "value": "Poista meno"
           }
         },
         "fr": {
@@ -15793,7 +15793,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מחק הוצאה"
+            "value": "מחיקת הוצאה"
           }
         },
         "hi": {
@@ -15895,7 +15895,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort utgift"
+            "value": "Radera utgift"
           }
         },
         "th": {
@@ -15919,7 +15919,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa chi tiêu"
+            "value": "Xóa khoản chi"
           }
         },
         "zh-Hans": {
@@ -16271,7 +16271,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שמור"
+            "value": "שמירה"
           }
         },
         "hi": {
@@ -16547,7 +16547,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "残高に加算するのではなく、残りの残高に追加します。"
+            "value": "残高から引くのではなく、残高に加算されます。"
           }
         },
         "ko": {
@@ -16589,7 +16589,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Adiciona ao seu saldo restante em vez de subtrair."
+            "value": "Adiciona ao saldo restante em vez de subtrair."
           }
         },
         "ro": {
@@ -16667,7 +16667,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afegir fons"
+            "value": "Afegeix fons"
           }
         },
         "cs": {
@@ -16679,7 +16679,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tilføj penge"
+            "value": "Tilføj beløb"
           }
         },
         "de": {
@@ -16769,7 +16769,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pénz hozzáadása"
+            "value": "Összeg hozzáadása"
           }
         },
         "id": {
@@ -17002,7 +17002,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odaberi datum unutar aktivnog razdoblja ovog budžeta."
+            "value": "Odaberi datum unutar aktivnog razdoblja ovog proračuna."
           }
         },
         "hu": {
@@ -17211,7 +17211,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poista kulu"
+            "value": "Poista meno"
           }
         },
         "fr": {
@@ -17229,7 +17229,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מחק הוצאה"
+            "value": "מחיקת הוצאה"
           }
         },
         "hi": {
@@ -17331,7 +17331,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort utgift"
+            "value": "Radera utgift"
           }
         },
         "th": {
@@ -17355,7 +17355,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa chi tiêu"
+            "value": "Xóa khoản chi"
           }
         },
         "zh-Hans": {
@@ -17809,7 +17809,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort utgift?"
+            "value": "Radera utgift?"
           }
         },
         "th": {
@@ -18120,7 +18120,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Betrag der Geldmittel"
+            "value": "Guthaben-Betrag"
           }
         },
         "el": {
@@ -18204,7 +18204,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hozzáadott pénz összege"
+            "value": "Hozzáadott összeg"
           }
         },
         "id": {
@@ -18246,7 +18246,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bedrag geld"
+            "value": "Bedrag tegoed"
           }
         },
         "pl": {
@@ -18300,7 +18300,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fon miktarı"
+            "value": "Para tutarı"
           }
         },
         "uk": {
@@ -18790,7 +18790,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thời gian"
+            "value": "Khi nào"
           }
         },
         "zh-Hans": {
@@ -19059,7 +19059,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afegir fons"
+            "value": "Afegeix fons"
           }
         },
         "cs": {
@@ -19071,7 +19071,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tilføj penge"
+            "value": "Tilføj beløb"
           }
         },
         "de": {
@@ -19161,7 +19161,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pénz hozzáadása"
+            "value": "Összeg hozzáadása"
           }
         },
         "id": {
@@ -19460,7 +19460,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "ex: Café"
+            "value": "ex. Café"
           }
         },
         "ro": {
@@ -19609,13 +19609,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "En pause depuis %@. Vous pouvez encore ajouter des dépenses datées avant ce moment."
+            "value": "Suspendu depuis le %@. Tu peux toujours ajouter des dépenses datées d'avant."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "En pause depuis %@. Vous pouvez encore ajouter des dépenses datées avant ce moment."
+            "value": "Suspendu depuis %@. Tu peux quand même ajouter des dépenses datées avant cette date."
           }
         },
         "he": {
@@ -19633,7 +19633,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pauzirano od %@. Možeš dodati troškove s ranijim datumom."
+            "value": "Pauzirano od %@. I dalje možeš dodati troškove s datumom prije toga."
           }
         },
         "hu": {
@@ -19663,7 +19663,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@부터 일시정지됨. 그 이전 날짜의 지출은 추가할 수 있습니다."
+            "value": "%@ 이후 일시 중지됨. 그 이전 날짜의 지출은 계속 추가할 수 있습니다."
           }
         },
         "ms": {
@@ -20353,7 +20353,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nema rezultata nedavnih rashoda"
+            "value": "Nema odgovarajućih nedavnih troškova"
           }
         },
         "hu": {
@@ -20689,7 +20689,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไม่มีการจับคู่"
+            "value": "ไม่พบรายการ"
           }
         },
         "tr": {
@@ -20827,7 +20827,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "हाल ही का"
+            "value": "हाल के"
           }
         },
         "hr": {
@@ -20935,7 +20935,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yakın Tarih"
+            "value": "Son Kullanılanlar"
           }
         },
         "uk": {
@@ -22144,7 +22144,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thời gian"
+            "value": "Khi nào"
           }
         },
         "zh-Hans": {
@@ -22257,7 +22257,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "הוסף הוצאה"
+            "value": "הוספת הוצאה"
           }
         },
         "hi": {
@@ -22383,7 +22383,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thêm chi tiêu"
+            "value": "Thêm khoản chi"
           }
         },
         "zh-Hans": {
@@ -22413,7 +22413,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afegir fons"
+            "value": "Afegeix fons"
           }
         },
         "cs": {
@@ -22425,7 +22425,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tilføj penge"
+            "value": "Tilføj beløb"
           }
         },
         "de": {
@@ -22515,7 +22515,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pénz hozzáadása"
+            "value": "Összeg hozzáadása"
           }
         },
         "id": {
@@ -22892,7 +22892,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afegir fons"
+            "value": "Afegeix fons"
           }
         },
         "cs": {
@@ -22904,7 +22904,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tilføj penge"
+            "value": "Tilføj beløb"
           }
         },
         "de": {
@@ -22994,7 +22994,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pénz hozzáadása"
+            "value": "Összeg hozzáadása"
           }
         },
         "id": {
@@ -23060,7 +23060,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Adaugă Fonduri"
+            "value": "Adaugă fonduri"
           }
         },
         "ru": {
@@ -23233,7 +23233,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Megnyitja a büdzsé részleteit"
+            "value": "Megnyitja a részleteket"
           }
         },
         "id": {
@@ -24326,7 +24326,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ més de la despesa %@"
+            "value": "%@ per sobre del pressupost %@"
           }
         },
         "cs": {
@@ -24422,7 +24422,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ prekoračenje budžeta %@"
+            "value": "%@ iznad proračuna %@"
           }
         },
         "hu": {
@@ -24770,7 +24770,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ завершився(-ась) %@"
+            "value": "%@ %@ завершено %@"
           }
         },
         "vi": {
@@ -25368,7 +25368,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "הוסף הוצאה"
+            "value": "הוספת הוצאה"
           }
         },
         "hi": {
@@ -25494,7 +25494,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thêm chi tiêu"
+            "value": "Thêm khoản chi"
           }
         },
         "zh-Hans": {
@@ -26025,7 +26025,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Συνέχεια προϋπολογισμού"
+            "value": "Συνέχιση προϋπολογισμού"
           }
         },
         "en": {
@@ -26091,7 +26091,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "बजट फिर शुरू करें"
+            "value": "बजट फिर से शुरू करें"
           }
         },
         "hr": {
@@ -26133,7 +26133,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sambung Semula Belanjawan"
+            "value": "Sambung Semula Bajet"
           }
         },
         "nb": {
@@ -26193,7 +26193,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "กลับมาใช้งบประมาณ"
+            "value": "ดำเนินงบประมาณต่อ"
           }
         },
         "tr": {
@@ -26223,7 +26223,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢復預算"
+            "value": "繼續預算"
           }
         }
       }
@@ -26264,7 +26264,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επαναφέρει τον προϋπολογισμό ώστε να μπορείς να καταγράφεις έξοδα"
+            "value": "Συνεχίζει τον προϋπολογισμό για να μπορείς να καταγράφεις έξοδα ξανά"
           }
         },
         "en": {
@@ -26312,13 +26312,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reprend le budget pour que vous puissiez à nouveau enregistrer des dépenses"
+            "value": "Reprend le budget pour que tu puisses à nouveau enregistrer des dépenses"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reprend le budget pour que vous puissiez à nouveau enregistrer des dépenses"
+            "value": "Reprend le budget pour que tu puisses enregistrer des dépenses à nouveau"
           }
         },
         "he": {
@@ -26372,7 +26372,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menyambung semula belanjawan supaya anda boleh log perbelanjaan sekali lagi"
+            "value": "Menyambung semula bajet supaya anda boleh log perbelanjaan semula"
           }
         },
         "nb": {
@@ -26390,7 +26390,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wznawia budżet, abyś mógł ponownie rejestrować wydatki"
+            "value": "Wznawia budżet, abyś mógł ponownie dodawać wydatki"
           }
         },
         "pt-BR": {
@@ -26742,7 +26742,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Σε παύση από %@. Συνέχισε για να καταγράφεις νέα έξοδα."
+            "value": "Σε παύση από %@. Συνέχισε για να καταγράψεις νέα έξοδα."
           }
         },
         "en": {
@@ -26790,13 +26790,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "En pause depuis %@. Reprenez pour enregistrer de nouvelles dépenses."
+            "value": "Suspendu depuis le %@. Reprendre pour enregistrer de nouvelles dépenses."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "En pause depuis %@. Reprenez pour enregistrer de nouvelles dépenses."
+            "value": "Suspendu depuis %@. Reprendre pour enregistrer de nouvelles dépenses."
           }
         },
         "he": {
@@ -27101,7 +27101,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Niets geregistreerd deze periode"
+            "value": "Nog niets vastgelegd deze periode"
           }
         },
         "pl": {
@@ -27818,7 +27818,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Niets geregistreerd deze periode"
+            "value": "Nog niets vastgelegd deze periode"
           }
         },
         "pl": {
@@ -28338,7 +28338,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort"
+            "value": "Radera"
           }
         },
         "th": {
@@ -28469,7 +28469,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune dépense enregistrée pour l'instant."
+            "value": "Aucune dépense enregistrée."
           }
         },
         "he": {
@@ -28816,7 +28816,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ta bort"
+            "value": "Radera"
           }
         },
         "th": {
@@ -29557,7 +29557,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chưa có tiêu đề"
+            "value": "Chưa đặt tên"
           }
         },
         "zh-Hans": {
@@ -29688,7 +29688,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé beállítások"
+            "value": "Költségkeret beállításai"
           }
         },
         "id": {
@@ -29718,7 +29718,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pilihan belanjawan"
+            "value": "Pilihan bajet"
           }
         },
         "nb": {
@@ -29927,7 +29927,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé szerkesztése"
+            "value": "Költségkeret szerkesztése"
           }
         },
         "id": {
@@ -29957,7 +29957,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edit Belanjawan"
+            "value": "Edit Bajet"
           }
         },
         "nb": {
@@ -30148,7 +30148,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "השהה תקציב"
+            "value": "השהיית תקציב"
           }
         },
         "hi": {
@@ -30190,13 +30190,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "예산 일시정지"
+            "value": "예산 일시 중지"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jeda Belanjawan"
+            "value": "Jeda Bajet"
           }
         },
         "nb": {
@@ -30387,7 +30387,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אפס תקציב…"
+            "value": "איפוס תקציב…"
           }
         },
         "hi": {
@@ -30405,13 +30405,13 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé visszaállítása…"
+            "value": "Visszaállítás…"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset Anggaran…"
+            "value": "Atur Ulang Anggaran…"
           }
         },
         "it": {
@@ -30435,7 +30435,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tetapkan Semula Belanjawan…"
+            "value": "Set Semula Bajet…"
           }
         },
         "nb": {
@@ -30483,7 +30483,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetovať rozpočet…"
+            "value": "Vynulovať rozpočet…"
           }
         },
         "sv": {
@@ -30560,7 +30560,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Löscht alle Ausgaben für dieses Budget dauerhaft, setzt den Übertrag auf null zurück und setzt das Budget fort, falls es pausiert ist."
+            "value": "Löscht alle Ausgaben für dieses Budget dauerhaft, setzt den Carry-Over auf null zurück und setzt das Budget fort, falls es pausiert ist."
           }
         },
         "el": {
@@ -30620,7 +30620,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprime de façon permanente toutes les dépenses de ce budget, réinitialise le solde reporté à zéro, et reprend le budget s'il est en pause."
+            "value": "Supprime définitivement toutes les dépenses de ce budget, réinitialise le Carry-Over à zéro et reprend le budget s'il est suspendu."
           }
         },
         "he": {
@@ -30638,25 +30638,25 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trajno briše sve troškove za ovaj budžet, resetira Carry-Over na nulu i nastavlja budžet ako je pauziran."
+            "value": "Trajno briše sve troškove za ovaj proračun, poništava Carry-Over na nulu i nastavlja proračun ako je pauziran."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Véglegesen törli a költségvetés összes kiadását, visszaállítja az egyenleget nullára, és folytatja a költségvetést, ha szünetelt."
+            "value": "Véglegesen törli az összes kiadást ehhez a költségkerethez, a Carry-Over értékét nullára állítja, és folytatja a költségkeretet, ha szüneteltetve van."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menghapus setiap pengeluaran untuk anggaran ini secara permanen, mereset saldo pembawaan ke nol, dan melanjutkan anggaran jika dijeda."
+            "value": "Menghapus semua pengeluaran untuk anggaran ini secara permanen, mengatur ulang Carry-Over ke nol, dan melanjutkan anggaran jika sedang dijeda."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina definitivamente tutte le spese di questo budget, azzera il riporto e riprende il budget se è in pausa."
+            "value": "Elimina definitivamente tutte le spese per questo budget, azzera il Carry-Over e riprende il budget se è sospeso."
           }
         },
         "ja": {
@@ -30680,7 +30680,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sletter permanent alle utgifter for dette budsjettet, nullstiller overføring, og gjenopptar budsjettet hvis det er pausert."
+            "value": "Sletter alle utgifter for dette budsjettet permanent, nullstiller Carry-Over til null og gjenopptar budsjettet hvis det er på pause."
           }
         },
         "nl": {
@@ -30692,7 +30692,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trwale usuwa wszystkie wydatki dla tego budżetu, resetuje przeniesienie salda do zera i wznawia budżet, jeśli jest wstrzymany."
+            "value": "Trwale usuwa wszystkie wydatki z tego budżetu, resetuje Carry-Over do zera i wznawia budżet, jeśli jest wstrzymany."
           }
         },
         "pt-BR": {
@@ -30710,19 +30710,19 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Șterge permanent fiecare cheltuială pentru acest buget, resetează soldul reportat la zero și reia bugetul dacă este pus în pauză."
+            "value": "Șterge definitiv toate cheltuielile acestui buget, resetează Carry-Over la zero și reia bugetul dacă este întrerupt."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Окончательно удаляет все расходы этого бюджета, сбрасывает остаток на ноль и возобновляет бюджет, если он приостановлен."
+            "value": "Навсегда удаляет все расходы по этому бюджету, сбрасывает Carry-Over до нуля и возобновляет бюджет, если он приостановлен."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Natrvalo odstráni všetky výdavky pre tento rozpočet, vynuluje prebytok a obnoví rozpočet, ak je pozastavený."
+            "value": "Natrvalo vymaže všetky výdavky tohto rozpočtu, vynuluje Carry-Over na nulu a obnoví rozpočet, ak je pozastavený."
           }
         },
         "sv": {
@@ -30776,7 +30776,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "إعادة تعيين الرصيد المرحل..."
+            "value": "إعادة تعيين Carry-Over…"
           }
         },
         "ca": {
@@ -30842,7 +30842,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciar Carry-Over…"
+            "value": "Restablecer Carry-Over…"
           }
         },
         "fi": {
@@ -30890,13 +30890,13 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setel Ulang Carry-Over…"
+            "value": "Atur Ulang Carry-Over…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Azzera Carry-Over…"
+            "value": "Reimposta Carry-Over…"
           }
         },
         "ja": {
@@ -30908,7 +30908,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over 리셋…"
+            "value": "Carry-Over 재설정…"
           }
         },
         "ms": {
@@ -30920,13 +30920,13 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tilbakestill Carry-Over…"
+            "value": "Nullstill Carry-Over…"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over opnieuw instellen…"
+            "value": "Herstel Carry-Over…"
           }
         },
         "pl": {
@@ -31160,7 +31160,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tilbakestiller carry-over-saldoen til null. Utgiftene påvirkes ikke."
+            "value": "Tømmer Carry-Over-saldoen til null. Utgifter påvirkes ikke."
           }
         },
         "nl": {
@@ -31226,7 +31226,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Очищує залишок Carry-Over до нуля. Витрати не впливаються."
+            "value": "Скидає баланс Carry-Over до нуля. Витрати не змінюються."
           }
         },
         "vi": {
@@ -31285,7 +31285,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Συνέχεια προϋπολογισμού"
+            "value": "Συνέχιση προϋπολογισμού"
           }
         },
         "en": {
@@ -31351,7 +31351,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "बजट फिर शुरू करें"
+            "value": "बजट फिर से शुरू करें"
           }
         },
         "hr": {
@@ -31393,7 +31393,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sambung Semula Belanjawan"
+            "value": "Sambung Semula Bajet"
           }
         },
         "nb": {
@@ -31453,7 +31453,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "กลับมาใช้งบประมาณ"
+            "value": "ดำเนินงบประมาณต่อ"
           }
         },
         "tr": {
@@ -31483,7 +31483,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢復預算"
+            "value": "繼續預算"
           }
         }
       }
@@ -31584,7 +31584,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אפס תקציב"
+            "value": "איפוס תקציב"
           }
         },
         "hi": {
@@ -31602,7 +31602,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé visszaállítása"
+            "value": "Visszaállítás"
           }
         },
         "id": {
@@ -31632,7 +31632,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tetapkan Semula Belanjawan"
+            "value": "Set Semula Bajet"
           }
         },
         "nb": {
@@ -31680,7 +31680,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetovať rozpočet"
+            "value": "Vynulovať rozpočet"
           }
         },
         "sv": {
@@ -31757,7 +31757,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Ausgaben werden dauerhaft gelöscht, der Übertrag wird auf null zurückgesetzt, und wenn das Budget pausiert ist, wird es fortgesetzt."
+            "value": "Alle Ausgaben werden dauerhaft gelöscht, der Carry-Over auf null zurückgesetzt und das Budget fortgesetzt, falls es pausiert ist."
           }
         },
         "el": {
@@ -31817,13 +31817,13 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toutes les dépenses seront supprimées de façon permanente, le solde reporté sera réinitialisé à zéro, et le budget reprendra s'il est en pause."
+            "value": "Toutes les dépenses seront supprimées définitivement, le Carry-Over sera réinitialisé à zéro et, si suspendu, le budget reprendra."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כל ההוצאות תימחקנה לצמיתות, היתרה המובאה תאופס לאפס, וההוצאה תחודש אם היא הושהתה."
+            "value": "כל ההוצאות יימחקו לצמיתות, ה-Carry-Over יאופס לאפס, ואם התקציב מושהה הוא יחודש."
           }
         },
         "hi": {
@@ -31835,25 +31835,25 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Svi troškovi bit će trajno izbrisani, Carry-Over će se resetirati na nulu, a budžet će se nastaviti ako je pauziran."
+            "value": "Svi troškovi bit će trajno izbrisani, Carry-Over se poništava na nulu, a ako je pauziran, proračun će se nastaviti."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az összes kiadás véglegesen törlésre kerül, az egyenleg vissza lesz állítva nullára, és ha szünetel, a költségvetés folytatódik."
+            "value": "Minden kiadás véglegesen törlődik, a Carry-Over nullára áll vissza, és ha szüneteltetve volt, a költségkeret folytatódik."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Semua pengeluaran akan dihapus secara permanen, saldo pembawaan akan direset ke nol, dan jika dijeda, anggaran akan dilanjutkan kembali."
+            "value": "Semua pengeluaran akan dihapus secara permanen, Carry-Over akan diatur ulang ke nol, dan jika dijeda, anggaran akan dilanjutkan."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutte le spese verranno eliminate definitivamente, il riporto sarà azzerato e se il budget è in pausa, riprenderà."
+            "value": "Tutte le spese verranno eliminate definitivamente, il Carry-Over verrà azzerato e, se sospeso, il budget riprenderà."
           }
         },
         "ja": {
@@ -31877,7 +31877,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle utgifter blir permanent slettet, overføring nullstilles, og hvis budsjettet er pausert, vil det gjenoppta."
+            "value": "Alle utgifter slettes permanent, Carry-Over nullstilles til null, og hvis budsjettet er på pause, gjenopptas det."
           }
         },
         "nl": {
@@ -31889,7 +31889,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wszystkie wydatki zostaną trwale usunięte, przeniesienie salda zostanie zresetowane do zera i jeśli budżet jest wstrzymany, zostanie wznowiony."
+            "value": "Wszystkie wydatki zostaną trwale usunięte, Carry-Over zostanie zresetowany do zera, a budżet wznowi działanie, jeśli jest wstrzymany."
           }
         },
         "pt-BR": {
@@ -31907,19 +31907,19 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toate cheltuielile vor fi șterse permanent, soldul reportat se va reseta la zero și, dacă este pus în pauză, bugetul va fi reluat."
+            "value": "Toate cheltuielile vor fi șterse definitiv, Carry-Over va fi resetat la zero, iar dacă bugetul este întrerupt, va fi reluat."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Все расходы будут удалены навсегда, перенос обнулится, а если бюджет на паузе — он возобновится."
+            "value": "Все расходы будут удалены навсегда, Carry-Over сбросится до нуля, а если бюджет приостановлен — он возобновится."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Všetky výdavky budú natrvalo odstránené, prebytok sa vynuluje a ak je rozpočet pozastavený, bude obnovený."
+            "value": "Všetky výdavky budú natrvalo vymazané, Carry-Over sa vynuluje na nulu, a ak je rozpočet pozastavený, bude obnovený."
           }
         },
         "sv": {
@@ -32080,7 +32080,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Visszaállítja a büdzsét?"
+            "value": "Visszaállítja a költségkeretet?"
           }
         },
         "id": {
@@ -32110,7 +32110,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tetapkan Semula Belanjawan?"
+            "value": "Set Semula Bajet?"
           }
         },
         "nb": {
@@ -32158,7 +32158,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetovať rozpočet?"
+            "value": "Vynulovať rozpočet?"
           }
         },
         "sv": {
@@ -32427,7 +32427,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đặt lại về không"
+            "value": "Đặt lại về 0"
           }
         },
         "zh-Hans": {
@@ -32450,7 +32450,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "سيُمسح رصيد الترحيل ويبدأ من الصفر."
+            "value": "سيتم مسح رصيد Carry-Over والبدء من جديد من الصفر."
           }
         },
         "ca": {
@@ -32462,7 +32462,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přenesený zůstatek bude vymazán a začne znovu od nuly."
+            "value": "Zůstatek Carry-Over bude vymazán a začne znovu od nuly."
           }
         },
         "da": {
@@ -32474,7 +32474,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Übertragsaldo wird gelöscht und beginnt neu bei null."
+            "value": "Der Carry-Over-Saldo wird gelöscht und bei null neu gestartet."
           }
         },
         "el": {
@@ -32540,25 +32540,25 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "היתרה המועברת תנוקה ותתחיל מחדש מאפס."
+            "value": "יתרת ה-Carry-Over תנוקה ותתחיל מחדש מאפס."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "कैरी-ओवर बैलेंस साफ़ हो जाएगा और शून्य से नए सिरे से शुरू होगा।"
+            "value": "Carry-Over शेष साफ़ हो जाएगा और शून्य से नए सिरे से शुरू होगा।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preneseni saldo bit će obrisan i počet će iznova od nule."
+            "value": "Stanje Carry-Over bit će obrisano i početi iznova od nule."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az áthozott egyenleg törlődik, és nulláról kezdődik újra."
+            "value": "A Carry-Over egyenleg törlődik, és nulláról kezdődik újra."
           }
         },
         "id": {
@@ -32570,7 +32570,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il saldo riportato verrà azzerato e ripartirà da zero."
+            "value": "Il saldo del Carry-Over verrà cancellato e ripartirà da zero."
           }
         },
         "ja": {
@@ -32594,7 +32594,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Overføringssaldoen slettes og begynner på nytt fra null."
+            "value": "Carry-Over-saldoen tømmes og starter på nytt fra null."
           }
         },
         "nl": {
@@ -32606,7 +32606,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Przeniesione saldo zostanie wyczyszczone i zacznie się od zera."
+            "value": "Saldo Carry-Over zostanie wyczyszczone i zacznie od nowa od zera."
           }
         },
         "pt-BR": {
@@ -32624,19 +32624,19 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Soldul reportat va fi șters și va reporni de la zero."
+            "value": "Soldul Carry-Over va fi șters și va reîncepe de la zero."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенесённый баланс будет очищен и начнётся заново с нуля."
+            "value": "Баланс Carry-Over будет очищен и начнётся заново с нуля."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prenesený zostatok bude vymazaný a začne sa odznova od nuly."
+            "value": "Zostatok Carry-Over bude vymazaný a začne odznova od nuly."
           }
         },
         "sv": {
@@ -32689,7 +32689,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "إعادة تعيين الترحيل؟"
+            "value": "إعادة تعيين Carry-Over؟"
           }
         },
         "ca": {
@@ -32701,7 +32701,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetovat přenesený zůstatek?"
+            "value": "Vynulovat Carry-Over?"
           }
         },
         "da": {
@@ -32713,7 +32713,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Übertrag zurücksetzen?"
+            "value": "Carry-Over zurücksetzen?"
           }
         },
         "el": {
@@ -32755,7 +32755,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Reiniciar Carry-Over?"
+            "value": "¿Restablecer Carry-Over?"
           }
         },
         "fi": {
@@ -32779,19 +32779,19 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "לאפס את היתרה המועברת?"
+            "value": "לאפס את ה-Carry-Over?"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "कैरी-ओवर रीसेट करें?"
+            "value": "Carry-Over रीसेट करें?"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poništiti preneseni saldo?"
+            "value": "Poništiti Carry-Over?"
           }
         },
         "hu": {
@@ -32809,7 +32809,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Azzerare il saldo riportato?"
+            "value": "Reimposta il Carry-Over?"
           }
         },
         "ja": {
@@ -32833,7 +32833,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nullstille overføring?"
+            "value": "Nullstill Carry-Over?"
           }
         },
         "nl": {
@@ -32845,13 +32845,13 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wyzerować przeniesione saldo?"
+            "value": "Zresetować Carry-Over?"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zerar o Carry-Over?"
+            "value": "Redefinir carry-over?"
           }
         },
         "pt-PT": {
@@ -32863,19 +32863,19 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetezi soldul reportat?"
+            "value": "Resetezi Carry-Over?"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сбросить перенесённый баланс?"
+            "value": "Сбросить Carry-Over?"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vynulovať prenesený zostatok?"
+            "value": "Vynulovať Carry-Over?"
           }
         },
         "sv": {
@@ -33269,7 +33269,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trenutno razdoblje"
+            "value": "Trenutačno razdoblje"
           }
         },
         "hu": {
@@ -33371,7 +33371,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mevcut Dönem"
+            "value": "Geçerli Dönem"
           }
         },
         "uk": {
@@ -33604,7 +33604,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "วันนี้"
+            "value": "วันปัจจุบัน"
           }
         },
         "tr": {
@@ -33986,7 +33986,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trenutno razdoblje"
+            "value": "Trenutačno razdoblje"
           }
         },
         "hu": {
@@ -34088,7 +34088,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mevcut Dönem"
+            "value": "Geçerli Dönem"
           }
         },
         "uk": {
@@ -34100,7 +34100,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kỳ Hiện Tại"
+            "value": "Kỳ hiện tại"
           }
         },
         "zh-Hans": {
@@ -34733,7 +34733,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "지난 날"
+            "value": "이전 날짜"
           }
         },
         "ms": {
@@ -35295,7 +35295,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Các Kỳ Trước"
+            "value": "Các kỳ trước"
           }
         },
         "zh-Hans": {
@@ -35647,7 +35647,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "צור תקציב"
+            "value": "יצירת תקציב"
           }
         },
         "hi": {
@@ -35665,7 +35665,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé létrehozása"
+            "value": "Költségkeret létrehozása"
           }
         },
         "id": {
@@ -35695,7 +35695,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buat belanjawan"
+            "value": "Buat bajet"
           }
         },
         "nb": {
@@ -35838,7 +35838,7 @@
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create your first recurring budget to start tracking what you spend each day, week, biweek, or month."
+            "value": "Create your first recurring budget to start tracking what you spend each day, week, fortnight, or month."
           }
         },
         "en-CA": {
@@ -35910,7 +35910,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buat anggaran berulang pertamamu untuk mulai melacak pengeluaran setiap hari, minggu, dua mingguan, atau bulan."
+            "value": "Buat anggaran berulang pertamamu untuk mulai melacak pengeluaran harian, mingguan, dua mingguan, atau bulanan."
           }
         },
         "it": {
@@ -35934,7 +35934,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buat belanjawan berulang pertama anda untuk mula menjejaki perbelanjaan setiap hari, minggu, dua minggu, atau bulan."
+            "value": "Buat bajet berulang pertama anda untuk mula menjejak perbelanjaan harian, mingguan, dua mingguan, atau bulanan."
           }
         },
         "nb": {
@@ -35964,7 +35964,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Crie o seu primeiro orçamento recorrente para começar a acompanhar o que gasta por dia, semana, quinzena ou mês."
+            "value": "Cria o teu primeiro orçamento recorrente para começar a acompanhar o que gastas por dia, semana, quinzena ou mês."
           }
         },
         "ro": {
@@ -36143,7 +36143,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Még nincs büdzsé"
+            "value": "Még nincs költségkeret"
           }
         },
         "id": {
@@ -36173,7 +36173,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiada belanjawan lagi"
+            "value": "Tiada bajet lagi"
           }
         },
         "nb": {
@@ -36382,7 +36382,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsék"
+            "value": "Költségkeretek"
           }
         },
         "id": {
@@ -36412,7 +36412,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanjawan"
+            "value": "Bajet"
           }
         },
         "nb": {
@@ -36537,7 +36537,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Defizit-Übertrag"
+            "value": "%@ Defizit-Carry-Over"
           }
         },
         "el": {
@@ -36609,13 +36609,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ घाटे का कैरी-ओवर"
+            "value": "%@ घाटा Carry-Over"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ deficit, preneseni saldo"
+            "value": "Carry-Over s manjkom od %@"
           }
         },
         "hu": {
@@ -36633,7 +36633,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "saldo riportato in deficit di %@"
+            "value": "Carry-Over con disavanzo di %@"
           }
         },
         "ja": {
@@ -36657,7 +36657,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ underskudd i overføring"
+            "value": "%@ underskudd Carry-Over"
           }
         },
         "nl": {
@@ -36669,7 +36669,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "przeniesiony deficyt: %@"
+            "value": "%@ deficyt Carry-Over"
           }
         },
         "pt-BR": {
@@ -36687,7 +36687,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sold reportat deficit %@"
+            "value": "Carry-Over deficit %@"
           }
         },
         "ru": {
@@ -36776,7 +36776,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Überschuss-Übertrag"
+            "value": "%@ Überschuss-Carry-Over"
           }
         },
         "el": {
@@ -36848,13 +36848,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ अधिशेष का कैरी-ओवर"
+            "value": "%@ अधिशेष Carry-Over"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ višak, preneseni saldo"
+            "value": "Carry-Over s viškom od %@"
           }
         },
         "hu": {
@@ -36872,7 +36872,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "saldo riportato in surplus di %@"
+            "value": "Carry-Over con avanzo di %@"
           }
         },
         "ja": {
@@ -36896,7 +36896,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ overskudd i overføring"
+            "value": "%@ overskudd Carry-Over"
           }
         },
         "nl": {
@@ -36908,7 +36908,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "przeniesiona nadwyżka: %@"
+            "value": "%@ nadwyżka Carry-Over"
           }
         },
         "pt-BR": {
@@ -36926,7 +36926,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sold reportat surplus %@"
+            "value": "Carry-Over surplus %@"
           }
         },
         "ru": {
@@ -37003,7 +37003,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "přenesený zůstatek nula"
+            "value": "nulový Carry-Over"
           }
         },
         "da": {
@@ -37015,7 +37015,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "kein Übertrag"
+            "value": "Kein Carry-Over"
           }
         },
         "el": {
@@ -37087,13 +37087,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "शून्य कैरी-ओवर"
+            "value": "शून्य Carry-Over"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "preneseni saldo: nula"
+            "value": "Carry-Over je nula"
           }
         },
         "hu": {
@@ -37111,7 +37111,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "saldo riportato zero"
+            "value": "Carry-Over a zero"
           }
         },
         "ja": {
@@ -37135,7 +37135,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "ingen overføring"
+            "value": "null Carry-Over"
           }
         },
         "nl": {
@@ -37147,7 +37147,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "przeniesione saldo zerowe"
+            "value": "zerowy Carry-Over"
           }
         },
         "pt-BR": {
@@ -37165,7 +37165,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sold reportat zero"
+            "value": "Carry-Over zero"
           }
         },
         "ru": {
@@ -37332,7 +37332,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "deficit"
+            "value": "manjak"
           }
         },
         "hu": {
@@ -37350,7 +37350,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "deficit"
+            "value": "disavanzo"
           }
         },
         "ja": {
@@ -37458,7 +37458,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "赤字"
+            "value": "超支"
           }
         }
       }
@@ -37481,7 +37481,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "přenesený zůstatek"
+            "value": "Carry-Over"
           }
         },
         "da": {
@@ -37493,7 +37493,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "Carry-Over"
           }
         },
         "el": {
@@ -37565,13 +37565,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "कैरी-ओवर"
+            "value": "Carry-Over"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "preneseni saldo"
+            "value": "carry-over"
           }
         },
         "hu": {
@@ -37589,7 +37589,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "saldo riportato"
+            "value": "carry-over"
           }
         },
         "ja": {
@@ -37613,7 +37613,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "overføring"
+            "value": "Carry-Over"
           }
         },
         "nl": {
@@ -37643,19 +37643,19 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "sold reportat"
+            "value": "carry-over"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "перенос остатка"
+            "value": "carry-over"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "prenesený zostatok"
+            "value": "carry-over"
           }
         },
         "sv": {
@@ -37667,7 +37667,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ยอดยกมา"
+            "value": "carry-over"
           }
         },
         "tr": {
@@ -37828,7 +37828,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "surplus"
+            "value": "avanzo"
           }
         },
         "ja": {
@@ -37840,7 +37840,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "흑자"
+            "value": "잉여"
           }
         },
         "ms": {
@@ -39058,7 +39058,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Onderbroken sinds %@"
+            "value": "Gepauzeerd sinds %@"
           }
         },
         "pl": {
@@ -39082,7 +39082,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pausat din %@"
+            "value": "Întrerupt din %@"
           }
         },
         "ru": {
@@ -39298,7 +39298,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Onderbroken · %@"
+            "value": "Gepauzeerd · %@"
           }
         },
         "pl": {
@@ -39322,7 +39322,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pausat · %@"
+            "value": "Întrerupt · %@"
           }
         },
         "ru": {
@@ -39656,7 +39656,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κοινοποίηση Ανώνυμων Δεδομένων Χρήσης"
+            "value": "Κοινή χρήση ανώνυμων δεδομένων χρήσης"
           }
         },
         "en": {
@@ -39698,7 +39698,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jaa anonyymiä käyttötietoa"
+            "value": "Jaa anonyymejä käyttötietoja"
           }
         },
         "fr": {
@@ -39710,25 +39710,25 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Partager les données d'utilisation anonymes"
+            "value": "Partager des données d'utilisation anonymes"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שתף נתוני שימוש אנונימיים"
+            "value": "שיתוף נתוני שימוש אנונימיים"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अनाम उपयोग डेटा शेयर करें"
+            "value": "गुमनाम उपयोग डेटा साझा करें"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dijeli anonimne podatke o korištenju"
+            "value": "Dijeli anonimne podatke o upotrebi"
           }
         },
         "hu": {
@@ -39770,7 +39770,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Del anonym bruksdata"
+            "value": "Del anonyme bruksdata"
           }
         },
         "nl": {
@@ -39800,13 +39800,13 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Partajează date anonime de utilizare"
+            "value": "Partajează date de utilizare anonime"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Делиться анонимными данными"
+            "value": "Делиться анонимными данными об использовании"
           }
         },
         "sk": {
@@ -39848,7 +39848,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "分享匿名使用数据"
+            "value": "共享匿名使用数据"
           }
         },
         "zh-Hant": {
@@ -39931,7 +39931,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para ayudar a solucionar problemas y entender el uso de la app, se envían datos de uso anónimos a sistemas de análisis. Algunos ejemplos de lo que se comparte: configuraciones del presupuesto como el período, el código de divisa, Carry-Over activado/desactivado, el monto asignado, entre otros. Nunca se comparte: nombres de gastos, montos, fechas, ningún identificador de Apple/iCloud, notas de texto libre ni información personal. Esta decisión puede cambiarse en cualquier momento desde la pantalla de Configuración."
+            "value": "Para ayudar a detectar problemas y entender el uso, esta app envía datos de uso anónimos a sistemas de análisis. Algunos ejemplos de lo que se comparte: configuración del presupuesto como periodo, código de moneda, Carry-Over activado/desactivado, monto de asignación, entre otros. Nunca se comparte: nombres de gastos, montos, fechas, identificadores de Apple/iCloud, notas de texto libre ni información personal. Esta decisión puede cambiarse en cualquier momento desde la pantalla de Ajustes."
           }
         },
         "fi": {
@@ -39949,7 +39949,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour aider à diagnostiquer les problèmes et à comprendre l'utilisation, cette app envoie des données d'utilisation anonymes à des systèmes d'analyse. Voici des exemples de ce qui est partagé : les paramètres de budget comme la période, le code de devise, l'activation ou désactivation du Carry-Over, le montant alloué, etc. Ce qui n'est jamais partagé : les noms, montants et dates des dépenses, les identifiants Apple/iCloud, les notes ou renseignements personnels. Cette décision peut être modifiée en tout temps dans les Réglages."
+            "value": "Pour aider à résoudre les problèmes et comprendre l'utilisation, cette app envoie des données d'utilisation anonymes à des systèmes d'analyse. Parmi les exemples partagés : les réglages de budget comme la période, le code de devise, l'activation du Carry-Over, le montant de l'allocation, etc. Ce qui n'est jamais partagé : les noms de dépenses, les montants, les dates, les identifiants Apple/iCloud, les notes libres ou toute information personnelle. Tu peux modifier ce choix en tout temps dans l'écran Réglages."
           }
         },
         "he": {
@@ -39967,7 +39967,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kako bismo pomogli u rješavanju problema i razumijevanju korištenja, ova aplikacija šalje anonimne podatke o korištenju pozadinskim sustavima za analizu. Primjeri dijeljenih podataka uključuju postavke proračuna poput razdoblja, koda valute, Carry-Over uključeno/isključeno, iznosa dodjele i slično. Nikada se ne dijele: nazivi troškova, iznosi, datumi, identifikatori Apple/iCloud, slobodni tekstualni zapisi ni osobni podaci. Ovu odluku možeš promijeniti u bilo kojem trenutku na zaslonu Postavki."
+            "value": "Kako bi se olakšalo rješavanje problema i razumijevanje upotrebe, aplikacija šalje anonimne podatke o upotrebi na pozadinske sustave radi analize. Primjeri dijeljenih podataka uključuju postavke proračuna kao što su razdoblje, šifra valute, Carry-Over uključeno/isključeno, iznos dodjele i slično. Nikad se ne dijele: nazivi troškova, iznosi, datumi, ni Apple/iCloud identifikatori, ni slobodni tekst, bilješke ili osobni podaci. Ova se odluka može promijeniti u bilo kojem trenutku na zaslonu Postavke."
           }
         },
         "hu": {
@@ -40218,7 +40218,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tidak, Terima Kasih"
+            "value": "Tidak, Makasih"
           }
         },
         "it": {
@@ -40373,7 +40373,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Βοηθήστε να Βελτιωθεί η Εφαρμογή;"
+            "value": "Βελτίωση της εφαρμογής;"
           }
         },
         "en": {
@@ -40559,7 +40559,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Giúp Cải Thiện Ứng Dụng?"
+            "value": "Giúp cải thiện ứng dụng?"
           }
         },
         "zh-Hans": {
@@ -40595,7 +40595,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opakovat"
+            "value": "Zkusit znovu"
           }
         },
         "da": {
@@ -41153,7 +41153,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שלח משוב"
+            "value": "שליחת משוב"
           }
         },
         "hi": {
@@ -41627,7 +41627,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une erreur est survenue lors du chargement de vos budgets. Réessayez, ou envoyez-nous les détails pour que nous puissions vous aider."
+            "value": "Une erreur s'est produite lors du chargement de tes budgets. Réessaie, ou envoie-nous les détails pour qu'on puisse t'aider."
           }
         },
         "he": {
@@ -41651,7 +41651,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Valami hiba történt a költségvetések betöltésekor. Próbáld újra, vagy küldj nekünk részleteket, hogy tudjunk segíteni."
+            "value": "Hiba történt a költségkeretek betöltésekor. Próbáld újra, vagy küldj részleteket, hogy segíthessünk."
           }
         },
         "id": {
@@ -41867,7 +41867,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'app n'a pas pu ouvrir votre magasin de données. Contexte de diagnostic (sans données personnelles) :"
+            "value": "L'app n'a pas pu ouvrir ta banque de données. Contexte de diagnostic (aucune donnée personnelle) :"
           }
         },
         "he": {
@@ -41951,7 +41951,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "A app não conseguiu abrir o seu armazenamento de dados. Contexto de diagnóstico (sem dados pessoais):"
+            "value": "A app não conseguiu abrir o armazenamento de dados. Contexto de diagnóstico (sem dados pessoais):"
           }
         },
         "ro": {
@@ -42107,7 +42107,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez décrire ce qui se passait sur votre appareil quand cela a commencé :"
+            "value": "Décris ce qui se passait sur ton appareil au moment où ça a commencé :"
           }
         },
         "he": {
@@ -42125,7 +42125,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opiši što se događalo na uređaju kada je to počelo:"
+            "value": "Opišite što se događalo na vašem uređaju kada je ovo počelo:"
           }
         },
         "hu": {
@@ -42269,7 +42269,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "No s'ha pogut obrir les teves dades"
+            "value": "No s'han pogut obrir les dades"
           }
         },
         "cs": {
@@ -42323,7 +42323,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido abrir tus datos"
+            "value": "No se pudieron abrir tus datos"
           }
         },
         "es-MX": {
@@ -42347,7 +42347,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible d'ouvrir vos données"
+            "value": "Impossible d'ouvrir tes données"
           }
         },
         "he": {
@@ -42431,7 +42431,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível abrir os seus dados"
+            "value": "Não foi possível abrir os dados"
           }
         },
         "ro": {
@@ -44740,7 +44740,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez décrire ce que vous faisiez lorsque cela s'est produit :"
+            "value": "Décris ce que tu faisais au moment où c'est arrivé :"
           }
         },
         "he": {
@@ -44848,7 +44848,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beskriver vad du gjorde när detta inträffade:"
+            "value": "Beskriv vad du gjorde när det här hände:"
           }
         },
         "th": {
@@ -44878,7 +44878,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请描述您在此时发生此情况时正在进行的操作："
+            "value": "请描述发生此情况时您正在做什么："
           }
         },
         "zh-Hant": {
@@ -45153,7 +45153,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hver anden uge"
+            "value": "Hver 14. dag"
           }
         },
         "de": {
@@ -45177,7 +45177,7 @@
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Biweekly"
+            "value": "Fortnightly"
           }
         },
         "en-CA": {
@@ -45213,7 +45213,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bihebdomadaire"
+            "value": "Bimensuel"
           }
         },
         "fr-CA": {
@@ -45243,7 +45243,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kéthetes"
+            "value": "Kétheti"
           }
         },
         "id": {
@@ -45392,7 +45392,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "hver anden uge"
+            "value": "hver 14. dag"
           }
         },
         "de": {
@@ -45416,7 +45416,7 @@
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "biweekly"
+            "value": "fortnightly"
           }
         },
         "en-CA": {
@@ -46581,13 +46581,13 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Konkrétní data"
+            "value": "Konkrétní termíny"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Specifikke datoer"
+            "value": "Bestemte datoer"
           }
         },
         "de": {
@@ -46629,7 +46629,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fechas específicas"
+            "value": "Fechas concretas"
           }
         },
         "es-MX": {
@@ -46647,7 +46647,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dates spécifiques"
+            "value": "Dates précises"
           }
         },
         "fr-CA": {
@@ -46677,7 +46677,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meghatározott dátumok"
+            "value": "Konkrét dátumok"
           }
         },
         "id": {
@@ -46713,7 +46713,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spesifikke datoer"
+            "value": "Bestemte datoer"
           }
         },
         "nl": {
@@ -46785,7 +46785,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ngày Cụ Thể"
+            "value": "Ngày cụ thể"
           }
         },
         "zh-Hans": {
@@ -46797,7 +46797,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "指定日期"
+            "value": "特定日期"
           }
         }
       }
@@ -46826,7 +46826,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "specifikke datoer"
+            "value": "bestemte datoer"
           }
         },
         "de": {
@@ -46868,7 +46868,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "fechas específicas"
+            "value": "fechas concretas"
           }
         },
         "es-MX": {
@@ -46952,7 +46952,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "spesifikke datoer"
+            "value": "bestemte datoer"
           }
         },
         "nl": {
@@ -48089,7 +48089,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une erreur s'est produite lors de l'enregistrement de vos modifications. Vos informations sont toujours ici — veuillez réessayer."
+            "value": "Une erreur s'est produite lors de l'enregistrement. Tes informations sont toujours là — réessaie."
           }
         },
         "he": {
@@ -48107,7 +48107,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Došlo je do pogreške pri spremanju. Tvoji podaci su i dalje ovdje — pokušaj ponovo."
+            "value": "Nešto je pošlo po krivu pri spremanju promjena. Vaši podaci su i dalje ovdje — pokušajte ponovo."
           }
         },
         "hu": {
@@ -48329,7 +48329,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nous n'avons pas pu enregistrer vos modifications. Vos informations sont toujours ici — réessayez ou envoyez-nous les détails de l'erreur pour que nous puissions vous aider."
+            "value": "Nous n'avons pas pu enregistrer tes modifications. Tes informations sont toujours là — réessaie, ou envoie-nous les détails de l'erreur pour qu'on puisse t'aider."
           }
         },
         "he": {
@@ -48347,7 +48347,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Promjene nisu mogle biti spremljene. Tvoji podaci su i dalje ovdje — pokušaj ponovo ili nam pošalji detalje pogreške."
+            "value": "Promjene nije bilo moguće spremiti. Vaši podaci su i dalje ovdje — pokušajte ponovo ili nam pošaljite detalje greške kako bismo mogli pomoći."
           }
         },
         "hu": {
@@ -48497,7 +48497,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opakovat"
+            "value": "Zkusit znovu"
           }
         },
         "da": {
@@ -48815,7 +48815,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שלח משוב"
+            "value": "שליחת משוב"
           }
         },
         "hi": {
@@ -49850,7 +49850,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os dados de utilização anónimos ajudam a identificar problemas e a compreender a utilização. O que é incluído: definições do orçamento como período, código de moeda, Carry-Over ativo/inativo, valor de alocação, entre outros. O que nunca é incluído: nomes de despesas, montantes, datas, quaisquer identificadores Apple/iCloud, notas de texto livre ou informações pessoais. A definição inicial foi escolhida automaticamente com base na região do seu dispositivo."
+            "value": "Os dados de utilização anónimos ajudam a resolver problemas e a compreender o uso. O que está incluído: definições do orçamento como período, código de moeda, Carry-Over ativado/desativado, montante da verba, entre outros. O que nunca está incluído: nomes de despesas, montantes, datas, quaisquer identificadores Apple/iCloud, notas de texto livre ou informações pessoais. A definição inicial foi escolhida automaticamente com base na região do dispositivo."
           }
         },
         "ro": {
@@ -49951,7 +49951,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κοινοποίηση Ανώνυμων Δεδομένων Χρήσης"
+            "value": "Κοινή χρήση ανώνυμων δεδομένων χρήσης"
           }
         },
         "en": {
@@ -49993,7 +49993,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jaa anonyymiä käyttötietoa"
+            "value": "Jaa anonyymejä käyttötietoja"
           }
         },
         "fr": {
@@ -50005,25 +50005,25 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Partager les données d'utilisation anonymes"
+            "value": "Partager des données d'utilisation anonymes"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שתף נתוני שימוש אנונימיים"
+            "value": "שיתוף נתוני שימוש אנונימיים"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अनाम उपयोग डेटा शेयर करें"
+            "value": "गुमनाम उपयोग डेटा साझा करें"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dijeli anonimne podatke o korištenju"
+            "value": "Dijeli anonimne podatke o upotrebi"
           }
         },
         "hu": {
@@ -50065,7 +50065,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Del anonym bruksdata"
+            "value": "Del anonyme bruksdata"
           }
         },
         "nl": {
@@ -50143,7 +50143,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "分享匿名使用数据"
+            "value": "共享匿名使用数据"
           }
         },
         "zh-Hant": {
@@ -50172,7 +50172,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přenesený zůstatek"
+            "value": "Carry-Over"
           }
         },
         "da": {
@@ -50256,13 +50256,13 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "कैरी-ओवर"
+            "value": "Carry-Over"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preneseni saldo"
+            "value": "Carry-Over"
           }
         },
         "hu": {
@@ -50280,7 +50280,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saldo riportato"
+            "value": "Carry-Over"
           }
         },
         "ja": {
@@ -50304,7 +50304,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Overføring"
+            "value": "Carry-Over"
           }
         },
         "nl": {
@@ -50334,19 +50334,19 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sold reportat"
+            "value": "Carry-Over"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенос остатка"
+            "value": "Carry-Over"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prenesený zostatok"
+            "value": "Carry-Over"
           }
         },
         "sv": {
@@ -50358,7 +50358,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ยอดยกมา"
+            "value": "Carry-Over"
           }
         },
         "tr": {
@@ -50411,7 +50411,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nastaví, zda je přenesený zůstatek při vytváření nového rozpočtu zapnutý ve výchozím stavu"
+            "value": "Určuje, zda je Carry-Over při vytváření nového rozpočtu zapnutý ve výchozím stavu"
           }
         },
         "da": {
@@ -50507,7 +50507,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meghatározza, hogy az egyenleg-átvitel alapértelmezés szerint be legyen-e kapcsolva új büdzsé létrehozásakor"
+            "value": "Megadja, hogy a Carry-Over alapértelmezés szerint be legyen-e kapcsolva új költségkeret létrehozásakor"
           }
         },
         "id": {
@@ -50519,7 +50519,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Imposta se il saldo riportato è attivo per impostazione predefinita alla creazione di un nuovo budget"
+            "value": "Imposta se il Carry-Over è attivo per impostazione predefinita quando si crea un nuovo budget"
           }
         },
         "ja": {
@@ -50543,7 +50543,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Angir om overføring er på som standard ved opprettelse av nytt budsjett"
+            "value": "Angir om Carry-Over er på som standard når du oppretter et nytt budsjett"
           }
         },
         "nl": {
@@ -50573,13 +50573,13 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setează dacă soldul reportat este activat implicit la crearea unui buget nou"
+            "value": "Stabilește dacă Carry-Over este activat implicit la crearea unui buget nou"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Определяет, включён ли перенос остатка по умолчанию при создании нового бюджета"
+            "value": "Определяет, включён ли Carry-Over по умолчанию при создании нового бюджета"
           }
         },
         "sk": {
@@ -50746,7 +50746,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idővel nyomon követi a többletet vagy a hiányt. Az új büdzsék alapértelmezett beállítása. A meglévő büdzsékre nincs hatással."
+            "value": "Nyomon követi a többletet vagy a hiányt az idő múlásával. Új költségkeretek alapértelmezett beállítása. A meglévő költségkeretekre nincs hatással."
           }
         },
         "id": {
@@ -50758,7 +50758,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monitora il surplus o il deficit nel tempo. Impostazione predefinita per i nuovi budget. I budget esistenti non vengono modificati."
+            "value": "Tiene traccia di avanzi e disavanzi nel tempo. Impostazione predefinita per i nuovi budget. I budget esistenti non vengono modificati."
           }
         },
         "ja": {
@@ -52150,7 +52150,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terminé"
+            "value": "OK"
           }
         },
         "fr-CA": {
@@ -52640,7 +52640,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שלח משוב"
+            "value": "שליחת משוב"
           }
         },
         "hi": {
@@ -52873,7 +52873,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud Sync est actif"
+            "value": "Synchronisation iCloud active"
           }
         },
         "he": {
@@ -52909,7 +52909,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud Sync attivo"
+            "value": "iCloud Sync è attivo"
           }
         },
         "ja": {
@@ -53112,7 +53112,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud sync est actif"
+            "value": "Synchronisation iCloud active"
           }
         },
         "he": {
@@ -53148,7 +53148,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud Sync attivo"
+            "value": "iCloud Sync è attivo"
           }
         },
         "ja": {
@@ -53190,7 +53190,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud sync está ativo"
+            "value": "iCloud Sync está ativo"
           }
         },
         "pt-PT": {
@@ -54092,13 +54092,13 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az iCloud-szinkronizálás szünetel. A büdzsék el vannak mentve ezen az eszközön, de nem szinkronizálnak más eszközökre."
+            "value": "Az iCloud szinkronizálás szünetel. A költségkeretek ezen az eszközön vannak mentve, de nem szinkronizálnak más eszközökre."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sinkronisasi iCloud dijeda. Anggaranmu tersimpan di perangkat ini tapi tidak tersinkron ke perangkat lain."
+            "value": "Sinkronisasi iCloud dijeda. Anggaran kamu tersimpan di perangkat ini tapi tidak tersinkron ke perangkat lain."
           }
         },
         "it": {
@@ -54337,7 +54337,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anggaranmu hanya tersimpan di perangkat ini. Mulai ulang aplikasi untuk mencoba sinkronisasi iCloud."
+            "value": "Anggaran kamu hanya tersimpan di perangkat ini. Mulai ulang aplikasi untuk mencoba sinkronisasi iCloud lagi."
           }
         },
         "it": {
@@ -54815,7 +54815,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud tidak tersedia. Masuk ke iCloud di Pengaturan untuk menyinkronkan anggaranmu."
+            "value": "iCloud tidak tersedia. Masuk ke iCloud di Pengaturan untuk menyinkronkan anggaran kamu."
           }
         },
         "it": {
@@ -55496,7 +55496,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvre la politique de confidentialité dans votre navigateur"
+            "value": "Ouvre la politique de confidentialité dans ton navigateur"
           }
         },
         "fr-CA": {
@@ -55586,7 +55586,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre a política de privacidade no seu browser"
+            "value": "Abre a política de privacidade no browser"
           }
         },
         "ro": {
@@ -56482,7 +56482,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsék"
+            "value": "Költségkeretek"
           }
         },
         "id": {
@@ -56512,7 +56512,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanjawan"
+            "value": "Bajet"
           }
         },
         "nb": {
@@ -58089,7 +58089,7 @@
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing this affects all weekly and biweekly budgets"
+            "value": "Changing this affects all weekly and fortnightly budgets"
           }
         },
         "en-CA": {
@@ -58615,7 +58615,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שנה"
+            "value": "שינוי"
           }
         },
         "hi": {
@@ -58806,7 +58806,7 @@
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing to %@ will immediately affect all weekly and biweekly budgets."
+            "value": "Changing to %@ will immediately affect all weekly and fortnightly budgets."
           }
         },
         "en-CA": {
@@ -59362,7 +59362,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La Settimana Inizia Il"
+            "value": "Inizio settimana"
           }
         },
         "ja": {
@@ -59589,7 +59589,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Megnyitja a büdzsé hozzáadása űrlapot"
+            "value": "Megnyitja az új költségkeret űrlapot"
           }
         },
         "id": {
@@ -59828,7 +59828,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Büdzsé hozzáadása"
+            "value": "Költségkeret hozzáadása"
           }
         },
         "id": {
@@ -60067,7 +60067,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Új büdzsé"
+            "value": "Új költségkeret"
           }
         },
         "id": {
@@ -60097,7 +60097,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanjawan Baharu"
+            "value": "Bajet Baharu"
           }
         },
         "nb": {

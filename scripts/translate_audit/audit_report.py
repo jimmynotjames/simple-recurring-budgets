@@ -155,6 +155,18 @@ def deterministic_length_findings(
 
 
 def write_manifest(findings: list[dict], source: dict) -> None:
+    # Re-translation is driven by the auditor's judgment ([llm]) only. The deterministic
+    # [ratio] flag can't tell structurally-justified expansion (German compounding, agglutination,
+    # script width) from avoidable bloat — on German alone it false-positives on standard words
+    # like "Datenschutzerklärung" and "iCloud-Synchronisierung". Feeding those into the manifest
+    # would re-translate correct strings and risk regressing them. Genuine length problems are
+    # already captured as [llm] `length` findings (with a concrete suggestion); [ratio] stays
+    # advisory in the human-readable report only.
+    advisory = sum(1 for f in findings if f.get("source") == "ratio")
+    findings = [f for f in findings if f.get("source") != "ratio"]
+    if advisory:
+        print(f"  ℹ Excluded {advisory} advisory [ratio] length flag(s) from the manifest "
+              "(heuristic, not a verdict — see the report to eyeball them).")
     by_locale: dict[str, set[str]] = {}
     dropped: set[str] = set()
     for f in findings:
@@ -166,6 +178,10 @@ def write_manifest(findings: list[dict], source: dict) -> None:
         sample = sorted(dropped)[:5]
         print(f"  ⚠ {len(dropped)} flagged key(s) absent from audit_source.json — skipped: {sample}")
     manifest = {loc: sorted(keys) for loc, keys in sorted(by_locale.items()) if keys}
+    if not manifest:
+        print("\nNo [llm]-judged findings to re-translate — manifest not written "
+              "(any flags at/above the threshold were advisory [ratio] only).")
+        return
     union_keys = sorted({k for keys in by_locale.values() for k in keys})
     source_out = {
         k: {

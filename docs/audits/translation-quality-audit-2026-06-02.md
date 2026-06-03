@@ -13,7 +13,7 @@
 | --- | --- | --- | --- |
 | **A** | Strengthen translation prompt + register/cultural notes + length discipline | ✅ Complete | `translations-audit-track-a` |
 | **B** | Audit sub-pipeline (extract-with-translations, auditor, report) | ✅ Complete | `translations-audit-track-a` |
-| **C** | Triage → targeted re-translation → re-audit | ⬜ Not started | — |
+| **C** | Triage → targeted re-translation → re-audit | 🟡 In progress (`de` dry run done) | `translations-audit-track-a` |
 | **Supporting** | settings allowlist, README, audit-translations skill | ✅ Complete | `translations-audit-track-a` |
 | **Follow-up** | Layout-truncation UI verification (optional) | ⬜ Deferred | — |
 
@@ -202,7 +202,10 @@ folder imports `locales.py` and `REGIONAL_NOTES`/`_GENERIC_NOTE` from
 
 ### Track C — Triage → targeted re-translation → re-audit
 
-**Status: ⬜ Not started.**
+**Status: 🟡 In progress — `de` dry run complete.** Ran the full audit pipeline end-to-end
+on German (`audit_extract.py` → `audit_dispatch.py` → one `translation-audit-locale` Opus
+subagent → `audit_report.py`). Mechanics are clean and prompt-free; one signal fix landed
+(manifest is now `[llm]`-only — see decision log). Full 38-locale wave not yet run.
 
 1. `audit_report.py --write-manifest --min-severity medium` → drops the flagged subset
    into `tmp/translate-inputs/`.
@@ -322,3 +325,20 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
     and have each reply with only a one-line count (findings live in the file) to keep parent
     context lean; run `audit_report.py` standalone (don't `&&`-chain — exit 1 on findings);
     re-translate flagged strings via `translation-locale` with a `model: sonnet`/`opus` override.
+- **2026-06-03 (Track C — `de` dry run):** Ran the pipeline end-to-end on German with a live
+  Opus `translation-audit-locale` subagent. **No permission prompts** — the allowlist was
+  complete, so the full 38-locale wave needs no further settings changes. Auditor signal was
+  strong: it caught a real register break (formal "Ihren" in a du-app), a malformed imperative
+  ("Nutzen %@" → "Nutze"), a within-flow term inconsistency (Add Funds = "Geldmittel" vs
+  "Guthaben"), and a meaning bug ("Bestimmte Daten" reads as *data*, not *dates*) — none
+  catchable by a structural gate.
+- **2026-06-03 (Track C — manifest is `[llm]`-only):** The dry run confirmed the `[ratio]`
+  noise concern at scale: 31 of 45 `de` findings were deterministic ratio flags, almost all
+  structurally-justified German compounding (e.g. `Datenschutzerklärung` 1.43×,
+  `iCloud-Synchronisierung` flagged *high* at 2.09×). Feeding those into `--write-manifest`
+  would re-translate correct strings and risk regressing them. **Fix:** `write_manifest` now
+  excludes `source == "ratio"` findings and re-translates only the auditor's `[llm]`-judged
+  subset (which already captures genuine, *avoidable* length bloat as `[llm]` `length` findings
+  with concrete tighter suggestions). `[ratio]` stays advisory in the human-readable report.
+  For `de`/medium this cut the manifest from 24 → 10 keys — exactly the real defects. Updated
+  `audit_report.py`, `scripts/translate_audit/README.md`, and the `audit-translations` skill.

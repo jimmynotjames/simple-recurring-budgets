@@ -93,6 +93,13 @@ for. Treat `[ratio]` findings as "look at these," and rely on the auditor's `[ll
 judgment (justified vs. avoidable) for the verdict. True truncation is a UI-level check; see
 the audit doc's "Layout truncation" section.
 
+Because of this, **`--write-manifest` excludes `[ratio]` findings** and re-translates only the
+auditor's `[llm]`-judged subset. On German alone the ratio heuristic false-positives on standard
+words (`Datenschutzerklärung`, `iCloud-Synchronisierung`); feeding those into the manifest would
+re-translate correct strings and risk regressing them. Genuine length problems still reach the
+manifest as `[llm]` `length` findings (each with a concrete tighter suggestion). `[ratio]` flags
+remain in the human-readable report so you can eyeball them.
+
 ## Artifact layout (`tmp/`, gitignored)
 
 ```

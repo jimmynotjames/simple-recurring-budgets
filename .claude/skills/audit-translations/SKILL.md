@@ -75,7 +75,10 @@ flagged as missing/unreadable.
 python3 scripts/translate_audit/audit_report.py --write-manifest --min-severity medium
 ```
 Writes `tmp/translate-inputs/{manifest,source}.json` in the exact shape
-`extract.py --missing` produces. Then run the **`translate-new-strings`** skill from its
+`extract.py --missing` produces. The manifest contains only the auditor's `[llm]`-judged
+findings; `[ratio]` length flags are advisory (heuristic, not a verdict) and are **excluded**
+from re-translation — genuine length problems already reach it as `[llm]` `length` findings.
+Then run the **`translate-new-strings`** skill from its
 step 2 onward (`dispatch_prompts.py` → fan out `translation-locale` → `validate.py --subset`
 → `merge.py`) to re-translate exactly those (key, locale) pairs — **use a stronger model**
 (`model: sonnet`/`opus`) on the `translation-locale` dispatches for this round, since these

@@ -46,7 +46,7 @@ AUDIT_SOURCE_PATH = AUDIT_INPUTS_DIR / "audit_source.json"
 # Reuse the catalog pipeline's single sources of truth.
 sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES  # noqa: E402
-from extract import extract_format_specifiers  # noqa: E402
+from extract import extract_format_specifiers, localization_plural  # noqa: E402
 
 
 def stringunit_value(localization: dict | None) -> str | None:
@@ -66,17 +66,33 @@ def is_translatable(entry: dict) -> bool:
 def build_entry(key: str, strings: dict, locales: list[str]) -> dict:
     entry = strings[key]
     localizations = entry.get("localizations", {})
+    comment = entry.get("comment", "")
+    en_plural = localization_plural(localizations.get("en"))
+    if en_plural is not None:
+        # Plural key: carry the English per-category forms and each locale's current plural forms.
+        translations: dict[str, dict] = {}
+        for locale in locales:
+            loc_plural = localization_plural(localizations.get(locale))
+            if loc_plural:
+                translations[locale] = loc_plural
+        ref = en_plural.get("other") or next(iter(en_plural.values()))
+        return {
+            "plural": en_plural,
+            "comment": comment,
+            "formatSpecifiers": extract_format_specifiers(ref),
+            "translations": translations,
+        }
     en_value = stringunit_value(localizations.get("en")) or ""
-    translations: dict[str, str] = {}
+    flat_translations: dict[str, str] = {}
     for locale in locales:
         val = stringunit_value(localizations.get(locale))
         if val is not None:
-            translations[locale] = val
+            flat_translations[locale] = val
     return {
         "value": en_value,
-        "comment": entry.get("comment", ""),
+        "comment": comment,
         "formatSpecifiers": extract_format_specifiers(en_value),
-        "translations": translations,
+        "translations": flat_translations,
     }
 
 
@@ -131,12 +147,12 @@ def main(argv: list[str]) -> int:
         keys = [k for k, v in strings.items() if is_translatable(v)]
 
     entries = {k: build_entry(k, strings, locales) for k in sorted(keys)}
-    # Drop keys with no flat English value (plural/device `variations`): they have nothing to
-    # audit in subset mode and would otherwise clutter the source with 0-char entries.
-    skipped = sorted(k for k, v in entries.items() if not v["value"])
-    entries = {k: v for k, v in entries.items() if v["value"]}
+    # Drop keys with neither a flat English value nor a plural block (e.g. device `variations`):
+    # they have nothing to audit and would otherwise clutter the source with empty entries.
+    skipped = sorted(k for k, v in entries.items() if not (v.get("value") or v.get("plural")))
+    entries = {k: v for k, v in entries.items() if v.get("value") or v.get("plural")}
     if skipped:
-        print(f"Skipped {len(skipped)} key(s) with no flat English value (plural/variation): {skipped[:5]}")
+        print(f"Skipped {len(skipped)} key(s) with no translatable English (non-plural variation): {skipped[:5]}")
     write_source(entries)
     return 0
 

@@ -201,15 +201,21 @@ def main(argv: list[str]) -> int:
             if k not in source:
                 continue
             entry = dict(source[k])
-            entry["enChars"] = len(entry.get("value", ""))
+            # Length budget: flat keys use `value`; plural keys use the `other` form.
+            ref = entry.get("value") or (entry.get("plural", {}) or {}).get("other", "")
+            entry["enChars"] = len(ref)
             slice_source[k] = entry
         if not slice_source:
             continue
         locale_name = LOCALE_NAMES.get(locale, locale)
         regional_note = REGIONAL_NOTES.get(locale, _GENERIC_NOTE)
-        glossary_block = build_glossary_block(
-            [e.get("value", "") for e in slice_source.values()], locale, locale_name
-        )
+        gloss_values: list[str] = []
+        for e in slice_source.values():
+            if e.get("value"):
+                gloss_values.append(e["value"])
+            elif e.get("plural"):
+                gloss_values.extend(e["plural"].values())
+        glossary_block = build_glossary_block(gloss_values, locale, locale_name)
         prompt = (
             template.replace("{LOCALE_NAME}", locale_name)
             .replace("{LOCALE_CODE}", locale)

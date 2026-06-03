@@ -45,7 +45,12 @@ MANIFEST_PATH = INPUTS_DIR / "manifest.json"
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALES  # noqa: E402
 
-FORMAT_SPEC_RE = re.compile(r"%(?:\d+\$)?[@dlu](?:ld|ll)?")
+# Full C/Apple printf-style specifier grammar, so we don't silently mis-tokenize
+# %ld / %lu / %f / %x / %.2f / flags if they ever land in the catalog. (Today the
+# catalog uses only %@, %n$@, %lld — all unchanged by this broader pattern.)
+FORMAT_SPEC_RE = re.compile(
+    r"%(?:\d+\$)?[-+ 0#']*\d*(?:\.\d+)?(?:hh|h|ll|l|q|z|t|j|L)?[@%diouxXeEfFgGaAcsSp]"
+)
 
 UNTRANSLATED_STATES = {"new", "needs_review", "stale"}
 
@@ -54,12 +59,40 @@ def extract_format_specifiers(value: str) -> list[str]:
     return FORMAT_SPEC_RE.findall(value)
 
 
+# CLDR plural categories, in canonical order. A given language uses a subset
+# (English: one/other; Japanese: other; Russian: one/few/many/other; …).
+CLDR_CATEGORIES = ("zero", "one", "two", "few", "many", "other")
+
+
+def localization_plural(localization: dict | None) -> dict[str, str] | None:
+    """Return {category: value} for a plural-`variations` localization, else None.
+    Only categories with a non-empty value are included."""
+    if not localization:
+        return None
+    plural = localization.get("variations", {}).get("plural")
+    if not plural:
+        return None
+    out = {cat: unit.get("stringUnit", {}).get("value")
+           for cat, unit in plural.items()
+           if unit.get("stringUnit", {}).get("value")}
+    return out or None
+
+
 def build_entry(key: str, strings: dict) -> dict:
     entry = strings[key]
     en_localization = entry.get("localizations", {}).get("en", {})
-    string_unit = en_localization.get("stringUnit", {})
-    value = string_unit.get("value", "")
     comment = entry.get("comment", "")
+    plural = localization_plural(en_localization)
+    if plural is not None:
+        # A plural key: emit the per-category English forms. Specifiers come from the
+        # `other` form (every category carries the same set).
+        ref = plural.get("other") or next(iter(plural.values()))
+        return {
+            "plural": plural,
+            "comment": comment,
+            "formatSpecifiers": extract_format_specifiers(ref),
+        }
+    value = en_localization.get("stringUnit", {}).get("value", "")
     return {
         "value": value,
         "comment": comment,
@@ -83,20 +116,38 @@ def find_missing(strings: dict) -> dict[str, list[str]]:
         if not is_translatable(entry):
             continue
         localizations = entry.get("localizations", {})
+        en_is_plural = "plural" in localizations.get("en", {}).get("variations", {})
         for locale in LOCALES:
             loc_entry = localizations.get(locale)
             if loc_entry is None:
                 missing[locale].append(key)
                 continue
-            # Plural/device variations are not yet supported in subset mode.
-            # check_translations.py remains the authoritative gate and will
-            # surface any variation-shaped issues at pre-push time.
+            if en_is_plural:
+                # Plural key: needs work unless the locale has a plural block whose every
+                # category is `translated` and includes at least `other`.
+                if _plural_needs_translation(loc_entry):
+                    missing[locale].append(key)
+                continue
+            # Flat key with an unexpected variations block: leave to check_translations.py.
             if "variations" in loc_entry:
                 continue
             state = loc_entry.get("stringUnit", {}).get("state", "")
             if state in UNTRANSLATED_STATES:
                 missing[locale].append(key)
     return {locale: sorted(keys) for locale, keys in missing.items() if keys}
+
+
+def _plural_needs_translation(loc_entry: dict) -> bool:
+    """True if a locale's plural localization is absent, incomplete, or any category is unreviewed."""
+    plural = loc_entry.get("variations", {}).get("plural")
+    if not plural:
+        return True  # flat where a plural is expected, or nothing yet
+    if "other" not in plural:
+        return True
+    for unit in plural.values():
+        if unit.get("stringUnit", {}).get("state", "") in UNTRANSLATED_STATES:
+            return True
+    return False
 
 
 def write_source(keys: list[str], strings: dict) -> None:

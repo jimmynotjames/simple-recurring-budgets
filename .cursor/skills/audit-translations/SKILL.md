@@ -40,6 +40,15 @@ fix divergences, `--write-manifest` emits the divergent set for the glossary-awa
 (see the glossary docs in `scripts/translate_catalog/README.md`). The LLM auditor independently
 raises `category: consistency` findings; the two complement each other.
 
+Also run the deterministic **plural-completeness** check (no LLM):
+```bash
+python3 scripts/translate_audit/plural_completeness.py          # report (--write-manifest to fix)
+```
+For every plural key it flags locales missing a CLDR-required category or carrying a spurious one
+(the LLM auditor is unreliable here — it missed Arabic shipping only `one/other`). `--write-manifest`
+emits the incomplete pairs for re-translation. The required set is the integer-reachable CLDR
+categories per locale, from the committed `plural_rules.py` (regenerate via `_gen_plural_rules.py`).
+
 ### 1. Extract current translations
 
 ```bash

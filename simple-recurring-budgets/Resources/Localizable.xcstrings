@@ -10121,28 +10121,22 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו. הוצאות אלו עדיין מופיעות ברשימה שלך אך לא יספרו על ידי תקציב זה."
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאה שנרשמה. הוצאה זו עדיין מופיעה ברשימה שלך אך לא תיספר על ידי תקציב זה."
+                  "value": "תאריך ההתחלה הוא לאחר %lld הוצאה רשומה. ההוצאה עדיין מופיעה ברשימה, אך לא תיספר בתקציב זה."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו. הוצאות אלו עדיין מופיעות ברשימה שלך אך לא יספרו על ידי תקציב זה."
+                  "value": "תאריך ההתחלה הוא לאחר %lld הוצאות רשומות. ההוצאות עדיין מופיעות ברשימה, אך לא תיספרנה בתקציב זה."
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו. הוצאות אלו עדיין מופיעות ברשימה שלך אך לא יספרו על ידי תקציב זה."
+                  "value": "תאריך ההתחלה הוא לאחר %lld הוצאות רשומות. ההוצאות עדיין מופיעות ברשימה, אך לא תיספרנה בתקציב זה."
                 }
               }
             }
@@ -10241,16 +10235,10 @@
         "ja": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "開始日が%lldつの記録済み支出より後に設定されています。この支出はリストに表示されますが、この予算には含まれません。"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "開始日が%lld個の記録済み支出より後に設定されています。これらの支出はリストに表示されますが、この予算には含まれません。"
+                  "value": "開始日が%lld件の記録済み支出より後になっています。これらの支出はリストに表示されますが、この予算には集計されません。"
                 }
               }
             }
@@ -10487,16 +10475,10 @@
         "th": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld รายจ่ายยังคงแสดงในรายการของคุณ แต่จะไม่นับรวมในงบประมาณนี้"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld รายจ่ายเหล่านี้ยังคงแสดงในรายการของคุณ แต่จะไม่นับรวมในงบประมาณนี้"
+                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่ายที่บันทึกไว้แล้ว %lld รายการ รายจ่ายเหล่านั้นยังแสดงในรายการของคุณ แต่จะไม่ถูกนับในงบประมาณนี้"
                 }
               }
             }
@@ -10565,16 +10547,10 @@
         "zh-Hans": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "开始日期在 %lld 条已记录支出之后。这条支出仍会显示在列表中，但不会被此预算计入。"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "开始日期在 %lld 条已记录支出之后。这些支出仍会显示在列表中，但不会被此预算计入。"
+                  "value": "开始日期晚于 %lld 条已记录的支出。这些支出仍会显示在列表中，但不会计入此预算。"
                 }
               }
             }
@@ -10583,16 +10559,10 @@
         "zh-Hant": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "開始日期在 %lld 筆已紀錄支出之後。該支出仍會顯示在您的清單中，但不會由此預算計算。"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "開始日期在 %lld 筆已紀錄支出之後。這些支出仍會顯示在您的清單中，但不會由此預算計算。"
+                  "value": "開始日期晚於 %lld 筆已記錄的支出。這些支出仍會顯示在清單中，但不會計入此預算。"
                 }
               }
             }
@@ -11147,28 +11117,22 @@
         "he": {
           "variations": {
             "plural": {
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו"
-                }
-              },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאה שנרשמה"
+                  "value": "תאריך ההתחלה הוא לאחר %lld הוצאה רשומה"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו"
+                  "value": "תאריך ההתחלה הוא לאחר %lld הוצאות רשומות"
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "תאריך התחלה מאוחר מ-%lld הוצאות שנרשמו"
+                  "value": "תאריך ההתחלה הוא לאחר %lld הוצאות רשומות"
                 }
               }
             }
@@ -11267,16 +11231,10 @@
         "ja": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "開始日が%lldつの記録済み支出より後に設定されています"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "開始日が%lld個の記録済み支出より後に設定されています"
+                  "value": "開始日が%lld件の記録済み支出より後です"
                 }
               }
             }
@@ -11513,16 +11471,10 @@
         "th": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่าย %lld"
+                  "value": "วันที่เริ่มต้นอยู่หลังรายจ่ายที่บันทึกไว้ %lld รายการ"
                 }
               }
             }
@@ -11591,16 +11543,10 @@
         "zh-Hans": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "开始日期在 %lld 条已记录支出之后"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "开始日期在 %lld 条已记录支出之后"
+                  "value": "开始日期晚于 %lld 条已记录的支出"
                 }
               }
             }
@@ -11609,16 +11555,10 @@
         "zh-Hant": {
           "variations": {
             "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "開始日期在 %lld 筆已紀錄支出之後"
-                }
-              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "開始日期在 %lld 筆已紀錄支出之後"
+                  "value": "開始日期晚於 %lld 筆已記錄的支出"
                 }
               }
             }

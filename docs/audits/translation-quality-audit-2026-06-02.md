@@ -422,3 +422,68 @@ _Appended as work proceeds; basis for the end-of-phase summary to the owner._
     (~217) were left intentionally — they're mostly the legitimate title-case-label vs sentence-case-inline
     pattern (the English source itself cases by context). `check_translations` + `check_source_strings` +
     `make build` all green.
+
+---
+
+## Addendum — Pipeline review round (2026-06-03)
+
+> This addendum extends the original audit. Tracks A–F (above) shipped in **PR #169**
+> ("Translation quality audit + glossary/consistency system"). A follow-on **fresh-eye review of the
+> whole translation setup** — the in-app string pipeline (`scripts/translate_catalog/`), the semantic
+> audit (`scripts/translate_audit/`), and the **App Store metadata** pipeline (`scripts/translate_metadata/`) —
+> surfaced bugs, architectural gaps, and gaps against `docs/main-prd.md` §6.5/§6.8 and `docs/ux-design-brief.md`.
+> The fixes from that review ship in **PR #174** ("Translation pipeline: plurals, metadata semantic audit,
+> review fixes"). The original Tracks A–F doc above is intentionally left as-is.
+
+### What the review found
+
+Major issues:
+1. **App Store metadata is English-only** — the metadata pipeline exists but had only been run for
+   `en-US`; no localized storefronts on disk. Acknowledged as a "run the pipeline" task (out of scope
+   for this round), not a pipeline defect.
+2. **No plural support** — count strings (`%lld logged expenses`) were flat single-form (wrong at
+   count = 1; wrong in every language needing >2 CLDR forms), and the pipeline actively skipped
+   `variations` blocks.
+3. **No automated truncation / RTL / Dynamic-Type verification** — only a char-count proxy; layout
+   correctness in long languages (de/fi/hu) and RTL (ar/he) is verified manually today.
+4. **Metadata was length-checked only**, never semantically audited — backwards, since ASO copy
+   (esp. keywords) is where transcreation quality matters most.
+5. **No CI enforcement** of the translation gates — only the local pre-push hook.
+
+Top minor issues: (1) the format-specifier regex silently mis-tokenized `%ld`/`%lu`/`%f`/`%x`/`%.2f`;
+(2) `validate.py --subset` validated all 38 locales (bogus "File missing" on subset runs); (3) per-locale
+register guidance duplicated across `REGIONAL_NOTES` and `CULTURAL_NOTES`; (4) the consistency manifest
+re-translated already-canonical keys; (5) the English plural source copy ("after 1 logged expenses").
+
+### What changed (PR #174)
+
+- **Plurals (major #2 + minor #5):** both the translate and audit pipelines now handle CLDR plural
+  `variations` end to end — `extract`/`dispatch_prompts`/`merge`/`validate` + rule 7 in `PROMPT_TEMPLATE.md`,
+  and `audit_extract`/`audit_dispatch` + the audit prompt. New `pluralize_keys.py` converts flat count
+  strings → plurals. Trial-run on `de` end to end (correct `one`/`other`, validate PASS, correct merged
+  `variations.plural`); the trial catalog conversion was **reverted** — converting the real count strings
+  and the full 38-locale plural translation/audit is deferred until explicitly requested.
+- **Metadata semantic audit (major #4):** new `scripts/translate_metadata/audit_semantic.py` +
+  `AUDIT_PROMPT_TEMPLATE.md` + `metadata-audit-locale` (Opus) agent — a per-storefront audit of voice /
+  transcreation / keyword-ASO / cultural fit / brand / accuracy, mirroring `scripts/translate_audit/`.
+  Structural `audit.py` unchanged. Ready for when metadata is localized.
+- **Minor fixes #1/#2/#4:** broadened + single-sourced the specifier regex; `--subset` scopes to present
+  output files; consistency manifest skips already-canonical keys.
+
+### Tracked separately (GitHub issues)
+
+- **#171** — automated truncation / RTL / Dynamic-Type verification (major #3).
+- **#172** — run the translation/localization gates in CI, not just pre-push (major #5).
+- **#173** — single-source the per-locale register notes (minor #3) — deferred as a sizable, quality-
+  sensitive refactor rather than rushed.
+
+### Status
+
+| Item | Disposition | Where |
+| --- | --- | --- |
+| Plurals (translate + audit) | ✅ Pipeline support added; `de` trial only | PR #174 |
+| Metadata semantic audit | ✅ Built; unrun (metadata not localized) | PR #174 |
+| Minor fixes #1/#2/#4 | ✅ Fixed | PR #174 |
+| Truncation/RTL, CI, notes-dedupe | ⬜ Filed | #171, #172, #173 |
+| Real plural conversion + full plural translation/audit | ⏸ Deferred (awaiting go) | — |
+| App Store metadata localization run | ⏸ Out of scope this round | — |

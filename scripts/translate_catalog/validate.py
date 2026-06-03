@@ -36,8 +36,7 @@ OUTPUTS_DIR = REPO_ROOT / "tmp" / "translate-outputs"
 
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALES  # noqa: E402
-
-FORMAT_SPEC_RE = re.compile(r"%(?:\d+\$)?[@dlu](?:ld|ll)?")
+from extract import FORMAT_SPEC_RE  # noqa: E402  — single source of truth for specifier parsing
 
 
 def specifier_multiset(value: str) -> collections.Counter:
@@ -147,7 +146,18 @@ def main(argv: list[str]) -> int:
     with SOURCE_PATH.open(encoding="utf-8") as f:
         source: dict = json.load(f)
 
-    locales = args.locales if args.locales else LOCALES
+    if args.locales:
+        locales = args.locales
+    elif args.subset:
+        # In subset mode with no explicit locales, validate exactly the locales that have an
+        # output file — otherwise we'd report "File missing" for every locale that wasn't part
+        # of this partial run (the full LOCALES default only makes sense for a full backfill).
+        locales = [loc for loc in LOCALES if (OUTPUTS_DIR / f"{loc}.json").exists()]
+        if not locales:
+            print(f"No output files in {OUTPUTS_DIR} to validate (--subset). Run dispatch + subagents first.", file=sys.stderr)
+            return 1
+    else:
+        locales = LOCALES
     all_errors: dict[str, list[str]] = {}
     all_warnings: dict[str, list[str]] = {}
     fail_count = 0

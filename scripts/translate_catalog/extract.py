@@ -45,7 +45,12 @@ MANIFEST_PATH = INPUTS_DIR / "manifest.json"
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALES  # noqa: E402
 
-FORMAT_SPEC_RE = re.compile(r"%(?:\d+\$)?[@dlu](?:ld|ll)?")
+# Full C/Apple printf-style specifier grammar, so we don't silently mis-tokenize
+# %ld / %lu / %f / %x / %.2f / flags if they ever land in the catalog. (Today the
+# catalog uses only %@, %n$@, %lld — all unchanged by this broader pattern.)
+FORMAT_SPEC_RE = re.compile(
+    r"%(?:\d+\$)?[-+ 0#']*\d*(?:\.\d+)?(?:hh|h|ll|l|q|z|t|j|L)?[@%diouxXeEfFgGaAcsSp]"
+)
 
 UNTRANSLATED_STATES = {"new", "needs_review", "stale"}
 

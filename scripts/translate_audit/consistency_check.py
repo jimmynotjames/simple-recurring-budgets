@@ -124,14 +124,34 @@ def find_divergences(strings: dict, locales: list[str], min_keys: int, ignore_ca
     return findings
 
 
+def _glossary_canonical_by_norm() -> dict[str, dict[str, str]]:
+    """normalized English term -> {locale: canonical translation}, from glossary.json (if any).
+    Lets the manifest skip keys already sitting on the canonical instead of re-translating them."""
+    try:
+        from dispatch_prompts import load_glossary  # reuse the catalog loader (cross-folder import)
+    except Exception:
+        return {}
+    out: dict[str, dict[str, str]] = {}
+    for term_en, entry in load_glossary().get("terms", {}).items():
+        out[normalize(term_en)] = entry.get("translations", {})
+    return out
+
+
 def write_manifest(findings: list[dict], strings: dict) -> None:
-    """Emit every key in a divergent group (per locale) so the translate flow re-converges them."""
+    """Emit the divergent keys (per locale) so the translate flow re-converges them. When the
+    group's English is a whole-string glossary term, keys already equal to that locale's canonical
+    are skipped — only the off-canonical keys need re-translating."""
+    canon = _glossary_canonical_by_norm()
     by_locale: dict[str, set[str]] = defaultdict(set)
     for f in findings:
+        norm_en = normalize(stringunit_value(strings[f["keys"][0]].get("localizations", {}).get("en")) or "")
+        canonical = canon.get(norm_en, {}).get(f["locale"])
         for k in f["keys"]:
-            # only include keys that actually have a translation in that locale to re-do
-            if k in f["by_key"]:
-                by_locale[f["locale"]].add(k)
+            if k not in f["by_key"]:
+                continue  # not translated in this locale → nothing to re-do
+            if canonical is not None and f["by_key"][k] == canonical:
+                continue  # already on the canonical glossary term → leave it
+            by_locale[f["locale"]].add(k)
     manifest = {loc: sorted(keys) for loc, keys in sorted(by_locale.items()) if keys}
     union_keys = sorted({k for keys in by_locale.values() for k in keys})
     source_out = {}

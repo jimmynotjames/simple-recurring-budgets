@@ -356,6 +356,31 @@ Walk every screen (Budgets list → Budget detail → Add/Edit Expense → Add/E
    13. Reset Carry-Over alert + Reset Budget confirmation
 3. For each screen, record: focus order matches reading order (Y/N), every actionable control has a meaningful label (Y/N), destructive actions speak their consequence (Y/N), no raw symbol names ("plus.circle.fill") spoken (Y/N).
 
+## Appendix D — Localized layout / truncation smoke (Dynamic Type) — pre-submission
+
+Catches localized truncation / clipping / RTL-mirroring that the content-level checks (`enChars` / the audit's `[ratio]` flag) can only approximate. **Run once before an App Store submission** (and after large UI changes). Manual by design — see the "Why manual" note below.
+
+```bash
+make build   # boot + install on the configured simulator first
+APP=com.jimmyho.simple-recurring-budgets   # confirm via: xcrun simctl listapps booted | grep -i Bundle
+
+# Longest real expander (de), tall script (th), each at the top of the standard text slider (xxxLarge):
+for LANG in de th; do
+  xcrun simctl launch booted "$APP" \
+    -AppleLanguages "($LANG)" -AppleLocale "${LANG}_${LANG}" \
+    -UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXXXL
+done
+
+# RTL (ar) — verify mirroring + Latin-token/currency placement (size optional):
+xcrun simctl launch booted "$APP" -AppleLanguages '(ar)' -AppleLocale ar_SA
+```
+
+Walk the five key screens under each launch (Budgets list → Budget detail → Add/Edit Expense → Add/Edit Budget → Settings) and eyeball: any label cut off / "…" truncation, any control overflowing its row, any RTL screen not mirrored. Record in the Verification appendix.
+
+**Use real locales, NOT `-NSDoubleLocalizedStrings`** for the *truncation* check: pseudo-doubling corrupts this app's positional format specifiers (`%1$@`/`%2$@` render as literal `1$@`), fabricating clips no real translation reproduces. (`-NSDoubleLocalizedStrings` is still fine for Appendix B's *missing-key* smoke.)
+
+**Why manual (not automated):** an XCUITest lane driving `performAccessibilityAudit(for: .textClipped)` across these locales was prototyped (2026-06-03) and dropped — on iOS 26.x that audit is a *predictive* "may be clipped at larger sizes" heuristic that false-positives on static text / SwiftUI nodes (the existing `AccessibilityAuditTests` already documents and suppresses this), so it can't cleanly distinguish real localized truncation. The prototype's lasting output was kept: locale-invariant `.accessibilityIdentifier`s (= localization keys) on the nav controls, so any future test (or this smoke's tooling) can drive the app in any language. Reconsider automating via SwiftUI snapshot diffing if a snapshot dependency becomes acceptable.
+
 ## Verification (post-remediation)
 
 ### Static / build verification (recorded by the implementing agent)

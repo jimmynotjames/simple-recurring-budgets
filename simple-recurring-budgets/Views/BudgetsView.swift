@@ -48,6 +48,8 @@ struct BudgetsView: View {
           defaultValue: "Opens app settings",
           comment: "VoiceOver hint for the Settings toolbar button"
         ))
+        // Locale-invariant test handle (= localization key) so UI tests navigate in any language.
+        .accessibilityIdentifier("toolbar.settings.label")
         // Only show the Edit button when there are rows to reorder.
         if !budgets.isEmpty {
           EditButton()
@@ -85,6 +87,7 @@ struct BudgetsView: View {
           defaultValue: "Opens add budget form",
           comment: "VoiceOver hint for the Add Budget toolbar button"
         ))
+        .accessibilityIdentifier("toolbar.addBudget.accessibilityLabel")
       }
     }
   }
@@ -306,6 +309,7 @@ struct BudgetRowView: View {
         defaultValue: "Opens add expense form",
         comment: "VoiceOver hint for the add-expense button in a budget row"
       ))
+      .accessibilityIdentifier("budget.row.addExpense.accessibilityLabel")
     }
     .padding(.vertical, rowVerticalPadding)
     .task(id: budget.persistentModelID) {

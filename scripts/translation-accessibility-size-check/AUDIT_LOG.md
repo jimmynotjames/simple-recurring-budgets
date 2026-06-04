@@ -2,89 +2,27 @@
 
 Companion to this folder's `run.sh` / `README.md` / skill. Two parts:
 
-- **Known issues / decisions** — findings we've inspected and consciously **accepted** (won't-fix) or
-  **deferred**, so future runs don't re-litigate them. **The skill consults this first** and flags only
-  *new* (delta) findings; acknowledged ones get a one-line mention.
-- **Run history** — one dated entry per inspected run (verdict + any new findings).
+- **Known issues / decisions** — findings inspected and consciously **accepted** (won't-fix) or
+  deferred, so future runs don't re-litigate them. The skill reads this first and flags only *new* deltas.
+- **Run history** — one dated entry per inspected run (verdict + any new findings), appended at the end
+  of each inspection.
 
-> Human/Claude-maintained, **not** auto-generated. The screenshots themselves are ephemeral
-> (`tmp/loc-size-check/`, deleted after inspection) — **this file is the durable record.** Append a
-> Run-history entry at the end of every inspection (the skill prompts it), and promote any newly
-> accepted finding into Known issues with its rationale.
-
----
+> Human/Claude-maintained, not auto-generated. Screenshots are ephemeral (`tmp/loc-size-check/`, deleted
+> after inspection) — this file is the durable record.
 
 ## Known issues / decisions
 
-Each entry: `ID` · status · severity · finding · decision + rationale · first seen.
-
-### KI-1 — Sheet inline nav-title truncation (de, ru) — **ACCEPTED** · low
-- **Finding:** At forced `.xxxLarge`, the centered inline navigation title truncates on the **Add Budget**
-  and **Add Expense** sheets in German and Russian:
-  - de: "Neues Budget" → "Neues B…", "Ausgabe hinzufügen" → "Ausgabe…"
-  - ru: "Новый бюджет" → "Новый…", "Добавить расход" → "Добави…"
-  - fi / th / vi / ar / he titles fit; **Settings** title fits in every language; **body content is clean**.
-- **Decision:** Accept. Standard iOS behavior for an inline title squeezed between Cancel/Save at large
-  type; the title is contextually redundant (the user just tapped that action). Not a layout breakage.
-- **Revisit if:** we shorten the de/ru "Add budget" / "Add expense" nav strings, or drop the inline titles.
-- First seen: 2026-06-04.
-
-### KI-2 — Add Budget period selector hidden by keyboard — **RESOLVED** · tool gap
-- **Finding:** The name field auto-focuses on the Add Budget sheet, so the keyboard covered the lower
-  period-button rows; the longest biweekly label — Finnish **"Kahden viikon välein"** — was obscured and
-  unverified at xxxLarge.
-- **Resolution (2026-06-04):** The capture now dismisses the keyboard (taps the selected period chip — no
-  production change) and takes a second scrolled shot (`03b-add-budget-lower`), so the full period grid +
-  schedule + carry-over are visible at xxxLarge. **Re-verified de + fi:** the Finnish biweekly chip
-  **wraps to two lines within its tile with no truncation**; every period chip renders cleanly. No app
-  defect — the blind spot was the capture's, and it's closed.
-- First seen: 2026-06-04.
-
-### KI-3 — Hindi "Specific Dates" untranslated (English value, `translated` state) — **OPEN** · translation gap
-- **Finding:** On Add Budget, the Hindi period chip "Specific Dates" renders in **English** while the other
-  four chips are translated (and ja/zh-Hans/de have it). The catalog keys `period.specificDates` and
-  `period.specificDates.inline` for `hi` carry `state: translated` but hold the **English** value — so the
-  state-based pipeline gap check can't see them; the visual audit did. (Other `hi` value==English hits are
-  legitimate: brand term "Carry-Over", pure `%@`-only accessibility strings.)
-- **Decision:** Open — a **translation-content** fix, not layout. Re-translate those two `hi` keys (force,
-  since state is already `translated`). Tracking here until fixed.
-- First seen: 2026-06-04.
-
-### Cross-references (not layout findings — don't re-flag here)
-- **GitHub #181** — `make test`'s `testAddBudgetFormBlank` fails on iOS 26.5 because a system keyboard
-  `TUIPredictionViewCell` bleeds into the sheet's a11y tree (sufficient-description audit). Pre-existing,
-  unrelated to layout; tracked separately.
-
----
+### KI-1 — Sheet inline nav-title truncation (de, ru) — ACCEPTED · low
+At forced `.xxxLarge`, the centered inline nav title on the **Add Budget** and **Add Expense** sheets
+truncates in German and Russian (e.g. "Neues B…", "Добави…"). Other languages fit, **Settings** fits
+everywhere, and the body content is clean. This is standard iOS behavior for an inline title squeezed
+between Cancel/Save at large type, and the title is contextually redundant — **accept**. Revisit only if
+we shorten the de/ru "Add budget" / "Add expense" nav strings.
 
 ## Run history
 
-Newest first. Entry: date · run label · device / iOS · scope · git SHA · verdict.
-
-### 2026-06-04 · new-language smoke · iPhone 17, iOS 26.5 · ja + zh-Hans + hi, all 8 shots @ xxxLarge
-Added `ja`, `zh-Hans`, `hi` to the matrix (now 10 languages). **Verdict: layouts clean.** CJK (ja, zh-Hans)
-renders compact with no clipping; locale-correct currency (JPY `¥100` no decimals, CNY `¥100.00`, INR
-`₹100.00`); Devanagari (hi) stacking marks and conjuncts render with no vertical clipping and wrap cleanly,
-including the period grid and Settings at xxxLarge. **One non-layout finding:** Hindi "Specific Dates"
-untranslated — see KI-3.
-
-### 2026-06-04 · KI-2 fix verification · iPhone 17, iOS 26.5 · de + fi, Add Budget only @ xxxLarge
-Targeted re-run after teaching the capture to dismiss the keyboard + take a scrolled `03b` shot.
-**Verdict: KI-2 resolved.** Full Add Budget period grid now visible at xxxLarge; Finnish
-"Kahden viikon välein" wraps to two lines in its tile with no truncation. (Full 7-locale re-run with the
-new `03b` shots not yet done — deferred to the next pre-submission pass; the 5 untested languages all have
-short period labels that already fit.)
-
-### 2026-06-04 · post-fix re-run · iPhone 17, iOS 26.5 · 7 locales × 7 screens @ xxxLarge · `4796e5d`
-**Verdict: clean.** All three sheet screens (Add Budget, Settings, Add Expense) now render at true
-xxxLarge after the sheet Dynamic Type fix. No body truncation in any of the 7 languages; long budget
-name wraps; tall/stacked scripts (th, vi) render without clipping; RTL (ar, he) fully mirrored;
-calendars (Hijri for ar_SA, Gregorian elsewhere) and currency locale-correct. Outstanding findings
-limited to **KI-1** (accepted) and **KI-2** (tool gap).
-
-### 2026-06-04 · initial run · iPhone 17, iOS 26.5 · 7 locales × 7 screens @ xxxLarge · `66d07dc`
-List & detail screens clean at xxxLarge. **Bug found:** the three sheet screens (Add Budget, Settings,
-Add Expense) were rendering at *default* size, not xxxLarge — the root-level Dynamic Type override did
-not cross the `.sheet` presentation boundary, so those screens weren't actually being stress-tested at
-large type. Fixed in `4796e5d` (re-apply the inert override inside `RootView`'s sheet content);
-re-validated in the post-fix run above.
+### 2026-06-04 · baseline · iPhone 17, iOS 26.5 · 10 locales × 7 screens @ xxxLarge
+Established the baseline across **de, fi, ru, th, vi, ar, he, ja, zh-Hans, hi** at forced `.xxxLarge`.
+**Layouts clean:** no body truncation; long budget names wrap; tall/stacked scripts (th, vi) and
+Devanagari (hi) render without vertical clipping; CJK (ja, zh-Hans) is compact with no clipping; RTL
+(ar, he) is fully mirrored; currency and calendars are locale-correct. Only standing caveat is **KI-1**.

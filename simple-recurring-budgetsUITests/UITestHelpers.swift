@@ -18,6 +18,10 @@ func makeApp() -> XCUIApplication {
 /// Each name becomes a monthly $100 budget inserted before the root view renders,
 /// letting journey tests skip UI creation and focus on the feature under test.
 /// The store is still ephemeral — data never persists between test processes.
+///
+/// Names are joined with `,` and split back by the same delimiter in
+/// `InMemoryModelContainer.makeForUITests()`, so a name must not contain a comma
+/// (it would seed two budgets). `LocalizationScreenshotCapture` relies on this too.
 @MainActor
 func makeApp(seedBudgets names: [String]) -> XCUIApplication {
   let app = makeApp()

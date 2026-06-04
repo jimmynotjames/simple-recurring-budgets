@@ -10,6 +10,19 @@ import XCTest
 /// Navigation is locale-invariant (accessibility identifiers + `cells.firstMatch`); size is forced via
 /// the `FORCE_DYNAMIC_TYPE` env hook (the `-UIPreferredContentSizeCategoryName` launch arg was flaky on
 /// iOS 26.x). One test method per language so xcodebuild fans them across many simulator clones.
+///
+/// **Depends on existing code (don't break these without updating this capture):**
+/// - `UITestHelpers.makeApp()` / `makeApp(seedBudgets:)` and the `SEED_BUDGETS` launch-env contract
+///   (comma-delimited names → one monthly $100 budget each). The comma delimiter is why `longName`
+///   below must not contain a comma.
+/// - `InMemoryModelContainer.makeForUITests()` (DEBUG, gated by `IS_TESTING`) — parses `SEED_BUDGETS`.
+/// - Four `.accessibilityIdentifier(...)` handles in the production views, which this is currently the
+///   *only* consumer of: `toolbar.settings.label`, `toolbar.addBudget.accessibilityLabel`,
+///   `budget.row.addExpense.accessibilityLabel` (BudgetsView), `budgetDetail.menu.accessibilityLabel`
+///   (BudgetDetailView). Removing/renaming them silently breaks navigation here.
+/// - `TestDynamicTypeOverride` (the `FORCE_DYNAMIC_TYPE` hook) applied at the app root.
+/// - The runner `scripts/translation-accessibility-size-check/run.sh` (`-only-testing`s this class;
+///   relies on the `<lang>__<screen>` attachment names and `scripts/_destination.sh` / `build.sh`).
 final class LocalizationScreenshotCapture: XCTestCase {
   override func setUpWithError() throws {
     continueAfterFailure = true

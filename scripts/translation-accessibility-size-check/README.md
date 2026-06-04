@@ -44,6 +44,20 @@ Via the `FORCE_DYNAMIC_TYPE` env hook (`TestDynamicTypeOverride`, gated by `IS_T
 `-UIPreferredContentSizeCategoryName` launch arg was unreliable on the iOS 26.x simulator. Inert in
 production.
 
+## What it reuses (don't break these without updating the capture)
+This check is deliberately thin — it leans on existing app/test infrastructure rather than duplicating it.
+If you're modifying any of the following, check `LocalizationScreenshotCapture.swift` first:
+- **`UITestHelpers.makeApp()` / `makeApp(seedBudgets:)`** and the **`SEED_BUDGETS`** launch-env contract
+  (comma-delimited names → one monthly $100 budget each; **names must not contain commas**).
+- **`InMemoryModelContainer.makeForUITests()`** (DEBUG, gated by `IS_TESTING`) — parses `SEED_BUDGETS`.
+- Four production-view **`.accessibilityIdentifier`** handles this capture is the *only* consumer of:
+  `toolbar.settings.label`, `toolbar.addBudget.accessibilityLabel`, `budget.row.addExpense.accessibilityLabel`
+  (BudgetsView) and `budgetDetail.menu.accessibilityLabel` (BudgetDetailView). Each is commented in-view.
+- **`TestDynamicTypeOverride`** (the `FORCE_DYNAMIC_TYPE` hook) at the app root.
+- **`scripts/_destination.sh`** + **`scripts/build.sh`** (the runner sources/builds through them).
+- The capture is **excluded** from `make test` by omission from `scripts/test-ui.sh`'s `-only-testing` list —
+  it runs only when `run.sh` targets it. Keep it out of that list.
+
 ## Extending it
 - **More languages:** add a `testCaptureXxx()` method + a `localeID` entry in
   `simple-recurring-budgetsUITests/LocalizationScreenshotCapture.swift`.

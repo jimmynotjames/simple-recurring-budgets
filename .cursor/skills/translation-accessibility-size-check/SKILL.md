@@ -21,7 +21,7 @@ Authoritative reference: `scripts/translation-accessibility-size-check/README.md
 
 ### 1. Warn, then confirm
 Tell the user, before doing anything: *"This spins up ~N simulator clones in parallel and will saturate
-CPU/RAM for a while — close other heavy apps first. Proceed?"* (N = `WORKERS`, default 7.) Wait for an
+CPU/RAM for a while — close other heavy apps first. Proceed?"* (N = `WORKERS`, default 10.) Wait for an
 explicit yes. Mention the knobs if relevant: `WORKERS`, `SIMULATOR_NAME` (a compact device stresses
 truncation more), `MAX_PX` (downscale).
 
@@ -29,7 +29,7 @@ truncation more), `MAX_PX` (downscale).
 ```bash
 bash scripts/translation-accessibility-size-check/run.sh --yes
 ```
-This builds, runs `LocalizationScreenshotCapture` across 7 locales @ xxxLarge in parallel, and writes
+This builds, runs `LocalizationScreenshotCapture` across 10 locales @ xxxLarge in parallel, and writes
 downscaled PNGs to `tmp/loc-size-check/<lang>__<screen>.png`. (It refuses without `--yes`.)
 
 ### 3. Inspect every screenshot — this is the check
@@ -56,7 +56,7 @@ delete `tmp/loc-size-check/`**, and delete it (`rm -rf tmp/loc-size-check`) only
 
 ## Notes
 - Forced size uses the `FORCE_DYNAMIC_TYPE` env hook (launch arg was flaky on iOS 26.x); inert in prod.
-- Covers 7 screens (≈56 shots): **Add Budget yields two** (`03` + `03b-add-budget-lower`) — the capture
-  dismisses the auto-focused keyboard and scrolls to show the full period selector + lower cards.
+- 10 languages × 7 screens (≈80 shots): **Add Budget yields two** (`03` + `03b-add-budget-lower`) — the
+  capture dismisses the auto-focused keyboard and scrolls to show the full period selector + lower cards.
 - Extend per the README (more languages = trivial; richer states like the orphan-warning plural alert
   need seed enrichment).

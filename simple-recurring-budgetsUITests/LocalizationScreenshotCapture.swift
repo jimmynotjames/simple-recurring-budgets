@@ -2,7 +2,7 @@ import XCTest
 
 /// **Ad-hoc** localized-layout screenshot capture — NOT part of `make test`.
 ///
-/// Drives the app in 7 locales at forced `.xxxLarge` and saves a screenshot of each key screen as a
+/// Drives the app in 10 locales at forced `.xxxLarge` and saves a screenshot of each key screen as a
 /// `.keepAlways` attachment named `<lang>__<screen>`. It makes **no layout assertions** — it never
 /// "fails" on truncation; a human/Claude inspects the screenshots (see
 /// `scripts/translation-accessibility-size-check/`). Runs only when the runner `-only-testing`s it.
@@ -54,6 +54,18 @@ final class LocalizationScreenshotCapture: XCTestCase {
 
   @MainActor func testCaptureHebrew() {
     captureAll("he")
+  }
+
+  @MainActor func testCaptureJapanese() {
+    captureAll("ja")
+  }
+
+  @MainActor func testCaptureChineseSimplified() {
+    captureAll("zh-Hans")
+  }
+
+  @MainActor func testCaptureHindi() {
+    captureAll("hi")
   }
 
   // MARK: - Per-language sweep (7 screens; 8 shots — Add Budget captures top + scrolled)
@@ -168,6 +180,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
 
   private func localeID(_ lang: String) -> String {
     ["de": "de_DE", "fi": "fi_FI", "ru": "ru_RU", "th": "th_TH",
-     "vi": "vi_VN", "ar": "ar_SA", "he": "he_IL"][lang] ?? "\(lang)_\(lang.uppercased())"
+     "vi": "vi_VN", "ar": "ar_SA", "he": "he_IL",
+     "ja": "ja_JP", "zh-Hans": "zh_CN", "hi": "hi_IN"][lang] ?? "\(lang)_\(lang.uppercased())"
   }
 }

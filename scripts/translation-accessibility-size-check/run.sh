@@ -5,20 +5,20 @@ cd "$ROOT"
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────
 # Ad-hoc localized-layout screenshot capture (issue #171). NOT part of `make test` / any hook.
-# Runs LocalizationScreenshotCapture across 7 locales at forced .xxxLarge, exports the screenshots
+# Runs LocalizationScreenshotCapture across 10 locales at forced .xxxLarge, exports the screenshots
 # to tmp/loc-size-check/, downscales them, and leaves them for visual inspection (Claude eyeballs).
 #
 # Heavy: it spins up many simulator clones in parallel and saturates CPU/RAM for a while.
 # Requires explicit confirmation: pass --yes to proceed.
 #
 # Knobs (env):
-#   WORKERS         parallel simulator clones (default 7 = one per language). Raise for a bigger matrix.
+#   WORKERS         parallel simulator clones (default 10 = one per language). Raise for a bigger matrix.
 #   SIMULATOR_NAME  base device to clone (default: repo default via _destination.sh). A compact model
 #                   (narrow width) is the worst case for truncation; set e.g. SIMULATOR_NAME="iPhone SE (3rd generation)".
 #   MAX_PX          downscale longest screenshot edge to this many px (default 1000) to cut read cost.
 # ────────────────────────────────────────────────────────────────────────────────────────────────
 
-WORKERS="${WORKERS:-7}"
+WORKERS="${WORKERS:-10}"
 MAX_PX="${MAX_PX:-1000}"
 OUT="${ROOT}/tmp/loc-size-check"
 
@@ -43,7 +43,7 @@ bash scripts/build.sh >/dev/null
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 RESULT="${SIM_RESULTS_DIR}/${TIMESTAMP}-loc-size.xcresult"
 
-echo "→ Capturing screenshots across 7 locales @ xxxLarge with ${WORKERS} parallel clones …"
+echo "→ Capturing screenshots across 10 locales @ xxxLarge with ${WORKERS} parallel clones …"
 # Bypass the SRB_SIM_MAX clamp deliberately for this ad-hoc run (explicit override, not a default change).
 xcodebuild test \
   -project simple-recurring-budgets.xcodeproj \

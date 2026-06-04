@@ -40,6 +40,16 @@ Each entry: `ID` · status · severity · finding · decision + rationale · fir
   defect — the blind spot was the capture's, and it's closed.
 - First seen: 2026-06-04.
 
+### KI-3 — Hindi "Specific Dates" untranslated (English value, `translated` state) — **OPEN** · translation gap
+- **Finding:** On Add Budget, the Hindi period chip "Specific Dates" renders in **English** while the other
+  four chips are translated (and ja/zh-Hans/de have it). The catalog keys `period.specificDates` and
+  `period.specificDates.inline` for `hi` carry `state: translated` but hold the **English** value — so the
+  state-based pipeline gap check can't see them; the visual audit did. (Other `hi` value==English hits are
+  legitimate: brand term "Carry-Over", pure `%@`-only accessibility strings.)
+- **Decision:** Open — a **translation-content** fix, not layout. Re-translate those two `hi` keys (force,
+  since state is already `translated`). Tracking here until fixed.
+- First seen: 2026-06-04.
+
 ### Cross-references (not layout findings — don't re-flag here)
 - **GitHub #181** — `make test`'s `testAddBudgetFormBlank` fails on iOS 26.5 because a system keyboard
   `TUIPredictionViewCell` bleeds into the sheet's a11y tree (sufficient-description audit). Pre-existing,
@@ -50,6 +60,13 @@ Each entry: `ID` · status · severity · finding · decision + rationale · fir
 ## Run history
 
 Newest first. Entry: date · run label · device / iOS · scope · git SHA · verdict.
+
+### 2026-06-04 · new-language smoke · iPhone 17, iOS 26.5 · ja + zh-Hans + hi, all 8 shots @ xxxLarge
+Added `ja`, `zh-Hans`, `hi` to the matrix (now 10 languages). **Verdict: layouts clean.** CJK (ja, zh-Hans)
+renders compact with no clipping; locale-correct currency (JPY `¥100` no decimals, CNY `¥100.00`, INR
+`₹100.00`); Devanagari (hi) stacking marks and conjuncts render with no vertical clipping and wrap cleanly,
+including the period grid and Settings at xxxLarge. **One non-layout finding:** Hindi "Specific Dates"
+untranslated — see KI-3.
 
 ### 2026-06-04 · KI-2 fix verification · iPhone 17, iOS 26.5 · de + fi, Add Budget only @ xxxLarge
 Targeted re-run after teaching the capture to dismiss the keyboard + take a scrolled `03b` shot.

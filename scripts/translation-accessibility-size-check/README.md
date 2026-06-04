@@ -34,12 +34,15 @@ Close other heavy apps first. This intentionally exceeds the repo's `SRB_SIM_MAX
 explicit ad-hoc override and does not change that default.
 
 ## What it captures
-7 languages — `de` (long Latin), `fi` (agglutinative), `ru` (Cyrillic + plurals), `th` (tall script),
-`vi` (stacked diacritics), `ar` + `he` (RTL) — each at `.xxxLarge`, across 7 screens/states: empty
-list, multi-budget list (incl. a long name), Add Budget, Settings, Budget detail, detail + options
-menu, Add Expense. **Add Budget yields two shots** (`03-add-budget` + `03b-add-budget-lower`): its name
-field auto-focuses, so the capture dismisses the keyboard and scrolls to show the full period selector
-and the schedule / carry-over cards below it. ≈ 56 screenshots (8 per language).
+10 languages, each chosen to stress a distinct failure mode — `de` (long Latin), `fi` (agglutinative),
+`ru` (Cyrillic + plurals), `th` (tall script), `vi` (stacked diacritics), `ar` + `he` (RTL),
+`ja` + `zh-Hans` (CJK: no-space line-breaking, ideographic width, tall glyphs at large type),
+`hi` (Devanagari: above/below stacking marks + conjuncts — vertical-clipping risk). Each at `.xxxLarge`,
+across 7 screens/states: empty list, multi-budget list (incl. a long name), Add Budget, Settings, Budget
+detail, detail + options menu, Add Expense. **Add Budget yields two shots** (`03-add-budget` +
+`03b-add-budget-lower`): its name field auto-focuses, so the capture dismisses the keyboard and scrolls
+to show the full period selector and the schedule / carry-over cards below it. ≈ 80 screenshots
+(8 per language).
 
 ## Knobs (env)
 - `WORKERS` — parallel clones (default 7 = one per language; raise if you expand the matrix).

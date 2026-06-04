@@ -33,11 +33,13 @@ It spins up **`WORKERS` simulator clones in parallel** (default 7) and saturates
 Close other heavy apps first. This intentionally exceeds the repo's `SRB_SIM_MAX` cap (1–3) — it's an
 explicit ad-hoc override and does not change that default.
 
-## What it captures (v1)
+## What it captures
 7 languages — `de` (long Latin), `fi` (agglutinative), `ru` (Cyrillic + plurals), `th` (tall script),
 `vi` (stacked diacritics), `ar` + `he` (RTL) — each at `.xxxLarge`, across 7 screens/states: empty
 list, multi-budget list (incl. a long name), Add Budget, Settings, Budget detail, detail + options
-menu, Add Expense. ≈ 49 screenshots.
+menu, Add Expense. **Add Budget yields two shots** (`03-add-budget` + `03b-add-budget-lower`): its name
+field auto-focuses, so the capture dismisses the keyboard and scrolls to show the full period selector
+and the schedule / carry-over cards below it. ≈ 56 screenshots (8 per language).
 
 ## Knobs (env)
 - `WORKERS` — parallel clones (default 7 = one per language; raise if you expand the matrix).

@@ -56,5 +56,7 @@ delete `tmp/loc-size-check/`**, and delete it (`rm -rf tmp/loc-size-check`) only
 
 ## Notes
 - Forced size uses the `FORCE_DYNAMIC_TYPE` env hook (launch arg was flaky on iOS 26.x); inert in prod.
-- v1 covers 7 screens/states; extend per the README (more languages = trivial; richer states like the
-  orphan-warning plural alert need seed enrichment).
+- Covers 7 screens (≈56 shots): **Add Budget yields two** (`03` + `03b-add-budget-lower`) — the capture
+  dismisses the auto-focused keyboard and scrolls to show the full period selector + lower cards.
+- Extend per the README (more languages = trivial; richer states like the orphan-warning plural alert
+  need seed enrichment).

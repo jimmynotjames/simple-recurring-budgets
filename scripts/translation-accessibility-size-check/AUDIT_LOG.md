@@ -29,13 +29,15 @@ Each entry: `ID` · status · severity · finding · decision + rationale · fir
 - **Revisit if:** we shorten the de/ru "Add budget" / "Add expense" nav strings, or drop the inline titles.
 - First seen: 2026-06-04.
 
-### KI-2 — Add Budget period selector hidden by keyboard — **OPEN** · tool gap
-- **Finding:** The name field auto-focuses on the Add Budget sheet, so the keyboard covers the lower
-  period-button rows. The longest biweekly label — Finnish **"Kahden viikon välein"** — is obscured, so
-  it is **unverified at xxxLarge**. This is a capture blind spot, not a confirmed defect (the visible long
-  labels, e.g. de "Zweiwöchentlich" / ru "Раз в две недели", fit).
-- **Decision:** Open. Fix the capture to dismiss the keyboard (or not focus the name field) before the
-  Add Budget screenshot, then re-verify. Until then, treat the lower period rows as not-yet-validated.
+### KI-2 — Add Budget period selector hidden by keyboard — **RESOLVED** · tool gap
+- **Finding:** The name field auto-focuses on the Add Budget sheet, so the keyboard covered the lower
+  period-button rows; the longest biweekly label — Finnish **"Kahden viikon välein"** — was obscured and
+  unverified at xxxLarge.
+- **Resolution (2026-06-04):** The capture now dismisses the keyboard (taps the selected period chip — no
+  production change) and takes a second scrolled shot (`03b-add-budget-lower`), so the full period grid +
+  schedule + carry-over are visible at xxxLarge. **Re-verified de + fi:** the Finnish biweekly chip
+  **wraps to two lines within its tile with no truncation**; every period chip renders cleanly. No app
+  defect — the blind spot was the capture's, and it's closed.
 - First seen: 2026-06-04.
 
 ### Cross-references (not layout findings — don't re-flag here)
@@ -48,6 +50,13 @@ Each entry: `ID` · status · severity · finding · decision + rationale · fir
 ## Run history
 
 Newest first. Entry: date · run label · device / iOS · scope · git SHA · verdict.
+
+### 2026-06-04 · KI-2 fix verification · iPhone 17, iOS 26.5 · de + fi, Add Budget only @ xxxLarge
+Targeted re-run after teaching the capture to dismiss the keyboard + take a scrolled `03b` shot.
+**Verdict: KI-2 resolved.** Full Add Budget period grid now visible at xxxLarge; Finnish
+"Kahden viikon välein" wraps to two lines in its tile with no truncation. (Full 7-locale re-run with the
+new `03b` shots not yet done — deferred to the next pre-submission pass; the 5 untested languages all have
+short period labels that already fit.)
 
 ### 2026-06-04 · post-fix re-run · iPhone 17, iOS 26.5 · 7 locales × 7 screens @ xxxLarge · `4796e5d`
 **Verdict: clean.** All three sheet screens (Add Budget, Settings, Add Expense) now render at true

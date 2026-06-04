@@ -56,7 +56,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
     captureAll("he")
   }
 
-  // MARK: - Per-language sweep (7 screens/states)
+  // MARK: - Per-language sweep (7 screens; 8 shots — Add Budget captures top + scrolled)
 
   /// No comma: SEED_BUDGETS is comma-delimited, so a comma here would split this into two budgets.
   private let longName = "Weekday Coffee & Breakfast Pastry Treats"
@@ -64,10 +64,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
   @MainActor private func captureAll(_ lang: String) {
     capture("01-list-empty", lang, seed: []) { _ in true }
     capture("02-list-several", lang, seed: ["Groceries", longName, "Transport"]) { _ in true }
-    capture("03-add-budget", lang, seed: []) { app in
-      guard self.tap(app, "toolbar.addBudget.accessibilityLabel") else { return false }
-      return app.textFields.firstMatch.waitForExistence(timeout: 8)
-    }
+    captureAddBudget(lang)
     capture("04-settings", lang, seed: []) { app in
       guard self.tap(app, "toolbar.settings.label") else { return false }
       return app.navigationBars.firstMatch.waitForExistence(timeout: 8)
@@ -88,6 +85,28 @@ final class LocalizationScreenshotCapture: XCTestCase {
     }
   }
 
+  // MARK: - Add Budget (special-cased: keyboard + tall form)
+
+  /// The Add Budget sheet auto-focuses the name field, raising the keyboard over the lower form —
+  /// which hides the period selector (notably the long Finnish "Kahden viikon välein" chip) and the
+  /// schedule / carry-over cards below it. At xxxLarge the whole form is taller than one screen, so
+  /// this captures **two** shots — top, then scrolled — after dismissing the keyboard.
+  @MainActor private func captureAddBudget(_ lang: String) {
+    let app = launch(lang, seed: [])
+    guard tap(app, "toolbar.addBudget.accessibilityLabel"),
+          app.textFields.firstMatch.waitForExistence(timeout: 8)
+    else {
+      XCTFail("\(lang) 03-add-budget: could not open the sheet")
+      app.terminate()
+      return
+    }
+    dismissKeyboard(app)
+    attach(app, "\(lang)__03-add-budget") // name + allocation + start of period selector
+    app.swipeUp() // scroll down to reveal the rest of the form
+    attach(app, "\(lang)__03b-add-budget-lower") // full period grid + schedule + carry-over
+    app.terminate()
+  }
+
   // MARK: - Helpers
 
   /// Tap a control by its accessibility identifier (locale-invariant). Returns false if not found.
@@ -98,6 +117,38 @@ final class LocalizationScreenshotCapture: XCTestCase {
     return true
   }
 
+  /// Dismiss the auto-focused name-field keyboard by **tapping the selected period chip**. Tapping a
+  /// period chip ends editing (dismisses the keyboard) and re-selecting the already-selected one leaves
+  /// the form state unchanged. Two things make this the right move here:
+  /// - A **tap** (not a downward drag) can't trigger the sheet's pull-to-dismiss, which closed the whole
+  ///   sheet when we tried `.scrollDismissesKeyboard`-style drags.
+  /// - The chips have **no** `.accessibilityIdentifier` (we're not changing production), so we tap the
+  ///   first chip's on-screen location — period card, row 1, left column — which sits above the keyboard.
+  /// The coordinate is stable: the period card is the 3rd card and the name/allocation cards above it are
+  /// fixed-height (label + field). If it ever misses, the keyboard simply stays and the shot shows it.
+  @MainActor private func dismissKeyboard(_ app: XCUIApplication) {
+    guard app.keyboards.firstMatch.waitForExistence(timeout: 3) else { return }
+    app.coordinate(withNormalizedOffset: CGVector(dx: 0.28, dy: 0.55)).tap()
+    _ = app.keyboards.firstMatch.waitForNonExistence(timeout: 2) // let it animate out
+  }
+
+  /// Launch in `lang` at forced xxxLarge with the given seed.
+  @MainActor private func launch(_ lang: String, seed: [String]) -> XCUIApplication {
+    let app = seed.isEmpty ? makeApp() : makeApp(seedBudgets: seed)
+    app.launchEnvironment["FORCE_DYNAMIC_TYPE"] = "xxxLarge"
+    app.launchArguments += ["-AppleLanguages", "(\(lang))", "-AppleLocale", localeID(lang)]
+    app.launch()
+    return app
+  }
+
+  /// Attach a `.keepAlways` screenshot named `<lang>__<screen>` (run.sh renames by this).
+  @MainActor private func attach(_ app: XCUIApplication, _ name: String) {
+    let attachment = XCTAttachment(screenshot: app.screenshot())
+    attachment.name = name
+    attachment.lifetime = .keepAlways
+    add(attachment)
+  }
+
   /// Launch in `lang` at forced xxxLarge with the given seed, navigate, and attach a screenshot.
   @MainActor private func capture(
     _ screen: String,
@@ -105,19 +156,13 @@ final class LocalizationScreenshotCapture: XCTestCase {
     seed: [String],
     navigate: (XCUIApplication) -> Bool
   ) {
-    let app = seed.isEmpty ? makeApp() : makeApp(seedBudgets: seed)
-    app.launchEnvironment["FORCE_DYNAMIC_TYPE"] = "xxxLarge"
-    app.launchArguments += ["-AppleLanguages", "(\(lang))", "-AppleLocale", localeID(lang)]
-    app.launch()
+    let app = launch(lang, seed: seed)
     guard navigate(app) else {
       XCTFail("\(lang) \(screen): could not reach the screen")
       app.terminate()
       return
     }
-    let attachment = XCTAttachment(screenshot: app.screenshot())
-    attachment.name = "\(lang)__\(screen)"
-    attachment.lifetime = .keepAlways
-    add(attachment)
+    attach(app, "\(lang)__\(screen)")
     app.terminate()
   }
 

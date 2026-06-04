@@ -22,6 +22,12 @@ bash scripts/translation-accessibility-size-check/run.sh --yes
 Output: `tmp/loc-size-check/<lang>__<screen>.png` (gitignored), downscaled for cheap reading. Delete
 when done: `rm -rf tmp/loc-size-check`.
 
+## Audit log (durable record)
+The screenshots are ephemeral; **[`AUDIT_LOG.md`](AUDIT_LOG.md)** is the lasting record. It holds the
+**known issues / decisions** (findings we've inspected and accepted or deferred — consulted so each run
+flags only *new* deltas) and a **run history** (one dated verdict per inspection). The skill reads it
+before reporting and appends to it after; update it by hand when you run the tool directly.
+
 ## ⚠ Resources
 It spins up **`WORKERS` simulator clones in parallel** (default 7) and saturates CPU/RAM while running.
 Close other heavy apps first. This intentionally exceeds the repo's `SRB_SIM_MAX` cap (1–3) — it's an

@@ -13,7 +13,9 @@ Authoritative reference: `scripts/translation-accessibility-size-check/README.md
   **Always warn the user and get an explicit go-ahead before running** (Step 1). Never run it as part of
   a routine flow / commit / CI.
 - **Don't write ad-hoc Python/shell** to capture or rename — that's all in `run.sh`.
-- **Don't delete the screenshots** until the user okays it (Step 4).
+- **Consult the audit log** (`scripts/translation-accessibility-size-check/AUDIT_LOG.md`) before reporting,
+  and **append a Run-history entry** to it after (Steps 3 & 5). It's the durable record — screenshots aren't.
+- **Don't delete the screenshots** until the user okays it (Step 5).
 
 ## Recipe
 
@@ -31,19 +33,26 @@ This builds, runs `LocalizationScreenshotCapture` across 7 locales @ xxxLarge in
 downscaled PNGs to `tmp/loc-size-check/<lang>__<screen>.png`. (It refuses without `--yes`.)
 
 ### 3. Inspect every screenshot — this is the check
-`ls tmp/loc-size-check/`, then **Read each PNG**. For each, judge:
+**First read `AUDIT_LOG.md`'s "Known issues / decisions"** so you can tell new findings from acknowledged
+ones. Then `ls tmp/loc-size-check/` and **Read each PNG**. For each, judge:
 - **Truncation / clipping** — any label cut off or "…"; any control overflowing its row.
 - **Overlap / overflow** — text colliding with other elements or running off-screen.
 - **RTL (ar, he)** — layout mirrored, text right-aligned, Latin tokens (iCloud) / currency / `%@`
   arguments placed correctly.
 - **Sanity** — confirm the text actually looks **xxxLarge** (if it looks default-size, the size hook
   didn't engage — flag it; see README "How the size is forced").
-Report findings grouped by `language → screen` with a clear verdict (clean vs. specific issue + which
-element/locale), and for any real issue note whether the fix is UI layout vs. translation length.
+Report findings grouped by `language → screen` with a clear verdict. **Match each finding against the log:**
+an acknowledged known issue (e.g. KI-1) gets a one-line "as expected (KI-N)" mention; a **new/delta** finding
+gets flagged prominently, noting whether the fix is UI layout vs. translation length.
 
-### 4. Offer cleanup
-The screenshots are large and left in place for the user. After reporting, **ask whether to delete
-`tmp/loc-size-check/`**, and delete it (`rm -rf tmp/loc-size-check`) only on an explicit green light.
+### 4. Log the run
+Append a dated **Run history** entry to `AUDIT_LOG.md` (date · run label · device/iOS · scope · `git rev-parse
+--short HEAD` · one-line verdict + any new findings). If the user **accepts a new finding as won't-fix /
+defer**, promote it into the **Known issues / decisions** section with its rationale and "first seen" date.
+
+### 5. Offer cleanup
+The screenshots are large and left in place for the user. After reporting **and logging**, **ask whether to
+delete `tmp/loc-size-check/`**, and delete it (`rm -rf tmp/loc-size-check`) only on an explicit green light.
 
 ## Notes
 - Forced size uses the `FORCE_DYNAMIC_TYPE` env hook (launch arg was flaky on iOS 26.x); inert in prod.

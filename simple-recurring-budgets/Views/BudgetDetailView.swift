@@ -290,6 +290,8 @@ struct BudgetDetailView: View {
           comment: "VoiceOver label for the budget options menu button"
         ))
         // Locale-invariant test handle (= localization key) so UI tests navigate in any language.
+        // Sole consumer: LocalizationScreenshotCapture (scripts/translation-accessibility-size-check/).
+        // Don't remove/rename without updating that capture, or its navigation breaks silently.
         .accessibilityIdentifier("budgetDetail.menu.accessibilityLabel")
         .confirmationDialog(
           String(

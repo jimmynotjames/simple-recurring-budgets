@@ -49,6 +49,17 @@ For every plural key it flags locales missing a CLDR-required category or carryi
 emits the incomplete pairs for re-translation. The required set is the integer-reachable CLDR
 categories per locale, from the committed `plural_rules.py` (regenerate via `_gen_plural_rules.py`).
 
+Also run the deterministic **untranslated-copy** check (no LLM):
+```bash
+python3 scripts/translate_audit/untranslated_copies.py          # report
+```
+It flags a locale whose value is byte-identical to the English source on a key translated in nearly
+every other locale — English left in a non-English slot under a `translated` state, which the
+state-based `check_translations.py` gate can't see (this is how Hindi shipped "Specific Dates"). It
+excludes en-* variants and broadly-kept loanwords/brand terms; confirmed cognates live in its
+`ALLOWLIST`. Triage each finding: translate it (force, since the state is already `translated`) or
+allowlist it with the reason.
+
 ### 1. Extract current translations
 
 ```bash

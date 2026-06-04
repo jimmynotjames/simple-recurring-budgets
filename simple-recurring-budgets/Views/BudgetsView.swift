@@ -49,6 +49,8 @@ struct BudgetsView: View {
           comment: "VoiceOver hint for the Settings toolbar button"
         ))
         // Locale-invariant test handle (= localization key) so UI tests navigate in any language.
+        // Sole consumer: LocalizationScreenshotCapture (scripts/translation-accessibility-size-check/).
+        // Don't remove/rename without updating that capture, or its navigation breaks silently.
         .accessibilityIdentifier("toolbar.settings.label")
         // Only show the Edit button when there are rows to reorder.
         if !budgets.isEmpty {
@@ -87,6 +89,8 @@ struct BudgetsView: View {
           defaultValue: "Opens add budget form",
           comment: "VoiceOver hint for the Add Budget toolbar button"
         ))
+        // Locale-invariant test handle; sole consumer is LocalizationScreenshotCapture
+        // (scripts/translation-accessibility-size-check/) — see toolbar.settings.label above.
         .accessibilityIdentifier("toolbar.addBudget.accessibilityLabel")
       }
     }
@@ -309,6 +313,8 @@ struct BudgetRowView: View {
         defaultValue: "Opens add expense form",
         comment: "VoiceOver hint for the add-expense button in a budget row"
       ))
+      // Locale-invariant test handle; sole consumer is LocalizationScreenshotCapture
+      // (scripts/translation-accessibility-size-check/) — see toolbar.settings.label above.
       .accessibilityIdentifier("budget.row.addExpense.accessibilityLabel")
     }
     .padding(.vertical, rowVerticalPadding)

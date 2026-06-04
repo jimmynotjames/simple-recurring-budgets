@@ -33,4 +33,5 @@ xcodebuild test \
     "${SIM_PARALLEL_FLAGS[@]}" \
     -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
     -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
-    -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests
+    -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests \
+    -only-testing:simple-recurring-budgetsUITests/AllocationFirstTapUITests

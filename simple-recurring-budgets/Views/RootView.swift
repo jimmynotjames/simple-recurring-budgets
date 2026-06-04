@@ -37,11 +37,14 @@ struct RootView: View {
           AnalyticsConsentSheet()
         }
       }
-      // Test-only Dynamic Type override (inert unless IS_TESTING + FORCE_DYNAMIC_TYPE are set).
-      // Sheet content does NOT inherit the root-level override applied in the App body, so the
-      // ad-hoc localized-layout screenshot check (scripts/translation-accessibility-size-check/)
-      // re-applies it here to reach Settings / Add Expense / Add Budget at the forced size too.
+      // Test-only Dynamic Type override (DEBUG-only — compiled out of Release; inert unless
+      // IS_TESTING + FORCE_DYNAMIC_TYPE are set). Sheet content does NOT inherit the root-level
+      // override applied in the App body, so the ad-hoc localized-layout screenshot check
+      // (scripts/translation-accessibility-size-check/) re-applies it here to reach Settings /
+      // Add Expense / Add Budget at the forced size too.
+      #if DEBUG
       .modifier(TestDynamicTypeOverride())
+      #endif
     }
   }
 }

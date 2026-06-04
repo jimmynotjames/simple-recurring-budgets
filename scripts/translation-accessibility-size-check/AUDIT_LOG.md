@@ -26,3 +26,15 @@ Established the baseline across **de, fi, ru, th, vi, ar, he, ja, zh-Hans, hi** 
 **Layouts clean:** no body truncation; long budget names wrap; tall/stacked scripts (th, vi) and
 Devanagari (hi) render without vertical clipping; CJK (ja, zh-Hans) is compact with no clipping; RTL
 (ar, he) is fully mirrored; currency and calendars are locale-correct. Only standing caveat is **KI-1**.
+
+### 2026-06-04 · full run · iPhone 17, iOS 26.5 · 10 locales × 8 shots (80 PNGs) @ xxxLarge · `59b9a69`
+Full re-run across **de, fi, ru, th, vi, ar, he, ja, zh-Hans, hi** at forced `.xxxLarge` (7 parallel
+clones). **No new findings — all layouts clean.** Body content fits/wraps everywhere; no clipping of
+tall/stacked scripts (th, vi) or Devanagari (hi); CJK (ja, zh-Hans) compact and clean; RTL (ar, he)
+fully mirrored with correct chevron/control placement, Hijri (ar) + Gregorian (he) calendars, and
+₪/ر.س./Arabic-Indic numerals locale-correct. Size hook confirmed engaged (text visibly xxxLarge).
+**KI-1 reproduced exactly as expected** in **de** ("Neues B…" / "Ausgabe…") and **ru** ("Новый…" /
+"Добави…") inline nav titles on Add Budget / Add Expense; all other locales' nav titles fit fully.
+*Non-layout observation (not a finding):* "Carry-Over" remains untranslated English in every non-en
+locale (section header, toggle, green pill, menu items) — consistent across all 10, so it reads as an
+intentional product term; flag for the translation track if that's not the intent.

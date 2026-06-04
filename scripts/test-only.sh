@@ -55,4 +55,4 @@ exec xcodebuild test \
     -resultBundlePath "${RESULT_BUNDLE}" \
     -parallel-testing-enabled NO \
     "${only_args[@]}" \
-    "${extra[@]}"
+    ${extra[@]+"${extra[@]}"}

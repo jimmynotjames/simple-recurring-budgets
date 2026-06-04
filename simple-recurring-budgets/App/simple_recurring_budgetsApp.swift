@@ -99,6 +99,9 @@ struct simple_recurring_budgetsApp: App {
           .environment(syncStatus)
           .environment(ratingPrompt)
           .environment(\.analytics, analytics)
+          // Test-only Dynamic Type override (inert unless IS_TESTING + FORCE_DYNAMIC_TYPE are set);
+          // used by the localized-layout screenshot check.
+          .modifier(TestDynamicTypeOverride())
           .task {
             analytics.track(AnalyticsEvent.appOpened)
           }

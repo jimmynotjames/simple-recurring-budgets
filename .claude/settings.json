@@ -189,6 +189,7 @@
       "Skill(translate-new-strings)",
       "Skill(translate-app-store-metadata)",
       "Skill(audit-translations)",
+      "Skill(translation-accessibility-size-check)",
       "Skill(fewer-permission-prompts)",
       "Skill(update-config)",
       "Agent(general-purpose)",

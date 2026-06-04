@@ -1065,7 +1065,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ period"
+            "value": "%@ razdoblje"
           }
         },
         "hu": {
@@ -20821,7 +20821,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recents"
+            "value": "Recent"
           }
         },
         "pl": {
@@ -24410,7 +24410,7 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ over budget %@"
+            "value": "%@ boven budget %@"
           }
         },
         "pl": {
@@ -32743,7 +32743,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset carry-over?"
+            "value": "Atur Ulang Carry-Over?"
           }
         },
         "it": {
@@ -46605,7 +46605,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "विशिष्ट तिथियाँ"
+            "value": "विशिष्ट तारीखें"
           }
         },
         "hr": {
@@ -46844,7 +46844,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "विशिष्ट तिथियाँ"
+            "value": "विशिष्ट तारीखें"
           }
         },
         "hr": {

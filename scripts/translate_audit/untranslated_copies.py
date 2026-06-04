@@ -47,23 +47,49 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 CATALOG_DIR = REPO_ROOT / "scripts" / "translate_catalog"
+GLOSSARY_PATH = CATALOG_DIR / "glossary.json"
 
 sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES  # noqa: E402
 
-# Confirmed-legitimate (key, locale) pairs whose translation is correctly identical to
-# the English source — a cognate or loanword the target language genuinely uses. Each is
-# a deliberate human call; add here (with the reason) when triage confirms a flag is fine.
+# The glossary (scripts/translate_catalog/glossary.json) is the authority on which whole-string
+# terms are *deliberately* kept in English per locale — protected brands (Carry-Over, iCloud, Wren)
+# and genuine cognates the language uses verbatim (ca "Recents", de "Name", sv "Period",
+# fr "Allocation", …). load_glossary_kept_english() turns it into {locale: {kept-English terms}}
+# so those are auto-allowed without hand-maintenance; re-run the glossary pipeline to change them.
+#
+# ALLOWLIST only carries the residue the glossary can't speak to: identical-to-English values that
+# aren't whole glossary terms (a phrase, a cognate on a key with no glossary term). Each is a
+# deliberate human call — add here, with the reason, when triage confirms a flag is fine.
 ALLOWLIST: set[tuple[str, str]] = {
-    ("addEditBudget.section.name", "de"),            # de: "Name" is the German word.
-    ("addEditBudget.section.period", "sv"),          # sv: "Period" is the Swedish word.
-    ("addEditBudget.chip.period.accessibilityLabel", "sv"),  # sv: same — "period" is Swedish.
-    ("addEditBudget.section.allocation", "fr"),      # fr: "Allocation" is a French word.
-    ("addEditBudget.section.allocation", "fr-CA"),   # fr-CA: same.
-    ("settings.section.calendar", "ro"),             # ro: "Calendar" is the Romanian word.
-    ("carryOver.deficit", "ro"),                     # ro: "deficit" is a Romanian word.
-    ("settings.currencyDisplay.codeAndSymbol", "de"),  # de: "Code + Symbol" — both loanwords.
+    ("addEditBudget.chip.period.accessibilityLabel", "sv"),  # sv: "period" — glossary keeps 'Period' English for sv.
+    ("budget.summary.accessibilityLabel.overBudget.specificDates", "da"),  # da: "over budget" is Danish (cf. …overBudget sibling).
+    ("settings.section.calendar", "ro"),               # ro: "Calendar" is the Romanian word (no glossary term).
+    ("carryOver.deficit", "ro"),                       # ro: "deficit" is a Romanian word (no glossary term).
+    ("settings.currencyDisplay.codeAndSymbol", "de"),  # de: "Code + Symbol" — loanwords (no glossary term).
 }
+
+
+def load_glossary_kept_english() -> dict[str, set[str]]:
+    """{locale: set of English term-values the glossary keeps in English for that locale}.
+
+    A term is "kept-English" for a locale when its canonical translation equals the term itself;
+    protected terms count for every locale. Used to auto-allow legitimate verbatim-English values.
+    """
+    try:
+        glossary = json.loads(GLOSSARY_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    protected = set(glossary.get("protected", []))
+    terms: dict = glossary.get("terms", {})
+    kept: dict[str, set[str]] = {}
+    for locale in LOCALES:
+        s = set(protected)
+        for term, entry in terms.items():
+            if entry.get("translations", {}).get(locale) == term:
+                s.add(term)
+        kept[locale] = s
+    return kept
 
 # Matches %@, %1$@, %lld, %.2f, %% so format-only strings don't count as "translatable".
 _FMT = re.compile(r"%%|%(?:\d+\$)?[0-9.*]*[@a-zA-Z]")
@@ -91,6 +117,7 @@ def find_untranslated_copies(strings: dict, report_locales: list[str], max_holdo
                              min_share: float) -> list[dict]:
     targets = [loc for loc in LOCALES if not english_family(loc)]
     report_set = set(report_locales)
+    kept_english = load_glossary_kept_english()
     findings: list[dict] = []
 
     for key, entry in strings.items():
@@ -114,6 +141,8 @@ def find_untranslated_copies(strings: dict, report_locales: list[str], max_holdo
 
         for loc in holdouts:
             if (key, loc) in ALLOWLIST or loc not in report_set:
+                continue
+            if en in kept_english.get(loc, ()):  # glossary deliberately keeps this term in English here
                 continue
             findings.append({
                 "key": key,

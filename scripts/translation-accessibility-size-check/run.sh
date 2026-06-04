@@ -12,13 +12,16 @@ cd "$ROOT"
 # Requires explicit confirmation: pass --yes to proceed.
 #
 # Knobs (env):
-#   WORKERS         parallel simulator clones (default 10 = one per language). Raise for a bigger matrix.
+#   WORKERS         parallel simulator clones (default 7). Need NOT equal the language count — xcodebuild
+#                   distributes the 10 test methods across the workers. Each clone is a full simulator
+#                   (~1.5-2 GB resident) plus app + runner, so on a 16 GB machine keep this around 6-7;
+#                   higher will swap. Lower it on smaller RAM; raise it only with headroom to spare.
 #   SIMULATOR_NAME  base device to clone (default: repo default via _destination.sh). A compact model
 #                   (narrow width) is the worst case for truncation; set e.g. SIMULATOR_NAME="iPhone SE (3rd generation)".
 #   MAX_PX          downscale longest screenshot edge to this many px (default 1000) to cut read cost.
 # ────────────────────────────────────────────────────────────────────────────────────────────────
 
-WORKERS="${WORKERS:-10}"
+WORKERS="${WORKERS:-7}"
 MAX_PX="${MAX_PX:-1000}"
 OUT="${ROOT}/tmp/loc-size-check"
 

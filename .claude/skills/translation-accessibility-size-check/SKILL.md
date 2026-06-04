@@ -21,8 +21,9 @@ Authoritative reference: `scripts/translation-accessibility-size-check/README.md
 
 ### 1. Warn, then confirm
 Tell the user, before doing anything: *"This spins up ~N simulator clones in parallel and will saturate
-CPU/RAM for a while — close other heavy apps first. Proceed?"* (N = `WORKERS`, default 10.) Wait for an
-explicit yes. Mention the knobs if relevant: `WORKERS`, `SIMULATOR_NAME` (a compact device stresses
+CPU/RAM for a while — close other heavy apps first. Proceed?"* (N = `WORKERS`, default 7.) Wait for an
+explicit yes. Mention the knobs if relevant: `WORKERS` (parallel sim clones — each ~1.5-2 GB, so ~7 suits
+a 16 GB machine; it need not equal the 10 languages), `SIMULATOR_NAME` (a compact device stresses
 truncation more), `MAX_PX` (downscale).
 
 ### 2. Run the capture

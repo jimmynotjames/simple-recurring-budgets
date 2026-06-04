@@ -45,7 +45,9 @@ to show the full period selector and the schedule / carry-over cards below it. �
 (8 per language).
 
 ## Knobs (env)
-- `WORKERS` — parallel clones (default 7 = one per language; raise if you expand the matrix).
+- `WORKERS` — parallel sim clones (default 7). Need **not** equal the language count — xcodebuild spreads
+  the 10 test methods across the workers. Each clone is a full simulator (~1.5–2 GB resident), so ~6–7
+  suits a 16 GB machine; more will swap. Lower on smaller RAM; raise only with headroom.
 - `SIMULATOR_NAME` — base device (default: repo default). A **compact** model (narrow width) is the
   worst case for truncation, e.g. `SIMULATOR_NAME="iPhone SE (3rd generation)"`.
 - `MAX_PX` — downscale longest screenshot edge (default 1000) to trade detail for read cost.

@@ -28,7 +28,7 @@ Return a **single JSON object** (no markdown fences, no prose, no commentary) wh
 
 4. **Numbers, currencies, and dates** are handled by `FormatStyle` at runtime. Do not translate or alter the format specifiers — just keep them verbatim.
 
-5. **"Wren"** (the app's name) must be kept exactly as "Wren" — never translate or transliterate it, even though it is also an English word for a small bird. **"iCloud"**, **"Carry-Over"** (as a product concept), and any proper nouns that Apple does not translate in their own UI should likewise be left in English.
+5. **"Wren"** (the app's name) must be kept exactly as "Wren" — never translate or transliterate it, even though it is also an English word for a small bird. **"iCloud"** and any proper nouns that Apple does not translate in their own UI should likewise be left in English. (Domain nouns like "Carry-Over" are **not** protected — translate them per the glossary.)
 
 6. **Use the glossary for consistency.** If a **Glossary** section appears below, it lists app terms that already have an agreed {LOCALE_NAME} translation. When a source string contains one of these terms, render that term using the glossary's translation so it reads **identically everywhere** in the app. The glossary applies to **parts** of a string too: for "Add Expense", reuse the glossary's "Add" and "Expense". **Coherence wins, though** — after composing, re-read your full translation; if mechanically stitching the glossary terms together is awkward or ungrammatical in {LOCALE_NAME}, write the natural rendering instead while keeping the key terms recognizable. If the *whole* source string is itself a glossary term, use that entry directly. (No Glossary section = no pinned terms for these strings.)
 

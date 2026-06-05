@@ -53,7 +53,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 from locales import LOCALES, LOCALE_NAMES  # noqa: E402
 from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE  # noqa: E402
 
-PROTECTED = ["Wren", "iCloud", "Carry-Over"]
+PROTECTED = ["Wren", "iCloud"]
 
 # Small English stopword set — enough to keep the frequent-word candidate pool to content words.
 STOPWORDS = {

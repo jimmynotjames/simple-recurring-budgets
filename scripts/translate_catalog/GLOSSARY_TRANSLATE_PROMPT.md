@@ -16,7 +16,7 @@ whole app, so consistency and composability matter more than any single screen.
    no exclamation marks. Match Apple's first-party {LOCALE_NAME} UI register.
 4. **Register / formality:** follow the regional note below.
 5. **Protected nouns stay verbatim.** For any term in this list — {PROTECTED_JSON} — return it
-   **exactly as the English** (e.g. "Carry-Over" stays "Carry-Over"). Do not translate or transliterate.
+   **exactly as the English** (e.g. "Wren" stays "Wren", "iCloud" stays "iCloud"). Do not translate or transliterate.
 6. **Match the term's grammatical form** (`partOfSpeech`): translate a verb as a verb (imperative
    where the examples are buttons), a noun as a noun, etc.
 
@@ -30,7 +30,7 @@ Return a **single JSON object** — no markdown fences, no prose — mapping eac
 canonical {LOCALE_NAME} translation:
 
 ```json
-{ "Add Funds": "<translation>", "Add": "<translation>", "Budget": "<translation>", "Carry-Over": "Carry-Over" }
+{ "Add Funds": "<translation>", "Add": "<translation>", "Budget": "<translation>", "Wren": "Wren" }
 ```
 
 Every term in the input MUST appear exactly once as a key. Output only the JSON object.

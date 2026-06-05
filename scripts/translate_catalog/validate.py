@@ -140,7 +140,7 @@ def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[li
 
         # Identical-to-source is a WARNING only (not a hard error): many short
         # technical terms are legitimate loanwords, brand names, or product
-        # concepts intentionally kept in English (e.g. "iCloud", "Carry-Over",
+        # concepts intentionally kept in English (e.g. "iCloud", "Wren",
         # "Version", "Budget", "Symbol" in languages that use these words).
         if (
             not is_english_variant

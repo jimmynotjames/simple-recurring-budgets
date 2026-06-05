@@ -46,7 +46,7 @@ Just make the call and write your best output.
 
 **Do** record a question when you hit a genuine *content* decision that a human marketer would reasonably want to weigh in on, because it materially affects meaning, brand, or market fit and cannot be resolved from the prompt:
 
-- A core concept or benefit (e.g. **Carry-Over**, or a key value prop) has **no natural equivalent** in this language, and every rendering you can produce either misleads or loses the point.
+- A core concept or benefit (e.g. a key value prop) has **no natural equivalent** in this language, and every rendering you can produce either misleads or loses the point.
 - The brand descriptor genuinely **cannot fit the 30-char `name`/`subtitle` limit** while staying grammatical and meaningful in this language/script (e.g. script expansion makes it impossible) — so you had to drop something load-bearing.
 - A source claim could be **culturally sensitive, misleading, or legally risky** in this market (e.g. reads as financial advice, or a privacy/savings claim that lands differently under local norms).
 - The **source English is genuinely ambiguous** in a way that changes the translation and you cannot resolve it from the comment/guidance.

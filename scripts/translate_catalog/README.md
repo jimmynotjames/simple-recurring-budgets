@@ -90,6 +90,13 @@ make format && make lint-fix && make build && make test
 - positional locale args — restrict to those locales
 - Refuses to overwrite a catalog entry with an empty/non-string value (existing translation preserved)
 
+`invalidate_keys.py` (force re-translation when the English source is unchanged):
+- `--keys k1,k2,...` / `--keys-file PATH` — mark those keys' non-`en` locales `needs_review`
+- Leaves the `en` source untouched; `extract.py --missing` then re-emits them
+- Use when a glossary term was re-translated so every string embedding it must flow through
+  translation again (the term-changed sibling of `update_keys.py`'s English-changed path)
+- `--dry-run` — print what would be invalidated without writing
+
 ## Catalog assumptions
 
 - Keys with `"shouldTranslate": false` (locale-invariant identifiers) are skipped by `--missing`.
@@ -105,7 +112,7 @@ compound like "Add Expense" reuses the agreed "Add" + "Expense". It is **consult
 `dispatch_prompts.py` injects the relevant terms into each translation prompt as a `{GLOSSARY}` block
 (rule 6 in `PROMPT_TEMPLATE.md` tells the model to use them but keep the full string coherent), and
 `audit_dispatch.py` injects the same block so the auditor can raise `consistency` findings. Protected
-nouns (Wren, iCloud, Carry-Over) map to themselves.
+nouns (Wren, iCloud) map to themselves.
 
 Build / grow it with **Opus** agents (the `glossary-locale` agent, pinned to `model: opus`):
 

@@ -34,8 +34,9 @@ long **only when the extra length is avoidable** (padding, verbosity, needless f
 The translation must preserve the English **meaning** (use the `comment` for context). Format
 specifiers (`%@`, `%lld`, `%1$@`, …) must be **preserved exactly** — same count and form
 (order may change for grammar); a dropped or added specifier is a high-severity bug. No
-grammar/spelling errors. **"Wren"** (the app name — also the English word for a bird),
-**"iCloud"**, and **"Carry-Over"** must be left as-is, not translated or transliterated.
+grammar/spelling errors. **"Wren"** (the app name — also the English word for a bird) and
+**"iCloud"** must be left as-is, not translated or transliterated. (Domain nouns such as
+"Carry-Over" are translated per the glossary — flag them if they're left in English.)
 
 ### Plurals
 Some entries are **count-dependent plurals**: they carry `englishPlural` (the English per-category

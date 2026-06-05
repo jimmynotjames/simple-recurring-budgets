@@ -21,7 +21,7 @@ You are used in two ways, each fully specified by the prompt file you're given:
 
 2. **Per-locale translation** (one agent per locale): translate each glossary term into the target
    locale as the **canonical, reusable** rendering — composable inside compounds, on-voice, in the
-   correct register, with protected nouns (Wren, iCloud, Carry-Over) left verbatim. Output shape:
+   correct register, with protected nouns (Wren, iCloud) left verbatim. Output shape:
    `{ "<English term>": "<translation>", … }`.
 
 ## What you do

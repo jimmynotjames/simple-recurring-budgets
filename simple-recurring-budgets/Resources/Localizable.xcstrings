@@ -9101,37 +9101,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مناسب للرحلات أو عطل أعياد الميلاد أو أي نافذة إنفاق لمرة واحدة. حين تنتهي، تنتهي. لا تكرار، ولا Carry-Over."
+            "value": "مناسب للرحلة أو نهاية الأسبوع، أو أي نافذة إنفاق لمرة واحدة. عند انتهاءها، تنتهي. لا تكرار، لا مُرحَّل."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideal per a un viatge, un cap de setmana de festa o qualsevol altra finestra de despesa única. Quan és acabat, és acabat. Sense repetició, sense Carry-Over."
+            "value": "Ideal per a un viatge, un cap de setmana d'aniversari o qualsevol finestra de despesa puntual. Quan hagi acabat, haurà acabat. Sense repeticions, sense romanent."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hodí se na výlet, narozeninový víkend nebo jakékoli jednorázové výdaje. Až skončí, skončí. Bez opakování, bez Carry-Over."
+            "value": "Ideální pro cestu, víkend narozenin nebo libovolné jednorázové výdaje. Jakmile skončí, je to fakt. Žádné opakování, žádný převod."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velegnet til en rejse, en fødselsdagweekend eller et engangsforbrug. Når det er slut, er det slut. Ingen gentagelse, ingen carry-over."
+            "value": "Godt til en tur, en fødselsdagsweekend eller ethvert engangsbudget. Når det er slut, er det slut. Ingen gentagelse, ingen overførsel."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideal für eine Reise, ein Wochenende oder ein einmaliges Zeitfenster. Wenn es vorbei ist, ist es vorbei. Kein Wiederholen, kein Carry-Over."
+            "value": "Perfekt für eine Reise, ein Wochenende oder eine einmalige Ausgabenspanne. Wenn es vorbei ist, ist es vorbei. Keine Wiederholungen, kein Übertrag."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ιδανικό για ένα ταξίδι, ένα απόγευμα γενεθλίων ή οποιοδήποτε μοναδικό παράθυρο δαπανών. Όταν τελειώσει, τελειώνει. Χωρίς επανάληψη, χωρίς Carry-Over."
+            "value": "Ιδανικό για ένα ταξίδι, ένα σαββατοκύριακο γενεθλίων ή οποιοδήποτε μεμονωμένο παράθυρο δαπανών. Όταν τελειώνει, τελειώνει. Χωρίς επανάληψη, χωρίς Μεταφορά."
           }
         },
         "en": {
@@ -9161,175 +9161,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideal para un viaje, un fin de semana de cumpleaños o cualquier período de gasto puntual. Cuando termina, termina. Sin repetición ni Carry-Over."
+            "value": "Perfecto para un viaje, un fin de semana de cumpleaños o cualquier gasto puntual. Cuando se acaba, se acaba. Sin repeticiones, sin remanente."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideal para un viaje, un fin de semana de cumpleaños o cualquier período de gasto único. Cuando termine, termina. Sin repetición, sin Carry-Over."
+            "value": "Ideal para un viaje, un fin de semana de cumpleaños o cualquier gasto puntual. Cuando termine, termina. Sin repetición, sin saldo acumulado."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sopii matkalle, syntymäpäiväviikonlopulle tai mihin tahansa kertaluonteiseen kulutusjaksolle. Kun se on ohi, se on ohi. Ei toistoa, ei Carry-Overia."
+            "value": "Sopii matkalle, syntymäpäiväretkelle tai mihin tahansa kertaluonteiseen menojaksoon. Kun se on ohi, se on ohi. Ei toistamista, ei siirtoja."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idéal pour un voyage, un week-end d'anniversaire, ou toute période de dépenses unique. Une fois terminé, c'est fini. Pas de répétition, pas de Carry-Over."
+            "value": "Idéal pour un voyage, un week-end festif ou une dépense ponctuelle. Une fois terminé, c'est fini. Pas de répétition, pas de report."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idéal pour un voyage, une fin de semaine spéciale ou tout autre événement ponctuel. Une fois terminé, c'est fini. Aucune répétition, aucun cumul."
+            "value": "Parfait pour un voyage, une fin de semaine d'anniversaire ou tout autre type de dépense ponctuelle. Quand c'est fait, c'est fait. Pas de répétition, pas de report."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מושלם לטיול, סוף שבוע יום הולדת או חלון הוצאה חד-פעמי. כשזה נגמר, זה נגמר. ללא חזרה, ללא Carry-Over."
+            "value": "מתאים לטיול, סוף שבוע יום הולדת, או כל חלון הוצאה חד פעמי. כשזה מסתיים, זה מסתיים. ללא חזרות, ללא יתרה מועברת."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "यात्रा, जन्मदिन के वीकेंड, या किसी एक बार के खर्च के लिए उपयुक्त। एक बार खत्म हो गया, तो खत्म। कोई दोहराव नहीं, कोई Carry-Over नहीं।"
+            "value": "यह विकल्प किसी यात्रा, जन्मदिन के सप्ताहांत, या किसी एकबारगी खर्च की खिड़की के लिए अच्छा है। जब यह पूरा हो जाए, तो हो गया। कोई दोहराव नहीं, कोई कैरी-ओवर नहीं।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prikladno za putovanje, vikend za rođendan ili bilo koji jednokratni period potrošnje. Kad završi, završi. Bez ponavljanja, bez Carry-Over."
+            "value": "Savršeno za putovanje, vikend rođendana ili bilo koji jednokratni rashod. Kada je gotovo, gotovo je. Bez ponavljanja, bez prijenosa."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jó egy utazáshoz, születésnapi hétvégéhez vagy bármilyen egyszeri kiadáshoz. Ha véget ért, véget ért. Nem ismétlődik, nincs Carry-Over."
+            "value": "Ideális egy úthoz, egy születésnapi hétvégéhez vagy bármilyen egymagas kiadási időszakhoz. Ha vége, vége. Nincs ismétlődés, nincs átvitel."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cocok untuk perjalanan, akhir pekan ulang tahun, atau pengeluaran sekali pakai. Selesai ya sudah. Tidak berulang, tidak ada carry-over."
+            "value": "Cocok untuk liburan, perayaan ulang tahun, atau jendela pengeluaran sekali saja. Ketika selesai, ya sudah selesai. Tidak berulang, tidak ada saldo bawaan."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perfetto per un viaggio, un weekend di compleanno o una finestra di spesa occasionale. Quando finisce, finisce. Nessuna ripetizione, nessun Carry-Over."
+            "value": "Perfetto per una gita, un weekend di compleanno o qualsiasi finestra di spesa una tantum. Quando è finito, è finito. Niente ripetizioni, niente riporto."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "旅行、誕生日のお祝い、またはその他の一回限りの支出期間に最適です。終わったら終了です。繰り返しなし、Carry-Overなし。"
+            "value": "旅行や誕生日の週末、その他の一時的な支出の期間に向いています。終わったら終わり。繰り返しなし、繰り越しなし。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여행, 생일 주말 등 일회성 지출 기간에 적합합니다. 기간이 끝나면 종료됩니다. 반복이나 Carry-Over는 없습니다."
+            "value": "여행, 생일 주말, 또는 일회성 지출 기간에 좋습니다. 끝나면 끝입니다. 반복 없음, 이월 없음."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sesuai untuk percutian, hujung minggu istimewa, atau sebarang perbelanjaan satu kali. Apabila selesai, ia selesai. Tiada ulangan, tiada Carry-Over."
+            "value": "Bagus untuk perjalanan, ulang tahun akhir pekan, atau tetingkap perbelanjaan sekali sahaja. Apabila selesai, selesai. Tiada pengulangan, tiada bawa ke hadapan."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passer for en tur, en bursdagshelg eller et annet engangstidsrom. Når det er over, er det over. Ingen gjentagelse, ingen Carry-Over."
+            "value": "Egnet til en tur, en bursdagshelg eller et hvilket som helst engangs-utgiftsvinduer. Når det er gjort, er det gjort. Ingen gjentagelse, ingen overføring."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Handig voor een tripje, een verjaardagsweekend of elk eenmalig uitgavenvenster. Wanneer het voorbij is, is het voorbij. Geen herhaling, geen Carry-Over."
+            "value": "Handig voor een tripje, een verjaardagsweekend of een eenmalig uitgavenkader. Klaar is klaar. Geen herhaling, geen overdracht."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idealne dla podróży, weekendu urodzinowego lub jednorazowego okresu wydatków. Gdy się skończy, jest koniec. Bez powtarzania, bez Carry-Over."
+            "value": "Idealne na wyjazd, weekend urodzin czy każdy jednorazowy okres wydatków. Kiedy się skończy, koniec. Bez powtarzania, bez przeniesienia."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideal para uma viagem, um fim de semana de aniversário ou qualquer janela de gastos única. Quando termina, termina. Sem repetição e sem Carry-Over."
+            "value": "Ideal para uma viagem, um fim de semana de aniversário ou qualquer período de gastos pontuais. Quando acaba, acaba. Sem repetição, sem saldo acumulado."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideal para uma viagem, um fim de semana de aniversário ou qualquer janela de gastos pontual. Quando termina, termina. Sem repetição, sem Carry-Over."
+            "value": "Ideal para uma viagem, um fim de semana de aniversário ou qualquer período de gastos único. Quando termina, termina. Sem repetição, sem transição."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideal pentru o călătorie, un weekend sau orice cheltuială punctuală. Când se termină, gata. Fără repetare, fără Carry-Over."
+            "value": "Ideal pentru o călătorie, un weekend de ziua de naștere sau orice fereastră de cheltuieli o singură dată. Când se termină, se termină. Fără repetări, fără report."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подходит для путешествия, дня рождения или любого одноразового периода трат. Когда закончится, всё. Без повторений, без Carry-Over."
+            "value": "Подходит для поездки, выходных или разового периода трат. Когда закончится — всё. Без повторения, без переноса."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideálne pre výlet, víkend narodenín alebo akékoľvek jednorazové výdavky. Keď je to hotové, je to hotové. Bez opakovania, bez Carry-Over."
+            "value": "Vhodné na cestu, narodeninový víkend alebo akýkoľvek jednorázový výdavkový okno. Keď je to hotové, je to hotové. Bez opakovania, bez prenosu."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bra för en resa, en födelsedag eller något engångsevent. När det är klart, är det klart. Ingen upprepning, ingen Carry-Over."
+            "value": "Bra för en resa, en födelsedag eller någon engångskostnad. När det är klart, är det klart. Ingen upprepning, ingen överföring."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เหมาะสำหรับทริป วันเกิด หรือช่วงใช้จ่ายครั้งเดียว เมื่อสิ้นสุดแล้วก็จบ ไม่มีการวนซ้ำหรือ Carry-Over"
+            "value": "เหมาะสำหรับการเดินทาง วันเกิด หรือช่วงเวลาใช้จ่ายครั้งเดียว เมื่อสิ้นสุด ก็จบสิ้น ไม่มีการเกิดซ้ำ ไม่มียอดยกมา"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bir seyahat, bir doğum günü hafta sonu veya herhangi bir tek seferlik harcama penceresi için uygundur. Bittiyse, bitti. Tekrarlanan yok, Carry-Over yok."
+            "value": "Bir gezi, doğum günü hafta sonu ya da tek seferlik harcama penceresine uygun. Bittiyse, bitti. Tekrar etmez, devir olmaz."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Підходить для поїздки, святкового вікенду або будь-якого разового вікна витрат. Коли все завершено — завершено. Без повторень і без Carry-Over."
+            "value": "Підходить для подорожі, святкових вихідних або будь-якого разового періоду витрат. Коли закінчиться — готово. Без повторень, без перенесення залишку."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Phù hợp cho chuyến đi, một dịp cuối tuần, hoặc bất kỳ khoảng chi tiêu nào chỉ xảy ra một lần. Kết thúc là xong. Không lặp lại, không Carry-Over."
+            "value": "Phù hợp cho chuyến đi, một kỳ lễ sinh nhật hay bất kỳ khoảng thời gian chi tiêu một lần nào. Khi nó kết thúc, nó kết thúc. Không lặp lại, không chuyển tiếp."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "适合出行、生日周末或任何一次性支出时段。完成就完成了。不重复，无Carry-Over。"
+            "value": "适合出游、生日聚会或任何一次性消费周期。完成后就此结束，无需重复，无需结转。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "適合旅行、生日週末或任何一次性開支期間。完成後就結束了。不重複，不結轉。"
+            "value": "適合旅行、生日週末或任何一次性消費期間。完成後就結束。無重複，無結轉。"
           }
         }
       }
@@ -13491,37 +13491,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "المُرحَّل"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Romanent"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Převod"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Overførsel"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Übertrag"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Μεταφορά"
           }
         },
         "en": {
@@ -13551,175 +13551,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Remanente"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Saldo acumulado"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Siirto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Report"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Report"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "יתרה מועברת"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "कैरी-ओवर"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Prijenos"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Átvitel"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Saldo Bawaan"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Riporto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "繰り越し"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "이월"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Bawa ke Hadapan"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Overføring"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Overdracht"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Przeniesienie"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Saldo Acumulado"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Transição"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Report"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Перенос"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Prenos"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Överföring"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "ยอดยกมา"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Devir"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Перенесення залишку"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Chuyển tiếp"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "结转"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "結轉"
           }
         }
       }
@@ -30476,37 +30476,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يحذف جميع النفقات لهذه الميزانية نهائيًا، ويعيد Carry-Over إلى الصفر، ويستأنف الميزانية إن كانت موقوفة."
+            "value": "يحذف نهائياً جميع المصروفات لهذه الميزانية، وينعيد تعيين المُرحَّل إلى صفر، ويستأنف الميزانية إن كانت متوقفة مؤقتاً."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentment totes les despeses d'aquest pressupost, restableix el Carry-Over a zero i reprèn el pressupost si està en pausa."
+            "value": "Suprimeix permanentment totes les despeses d'aquest pressupost, restableix el romanent a zero i repren el pressupost si està en pausa."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trvale smaže všechny výdaje tohoto rozpočtu, vynuluje přenesený zůstatek a obnoví rozpočet, pokud je pozastaven."
+            "value": "Trvale odstraní všechny výdaje pro tento rozpočet, resetuje převod na nulu a obnoví rozpočet, pokud je pozastavený."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sletter permanent alle udgifter for dette budget, nulstiller carry-over til nul og genoptager budgettet, hvis det er sat på pause."
+            "value": "Sletter alle udgifter for dette budget permanent, nulstiller overførsel til nul og genoptager budgettet, hvis det er på pause."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Löscht alle Ausgaben für dieses Budget dauerhaft, setzt den Carry-Over auf null zurück und setzt das Budget fort, falls es pausiert ist."
+            "value": "Löscht alle Ausgaben dieses Budgets dauerhaft, setzt den Übertrag auf null zurück und setzt das Budget fort, falls pausiert."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Διαγράφει οριστικά όλα τα έξοδα αυτού του προϋπολογισμού, μηδενίζει το Carry-Over και συνεχίζει τον προϋπολογισμό αν είναι σε παύση."
+            "value": "Διαγράφει μόνιμα όλα τα Έξοδα για αυτόν τον Προϋπολογισμό, επαναφέρει τη Μεταφορά στο μηδέν και συνεχίζει το Προϋπολογισμό εάν είναι σε παύση."
           }
         },
         "en": {
@@ -30536,175 +30536,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentemente todos los gastos de este presupuesto, restablece el saldo acumulado a cero y reanuda el presupuesto si está pausado."
+            "value": "Elimina permanentemente todos los gastos de este presupuesto, restablece el remanente a cero y reanuda el presupuesto si está en pausa."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentemente todos los gastos de este presupuesto, restablece el Carry-Over a cero y lo reanuda si está pausado."
+            "value": "Elimina permanentemente todos los gastos de este presupuesto, restablece el saldo acumulado a cero y reanuda el presupuesto si está en pausa."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poistaa pysyvästi kaikki tämän budjetin kulut, nollaa Carry-Overin ja jatkaa budjettia, jos se on tauolla."
+            "value": "Poistaa pysyvästi kaikki tämän budjetin menot, nollaa siirron ja jatkaa budjettia, jos se on keskeytetty."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprime définitivement toutes les dépenses de ce budget, réinitialise le solde reporté à zéro et reprend le budget s'il est en pause."
+            "value": "Supprime définitivement toutes les dépenses de ce budget, réinitialise le report à zéro et reprend le budget s'il est suspendu."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprime définitivement toutes les dépenses de ce budget, réinitialise le Carry-Over à zéro et reprend le budget s'il est suspendu."
+            "value": "Supprime définitivement toutes les dépenses pour ce budget, réinitialise le report à zéro et reprend le budget s'il est suspendu."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מוחק לצמיתות כל הוצאה בתקציב זה, מאפס את היתרה המובאה לאפס, וחוזר לתקציב אם הוא הושהה."
+            "value": "מחק לצמיתות כל הוצאה עבור התקציב זה, אפס יתרה מועברת לאפס, וחזור את התקציב אם הוא מושהה."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "इस बजट के सभी खर्चों को स्थायी रूप से हटाता है, आगे ले जाई गई राशि को शून्य में रीसेट करता है, और यदि बजट रोका गया है, तो इसे फिर से चालू करता है।"
+            "value": "इस बजट के लिए सभी खर्चों को स्थायी रूप से हटाता है, कैरी-ओवर को शून्य पर रीसेट करता है, और यदि बजट रोका गया है तो फिर से शुरू करता है।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trajno briše sve troškove za ovaj proračun, poništava Carry-Over na nulu i nastavlja proračun ako je pauziran."
+            "value": "Trajno briše sve troškove za ovaj proračun, poništava prijenos na nulu i nastavlja proračun ako je pauzirano."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Véglegesen törli az összes kiadást ehhez a költségkerethez, a Carry-Over értékét nullára állítja, és folytatja a költségkeretet, ha szüneteltetve van."
+            "value": "Véglegesen törli ennek a költségkeretnek az összes kiadását, nullára állítja az átvitelt és folytatja a költségkeretet, ha szünetel."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menghapus semua pengeluaran untuk anggaran ini secara permanen, mengatur ulang Carry-Over ke nol, dan melanjutkan anggaran jika sedang dijeda."
+            "value": "Menghapus semua pengeluaran untuk anggaran ini secara permanen, mengatur ulang saldo bawaan ke nol, dan melanjutkan anggaran jika dijeda."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina definitivamente tutte le spese per questo budget, azzera il Carry-Over e riprende il budget se è sospeso."
+            "value": "Elimina definitivamente tutte le spese di questo budget, reimposta il riporto a zero e riprende il budget se sospeso."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この予算のすべての支出を完全に削除し、繰越額をゼロにリセットして、一時停止中の場合は予算を再開します。"
+            "value": "この予算のすべての支出を完全に削除し、繰り越しをゼロにリセットし、一時停止中であれば予算を再開します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 예산의 모든 지출을 영구적으로 삭제하고, 이월액을 0으로 초기화하며, 일시 중지된 예산을 재개합니다."
+            "value": "이 예산의 모든 지출을 영구 삭제하고, 이월을 0으로 재설정하며, 일시 중지됨 상태라면 예산을 재개합니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Memadam kekal semua perbelanjaan untuk bajet ini, menetapkan semula Carry-Over kepada sifar, dan menyambung semula bajet jika ia dijeda."
+            "value": "Memadamkan semua perbelanjaan bajet ini secara kekal, menetapkan semula bawa ke hadapan kepada sifar, dan menyambung semula bajet jika dijeda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sletter alle utgifter for dette budsjettet permanent, nullstiller Carry-Over til null og gjenopptar budsjettet hvis det er på pause."
+            "value": "Sletter alle utgifter for dette budsjettet permanent, nullstiller overføring til null, og gjenopptar budsjettet hvis det er på pause."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwijdert permanent alle uitgaven voor dit budget, zet de carry-over terug naar nul en hervat het budget als het gepauzeerd is."
+            "value": "Verwijdert alle uitgaven voor dit budget definitief, stelt overdracht in op nul en hervatting als het budget is gepauzeerd."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trwale usuwa wszystkie wydatki z tego budżetu, resetuje Carry-Over do zera i wznawia budżet, jeśli jest wstrzymany."
+            "value": "Trwale usuwa wszystkie wydatki dla tego budżetu, resetuje przeniesienie do zera i wznawia budżet, jeśli jest wstrzymany."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exclui permanentemente todas as despesas deste orçamento, redefine o Carry-Over para zero e retoma o orçamento se estiver pausado."
+            "value": "Deleta permanentemente todas as despesas deste orçamento, reseta o saldo acumulado para zero e retoma o orçamento se pausado."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina permanentemente todas as despesas deste orçamento, repõe o saldo a zero e retoma o orçamento se estiver pausado."
+            "value": "Apaga permanentemente todas as despesas deste orçamento, repõe a transição para zero e retoma o orçamento se estiver em pausa."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Șterge definitiv toate cheltuielile acestui buget, resetează Carry-Over la zero și reia bugetul dacă este întrerupt."
+            "value": "Șterge permanent fiecare cheltuială pentru acest buget, resetează reportul la zero și reia bugetul dacă este întrerupt."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Навсегда удаляет все расходы по этому бюджету, сбрасывает Carry-Over до нуля и возобновляет бюджет, если он приостановлен."
+            "value": "Безвозвратно удаляет все расходы, сбрасывает перенос на ноль и возобновляет бюджет, если он приостановлен."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Natrvalo vymaže všetky výdavky tohto rozpočtu, vynuluje Carry-Over na nulu a obnoví rozpočet, ak je pozastavený."
+            "value": "Natrvalo odstráni všetky výdavky tohto rozpočtu, vynuluje prenos na nulu a obnoví rozpočet, ak je pozastavený."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tar permanent bort alla utgifter för den här budgeten, återställer carry-over till noll och återupptar budgeten om den är pausad."
+            "value": "Raderar varje utgift för denna budget, återställer överföring till noll och återupptar budgeten om den är pausad."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ลบรายการค่าใช้จ่ายทั้งหมดของงบประมาณนี้อย่างถาวร รีเซ็ตยอดเงินที่นำไปยังงวดถัดไปเป็นศูนย์ และเริ่มทำงานของงบประมาณอีกครั้งหากหยุดชั่วคราวอยู่"
+            "value": "ลบรายจ่ายทั้งหมดของงบประมาณนี้อย่างถาวร รีเซ็ตยอดยกมาเป็นศูนย์ และดำเนินต่องบประมาณถ้าหยุดชั่วคราวไว้"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bu bütçenin tüm harcamalarını kalıcı olarak siler, bakiyeyi sıfırlar ve duraklatılmışsa bütçeyi devam ettirir."
+            "value": "Bu bütçenin tüm harcamalarını kalıcı olarak siler, devir bakiyesini sıfırlarla ve bütçe duraklatılmışsa sürdürür."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Остаточно видаляє всі витрати цього бюджету, скидає carry-over до нуля та відновлює бюджет, якщо він на паузі."
+            "value": "Назавжди видаляє всі витрати цього бюджету, скидає перенесення залишку до нуля й відновлює бюджет, якщо він призупинено."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa vĩnh viễn tất cả chi phí cho ngân sách này, đặt lại số dư chuyển tiếp về 0 và tiếp tục ngân sách nếu nó đang tạm dừng."
+            "value": "Xóa vĩnh viễn mọi khoản chi cho ngân sách này, đặt lại chuyển tiếp thành không và tiếp tục ngân sách nếu nó đã tạm dừng."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "永久删除此预算的所有支出，将结转余额重置为零，如预算已暂停则恢复预算。"
+            "value": "永久删除此预算的所有支出、重置结转为零，以及恢复已暂停的预算。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "永久刪除此預算的所有支出、將結餘結轉重設為零，以及若預算已暫停將恢復執行。"
+            "value": "永久刪除此預算的所有支出，將結轉重設為零，並在暫停時繼續預算。"
           }
         }
       }
@@ -30716,37 +30716,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "إعادة تعيين Carry-Over…"
+            "value": "إعادة تعيين المُرحَّل…"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restableix el Carry-Over…"
+            "value": "Restableix romanent…"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obnovit Carry-Over…"
+            "value": "Vynulovat převod…"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nulstil Carry-Over…"
+            "value": "Nulstil overførsel…"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over zurücksetzen…"
+            "value": "Übertrag zurücksetzen…"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επαναφορά Carry-Over…"
+            "value": "Επαναφορά Μεταφοράς…"
           }
         },
         "en": {
@@ -30776,175 +30776,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restablecer Carry-Over…"
+            "value": "Restablecer remanente…"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restablecer Carry-Over…"
+            "value": "Restablecer saldo acumulado…"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nollaa Carry-Over…"
+            "value": "Nollaa siirto…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réinitialiser Carry-Over…"
+            "value": "Réinitialiser le report…"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réinitialiser Carry-Over…"
+            "value": "Réinitialiser le report…"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אפס Carry-Over…"
+            "value": "איפוס יתרה מועברת…"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over को रीसेट करें…"
+            "value": "कैरी-ओवर रीसेट करें…"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ponovno postavi Carry-Over…"
+            "value": "Poništi prijenos…"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over visszaállítása…"
+            "value": "Átvitel visszaállítása…"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atur Ulang Carry-Over…"
+            "value": "Atur Ulang Saldo Bawaan…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reimposta Carry-Over…"
+            "value": "Reimposta riporto…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Overをリセット…"
+            "value": "繰り越しをリセット…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over 재설정…"
+            "value": "이월 재설정…"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tetapkan Semula Carry-Over…"
+            "value": "Set Semula Bawa ke Hadapan…"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nullstill Carry-Over…"
+            "value": "Nullstill overføring…"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Herstel Carry-Over…"
+            "value": "Overdracht resetten..."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetuj Carry-Over…"
+            "value": "Resetuj przeniesienie…"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redefinir Carry-Over…"
+            "value": "Redefinir Saldo Acumulado…"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repor Carry-Over…"
+            "value": "Repor Transição…"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetare Carry-Over…"
+            "value": "Resetează reportul…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сбросить Carry-Over…"
+            "value": "Сбросить перенос…"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetovať Carry-Over…"
+            "value": "Vynulovať prenos…"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Återställ Carry-Over…"
+            "value": "Återställ överföring…"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "รีเซ็ต Carry-Over…"
+            "value": "รีเซ็ตยอดยกมา…"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over'ı Sıfırla…"
+            "value": "Devir Sıfırla…"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Скидання Carry-Over…"
+            "value": "Скинути перенесення залишку…"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đặt lại Carry-Over…"
+            "value": "Đặt lại chuyển tiếp…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重置 Carry-Over…"
+            "value": "重置结转…"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重設 Carry-Over…"
+            "value": "重設結轉…"
           }
         }
       }
@@ -30956,37 +30956,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يمسح رصيد Carry-Over ويجعله صفرًا. لا تتأثر النفقات."
+            "value": "يمسح رصيد المُرحَّل إلى صفر. المصروفات لن تتأثر."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esborra el saldo de Carry-Over a zero. Les despeses no es veuran afectades."
+            "value": "Buida el saldo del romanent a zero. Les despeses no es veuen afectades."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vynuluje zůstatek carry-over na nulu. Výdaje nejsou ovlivněny."
+            "value": "Vynuluje zůstatek převodu na nulu. Výdaje nejsou ovlivněny."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nulstiller carry-over-saldoen til nul. Udgifter påvirkes ikke."
+            "value": "Rydder overførselssaldoen til nul. Udgifter påvirkes ikke."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setzt den Carry-Over-Saldo auf null zurück. Ausgaben sind nicht betroffen."
+            "value": "Setzt den Übertrag auf null zurück. Ausgaben bleiben unverändert."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Διαγράφει το υπόλοιπο Carry-Over στο μηδέν. Οι δαπάνες δεν επηρεάζονται."
+            "value": "Διαγράφει το Υπόλοιπο Μεταφοράς. Τα Έξοδα δεν επηρεάζονται."
           }
         },
         "en": {
@@ -31016,175 +31016,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restablece el saldo de Carry-Over a cero. Los gastos no se ven afectados."
+            "value": "Vacía el saldo de remanente a cero. Los gastos no se ven afectados."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Establece el saldo de Carry-Over en cero. Los gastos no se ven afectados."
+            "value": "Borra el saldo acumulado a cero. Los gastos no se ven afectados."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nollaa käyttämätön saldo nollaan. Kulut eivät muutu."
+            "value": "Tyhjentää siirron saldoon nollaan. Menot eivät muutu."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remet le solde Carry-Over à zéro. Les dépenses ne sont pas affectées."
+            "value": "Efface le solde du report à zéro. Les dépenses ne sont pas affectées."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Efface le solde Carry-Over à zéro. Les dépenses ne sont pas modifiées."
+            "value": "Efface le solde du report à zéro. Les dépenses ne sont pas affectées."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מוחק את יתרת ה-Carry-Over לאפס. ההוצאות לא מושפעות."
+            "value": "נקה את יתרת היתרה המועברת לאפס. הוצאות לא מושפעות."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over बैलेंस को शून्य पर सेट करता है। खर्च प्रभावित नहीं होते हैं।"
+            "value": "कैरी-ओवर शेष को शून्य पर साफ़ करता है। खर्च प्रभावित नहीं होते हैं।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Briše Carry-Over saldo na nulu. Rashodi nisu zahvaćeni."
+            "value": "Očisti stanje prijenosa na nulu. Troškovi se ne mijenjaju."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A Carry-Over egyenleget nullázza. A kiadások nem érintettek."
+            "value": "Nullára állítja az átvitel egyenlegét. A kiadások nem érintettek."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menghapus saldo carry-over menjadi nol. Pengeluaran tidak terpengaruh."
+            "value": "Menghapus saldo bawaan menjadi nol. Pengeluaran tidak terpengaruh."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancella il saldo Carry-Over a zero. Le spese non vengono modificate."
+            "value": "Azzera il saldo del riporto. Le spese non sono interessate."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Overの残高をゼロにクリアします。支出は影響を受けません。"
+            "value": "繰り越し残高をゼロにクリアします。支出には影響しません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over 잔액을 0으로 초기화합니다. 지출은 영향을 받지 않습니다."
+            "value": "이월 잔액을 0으로 비웁니다. 지출은 영향을 받지 않습니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menghapuskan baki Carry-Over kepada sifar. Perbelanjaan tidak terjejas."
+            "value": "Menghapuskan baki bawa ke hadapan kepada sifar. Perbelanjaan tidak terjejas."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tømmer Carry-Over-saldoen til null. Utgifter påvirkes ikke."
+            "value": "Tømmer overføringssaldo til null. Utgifter påvirkes ikke."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wist het Carry-Over-saldo naar nul. Uitgaven worden niet beïnvloed."
+            "value": "Wist het overdrachtsaldo. Uitgaven worden niet beïnvloed."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeruje saldo Carry-Over. Wydatki nie są objęte zmianami."
+            "value": "Zeruje saldo przeniesienia. Wydatki nie będą zmienione."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Limpa o saldo de carry-over para zero. As despesas não são afetadas."
+            "value": "Limpa o saldo acumulado para zero. As despesas não são afetadas."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Limpa o saldo do Carry-Over para zero. As despesas não são afetadas."
+            "value": "Limpa o saldo de transição para zero. As despesas não são afetadas."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Șterge soldul Carry-Over la zero. Cheltuielile nu sunt afectate."
+            "value": "Șterge soldul report la zero. Cheltuielile nu sunt afectate."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Обнуляет остаток Carry-Over. Расходы не затрагиваются."
+            "value": "Обнуляет баланс переноса. Расходы не затронуты."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vymaže zostatok Carry-Over na nulu. Výdavky nie sú ovplyvnené."
+            "value": "Vymaže stav prenosu na nulu. Výdavky nie sú ovplyvnené."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Återställer Carry-Over-saldot till noll. Utgifter påverkas inte."
+            "value": "Nollställer överföringssaldot. Utgifter påverkas inte."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ล้างยอด Carry-Over เป็นศูนย์ ค่าใช้จ่ายจะไม่ได้รับผลกระทบ"
+            "value": "ลบยอดยกมาเป็นศูนย์ รายจ่ายไม่ได้รับผลกระทบ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over bakiyesini sıfıra ayarlar. Giderler etkilenmez."
+            "value": "Devir bakiyesini sıfıra çeker. Harcamalar etkilenmez."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Скидає баланс Carry-Over до нуля. Витрати не змінюються."
+            "value": "Очищує баланс перенесення залишку до нуля. На витрати це не впливає."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa số dư Carry-Over về 0. Các khoản chi không bị ảnh hưởng."
+            "value": "Xóa sô dư chuyển tiếp về không. Khoản chi không bị ảnh hưởng."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将结转余额清零。不影响开支。"
+            "value": "将结转余额清除至零。支出不受影响。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "將結餘清除為零。費用不受影響。"
+            "value": "將結轉結餘清除至零。支出不受影響。"
           }
         }
       }
@@ -31673,37 +31673,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ستُحذف جميع النفقات نهائيًا، وسيُعاد تعيين Carry-Over إلى الصفر، وإن كانت الميزانية موقوفة فستُستأنف."
+            "value": "سيتم حذف جميع المصروفات نهائياً، وسيتم إعادة تعيين المُرحَّل إلى صفر، وإذا كانت متوقفة مؤقتاً، ستستأنف الميزانية."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Totes les despeses s'eliminaran permanentment, el Carry-Over es restablirà a zero i, si està en pausa, el pressupost es reprendrà."
+            "value": "Totes les despeses es suprimiran permanentment, el romanent es restablirà a zero i, si està en pausa, el pressupost es reprendrà."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Všechny výdaje budou trvale smazány, Carry-Over se vynuluje a pokud je rozpočet pozastaven, bude obnoven."
+            "value": "Všechny výdaje budou trvale smazány, převod se resetuje na nulu a pokud je pozastavený, rozpočet se obnoví."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle udgifter slettes permanent, carry-over nulstilles, og hvis budgettet er på pause, genoptages det."
+            "value": "Alle udgifter slettes permanent, overførsel nulstilles til nul, og hvis budgettet er på pause, genoptages det."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Ausgaben werden dauerhaft gelöscht, der Carry-Over auf null zurückgesetzt und das Budget fortgesetzt, falls es pausiert ist."
+            "value": "Alle Ausgaben werden dauerhaft gelöscht, der Übertrag wird auf null zurückgesetzt, und das Budget wird fortgesetzt, falls pausiert."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Όλα τα έξοδα θα διαγραφούν οριστικά, το Carry-Over θα μηδενιστεί και, αν ο προϋπολογισμός είναι σε παύση, θα συνεχιστεί."
+            "value": "Όλα τα Έξοδα θα διαγραφούν μόνιμα, η Μεταφορά θα επαναφερθεί στο μηδέν και, εάν είναι σε παύση, ο Προϋπολογισμός θα συνεχιστεί."
           }
         },
         "en": {
@@ -31733,175 +31733,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todos los gastos se eliminarán permanentemente, el saldo acumulado se restablecerá a cero y, si está pausado, el presupuesto se reanudará."
+            "value": "Todos los gastos se eliminarán permanentemente, el remanente se restablecerá a cero y, si está en pausa, el presupuesto se reanudará."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todos los gastos se eliminarán permanentemente, el Carry-Over se reiniciará a cero y, si está pausado, el presupuesto se reanudará."
+            "value": "Todos los gastos se eliminarán permanentemente, el saldo acumulado se restablecerá a cero y, si está en pausa, el presupuesto se reanudará."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kaikki kulut poistetaan pysyvästi, Carry-Over nollataan ja tauolla oleva budjetti jatkuu."
+            "value": "Kaikki menot poistetaan pysyvästi, siirto nollataan ja jos budjetti on keskeytetty, se jatketaan."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toutes les dépenses seront définitivement supprimées, le solde reporté sera réinitialisé à zéro, et le budget reprendra s'il est en pause."
+            "value": "Toutes les dépenses seront définitivement supprimées, le report sera réinitialisé à zéro et, s'il est suspendu, le budget reprendra."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toutes les dépenses seront supprimées définitivement, le Carry-Over sera réinitialisé à zéro et, si suspendu, le budget reprendra."
+            "value": "Toutes les dépenses seront supprimées définitivement, le report sera réinitialisé à zéro, et si le budget est suspendu, il sera repris."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כל ההוצאות יימחקו לצמיתות, ה-Carry-Over יאופס לאפס, ואם התקציב מושהה הוא יחודש."
+            "value": "כל ההוצאות יימחקו לצמיתות, יתרה מועברת תאופס לאפס, ואם מושהה, התקציב יחזור."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "सभी खर्च स्थायी रूप से हटा दिए जाएंगे, आगे ले जाई गई राशि शून्य में रीसेट हो जाएगी, और यदि बजट रोका गया है, तो यह फिर से चालू हो जाएगा।"
+            "value": "सभी खर्चों को स्थायी रूप से हटा दिया जाएगा, कैरी-ओवर शून्य पर रीसेट हो जाएगा, और यदि रोका गया है तो बजट फिर से शुरू हो जाएगा।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Svi troškovi bit će trajno izbrisani, Carry-Over se poništava na nulu, a ako je pauziran, proračun će se nastaviti."
+            "value": "Svi će se troškovi trajno izbrisati, prijenos će biti poništen na nulu i ako je pauzirano, proračun će se nastaviti."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Minden kiadás véglegesen törlődik, a Carry-Over nullára áll vissza, és ha szüneteltetve volt, a költségkeret folytatódik."
+            "value": "Az összes kiadás véglegesen törlődik, az átvitel nullára áll vissza, és ha szünetel, a költségkeret folytatódik."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Semua pengeluaran akan dihapus secara permanen, Carry-Over akan diatur ulang ke nol, dan jika dijeda, anggaran akan dilanjutkan."
+            "value": "Semua pengeluaran akan dihapus secara permanen, saldo bawaan akan diatur ulang ke nol, dan jika dijeda, anggaran akan dilanjutkan."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutte le spese verranno eliminate definitivamente, il Carry-Over verrà azzerato e, se sospeso, il budget riprenderà."
+            "value": "Tutte le spese verranno eliminate definitivamente, il riporto verrà reimpostato a zero e, se sospeso, il budget verrà ripreso."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべての支出が完全に削除され、繰越額がゼロにリセットされ、一時停止中の場合は予算が再開されます。"
+            "value": "すべての支出が完全に削除され、繰り越しがゼロにリセットされ、一時停止中であれば予算が再開されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 지출이 영구적으로 삭제되고, 이월액이 0으로 초기화되며, 일시 중지된 경우 예산이 재개됩니다."
+            "value": "모든 지출이 영구 삭제되고, 이월은 0으로 재설정되며, 일시 중지됨 상태라면 예산이 재개됩니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Semua perbelanjaan akan dipadam kekal, Carry-Over akan ditetapkan semula kepada sifar, dan jika dijeda, bajet akan disambung semula."
+            "value": "Semua perbelanjaan akan dipadamkan secara kekal, bawa ke hadapan akan ditetapkan semula kepada sifar, dan jika dijeda, bajet akan disambung semula."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle utgifter slettes permanent, Carry-Over nullstilles til null, og hvis budsjettet er på pause, gjenopptas det."
+            "value": "Alle utgifter slettes permanent, overføring nullstilles til null, og hvis budsjettet er på pause, gjenopptas det."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle uitgaven worden permanent verwijderd, de carry-over wordt teruggezet naar nul en als het budget gepauzeerd is, wordt het hervat."
+            "value": "Alle uitgaven worden permanent verwijderd, de overdracht wordt ingesteld op nul en het budget wordt hervat als het was gepauzeerd."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wszystkie wydatki zostaną trwale usunięte, Carry-Over zostanie zresetowany do zera, a budżet wznowi działanie, jeśli jest wstrzymany."
+            "value": "Wszystkie wydatki zostaną trwale usunięte, przeniesienie resetuje się do zera, a budżet zostanie wznowiony, jeśli był wstrzymany."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todas as despesas serão excluídas permanentemente, o Carry-Over será zerado e, se pausado, o orçamento será retomado."
+            "value": "Todas as despesas serão permanentemente deletadas, o saldo acumulado será redefinido para zero e, se pausado, o orçamento será retomado."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todas as despesas serão eliminadas permanentemente, o saldo será reposto a zero e, se pausado, o orçamento será retomado."
+            "value": "Todas as despesas serão apagadas permanentemente, a transição será reposta para zero e, se em pausa, o orçamento será retomado."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toate cheltuielile vor fi șterse definitiv, Carry-Over va fi resetat la zero, iar dacă bugetul este întrerupt, va fi reluat."
+            "value": "Toate cheltuielile vor fi șterse permanent, reportul va fi resetat la zero, iar dacă este întrerupt, bugetul va fi reluat."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Все расходы будут удалены навсегда, Carry-Over сбросится до нуля, а если бюджет приостановлен — он возобновится."
+            "value": "Все расходы будут безвозвратно удалены, перенос обнулится, и если бюджет приостановлен, он возобновится."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Všetky výdavky budú natrvalo vymazané, Carry-Over sa vynuluje na nulu, a ak je rozpočet pozastavený, bude obnovený."
+            "value": "Všetky výdavky budú natrvalo odstránené, prenos bude vynulovaný na nulu a ak je pozastavený, rozpočet bude obnovený."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alla utgifter raderas permanent, carry-over återställs till noll och budgeten återupptas om den är pausad."
+            "value": "Alla utgifter raderas permanent, överföring återställs till noll och budgeten återupptas om den är pausad."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "รายการค่าใช้จ่ายทั้งหมดจะถูกลบอย่างถาวร ยอดเงินที่นำไปยังงวดถัดไปจะรีเซ็ตเป็นศูนย์ และหากงบประมาณหยุดชั่วคราวอยู่ จะเริ่มทำงานอีกครั้ง"
+            "value": "รายจ่ายทั้งหมดจะถูกลบอย่างถาวร ยอดยกมาจะรีเซ็ตเป็นศูนย์ และถ้าหยุดชั่วคราว งบประมาณจะดำเนินต่อ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tüm harcamalar kalıcı olarak silinecek, bakiye sıfırlanacak ve duraklatılmışsa bütçe devam edecektir."
+            "value": "Tüm harcamalar kalıcı olarak silinecek, devir sıfıra sıfırlanacak ve bütçe duraklatılmışsa sürdürülecek."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Усі витрати буде остаточно видалено, carry-over скинуто до нуля, а бюджет відновлено, якщо він на паузі."
+            "value": "Всі витрати будуть назавжди видалені, перенесення залишку скидається до нуля, і якщо бюджет призупинено, він буде відновлений."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tất cả chi phí sẽ bị xóa vĩnh viễn, số dư chuyển tiếp sẽ được đặt lại về 0 và nếu ngân sách đang tạm dừng, nó sẽ được tiếp tục."
+            "value": "Mọi khoản chi sẽ bị xóa vĩnh viễn, chuyển tiếp sẽ đặt lại thành không, và nếu tạm dừng, ngân sách sẽ tiếp tục."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有支出将被永久删除，结转金额将重置为零，如已暂停，预算将恢复运行。"
+            "value": "所有支出将被永久删除、结转重置为零，以及如果已暂停，预算将恢复。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有支出將被永久刪除、結餘結轉將重設為零，以及若預算已暫停，將恢復執行。"
+            "value": "所有支出將永久刪除，結轉將重設為零，若已暫停，預算將繼續。"
           }
         }
       }
@@ -32390,37 +32390,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "سيتم مسح رصيد Carry-Over والبدء من جديد من الصفر."
+            "value": "سيتم مسح رصيد المُرحَّل والبدء من جديد من صفر."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "El saldo romanent s'esborrarà i tornarà a començar des de zero."
+            "value": "El saldo del romanent es buidarà i començarà de nou des de zero."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zůstatek Carry-Over bude vymazán a začne znovu od nuly."
+            "value": "Zůstatek převodu bude vymazán a znovu začne od nuly."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-over-saldoen ryddes og starter forfra fra nul."
+            "value": "Overførselssaldoen ryddes, og du starter forfra med nul."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Carry-Over-Saldo wird gelöscht und bei null neu gestartet."
+            "value": "Der Übertrag wird gelöscht und beginnt frisch bei null."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το υπόλοιπο μεταφοράς θα διαγραφεί και θα ξεκινήσει από το μηδέν."
+            "value": "Το Υπόλοιπο Μεταφοράς θα διαγραφεί και θα ξεκινήσει από μηδέν."
           }
         },
         "en": {
@@ -32450,175 +32450,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El saldo acumulado se borrará y empezará de cero."
+            "value": "El saldo de remanente se vaciará y empezará de cero."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "El saldo de Carry-Over se borrará y comenzará desde cero."
+            "value": "El saldo acumulado se borrará y comenzará de nuevo desde cero."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Siirtosaldo tyhjennetään ja aloitetaan alusta nollasta."
+            "value": "Siirron saldo tyhjennetään ja aloitetaan uudelleen nollasta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le solde reporté sera effacé et repartira de zéro."
+            "value": "Le solde du report sera effacé et recommencera à zéro."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le solde reporté sera effacé et repartira à zéro."
+            "value": "Le solde du report sera effacé et recommencera à zéro."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "יתרת ה-Carry-Over תנוקה ותתחיל מחדש מאפס."
+            "value": "יתרת היתרה המועברת תתנוקה ותתחיל טרי מאפס."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over शेष साफ़ हो जाएगा और शून्य से नए सिरे से शुरू होगा।"
+            "value": "कैरी-ओवर शेष साफ़ कर दिया जाएगा और शून्य से नई शुरुआत होगी।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stanje Carry-Over bit će obrisano i početi iznova od nule."
+            "value": "Stanje prijenosa će biti očišćeno i počet će ispočetka od nule."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A Carry-Over egyenleg törlődik, és nulláról kezdődik újra."
+            "value": "Az átvitel egyenlege törlődik, és nulláról kezd újra."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saldo carry-over akan dihapus dan dimulai dari nol."
+            "value": "Saldo bawaan akan dihapus dan dimulai segar dari nol."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il saldo del Carry-Over verrà cancellato e ripartirà da zero."
+            "value": "Il saldo del riporto verrà cancellato e ricomincia da zero."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "繰越残高がクリアされ、ゼロからやり直します。"
+            "value": "繰り越し残高がクリアされ、ゼロから新しく始まります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이월 잔액이 초기화되어 0부터 다시 시작돼요."
+            "value": "이월 잔액이 비워지고 0부터 새로 시작합니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Baki Carry-Over akan dikosongkan dan bermula semula dari sifar."
+            "value": "Baki bawa ke hadapan akan dipadamkan dan dimulai semula daripada sifar."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over-saldoen tømmes og starter på nytt fra null."
+            "value": "Overføringssaldoen tømmes og starter på nytt fra null."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Het overgedragen saldo wordt gewist en begint opnieuw bij nul."
+            "value": "Het overdrachtsaldo wordt gewist en start schoon op nul."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saldo Carry-Over zostanie wyczyszczone i zacznie od nowa od zera."
+            "value": "Saldo przeniesienia zostanie wyczyszczone i rozpocznie się od nowa od zera."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O saldo de Carry-Over será apagado e começará do zero."
+            "value": "O saldo acumulado será limpo e recomeçará do zero."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O saldo de Carry-Over será limpo e recomeçará do zero."
+            "value": "O saldo de transição será limpo e recomeçará do zero."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Soldul Carry-Over va fi șters și va reîncepe de la zero."
+            "value": "Soldul report va fi șters și va porni din nou de la zero."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Баланс Carry-Over будет очищен и начнётся заново с нуля."
+            "value": "Баланс переноса будет очищен и начнётся заново с нуля."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zostatok Carry-Over bude vymazaný a začne odznova od nuly."
+            "value": "Stav prenosu bude vymazaný a začne nanovo od nuly."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Det överförda saldot rensas och börjar om från noll."
+            "value": "Överföringssaldot rensas och börjar om från noll."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ยอดยกมาจะถูกล้างและเริ่มใหม่จากศูนย์"
+            "value": "ยอดยกมาจะถูกลบและเริ่มใหม่จากศูนย์"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Devredilen bakiye temizlenecek ve sıfırdan yeniden başlayacak."
+            "value": "Devir bakiyesi silinecek ve sıfırdan başlayacak."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенесений залишок буде очищено і розпочнеться з нуля."
+            "value": "Баланс перенесення залишку буде очищений і почне знову з нуля."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Số dư Carry-Over sẽ bị xóa và bắt đầu lại từ đầu."
+            "value": "Số dư chuyển tiếp sẽ bị xóa và bắt đầu lại từ không."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "结转余额将被清零，重新从零开始。"
+            "value": "结转余额将被清除并从零重新开始。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over 餘額將被清除，從零開始重新計算。"
+            "value": "結轉結餘將被清除並重新開始。"
           }
         }
       }
@@ -32629,37 +32629,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "إعادة تعيين Carry-Over؟"
+            "value": "إعادة تعيين المُرحَّل؟"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restablir el Carry-Over?"
+            "value": "Restablir romanent?"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vynulovat Carry-Over?"
+            "value": "Vynulovat převod?"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nulstil carry-over?"
+            "value": "Nulstil overførsel?"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over zurücksetzen?"
+            "value": "Übertrag zurücksetzen?"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επαναφορά μεταφοράς υπολοίπου;"
+            "value": "Επαναφορά Μεταφοράς;"
           }
         },
         "en": {
@@ -32689,19 +32689,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Restablecer saldo acumulado?"
+            "value": "¿Restablecer remanente?"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Restablecer Carry-Over?"
+            "value": "¿Restablecer saldo acumulado?"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nollataan carry-over?"
+            "value": "Nollaatko siirron?"
           }
         },
         "fr": {
@@ -32713,115 +32713,115 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remettre le solde reporté à zéro?"
+            "value": "Réinitialiser le report?"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "לאפס את ה-Carry-Over?"
+            "value": "אפס יתרה מועברת?"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over रीसेट करें?"
+            "value": "कैरी-ओवर रीसेट करें?"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poništiti Carry-Over?"
+            "value": "Poništi prijenos?"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Visszaállítja az áthozott egyenleget?"
+            "value": "Átvitel visszaállítása?"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atur Ulang Carry-Over?"
+            "value": "Atur ulang saldo bawaan?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reimposta il Carry-Over?"
+            "value": "Reimpostare il riporto?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "繰越をリセットしますか？"
+            "value": "繰り越しをリセットしますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over를 초기화할까요?"
+            "value": "이월을 재설정할까요?"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tetapkan semula Carry-Over?"
+            "value": "Set semula bawa ke hadapan?"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nullstill Carry-Over?"
+            "value": "Nullstill overføring?"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-over resetten?"
+            "value": "Overdracht resetten?"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zresetować Carry-Over?"
+            "value": "Resetuj przeniesienie?"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redefinir carry-over?"
+            "value": "Redefinir saldo acumulado?"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repor Carry-Over?"
+            "value": "Repor transição?"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Resetezi Carry-Over?"
+            "value": "Resetezi reportul?"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сбросить Carry-Over?"
+            "value": "Сбросить перенос?"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vynulovať Carry-Over?"
+            "value": "Vynulovať prenos?"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Återställ carry-over?"
+            "value": "Återställ överföring?"
           }
         },
         "th": {
@@ -32833,7 +32833,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Devredilen bakiye sıfırlansın mı?"
+            "value": "Devir sıfırlansın mı?"
           }
         },
         "uk": {
@@ -32845,19 +32845,19 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đặt lại Carry-Over?"
+            "value": "Đặt lại chuyển tiếp?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重置Carry-Over？"
+            "value": "重置结转？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重設 Carry-Over？"
+            "value": "重設結轉？"
           }
         }
       }
@@ -36453,37 +36453,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ترحيل عجز بقيمة %@"
+            "value": "%@ عجز مُرحَّل"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over amb dèficit de %@"
+            "value": "%@ dèficit de romanent"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přenesený schodek %@"
+            "value": "%@ schodek převodu"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ underskudsoverførsel"
+            "value": "%@ underskud overførsel"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Defizit-Carry-Over"
+            "value": "%@ Defizit-Übertrag"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "μεταφορά υπολοίπου ελλείμματος %@"
+            "value": "%@ έλλειμμα Μεταφοράς"
           }
         },
         "en": {
@@ -36513,175 +36513,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de déficit acumulado"
+            "value": "déficit de remanente %@"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over con déficit de %@"
+            "value": "%@ déficit de saldo acumulado"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ alijäämä carry-over"
+            "value": "%@ alijäämä siirto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Report déficitaire de %@"
+            "value": "%@ de déficit en report"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de déficit reporté"
+            "value": "%@ déficit report"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ גירעון Carry-Over"
+            "value": "%@ גירעון יתרה מועברת"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ घाटा Carry-Over"
+            "value": "%@ घाटा कैरी-ओवर"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over s manjkom od %@"
+            "value": "%@ manjak prijenosa"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ hiány áthozva"
+            "value": "%@ hiány átvitel"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over defisit %@"
+            "value": "%@ defisit saldo bawaan"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over con disavanzo di %@"
+            "value": "%@ riporto in disavanzo"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@の赤字繰越"
+            "value": "%@ 不足の繰り越し"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 적자 carry-over"
+            "value": "%@ 부족 이월"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over defisit %@"
+            "value": "%@ defisit bawa ke hadapan"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ underskudd Carry-Over"
+            "value": "%@ underskudd overføring"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ tekort overgedragen saldo"
+            "value": "%@ tekort overdracht"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ deficyt Carry-Over"
+            "value": "%@ deficyt przeniesienia"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "saldo acumulado negativo de %@"
+            "value": "%@ déficit de saldo acumulado"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over de défice de %@"
+            "value": "%@ défice transição"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over deficit %@"
+            "value": "%@ deficit report"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенесённый дефицит %@"
+            "value": "%@ дефицит переноса"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prenesený schodok %@"
+            "value": "%@ schodok prenosu"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ underskott överfört"
+            "value": "%@ underskottsöverföring"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ยอดยกมาติดลบ %@"
+            "value": "ยอดยกมา %@ เงินขาด"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ açık bakiye devri"
+            "value": "%@ açık devir"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "перенесення дефіциту %@"
+            "value": "%@ дефіцит перенесення залишку"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over thâm hụt %@"
+            "value": "%@ thiếu hụt chuyển tiếp"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@赤字Carry-Over"
+            "value": "%@ 超支结转"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 赤字 Carry-Over"
+            "value": "%@ 超支結轉"
           }
         }
       }
@@ -36692,37 +36692,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ترحيل فائض بقيمة %@"
+            "value": "%@ فائض مُرحَّل"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over amb superàvit de %@"
+            "value": "%@ superàvit de romanent"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přenesený přebytek %@"
+            "value": "%@ přebytek převodu"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ overskudsoverførsel"
+            "value": "%@ overskud overførsel"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Überschuss-Carry-Over"
+            "value": "%@ Überschuss-Übertrag"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "μεταφορά υπολοίπου πλεονάσματος %@"
+            "value": "%@ πλεόνασμα Μεταφοράς"
           }
         },
         "en": {
@@ -36752,175 +36752,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de superávit acumulado"
+            "value": "superávit de remanente %@"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over con superávit de %@"
+            "value": "%@ superávit de saldo acumulado"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ylijäämä carry-over"
+            "value": "%@ ylijäämä siirto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Report excédentaire de %@"
+            "value": "%@ d'excédent en report"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de surplus reporté"
+            "value": "%@ surplus report"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ עודף Carry-Over"
+            "value": "%@ עודף יתרה מועברת"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ अधिशेष Carry-Over"
+            "value": "%@ अधिशेष कैरी-ओवर"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over s viškom od %@"
+            "value": "%@ višak prijenosa"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ többlet áthozva"
+            "value": "%@ többlet átvitel"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over surplus %@"
+            "value": "%@ surplus saldo bawaan"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over con avanzo di %@"
+            "value": "%@ riporto in avanzo"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@の黒字繰越"
+            "value": "%@ 余剰の繰り越し"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 잉여 carry-over"
+            "value": "%@ 잉여 이월"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over lebihan %@"
+            "value": "%@ lebihan bawa ke hadapan"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ overskudd Carry-Over"
+            "value": "%@ overskudd overføring"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ overschot overgedragen saldo"
+            "value": "%@ overschot overdracht"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ nadwyżka Carry-Over"
+            "value": "%@ nadwyżka przeniesienia"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "saldo acumulado positivo de %@"
+            "value": "%@ superávit de saldo acumulado"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over de excedente de %@"
+            "value": "%@ excedente transição"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over surplus %@"
+            "value": "%@ surplus report"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенесённый профицит %@"
+            "value": "%@ профицит переноса"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prenesený prebytok %@"
+            "value": "%@ prebytok prenosu"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ överskott överfört"
+            "value": "%@ överskottsöverföring"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ยอดยกมาเกิน %@"
+            "value": "ยอดยกมา %@ เงินเหลือ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ fazla bakiye devri"
+            "value": "%@ fazla devir"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "перенесення надлишку %@"
+            "value": "%@ надлишок перенесення залишку"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over thặng dư %@"
+            "value": "%@ dư chuyển tiếp"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@盈余Carry-Over"
+            "value": "%@ 结余结转"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 結餘 Carry-Over"
+            "value": "%@ 結餘盈餘結轉"
           }
         }
       }
@@ -36931,19 +36931,19 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ترحيل بالصفر"
+            "value": "مُرحَّل صفر"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over a zero"
+            "value": "romanent zero"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "nulový Carry-Over"
+            "value": "nulový převod"
           }
         },
         "da": {
@@ -36955,13 +36955,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kein Carry-Over"
+            "value": "Null-Übertrag"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "μηδενική μεταφορά υπολοίπου"
+            "value": "μηδενική Μεταφορά"
           }
         },
         "en": {
@@ -36991,103 +36991,103 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "saldo acumulado cero"
+            "value": "remanente cero"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over en cero"
+            "value": "saldo acumulado cero"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "nolla carry-over"
+            "value": "nolla siirto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "report nul"
+            "value": "report zéro"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "solde reporté à zéro"
+            "value": "report zéro"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over אפס"
+            "value": "אפס יתרה מועברת"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "शून्य Carry-Over"
+            "value": "शून्य कैरी-ओवर"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over je nula"
+            "value": "nula prijenosa"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "nulla áthozat"
+            "value": "nulla átvitel"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over nol"
+            "value": "saldo bawaan nol"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over a zero"
+            "value": "riporto a zero"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "繰越ゼロ"
+            "value": "ゼロの繰り越し"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over 없음"
+            "value": "0 이월"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over sifar"
+            "value": "bawa ke hadapan sifar"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "null Carry-Over"
+            "value": "null overføring"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "geen overgedragen saldo"
+            "value": "nul overdracht"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "zerowy Carry-Over"
+            "value": "zerowe przeniesienie"
           }
         },
         "pt-BR": {
@@ -37099,67 +37099,67 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over zero"
+            "value": "zero transição"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over zero"
+            "value": "zero report"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенесённый баланс равен нулю"
+            "value": "нулевой перенос"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "nulový prenesený zostatok"
+            "value": "nulový prenos"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "noll överfört saldo"
+            "value": "noll överföring"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ยอดยกมาเป็นศูนย์"
+            "value": "ยอดยกมาศูนย์"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "sıfır bakiye devri"
+            "value": "sıfır devir"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over нульовий"
+            "value": "нульове перенесення залишку"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over bằng không"
+            "value": "chuyển tiếp không"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "零Carry-Over"
+            "value": "零结转"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over 為零"
+            "value": "零結轉"
           }
         }
       }
@@ -37409,37 +37409,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "مُرحَّل"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "romanent"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "převod"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "overførsel"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Übertrag"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "Μεταφορά"
           }
         },
         "en": {
@@ -37469,175 +37469,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "remanente"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "saldo acumulado"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "siirto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "report"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "report"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "יתרה מועברת"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "कैरी-ओवर"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "prijenos"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "átvitel"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "saldo bawaan"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "riporto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "繰り越し"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "이월"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "bawa ke hadapan"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "overføring"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "overdracht"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "przeniesienie"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "saldo acumulado"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "transição"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "report"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "перенос"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "prenos"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "överföring"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "ยอดยกมา"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "devir"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "перенесення залишку"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "chuyển tiếp"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "结转"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "carry-over"
+            "value": "結轉"
           }
         }
       }
@@ -39805,37 +39805,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لمساعدتنا في استكشاف المشكلات وفهم طريقة الاستخدام، يُرسل هذا التطبيق بيانات استخدام مجهولة إلى أنظمة الخلفية للتحليل. من الأمثلة على ما تتم مشاركته: إعدادات الميزانية مثل الفترة الزمنية، ورمز العملة، وتشغيل/إيقاف Carry-Over، ومبلغ التخصيص، وما إلى ذلك. ما لا يُشارك أبداً: أسماء المصروفات، والمبالغ، والتواريخ، وأي معرّفات Apple/iCloud، وأي ملاحظات نصية أو معلومات شخصية. يمكن تغيير هذا الخيار في أي وقت من شاشة الإعدادات."
+            "value": "لمساعدتنا على استكشاف المشاكل وفهم الاستخدام، تُرسل هذه التطبيق بيانات الاستخدام المجهولة إلى الأنظمة الخلفية للتحليل. تتضمن الأمثلة إعدادات الميزانية مثل الفترة، رمز العملة، المُرحَّل قيد التشغيل/الإيقاف، المبلغ المخصّص، وما إلى ذلك. لا يتم مشاركة: أسماء المصروفات، المبالغ، التواريخ، أي معرفات Apple/iCloud، أي ملاحظات نصية حرة أو معلومات شخصية. يمكن تغيير هذا القرار في أي وقت على شاشة الإعدادات."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Per ajudar a diagnosticar problemes i entendre l'ús, aquesta app envia dades d'ús anònimes a sistemes de fons per a l'anàlisi. Entre els exemples del que es comparteix hi ha la configuració del pressupost: el període, el codi de moneda, el Carry-Over activat/desactivat, l'import assignat, etc. Mai es comparteix: noms de despeses, imports, dates, cap identificador d'Apple/iCloud, cap nota de text lliure ni informació personal. Aquesta decisió es pot canviar en qualsevol moment a la pantalla de Configuració."
+            "value": "Per ajudar a resoldre problemes i entendre l'ús, aquesta aplicació envia dades d'ús anònimes a sistemes de backend per a l'anàlisi. Els exemples del que es comparteix inclouen la configuració del pressupost com a període, codi de moneda, romanent activat/desactivat, import de l'assignació i altres. Mai no es comparteix: noms de despesa, imports, dates, identificadors d'Apple/iCloud, notes de text lliure o informació personal. Aquesta decisió es pot canviar en qualsevol moment a la pantalla de Configuració."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abychom mohli řešit problémy a lépe rozumět způsobu používání, aplikace odesílá anonymní data o využití do backendových systémů k analýze. Příklady sdílených informací: nastavení rozpočtu jako období, kód měny, Carry-Over zapnuto/vypnuto, výše alokace apod. Nikdy se nesdílí: názvy výdajů, částky, data, jakékoliv identifikátory Apple/iCloud, volné poznámky ani osobní informace. Toto rozhodnutí lze kdykoliv změnit na obrazovce Nastavení."
+            "value": "Abychom vám mohli pomoci řešit problémy a pochopit používání, tato aplikace odesílá anonymní data o používání na backend systémy k analýze. Příklady toho, co se sdílí, zahrnují nastavení rozpočtu jako období, kód měny, převod zapnuto/vypnuto, částku rozpočtované částky a další. Nikdy se nesdílí: názvy výdajů, částky, data, žádné identifikátory Apple/iCloud, žádné poznámky v textové formě nebo osobní údaje. Toto nastavení lze kdykoli změnit na obrazovce Nastavení."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "For at hjælpe med at løse problemer og forstå brugen sender appen anonyme brugsdata til backend-systemer til analyse. Eksempler på, hvad der deles: budgetindstillinger som periode, valutakode, Carry-Over til/fra, allokeringsbeløb og lignende. Deles aldrig: udgiftsnavne, beløb, datoer, Apple/iCloud-identifikatorer, fritekstnoter eller personlige oplysninger. Denne beslutning kan til enhver tid ændres på indstillingsskærmen."
+            "value": "For at hjælpe med at løse problemer og forstå brugen sender denne app anonym brugsdata til backend-systemer til analyse. Eksempler på delt data omfatter budgetindstillinger som periode, valutakode, overførsel til/fra, tildelt beløb og lignende. Deles aldrig: Udgiftnavne, beløb, datoer, Apple/iCloud-identifikatorer, fritekstnoter eller personlige data. Du kan ændre denne indstilling når som helst på Indstillinger-skærmen."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Um Probleme zu beheben und die Nutzung besser zu verstehen, sendet diese App anonyme Nutzungsdaten zur Analyse an Backend-Systeme. Beispiele für geteilte Daten: Budgeteinstellungen wie Zeitraum, Währungscode, Carry-Over ein/aus, Zuweisungsbetrag usw. Nie geteilt: Ausgabennamen, -beträge, -daten, Apple/iCloud-Kennungen, Freitextnotizen oder persönliche Informationen. Diese Entscheidung kann jederzeit in den Einstellungen geändert werden."
+            "value": "Um Probleme zu beheben und die Nutzung zu verstehen, versendet die App anonyme Nutzungsdaten zur Analyse. Dazu gehören Budgeteinstellungen wie Zeitraum, Währungscode, Übertrag an/aus, Budgetbetrag und weitere. Werden nicht versendet: Ausgabennamen, Beträge, Daten, Apple/iCloud-Kennungen, Notizen oder persönliche Informationen. Diese Entscheidung kann jederzeit in den Einstellungen geändert werden."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Για να βοηθήσετε στην αντιμετώπιση προβλημάτων και στην κατανόηση της χρήσης, αυτή η εφαρμογή αποστέλλει ανώνυμα δεδομένα χρήσης σε συστήματα backend για ανάλυση. Παραδείγματα κοινοποιούμενων δεδομένων: ρυθμίσεις προϋπολογισμού όπως η περίοδος, ο κωδικός νομίσματος, το Carry-Over ενεργό/ανενεργό, το ποσό κατανομής, κ.λπ. Δεν κοινοποιούνται ποτέ: Ονόματα εξόδων, ποσά, ημερομηνίες, αναγνωριστικά Apple/iCloud, σημειώσεις ελεύθερου κειμένου ή προσωπικές πληροφορίες. Αυτή η επιλογή μπορεί να αλλαχθεί ανά πάσα στιγμή στην οθόνη Ρυθμίσεων."
+            "value": "Για να βοηθήσει στην αντιμετώπιση προβλημάτων και κατανόησης της χρήσης, η εφαρμογή αποστέλλει ανώνυμα δεδομένα χρήσης σε συστήματα ανάλυσης. Παραδείγματα των κοινοποιούμενων δεδομένων περιλαμβάνουν ρυθμίσεις Προϋπολογισμού όπως Περίοδος, κωδικό Νομίσματος, Μεταφορά ενεργή/ανενεργή, Ποσό κατανομής και άλλα. Ποτέ κοινοποιούμενα: ονόματα Εξόδων, Ποσά, Ημερομηνίες, αναγνωριστικά Apple/iCloud, σημειώσεις ή προσωπικές πληροφορίες. Αυτή η επιλογή μπορεί να αλλάξει ανά πάσα στιγμή στην οθόνη Ρυθμίσεις."
           }
         },
         "en": {
@@ -39865,175 +39865,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para ayudar a resolver problemas y entender el uso, esta app envía datos de uso anónimos a sistemas de análisis. Ejemplos de lo que se comparte: ajustes del presupuesto como el periodo, el código de divisa, Carry-Over activado/desactivado, el importe asignado, etc. Nunca se comparte: nombres de gastos, importes, fechas, ningún identificador de Apple/iCloud, notas de texto libre ni información personal. Esta decisión puede cambiarse en cualquier momento en la pantalla de Ajustes."
+            "value": "Para ayudar a resolver problemas y entender cómo se usa la app, enviamos datos de uso anónimos a sistemas de backend para su análisis. Entre los datos que se comparten están la configuración del presupuesto como periodo, código de moneda, remanente activado o desactivado, importe de asignación, etc. Nunca se comparten: nombres de gastos, importes, fechas, identificadores de Apple/iCloud, notas de texto libre o información personal. Esta decisión se puede cambiar en cualquier momento en la pantalla de Ajustes."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para ayudar a detectar problemas y entender el uso, esta app envía datos de uso anónimos a sistemas de análisis. Algunos ejemplos de lo que se comparte: configuración del presupuesto como periodo, código de moneda, Carry-Over activado/desactivado, monto de asignación, entre otros. Nunca se comparte: nombres de gastos, montos, fechas, identificadores de Apple/iCloud, notas de texto libre ni información personal. Esta decisión puede cambiarse en cualquier momento desde la pantalla de Ajustes."
+            "value": "Para ayudar a resolver problemas y entender el uso, esta app envía datos anónimos de uso a sistemas de backend para análisis. Los ejemplos de lo que se comparte incluyen configuración de presupuesto como periodo, código de moneda, saldo acumulado activado/desactivado, monto de asignación, y así sucesivamente. Nunca se comparte: Nombres de gastos, montos, fechas, ningún identificador de Apple/iCloud, notas de texto libre o información personal. Esta decisión se puede cambiar en cualquier momento en la pantalla de Ajustes."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sovellus lähettää anonyymiä käyttötietoa taustapalveluihin vianhakua ja käytön ymmärtämistä varten. Jaettavia tietoja ovat esimerkiksi budjettiasetukset kuten kausi, valuuttakoodi, Carry-Over käytössä/ei ja kohdentamissumma. Ei koskaan jaeta: kulunimikkeitä, summia, päivämääriä, Apple- tai iCloud-tunnisteita, vapaatekstejä tai henkilökohtaisia tietoja. Voit muuttaa tätä valintaa milloin tahansa Asetukset-näytöltä."
+            "value": "Ongelmien ratkaisun ja käytön ymmärtämisen helpottamiseksi tämä sovellus lähettää anonyymejä käyttötietoja järjestelmille analysointia varten. Jaettavia tietoja ovat muun muassa budjetin asetukset, kuten jakso, valuuttakoodi, siirto päällä/pois, budjetoidut summat ja niin edelleen. Ei koskaan jaettava: Menojen nimet, summat, päivämäärät, Apple/iCloud-tunnisteet, muistiinpanot tai henkilökohtaiset tiedot. Tämä valinta voidaan muuttaa milloin tahansa Asetukset-näytössä."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour aider à résoudre les problèmes et comprendre l'utilisation, cette app envoie des données d'utilisation anonymes à des systèmes d'analyse. Exemples de ce qui est partagé : paramètres de budget tels que la période, le code devise, le Carry-Over activé/désactivé, le montant alloué, etc. Jamais partagés : noms des dépenses, montants, dates, identifiants Apple/iCloud, notes ou informations personnelles. Cette décision peut être modifiée à tout moment dans les Réglages."
+            "value": "Pour résoudre les problèmes et comprendre l'utilisation, l'app envoie des données d'usage anonymes aux systèmes backend pour analyse. Les données partagées incluent les paramètres du budget comme la période, le code devise, l'activation du report, le montant de l'allocation, etc. Ne sont jamais partagés : les noms et montants des dépenses, les dates, les identifiants Apple/iCloud, les notes en texte libre ou les informations personnelles. Tu peux changer ce choix à tout moment dans l'écran Réglages."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour aider à résoudre les problèmes et comprendre l'utilisation, cette app envoie des données d'utilisation anonymes à des systèmes d'analyse. Parmi les exemples partagés : les réglages de budget comme la période, le code de devise, l'activation du Carry-Over, le montant de l'allocation, etc. Ce qui n'est jamais partagé : les noms de dépenses, les montants, les dates, les identifiants Apple/iCloud, les notes libres ou toute information personnelle. Tu peux modifier ce choix en tout temps dans l'écran Réglages."
+            "value": "Pour aider à dépanner les problèmes et comprendre l'utilisation, cette app envoie des données d'utilisation anonymes à des systèmes backends pour analyse. Parmi ce qui est partagé : les paramètres du budget comme la période, le code de devise, le report activé/désactivé, le montant de l'allocation, et ainsi de suite. Jamais partagé : les noms des dépenses, les montants, les dates, les identificateurs Apple/iCloud, les notes en texte libre ou les informations personnelles. Tu peux changer cette décision à tout moment dans l'écran Réglages."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כדי לסייע בפתרון בעיות ובהבנת דפוסי השימוש, האפליקציה שולחת נתוני שימוש אנונימיים למערכות עיבוד לניתוח. דוגמאות לנתונים המשותפים: הגדרות תקציב כמו תקופה, קוד מטבע, Carry-Over פועל/כבוי, סכום הקצאה וכן הלאה. לעולם לא משתף: שמות הוצאות, סכומים, תאריכים, כל מזהי Apple‏/iCloud, הערות חופשיות או מידע אישי. ניתן לשנות החלטה זו בכל עת במסך ההגדרות."
+            "value": "כדי לעזור בפתרון בעיות והבנת השימוש, האפליקציה שולחת נתוני שימוש אנונימיים למערכות עורק לניתוח. דוגמאות לאלה שנשותפו כוללות הגדרות תקציב כמו תקופה, קוד מטבע, יתרה מועברת פעם/כיבוי, סכום הקצאה וכן הלאה. לא ממש משותף: שמות הוצאה, סכומים, תאריכים, כל מזהה Apple/iCloud, הערות חופשיות או מידע אישי. החלטה זו יכולה להשתנות בכל עת במסך ההגדרות."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "समस्याओं को सुलझाने और उपयोग को समझने में मदद के लिए, यह ऐप विश्लेषण हेतु बैकएंड सिस्टम को अनाम उपयोग डेटा भेजता है। शेयर किए जाने वाले उदाहरणों में बजट सेटिंग्स जैसे अवधि, मुद्रा कोड, Carry-Over चालू/बंद, आवंटन राशि आदि शामिल हैं। कभी शेयर नहीं होता: खर्च के नाम, राशियाँ, तारीखें, कोई भी Apple/iCloud पहचानकर्ता, कोई भी मुक्त-पाठ नोट या व्यक्तिगत जानकारी। यह निर्णय सेटिंग्स स्क्रीन पर कभी भी बदला जा सकता है।"
+            "value": "समस्याओं को ठीक करने और उपयोग को समझने में मदद के लिए, यह ऐप विश्लेषण के लिए बैकएंड सिस्टम को गुमनाम उपयोग डेटा भेजता है। साझा की जाने वाली चीजों के उदाहरणों में अवधि, मुद्रा कोड, कैरी-ओवर चालू/बंद, आवंटन राशि, और इसी तरह की बजट सेटिंग्स शामिल हैं। कभी साझा नहीं किया जाता: खर्च के नाम, राशि, तारीखें, कोई भी Apple/iCloud पहचानकर्ता, कोई भी खुली पाठ नोट्स या व्यक्तिगत जानकारी। यह निर्णय सेटिंग्स स्क्रीन पर किसी भी समय बदला जा सकता है।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kako bi se olakšalo rješavanje problema i razumijevanje upotrebe, aplikacija šalje anonimne podatke o upotrebi na pozadinske sustave radi analize. Primjeri dijeljenih podataka uključuju postavke proračuna kao što su razdoblje, šifra valute, Carry-Over uključeno/isključeno, iznos dodjele i slično. Nikad se ne dijele: nazivi troškova, iznosi, datumi, ni Apple/iCloud identifikatori, ni slobodni tekst, bilješke ili osobni podaci. Ova se odluka može promijeniti u bilo kojem trenutku na zaslonu Postavke."
+            "value": "Kako bi se riješili problemi i razumjela upotreba, ova aplikacija šalje anonimne podatke o korištenju u sustave za analizu. Primjeri onoga što se dijeli obuhvaćaju postavke proračuna kao što su razdoblje, kod valute, prijenos uključen/isključen, iznos dodjele i tako dalje. Nikad se ne dijele: Nazivi troškova, iznosi, datumi, bilo koji Apple/iCloud identifikatori, bilo koje slobodne napomene ili osobne informacije. Ova se odluka može promijeniti u bilo kojem trenutku na zaslon Postavke."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A problémák elhárítása és a használat megértése érdekében az alkalmazás névtelen használati adatokat küld elemzés céljából. A megosztott adatok példái: költségvetés-beállítások, például az időszak, a pénznemkód, a Carry-Over be/ki, a keretösszeg és így tovább. Soha nem kerül megosztásra: kiadások neve, összege, dátuma, Apple/iCloud azonosítók, szabad szöveges megjegyzések vagy személyes adatok. Ez a döntés bármikor megváltoztatható a Beállítások képernyőn."
+            "value": "A problémák megoldása és a használat megértése érdekében az alkalmazás anonimizált használati adatokat küld a háttérrendszerekhez elemzés céljából. A megosztott adatok közé tartoznak például a költségkeret beállításai, mint az időszak, pénznem kódja, átvitel be/ki állapota, keretösszeg és így tovább. Soha nem megosztott: Kiadás nevek, összegek, dátumok, Apple/iCloud azonosítók, szabad szöveges megjegyzések vagy személyes információk. Ez a döntés bármikor megváltoztatható a Beállítások képernyőn."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Untuk membantu memecahkan masalah dan memahami penggunaan, aplikasi ini mengirimkan data penggunaan anonim ke sistem backend untuk dianalisis. Contoh data yang dibagikan mencakup pengaturan anggaran seperti periode, kode mata uang, Carry-Over aktif/nonaktif, jumlah alokasi, dan sebagainya. Tidak pernah dibagikan: Nama pengeluaran, jumlah, tanggal, identifier Apple/iCloud apa pun, catatan teks bebas atau informasi pribadi apa pun. Keputusan ini dapat diubah kapan saja di layar Pengaturan."
+            "value": "Untuk membantu mengatasi masalah dan memahami penggunaan, aplikasi ini mengirim data penggunaan anonim ke sistem backend untuk analisis. Contoh yang dibagikan mencakup pengaturan anggaran seperti periode, kode mata uang, saldo bawaan aktif/mati, jumlah alokasi, dan sebagainya. Tidak pernah dibagikan: Nama pengeluaran, jumlah, tanggal, identifikasi Apple/iCloud, catatan teks bebas atau informasi pribadi. Keputusan ini dapat diubah kapan saja di layar Pengaturan."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Per aiutare a risolvere i problemi e comprendere l'utilizzo, questa app invia dati di utilizzo anonimi a sistemi di analisi. Esempi di ciò che viene condiviso: impostazioni del budget come periodo, codice valuta, Carry-Over attivo/disattivo, importo allocato e così via. Non vengono mai condivisi: nomi delle spese, importi, date, identificatori Apple/iCloud, note in formato libero o informazioni personali. Questa scelta può essere modificata in qualsiasi momento nella schermata Impostazioni."
+            "value": "Per aiutare a risolvere i problemi e capire l'uso, quest'app invia dati di utilizzo anonimi ai sistemi di backend per l'analisi. Gli esempi di ciò che viene condiviso includono le impostazioni del budget come periodo, codice valuta, riporto attivato/disattivato, importo di stanziamento e così via. Mai condivisi: nomi delle spese, importi, date, identificatori Apple/iCloud, note di testo libero o informazioni personali. Questa scelta può essere modificata in qualsiasi momento nella schermata Impostazioni."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "問題のトラブルシューティングや使用状況の把握のため、このアプリは匿名の使用データを分析のためにバックエンドシステムに送信します。共有されるデータの例：期間、通貨コード、Carry-Overのオン/オフ、配分金額などの予算設定。共有されないデータ：支出の名称、金額、日付、AppleまたはiCloudの識別子、フリーテキストのメモや個人情報。この設定はいつでも設定画面から変更できます。"
+            "value": "問題のトラブルシューティングと使用状況の理解を助けるため、このアプリは匿名の使用データをバックエンドシステムに送信して分析します。共有される情報の例としては、期間、通貨コード、繰り越しのオン/オフ、割り当て金額などの予算設定が挙げられます。共有されないもの：支出の名前、金額、日付、Apple/iCloud の識別子、自由記述のメモや個人情報。この設定は設定画面でいつでも変更できます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "문제 해결 및 앱 사용 현황 파악을 위해 이 앱은 익명 사용 데이터를 분석 시스템으로 전송합니다. 공유되는 정보의 예로는 예산 기간, 통화 코드, Carry-Over 켜기/끄기, 배정 금액 등 예산 설정이 있습니다. 절대 공유되지 않는 정보: 지출 이름, 금액, 날짜, Apple/iCloud 식별자, 자유 입력 메모 또는 개인 정보. 이 설정은 언제든지 설정 화면에서 변경할 수 있습니다."
+            "value": "문제를 해결하고 사용 현황을 파악하기 위해 이 앱은 익명의 사용 데이터를 백엔드 시스템으로 전송합니다. 공유되는 정보의 예: 기간, 통화 코드, 이월 설정, 할당액 등의 예산 설정. 공유되지 않음: 지출 이름, 금액, 날짜, Apple/iCloud 식별자, 자유 텍스트 메모 또는 개인정보. 설정 화면에서 언제든 변경할 수 있습니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Untuk membantu menyelesaikan masalah dan memahami penggunaan, aplikasi ini menghantar data penggunaan tanpa nama ke sistem bahagian belakang untuk analisis. Contoh yang dikongsi termasuk tetapan belanjawan seperti tempoh, kod mata wang, Carry-Over hidup/mati, jumlah peruntukan, dan sebagainya. Tidak pernah dikongsi: Nama perbelanjaan, jumlah, tarikh, sebarang pengecam Apple/iCloud, sebarang nota teks bebas atau maklumat peribadi. Keputusan ini boleh diubah pada bila-bila masa di skrin Tetapan."
+            "value": "Untuk membantu menyelesaikan isu dan memahami penggunaan, apl ini menghantar data penggunaan tanpa nama kepada sistem belakang untuk analisis. Contoh yang dikongsi termasuk tetapan bajet seperti tempoh, kod mata wang, bawa ke hadapan pada/luar, jumlah peruntukan, dan sebagainya. Tidak pernah dikongsi: Nama perbelanjaan, jumlah, tarikh, sebarang pengenalan Apple/iCloud, sebarang nota teks bebas atau maklumat peribadi. Keputusan ini boleh diubah pada bila-bila masa di skrin Tetapan."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "For å hjelpe med feilsøking og forstå bruken sender denne appen anonym bruksdata til backend-systemer for analyse. Eksempler på hva som deles: budsjettinnstillinger som periode, valutakode, Carry-Over av/på, beløp og lignende. Deles aldri: Utgiftsnavn, beløp, datoer, Apple/iCloud-identifikatorer, fritekstnotater eller personlig informasjon. Denne innstillingen kan endres når som helst på Innstillinger-skjermen."
+            "value": "For å hjelpe med å løse problemer og forstå bruk, sender denne appen anonym bruksdata til backend-systemer for analyse. Eksempler på hva som deles: budsjettinnstillinger som periode, valutakode, overføring på/av, tildeling og så videre. Deles aldri: Utgiftsnavn, beløp, datoer, noen Apple/iCloud-identifikatorer, noter eller personlig informasjon. Denne avgjørelsen kan endres når som helst på innstillingsskjermen."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Om problemen op te lossen en gebruik te begrijpen, stuurt deze app anonieme gebruiksgegevens naar backendsystemen voor analyse. Voorbeelden van wat wordt gedeeld zijn budgetinstellingen zoals periode, valutacode, Carry-Over aan/uit, toewijzingsbedrag, enzovoort. Nooit gedeeld: namen van uitgaven, bedragen, datums, Apple/iCloud-identificatoren, vrije notities of persoonlijke informatie. Deze keuze kan op elk moment worden gewijzigd via het scherm Instellingen."
+            "value": "Voor probleemoplossing en gebruiksanalyse stuurt deze app anonieme gebruiksgegevens naar backend-systemen. Voorbeelden: budgetinstellingen zoals periode, valutacode, overdracht aan/uit, toewijzingsbedrag, enzovoort. Nooit gedeeld: Uitgavenamen, bedragen, datums, Apple-/iCloud-identifiers, aantekeningen of persoonlijke informatie. Dit keuze kan je altijd wijzigen in Instellingen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aby pomóc w rozwiązywaniu problemów i rozumieniu sposobu użytkowania, ta aplikacja wysyła anonimowe dane użytkowania do systemów analitycznych. Przykłady udostępnianych danych: ustawienia budżetu, takie jak okres, kod waluty, Carry-Over włączony/wyłączony, kwota alokacji itp. Nigdy nie są udostępniane: nazwy wydatków, kwoty, daty, żadne identyfikatory Apple/iCloud, notatki ani dane osobowe. Tę decyzję można zmienić w dowolnym momencie w Ustawieniach."
+            "value": "Aby ułatwić rozwiązywanie problemów i zrozumieć korzystanie z aplikacji, ta aplikacja wysyła anonimowe dane o użytkowaniu do systemów backend do analizy. Przykłady tego, co jest udostępniane, to ustawienia budżetu, takie jak okres, kod waluty, przeniesienie włączone/wyłączone, kwota alokacji i tak dalej. Nigdy nie udostępniane: nazwy wydatków, kwoty, daty, żadne identyfikatory Apple/iCloud, żadne notatki w postaci wolnego tekstu ani dane osobowe. Ta decyzja może być zmieniona w dowolnym momencie na ekranie Ustawienia."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para ajudar a identificar problemas e entender o uso do app, dados de uso anônimos são enviados para sistemas de análise. Exemplos do que é compartilhado: configurações de orçamento como período, código de moeda, Carry-Over ativado/desativado, valor de alocação, entre outros. Nunca compartilhado: nomes de despesas, valores, datas, identificadores Apple/iCloud, notas de texto livre ou informações pessoais. Essa decisão pode ser alterada a qualquer momento na tela de Configurações."
+            "value": "Para ajudar a resolver problemas e entender o uso, este app envia dados de uso anônimos para sistemas backend para análise. Exemplos do que é compartilhado incluem configurações do orçamento como período, código de moeda, saldo acumulado ativado/desativado, valor de alocação e outros. Nunca compartilhado: Nomes de despesas, valores, datas, identificadores Apple/iCloud, notas em texto livre ou informações pessoais. Esta decisão pode ser alterada a qualquer momento na tela de Ajustes."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para ajudar a identificar problemas e compreender a utilização, esta app envia dados de utilização anónimos para sistemas de análise. Exemplos do que é partilhado: definições do orçamento como período, código de moeda, Carry-Over ativo/inativo, valor de alocação, entre outros. Nunca partilhado: nomes de despesas, montantes, datas, quaisquer identificadores Apple/iCloud, notas de texto livre ou informações pessoais. Esta decisão pode ser alterada a qualquer momento no ecrã de Definições."
+            "value": "Para ajudar a resolver problemas e compreender o uso, esta aplicação envia dados anónimos de uso para sistemas de análise. Exemplos do que é partilhado incluem definições de orçamento como período, código de moeda, transição ativada/desativada, montante de verba, e assim sucessivamente. Nunca partilhado: nomes de despesas, montantes, datas, identificadores Apple/iCloud, notas em texto livre ou informações pessoais. Esta decisão pode ser alterada a qualquer altura no ecrã Definições."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pentru a ajuta la depanarea problemelor și la înțelegerea utilizării, această aplicație trimite date anonime de utilizare către sistemele backend pentru analiză. Exemple de ce se partajează: setări de buget precum perioada, codul valutei, Carry-Over activat/dezactivat, suma alocată și altele. Nu se partajează niciodată: numele cheltuielilor, sumele, datele, niciun identificator Apple/iCloud, nicio notă liberă sau informație personală. Această decizie poate fi modificată oricând din ecranul Setări."
+            "value": "Pentru a ajuta la depanare și a înțelege utilizarea, această aplicație trimite date anonime de utilizare la sisteme de backend pentru analiză. Exemplele de date partajate includ setări de buget cum ar fi perioadă, cod monedă, report activat/dezactivat, valoare alocare și altele. Niciodată partajate: nume cheltuieli, sume, date, identificatori Apple/iCloud, note cu text liber sau informații personale. Această decizie poate fi schimbată oricând pe ecranul Setări."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Чтобы помочь в устранении проблем и анализе использования, приложение отправляет анонимные данные об использовании в системы аналитики. Примеры передаваемых данных: настройки бюджета, такие как период, код валюты, состояние Carry-Over (вкл./выкл.), сумма распределения и т. д. Никогда не передаётся: названия расходов, суммы, даты, идентификаторы Apple/iCloud, свободный текст или личная информация. Это решение можно изменить в любое время на экране «Настройки»."
+            "value": "Для диагностики проблем и анализа использования приложение отправляет анонимные данные о работе. Это включает настройки бюджета (период, код валюты, перенос вкл./выкл., лимит) и прочее. Никогда не отправляется: названия и суммы расходов, даты, идентификаторы Apple/iCloud, заметки и личные данные. Это можно изменить в Настройках."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Táto aplikácia odosiela anonymné údaje o používaní do analytických systémov, čo pomáha pri riešení problémov a pochopení toho, ako ju ľudia používajú. Príklady zdieľaných údajov: nastavenia rozpočtu, ako sú obdobie, kód meny, zapnutie/vypnutie Carry-Over, výška prídelu a podobne. Nikdy sa nezdieľa: názvy ani výšky výdavkov, dátumy, žiadne identifikátory Apple/iCloud, žiadne poznámky ani osobné informácie. Toto rozhodnutie môžete kedykoľvek zmeniť na obrazovke Nastavenia."
+            "value": "Aby sa aplikácia mohla zlepšovať a diagnostikovať problémy, posiela anonymné údaje o používaní do systémov na analýzu. Medzi zdieľané údaje patria nastavenia rozpočtu, ako je obdobie, kód meny, prenos zapnutý/vypnutý, suma pridelenia a podobne. Nikdy sa nezdieľajú: Názvy výdavkov, sumy, dátumy, žiadne identifikátory Apple/iCloud, žiadne vlastné poznámky ani osobné informácie. Toto rozhodnutie možno kedykoľvek zmeniť na obrazovke Nastavenia."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "För att hjälpa till med felsökning och förstå användningsmönster skickar appen anonym användningsdata för analys. Exempel på vad som delas inkluderar budgetinställningar som period, valutakod, Carry-Over av/på, allokeringsbelopp och liknande. Delas aldrig: Utgiftsnamn, belopp, datum, Apple/iCloud-identifierare, fritextanteckningar eller personlig information. Det här beslutet kan ändras när som helst i Inställningar."
+            "value": "För att felsöka problem och förstå användningen skickar denna app anonym användningsdata till backend-system för analys. Exempel på vad som delas inkluderar budgetinställningar som period, valutakod, överföring på/av, tilldelningsbelopp och så vidare. Aldrig delat: Utgiftnamn, belopp, datum, Apple/iCloud-identifierare, anteckningar eller personlig information. Detta val kan ändras när som helst på Inställningar-skärmen."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เพื่อช่วยแก้ไขปัญหาและทำความเข้าใจการใช้งาน แอปนี้จะส่งข้อมูลการใช้งานแบบไม่ระบุตัวตนไปยังระบบแบ็กเอนด์เพื่อวิเคราะห์ ตัวอย่างข้อมูลที่แชร์ ได้แก่ การตั้งค่างบประมาณ เช่น รอบเวลา รหัสสกุลเงิน การเปิด/ปิด Carry-Over จำนวนเงินที่จัดสรร และอื่นๆ ข้อมูลที่ไม่มีการแชร์: ชื่อรายจ่าย จำนวนเงิน วันที่ ตัวระบุ Apple/iCloud ใดๆ บันทึกข้อความอิสระหรือข้อมูลส่วนบุคคล การตัดสินใจนี้สามารถเปลี่ยนแปลงได้ตลอดเวลาในหน้าจอการตั้งค่า"
+            "value": "เพื่อแก้ไขปัญหาและเข้าใจการใช้งาน แอปนี้จะส่งข้อมูลการใช้งานแบบไม่ระบุตัวตนไปยังระบบด้านหลังเพื่อวิเคราะห์ ตัวอย่างของสิ่งที่แชร์รวมถึงการตั้งค่างบประมาณเช่น รอบ สกุลเงิน ยอดยกมาเปิด/ปิด จำนวนเงินที่จัดสรร และอื่นๆ ไม่มีการแชร์: ชื่อรายจ่าย จำนวนเงิน วันที่ ตัวระบุ Apple/iCloud ใดๆ หมายเหตุข้อความอิสระ หรือข้อมูลส่วนตัว สามารถเปลี่ยนแปลงการตัดสินใจนี้ได้ตลอดเวลาในหน้าการตั้งค่า"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sorunları gidermek ve kullanımı anlamak için uygulama, arka uç sistemlere anonim kullanım verileri gönderir. Paylaşılan verilere örnek: dönem, para birimi kodu, carry-over açık/kapalı, tahsis tutarı gibi bütçe ayarları. Hiçbir zaman paylaşılmaz: Gider adları, tutarlar, tarihler, Apple/iCloud tanımlayıcıları, serbest metin notlar veya kişisel bilgiler. Bu tercih Ayarlar ekranından istediğin zaman değiştirilebilir."
+            "value": "Sorunları gidermeye ve kullanımı anlamaya yardımcı olmak için bu uygulama anonim kullanım verilerini arka uç sistemlerine gönderir. Paylaşılan verilere dönem, para birimi kodu, devir açık/kapalı, tahsis tutarı gibi bütçe ayarları dahildir. Asla paylaşılmaz: Harcama adları, tutarları, tarihleri, herhangi bir Apple/iCloud tanımlayıcısı, serbest metin notları ya da kişisel bilgiler. Bu karar Ayarlar ekranından istediğin zaman değiştirilebilir."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Щоб допомогти виявляти проблеми та розуміти використання, цей додаток надсилає анонімні дані про використання до серверних систем для аналізу. Приклади даних, якими ми ділимося: налаштування бюджету, як-от період, код валюти, Carry-Over увімк./вимк., сума виділення тощо. Ніколи не надсилається: назви витрат, суми, дати, будь-які ідентифікатори Apple/iCloud, вільний текст чи особиста інформація. Це рішення можна змінити будь-коли на екрані Налаштування."
+            "value": "Щоб допомогти усунути проблеми та розібратися з використанням, цей додаток відправляє анонімні дані про використання на серверні системи для аналізу. Прикладами того, що передається, є параметри бюджету, такі як період, код валюти, перенесення залишку вкл./викл., виділена сума тощо. Ніколи не передаються: назви витрат, суми, дати, будь-які ідентифікатори Apple/iCloud, будь-які вільні нотатки або персональна інформація. Це рішення можна змінити будь-коли на екрані Параметри."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Để hỗ trợ khắc phục sự cố và hiểu cách sử dụng, ứng dụng này gửi dữ liệu sử dụng ẩn danh đến hệ thống phân tích. Ví dụ về những gì được chia sẻ: cài đặt ngân sách như kỳ, mã tiền tệ, Carry-Over bật/tắt, số tiền phân bổ, v.v. Không bao giờ được chia sẻ: Tên khoản chi tiêu, số tiền, ngày tháng, bất kỳ mã định danh Apple/iCloud nào, ghi chú tự do hoặc thông tin cá nhân. Quyết định này có thể thay đổi bất kỳ lúc nào trong màn hình Cài đặt."
+            "value": "Để giúp khắc phục sự cố và hiểu cách sử dụng, ứng dụng này gửi dữ liệu sử dụng nặc danh đến các hệ thống phụ trợ để phân tích. Ví dụ về những gì được chia sẻ bao gồm cài đặt ngân sách như kỳ, mã tiền tệ, chuyển tiếp bật/tắt, số tiền phân bổ, v.v. Không bao giờ chia sẻ: Tên khoản chi, số tiền, ngày, bất kỳ mã định danh Apple/iCloud nào, bất kỳ ghi chú văn bản tự do hay thông tin cá nhân nào. Quyết định này có thể được thay đổi bất kỳ lúc nào trên màn hình Cài đặt."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "为帮助排查问题并了解使用情况，本应用会将匿名使用数据发送至后台系统进行分析。共享内容示例包括：预算设置（如周期、货币代码、Carry-Over 开关状态、分配金额等）。绝不共享：支出名称、金额、日期、任何 Apple/iCloud 标识符、任何文字备注或个人信息。您可随时在「设置」页面更改此选择。"
+            "value": "为了帮助排除问题和了解使用情况，本应用向后端系统发送匿名使用数据用于分析。共享的数据包括预算设置（如周期、货币代码、结转开关、预算额度等）。不共享的内容：支出名称、金额、日期、任何 Apple/iCloud 标识符、任何自由文本备注或个人信息。这项选择可随时在设置屏幕上更改。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "為協助排查問題並了解使用情況，此應用程式會向後端系統傳送匿名使用資料以供分析。共享內容範例包括：預算設定，如週期、貨幣代碼、Carry-Over 開關、配額金額等。絕不共享：消費名稱、金額、日期、任何 Apple／iCloud 識別資訊，以及任何自由輸入的備註或個人資料。此設定可隨時在「設定」畫面中變更。"
+            "value": "為協助排除問題和瞭解使用情況，此應用程式會將匿名使用資料傳送至後端系統進行分析。分享的內容包括預算設定（如週期、貨幣代碼、結轉開啟/關閉、分配額等）。永不分享：支出名稱、金額、日期、任何 Apple/iCloud 識別碼、任何自由文字備註或個人資訊。此決定可隨時在「設定」畫面變更。"
           }
         }
       }
@@ -49622,37 +49622,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تساعد بيانات الاستخدام المجهولة في استكشاف المشكلات وفهم طريقة الاستخدام. ما يُضمَّن: إعدادات الميزانية مثل الفترة الزمنية، ورمز العملة، وتشغيل/إيقاف Carry-Over، ومبلغ التخصيص، وما إلى ذلك. ما لا يُضمَّن أبداً: أسماء المصروفات، والمبالغ، والتواريخ، وأي معرّفات Apple/iCloud، وأي ملاحظات نصية أو معلومات شخصية. تم اختيار الإعداد الأولي تلقائياً استناداً إلى منطقة جهازك."
+            "value": "بيانات الاستخدام المجهولة تساعد على استكشاف المشاكل وفهم الاستخدام. ما هو مُدرج: إعدادات الميزانية مثل الفترة، رمز العملة، المُرحَّل قيد التشغيل/الإيقاف، المبلغ المخصّص، وما إلى ذلك. ما لا يُدرج أبداً: أسماء المصروفات، المبالغ، التواريخ، أي معرفات Apple/iCloud، أي ملاحظات نصية حرة أو معلومات شخصية. تم اختيار الإعداد الأولي تلقائياً بناءً على منطقة جهازك."
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les dades d'ús anònimes ajuden a diagnosticar problemes i entendre l'ús. Què s'inclou: la configuració del pressupost, com ara el període, el codi de moneda, el Carry-Over activat/desactivat, l'import assignat, etc. Què mai s'inclou: noms de despeses, imports, dates, cap identificador d'Apple/iCloud, cap nota de text lliure ni informació personal. La configuració inicial es va triar automàticament en funció de la regió del dispositiu."
+            "value": "Les dades d'ús anònimes ajuden a resoldre problemes i entendre l'ús. Inclòs: configuració del pressupost com a període, codi de moneda, romanent activat/desactivat, import de l'assignació i altres. Mai inclòs: noms de despesa, imports, dates, identificadors d'Apple/iCloud, notes de text lliure o informació personal. L'ajust inicial es va triar automàticament segons la regió del dispositiu."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonymní data o využití pomáhají řešit problémy a lépe rozumět způsobu používání. Co je zahrnuto: nastavení rozpočtu jako období, kód měny, Carry-Over zapnuto/vypnuto, výše alokace apod. Co není nikdy zahrnuto: názvy výdajů, částky, data, jakékoliv identifikátory Apple/iCloud, volné poznámky ani osobní informace. Výchozí nastavení bylo zvoleno automaticky podle oblasti vašeho zařízení."
+            "value": "Anonymní data o používání pomáhají řešit problémy a porozumět používání. Co je zahrnuto: nastavení rozpočtu jako období, kód měny, převod zapnuto/vypnuto, částka rozpočtované částky a další. Co nikdy není zahrnuto: názvy výdajů, částky, data, žádné identifikátory Apple/iCloud, žádné poznámky v textové formě nebo osobní údaje. Počáteční nastavení bylo zvoleno automaticky na základě regionu vašeho zařízení."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonyme brugsdata hjælper med at løse problemer og forstå brugen. Hvad der medtages: budgetindstillinger som periode, valutakode, Carry-Over til/fra, allokeringsbeløb og lignende. Hvad der aldrig medtages: udgiftsnavne, beløb, datoer, Apple/iCloud-identifikatorer, fritekstnoter eller personlige oplysninger. Den indledende indstilling blev automatisk valgt baseret på din enheds region."
+            "value": "Anonym brugsdata hjælper med at løse problemer og forstå brugen. Inkluderet: Budgetindstillinger som periode, valutakode, overførsel til/fra, tildelt beløb og lignende. Aldrig inkluderet: Udgiftnavne, beløb, datoer, Apple/iCloud-identifikatorer, friitekstnoter eller personlige data. Den indledende indstilling blev valgt automatisk på baggrund af dit devices region."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonyme Nutzungsdaten helfen dabei, Probleme zu beheben und die Nutzung besser zu verstehen. Enthalten: Budgeteinstellungen wie Zeitraum, Währungscode, Carry-Over ein/aus, Zuweisungsbetrag usw. Nie enthalten: Ausgabennamen, -beträge, -daten, Apple/iCloud-Kennungen, Freitextnotizen oder persönliche Informationen. Die anfängliche Einstellung wurde automatisch anhand der Region deines Geräts gewählt."
+            "value": "Anonyme Nutzungsdaten helfen, Probleme zu beheben und die Nutzung zu verstehen. Enthalten: Budgeteinstellungen wie Zeitraum, Währungscode, Übertrag an/aus, Budgetbetrag und weitere. Nicht enthalten: Ausgabennamen, Beträge, Daten, Apple/iCloud-Kennungen, Notizen oder persönliche Informationen. Die anfängliche Einstellung wurde automatisch nach der Region deines Geräts gewählt."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Τα ανώνυμα δεδομένα χρήσης βοηθούν στην αντιμετώπιση προβλημάτων και στην κατανόηση της χρήσης. Τι συμπεριλαμβάνεται: Ρυθμίσεις προϋπολογισμού όπως η περίοδος, ο κωδικός νομίσματος, το Carry-Over ενεργό/ανενεργό, το ποσό κατανομής, κ.λπ. Τι δεν συμπεριλαμβάνεται ποτέ: Ονόματα εξόδων, ποσά, ημερομηνίες, αναγνωριστικά Apple/iCloud, σημειώσεις ελεύθερου κειμένου ή προσωπικές πληροφορίες. Η αρχική ρύθμιση επιλέχθηκε αυτόματα με βάση την περιοχή της συσκευής σας."
+            "value": "Τα ανώνυμα δεδομένα χρήσης βοηθούν στην αντιμετώπιση προβλημάτων και κατανόησης της χρήσης. Περιλαμβάνονται: ρυθμίσεις Προϋπολογισμού όπως Περίοδος, κωδικό Νομίσματος, Μεταφορά ενεργή/ανενεργή, Ποσό κατανομής και άλλα. Δεν περιλαμβάνονται: ονόματα Εξόδων, Ποσά, Ημερομηνίες, αναγνωριστικά Apple/iCloud, σημειώσεις ή προσωπικές πληροφορίες. Η αρχική ρύθμιση επιλέχθηκε αυτόματα ανάλογα με την περιοχή της συσκευής σας."
           }
         },
         "en": {
@@ -49682,175 +49682,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Los datos de uso anónimos ayudan a resolver problemas y entender el uso. Qué se incluye: ajustes del presupuesto como el periodo, el código de divisa, Carry-Over activado/desactivado, el importe asignado, etc. Qué nunca se incluye: nombres de gastos, importes, fechas, ningún identificador de Apple/iCloud, notas de texto libre ni información personal. La configuración inicial se eligió automáticamente según la región de tu dispositivo."
+            "value": "Los datos de uso anónimo ayudan a resolver problemas y entender cómo se usa la app. Se incluye: configuración del presupuesto como periodo, código de moneda, remanente activado o desactivado, importe de asignación, etc. Nunca se incluye: nombres de gastos, importes, fechas, identificadores de Apple/iCloud, notas de texto libre o información personal. La configuración inicial se eligió automáticamente según la región de tu dispositivo."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Los datos de uso anónimos ayudan a solucionar problemas y entender cómo se usa la app. Qué se incluye: configuraciones del presupuesto como el período, el código de divisa, Carry-Over activado/desactivado, el monto asignado, entre otros. Qué nunca se incluye: nombres de gastos, montos, fechas, ningún identificador de Apple/iCloud, notas de texto libre ni información personal. La configuración inicial se eligió automáticamente según la región de tu dispositivo."
+            "value": "Los datos anónimos de uso ayudan a resolver problemas y entender el uso. Qué se incluye: Configuración de presupuesto como periodo, código de moneda, saldo acumulado activado/desactivado, monto de asignación, y así sucesivamente. Qué nunca se incluye: Nombres de gastos, montos, fechas, ningún identificador de Apple/iCloud, notas de texto libre o información personal. La configuración inicial se eligió automáticamente según la región de tu dispositivo."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonyymi käyttötieto auttaa vianhaussa ja käytön ymmärtämisessä. Mukana: budjettiasetukset kuten kausi, valuuttakoodi, Carry-Over käytössä/ei ja kohdentamissumma. Ei koskaan mukana: kulunimikkeitä, summia, päivämääriä, Apple- tai iCloud-tunnisteita, vapaatekstejä tai henkilökohtaisia tietoja. Alkuasetus valittiin automaattisesti laitteesi alueen perusteella."
+            "value": "Anonyymit käyttötiedot auttavat ongelmien ratkaisussa ja käytön ymmärtämisessä. Sisältyy: Budjetin asetukset, kuten jakso, valuuttakoodi, siirto päällä/pois, budjetoidut summat ja niin edelleen. Ei sisälly: Menojen nimet, summat, päivämäärät, Apple/iCloud-tunnisteet, muistiinpanot tai henkilökohtaiset tiedot. Alkuasetus valittiin automaattisesti laitteesi alueen perusteella."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les données d'utilisation anonymes aident à résoudre les problèmes et à comprendre l'utilisation. Ce qui est inclus : paramètres de budget tels que la période, le code devise, le Carry-Over activé/désactivé, le montant alloué, etc. Ce qui n'est jamais inclus : noms des dépenses, montants, dates, identifiants Apple/iCloud, notes ou informations personnelles. Le réglage initial a été choisi automatiquement selon la région de votre appareil."
+            "value": "Les données d'usage anonymes aident à résoudre les problèmes et à comprendre l'utilisation. Inclus : paramètres du budget comme la période, le code devise, l'activation du report, le montant de l'allocation, etc. Jamais inclus : noms et montants des dépenses, dates, identifiants Apple/iCloud, notes en texte libre ou informations personnelles. Le paramètre initial a été choisi automatiquement selon la région de ton appareil."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les données d'utilisation anonymes aident à diagnostiquer les problèmes et à comprendre l'utilisation. Ce qui est inclus : les paramètres de budget comme la période, le code de devise, l'activation ou désactivation du Carry-Over, le montant alloué, etc. Ce qui n'est jamais inclus : les noms, montants et dates des dépenses, les identifiants Apple/iCloud, les notes ou renseignements personnels. Le réglage initial a été choisi automatiquement en fonction de la région de votre appareil."
+            "value": "Les données d'utilisation anonymes aident à dépanner les problèmes et à comprendre l'utilisation. Inclus : les paramètres du budget comme la période, le code de devise, le report activé/désactivé, le montant de l'allocation, et ainsi de suite. Jamais inclus : les noms des dépenses, les montants, les dates, les identificateurs Apple/iCloud, les notes en texte libre ou les informations personnelles. Le paramètre initial a été choisi automatiquement en fonction de la région de ton appareil."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "נתוני שימוש אנונימיים מסייעים בפתרון בעיות ובהבנת דפוסי שימוש. מה כלול: הגדרות תקציב כמו תקופה, קוד מטבע, Carry-Over פועל/כבוי, סכום הקצאה וכן הלאה. מה לא כלול לעולם: שמות הוצאות, סכומים, תאריכים, כל מזהי Apple‏/iCloud, הערות חופשיות או מידע אישי. ההגדרה הראשונית נבחרה אוטומטית בהתאם לאזור המכשיר שלך."
+            "value": "נתוני שימוש אנונימיים עוזרים לפתור בעיות ולהבין שימוש. מה כלול: הגדרות תקציב כמו תקופה, קוד מטבע, יתרה מועברת פעם/כיבוי, סכום הקצאה וכן הלאה. מה לא כלול לעולם: שמות הוצאה, סכומים, תאריכים, כל מזהה Apple/iCloud, הערות חופשיות או מידע אישי. ההגדרה ההתחלתית נבחרה באופן אוטומטי על סמך אזורך של ההתקן."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अनाम उपयोग डेटा समस्याओं को सुलझाने और उपयोग को समझने में मदद करता है। क्या शामिल है: बजट सेटिंग्स जैसे अवधि, मुद्रा कोड, Carry-Over चालू/बंद, आवंटन राशि आदि। क्या कभी शामिल नहीं होता: खर्च के नाम, राशियाँ, तारीखें, कोई भी Apple/iCloud पहचानकर्ता, कोई भी मुक्त-पाठ नोट या व्यक्तिगत जानकारी। प्रारंभिक सेटिंग आपके डिवाइस के क्षेत्र के आधार पर स्वचालित रूप से चुनी गई थी।"
+            "value": "गुमनाम उपयोग डेटा समस्याओं को ठीक करने और उपयोग को समझने में मदद करता है। शामिल: अवधि, मुद्रा कोड, कैरी-ओवर चालू/बंद, आवंटन राशि, और इसी तरह जैसी बजट सेटिंग्स। कभी शामिल नहीं: खर्च के नाम, राशि, तारीखें, कोई भी Apple/iCloud पहचानकर्ता, कोई भी खुली पाठ नोट्स या व्यक्तिगत जानकारी। प्रारंभिक सेटिंग आपकी डिवाइस के क्षेत्र के आधार पर स्वचालित रूप से चुनी गई थी।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonimni podaci o korištenju pomažu u rješavanju problema i razumijevanju korištenja. Što je uključeno: postavke proračuna poput razdoblja, koda valute, Carry-Over uključeno/isključeno, iznosa dodjele i slično. Što nikada nije uključeno: nazivi troškova, iznosi, datumi, identifikatori Apple/iCloud, slobodni tekstualni zapisi ni osobni podaci. Početna postavka odabrana je automatski na temelju regije uređaja."
+            "value": "Anonimni podaci o korištenju pomažu pri rješavanju problema i razumijevanju korištenja. Uključeno: Postavke proračuna kao što su razdoblje, kod valute, prijenos uključen/isključen, iznos dodjele i tako dalje. Nikad nije uključeno: Nazivi troškova, iznosi, datumi, bilo koji Apple/iCloud identifikatori, bilo koje slobodne napomene ili osobne informacije. Početna postavka je odabrana automatski prema regiji vašeg uređaja."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A névtelen használati adatok segítenek a problémák elhárításában és a használat megértésében. Ami belekerül: költségvetés-beállítások, például az időszak, a pénznemkód, a Carry-Over be/ki, a keretösszeg és így tovább. Ami soha nem kerül bele: kiadások neve, összege, dátuma, Apple/iCloud azonosítók, szabad szöveges megjegyzések vagy személyes adatok. A kezdeti beállítást az eszköz régiója alapján határoztuk meg automatikusan."
+            "value": "Az anonimizált használati adatok segítenek a problémák megoldásában és a használat megértésében. Tartalmazza: Költségkeret beállításai, mint az időszak, pénznem kódja, átvitel be/ki állapota, keretösszeg és így tovább. Nem tartalmazza: Kiadás nevek, összegek, dátumok, Apple/iCloud azonosítók, szabad szöveges megjegyzések vagy személyes információk. A kezdeti beállítást automatikusan választottuk az eszköz régiója alapján."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Data penggunaan anonim membantu memecahkan masalah dan memahami penggunaan. Yang disertakan: Pengaturan anggaran seperti periode, kode mata uang, Carry-Over aktif/nonaktif, jumlah alokasi, dan sebagainya. Yang tidak pernah disertakan: Nama pengeluaran, jumlah, tanggal, identifier Apple/iCloud apa pun, catatan teks bebas atau informasi pribadi apa pun. Pengaturan awal dipilih secara otomatis berdasarkan wilayah perangkat Anda."
+            "value": "Data penggunaan anonim membantu mengatasi masalah dan memahami penggunaan. Yang disertakan: Pengaturan anggaran seperti periode, kode mata uang, saldo bawaan aktif/mati, jumlah alokasi, dan sebagainya. Yang tidak pernah disertakan: Nama pengeluaran, jumlah, tanggal, identifikasi Apple/iCloud, catatan teks bebas atau informasi pribadi. Pengaturan awal dipilih secara otomatis berdasarkan wilayah perangkat Anda."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "I dati di utilizzo anonimi aiutano a risolvere i problemi e comprendere l'utilizzo. Cosa è incluso: impostazioni del budget come periodo, codice valuta, Carry-Over attivo/disattivo, importo allocato e così via. Cosa non è mai incluso: nomi delle spese, importi, date, identificatori Apple/iCloud, note in formato libero o informazioni personali. L'impostazione iniziale è stata scelta automaticamente in base alla regione del dispositivo."
+            "value": "I dati di utilizzo anonimi aiutano a risolvere i problemi e a capire l'uso. Inclusi: impostazioni del budget come periodo, codice valuta, riporto attivato/disattivato, importo di stanziamento e così via. Non inclusi: nomi delle spese, importi, date, identificatori Apple/iCloud, note di testo libero o informazioni personali. L'impostazione iniziale è stata scelta automaticamente in base all'area geografica del tuo dispositivo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "匿名の使用データは、問題のトラブルシューティングや使用状況の把握に役立ちます。含まれるデータ：期間、通貨コード、Carry-Overのオン/オフ、配分金額などの予算設定。含まれないデータ：支出の名称、金額、日付、AppleまたはiCloudの識別子、フリーテキストのメモや個人情報。初期設定はデバイスの地域に基づいて自動的に選択されました。"
+            "value": "匿名の使用データは問題のトラブルシューティングと使用状況の理解に役立ちます。含まれる内容：期間、通貨コード、繰り越しのオン/オフ、割り当て金額などの予算設定。含まれない内容：支出の名前、金額、日付、Apple/iCloud の識別子、自由記述のメモや個人情報。初期設定はお使いのデバイスの地域に基づいて自動的に選択されました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "익명 사용 데이터는 문제 해결 및 앱 사용 현황 파악에 도움이 됩니다. 포함되는 정보: 예산 기간, 통화 코드, Carry-Over 켜기/끄기, 배정 금액 등 예산 설정. 포함되지 않는 정보: 지출 이름, 금액, 날짜, Apple/iCloud 식별자, 자유 입력 메모 또는 개인 정보. 초기 설정은 기기의 지역을 기반으로 자동으로 선택되었습니다."
+            "value": "익명의 사용 데이터는 문제 해결과 사용 현황 파악에 도움이 됩니다. 포함됨: 기간, 통화 코드, 이월 설정, 할당액 등의 예산 설정. 포함되지 않음: 지출 이름, 금액, 날짜, Apple/iCloud 식별자, 자유 텍스트 메모 또는 개인정보. 초기 설정은 기기의 지역을 기반으로 자동 선택되었습니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Data penggunaan tanpa nama membantu menyelesaikan masalah dan memahami penggunaan. Yang disertakan: Tetapan belanjawan seperti tempoh, kod mata wang, Carry-Over hidup/mati, jumlah peruntukan, dan sebagainya. Yang tidak pernah disertakan: Nama perbelanjaan, jumlah, tarikh, sebarang pengecam Apple/iCloud, sebarang nota teks bebas atau maklumat peribadi. Tetapan awal dipilih secara automatik berdasarkan rantau peranti anda."
+            "value": "Data penggunaan tanpa nama membantu menyelesaikan isu dan memahami penggunaan. Apa yang disertakan: Tetapan bajet seperti tempoh, kod mata wang, bawa ke hadapan pada/luar, jumlah peruntukan, dan sebagainya. Apa yang tidak pernah disertakan: Nama perbelanjaan, jumlah, tarikh, sebarang pengenalan Apple/iCloud, sebarang nota teks bebas atau maklumat peribadi. Tetapan awal dipilih secara automatik berdasarkan wilayah peranti anda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonym bruksdata hjelper med feilsøking og forståelse av bruken. Hva som inkluderes: Budsjettinnstillinger som periode, valutakode, Carry-Over av/på, beløp og lignende. Hva som aldri inkluderes: Utgiftsnavn, beløp, datoer, Apple/iCloud-identifikatorer, fritekstnotater eller personlig informasjon. Den opprinnelige innstillingen ble valgt automatisk basert på enhetens region."
+            "value": "Anonym bruksdata hjelper til med å løse problemer og forstå bruk. Inkludert: Budsjettinnstillinger som periode, valutakode, overføring på/av, tildeling og så videre. Aldri inkludert: Utgiftsnavn, beløp, datoer, noen Apple/iCloud-identifikatorer, noter eller personlig informasjon. Startinnstillingen ble valgt automatisk basert på regionen på enheten din."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonieme gebruiksgegevens helpen bij het oplossen van problemen en het begrijpen van gebruik. Wat is inbegrepen: budgetinstellingen zoals periode, valutacode, Carry-Over aan/uit, toewijzingsbedrag, enzovoort. Wat nooit is inbegrepen: namen van uitgaven, bedragen, datums, Apple/iCloud-identificatoren, vrije notities of persoonlijke informatie. De begininstelling is automatisch gekozen op basis van de regio van je apparaat."
+            "value": "Anonieme gebruiksgegevens helpen bij probleemoplossing en gebruiksanalyse. Inbegrepen: Budgetinstellingen zoals periode, valutacode, overdracht aan/uit, toewijzingsbedrag, enzovoort. Niet inbegrepen: Uitgavenamen, bedragen, datums, Apple-/iCloud-identifiers, aantekeningen of persoonlijke informatie. De initiële instelling is automatisch gekozen op basis van je regio."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonimowe dane użytkowania pomagają w rozwiązywaniu problemów i rozumieniu sposobu użytkowania. Co jest uwzględniane: ustawienia budżetu, takie jak okres, kod waluty, Carry-Over włączony/wyłączony, kwota alokacji itp. Co nigdy nie jest uwzględniane: nazwy wydatków, kwoty, daty, żadne identyfikatory Apple/iCloud, notatki ani dane osobowe. Ustawienie początkowe zostało wybrane automatycznie na podstawie regionu urządzenia."
+            "value": "Anonimowe dane o użytkowaniu pomagają w rozwiązywaniu problemów i zrozumieniu korzystania z aplikacji. Co jest uwzględniane: ustawienia budżetu, takie jak okres, kod waluty, przeniesienie włączone/wyłączone, kwota alokacji i tak dalej. Co nigdy nie jest uwzględniane: nazwy wydatków, kwoty, daty, żadne identyfikatory Apple/iCloud, żadne notatki w postaci wolnego tekstu ani dane osobowe. Ustawienie początkowe zostało wybrane automatycznie na podstawie regionu Twojego urządzenia."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dados de uso anônimos ajudam a identificar problemas e entender o uso do app. O que é incluído: configurações de orçamento como período, código de moeda, Carry-Over ativado/desativado, valor de alocação, entre outros. O que nunca é incluído: nomes de despesas, valores, datas, identificadores Apple/iCloud, notas de texto livre ou informações pessoais. A configuração inicial foi escolhida automaticamente com base na região do seu dispositivo."
+            "value": "Dados de uso anônimos ajudam a resolver problemas e entender o uso. O que está incluído: Configurações do orçamento como período, código de moeda, saldo acumulado ativado/desativado, valor de alocação e outros. O que nunca está incluído: Nomes de despesas, valores, datas, identificadores Apple/iCloud, notas em texto livre ou informações pessoais. A configuração inicial foi escolhida automaticamente com base na região do seu dispositivo."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os dados de utilização anónimos ajudam a resolver problemas e a compreender o uso. O que está incluído: definições do orçamento como período, código de moeda, Carry-Over ativado/desativado, montante da verba, entre outros. O que nunca está incluído: nomes de despesas, montantes, datas, quaisquer identificadores Apple/iCloud, notas de texto livre ou informações pessoais. A definição inicial foi escolhida automaticamente com base na região do dispositivo."
+            "value": "Os dados anónimos de uso ajudam a resolver problemas e compreender a utilização. O que está incluído: definições de orçamento como período, código de moeda, transição ativada/desativada, montante de verba, e assim sucessivamente. O que nunca está incluído: nomes de despesas, montantes, datas, identificadores Apple/iCloud, notas em texto livre ou informações pessoais. A definição inicial foi escolhida automaticamente com base na região do seu dispositivo."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Datele anonime de utilizare ajută la depanarea problemelor și la înțelegerea utilizării. Ce este inclus: setări de buget precum perioada, codul valutei, Carry-Over activat/dezactivat, suma alocată și altele. Ce nu este inclus niciodată: numele cheltuielilor, sumele, datele, niciun identificator Apple/iCloud, nicio notă liberă sau informație personală. Setarea inițială a fost aleasă automat în funcție de regiunea dispozitivului tău."
+            "value": "Datele anonime de utilizare ajută la depanare și la înțelegerea utilizării. Inclus: Setări de buget cum ar fi perioadă, cod monedă, report activat/dezactivat, valoare alocare și altele. Niciodată inclus: nume cheltuieli, sume, date, identificatori Apple/iCloud, note cu text liber sau informații personale. Setarea inițială a fost aleasă automat pe baza regiunii dispozitivului dumneavoastră."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Анонимные данные об использовании помогают устранять проблемы и анализировать работу приложения. Что включается: настройки бюджета, такие как период, код валюты, состояние Carry-Over (вкл./выкл.), сумма распределения и т. д. Что никогда не включается: названия расходов, суммы, даты, идентификаторы Apple/iCloud, свободный текст или личная информация. Начальная настройка была выбрана автоматически на основе региона вашего устройства."
+            "value": "Анонимные данные помогают диагностировать проблемы и понимать использование. Включено: настройки бюджета (период, код валюты, перенос вкл./выкл., лимит) и прочее. Не включено: названия и суммы расходов, даты, идентификаторы Apple/iCloud, заметки и личные данные. Начальное значение выбрано автоматически по региону твоего устройства."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonymné údaje o používaní pomáhajú pri riešení problémov a pochopení toho, ako aplikáciu ľudia používajú. Čo je zahrnuté: nastavenia rozpočtu, ako sú obdobie, kód meny, zapnutie/vypnutie Carry-Over, výška prídelu a podobne. Čo nie je nikdy zahrnuté: názvy ani výšky výdavkov, dátumy, žiadne identifikátory Apple/iCloud, žiadne poznámky ani osobné informácie. Počiatočné nastavenie bolo zvolené automaticky na základe regiónu vášho zariadenia."
+            "value": "Anonymné údaje o používaní pomáhajú diagnostikovať problémy a pochopiť používanie. Zahrnuté: Nastavenia rozpočtu, ako je obdobie, kód meny, prenos zapnutý/vypnutý, suma pridelenia a podobne. Nikdy sa neuvádzajú: Názvy výdavkov, sumy, dátumy, žiadne identifikátory Apple/iCloud, žiadne vlastné poznámky ani osobné informácie. Počiatočné nastavenie bolo automaticky zvolené na základe regiónu vášho zariadenia."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonym användningsdata hjälper till med felsökning och förståelse av användningsmönster. Vad som inkluderas: Budgetinställningar som period, valutakod, Carry-Over av/på, allokeringsbelopp och liknande. Vad som aldrig inkluderas: Utgiftsnamn, belopp, datum, Apple/iCloud-identifierare, fritextanteckningar eller personlig information. Den initiala inställningen valdes automatiskt baserat på enhetens region."
+            "value": "Anonym användningsdata hjälper till att felsöka problem och förstå användningen. Vad som ingår: Budgetinställningar som period, valutakod, överföring på/av, tilldelningsbelopp och så vidare. Vad som aldrig ingår: Utgiftnamn, belopp, datum, Apple/iCloud-identifierare, anteckningar eller personlig information. Inställningen valdes automatiskt baserat på din enhets region."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ข้อมูลการใช้งานแบบไม่ระบุตัวตนช่วยแก้ไขปัญหาและทำความเข้าใจการใช้งาน ข้อมูลที่รวมอยู่: การตั้งค่างบประมาณ เช่น รอบเวลา รหัสสกุลเงิน การเปิด/ปิด Carry-Over จำนวนเงินที่จัดสรร และอื่นๆ ข้อมูลที่ไม่รวม: ชื่อรายจ่าย จำนวนเงิน วันที่ ตัวระบุ Apple/iCloud ใดๆ บันทึกข้อความอิสระหรือข้อมูลส่วนบุคคล การตั้งค่าเริ่มต้นถูกเลือกโดยอัตโนมัติตามภูมิภาคของอุปกรณ์คุณ"
+            "value": "ข้อมูลการใช้งานแบบไม่ระบุตัวตนช่วยแก้ไขปัญหาและเข้าใจการใช้งาน สิ่งที่รวมอยู่: การตั้งค่างบประมาณเช่น รอบ สกุลเงิน ยอดยกมาเปิด/ปิด จำนวนเงินที่จัดสรร และอื่นๆ สิ่งที่ไม่รวมอยู่เลย: ชื่อรายจ่าย จำนวนเงิน วันที่ ตัวระบุ Apple/iCloud ใดๆ หมายเหตุข้อความอิสระ หรือข้อมูลส่วนตัว การตั้งค่าเริ่มต้นถูกเลือกโดยอัตโนมัติตามภูมิภาคของอุปกรณ์ของคุณ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonim kullanım verileri sorunları gidermeye ve kullanımı anlamaya yardımcı olur. Dahil olanlar: Dönem, para birimi kodu, carry-over açık/kapalı, tahsis tutarı gibi bütçe ayarları. Hiçbir zaman dahil edilmeyenler: Gider adları, tutarlar, tarihler, Apple/iCloud tanımlayıcıları, serbest metin notlar veya kişisel bilgiler. İlk ayar cihazının bölgesine göre otomatik seçildi."
+            "value": "Anonim kullanım verisi sorunları gidermeye ve kullanımı anlamaya yardımcı olur. İçerilenler: Dönem, para birimi kodu, devir açık/kapalı, tahsis tutarı gibi bütçe ayarları. İçerilenler değil: Harcama adları, tutarları, tarihleri, herhangi bir Apple/iCloud tanımlayıcısı, serbest metin notları ya da kişisel bilgiler. İlk ayar cihazının bölgesine göre otomatik seçildi."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Анонімні дані про використання допомагають виявляти проблеми та розуміти використання. Що включається: налаштування бюджету, як-от період, код валюти, Carry-Over увімк./вимк., сума виділення тощо. Що ніколи не включається: назви витрат, суми, дати, будь-які ідентифікатори Apple/iCloud, вільний текст чи особиста інформація. Початкове налаштування було вибрано автоматично на основі регіону вашого пристрою."
+            "value": "Анонімні дані про використання допомагають усунути проблеми та розібратися з використанням. Що включено: параметри бюджету як період, код валюти, перенесення залишку вкл./викл., виділена сума тощо. Що ніколи не включено: назви витрат, суми, дати, будь-які ідентифікатори Apple/iCloud, будь-які вільні нотатки або персональна інформація. Початкове налаштування було автоматично вибрано на основі регіону вашого пристрою."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dữ liệu sử dụng ẩn danh giúp khắc phục sự cố và hiểu cách sử dụng. Những gì được bao gồm: cài đặt ngân sách như kỳ, mã tiền tệ, Carry-Over bật/tắt, số tiền phân bổ, v.v. Những gì không bao giờ được bao gồm: Tên khoản chi tiêu, số tiền, ngày tháng, bất kỳ mã định danh Apple/iCloud nào, ghi chú tự do hoặc thông tin cá nhân. Cài đặt ban đầu được chọn tự động dựa trên vùng của thiết bị bạn."
+            "value": "Dữ liệu sử dụng nặc danh giúp khắc phục sự cố và hiểu cách sử dụng. Những gì được đưa vào: Cài đặt ngân sách như kỳ, mã tiền tệ, chuyển tiếp bật/tắt, số tiền phân bổ, v.v. Những gì không bao giờ được đưa vào: Tên khoản chi, số tiền, ngày, bất kỳ mã định danh Apple/iCloud nào, bất kỳ ghi chú văn bản tự do hay thông tin cá nhân nào. Cài đặt ban đầu được chọn tự động dựa trên vùng của thiết bị của bạn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "匿名使用数据有助于排查问题并了解使用情况。包含内容：预算设置（如周期、货币代码、Carry-Over 开关状态、分配金额等）。不包含内容：支出名称、金额、日期、任何 Apple/iCloud 标识符、任何文字备注或个人信息。初始设置已根据您设备所在地区自动选择。"
+            "value": "匿名使用数据有助于排除问题和了解使用情况。包含的内容：预算设置（如周期、货币代码、结转开关、预算额度等）。不包含的内容：支出名称、金额、日期、任何 Apple/iCloud 标识符、任何自由文本备注或个人信息。初始设置根据你的设备地区自动选择。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "匿名使用資料有助於排查問題並了解使用情況。共享內容：預算設定，如週期、貨幣代碼、Carry-Over 開關、配額金額等。絕不共享：消費名稱、金額、日期、任何 Apple／iCloud 識別資訊，以及任何自由輸入的備註或個人資料。初始設定已依據裝置所在地區自動選擇。"
+            "value": "匿名使用資料有助於排除問題和瞭解使用情況。包括內容：預算設定（如週期、貨幣代碼、結轉開啟/關閉、分配額等）。絕不包括：支出名稱、金額、日期、任何 Apple/iCloud 識別碼、任何自由文字備註或個人資訊。初始設定是根據您的裝置地區自動選擇。"
           }
         }
       }
@@ -50100,37 +50100,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "المُرحَّل"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Romanent"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Převod"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Overførsel"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Übertrag"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Μεταφορά"
           }
         },
         "en": {
@@ -50160,175 +50160,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Remanente"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Saldo acumulado"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Siirto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Report"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Report"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "יתרה מועברת"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "कैरी-ओवर"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Prijenos"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Átvitel"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Saldo Bawaan"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Riporto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "繰り越し"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "이월"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Bawa ke Hadapan"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Overføring"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Overdracht"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Przeniesienie"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Saldo Acumulado"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Transição"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Report"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Перенос"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Prenos"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Överföring"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "ยอดยกมา"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Devir"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Перенесення залишку"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "Chuyển tiếp"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "结转"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carry-Over"
+            "value": "結轉"
           }
         }
       }
@@ -50339,37 +50339,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يحدد ما إذا كان الترحيل مفعّلاً افتراضياً عند إنشاء ميزانية جديدة"
+            "value": "يحدد ما إذا كان المُرحَّل قيد التشغيل بشكل افتراضي عند إنشاء ميزانية جديدة"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Defineix si el romanent està activat per defecte en crear un pressupost nou"
+            "value": "Estableix si el romanent està activat per defecte al crear un pressupost nou"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Určuje, zda je Carry-Over při vytváření nového rozpočtu zapnutý ve výchozím stavu"
+            "value": "Nastavuje, zda je převod ve výchozím nastavení zapnutý při vytváření nového rozpočtu"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Angiver om overførsel er aktiveret som standard ved oprettelse af et nyt budget"
+            "value": "Angiver, om overførsel er aktiveret som standard, når der oprettes et nyt budget"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Legt fest, ob der Übertrag beim Erstellen eines neuen Budgets standardmäßig aktiviert ist"
+            "value": "Legt fest, ob der Übertrag standardmäßig aktiviert ist, wenn du ein neues Budget erstellst"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ορίζει αν η μεταφορά υπολοίπου είναι ενεργή από προεπιλογή κατά τη δημιουργία νέου προϋπολογισμού"
+            "value": "Καθορίζει εάν η Μεταφορά είναι ενεργή από προεπιλογή κατά τη δημιουργία νέου Προϋπολογισμού"
           }
         },
         "en": {
@@ -50399,175 +50399,175 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Establece si el saldo acumulado está activado por defecto al crear un nuevo presupuesto"
+            "value": "Establece si el remanente está activado de forma predeterminada al crear un nuevo presupuesto"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Define si el Carry-Over está activado por defecto al crear un presupuesto"
+            "value": "Define si el saldo acumulado está activado por defecto al crear un nuevo presupuesto"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Määrittää, onko siirto oletuksena käytössä uutta budjettia luotaessa"
+            "value": "Määrittää, onko siirto päällä oletuksena uutta budjettia luotaessa"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Définit si le report est activé par défaut lors de la création d'un nouveau budget"
+            "value": "Détermine si le report est activé par défaut lors de la création d'un nouveau budget"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Définit si le solde reporté est activé par défaut lors de la création d'un nouveau budget"
+            "value": "Détermine si le report est activé par défaut lors de la création d'un nouveau budget"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "קובע אם יתרה מועברת מופעלת כברירת מחדל בעת יצירת תקציב חדש"
+            "value": "קביעה אם יתרה מועברת פעם כברירת מחדל בעת יצירת תקציב חדש"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "नया बजट बनाते समय कैरी-ओवर डिफ़ॉल्ट रूप से चालू रहे, यह सेट करता है"
+            "value": "नया बजट बनाते समय कैरी-ओवर डिफ़ॉल्ट रूप से चालू है या नहीं, यह निर्धारित करता है"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Određuje je li preneseni saldo zadano uključen pri stvaranju novog proračuna"
+            "value": "Određuje je li prijenos uključen prema zadanoj vrijednosti pri stvaranju novog proračuna"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Megadja, hogy a Carry-Over alapértelmezés szerint be legyen-e kapcsolva új költségkeret létrehozásakor"
+            "value": "Beállítja, hogy az átvitel alapértelmezetten be legyen kapcsolva új költségkeret létrehozásakor"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mengatur apakah carry-over aktif secara default saat membuat anggaran baru"
+            "value": "Menetapkan apakah saldo bawaan aktif secara default saat membuat anggaran baru"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Imposta se il Carry-Over è attivo per impostazione predefinita quando si crea un nuovo budget"
+            "value": "Stabilisce se il riporto è attivato per impostazione predefinita quando crei un nuovo budget"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "新規予算作成時の繰越のデフォルト設定を変更します"
+            "value": "新しい予算を作成するときに繰り越しがデフォルトで有効になるかどうかを設定します"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새 예산 생성 시 이월 기능의 기본 설정 여부를 지정해요"
+            "value": "새 예산 생성 시 기본적으로 이월을 설정할지 여부를 결정합니다"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menetapkan sama ada baki yang dibawa dihidupkan secara lalai apabila membuat belanjawan baharu"
+            "value": "Menetapkan sama ada bawa ke hadapan aktif secara lalai apabila membuat bajet baharu"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Angir om Carry-Over er på som standard når du oppretter et nytt budsjett"
+            "value": "Angir om overføring er på som standard når du oppretter et nytt budsjett"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stelt in of saldo-overdracht standaard is ingeschakeld bij het aanmaken van een nieuw budget"
+            "value": "Bepaalt of overdracht standaard is ingeschakeld bij het maken van een nieuw budget"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Określa, czy przeniesienie salda jest domyślnie włączone przy tworzeniu nowego budżetu"
+            "value": "Określa, czy przeniesienie jest włączone domyślnie podczas tworzenia nowego budżetu"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Define se o Carry-Over fica ativado por padrão ao criar um novo orçamento"
+            "value": "Define se o saldo acumulado está ativado por padrão ao criar um novo orçamento"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Define se o saldo transitado está ativo por omissão ao criar um novo orçamento"
+            "value": "Define se a transição está ativada por predefinição ao criar um novo orçamento"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stabilește dacă Carry-Over este activat implicit la crearea unui buget nou"
+            "value": "Stabilește dacă reportul este activat implicit atunci când se creează un buget nou"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Определяет, включён ли Carry-Over по умолчанию при создании нового бюджета"
+            "value": "Включает перенос по умолчанию при создании нового бюджета"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nastavuje, či je prenesený zostatok predvolene zapnutý pri vytváraní nového rozpočtu"
+            "value": "Určuje, či je prenos štandardne zapnutý pri vytváraní nového rozpočtu"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anger om överfört saldo är på som standard när du skapar en ny budget"
+            "value": "Anger om överföring är aktiverad som standard när en ny budget skapas"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "กำหนดว่าจะเปิดยอดยกมาเป็นค่าเริ่มต้นเมื่อสร้างงบประมาณใหม่หรือไม่"
+            "value": "กำหนดว่าเปิดยอดยกมาโดยค่าเริ่มต้นเมื่อสร้างงบประมาณใหม่หรือไม่"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yeni bütçe oluştururken carry-over'ın varsayılan olarak açık olup olmayacağını belirler"
+            "value": "Yeni bir bütçe oluştururken devirin varsayılan olarak açık olup olmayacağını belirler"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Визначає, чи буде перенесення залишку увімкнено за замовчуванням при створенні нового бюджету"
+            "value": "Визначає, чи увімкнено перенесення залишку за замовчуванням під час створення нового бюджету"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đặt mặc định bật/tắt số dư chuyển kỳ khi tạo ngân sách mới"
+            "value": "Đặt xem liệu chuyển tiếp có bật theo mặc định khi tạo ngân sách mới không"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置新建预算时是否默认开启结转"
+            "value": "设置创建新预算时结转默认是否启用"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定建立新預算時是否預設開啟 Carry-Over"
+            "value": "設定建立新預算時是否預設啟用結轉"
           }
         }
       }

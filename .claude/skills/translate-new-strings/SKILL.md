@@ -129,6 +129,25 @@ end to end (subagents return a `{ "key": {"one": …, "other": …} }` object fo
 rule 7 in the template). The pre-push gate (`check_translations.py`) already validates plural
 variations.
 
+#### 0e. Force re-translation when a glossary term changed (English unchanged)
+
+Use when the English source text is **unchanged** but the *translation* must change — most
+commonly when a glossary term was re-translated (e.g. "Carry-Over" stopped being a protected
+English term and gained per-locale renderings), so every key that embeds that term must flow
+through translation again. `update_keys.py` is the wrong tool here (it's for English changes and
+rewrites the `en` value); use `invalidate_keys.py`, which marks the keys' non-`en` locales
+`needs_review` and never touches `en`.
+
+```bash
+python3 scripts/translate_catalog/invalidate_keys.py --keys-file tmp/keys.txt
+# or
+python3 scripts/translate_catalog/invalidate_keys.py --keys k1,k2,...
+```
+
+Supports `--dry-run`. Then run Step 1 onward — `extract.py --missing` re-emits the invalidated
+keys and the normal dispatch → validate → merge round-trip re-translates them with the updated
+glossary term injected.
+
 ### 1. Detect what needs translating
 
 ```bash
@@ -320,7 +339,7 @@ Subagents are told to:
 1. Preserve every format specifier exactly (count and form; order may change for grammar).
 2. Use the `comment` field for context.
 3. Match Apple's first-party iOS app voice for the target locale.
-4. Leave `iCloud`, `Carry-Over`, and other Apple-untranslated proper nouns in English.
+4. Leave `Wren`, `iCloud`, and other Apple-untranslated proper nouns in English.
 5. Output only the JSON object — no markdown fences, no prose.
 
 If you find yourself wanting to "remind" the subagent of one of these rules in the

@@ -244,8 +244,9 @@ where each key is the field name and each value is the transcreated string.
 
 6. **Apple-untranslated terms.** Leave "iCloud" and any other proper nouns Apple
    keeps in English in their own UI as-is. "Carry-Over" is a {BRAND} product
-   concept — keep it recognizable (transcreate to the local equivalent only if
-   that is genuinely clearer; otherwise leave it).
+   concept, **not** a protected brand name — transcreate it to the natural local
+   equivalent (the in-app glossary translates it per locale); match that term so
+   the listing and the app agree.
 
 7. **Numbers, currency, and dates** should follow local convention where they
    appear in prose, but do not invent specifics that aren't in the source.

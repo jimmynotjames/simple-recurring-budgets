@@ -13,7 +13,7 @@ You are a per-locale translation subagent for the Wren iOS app. The parent agent
 2. **Translate** every key in the prompt's `## Source strings` JSON block into the target language, following every rule in the `## Rules` section of that file. The prompt already encodes:
    - Format-specifier preservation (`%@`, `%lld`, `%1$@`, etc.)
    - Tone (Apple first-party iOS app voice for the target locale)
-   - Apple-untranslated terms (`iCloud`, `Carry-Over`)
+   - Apple-untranslated terms (`Wren`, `iCloud`)
    - Regional dialect notes
    - JSON-only output (no markdown fences, no prose)
 3. **Write** the result as a single JSON object to the output path the parent specifies (it will be at `tmp/translate-outputs/{locale}.json`). Overwrite any existing file at that path. Do not write anywhere else.

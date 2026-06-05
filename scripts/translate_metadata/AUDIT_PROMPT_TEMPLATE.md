@@ -24,8 +24,9 @@ they waste the 100-char budget (duplicate words already in the name/subtitle, sp
 non-CJK, generic filler), or if they're split/joined wrongly for this language (CJK/Thai are not
 space-delimited — never split a term into characters).
 
-**Brand & protected terms.** **"Wren"** stays "Wren" (never translated/transliterated). "iCloud",
-"Carry-Over" stay as-is. The app name should remain recognizable.
+**Brand & protected terms.** **"Wren"** stays "Wren" (never translated/transliterated). "iCloud"
+stays as-is. The app name should remain recognizable. ("Carry-Over" is a product concept, not a
+protected name — it should be transcreated to the natural local equivalent, matching the in-app term.)
 
 **Length.** Each field has a hard App Store Connect limit (given as `charLimit`). A field **over its
 limit is a high-severity bug**. Also flag copy that's awkwardly padded just to fill space.

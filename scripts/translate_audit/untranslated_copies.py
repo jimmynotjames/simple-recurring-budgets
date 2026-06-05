@@ -11,8 +11,7 @@ sitting in a non-English slot — e.g. Hindi `period.specificDates` shipped as
 The naive signal ("value == English") is far too noisy to gate on:
   - English regional variants (en-AU/en-CA/en-GB) legitimately equal `en` → excluded.
   - Cognates / loanwords legitimately match: German "Name", Swedish "Period",
-    French "Allocation", and broadly-kept terms like "Budget" / "Symbol" / "Version"
-    and the deliberate brand term "Carry-Over" (English in all 38 locales).
+    French "Allocation", and broadly-kept terms like "Budget" / "Symbol" / "Version".
 
 So we report a holdout only when it's an *outlier*: the key is translated away from
 English in the overwhelming majority of OTHER non-English locales (so broadly-kept
@@ -53,7 +52,7 @@ sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES  # noqa: E402
 
 # The glossary (scripts/translate_catalog/glossary.json) is the authority on which whole-string
-# terms are *deliberately* kept in English per locale — protected brands (Carry-Over, iCloud, Wren)
+# terms are *deliberately* kept in English per locale — protected brands (Wren, iCloud)
 # and genuine cognates the language uses verbatim (ca "Recents", de "Name", sv "Period",
 # fr "Allocation", …). load_glossary_kept_english() turns it into {locale: {kept-English terms}}
 # so those are auto-allowed without hand-maintenance; re-run the glossary pipeline to change them.

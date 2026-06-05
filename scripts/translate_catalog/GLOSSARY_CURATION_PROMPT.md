@@ -31,8 +31,9 @@ the phrase "Add Expense" only if the phrase itself recurs and benefits from a si
 ## Protected nouns (include them, mark them clearly)
 
 These are **never translated** — include them as terms so downstream steps lock them, with context
-noting they stay verbatim: see `protected` in the candidates JSON (e.g. **Wren**, **iCloud**,
-**Carry-Over**).
+noting they stay verbatim: see `protected` in the candidates JSON (e.g. **Wren**, **iCloud**).
+(Domain nouns such as **Carry-Over** are ordinary glossary terms — translate them per locale; they
+are not protected.)
 
 ## Inputs
 

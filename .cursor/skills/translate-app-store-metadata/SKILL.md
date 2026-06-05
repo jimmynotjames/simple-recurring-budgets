@@ -43,6 +43,12 @@ Surface those in a single batch; everything else you decide and execute yourself
   `validate.py`; do not "remind" subagents in the dispatch message — fix
   `PROMPT_TEMPLATE.md` if a rule needs strengthening.)
 - **All commands run from the repo root.**
+- **Register notes are intentionally duplicated — keep them in sync, don't DRY them.**
+  The per-storefront formality guidance in `CULTURAL_NOTES` (`scripts/translate_metadata/dispatch_prompts.py`)
+  deliberately overlaps with the in-app `REGIONAL_NOTES` only on the *formality decision* per
+  language (issue #173, closed without consolidation). If you change a market's formality decision
+  (e.g. de-DE "du"→"Sie") here, mirror it in `REGIONAL_NOTES`; wording may differ, the formality
+  call must not. Don't try to merge the two maps.
 
 ## Prerequisite: English source copy must exist
 

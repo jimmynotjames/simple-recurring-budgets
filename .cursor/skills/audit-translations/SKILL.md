@@ -25,6 +25,11 @@ Script reference: `scripts/translate_audit/README.md`.
 - **Audit ≠ verdict for `[ratio]` findings.** The deterministic length flag is a heuristic;
   trust the auditor's `[llm]` length judgment over a raw ratio.
 - **All commands run from repo root.**
+- **The register rubric is reused, not owned, here.** This audit grades against the in-app
+  `REGIONAL_NOTES`, which by design duplicates only the *formality decision* with the metadata
+  pipeline's `CULTURAL_NOTES` (issue #173, closed without consolidation). Nothing to do here
+  beyond awareness — don't propose merging the two register maps; they're kept in sync by
+  convention.
 
 ## Recipe
 

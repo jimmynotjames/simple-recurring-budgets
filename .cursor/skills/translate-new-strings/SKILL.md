@@ -29,6 +29,12 @@ pass the translation gate.
 - **Never skip the pre-push checks** at the end. Treat anything less than `exit 0` from
   `check_translations.py` as not-done and loop back.
 - **All commands run from repo root.** Paths in this skill are repo-relative.
+- **Register notes are intentionally duplicated — keep them in sync, don't DRY them.**
+  The per-locale formality guidance in `REGIONAL_NOTES` (`scripts/translate_catalog/dispatch_prompts.py`)
+  deliberately overlaps with `CULTURAL_NOTES` in the metadata pipeline only on the *formality
+  decision* per language (issue #173, closed without consolidation). If you change a language's
+  formality decision (e.g. de "du"→"Sie") here, mirror it in `CULTURAL_NOTES`; wording may differ,
+  the formality call must not. Don't try to merge the two maps.
 
 ## Recipe
 

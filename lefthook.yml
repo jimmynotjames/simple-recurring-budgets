@@ -34,6 +34,9 @@ pre-push:
           exit 1
         fi
 
+    check-locale-register:
+      run: python3 scripts/translate_catalog/check_locale_register.py
+
     check-translations:
       run: python3 scripts/check_translations.py
 

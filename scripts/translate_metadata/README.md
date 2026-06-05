@@ -14,6 +14,10 @@ code systems**:
 | `translate_metadata/` (this one)  | ASC storefront (`de-DE`, `no`, `nl-NL`, `ar-SA`) | `fastlane/metadata/en-US/` |
 
 `metadata_locales.py` owns the `runtime → storefront` mapping so the two stay in lockstep.
+Per-locale register/formality guidance is **not** duplicated here: `dispatch_prompts.py` composes
+`CULTURAL_NOTES` from `scripts/translate_catalog/locale_register.py` (`REGISTER`) plus
+ASO-specific prefixes/addenda (and rare storefront overrides where metadata wording genuinely
+differs from in-app copy).
 
 ## What it translates
 
@@ -58,8 +62,9 @@ python3 scripts/translate_metadata/audit.py             # field/char table + sta
 python3 scripts/translate_metadata/audit.py --questions # only the _questions batch
 python3 scripts/translate_metadata/merge.py
 
-# 5. Authoritative gate — walks fastlane/metadata/ directly.
-python3 scripts/translate_metadata/check_metadata.py
+# 5. Authoritative gates.
+python3 scripts/translate_catalog/check_locale_register.py   # register coverage + note drift
+python3 scripts/translate_metadata/check_metadata.py         # walks fastlane/metadata/
 ```
 
 `check_metadata.py` exiting 0 is the definition of done.

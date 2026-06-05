@@ -15,8 +15,9 @@ This is the quality-audit sibling of `scripts/translate_catalog/` (which *create
 
 It **reuses** the catalog pipeline's single sources of truth via import — `locales.py`
 (`LOCALES`, `LOCALE_NAMES`) and `dispatch_prompts.py` (`REGIONAL_NOTES`, `_GENERIC_NOTE`,
-the per-locale register/cultural notes) — so the auditor grades against the same per-locale
-rubric the translator was given. Nothing here is duplicated from there. Python 3 stdlib only.
+composed from `locale_register.py` + catalog UI addenda) — so the auditor grades against the
+same per-locale rubric the translator was given. Nothing here is duplicated from there.
+Python 3 stdlib only.
 
 The full design and status live in `docs/audits/translation-quality-audit-2026-06-02.md`.
 

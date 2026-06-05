@@ -18,6 +18,8 @@ script does*. The skill is the authority for *when and how to invoke them*.
 | Script | Purpose |
 |---|---|
 | `locales.py` | Single source of truth: `LOCALES` list + `LOCALE_NAMES` map |
+| `locale_register.py` | Shared per-locale register/formality core (`REGISTER`, `GENERIC_REGISTER`, `compose_note`) — composed with pipeline-specific addenda in `dispatch_prompts.py` (catalog) and `scripts/translate_metadata/dispatch_prompts.py` (ASO) |
+| `check_locale_register.py` | Guard: every `LOCALES` entry has `REGISTER`; composed `REGIONAL_NOTES` / metadata `CULTURAL_NOTES` byte-match pre-consolidation notes |
 | `extract.py` | Read the catalog → write `tmp/translate-inputs/source.json` (and optionally `manifest.json`) |
 | `dispatch_prompts.py` | Compose per-locale prompt files in `tmp/translate-prompts/` from `manifest.json` + `PROMPT_TEMPLATE.md` |
 | `validate.py` | Validate `tmp/translate-outputs/{locale}.json` files against source |
@@ -50,7 +52,8 @@ python3 scripts/translate_catalog/validate.py --subset
 # 5. Merge into the catalog.
 python3 scripts/translate_catalog/merge.py
 
-# 6. Authoritative pre-push gate — must exit 0 before the work is done.
+# 6. Authoritative pre-push gates — must exit 0 before the work is done.
+python3 scripts/translate_catalog/check_locale_register.py
 python3 scripts/check_translations.py
 python3 scripts/check_source_strings.py
 

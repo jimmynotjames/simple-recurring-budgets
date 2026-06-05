@@ -24,7 +24,7 @@ App Store Connect **API key** (no Apple ID / 2FA).
 |------|--------|--------------|
 | `fastlane verify_auth` | utility | Read-only API-auth check. Builds nothing. |
 | `fastlane beta` | **LIVE** | Build + upload to TestFlight. **Use this now.** |
-| `fastlane release` | dormant | Build + App Store release. Metadata + screenshots skipped via flags until ready. |
+| `fastlane release` | dormant | Build + App Store release. Metadata + screenshots skipped via flags until ready. Prompts first: "need fresh screenshots?" → if yes, it stops so you run `push_screenshots` separately. |
 | `fastlane push_metadata` | dormant | Upload localized metadata only (no binary). |
 | `fastlane screenshots` | ready | Capture localized screenshots (Simulator only), then rename folders to storefront codes. |
 | `fastlane push_screenshots` | ready | Upload localized screenshots only (no binary, no metadata). |

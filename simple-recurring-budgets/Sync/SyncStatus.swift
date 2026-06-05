@@ -55,6 +55,20 @@ final class SyncStatus {
   /// Mutable account status. Updated by `SettingsView` asynchronously.
   var accountStatus: AccountStatus
 
+  #if DEBUG
+    /// **Screenshot-capture override.** When `true`, `rowState` always reports
+    /// `.available` so App Store marketing screenshots show iCloud sync as active even
+    /// though the Simulator has no iCloud account (CloudKit can't run there, so the
+    /// real status would otherwise read "unavailable").
+    ///
+    /// Safeguard: this property and its use in `rowState` are compiled out of Release
+    /// builds entirely (`#if DEBUG`), and it is set in exactly one place — the `@main`
+    /// App init, only when the `SCREENSHOT_SYNC_OK` launch-environment flag is present
+    /// (set solely by the `AppStoreScreenshots` UI test). No production or normal-dev
+    /// path ever sets it, so it cannot misrepresent sync status to a real user.
+    var screenshotForcesAvailableState = false
+  #endif
+
   // MARK: - Init
 
   init(containerBacking: ContainerBacking, accountStatus: AccountStatus = .checking) {
@@ -78,7 +92,12 @@ extension SyncStatus {
   /// | .localFallback   | .available    | .paused    |
   /// | .localFallback   | .unavailable  | .unavailable |
   var rowState: RowState {
-    switch (containerBacking, accountStatus) {
+    #if DEBUG
+      // Screenshot-capture override (see `screenshotForcesAvailableState`). Compiled
+      // out of Release; only ever true under the AppStoreScreenshots launch flag.
+      if screenshotForcesAvailableState { return .available }
+    #endif
+    return switch (containerBacking, accountStatus) {
     case (_, .checking):
       .checking
     case (.cloudKit, .available):

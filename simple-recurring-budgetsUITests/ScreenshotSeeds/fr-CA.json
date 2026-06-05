@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Bouffe",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "CAD",
+      "allocation": "40",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Café du matin",
+          "amount": "4.25",
+          "daysAgo": 0
+        },
+        {
+          "name": "Dîner",
+          "amount": "16.50",
+          "daysAgo": 0
+        },
+        {
+          "name": "Souper au resto",
+          "amount": "34.00",
+          "daysAgo": 1
+        },
+        {
+          "name": "Dîner sur le pouce",
+          "amount": "15.75",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Épicerie",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "CAD",
+      "allocation": "120",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Épicerie de la semaine",
+          "amount": "78.40",
+          "daysAgo": 1
+        },
+        {
+          "name": "Marché Jean-Talon",
+          "amount": "22.60",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Soins perso",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "CAD",
+      "allocation": "110",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Soins de la peau",
+          "amount": "32.00",
+          "daysAgo": 2
+        },
+        {
+          "name": "Coupe de cheveux",
+          "amount": "55.00",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "식비",
+      "icon": "🍚",
+      "period": "daily",
+      "currencyCode": "KRW",
+      "allocation": "25000",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "아침 커피",
+          "amount": "4500",
+          "daysAgo": 0
+        },
+        {
+          "name": "점심",
+          "amount": "11000",
+          "daysAgo": 0
+        },
+        {
+          "name": "저녁 외식",
+          "amount": "18000",
+          "daysAgo": 1
+        },
+        {
+          "name": "간단 점심",
+          "amount": "9500",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "장보기",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "KRW",
+      "allocation": "80000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "마트 장보기",
+          "amount": "47000",
+          "daysAgo": 1
+        },
+        {
+          "name": "동네 시장",
+          "amount": "15000",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "뷰티",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "KRW",
+      "allocation": "120000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "스킨케어",
+          "amount": "38000",
+          "daysAgo": 2
+        },
+        {
+          "name": "미용실",
+          "amount": "45000",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

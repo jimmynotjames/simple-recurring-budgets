@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Mad",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "DKK",
+      "allocation": "200",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Morgenkaffe",
+          "amount": "42.00",
+          "daysAgo": 0
+        },
+        {
+          "name": "Frokost",
+          "amount": "85.00",
+          "daysAgo": 0
+        },
+        {
+          "name": "Ude at spise",
+          "amount": "165.00",
+          "daysAgo": 1
+        },
+        {
+          "name": "Hurtig frokost",
+          "amount": "79.00",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Dagligvarer",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "DKK",
+      "allocation": "650",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Storindkøb",
+          "amount": "385.50",
+          "daysAgo": 1
+        },
+        {
+          "name": "Torvet",
+          "amount": "118.00",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Personlig pleje",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "DKK",
+      "allocation": "550",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Hudpleje",
+          "amount": "169.00",
+          "daysAgo": 2
+        },
+        {
+          "name": "Klipning",
+          "amount": "295.00",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

@@ -30,17 +30,25 @@ enum InMemoryModelContainer {
       return container
     }
 
-    /// In-memory store for UI test launches. Reads the `SEED_BUDGETS` launch
-    /// environment variable (a comma-separated list of budget names set by
-    /// `makeApp(seedBudgets:)` in UITestHelpers) and pre-populates the store
-    /// before the root view renders, so journey tests skip UI creation.
+    /// In-memory store for UI test launches. Two seeding channels, checked in order:
     ///
-    /// Returns an empty store when `SEED_BUDGETS` is absent, matching the
-    /// behaviour of tests that set up their own state through the UI.
+    /// 1. `SEED_SCREENSHOTS_JSON` — a full per-locale screenshot demo-content catalog
+    ///    JSON (set by the `AppStoreScreenshots` UI test). Decoded via `ScreenshotSeed`
+    ///    and used to seed culturally-tuned budgets/expenses for App Store screenshots.
+    /// 2. `SEED_BUDGETS` — a comma-separated list of budget names (set by
+    ///    `makeApp(seedBudgets:)` in UITestHelpers) → one monthly $100 budget each, so
+    ///    journey tests skip UI creation.
+    ///
+    /// Returns an empty store when neither is present, matching the behaviour of tests
+    /// that set up their own state through the UI.
     static func makeForUITests(now: Date = Date()) -> ModelContainer {
-      guard let seedList = ProcessInfo.processInfo.environment["SEED_BUDGETS"],
-            !seedList.isEmpty
-      else {
+      let env = ProcessInfo.processInfo.environment
+      if let json = env["SEED_SCREENSHOTS_JSON"], !json.isEmpty, let seed = ScreenshotSeed.decode(from: json) {
+        let container = makeEmpty()
+        seed.seed(into: container.mainContext, now: now)
+        return container
+      }
+      guard let seedList = env["SEED_BUDGETS"], !seedList.isEmpty else {
         return makeEmpty()
       }
       let names = seedList.split(separator: ",").map(String.init).filter { !$0.isEmpty }

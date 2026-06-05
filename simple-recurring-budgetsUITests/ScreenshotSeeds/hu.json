@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Étkezés",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "HUF",
+      "allocation": "5500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Reggeli kávé",
+          "amount": "950",
+          "daysAgo": 0
+        },
+        {
+          "name": "Ebéd",
+          "amount": "2400",
+          "daysAgo": 0
+        },
+        {
+          "name": "Vacsora a városban",
+          "amount": "5200",
+          "daysAgo": 1
+        },
+        {
+          "name": "Gyors ebéd",
+          "amount": "2200",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Bevásárlás",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "HUF",
+      "allocation": "25000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Heti nagybevásárlás",
+          "amount": "14800",
+          "daysAgo": 1
+        },
+        {
+          "name": "Piac",
+          "amount": "4600",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Szépségápolás",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "HUF",
+      "allocation": "22000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Arcápolás",
+          "amount": "6900",
+          "daysAgo": 2
+        },
+        {
+          "name": "Fodrász",
+          "amount": "9500",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

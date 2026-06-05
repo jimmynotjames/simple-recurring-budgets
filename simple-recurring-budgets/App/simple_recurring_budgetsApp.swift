@@ -31,6 +31,16 @@ struct simple_recurring_budgetsApp: App {
       containerBacking: initialStartup.containerBacking ?? .localFallback
     )
 
+    #if DEBUG
+      // App Store screenshot capture only: force the Settings iCloud row to read
+      // "Active" (the Simulator has no iCloud account, so it would otherwise show
+      // "unavailable"). Set solely by the AppStoreScreenshots UI test via this flag;
+      // the whole block is compiled out of Release. See SyncStatus.swift.
+      if ProcessInfo.processInfo.environment["SCREENSHOT_SYNC_OK"] == "1" {
+        initialSyncStatus.screenshotForcesAvailableState = true
+      }
+    #endif
+
     // Narrow test-host escape hatch: when the app runs under any test type
     // (IS_TESTING=1 in the environment), the full @main App still launches
     // and `.task { analytics.track(.appOpened) }` fires. Substituting

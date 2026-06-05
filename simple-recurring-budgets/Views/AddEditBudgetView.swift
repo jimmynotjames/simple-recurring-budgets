@@ -439,6 +439,10 @@ struct AddEditBudgetView: View {
         comment: "VoiceOver label for a period selection chip; argument is the period name (Daily, Weekly, etc.)"
       ))
       .accessibilityAddTraits(isSelected ? .isSelected : [])
+      // Locale-invariant handle so UI tests can tap a specific period (e.g. the
+      // AppStoreScreenshots capture taps `budgetPeriod.daily` to dismiss the
+      // auto-keyboard deterministically without changing the selection).
+      .accessibilityIdentifier("budgetPeriod.\(p.rawValue)")
     }
   }
 

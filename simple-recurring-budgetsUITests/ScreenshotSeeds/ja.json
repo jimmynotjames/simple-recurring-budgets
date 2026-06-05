@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "食費",
+      "icon": "🍱",
+      "period": "daily",
+      "currencyCode": "JPY",
+      "allocation": "2500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "朝コーヒー",
+          "amount": "480",
+          "daysAgo": 0
+        },
+        {
+          "name": "ランチ",
+          "amount": "950",
+          "daysAgo": 0
+        },
+        {
+          "name": "夕食",
+          "amount": "1800",
+          "daysAgo": 1
+        },
+        {
+          "name": "昼食",
+          "amount": "1100",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "食料品",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "JPY",
+      "allocation": "9000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "スーパー",
+          "amount": "5400",
+          "daysAgo": 1
+        },
+        {
+          "name": "八百屋",
+          "amount": "1600",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "コスメ",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "JPY",
+      "allocation": "8000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "スキンケア",
+          "amount": "2800",
+          "daysAgo": 2
+        },
+        {
+          "name": "美容院",
+          "amount": "4500",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

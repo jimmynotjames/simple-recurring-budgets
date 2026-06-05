@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Makan",
+      "icon": "🍜",
+      "period": "daily",
+      "currencyCode": "MYR",
+      "allocation": "40",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Kopi pagi",
+          "amount": "5.50",
+          "daysAgo": 0
+        },
+        {
+          "name": "Nasi campur",
+          "amount": "13.00",
+          "daysAgo": 0
+        },
+        {
+          "name": "Makan malam luar",
+          "amount": "32.00",
+          "daysAgo": 1
+        },
+        {
+          "name": "Lunch cepat",
+          "amount": "15.00",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Barang dapur",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "MYR",
+      "allocation": "180",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Beli barang pasar raya",
+          "amount": "105.40",
+          "daysAgo": 1
+        },
+        {
+          "name": "Pasar tani",
+          "amount": "32.50",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Penjagaan diri",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "MYR",
+      "allocation": "150",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Skincare",
+          "amount": "45.00",
+          "daysAgo": 2
+        },
+        {
+          "name": "Gunting rambut",
+          "amount": "40.00",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

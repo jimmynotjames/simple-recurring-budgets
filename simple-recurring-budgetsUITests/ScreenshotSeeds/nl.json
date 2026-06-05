@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Eten",
+      "icon": "🍽️",
+      "period": "daily",
+      "currencyCode": "EUR",
+      "allocation": "25",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Koffie",
+          "amount": "3.50",
+          "daysAgo": 0
+        },
+        {
+          "name": "Lunch",
+          "amount": "9.50",
+          "daysAgo": 0
+        },
+        {
+          "name": "Uit eten",
+          "amount": "22.00",
+          "daysAgo": 1
+        },
+        {
+          "name": "Broodje",
+          "amount": "8.00",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Boodschappen",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "EUR",
+      "allocation": "75",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Albert Heijn",
+          "amount": "43.20",
+          "daysAgo": 1
+        },
+        {
+          "name": "Markt",
+          "amount": "14.50",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Verzorging",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "EUR",
+      "allocation": "70",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Verzorgingsproducten",
+          "amount": "21.00",
+          "daysAgo": 2
+        },
+        {
+          "name": "Kapper",
+          "amount": "32.50",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

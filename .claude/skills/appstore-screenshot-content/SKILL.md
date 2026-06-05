@@ -1,0 +1,143 @@
+---
+name: appstore-screenshot-content
+description: Generate the culturally-tuned, per-locale demo content that the Wren app is seeded with when capturing App Store screenshots (≤3 budgets per locale with locally realistic names, emoji, currency, and amounts). Drives the scripts/screenshot_content/ pipeline with parallel per-storefront Opus subagents and writes the runtime-keyed catalog under simple-recurring-budgetsUITests/ScreenshotSeeds/. Invoked via /appstore:screenshot-content. Use before capturing localized screenshots, or after editing SOURCE.json.
+---
+
+# Generate App Store screenshot demo-content
+
+Canonical recipe for filling the per-locale screenshot demo-content catalog the
+`AppStoreScreenshots` UI test seeds from. Drives `scripts/screenshot_content/`.
+
+**Definition of done:** `python3 scripts/screenshot_content/check_content.py`
+exits 0 — every runtime locale (en-US + 38 targets) has a well-formed catalog
+entry under `simple-recurring-budgetsUITests/ScreenshotSeeds/`.
+
+This is the **screenshot demo-content** pipeline. Siblings: in-app UI strings →
+`translate-new-strings`; App Store text metadata → `/appstore:translate-metadata`.
+All three target the same markets but use different artifacts; `metadata_locales.py`
+owns the runtime↔storefront mapping that `content_locales.py` reuses.
+
+## Autonomy
+
+Run end to end **autonomously, without pausing on mechanical steps** — extract,
+dispatch, fan-out, validate, merge, and the gate are routine. Do not ask "shall I
+proceed?" between steps, and do not ask permission to retry a failed locale.
+
+The **one** thing worth surfacing: genuine `_questions` the subagents flag (a
+market whose real currency differs from the default, or a dropped third budget).
+Surface those in a single consolidated batch; everything else you decide yourself.
+
+## Hard rules
+
+- **Never write ad-hoc Python** to slice the source or post-process outputs. Every
+  operation is a flag on a `scripts/screenshot_content/` script. Extend a script
+  instead of reaching for inline `python3 -c` / throwaway `tmp/*.py`.
+- **Never skip the gate.** Anything less than `exit 0` from `check_content.py` is
+  not-done; loop back.
+- **The structural contract is sacred.** `role`, `period`, `startOffsetDays`,
+  `isCarryOverEnabled`, expense count, and each expense's `daysAgo` come from
+  `SOURCE.json` and must be preserved per locale (the prompt + `validate.py`
+  enforce this). Only content (names, emoji, currency, amounts) is tuned.
+- **Amounts are locally realistic, never FX-converted.** Enforced by the prompt's
+  anchor table and human inspection of the screenshots later.
+- **All commands run from the repo root.**
+
+## Recipe
+
+### 1. Detect what needs generating
+
+```bash
+python3 scripts/screenshot_content/extract.py --missing
+```
+
+Stages `tmp/screenshot-content-inputs/source.json` and writes a manifest of the
+storefronts whose runtime catalog entry is absent/empty. If the manifest is empty,
+skip to step 5.
+
+### 2. Compose per-storefront prompts
+
+```bash
+python3 scripts/screenshot_content/dispatch_prompts.py
+```
+
+Writes one prompt per storefront to `tmp/screenshot-content-prompts/{storefront}.md`
+(template + market currency + decimals + reused `CULTURAL_NOTES` + source), and
+clears stale outputs for those storefronts.
+
+### 3. Generate each storefront's content
+
+> **Cross-tool execution.** On **Claude Code**, dispatch one
+> `screenshot-content-locale` subagent per storefront in parallel (below). On
+> **Cursor** or any tool without a subagent primitive, do the same inline and
+> serially: for each `tmp/screenshot-content-prompts/{storefront}.md`, read it,
+> produce the JSON yourself, and write `tmp/screenshot-content-outputs/{storefront}.json`.
+
+#### Claude Code — one `screenshot-content-locale` subagent per storefront
+
+For every `tmp/screenshot-content-prompts/{storefront}.md`, invoke an `Agent`:
+
+- `subagent_type`: `screenshot-content-locale` (defined in
+  `.claude/agents/screenshot-content-locale.md`, Read+Write only, model **opus**).
+- A short dispatch prompt naming the input and output paths, e.g.:
+  > Read `/abs/path/tmp/screenshot-content-prompts/ja.md` and follow the rules in
+  > it. Write the resulting JSON object (nothing else) to
+  > `/abs/path/tmp/screenshot-content-outputs/ja.json`.
+
+**Batch the dispatches (~8–12 per message) and never mix `Agent` calls with `Bash`
+calls in one message** — if one tool call errors, the whole parallel batch is
+cancelled, killing in-flight subagents. Run scripts in their own single-command
+messages.
+
+### 4. Validate, then merge
+
+```bash
+python3 scripts/screenshot_content/validate.py --subset
+```
+
+Reports PASS / WARN / PENDING / FAIL per storefront — your retry dashboard.
+**Re-dispatch only the PENDING/FAIL subagents** (their prompt files are still in
+`tmp/screenshot-content-prompts/`). Do **not** re-run `dispatch_prompts.py`
+mid-fan-out — it clears outputs by default and would wipe locales that succeeded.
+
+Once `validate.py --subset` exits 0:
+
+```bash
+python3 scripts/screenshot_content/merge.py
+```
+
+Writes each storefront's runtime-keyed catalog file and (re)writes the en-US entry
+from source. `_questions` arrays live only in `tmp/screenshot-content-outputs/`;
+`merge.py` writes only `budgets`.
+
+### 4a. Surface content questions (the one human checkpoint)
+
+If any output JSON has a `_questions` array, collect them and present them to the
+human in a single consolidated message (group by recurring issue), so they can
+accept each default or override it. If there are none, say so briefly and
+continue — the expected case. Do not invent questions or stall the pipeline.
+
+To apply an override, edit the relevant `tmp/screenshot-content-outputs/{storefront}.json`
+(or re-dispatch that one locale with added guidance), then re-run `validate.py` +
+`merge.py`.
+
+### 5. Gate
+
+```bash
+python3 scripts/screenshot_content/check_content.py
+```
+
+Walks the catalog directly. If it reports gaps, loop back to step 1
+(`extract.py --missing` re-flags exactly what's left).
+
+### 6. Capture screenshots (separate, when ready)
+
+The catalog feeds the `AppStoreScreenshots` UI test, driven by `fastlane
+screenshots`. That is a **separate** flow (see `fastlane/SETUP.md`) and touches the
+simulator, not App Store Connect. Uploading is a further, human-gated step
+(`fastlane push_screenshots`).
+
+## When NOT to use this skill
+
+- App Store **text** metadata → `/appstore:translate-metadata`.
+- In-app UI strings → `translate-new-strings`.
+- Capturing or uploading screenshots → `fastlane` (`screenshots` / `push_screenshots`).

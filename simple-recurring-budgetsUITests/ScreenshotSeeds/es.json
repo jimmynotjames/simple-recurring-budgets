@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Comida",
+      "icon": "🍽️",
+      "period": "daily",
+      "currencyCode": "EUR",
+      "allocation": "25",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Café de la mañana",
+          "amount": "2.20",
+          "daysAgo": 0
+        },
+        {
+          "name": "Menú del día",
+          "amount": "13.50",
+          "daysAgo": 0
+        },
+        {
+          "name": "Cena fuera",
+          "amount": "22.00",
+          "daysAgo": 1
+        },
+        {
+          "name": "Pincho rápido",
+          "amount": "9.50",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Compra",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "EUR",
+      "allocation": "75",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Compra semanal",
+          "amount": "48.60",
+          "daysAgo": 1
+        },
+        {
+          "name": "Mercado",
+          "amount": "14.20",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Belleza",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "EUR",
+      "allocation": "70",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Cosmética",
+          "amount": "21.95",
+          "daysAgo": 2
+        },
+        {
+          "name": "Peluquería",
+          "amount": "28.00",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

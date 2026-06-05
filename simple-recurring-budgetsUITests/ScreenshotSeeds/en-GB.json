@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Food",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "GBP",
+      "allocation": "24",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Morning coffee",
+          "amount": "3.20",
+          "daysAgo": 0
+        },
+        {
+          "name": "Meal deal",
+          "amount": "9.50",
+          "daysAgo": 0
+        },
+        {
+          "name": "Dinner out",
+          "amount": "21.00",
+          "daysAgo": 1
+        },
+        {
+          "name": "Lunch out",
+          "amount": "11.50",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Groceries",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "GBP",
+      "allocation": "70",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Big shop",
+          "amount": "41.80",
+          "daysAgo": 1
+        },
+        {
+          "name": "Market veg",
+          "amount": "12.40",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Beauty & Care",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "GBP",
+      "allocation": "70",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Skincare",
+          "amount": "18.00",
+          "daysAgo": 2
+        },
+        {
+          "name": "Haircut",
+          "amount": "32.00",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

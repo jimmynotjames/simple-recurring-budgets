@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Jídlo",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "CZK",
+      "allocation": "300",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Ranní káva",
+          "amount": "65",
+          "daysAgo": 0
+        },
+        {
+          "name": "Oběd",
+          "amount": "165",
+          "daysAgo": 0
+        },
+        {
+          "name": "Večeře v restauraci",
+          "amount": "290",
+          "daysAgo": 1
+        },
+        {
+          "name": "Rychlý oběd",
+          "amount": "159",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Nákupy",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "CZK",
+      "allocation": "1500",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Velký nákup",
+          "amount": "890",
+          "daysAgo": 1
+        },
+        {
+          "name": "Farmářské trhy",
+          "amount": "295",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Péče o sebe",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "CZK",
+      "allocation": "1800",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Kosmetika",
+          "amount": "549",
+          "daysAgo": 2
+        },
+        {
+          "name": "Kadeřník",
+          "amount": "750",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

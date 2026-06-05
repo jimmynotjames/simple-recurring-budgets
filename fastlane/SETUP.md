@@ -24,9 +24,10 @@ App Store Connect **API key** (no Apple ID / 2FA).
 |------|--------|--------------|
 | `fastlane verify_auth` | utility | Read-only API-auth check. Builds nothing. |
 | `fastlane beta` | **LIVE** | Build + upload to TestFlight. **Use this now.** |
-| `fastlane release` | dormant | Build + App Store release. Metadata + screenshots skipped via flags until ready. |
+| `fastlane release` | dormant | Build + App Store release. Metadata + screenshots skipped via flags until ready. Prompts first: "need fresh screenshots?" → if yes, it stops so you run `push_screenshots` separately. |
 | `fastlane push_metadata` | dormant | Upload localized metadata only (no binary). |
-| `fastlane screenshots` | dormant | Capture localized screenshots. Needs a snapshot UI test (not authored yet). |
+| `fastlane screenshots` | ready | Capture localized screenshots (Simulator only), then rename folders to storefront codes. |
+| `fastlane push_screenshots` | ready | Upload localized screenshots only (no binary, no metadata). |
 
 ## When you're ready to localize the listing
 
@@ -34,18 +35,52 @@ App Store Connect **API key** (no Apple ID / 2FA).
   storefront codes** (`de-DE`, `fr-FR`, `no`, `nl-NL`), which differ from the
   app's runtime locale codes in `scripts/translate_catalog/locales.py`
   (`de`, `fr`, `nb`, `nl`). This is automated: author the English listing in
-  `metadata/en-US/*.txt`, then run the **`translate-app-store-metadata`** skill,
-  which drives `scripts/translate_metadata/` (extract → dispatch → per-storefront
-  Opus subagents → validate → merge) to transcreate all 38 storefronts here.
+  `metadata/en-US/*.txt`, then run the **`appstore-translate-metadata`** skill
+  (`/appstore:translate-metadata`), which drives `scripts/translate_metadata/`
+  (extract → dispatch → per-storefront Opus subagents → validate → merge) to
+  transcreate all 38 storefronts here.
   `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront
   map, so there's no need to run `fastlane deliver init`. The gate is
   `python3 scripts/translate_metadata/check_metadata.py` (exit 0 = ready).
   Once green, `fastlane push_metadata` uploads metadata only, or flip
   `skip_metadata:false` in the `release` lane.
-- **Screenshots**: `languages` in `Snapfile` uses the app's **runtime** locale
-  codes (they launch the Simulator). Write a UI test calling
-  `snapshot("01_budgets")` etc., make `SnapshotHelper.swift` a member of the
-  `simple-recurring-budgetsUITests` target, then `fastlane screenshots`.
+
+### Screenshots (all locales)
+
+A three-step flow: generate per-locale demo content → capture → upload.
+
+1. **Generate demo content.** Run the **`appstore-screenshot-content`** skill
+   (`/appstore:screenshot-content`), which drives `scripts/screenshot_content/` to
+   produce a culturally-tuned, locally-realistic per-locale catalog (≤3 budgets each)
+   under `simple-recurring-budgetsUITests/ScreenshotSeeds/<lang>.json`. Gate:
+   `python3 scripts/screenshot_content/check_content.py` (exit 0 = ready). The catalog
+   lives in the UI test target, so the fixtures never ship in the app. Source structure:
+   `scripts/screenshot_content/SOURCE.json`.
+
+2. **Capture (Simulator only — nothing uploaded).**
+   ```bash
+   fastlane screenshots
+   ```
+   The `AppStoreScreenshots` UI test seeds each locale from its catalog file and captures
+   the 5-shot story (Budgets list → Add Expense → Budget detail → Add/Edit Budget →
+   Settings) at **default** Dynamic Type, Light mode, on iPhone 6.9" + iPad 13". The lane
+   then renames the captured runtime-coded folders (`de`, `nb`, `ar`) to App Store
+   storefront codes (`de-DE`, `no`, `ar-SA`) via
+   `scripts/screenshot_content/rename_for_deliver.py`. **Inspect** the result under
+   `fastlane/screenshots/<storefront>/` before uploading. (`Snapfile` `only_testing`
+   scopes capture to this one test; the accessibility capture + journey suite don't run.)
+
+3. **Upload (touches App Store Connect).**
+   ```bash
+   fastlane push_screenshots
+   ```
+   Uploads screenshots only (no binary, no metadata). They stage into the unreleased
+   "Prepare for Submission" version — **nothing goes live** until you submit in App Store
+   Connect.
+
+   To re-capture only a few locales while iterating, pass them through `snapshot`:
+   `fastlane snapshot --languages ja,de,ar --devices "iPhone 16 Pro Max"` (then re-run the
+   rename script), or use the per-locale skill args, e.g. `/appstore:screenshot-content ja de-DE ar-SA`.
 
 ## Build numbers (auto-incremented)
 

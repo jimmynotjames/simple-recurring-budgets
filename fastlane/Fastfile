@@ -78,6 +78,18 @@ platform :ios do
   # ---------------------------------------------------------------------------
   desc "Build and submit a release to the App Store (metadata/screenshots skipped for now)"
   lane :release do
+    # Screenshots are intentionally NOT uploaded by this lane (see skip_screenshots
+    # below). They are managed separately via `fastlane screenshots` +
+    # `fastlane push_screenshots`. Remind the operator to decide before building —
+    # this only prompts; it never uploads anything.
+    if UI.confirm("Do you need to upload fresh App Store screenshots for this release?")
+      UI.user_error!(
+        "Stopping so you can handle screenshots first: run `fastlane screenshots` " \
+        "(then inspect) and `fastlane push_screenshots`, then re-run `fastlane release`. " \
+        "(This lane never uploads screenshots.)"
+      )
+    end
+
     build_number = next_build_number
     UI.message("Auto-incrementing build number to #{build_number} (TestFlight latest + 1)")
     build_app(
@@ -110,13 +122,37 @@ platform :ios do
   end
 
   # ---------------------------------------------------------------------------
-  # DORMANT: capture localized screenshots across the device/locale matrix.
-  # Requires a UI test that calls snapshot(...) — not authored yet.
-  # Config lives in fastlane/Snapfile.
+  # Capture localized screenshots across the device/locale matrix, then rename the
+  # captured runtime-coded folders (de, nb, ar, ...) to App Store storefront codes
+  # (de-DE, no, ar-SA, ...) so `deliver` can find them. Config lives in
+  # fastlane/Snapfile; the AppStoreScreenshots UI test drives the capture.
+  #
+  # Touches the Simulator only — NOT App Store Connect. Inspect the output under
+  # fastlane/screenshots/ before uploading with `push_screenshots`.
+  # No frameit / device frames / captions — bare device screenshots only.
   # ---------------------------------------------------------------------------
-  desc "Capture localized screenshots in the Simulator (requires a snapshot UI test)"
+  desc "Capture localized screenshots in the Simulator, then map folders to storefront codes"
   lane :screenshots do
     capture_screenshots
-    # frameit is optional and intentionally not invoked here.
+    UI.message("Renaming captured folders from runtime codes to App Store storefront codes…")
+    sh("python3", "../scripts/screenshot_content/rename_for_deliver.py")
+  end
+
+  # ---------------------------------------------------------------------------
+  # Upload ONLY the localized screenshots (no binary, no metadata). Screenshots
+  # stage into the unreleased "Prepare for Submission" version — nothing goes live
+  # until you submit in App Store Connect. Run AFTER inspecting `fastlane/screenshots/`.
+  # ---------------------------------------------------------------------------
+  desc "Upload localized App Store screenshots only (no binary, no metadata)"
+  lane :push_screenshots do
+    upload_to_app_store(
+      skip_binary_upload: true,
+      skip_metadata: true,
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      force: true,                          # skip the interactive HTML preview confirmation
+      run_precheck_before_submit: false,    # we're not submitting; precheck can't check IAPs via API key
+      submit_for_review: false              # upload only; you press submit in ASC
+    )
   end
 end

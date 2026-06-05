@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "الطعام",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "SAR",
+      "allocation": "50",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "قهوة الصباح",
+          "amount": "15",
+          "daysAgo": 0
+        },
+        {
+          "name": "الغداء",
+          "amount": "25",
+          "daysAgo": 0
+        },
+        {
+          "name": "العشاء",
+          "amount": "35",
+          "daysAgo": 1
+        },
+        {
+          "name": "وجبة خفيفة",
+          "amount": "12",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "البقالة",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "SAR",
+      "allocation": "250",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "تسوق أسبوعي",
+          "amount": "150",
+          "daysAgo": 1
+        },
+        {
+          "name": "سوق الخضار",
+          "amount": "45",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "العناية والجمال",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "SAR",
+      "allocation": "200",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "العناية بالبشرة",
+          "amount": "80",
+          "daysAgo": 2
+        },
+        {
+          "name": "صالون التجميل",
+          "amount": "120",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

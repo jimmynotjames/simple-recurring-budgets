@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "ค่ากิน",
+      "icon": "🍜",
+      "period": "daily",
+      "currencyCode": "THB",
+      "allocation": "300",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "กาแฟตอนเช้า",
+          "amount": "75",
+          "daysAgo": 0
+        },
+        {
+          "name": "ข้าวกลางวัน",
+          "amount": "90",
+          "daysAgo": 0
+        },
+        {
+          "name": "ข้าวเย็นนอกบ้าน",
+          "amount": "250",
+          "daysAgo": 1
+        },
+        {
+          "name": "ข้าวกล่องด่วน",
+          "amount": "70",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "ของเข้าบ้าน",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "THB",
+      "allocation": "900",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ซื้อของซูเปอร์",
+          "amount": "520",
+          "daysAgo": 1
+        },
+        {
+          "name": "ตลาดสด",
+          "amount": "180",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "ความสวยความงาม",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "THB",
+      "allocation": "1500",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "สกินแคร์",
+          "amount": "450",
+          "daysAgo": 2
+        },
+        {
+          "name": "ตัดผม",
+          "amount": "400",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

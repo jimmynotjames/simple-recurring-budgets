@@ -53,7 +53,15 @@ Icon
 # Fastlane
 fastlane/report.xml
 fastlane/Preview.html
+# Captured App Store screenshots + the snapshot HTML report are build artifacts:
+# large, regenerable via `fastlane screenshots`, and never committed (the source of
+# truth is App Store Connect + the small ScreenshotSeeds/ catalog). Kept on disk
+# locally so `fastlane push_screenshots` can upload them. The .gitkeep is allowlisted
+# below so the folder persists in git.
 fastlane/screenshots/**/*.png
+fastlane/screenshots/screenshots.html
+!fastlane/screenshots/.gitkeep
+!fastlane/screenshots/**/.gitkeep
 fastlane/test_output
 
 # gym build output (.ipa / .xcarchive)

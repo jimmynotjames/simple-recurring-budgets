@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Ăn uống",
+      "icon": "🍜",
+      "period": "daily",
+      "currencyCode": "VND",
+      "allocation": "250000",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Cà phê sáng",
+          "amount": "30000",
+          "daysAgo": 0
+        },
+        {
+          "name": "Cơm trưa",
+          "amount": "55000",
+          "daysAgo": 0
+        },
+        {
+          "name": "Đi ăn tối",
+          "amount": "180000",
+          "daysAgo": 1
+        },
+        {
+          "name": "Bún ăn vội",
+          "amount": "45000",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Đi chợ",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "VND",
+      "allocation": "700000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Mua đồ cả tuần",
+          "amount": "420000",
+          "daysAgo": 1
+        },
+        {
+          "name": "Chợ rau củ",
+          "amount": "135000",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Làm đẹp",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "VND",
+      "allocation": "1500000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Mỹ phẩm dưỡng da",
+          "amount": "450000",
+          "daysAgo": 2
+        },
+        {
+          "name": "Cắt tóc",
+          "amount": "250000",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

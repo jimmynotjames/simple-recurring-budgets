@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Mat",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "NOK",
+      "allocation": "300",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Morgenkaffe",
+          "amount": "49",
+          "daysAgo": 0
+        },
+        {
+          "name": "Lunsj",
+          "amount": "139",
+          "daysAgo": 0
+        },
+        {
+          "name": "Middag ute",
+          "amount": "265",
+          "daysAgo": 1
+        },
+        {
+          "name": "Kjapp lunsj",
+          "amount": "129",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Dagligvarer",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "NOK",
+      "allocation": "1200",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Ukehandel",
+          "amount": "742",
+          "daysAgo": 1
+        },
+        {
+          "name": "Bondens marked",
+          "amount": "198",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Hudpleie",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "NOK",
+      "allocation": "1000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Ansiktskrem",
+          "amount": "289",
+          "daysAgo": 2
+        },
+        {
+          "name": "Klipp",
+          "amount": "490",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Jedzenie",
+      "icon": "🍔",
+      "period": "daily",
+      "currencyCode": "PLN",
+      "allocation": "70",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Poranna kawa",
+          "amount": "16.00",
+          "daysAgo": 0
+        },
+        {
+          "name": "Lunch",
+          "amount": "34.00",
+          "daysAgo": 0
+        },
+        {
+          "name": "Kolacja na mieście",
+          "amount": "62.00",
+          "daysAgo": 1
+        },
+        {
+          "name": "Szybki obiad",
+          "amount": "29.00",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Zakupy spożywcze",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "PLN",
+      "allocation": "250",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Cotygodniowe zakupy",
+          "amount": "148.50",
+          "daysAgo": 1
+        },
+        {
+          "name": "Bazarek",
+          "amount": "42.00",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Uroda i pielęgnacja",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "PLN",
+      "allocation": "300",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Kosmetyki do twarzy",
+          "amount": "89.00",
+          "daysAgo": 2
+        },
+        {
+          "name": "Fryzjer",
+          "amount": "130.00",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

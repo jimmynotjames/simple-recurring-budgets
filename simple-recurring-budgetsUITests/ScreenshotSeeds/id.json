@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "Makan",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "IDR",
+      "allocation": "150000",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Kopi pagi",
+          "amount": "25000",
+          "daysAgo": 0
+        },
+        {
+          "name": "Makan siang",
+          "amount": "40000",
+          "daysAgo": 0
+        },
+        {
+          "name": "Makan malam",
+          "amount": "85000",
+          "daysAgo": 1
+        },
+        {
+          "name": "Nasi padang",
+          "amount": "45000",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "Belanja",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "IDR",
+      "allocation": "500000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Belanja mingguan",
+          "amount": "285000",
+          "daysAgo": 1
+        },
+        {
+          "name": "Pasar",
+          "amount": "95000",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "Skincare & Salon",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "IDR",
+      "allocation": "450000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "Skincare",
+          "amount": "165000",
+          "daysAgo": 2
+        },
+        {
+          "name": "Potong rambut",
+          "amount": "120000",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

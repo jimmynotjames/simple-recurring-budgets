@@ -53,7 +53,15 @@ Upload localized App Store metadata only (no binary, no screenshots)
 [bundle exec] fastlane ios screenshots
 ```
 
-Capture localized screenshots in the Simulator (requires a snapshot UI test)
+Capture localized screenshots in the Simulator, then map folders to storefront codes
+
+### ios push_screenshots
+
+```sh
+[bundle exec] fastlane ios push_screenshots
+```
+
+Upload localized App Store screenshots only (no binary, no metadata)
 
 ----
 

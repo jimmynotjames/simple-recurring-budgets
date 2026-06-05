@@ -34,7 +34,7 @@ Return a **single JSON object** (no markdown fences, no prose, no commentary) wh
 
 7. **Plurals.** Most entries have a `"value"` string — translate it normally and map the key to a single translated string. But an entry with a **`"plural"`** object instead (e.g. `{"one": "%lld logged expense", "other": "%lld logged expenses"}`) is a count-dependent string. For those keys:
    - Map the key to a **JSON object of CLDR plural categories** → translated strings, e.g. `"key": {"one": "…", "other": "…"}`.
-   - Use the categories **{LOCALE_NAME} actually needs** — not necessarily the same ones as English. Many languages need more (e.g. `one`/`few`/`many`/`other`) or fewer (`other` only). Always include **`other`**. Valid categories: `zero`, `one`, `two`, `few`, `many`, `other`.
+   - **If the entry carries a `"requiredPluralCategories"` list, produce EXACTLY those categories — no fewer, no extra.** It is the authoritative CLDR set {LOCALE_NAME} needs for integer counts (e.g. Slovenian = `one`/`two`/`few`/`other`; Japanese = `other` only). Do not omit one because it feels redundant, and do not add one outside the list. If the list is absent, fall back to the categories **{LOCALE_NAME} actually needs** — not necessarily the same as English. Always include **`other`**. Valid categories: `zero`, `one`, `two`, `few`, `many`, `other`.
    - Keep the count format specifier (`%lld`) in **every** category form.
    - Get the grammar right for each category (the number that replaces `%lld`, agreement, word endings).
 

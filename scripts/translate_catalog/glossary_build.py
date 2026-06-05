@@ -14,6 +14,9 @@ The parent agent runs the `glossary-locale` (Opus) agents between --dispatch and
 Pipeline:
   1. --candidates          deterministic: mine duplicate strings + frequent terms
                            → tmp/glossary/candidates.json
+  1b. --export-terms       deterministic: dump the committed glossary's existing term set
+                           → tmp/glossary/terms.json (to extend coverage to NEW locales
+                           without re-curating; then --dispatch <new locales> / fan out / --merge)
   2. --write-curation-prompt   compose tmp/glossary/curation_prompt.md (English-only) for ONE
                            Opus curation agent to pick the focused term set → tmp/glossary/terms.json
   3. --dispatch [loc ...]  from terms.json, write tmp/glossary/prompts/{locale}.md for the
@@ -137,6 +140,36 @@ def cmd_candidates() -> int:
         f.write("\n")
     print(f"Candidates → {CANDIDATES_PATH}: {len(duplicate_strings)} duplicate string(s), "
           f"{len(frequent_words)} frequent word(s) (df>=3), from {len(items)} keys.")
+    return 0
+
+
+# ---------------------------------------------------------------- export terms
+
+def cmd_export_terms() -> int:
+    """Dump the already-curated term set from the committed glossary.json back out to
+    tmp/glossary/terms.json, so the dispatch/merge steps can extend the EXISTING terms to
+    newly-added locales without re-running curation. Examples are intentionally omitted —
+    cmd_dispatch re-derives them from the catalog (_term_examples) at dispatch time."""
+    glossary = load_glossary()
+    terms = glossary.get("terms", {})
+    if not terms:
+        print(f"ERROR: {GLOSSARY_PATH} has no terms to export.", file=sys.stderr)
+        return 1
+    exported = [
+        {
+            "en": en,
+            "context": t.get("context", ""),
+            "partOfSpeech": t.get("partOfSpeech", ""),
+            "sourceKeys": t.get("sourceKeys", []),
+        }
+        for en, t in sorted(terms.items(), key=lambda kv: kv[0].casefold())
+    ]
+    GLOSSARY_DIR.mkdir(parents=True, exist_ok=True)
+    with TERMS_PATH.open("w", encoding="utf-8") as f:
+        json.dump({"terms": exported}, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    print(f"Exported {len(exported)} term(s) from {GLOSSARY_PATH.name} → {TERMS_PATH}\n"
+          f"  Now run --dispatch <locale ...> for the new locales, fan out the agents, then --merge.")
     return 0
 
 
@@ -312,6 +345,8 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     g = parser.add_mutually_exclusive_group(required=True)
     g.add_argument("--candidates", action="store_true", help="Mine duplicate strings + frequent terms.")
+    g.add_argument("--export-terms", action="store_true", dest="export_terms",
+                   help="Export the committed glossary's term set to terms.json (to extend coverage to new locales without re-curating).")
     g.add_argument("--write-curation-prompt", action="store_true", help="Compose the Opus curation prompt.")
     g.add_argument("--dispatch", action="store_true", help="Write per-locale glossary translation prompts.")
     g.add_argument("--merge", action="store_true", help="Merge agent outputs into glossary.json.")
@@ -323,6 +358,8 @@ def main(argv: list[str]) -> int:
         return 2
     if args.candidates:
         return cmd_candidates()
+    if args.export_terms:
+        return cmd_export_terms()
     if args.write_curation_prompt:
         return cmd_write_curation_prompt()
     if args.dispatch:

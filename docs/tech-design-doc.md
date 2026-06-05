@@ -243,11 +243,11 @@ This avoids translation drift (one surface translating "Cancel" differently from
 
 #### Translation pipeline
 
-Translations for all 38 App Store storefront locales were produced and merged by a four-script pipeline at `scripts/translate_catalog/`:
+Translations for all 49 App Store storefront locales were produced and merged by a four-script pipeline at `scripts/translate_catalog/`:
 
 | Script | Role |
 |--------|------|
-| `locales.py` | Single source of truth: `LOCALES` list (38 BCP 47 codes) and `LOCALE_NAMES` map |
+| `locales.py` | Single source of truth: `LOCALES` list (49 BCP 47 codes) and `LOCALE_NAMES` map |
 | `extract.py` | Reads `Localizable.xcstrings`, emits `tmp/translate-inputs/source.json` with English values + format specifier metadata |
 | `merge.py` | Reads `tmp/translate-outputs/{locale}.json` per locale; writes `localizations[locale]` back into the catalog with `state: "translated"` and stable sorted-key JSON |
 | `validate.py` | Post-merge audit: checks for missing keys, format-specifier multiset equality, non-empty values; exits non-zero on hard errors |

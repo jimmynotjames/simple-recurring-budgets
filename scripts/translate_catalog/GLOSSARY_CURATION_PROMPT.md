@@ -1,7 +1,7 @@
 # Glossary curation — pick the canonical term set for Wren
 
 You are a senior localization architect for **Wren**, a native iOS budgeting app. Before the
-app's UI strings are translated into 38 languages, we want a **glossary**: a focused set of
+app's UI strings are translated into 49 languages, we want a **glossary**: a focused set of
 recurring terms that must translate **consistently** everywhere they appear, so two buttons
 that both say "Add Expense" never drift apart, and so a compound like "Add Expense" can reuse
 the agreed translations of "Add" and "Expense".

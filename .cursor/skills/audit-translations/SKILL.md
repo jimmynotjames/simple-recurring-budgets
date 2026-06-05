@@ -104,7 +104,7 @@ agreed glossary translations for terms in that slice — so the auditor can rais
 findings. Do not modify it.
 
 **Dry-run first.** On the initial run, do step 1–3 for a single locale (`de`) and check
-`audit_report.py de` before fanning out to all 38 — if the findings shape or signal looks
+`audit_report.py de` before fanning out to all 49 — if the findings shape or signal looks
 off, fix `AUDIT_PROMPT_TEMPLATE.md`/`audit_report.py` first.
 
 ### 4. Aggregate into a triage report

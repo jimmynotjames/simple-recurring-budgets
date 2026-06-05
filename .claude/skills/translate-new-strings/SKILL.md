@@ -1,6 +1,6 @@
 ---
 name: translate-new-strings
-description: Translate newly-added or stale keys in Localizable.xcstrings to all 38 App Store storefront locales. Use after adding any LocalizedStringResource / String(localized:) / Text("…") key, or when check_translations.py reports issues. Drives the scripts/translate_catalog/ pipeline in subset mode with parallel per-locale subagents.
+description: Translate newly-added or stale keys in Localizable.xcstrings to all 49 App Store storefront locales. Use after adding any LocalizedStringResource / String(localized:) / Text("…") key, or when check_translations.py reports issues. Drives the scripts/translate_catalog/ pipeline in subset mode with parallel per-locale subagents.
 ---
 
 # Translate new strings
@@ -216,7 +216,7 @@ The subagent definition restricts the subagent to `Read` + `Write` only, default
 `subagent_type: general-purpose` — the narrower agent is what makes the dispatches
 auto-approvable in this project's `.claude/settings.json`.
 
-**Send all subagent calls in a single message** so they run concurrently. With 38
+**Send all subagent calls in a single message** so they run concurrently. With 49
 locales × small key counts this typically finishes in well under a minute.
 
 The subagent's prompt already contains every translation rule — placeholder preservation,
@@ -310,7 +310,7 @@ Both are run by `lefthook.yml` on `pre-push`.
   un-keyed strings.
 - `NEW [en] '<key>' (source)` means the key's English source state is still `"new"`
   (Xcode-extracted, not yet reviewed). For keys you just translated this is now
-  auto-resolved by `merge.py` (see step 4). It can still surface for a key whose 38
+  auto-resolved by `merge.py` (see step 4). It can still surface for a key whose 49
   locales were *already* complete (so nothing merged) but whose en stayed `"new"` — in
   that rare case run `extract.py --keys <key>` then the step-4 fast-path chain, or
   re-run `merge.py` (the existing `tmp/translate-outputs/<locale>.json` are reused and

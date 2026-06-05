@@ -44,6 +44,19 @@ GLOSSARY_PATH = Path(__file__).parent / "glossary.json"
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALE_NAMES  # noqa: E402
 
+# Required CLDR plural categories per locale, from the committed plural_rules.py (generated
+# from babel/CLDR by scripts/translate_audit/_gen_plural_rules.py). We inject these into the
+# prompt so each subagent is told EXACTLY which plural categories the target language needs,
+# instead of relying on the model to recall CLDR — which silently dropped `few` for Slovenian.
+# plural_rules.py imports nothing, so importing it here introduces no cycle despite living in
+# the sibling audit package. Degrade gracefully (empty map → template's "categories the locale
+# needs" fallback) if it is ever absent.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "translate_audit"))
+try:
+    from plural_rules import PLURAL_RULES  # noqa: E402
+except Exception:
+    PLURAL_RULES = {}
+
 _GLOSSARY_CACHE: dict | None = None
 
 
@@ -111,6 +124,7 @@ def build_glossary_block(values, locale: str, locale_name: str | None = None) ->
 # storefront, and vice versa. Wording may differ; the formality call must not.
 REGIONAL_NOTES: dict[str, str] = {
     "ar": "Modern Standard Arabic (MSA), not a regional dialect — MSA addresses all audiences with the same standard forms, so there is no casual/formal toggle; get a warm, contemporary feel through fresh, light phrasing. Right-to-left: keep punctuation and any Latin tokens (e.g. \"iCloud\") correctly placed for RTL.",
+    "bn": "Conversational Bengali (Bangla) in Bengali script. Keep the polite \"আপনি\" — Bengali app copy addresses all audiences politely; the casual \"তুমি\"/\"তুই\" reads as overfamiliar, not young. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "ca": "Natural, friendly Catalan as used in Apple's Catalan UI.",
     "cs": "Modern Czech app tone; natural phrasing over literal calques. The informal address is standard for consumer apps.",
     "da": "Informal, direct Danish — the norm for consumer apps.",
@@ -124,6 +138,7 @@ REGIONAL_NOTES: dict[str, str] = {
     "fi": "Direct, natural Finnish app tone, not literal. Finnish runs long — keep UI labels tight.",
     "fr": "Use the informal \"tu\" — younger French fintech/lifestyle apps (Lydia, Revolut FR) address under-35s with \"tu\". Elegant and concise; prefer natural French terms over anglicisms. French app copy prizes clarté and a refined, slightly understated register over an enthusiastic one.",
     "fr-CA": "Canadian French; informal \"tu\" (standard in Québécois consumer-app copy). Prefer Québécois usage and OQLF-style avoidance of anglicisms where they differ from France French.",
+    "gu": "Conversational Gujarati in Gujarati script. Keep the polite \"તમે\" — Gujarati app copy stays polite across audiences; the casual \"તું\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "he": "Modern Hebrew. Right-to-left: keep punctuation and any Latin tokens (e.g. \"iCloud\") correctly placed for RTL. Friendly register.",
     "hi": "Conversational Hindi in Devanagari. Keep the polite \"आप\" — Hindi app copy uses \"आप\" across audiences; \"तू\" would read as rude, not young. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "hr": "Modern Croatian; natural phrasing, not calqued.",
@@ -131,20 +146,29 @@ REGIONAL_NOTES: dict[str, str] = {
     "id": "Friendly, casual Indonesian as used in popular consumer apps.",
     "it": "Informal \"tu\" (standard for youth-oriented consumer apps). Natural Italian; avoid unnecessary anglicisms.",
     "ja": "Keep polite-friendly です/ます — Japanese app copy stays polite regardless of audience age; plain/casual form reads as off, not young. Get warmth through light, soft, approachable phrasing (Apple Japan's voice), not by dropping politeness; avoid stiff keigo. Use katakana for loanwords (e.g. アプリ). The English em-dash habit does not translate — restructure instead.",
+    "kn": "Natural Kannada in Kannada script. Keep the polite \"ನೀವು\" — Kannada app copy stays polite across audiences; the casual \"ನೀನು\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "ko": "Use the polite-friendly 해요체 — Korean app copy stays polite across ages; plain 반말 reads as wrong, not young. Warmth comes from clean, light phrasing and natural English loanwords (common in Korean tech), not from dropping politeness. Match Apple Korea's voice.",
+    "ml": "Natural Malayalam in Malayalam script. Keep the polite \"നിങ്ങൾ\" — Malayalam app copy addresses all audiences politely; the casual \"നീ\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
+    "mr": "Conversational Marathi in Devanagari. Keep the polite \"तुम्ही\" — Marathi app copy stays polite across audiences; \"तू\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "ms": "Friendly, natural Malay as used in consumer apps.",
     "nb": "Informal, direct Norwegian (Bokmål) — the norm for consumer apps.",
     "nl": "Use the informal \"je\" — standard for Dutch consumer apps, especially for younger audiences (\"u\" reads as formal/older). Modern, relaxed register.",
+    "or": "Natural Odia in Odia script. Keep the polite \"ଆପଣ\" — Odia app copy stays polite across audiences; the casual \"ତୁମେ\"/\"ତୁ\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
+    "pa": "Conversational Punjabi in Gurmukhi (Indian Punjabi) script. Keep the polite \"ਤੁਸੀਂ\" — Punjabi app copy stays polite across audiences; \"ਤੂੰ\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "pl": "Modern Polish for young adults — use the informal \"Ty\" (direct address) rather than formal \"Pan/Pani\". Friendly, natural, not stiff.",
     "pt-BR": "Brazilian Portuguese; informal, warm \"você\" (the natural informal address in Brazil). Brazilian orthography and vocabulary.",
     "pt-PT": "European Portuguese; informal \"tu\" (standard in youth-oriented PT app copy; \"você\" reads as distant). European orthography and vocabulary; avoid Brazilian-specific terms.",
     "ro": "Modern Romanian; natural phrasing.",
     "ru": "Use the informal \"ты\" — modern Russian app copy for young adults (Yandex, T-Bank lifestyle) uses \"ты\" to feel current and friendly. Natural, non-calque Russian.",
     "sk": "Modern Slovak; natural phrasing.",
+    "sl": "Modern Slovenian for young adults — use the informal \"ti\" (the formal \"vi\" reads as distant/official in youth-oriented consumer-app copy). Natural, non-calqued phrasing. Note Slovenian's dual number: count-dependent strings need the dual (\"two\") form, not just one/other.",
     "sv": "Informal, direct Swedish — the norm for consumer apps.",
+    "ta": "Natural Tamil in Tamil script. Keep the polite \"நீங்கள்\" — Tamil app copy stays polite across audiences; the casual \"நீ\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
+    "te": "Natural Telugu in Telugu script. Keep the polite \"మీరు\" — Telugu app copy stays polite across audiences; the casual \"నువ్వు\" reads as overfamiliar. The modern feel comes from warmth, brevity, and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "th": "Polite, friendly Thai — keep the polite particles (ครับ/ค่ะ) Thai app copy uses across audiences; the modern feel comes from light, contemporary phrasing, not from dropping politeness. Follow normal Thai spacing conventions.",
     "tr": "Modern Turkish for young adults; use the informal \"sen\" (standard in youth-oriented app copy; \"siz\" reads as formal/older). Friendly and natural.",
     "uk": "Modern Ukrainian; natural phrasing, not calqued from Russian or English.",
+    "ur": "Conversational Urdu in Nastaliq (Arabic) script. Keep the polite \"آپ\" — Urdu app copy uses \"آپ\" across audiences; \"تم\"/\"تو\" reads as overfamiliar or rude, not young. Right-to-left: keep punctuation and any Latin tokens (e.g. \"iCloud\") correctly placed for RTL. The modern feel comes from warm, light phrasing and natural English loanwords (e.g. \"budget\"), not informal pronouns.",
     "vi": "Friendly, natural Vietnamese as used in popular consumer apps.",
     "zh-Hans": "Simplified Chinese, mainland China conventions. Concise, modern app tone; avoid Taiwan-specific vocabulary. Mainland copy is punchy and benefit-dense — short rhythms land well, but keep it calm and avoid exclamation-heavy hype.",
     "zh-Hant": "Traditional Chinese, Taiwan conventions. Concise, modern app tone; avoid mainland-specific vocabulary.",
@@ -217,6 +241,12 @@ def main(argv: list[str]) -> int:
             # Length budget: flat keys use `value`; plural keys use the `other` form.
             ref = entry.get("value") or (entry.get("plural", {}) or {}).get("other", "")
             entry["enChars"] = len(ref)
+            # For plural keys, tell the subagent exactly which CLDR categories this locale
+            # needs so it can't drop a required form (e.g. Slovenian `few`).
+            if entry.get("plural"):
+                required = PLURAL_RULES.get(locale, {}).get("required")
+                if required:
+                    entry["requiredPluralCategories"] = required
             slice_source[k] = entry
         if not slice_source:
             continue

@@ -93,9 +93,22 @@ def build_glossary_block(values, locale: str, locale_name: str | None = None) ->
 
 # Per-locale register/dialect/cultural notes inlined into the prompt where they
 # materially help the model pick the right formality register, script variant, or
-# culturally-appropriate phrasing. Ported and adapted (UI copy, not marketing) from
-# the per-storefront CULTURAL_NOTES in scripts/translate_metadata/dispatch_prompts.py;
-# storefront codes are remapped to this catalog's locale codes (see locales.py).
+# culturally-appropriate phrasing. UI copy, not marketing — the sibling map for the
+# App Store listing is CULTURAL_NOTES in scripts/translate_metadata/dispatch_prompts.py
+# (keyed by storefront code, not this catalog's runtime locale code — see locales.py).
+#
+# DELIBERATELY NOT DRY (see issue #173, closed without code consolidation). These two
+# maps overlap only in the *formality decision* per language (de→"du", ja→です/ます,
+# ko→해요체); everything else legitimately differs (UI dialect/length here vs ASO
+# positioning/keyword guidance there), and several locales phrase even the formality
+# call differently for marketing. A shared-prose abstraction needed a per-storefront
+# override map that re-duplicated the formality sentence anyway, so it was abandoned.
+# Future agents: do NOT re-file this as a DRY violation. The one real obligation is the
+# SYNC RULE below.
+#
+# SYNC RULE: if you change the *formality decision* for a language here (e.g. flip
+# de from "du" to "Sie"), make the matching change in CULTURAL_NOTES for that market's
+# storefront, and vice versa. Wording may differ; the formality call must not.
 REGIONAL_NOTES: dict[str, str] = {
     "ar": "Modern Standard Arabic (MSA), not a regional dialect — MSA addresses all audiences with the same standard forms, so there is no casual/formal toggle; get a warm, contemporary feel through fresh, light phrasing. Right-to-left: keep punctuation and any Latin tokens (e.g. \"iCloud\") correctly placed for RTL.",
     "ca": "Natural, friendly Catalan as used in Apple's Catalan UI.",

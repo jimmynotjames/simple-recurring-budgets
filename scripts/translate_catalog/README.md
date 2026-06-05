@@ -28,6 +28,16 @@ script does*. The skill is the authority for *when and how to invoke them*.
 
 No dependencies beyond Python 3 stdlib.
 
+> **Per-locale register notes are intentionally duplicated** between this pipeline's
+> `REGIONAL_NOTES` (in `dispatch_prompts.py`) and the metadata pipeline's `CULTURAL_NOTES`
+> (`scripts/translate_metadata/dispatch_prompts.py`). The two overlap only in the *formality
+> decision* per language (e.g. de→"du", ja→です/ます); the rest is genuinely
+> different (UI dialect/length here vs ASO positioning/keyword guidance there). Issue #173
+> considered consolidating them and we **decided not to** — a shared abstraction needed a
+> per-storefront override map that re-duplicated the formality sentence anyway. **Sync rule:**
+> if you change a language's *formality decision* in one map, change it in the other too; the
+> wording may differ but the formality call must match. (Don't re-file this as a DRY bug.)
+
 ## Default flow — adding/changing a small set of strings
 
 Use this whenever you've added new `String(localized:)` / `LocalizedStringResource` keys

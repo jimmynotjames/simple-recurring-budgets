@@ -18,6 +18,12 @@ It **reuses** the catalog pipeline's single sources of truth via import — `loc
 the per-locale register/cultural notes) — so the auditor grades against the same per-locale
 rubric the translator was given. Nothing here is duplicated from there. Python 3 stdlib only.
 
+> Note: the audit reuses the in-app `REGIONAL_NOTES`. Those notes intentionally duplicate the
+> *formality decision* (not the surrounding prose) with the metadata pipeline's `CULTURAL_NOTES`
+> — see the sync-rule note in `scripts/translate_catalog/README.md` (issue #173, closed without
+> code consolidation). The audit doesn't need to do anything special; just be aware the two
+> register maps are kept in sync by convention, not by a shared module.
+
 The full design and status live in `docs/audits/translation-quality-audit-2026-06-02.md`.
 
 ## Scripts

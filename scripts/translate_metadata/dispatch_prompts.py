@@ -45,9 +45,24 @@ from metadata_locales import (  # noqa: E402
     STOREFRONT_NAMES,
 )
 
-# Per-locale cultural register notes. Inlined into the prompt where they
-# materially help the model pick the right formality, script, or market
-# vocabulary. Storefronts without an entry get a generic instruction.
+# Per-storefront cultural register notes (ASO/marketing copy). Inlined into the
+# prompt where they materially help the model pick the right formality, script, or
+# market vocabulary. Storefronts without an entry get a generic instruction. The
+# sibling map for in-app UI copy is REGIONAL_NOTES in
+# scripts/translate_catalog/dispatch_prompts.py (keyed by runtime locale code, not
+# the App Store Connect storefront code used here — see metadata_locales.py).
+#
+# DELIBERATELY NOT DRY (see issue #173, closed without code consolidation). This map
+# and REGIONAL_NOTES overlap only in the *formality decision* per language; the rest
+# is genuinely different (ASO positioning, keyword-unbundling, marketer voice here vs
+# UI dialect/length there), and some markets phrase the formality call differently for
+# marketing. Single-sourcing the prose required a per-storefront override map that
+# re-duplicated the formality sentence anyway, so it was abandoned. Future agents: do
+# NOT re-file this as a DRY violation — honor the SYNC RULE instead.
+#
+# SYNC RULE: if you change the *formality decision* for a market here (e.g. flip de-DE
+# from "du" to "Sie"), make the matching change in REGIONAL_NOTES for that language's
+# runtime locale, and vice versa. Wording may differ; the formality call must not.
 CULTURAL_NOTES: dict[str, str] = {
     "ar-SA": "Write in Modern Standard Arabic (MSA), not a regional dialect. Register: MSA marketing addresses all audiences with the same standard forms — there is no casual/formal pronoun split to toggle, so achieve the young, modern feel through fresh, light, contemporary phrasing rather than colloquialism. Right-to-left: keep punctuation and any Latin brand tokens correctly placed for RTL. Warm but clean register. Positioning: budgeting and saving carry positive, prudent-stewardship connotations here — frame Wren as helping you manage money wisely and with dignity, never as fixing overspending. Avoid imagery that implies the user is bad with money.",
     "ca": "Natural, friendly Catalan as used in Apple's Catalan UI.",

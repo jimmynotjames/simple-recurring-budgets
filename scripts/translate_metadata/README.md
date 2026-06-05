@@ -15,6 +15,16 @@ code systems**:
 
 `metadata_locales.py` owns the `runtime → storefront` mapping so the two stay in lockstep.
 
+> **Per-storefront register notes are intentionally duplicated** between this pipeline's
+> `CULTURAL_NOTES` (in `dispatch_prompts.py`) and the in-app pipeline's `REGIONAL_NOTES`
+> (`scripts/translate_catalog/dispatch_prompts.py`). They overlap only in the *formality
+> decision* per language; the surrounding guidance is genuinely different (ASO
+> positioning/keyword rules + marketer voice here vs UI dialect/length there). Issue #173
+> considered single-sourcing them and we **decided not to** — the shared-prose abstraction
+> required a per-storefront override that re-duplicated the formality sentence anyway. **Sync
+> rule:** if you change a market's *formality decision* in one map, change it in the other;
+> wording may differ but the formality call must match. (Don't re-file this as a DRY bug.)
+
 ## What it translates
 
 Transcreated per storefront (with App Store Connect character limits):

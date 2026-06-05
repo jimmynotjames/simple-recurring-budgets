@@ -196,6 +196,18 @@ and the skills point here.
 - **App Store metadata** — `translate-app-store-metadata` skill → `scripts/translate_metadata/`
   (structural `audit.py` + semantic `audit_semantic.py`). Gate: `check_metadata.py`.
 
+**Per-locale register notes are intentionally duplicated, not DRY.** The in-app
+`REGIONAL_NOTES` (`scripts/translate_catalog/dispatch_prompts.py`) and the App Store
+`CULTURAL_NOTES` (`scripts/translate_metadata/dispatch_prompts.py`) both carry per-language
+register/formality guidance. They overlap **only** in the *formality decision* per language
+(de→"du", ja→です/ます, ko→해요체); everything else legitimately differs (UI dialect/length vs
+ASO positioning/keyword/marketer voice), and some markets phrase the formality call itself
+differently for marketing. Issue #173 proposed single-sourcing them; we **deliberately closed
+it without code consolidation** because a shared-prose module needed a per-storefront override
+map that re-duplicated the formality sentence anyway. **Do not re-open this as a DRY violation.**
+The one real obligation is the **sync rule**: when you change a language's *formality decision*
+in one map, change it in the other (wording may differ; the formality call must match).
+
 **Cross-tool execution.** The Python scripts and gates are byte-identical everywhere; only the
 fan-out step (read each `tmp/.../{locale}.md` prompt → write `tmp/.../{locale}.json`) differs:
 

@@ -1,0 +1,15 @@
+Sabe lo que puedes gastar antes de gastarlo.
+
+Con Wren, decidir tus gastos del día a día es rápido y sencillo. Si puedes organizar tus objetivos de gasto en límites diarios, semanales, quincenales o mensuales, esta app es para ti.
+
+Funciones:
+• Configuración sencilla
+• Registro de gastos en un momento
+• Presupuestos diarios, semanales, quincenales y mensuales
+• Acumula lo que no gastas: lo que ahorras hoy pasa a mañana
+• Sincronización con iCloud entre tus dispositivos
+• Tus datos se quedan en el dispositivo y en iCloud
+
+No es una app para gastos de empresa, ni para guardar tickets del IRPF, ni una herramienta de contabilidad avanzada. No conecto tus cuentas del banco ni te lleno la pantalla de gráficas. Tus finanzas son tuyas, así que no te impongo ningún sistema.
+
+Descarga Wren y haz que cada día pese un poco menos.

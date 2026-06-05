@@ -1,0 +1,1 @@
+dinero,finanzas,ahorro,billetera,cuentas,personal,semanal,mensual,viáticos,tracker,gastar

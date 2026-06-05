@@ -1,0 +1,15 @@
+Biết mình còn được tiêu bao nhiêu, trước khi rút ví.
+
+Wren giúp bạn quyết định chi tiêu mỗi ngày thật nhanh và gọn. Nếu bạn muốn chia mục tiêu chi tiêu theo hạn mức ngày, tuần, hai tuần hay tháng, thì app này dành cho bạn.
+
+Tính năng:
+• Cài đặt dễ dàng
+• Ghi chi tiêu trong vài giây
+• Ngân sách theo ngày, tuần, hai tuần và tháng
+• Dồn phần chưa tiêu sang kỳ sau, để hôm nay tiết kiệm được bao nhiêu thì mai có thêm bấy nhiêu
+• Đồng bộ qua iCloud trên mọi thiết bị
+• Dữ liệu chỉ nằm trên máy bạn và trong iCloud
+
+Đây không phải app theo dõi chi phí công ty, lưu hóa đơn thuế hay công cụ lập ngân sách toàn diện. Mình không liên kết tài khoản ngân hàng hay vẽ ra mấy biểu đồ cầu kỳ. Chuyện tiền bạc là chuyện riêng, nên mình không áp đặt cho bạn một hệ thống tài chính nào cả.
+
+Tải Wren và để mỗi ngày trôi qua nhẹ nhàng hơn.

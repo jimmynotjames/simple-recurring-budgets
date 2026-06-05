@@ -278,7 +278,7 @@ final class AccessibilityAuditTests: XCTestCase {
   ///   never clips; the audit false-positives when the value exceeds the frame width.
   ///
   /// **iOS-COMPAT suppressions** (search `iOS-COMPAT` to find all workarounds):
-  /// Three findings are suppressed because of confirmed iOS 26.x platform bugs.
+  /// Four findings are suppressed because of confirmed iOS 26.x platform bugs.
   /// Each is tagged `// iOS-COMPAT(26.x):` inline. Re-evaluate on each major iOS
   /// bump: remove the suppression, run the suite, and delete the tag if it passes.
   ///   1. `.elementDetection` — sheet accessibility isolation is incomplete; system-
@@ -287,13 +287,19 @@ final class AccessibilityAuditTests: XCTestCase {
   ///      `.accessibilityIdentifier`, which distinguishes system-provided UI (no
   ///      identifier) from app-owned elements (explicitly annotated). Any element we tag
   ///      with `.accessibilityIdentifier` will still fail the test if unreachable.
-  ///   2. `.dynamicType` "partially unsupported" — system UIKit elements falsely
+  ///   2. `.sufficientElementDescription` — the same bleed-through lets a system keyboard
+  ///      `TUIPredictionViewCell` (predictive-text bar) leak into an open sheet's tree when
+  ///      a field auto-focuses. Suppressed only for elements WITHOUT a custom
+  ///      `.accessibilityIdentifier`, identical to the `.elementDetection` scope, so real
+  ///      description gaps on app-owned UI still fail.
+  ///   3. `.dynamicType` "partially unsupported" — system UIKit elements falsely
   ///      report this variant even when Dynamic Type is correctly adopted.
-  ///   3. `.textClipped` for `.button` and `.staticText` — sheet-boundary clipping
+  ///   4. `.textClipped` for `.button` and `.staticText` — sheet-boundary clipping
   ///      artifact and font-metric edge cases that produce no visible clipping.
   ///
-  /// All other audit types (hit region, sufficient description, trait, and the
-  /// harder "not supported" Dynamic Type message) remain active.
+  /// All other audit types (hit region, trait, and the harder "not supported" Dynamic
+  /// Type message) remain active, as does `.sufficientElementDescription` for any
+  /// app-owned element (non-empty `.accessibilityIdentifier`).
   private func knownIssueHandler(_ issue: XCUIAccessibilityAuditIssue) throws -> Bool {
     if issue.auditType == .contrast { return true }
     if issue.auditType == .elementDetection {
@@ -310,6 +316,23 @@ final class AccessibilityAuditTests: XCTestCase {
       //
       // When upgrading iOS: remove this block, run the suite, and confirm the blank-
       // identifier finding no longer fires. If it fires on a NEW iOS version, re-tag.
+      let id = issue.element?.identifier ?? ""
+      return id.isEmpty
+    }
+    if issue.auditType == .sufficientElementDescription {
+      // iOS-COMPAT(26.x): the same sheet accessibility-isolation bleed-through (see
+      // .elementDetection above) also lets system keyboard components leak into an open
+      // sheet's tree. When a form field auto-focuses, the predictive-text bar raises and a
+      // `TUIPredictionViewCell` (a UIKit system keyboard cell) appears in the sheet's
+      // accessibility tree without a useful description, tripping this audit.
+      //
+      // Suppression scope: elements with an EMPTY accessibility identifier only — identical
+      // to the .elementDetection scope. System UIKit elements carry no custom identifier;
+      // every accessible element we own is given an explicit `.accessibilityIdentifier`, so
+      // a real missing-description gap on app-owned UI still fails the test.
+      //
+      // When upgrading iOS: remove this block, run the suite, and confirm the system
+      // keyboard cell no longer fires. If it fires on a NEW iOS version, re-tag.
       let id = issue.element?.identifier ?? ""
       return id.isEmpty
     }

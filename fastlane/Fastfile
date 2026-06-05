@@ -138,8 +138,9 @@ platform :ios do
       skip_metadata: true,
       skip_screenshots: false,
       overwrite_screenshots: true,
-      force: true,              # skip the interactive HTML preview confirmation
-      submit_for_review: false  # upload only; you press submit in ASC
+      force: true,                          # skip the interactive HTML preview confirmation
+      run_precheck_before_submit: false,    # we're not submitting; precheck can't check IAPs via API key
+      submit_for_review: false              # upload only; you press submit in ASC
     )
   end
 end

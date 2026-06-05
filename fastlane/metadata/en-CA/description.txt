@@ -1,0 +1,15 @@
+Know what you can spend, before you spend it.
+
+Wren makes everyday spending decisions fast and simple. If you can break down your spending goals into daily, weekly, biweekly, or monthly limits, this app is for you.
+
+Features:
+• Easy set-up
+• Fast expense logging
+• Daily, weekly, biweekly, and monthly budgets
+• Carry over unspent funds, so what you save today rolls into tomorrow
+• iCloud sync across devices
+• Data is kept on-device and in iCloud
+
+This is not a business expense tracker, tax receipt logger, or master budgeting tool. I don't try to link your bank accounts or give you fancy graphs. Your finances are personal, so I don't try to impose a personal finance system on you.
+
+Download Wren and make every day more easeful.

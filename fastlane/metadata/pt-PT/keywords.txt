@@ -1,0 +1,1 @@
+despesas,dinheiro,finanças,poupança,carteira,mensal,semanal,contas,economias,registo,limites

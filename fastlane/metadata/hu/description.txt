@@ -1,0 +1,15 @@
+Tudd, mennyit költhetsz, mielőtt elköltöd.
+
+A Wrennel a hétköznapi pénzügyi döntések gyorsak és egyszerűek. Ha a kiadási céljaidat napi, heti, kéthetes vagy havi keretekre tudod bontani, ez az alkalmazás neked való.
+
+Funkciók:
+• Egyszerű beállítás
+• Villámgyors rögzítés
+• Napi, heti, kéthetes és havi keretek
+• A megmaradt keret átgördül, így a mai megtakarításod a holnapi napra száll át
+• iCloud-szinkron az eszközeid között
+• Az adatok az eszközön és az iCloudban maradnak
+
+Ez nem céges kiadáskövető, nem adóbizonylat-napló és nem nagyszabású költségvetési eszköz. Nem kötöm össze a bankszámláidat, és nem terhellek látványos grafikonokkal. A pénzügyeid személyesek, ezért nem erőltetek rád semmilyen rendszert.
+
+Töltsd le a Wrent, és tedd a mindennapjaidat könnyedebbé.

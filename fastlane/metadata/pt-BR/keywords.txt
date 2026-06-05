@@ -1,0 +1,1 @@
+despesas,dinheiro,financas,economia,carteira,planejamento,conta,salario,mensal,semanal

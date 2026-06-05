@@ -1,0 +1,1 @@
+udgifter,budget,penge,økonomi,opsparing,forbrug,regnskab,pengepung,ugentlig,månedlig,konto

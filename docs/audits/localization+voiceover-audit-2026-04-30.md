@@ -12,6 +12,20 @@
 
 > Companion implementation: code changes referenced in the **Remediation** section land in the same effort as this report. After remediation, the **Verification** appendix records pass/fail per screen.
 
+---
+
+## 2026-06-05 Revisit
+
+**Reviewed by:** Jimmy Ho (with agentic assistance — Cursor / Sonnet 4.6)
+
+All findings from the original audit (L-01 through L-06, V-01 through V-08) were verified as remediated in the codebase. No regressions found. Two doc-level policy decisions were made and recorded in this revisit:
+
+1. **`.isHeader` scoping clarified** — the original remediation note correctly applied `.isHeader` only to `List`/`Section` headers and semantic content-area headers (e.g. the budget detail status header). The policy docs (`main-prd.md` §6.8.1 and `tech-design-doc.md` §5.2) have been updated to explicitly exclude `GroupBox` card labels — those are visual section labels, not structural heading hierarchy.
+
+2. **Translation verification policy updated** — interactive human verification (pseudo-loc walkthrough, RTL walkthrough, live VoiceOver walkthrough) was re-categorised as **optional**. The `validate.py` pre-push gate is the required bar; AI-driven translation is the primary pipeline. Human spot-checks of `de`, `ar`, and `ja` are preferred before a significant release but not required. The verification tables in this doc and the policy in `main-prd.md` §6.8.3 have been updated accordingly.
+
+---
+
 ## Method
 
 ### Pass A — Localization
@@ -402,17 +416,15 @@ Walk the five key screens under each launch (Budgets list → Budget detail → 
 | Reset Carry-Over and Reset Budget controls speak destructive consequence | PASS | Both surfaces now have explicit `.accessibilityHint(...)`. |
 | Catalog parses as valid JSON                                          | PASS   | `python3 -c "import json; json.load(open(...))"` succeeds. |
 
-### Interactive verification (delegated to the human verifier)
+### Interactive verification (optional — human spot-check)
 
-The two interactive checks below cannot be completed by an autonomous agent and remain as procedures for the human verifier to execute. The procedures are documented in **Appendices B and C**.
+Per updated project policy (see `docs/main-prd.md` §6.8.3), translation and layout verification is **AI-driven**; the `validate.py` gate is the required bar. The manual smoke procedures below are **preferred before a significant release but not required**. Any findings should be filed as a follow-up change rather than re-opening this audit. Procedures are in **Appendices B and C**.
 
 | Check                                                                 | Result | Notes |
 | --------------------------------------------------------------------- | ------ | ----- |
-| Pseudo-loc walkthrough: no raw English keys visible on any screen     | TBD    | Run via `xcrun simctl launch` per Appendix B. |
-| RTL walkthrough: no broken layout on any screen                       | TBD    | Run via `xcrun simctl launch` per Appendix B with `-NSForceRightToLeftWritingDirection YES`. |
-| Live VO walkthrough: every checklist item passes                      | TBD    | Run per Appendix C on the booted simulator with VoiceOver on. |
-
-Once the human verifier completes the interactive checks, this table should be amended with PASS/FAIL and any new findings should be filed as a follow-up change rather than re-opening this audit (the static substrate underneath is now in a known-good state).
+| Pseudo-loc walkthrough: no raw English keys visible on any screen     | Deferred | Optional — run via `xcrun simctl launch` per Appendix B. |
+| RTL walkthrough: no broken layout on any screen                       | Deferred | Optional — run per Appendix B with `-NSForceRightToLeftWritingDirection YES`. |
+| Live VO walkthrough: every checklist item passes                      | Deferred | Optional — run per Appendix C on the booted simulator with VoiceOver on. |
 
 ---
 
@@ -435,18 +447,16 @@ Translations for all 38 App Store storefront locales were produced on 2026-05-03
 | `make build` | PASS — `** BUILD SUCCEEDED **` |
 | `make test` (unit suite) | PASS — all unit tests green; UITest runner encountered a transient AX initialization timeout (pre-existing simulator infrastructure flake, unrelated to translation changes) |
 
-### Interactive verification (delegated to the human verifier)
+### Interactive verification (optional — human spot-check)
 
-The simulator smoke tests per Appendix B should be re-run now that real translations are loaded, to verify layout and RTL correctness across locales:
+Per updated project policy (see `docs/main-prd.md` §6.8.3), the `validate.py` gate is the required bar; these locale smoke checks are **preferred before a significant release but not required**. Spot-checking `de`, `ar`, and `ja` covers the highest-risk cases (long compounds, RTL, no-word-space). Any findings should be filed as a follow-up change.
 
 | Check | Result | Notes |
 | ----- | ------ | ----- |
-| Pseudo-loc walkthrough (`-AppleLanguages '(en-XA)'`) — no raw keys visible | TBD | Re-run per Appendix B now that catalog has 38 new locale blocks |
-| Spanish (`es`) — no truncated buttons or broken HStacks | TBD | Spanish strings run ~15–20% longer than English |
-| German (`de`) — no truncated buttons (long compound words) | TBD | German strings often longer; test navigation titles |
-| Japanese (`ja`) — no broken HStack spacing (no word-spaces) | TBD | |
-| Hebrew (`he`) — RTL layout mirrors correctly | TBD | |
-| Arabic (`ar`) — RTL layout mirrors correctly; no specifier leakage | TBD | `ar` has highest risk of format-specifier reordering |
-| Thai (`th`) — no line-break issues | TBD | Thai has no word spaces |
-
-Once the human verifier completes these checks, update the table above with PASS/FAIL results and file any layout findings as a follow-up change.
+| Pseudo-loc walkthrough (`-AppleLanguages '(en-XA)'`) — no raw keys visible | Deferred | Optional — per Appendix B |
+| Spanish (`es`) — no truncated buttons or broken HStacks | Deferred | Optional — Spanish runs ~15–20% longer than English |
+| German (`de`) — no truncated buttons (long compound words) | Deferred | Recommended spot-check locale |
+| Japanese (`ja`) — no broken HStack spacing (no word-spaces) | Deferred | Recommended spot-check locale |
+| Hebrew (`he`) — RTL layout mirrors correctly | Deferred | Optional |
+| Arabic (`ar`) — RTL layout mirrors correctly; no specifier leakage | Deferred | Recommended spot-check locale; highest RTL risk |
+| Thai (`th`) — no line-break issues | Deferred | Optional |

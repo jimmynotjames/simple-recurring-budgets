@@ -12,6 +12,20 @@
 
 > Companion implementation: code changes referenced in the **Remediation** section land in the same effort as this report. After remediation, the **Verification** appendix records pass/fail per screen.
 
+---
+
+## 2026-06-05 Revisit
+
+**Reviewed by:** Jimmy Ho (with agentic assistance — Cursor / Sonnet 4.6)
+
+All findings from the original audit (L-01 through L-06, V-01 through V-08) were verified as remediated in the codebase. No regressions found. Two doc-level policy decisions were made and recorded in this revisit:
+
+1. **`.isHeader` scoping clarified** — the original remediation note correctly applied `.isHeader` only to `List`/`Section` headers and semantic content-area headers (e.g. the budget detail status header). The policy docs (`main-prd.md` §6.8.1 and `tech-design-doc.md` §5.2) have been updated to explicitly exclude `GroupBox` card labels — those are visual section labels, not structural heading hierarchy.
+
+2. **Translation verification policy updated** — interactive human verification (pseudo-loc walkthrough, RTL walkthrough, live VoiceOver walkthrough) was re-categorised as **optional**. The `validate.py` pre-push gate is the required bar; AI-driven translation is the primary pipeline. Human spot-checks of `de`, `ar`, and `ja` are preferred before a significant release but not required. The verification tables in this doc and the policy in `main-prd.md` §6.8.3 have been updated accordingly.
+
+---
+
 ## Method
 
 ### Pass A — Localization

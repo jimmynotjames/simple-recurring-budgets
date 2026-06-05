@@ -160,7 +160,7 @@ The one-time **initial build-out** of each concern below has shipped and is reco
 
 - Give all interactive and informational elements meaningful `.accessibilityLabel` values.
 - Collapse custom composite views (e.g. carry-over chip, currency picker rows, section headers) to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with a composed `.accessibilityLabel(...)`.
-- Mark section headings on `List` / form screens with `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them.
+- Mark section headings with `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them. **Applies to:** `List`/`Section` header `Text` views and semantic content-area headers (e.g. the budget detail status header). **Does not apply to:** `GroupBox` card labels — these are visual section labels, not structural heading hierarchy, and do not warrant `.isHeader`. Adding the trait to `GroupBox` labels is noise, not a requirement.
 - Give destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) an `.accessibilityHint(...)` describing the irreversible consequence.
 - Pair every `swipeActions` with an `.accessibilityAction(named:)` mirroring the gesture so VoiceOver users can invoke it via the rotor.
 
@@ -182,7 +182,7 @@ Translations for all 38 App Store storefront locales are shipped and must be kep
 - Carry a translator-friendly `comment:`; the catalog must have no orphan keys.
 - Be translated to all 38 storefront locales via the `scripts/translate_catalog/` pipeline (extract → translate → merge → validate) before the change ships to users.
 
-The 38 storefronts are: `ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`. Human pseudo-loc and per-locale spot checks remain part of release verification (procedure in Appendix B of the audit linked above). Full keying rules are in `docs/tech-design-doc.md` §5.1.
+The 38 storefronts are: `ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`. **Translation verification is AI-driven**: the `scripts/translate_catalog/validate.py` gate (enforced on `pre-push`) is the primary quality bar. Human pseudo-loc and per-locale spot checks (procedure in Appendix B of the audit linked above) are **preferred before a significant release but not required** — spot-checking `de`, `ar`, and `ja` is a reasonable lightweight pass. Full keying rules are in `docs/tech-design-doc.md` §5.1.
 
 #### 6.8.4 Mixpanel analytics for user actions
 

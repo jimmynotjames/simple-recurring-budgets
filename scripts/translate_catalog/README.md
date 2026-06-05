@@ -22,6 +22,8 @@ script does*. The skill is the authority for *when and how to invoke them*.
 | `dispatch_prompts.py` | Compose per-locale prompt files in `tmp/translate-prompts/` from `manifest.json` + `PROMPT_TEMPLATE.md` |
 | `validate.py` | Validate `tmp/translate-outputs/{locale}.json` files against source |
 | `merge.py` | Merge validated outputs back into `Localizable.xcstrings` |
+| `inspect_xcstrings.py` | Read-only catalog inspector (`info` / `find` / `show`) — use instead of ad-hoc `python3 -c` against the catalog |
+| `inspect_glossary.py` | Read-only glossary inspector (`info` / `term`) — use instead of ad-hoc `python3 -c` against `glossary.json` |
 | `PROMPT_TEMPLATE.md` | Template fed to per-locale subagents (placeholders substituted by `dispatch_prompts.py`) |
 
 No dependencies beyond Python 3 stdlib.
@@ -96,6 +98,26 @@ make format && make lint-fix && make build && make test
 - Use when a glossary term was re-translated so every string embedding it must flow through
   translation again (the term-changed sibling of `update_keys.py`'s English-changed path)
 - `--dry-run` — print what would be invalidated without writing
+
+`inspect_xcstrings.py` (read-only; never reach for `python3 -c` on the catalog):
+- `info` — sourceLanguage, key count, every locale present + per-locale string count
+- `find SUBSTRING [--in key|value|both] [--case-sensitive]` — keys matching key name and/or
+  English value; prints a trailing `COMMA LIST:` of keys to pipe into `--keys`/`--keys-file`
+- `show KEY [KEY ...] [--locales a,b,c]` — value + state per locale for each key
+
+`inspect_glossary.py` (read-only; never reach for `python3 -c` on `glossary.json`):
+- `info [--kept-english]` — meta, protected terms, term list (`--kept-english` flags terms
+  still carrying the English term verbatim in non-`en` locales)
+- `term TERM [TERM ...] [--locales a,b,c]` — a term's translations across locales
+
+```bash
+# Which keys mention "carry-over" anywhere, and the resulting comma list:
+python3 scripts/translate_catalog/inspect_xcstrings.py find carry-over
+# A specific key's value+state in a few locales:
+python3 scripts/translate_catalog/inspect_xcstrings.py show carryOver.label --locales de,fr,ja
+# A glossary term's per-locale translations:
+python3 scripts/translate_catalog/inspect_glossary.py term Carry-Over
+```
 
 ## Catalog assumptions
 

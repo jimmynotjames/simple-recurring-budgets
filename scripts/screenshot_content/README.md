@@ -14,7 +14,7 @@ The driver is the **`/appstore:screenshot-content`** command (skill
 ## What it produces
 
 A runtime-keyed JSON catalog under
-`simple-recurring-budgetsUITests/ScreenshotSeeds/<runtime>.json` (en-US + 38
+`simple-recurring-budgetsUITests/ScreenshotSeeds/<runtime>.json` (en-US + 49
 target runtimes). The catalog lives in the **UI test target** so the marketing
 fixtures never ship in the production app. The `AppStoreScreenshots` UI test loads
 the file matching the `-AppleLanguages` value fastlane `snapshot` launches with

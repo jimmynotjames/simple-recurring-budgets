@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "খাবার",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "BDT",
+      "allocation": "700",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "সকালের চা",
+          "amount": "25",
+          "daysAgo": 0
+        },
+        {
+          "name": "দুপুরের খাবার",
+          "amount": "180",
+          "daysAgo": 0
+        },
+        {
+          "name": "বাইরে ডিনার",
+          "amount": "480",
+          "daysAgo": 1
+        },
+        {
+          "name": "ঝটপট লাঞ্চ",
+          "amount": "150",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "বাজার",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "BDT",
+      "allocation": "2500",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "সাপ্তাহিক বাজার",
+          "amount": "1450",
+          "daysAgo": 1
+        },
+        {
+          "name": "কাঁচাবাজার",
+          "amount": "520",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "সাজগোজ",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "BDT",
+      "allocation": "3000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "স্কিনকেয়ার",
+          "amount": "850",
+          "daysAgo": 2
+        },
+        {
+          "name": "পার্লার",
+          "amount": "1200",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

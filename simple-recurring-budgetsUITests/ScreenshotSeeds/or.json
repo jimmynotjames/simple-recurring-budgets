@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "ଖାଦ୍ୟ",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "INR",
+      "allocation": "500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ସକାଳ ଚା",
+          "amount": "25",
+          "daysAgo": 0
+        },
+        {
+          "name": "ଦୁପୁର ଖାଇବା",
+          "amount": "180",
+          "daysAgo": 0
+        },
+        {
+          "name": "ବାହାରେ ରାତ୍ରି ଭୋଜନ",
+          "amount": "420",
+          "daysAgo": 1
+        },
+        {
+          "name": "ତରବରିଆ ଲଞ୍ଚ",
+          "amount": "150",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "ଗ୍ରୋସେରୀ",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "INR",
+      "allocation": "1800",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ସାପ୍ତାହିକ ବଜାର",
+          "amount": "1050",
+          "daysAgo": 1
+        },
+        {
+          "name": "ସବ୍ଜି ବଜାର",
+          "amount": "340",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "ସୌନ୍ଦର୍ଯ୍ୟ ଯତ୍ନ",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "INR",
+      "allocation": "1500",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ସ୍କିନକେୟାର",
+          "amount": "450",
+          "daysAgo": 2
+        },
+        {
+          "name": "ସେଲୁନ",
+          "amount": "350",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

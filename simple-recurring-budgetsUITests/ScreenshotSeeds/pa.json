@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "ਖਾਣਾ",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "INR",
+      "allocation": "500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ਸਵੇਰ ਦੀ ਚਾਹ",
+          "amount": "30",
+          "daysAgo": 0
+        },
+        {
+          "name": "ਦੁਪਹਿਰ ਦੀ ਥਾਲੀ",
+          "amount": "220",
+          "daysAgo": 0
+        },
+        {
+          "name": "ਬਾਹਰ ਡਿਨਰ",
+          "amount": "420",
+          "daysAgo": 1
+        },
+        {
+          "name": "ਛੇਤੀ ਲੰਚ",
+          "amount": "180",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "ਰਾਸ਼ਨ",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "INR",
+      "allocation": "2500",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ਹਫ਼ਤੇ ਦਾ ਰਾਸ਼ਨ",
+          "amount": "1450",
+          "daysAgo": 1
+        },
+        {
+          "name": "ਸਬਜ਼ੀ ਮੰਡੀ",
+          "amount": "480",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "ਸੈਲੂਨ ਤੇ ਕੇਅਰ",
+      "icon": "💇‍♀️",
+      "period": "monthly",
+      "currencyCode": "INR",
+      "allocation": "2000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ਸਕਿਨਕੇਅਰ",
+          "amount": "650",
+          "daysAgo": 2
+        },
+        {
+          "name": "ਹੇਅਰਕੱਟ",
+          "amount": "500",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

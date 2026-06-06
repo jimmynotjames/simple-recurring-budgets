@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "உணவு",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "INR",
+      "allocation": "500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "காலை டீ",
+          "amount": "20",
+          "daysAgo": 0
+        },
+        {
+          "name": "மதிய சாப்பாடு",
+          "amount": "180",
+          "daysAgo": 0
+        },
+        {
+          "name": "வெளியில் டின்னர்",
+          "amount": "320",
+          "daysAgo": 1
+        },
+        {
+          "name": "ஃபில்டர் காபி",
+          "amount": "30",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "மளிகை",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "INR",
+      "allocation": "1500",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "வாராந்திர மளிகை",
+          "amount": "850",
+          "daysAgo": 1
+        },
+        {
+          "name": "காய்கறி கடை",
+          "amount": "260",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "அழகு பராமரிப்பு",
+      "icon": "💅",
+      "period": "monthly",
+      "currencyCode": "INR",
+      "allocation": "2500",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ஸ்கின்கேர்",
+          "amount": "650",
+          "daysAgo": 2
+        },
+        {
+          "name": "சலூன்",
+          "amount": "800",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

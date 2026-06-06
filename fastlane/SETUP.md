@@ -110,10 +110,20 @@ A three-step flow: generate per-locale demo content → capture → upload.
 on TestFlight + 1** (`next_build_number` in the Fastfile). This:
 
 - never collides with an existing build (reads App Store Connect, which counts
-  builds still processing);
-- never rewrites `project.pbxproj` — the override is passed at build time via
-  `CURRENT_PROJECT_VERSION` in `xcargs`, so there's no version-bump commit and
-  the committed value stays `1`.
+  builds still processing) — App Store Connect stays the source of truth for the
+  number;
+- writes that number back into `project.pbxproj` (`set_project_build_number`,
+  `CURRENT_PROJECT_VERSION` on every target) **before** archiving, then commits
+  the change after a successful upload (`git_commit`, scoped to the pbxproj, **no
+  auto-push** — push it yourself). So the committed value tracks the last shipped
+  build instead of staying `1`, and a local / Xcode (Debug) build's Settings
+  → Version row shows that last-shipped number.
+
+Because local Debug builds now display the last-shipped build number (not their
+own), Debug builds append a localized **"· Debug"** marker to the version row so
+the number isn't mistaken for the live TestFlight build. The marker is compiled
+out of Release and suppressed during App Store screenshot capture
+(`SCREENSHOT_SYNC_OK`), so it never leaks into marketing screenshots.
 
 You only bump `MARKETING_VERSION` (the user-facing version, e.g. `0.1` → `0.2`)
 by hand in Xcode / the project; the build number takes care of itself.

@@ -30,6 +30,38 @@ struct SettingsView: View {
     Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
   }
 
+  /// Localized "Debug" marker appended to the version row in development builds,
+  /// so the local build number (always `1` unless a release was cut — see
+  /// fastlane `set_project_build_number`) isn't mistaken for the live TestFlight
+  /// build. Returns `nil` in Release. Also suppressed during App Store screenshot
+  /// capture (`SCREENSHOT_SYNC_OK`, set only by the `AppStoreScreenshots` UI test,
+  /// which builds in Debug) so the marker never leaks into marketing screenshots —
+  /// same screenshot-suppression flag used in `simple_recurring_budgetsApp`.
+  private var debugBadge: String? {
+    #if DEBUG
+      guard ProcessInfo.processInfo.environment["SCREENSHOT_SYNC_OK"] != "1" else { return nil }
+      return String(
+        localized: "settings.version.debugBadge",
+        defaultValue: "Debug",
+        comment: "Badge appended to the version/build string in development (Debug) builds so the local build number is not mistaken for a TestFlight/App Store build. Never shown in Release or in App Store screenshots."
+      )
+    #else
+      return nil
+    #endif
+  }
+
+  /// VoiceOver copy for the version row, with the `debugBadge` word appended in
+  /// development builds so assistive tech announces the Debug marker too.
+  private var versionAccessibilityLabel: String {
+    let base = String(
+      localized: "settings.version.accessibilityLabel",
+      defaultValue: "Version \(appVersion), build \(buildNumber)",
+      comment: "VoiceOver label for the app version row; arguments are the version string and build number"
+    )
+    guard let badge = debugBadge else { return base }
+    return "\(base), \(badge)"
+  }
+
   var body: some View {
     @Bindable var settings = settings
     NavigationStack {
@@ -423,17 +455,15 @@ private extension SettingsView {
         // Locale-invariant numerals + parentheses; use `verbatim:` so the
         // string is not extracted into the catalog and translators never
         // see a `%@ (%@)` format. The accessibilityLabel below carries the
-        // real localizable copy ("Version …, build …").
-        Text(verbatim: "\(appVersion) (\(buildNumber))")
+        // real localizable copy ("Version …, build …"). The optional
+        // " · Debug" suffix is the only localized piece (extracted via
+        // `debugBadge`'s `String(localized:)`); it appears in dev builds only.
+        Text(verbatim: "\(appVersion) (\(buildNumber))" + (debugBadge.map { " · \($0)" } ?? ""))
           .foregroundStyle(.secondary)
           .monospacedDigit()
       }
       .accessibilityElement(children: .combine)
-      .accessibilityLabel(String(
-        localized: "settings.version.accessibilityLabel",
-        defaultValue: "Version \(appVersion), build \(buildNumber)",
-        comment: "VoiceOver label for the app version row; arguments are the version string and build number"
-      ))
+      .accessibilityLabel(versionAccessibilityLabel)
       .listRowBackground(Color("CellBackground"))
     }
   }
@@ -563,21 +593,3 @@ private extension SettingsView {
     }
   }
 }
-
-// MARK: - Preview support
-
-private struct SettingsPreview: View {
-  var syncStatus: SyncStatus = .init(containerBacking: .cloudKit, accountStatus: .available)
-
-  var body: some View {
-    SettingsView()
-      .environment(AppSettings())
-      .environment(syncStatus)
-  }
-}
-
-#Preview("Light Mode") { SettingsPreview() }
-#Preview("Dark Mode") { SettingsPreview().preferredColorScheme(.dark) }
-#Preview("Accessibility Large") { SettingsPreview().dynamicTypeSize(.accessibility2) }
-#Preview("iCloud Unavailable") { SettingsPreview(syncStatus: SyncStatus(containerBacking: .cloudKit, accountStatus: .unavailable)) }
-#Preview("iCloud Paused") { SettingsPreview(syncStatus: SyncStatus(containerBacking: .localFallback, accountStatus: .available)) }

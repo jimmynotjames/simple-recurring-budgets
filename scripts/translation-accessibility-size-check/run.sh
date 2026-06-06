@@ -5,7 +5,7 @@ cd "$ROOT"
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────
 # Ad-hoc localized-layout screenshot capture (issue #171). NOT part of `make test` / any hook.
-# Runs LocalizationScreenshotCapture across 10 locales at forced .xxxLarge, exports the screenshots
+# Runs LocalizationScreenshotCapture across 13 locales at forced .xxxLarge, exports the screenshots
 # to tmp/loc-size-check/, downscales them, and leaves them for visual inspection (Claude eyeballs).
 #
 # Heavy: it spins up many simulator clones in parallel and saturates CPU/RAM for a while.
@@ -13,7 +13,7 @@ cd "$ROOT"
 #
 # Knobs (env):
 #   WORKERS         parallel simulator clones (default 7). Need NOT equal the language count — xcodebuild
-#                   distributes the 10 test methods across the workers. Each clone is a full simulator
+#                   distributes the 13 test methods across the workers. Each clone is a full simulator
 #                   (~1.5-2 GB resident) plus app + runner, so on a 16 GB machine keep this around 6-7;
 #                   higher will swap. Lower it on smaller RAM; raise it only with headroom to spare.
 #   SIMULATOR_NAME  base device to clone (default: repo default via _destination.sh). A compact model
@@ -46,7 +46,7 @@ bash scripts/build.sh >/dev/null
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 RESULT="${SIM_RESULTS_DIR}/${TIMESTAMP}-loc-size.xcresult"
 
-echo "→ Capturing screenshots across 10 locales @ xxxLarge with ${WORKERS} parallel clones …"
+echo "→ Capturing screenshots across 13 locales @ xxxLarge with ${WORKERS} parallel clones …"
 # Bypass the SRB_SIM_MAX clamp deliberately for this ad-hoc run (explicit override, not a default change).
 xcodebuild test \
   -project simple-recurring-budgets.xcodeproj \

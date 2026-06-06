@@ -12,15 +12,34 @@ APP_IDENTIFIER = "com.jimmyho.simple-recurring-budgets"
 # Next build number = highest build currently on TestFlight + 1.
 #
 # Derived from App Store Connect (not the local project), so it never collides
-# with an existing build and never rewrites project.pbxproj. The ASC builds API
-# counts builds that are still processing, so a freshly-uploaded build is
-# included. `initial_build_number: 0` means a brand-new app/version starts at 1.
+# with an existing build — App Store Connect stays the source of truth for the
+# number. The ASC builds API counts builds that are still processing, so a
+# freshly-uploaded build is included. `initial_build_number: 0` means a brand-new
+# app/version starts at 1.
 def next_build_number
   latest = latest_testflight_build_number(
     app_identifier: APP_IDENTIFIER,
     initial_build_number: 0
   )
   latest + 1
+end
+
+# Persist the build number into project.pbxproj so that local / Xcode (Debug)
+# builds display the last-shipped build number instead of the hardcoded `1`
+# (the Settings version row reads CFBundleVersion, synthesized from
+# CURRENT_PROJECT_VERSION by GENERATE_INFOPLIST_FILE). A plain gsub keeps the
+# file format identical so the diff is just the changed numeric tokens —
+# agvtool/`increment_build_number` can't be used here (VERSIONING_SYSTEM is
+# unset) and the xcodeproj gem would reformat the whole file. Sets every target
+# (app + tests) to the same number, matching agvtool semantics. ASC remains the
+# source of truth for collision-free numbering; this is purely so the committed
+# value tracks reality. See fastlane/SETUP.md "Build numbers".
+def set_project_build_number(number)
+  path = "../simple-recurring-budgets.xcodeproj/project.pbxproj"
+  contents = File.read(path)
+  updated = contents.gsub(/CURRENT_PROJECT_VERSION = \d+;/,
+                          "CURRENT_PROJECT_VERSION = #{number};")
+  File.write(path, updated)
 end
 
 platform :ios do
@@ -56,18 +75,26 @@ platform :ios do
   lane :beta do
     build_number = next_build_number
     UI.message("Auto-incrementing build number to #{build_number} (TestFlight latest + 1)")
+    # Write the number into project.pbxproj so the archive — and future local
+    # Debug builds — carry it (no more xcargs override). -allowProvisioningUpdates
+    # still lets Xcode create/refresh the distribution cert + app-store profile.
+    set_project_build_number(build_number)
     build_app(
       scheme: SCHEME,
       output_directory: OUTPUT_DIR,
       export_method: "app-store",
-      # Override CFBundleVersion at build time without touching project.pbxproj.
-      # Combined with automatic signing: -allowProvisioningUpdates lets Xcode
-      # create/refresh the distribution cert and app-store profile on demand.
-      xcargs: "-allowProvisioningUpdates CURRENT_PROJECT_VERSION=#{build_number}"
+      xcargs: "-allowProvisioningUpdates"
     )
     upload_to_testflight(
       skip_waiting_for_build_processing: true
     )
+    # Commit the version bump only after a successful upload, so the repo records
+    # only builds that actually shipped. Scoped to the pbxproj; does NOT push.
+    git_commit(
+      path: "simple-recurring-budgets.xcodeproj/project.pbxproj",
+      message: "chore(release): set build number to #{build_number}"
+    )
+    UI.success("Committed build #{build_number} to project.pbxproj. Push when ready.")
   end
 
   # ---------------------------------------------------------------------------
@@ -92,11 +119,13 @@ platform :ios do
 
     build_number = next_build_number
     UI.message("Auto-incrementing build number to #{build_number} (TestFlight latest + 1)")
+    # See `beta`: persist the number into project.pbxproj, then archive.
+    set_project_build_number(build_number)
     build_app(
       scheme: SCHEME,
       output_directory: OUTPUT_DIR,
       export_method: "app-store",
-      xcargs: "-allowProvisioningUpdates CURRENT_PROJECT_VERSION=#{build_number}"
+      xcargs: "-allowProvisioningUpdates"
     )
     upload_to_app_store(
       skip_screenshots: true,   # TODO: set false when screenshots/ is populated
@@ -105,6 +134,12 @@ platform :ios do
       force: true,              # skip the interactive HTML preview confirmation
       submit_for_review: false  # upload only; you press submit in ASC
     )
+    # Commit the version bump after a successful upload (scoped to pbxproj; no push).
+    git_commit(
+      path: "simple-recurring-budgets.xcodeproj/project.pbxproj",
+      message: "chore(release): set build number to #{build_number}"
+    )
+    UI.success("Committed build #{build_number} to project.pbxproj. Push when ready.")
   end
 
   # ---------------------------------------------------------------------------

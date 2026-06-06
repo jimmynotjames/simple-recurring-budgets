@@ -116,6 +116,24 @@ CURRENCY_BY_STOREFRONT: dict[str, str] = {
 # The en-US source currency.
 CURRENCY_BY_STOREFRONT[SOURCE_LOCALE] = "USD"
 
+# 11 storefronts added 2026-03-31 (region-qualified codes; see metadata_locales).
+# India locales use INR; plus Bangladesh (BDT), Pakistan (PKR), Slovenia (EUR).
+CURRENCY_BY_STOREFRONT.update(
+    {
+        "bn-BD": "BDT",
+        "gu-IN": "INR",
+        "kn-IN": "INR",
+        "ml-IN": "INR",
+        "mr-IN": "INR",
+        "or-IN": "INR",
+        "pa-IN": "INR",
+        "sl-SI": "EUR",
+        "ta-IN": "INR",
+        "te-IN": "INR",
+        "ur-PK": "PKR",
+    }
+)
+
 # ISO-4217 currencies that have NO minor unit (amounts are whole numbers). Used
 # by validate.py to reject e.g. "2500.50" JPY, and told to the subagent so it
 # writes whole-number amounts for these markets.

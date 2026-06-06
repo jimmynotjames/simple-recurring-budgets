@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "ಊಟ-ತಿಂಡಿ",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "INR",
+      "allocation": "500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ಬೆಳಗಿನ ಚಹಾ",
+          "amount": "25",
+          "daysAgo": 0
+        },
+        {
+          "name": "ಮಧ್ಯಾಹ್ನದ ಊಟ",
+          "amount": "180",
+          "daysAgo": 0
+        },
+        {
+          "name": "ಹೊರಗೆ ಊಟ",
+          "amount": "420",
+          "daysAgo": 1
+        },
+        {
+          "name": "ಬೇಗ ಊಟ",
+          "amount": "160",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "ದಿನಸಿ",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "INR",
+      "allocation": "2000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ವಾರದ ದಿನಸಿ",
+          "amount": "1150",
+          "daysAgo": 1
+        },
+        {
+          "name": "ತರಕಾರಿ ಮಾರ್ಕೆಟ್",
+          "amount": "320",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "ಸೌಂದರ್ಯ",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "INR",
+      "allocation": "1500",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ಸ್ಕಿನ್‌ಕೇರ್",
+          "amount": "450",
+          "daysAgo": 2
+        },
+        {
+          "name": "ಹೇರ್‌ಕಟ್",
+          "amount": "300",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "ખાવા-પીવાનું",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "INR",
+      "allocation": "500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "સવારની ચા",
+          "amount": "30",
+          "daysAgo": 0
+        },
+        {
+          "name": "બપોરનું જમવાનું",
+          "amount": "180",
+          "daysAgo": 0
+        },
+        {
+          "name": "બહાર ડિનર",
+          "amount": "420",
+          "daysAgo": 1
+        },
+        {
+          "name": "ઝટપટ લંચ",
+          "amount": "220",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "કરિયાણું",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "INR",
+      "allocation": "3000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "અઠવાડિક ખરીદી",
+          "amount": "1850",
+          "daysAgo": 1
+        },
+        {
+          "name": "શાકભાજી",
+          "amount": "560",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "બ્યુટી અને કેર",
+      "icon": "💆‍♀️",
+      "period": "monthly",
+      "currencyCode": "INR",
+      "allocation": "2500",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "સ્કિનકેર",
+          "amount": "650",
+          "daysAgo": 2
+        },
+        {
+          "name": "પાર્લર",
+          "amount": "800",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

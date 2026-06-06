@@ -61,7 +61,19 @@ languages([
   "uk",
   "vi",
   "zh-Hans",
-  "zh-Hant"
+  "zh-Hant",
+  # 11 locales added 2026-03-31 (App Store expansion); runtime codes.
+  "bn",
+  "gu",
+  "kn",
+  "ml",
+  "mr",
+  "or",
+  "pa",
+  "sl",
+  "ta",
+  "te",
+  "ur"
 ])
 
 scheme("simple-recurring-budgets")

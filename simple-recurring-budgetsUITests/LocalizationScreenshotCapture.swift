@@ -181,6 +181,10 @@ final class LocalizationScreenshotCapture: XCTestCase {
   private func localeID(_ lang: String) -> String {
     ["de": "de_DE", "fi": "fi_FI", "ru": "ru_RU", "th": "th_TH",
      "vi": "vi_VN", "ar": "ar_SA", "he": "he_IL",
-     "ja": "ja_JP", "zh-Hans": "zh_CN", "hi": "hi_IN"][lang] ?? "\(lang)_\(lang.uppercased())"
+     "ja": "ja_JP", "zh-Hans": "zh_CN", "hi": "hi_IN",
+     // 11 locales added 2026-03-31; region matches the App Store storefront.
+     "bn": "bn_BD", "gu": "gu_IN", "kn": "kn_IN", "ml": "ml_IN", "mr": "mr_IN",
+     "or": "or_IN", "pa": "pa_IN", "sl": "sl_SI", "ta": "ta_IN", "te": "te_IN",
+     "ur": "ur_PK"][lang] ?? "\(lang)_\(lang.uppercased())"
   }
 }

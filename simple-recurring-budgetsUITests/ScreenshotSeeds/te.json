@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "ఫుడ్",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "INR",
+      "allocation": "500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "మార్నింగ్ చాయ్",
+          "amount": "30",
+          "daysAgo": 0
+        },
+        {
+          "name": "లంచ్",
+          "amount": "180",
+          "daysAgo": 0
+        },
+        {
+          "name": "డిన్నర్ బయట",
+          "amount": "340",
+          "daysAgo": 1
+        },
+        {
+          "name": "క్విక్ లంచ్",
+          "amount": "160",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "గ్రోసరీస్",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "INR",
+      "allocation": "1800",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "వీక్లీ గ్రోసరీ",
+          "amount": "1050",
+          "daysAgo": 1
+        },
+        {
+          "name": "కూరగాయల మార్కెట్",
+          "amount": "320",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "బ్యూటీ & కేర్",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "INR",
+      "allocation": "2500",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "స్కిన్‌కేర్",
+          "amount": "650",
+          "daysAgo": 2
+        },
+        {
+          "name": "హెయిర్‌కట్",
+          "amount": "400",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

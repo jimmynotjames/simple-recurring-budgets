@@ -1,0 +1,80 @@
+{
+  "budgets": [
+    {
+      "role": "everyday-food",
+      "name": "ഭക്ഷണം",
+      "icon": "🍛",
+      "period": "daily",
+      "currencyCode": "INR",
+      "allocation": "500",
+      "startOffsetDays": 3,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "രാവിലെ ചായ",
+          "amount": "30",
+          "daysAgo": 0
+        },
+        {
+          "name": "ഉച്ചഭക്ഷണം",
+          "amount": "180",
+          "daysAgo": 0
+        },
+        {
+          "name": "ഹോട്ടലിൽ അത്താഴം",
+          "amount": "420",
+          "daysAgo": 1
+        },
+        {
+          "name": "പെട്ടെന്നൊരു ഊണ്",
+          "amount": "160",
+          "daysAgo": 2
+        }
+      ]
+    },
+    {
+      "role": "groceries",
+      "name": "പലവ്യഞ്ജനം",
+      "icon": "🛒",
+      "period": "weekly",
+      "currencyCode": "INR",
+      "allocation": "2000",
+      "startOffsetDays": 5,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "ആഴ്ചയിലെ സാധനങ്ങൾ",
+          "amount": "1150",
+          "daysAgo": 1
+        },
+        {
+          "name": "പച്ചക്കറി മാർക്കറ്റ്",
+          "amount": "340",
+          "daysAgo": 3
+        }
+      ]
+    },
+    {
+      "role": "personal",
+      "name": "സൗന്ദര്യ പരിചരണം",
+      "icon": "💄",
+      "period": "monthly",
+      "currencyCode": "INR",
+      "allocation": "2000",
+      "startOffsetDays": 8,
+      "isCarryOverEnabled": true,
+      "expenses": [
+        {
+          "name": "സ്കിൻകെയർ",
+          "amount": "650",
+          "daysAgo": 2
+        },
+        {
+          "name": "ബ്യൂട്ടി പാർലർ",
+          "amount": "550",
+          "daysAgo": 5
+        }
+      ]
+    }
+  ]
+}

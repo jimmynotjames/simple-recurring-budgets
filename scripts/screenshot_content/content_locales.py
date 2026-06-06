@@ -134,6 +134,69 @@ CURRENCY_BY_STOREFRONT.update(
     }
 )
 
+# Representative ISO-3166 region per storefront — the market whose currency and
+# number formatting the screenshots should render. Chosen as the primary market of
+# the storefront's dominant consumer currency above (so the region's locale resolves
+# to that exact currency). Drives the `-AppleLocale` the capture launches each locale
+# with, via `primary_locale_for_storefront()` below: fastlane `snapshot` only sets
+# `-AppleLanguages`, leaving language-only locales (de, ja, nb, …) region-less, which
+# makes `Locale.currency` nil and the Settings currency-display example fall back to
+# USD even though the seeded budgets show the right currency. Keep this 1:1 with
+# CURRENCY_BY_STOREFRONT (same market).
+REGION_BY_STOREFRONT: dict[str, str] = {
+    "ar-SA": "SA",
+    "bn-BD": "BD",
+    "ca": "ES",
+    "cs": "CZ",
+    "da": "DK",
+    "de-DE": "DE",
+    "el": "GR",
+    "en-AU": "AU",
+    "en-CA": "CA",
+    "en-GB": "GB",
+    "es-ES": "ES",
+    "es-MX": "MX",
+    "fi": "FI",
+    "fr-CA": "CA",
+    "fr-FR": "FR",
+    "gu-IN": "IN",
+    "he": "IL",
+    "hi": "IN",
+    "hr": "HR",
+    "hu": "HU",
+    "id": "ID",
+    "it": "IT",
+    "ja": "JP",
+    "kn-IN": "IN",
+    "ko": "KR",
+    "ml-IN": "IN",
+    "mr-IN": "IN",
+    "ms": "MY",
+    "nl-NL": "NL",
+    "no": "NO",
+    "or-IN": "IN",
+    "pa-IN": "IN",
+    "pl": "PL",
+    "pt-BR": "BR",
+    "pt-PT": "PT",
+    "ro": "RO",
+    "ru": "RU",
+    "sk": "SK",
+    "sl-SI": "SI",
+    "sv": "SE",
+    "ta-IN": "IN",
+    "te-IN": "IN",
+    "th": "TH",
+    "tr": "TR",
+    "uk": "UA",
+    "ur-PK": "PK",
+    "vi": "VN",
+    "zh-Hans": "CN",
+    "zh-Hant": "TW",
+}
+# The en-US source region.
+REGION_BY_STOREFRONT[SOURCE_LOCALE] = "US"
+
 # ISO-4217 currencies that have NO minor unit (amounts are whole numbers). Used
 # by validate.py to reject e.g. "2500.50" JPY, and told to the subagent so it
 # writes whole-number amounts for these markets.
@@ -160,6 +223,32 @@ def runtime_for_storefront(storefront: str) -> str:
     return STOREFRONT_TO_RUNTIME[storefront]
 
 
+def primary_locale_for_storefront(storefront: str) -> str:
+    """Return the ICU locale identifier the screenshots launch this storefront with.
+
+    Built from the runtime locale code + the storefront's representative region:
+      de-DE  -> de_DE      (region appended to a language-only runtime)
+      no     -> nb_NO      (runtime `nb`, region NO)
+      zh-Hans-> zh_Hans_CN (script kept, region appended)
+      pt-BR  -> pt_BR      (runtime already region-qualified; left as-is)
+
+    Passed to the app as `-AppleLocale` so `Locale.autoupdatingCurrent.currency`
+    resolves to the market's currency (REGION_BY_STOREFRONT is kept 1:1 with
+    CURRENCY_BY_STOREFRONT) and number/date formatting matches the market.
+    """
+    region = REGION_BY_STOREFRONT[storefront]
+    base = runtime_for_storefront(storefront).replace("-", "_")
+    suffix = f"_{region}"
+    return base if base.endswith(suffix) else f"{base}{suffix}"
+
+
+def primary_locale_for_runtime(runtime: str) -> str:
+    """Same as `primary_locale_for_storefront`, keyed by the runtime locale code."""
+    if runtime == SOURCE_LOCALE:
+        return primary_locale_for_storefront(SOURCE_LOCALE)
+    return primary_locale_for_storefront(RUNTIME_TO_STOREFRONT[runtime])
+
+
 __all__ = [
     "REPO_ROOT",
     "PIPELINE_DIR",
@@ -173,9 +262,12 @@ __all__ = [
     "REQUIRED_ROLES",
     "VALID_PERIODS",
     "CURRENCY_BY_STOREFRONT",
+    "REGION_BY_STOREFRONT",
     "ZERO_DECIMAL_CURRENCIES",
     "currency_decimals",
     "runtime_for_storefront",
+    "primary_locale_for_storefront",
+    "primary_locale_for_runtime",
     # re-exported from metadata_locales for convenience
     "RUNTIME_TO_STOREFRONT",
     "STOREFRONT_TO_RUNTIME",

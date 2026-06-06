@@ -27,6 +27,7 @@ from content_locales import (  # noqa: E402
     REQUIRED_ROLES,
     SOURCE_LOCALE,
     STOREFRONT_LOCALES,
+    primary_locale_for_runtime,
     runtime_for_storefront,
 )
 
@@ -64,6 +65,12 @@ def main() -> int:
         for required in REQUIRED_ROLES:
             if required not in roles:
                 issues.append(f"  NOROLE   {runtime}.json: missing {required!r}")
+        expected_locale = primary_locale_for_runtime(runtime)
+        if data.get("primaryLocale") != expected_locale:
+            issues.append(
+                f"  LOCALE   {runtime}.json: primaryLocale {data.get('primaryLocale')!r} "
+                f"!= expected {expected_locale!r} (run set_primary_locales.py)"
+            )
 
     if issues:
         print(f"check_content: {len(issues)} issue(s) under {CATALOG_DIR.relative_to(CATALOG_DIR.parents[1])}/\n")

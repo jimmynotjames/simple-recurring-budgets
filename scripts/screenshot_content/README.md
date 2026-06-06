@@ -20,6 +20,15 @@ fixtures never ship in the production app. The `AppStoreScreenshots` UI test loa
 the file matching the `-AppleLanguages` value fastlane `snapshot` launches with
 and seeds the app via the `SEED_SCREENSHOTS_JSON` launch-env contract.
 
+Each file also carries a top-level **`primaryLocale`** — the region-qualified ICU
+locale identifier (`de_DE`, `ja_JP`, `nb_NO`, …) the UI test passes as
+`-AppleLocale`. fastlane only sets `-AppleLanguages`, so language-only locales stay
+region-less and `Locale.currency` resolves to nil, making the Settings
+currency-display example fall back to USD; `primaryLocale` pins the market so every
+shot shows the right currency and number formatting. The value is owned by
+`REGION_BY_STOREFRONT` in `content_locales.py` (kept 1:1 with the currency map) and
+the production `ScreenshotSeed` decoder ignores the key.
+
 ## Locale codes
 
 - Subagent work is keyed by **storefront** codes (de-DE, no, ar-SA, …), reusing
@@ -69,14 +78,15 @@ dashboard). Re-dispatch only the PENDING/FAIL subagents; do **not** re-run
 
 | File | Role |
 | --- | --- |
-| `content_locales.py` | Config: locale mapping (reused), currency-by-storefront, decimals, paths, MAX_BUDGETS. |
+| `content_locales.py` | Config: locale mapping (reused), currency-by-storefront, region-by-storefront, decimals, paths, MAX_BUDGETS. |
 | `SOURCE.json` | Canonical English structure (the en-US catalog entry too). |
 | `PROMPT_TEMPLATE.md` | Per-locale transcreation prompt (rules + realism anchors). |
 | `extract.py` | Stage source + compute manifest (`--missing`). |
 | `dispatch_prompts.py` | Compose per-storefront prompts (reuses metadata `CULTURAL_NOTES`). |
 | `validate.py` | Structural + content validation (`--subset`, `--json`). |
-| `merge.py` | Write runtime-keyed catalog + en-US source entry. |
-| `check_content.py` | Completeness gate over the catalog. |
+| `merge.py` | Write runtime-keyed catalog + en-US source entry (incl. `primaryLocale`). |
+| `set_primary_locales.py` | Deterministic backfill/sync of `primaryLocale` into the committed catalog (no regen); `--check` to gate. |
+| `check_content.py` | Completeness gate over the catalog (incl. `primaryLocale`). |
 | `rename_for_deliver.py` | Rename captured screenshot folders runtime → storefront. |
 
 ## Not in scope

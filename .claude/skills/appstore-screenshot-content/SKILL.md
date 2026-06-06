@@ -120,7 +120,11 @@ python3 scripts/screenshot_content/merge.py
 
 Writes each storefront's runtime-keyed catalog file and (re)writes the en-US entry
 from source. `_questions` arrays live only in `tmp/screenshot-content-outputs/`;
-`merge.py` writes only `budgets`.
+`merge.py` writes `budgets` plus a top-level `primaryLocale` (the region-qualified
+`-AppleLocale`, e.g. `de_DE`, that makes the Settings currency-display example show
+the market's currency). To resync `primaryLocale` into the committed catalog
+without regenerating content (e.g. after editing `REGION_BY_STOREFRONT`), run
+`python3 scripts/screenshot_content/set_primary_locales.py`.
 
 ### 4a. Surface content questions (the one human checkpoint)
 

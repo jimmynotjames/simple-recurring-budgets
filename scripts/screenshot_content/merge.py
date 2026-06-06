@@ -30,6 +30,7 @@ from content_locales import (  # noqa: E402
     OUTPUTS_DIR,
     SOURCE_LOCALE,
     STOREFRONT_LOCALES,
+    primary_locale_for_runtime,
     runtime_for_storefront,
 )
 
@@ -38,7 +39,11 @@ SOURCE_PATH = INPUTS_DIR / "source.json"
 
 def write_catalog(runtime: str, data: dict) -> None:
     CATALOG_DIR.mkdir(parents=True, exist_ok=True)
-    payload = {"budgets": data["budgets"]}
+    # `primaryLocale` is the region-qualified ICU id the AppStoreScreenshots UI test
+    # launches this locale with (-AppleLocale), so the Settings currency-display
+    # example renders the market's currency. The production ScreenshotSeed decoder
+    # ignores this key. See content_locales.primary_locale_for_runtime.
+    payload = {"primaryLocale": primary_locale_for_runtime(runtime), "budgets": data["budgets"]}
     path = CATALOG_DIR / f"{runtime}.json"
     with path.open("w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)

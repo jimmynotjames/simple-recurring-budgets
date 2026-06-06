@@ -28,6 +28,13 @@ space-delimited — never split a term into characters).
 stays as-is. The app name should remain recognizable. ("Carry-Over" is a product concept, not a
 protected name — it should be transcreated to the natural local equivalent, matching the in-app term.)
 
+**RTL brand placement (Arabic / Hebrew / Urdu only).** In a right-to-left locale, no line, sentence,
+or paragraph may *begin* with a Latin token ("Wren", "iCloud"): a line that starts with a strong
+left-to-right word mis-renders and flings the token to the line's visual end, where it reads as
+orphaned. Flag any line-initial Latin token (category `brand`, severity `medium`+); the fix is to
+lead with a native RTL word and keep the brand mid-sentence (see the shipped Arabic listing). The
+`name` field's `Wren – …` prefix is exempt — that format is mandatory in every locale.
+
 **Length.** Each field has a hard App Store Connect limit (given as `charLimit`). A field **over its
 limit is a high-severity bug**. Also flag copy that's awkwardly padded just to fill space.
 

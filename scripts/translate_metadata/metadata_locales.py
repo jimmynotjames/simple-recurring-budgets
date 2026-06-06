@@ -37,9 +37,16 @@ BRAND = "Wren"
 # Map each in-app runtime locale to its App Store Connect storefront code.
 # Codes that are identical in both systems map to themselves. The values are the
 # exact folder names `deliver` expects under fastlane/metadata/.
+#
+# IMPORTANT: several markets require a REGION-QUALIFIED storefront code even though
+# the app's runtime code is plain — e.g. bn->bn-BD, gu/kn/ml/mr/or/pa/ta/te->*-IN,
+# sl->sl-SI, ur->ur-PK. `deliver`/App Store Connect REJECTS the plain code and fails
+# the upload with "Unsupported directory name(s)". When adding a locale, do NOT assume
+# runtime == storefront: confirm its value against the list `fastlane push_metadata`
+# prints when it hits an unknown folder (or ASC's locale list).
 RUNTIME_TO_STOREFRONT: dict[str, str] = {
     "ar": "ar-SA",
-    "bn": "bn",
+    "bn": "bn-BD",
     "ca": "ca",
     "cs": "cs",
     "da": "da",
@@ -53,7 +60,7 @@ RUNTIME_TO_STOREFRONT: dict[str, str] = {
     "fi": "fi",
     "fr": "fr-FR",
     "fr-CA": "fr-CA",
-    "gu": "gu",
+    "gu": "gu-IN",
     "he": "he",
     "hi": "hi",
     "hr": "hr",
@@ -61,29 +68,29 @@ RUNTIME_TO_STOREFRONT: dict[str, str] = {
     "id": "id",
     "it": "it",
     "ja": "ja",
-    "kn": "kn",
+    "kn": "kn-IN",
     "ko": "ko",
-    "ml": "ml",
-    "mr": "mr",
+    "ml": "ml-IN",
+    "mr": "mr-IN",
     "ms": "ms",
     "nb": "no",
     "nl": "nl-NL",
-    "or": "or",
-    "pa": "pa",
+    "or": "or-IN",
+    "pa": "pa-IN",
     "pl": "pl",
     "pt-BR": "pt-BR",
     "pt-PT": "pt-PT",
     "ro": "ro",
     "ru": "ru",
     "sk": "sk",
-    "sl": "sl",
+    "sl": "sl-SI",
     "sv": "sv",
-    "ta": "ta",
-    "te": "te",
+    "ta": "ta-IN",
+    "te": "te-IN",
     "th": "th",
     "tr": "tr",
     "uk": "uk",
-    "ur": "ur",
+    "ur": "ur-PK",
     "vi": "vi",
     "zh-Hans": "zh-Hans",
     "zh-Hant": "zh-Hant",

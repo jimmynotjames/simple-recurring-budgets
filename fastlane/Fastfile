@@ -116,8 +116,9 @@ platform :ios do
     upload_to_app_store(
       skip_binary_upload: true,
       skip_screenshots: true,
-      force: true,
-      submit_for_review: false
+      force: true,                          # skip the interactive HTML preview confirmation
+      run_precheck_before_submit: false,    # we're not submitting; precheck can't check IAPs via API key
+      submit_for_review: false              # upload only; you press submit in ASC
     )
   end
 

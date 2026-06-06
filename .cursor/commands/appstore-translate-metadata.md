@@ -2,11 +2,11 @@
 name: /appstore-translate-metadata
 id: appstore-translate-metadata
 category: App Store
-description: Transcreate the App Store text listing into all 38 storefront locales
+description: Transcreate the App Store text listing into all 49 storefront locales
 ---
 
 Transcreate the App Store **text metadata** (name, subtitle, keywords, promotional
-text, description, release notes) from English into all 38 App Store storefront
+text, description, release notes) from English into all 49 App Store storefront
 locales under `fastlane/metadata/`.
 
 Follow the **`appstore-translate-metadata`** skill recipe end to end

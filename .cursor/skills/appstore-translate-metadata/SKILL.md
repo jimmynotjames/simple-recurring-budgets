@@ -1,6 +1,6 @@
 ---
 name: appstore-translate-metadata
-description: Transcreate the App Store listing (name, subtitle, keywords, promotional text, description, release notes) from English into all 38 App Store storefront locales under fastlane/metadata/. Invoked via /appstore:translate-metadata. Use after editing any fastlane/metadata/en-US/*.txt, or when check_metadata.py reports gaps. Drives the scripts/translate_metadata/ pipeline in subset mode with parallel per-storefront Opus subagents. This is the App-Store-metadata sibling of translate-new-strings (in-app strings) and appstore-screenshot-content (screenshot demo data).
+description: Transcreate the App Store listing (name, subtitle, keywords, promotional text, description, release notes) from English into all 49 App Store storefront locales under fastlane/metadata/. Invoked via /appstore:translate-metadata. Use after editing any fastlane/metadata/en-US/*.txt, or when check_metadata.py reports gaps. Drives the scripts/translate_metadata/ pipeline in subset mode with parallel per-storefront Opus subagents. This is the App-Store-metadata sibling of translate-new-strings (in-app strings) and appstore-screenshot-content (screenshot demo data).
 ---
 
 # Translate App Store metadata
@@ -11,7 +11,7 @@ existing `scripts/translate_metadata/` pipeline in subset mode.
 
 **Definition of done:** `python3 scripts/translate_metadata/check_metadata.py`
 exits 0 — every translatable field the English source has authored is populated
-and within its character limit across all 38 target storefronts.
+and within its character limit across all 49 target storefronts.
 
 This is the **metadata** pipeline (App Store listing). For in-app UI strings in
 `Localizable.xcstrings`, use the separate `translate-new-strings` skill. They use

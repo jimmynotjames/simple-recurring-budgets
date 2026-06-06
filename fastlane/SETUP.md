@@ -38,7 +38,7 @@ App Store Connect **API key** (no Apple ID / 2FA).
   `metadata/en-US/*.txt`, then run the **`appstore-translate-metadata`** skill
   (`/appstore:translate-metadata`), which drives `scripts/translate_metadata/`
   (extract → dispatch → per-storefront Opus subagents → validate → merge) to
-  transcreate all 38 storefronts here.
+  transcreate all 49 storefronts here.
   `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront
   map, so there's no need to run `fastlane deliver init`. The gate is
   `python3 scripts/translate_metadata/check_metadata.py` (exit 0 = ready).

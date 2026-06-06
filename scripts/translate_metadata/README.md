@@ -1,6 +1,6 @@
 # `translate_metadata/` — App Store listing transcreation pipeline
 
-Fills `fastlane/metadata/<storefront>/*.txt` for all 38 target App Store
+Fills `fastlane/metadata/<storefront>/*.txt` for all 49 target App Store
 storefronts by transcreating the English (`en-US`) listing copy. This is the
 App-Store-metadata sibling of `scripts/translate_catalog/` (which handles in-app
 `Localizable.xcstrings`).

@@ -45,6 +45,28 @@ App Store Connect **API key** (no Apple ID / 2FA).
   Once green, `fastlane push_metadata` uploads metadata only, or flip
   `skip_metadata:false` in the `release` lane.
 
+### Pushing metadata — gotchas for a brand-new app
+
+`push_metadata` is API-key only and sets `run_precheck_before_submit: false`
+(precheck can't inspect in-app purchases via an API key). Two things bite on the
+**very first** App Store version:
+
+1. **`[!] No data` crash.** After deliver uploads all the localized text, it
+   fetches the version's *App Review Information*, which doesn't exist yet on a
+   brand-new version, and raises (fastlane #20538) — the text already uploaded.
+   **One-time fix:** in App Store Connect → the unreleased ("Prepare for
+   Submission") version → **App Review Information**, fill the contact fields and
+   **Save**, then re-run `push_metadata`. Later versions already have the record.
+2. **Region-qualified storefront folders.** The newest locales use
+   region-qualified codes (`bn-BD`, `gu-IN`, … `ur-PK`); deliver rejects plain
+   ones with "Unsupported directory name(s)". `metadata_locales.py` owns the map —
+   fix it there, don't assume runtime == storefront.
+
+**RTL listings.** In `ar-SA` / `he` / `ur-PK`, never let a description line *begin*
+with a Latin token (`Wren` / `iCloud`) — it mis-renders to the line's visual end.
+The transcreation and audit prompts now enforce this, but eyeball the rendered RTL
+listings in ASC before submitting.
+
 ### Screenshots (all locales)
 
 A three-step flow: generate per-locale demo content → capture → upload.

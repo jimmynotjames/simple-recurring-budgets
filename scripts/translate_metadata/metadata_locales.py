@@ -37,6 +37,13 @@ BRAND = "Wren"
 # Map each in-app runtime locale to its App Store Connect storefront code.
 # Codes that are identical in both systems map to themselves. The values are the
 # exact folder names `deliver` expects under fastlane/metadata/.
+#
+# IMPORTANT: several markets require a REGION-QUALIFIED storefront code even though
+# the app's runtime code is plain — e.g. bn->bn-BD, gu/kn/ml/mr/or/pa/ta/te->*-IN,
+# sl->sl-SI, ur->ur-PK. `deliver`/App Store Connect REJECTS the plain code and fails
+# the upload with "Unsupported directory name(s)". When adding a locale, do NOT assume
+# runtime == storefront: confirm its value against the list `fastlane push_metadata`
+# prints when it hits an unknown folder (or ASC's locale list).
 RUNTIME_TO_STOREFRONT: dict[str, str] = {
     "ar": "ar-SA",
     "bn": "bn-BD",

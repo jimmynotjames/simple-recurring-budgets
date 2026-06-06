@@ -1,6 +1,6 @@
 # Translation pipeline
 
-Translates `Localizable.xcstrings` from English into the 38 App Store storefront locales
+Translates `Localizable.xcstrings` from English into the 49 App Store storefront locales
 using AI subagents (one per locale, dispatched in parallel by a parent agent).
 
 The skill at `.claude/skills/translate-new-strings/` encodes the canonical workflow for
@@ -74,7 +74,7 @@ so a clean exit here means the push will pass that gate.
 ## Full backfill — regenerate every locale from scratch
 
 Only needed when changing the model, fixing a systemic prompt issue, or seeding a new
-catalog from scratch. Costs O(38 × all-keys).
+catalog from scratch. Costs O(49 × all-keys).
 
 ```bash
 python3 scripts/translate_catalog/extract.py                     # all keys, no manifest

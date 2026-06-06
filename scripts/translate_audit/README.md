@@ -73,7 +73,7 @@ python3 scripts/translate_audit/audit_report.py --write-manifest --min-severity 
 
 Recommended: dry-run a single locale end-to-end first (`audit_extract.py de` →
 `audit_dispatch.py de` → one subagent → `audit_report.py de`) and sanity-check the findings
-before fanning out to all 38.
+before fanning out to all 49.
 
 ## Findings shape
 

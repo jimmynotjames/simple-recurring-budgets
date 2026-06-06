@@ -50,6 +50,7 @@
       "Bash(python3 scripts/translate_audit/audit_report.py:*)",
       "Bash(python3 scripts/translate_audit/consistency_check.py:*)",
       "Bash(python3 scripts/translate_audit/plural_completeness.py:*)",
+      "Bash(python3 scripts/translate_audit/_gen_plural_rules.py:*)",
       "Bash(python3 scripts/translate_audit/untranslated_copies.py:*)",
       "Bash(python3 scripts/translate_catalog/glossary_build.py:*)",
       "Bash(python3 scripts/translate_catalog/glossary_sync.py:*)",

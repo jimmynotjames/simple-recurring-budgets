@@ -26,7 +26,7 @@ alwaysApply: false
 - No hard-coded English in production UI. Use a **String Catalog** and `LocalizedStringKey` / localized string APIs (cross-cutting requirement: `docs/main-prd.md` §6.8.3).
 - The catalog is at `simple-recurring-budgets/Resources/Localizable.xcstrings`. New strings go there automatically via Xcode's string extraction once you use `Text("key", comment: "...")`.
 - Prefer `Text("key", comment: "translator context")` over bare `Text("key")` so translators have context. The `comment:` is especially important for short or ambiguous labels (button titles, destructive actions, one-word labels).
-- After adding new string keys, re-run the translation pipeline from the repo root: `scripts/translate_catalog/` (extract → translate → merge → validate). Do not skip this step — the 38-locale translation files must stay current before the change ships. See `docs/tech-design-doc.md` §5.1 for full keying rules.
+- After adding new string keys, re-run the translation pipeline from the repo root: `scripts/translate_catalog/` (extract → translate → merge → validate). Do not skip this step — the 49-locale translation files must stay current before the change ships. See `docs/tech-design-doc.md` §5.1 for full keying rules.
 
 ## Analytics
 

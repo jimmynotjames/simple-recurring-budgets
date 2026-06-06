@@ -176,13 +176,13 @@ Every new UI surface must:
 
 #### 6.8.3 Localization — source strings and translations
 
-Translations for all 38 App Store storefront locales are shipped and must be kept current. Every new user-facing string in a production view must:
+Translations for all 49 App Store storefront locales are shipped and must be kept current. Every new user-facing string in a production view must:
 
 - Use `Text("key", comment:)` or `String(localized: KEY, defaultValue:, comment:)`, keyed in `Localizable.xcstrings` — no hard-coded English literals; locale-invariant strings use `Text(verbatim:)`.
 - Carry a translator-friendly `comment:`; the catalog must have no orphan keys.
-- Be translated to all 38 storefront locales via the `scripts/translate_catalog/` pipeline (extract → translate → merge → validate) before the change ships to users.
+- Be translated to all 49 storefront locales via the `scripts/translate_catalog/` pipeline (extract → translate → merge → validate) before the change ships to users.
 
-The 38 storefronts are: `ar`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `ms`, `nb`, `nl`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-Hans`, `zh-Hant`. **Translation verification is AI-driven**: the `scripts/translate_catalog/validate.py` gate (enforced on `pre-push`) is the primary quality bar. Human pseudo-loc and per-locale spot checks (procedure in Appendix B of the audit linked above) are **preferred before a significant release but not required** — spot-checking `de`, `ar`, and `ja` is a reasonable lightweight pass. Full keying rules are in `docs/tech-design-doc.md` §5.1.
+The 49 storefronts are: `ar`, `bn`, `ca`, `cs`, `da`, `de`, `el`, `en-AU`, `en-CA`, `en-GB`, `es`, `es-MX`, `fi`, `fr`, `fr-CA`, `gu`, `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `kn`, `ko`, `ml`, `mr`, `ms`, `nb`, `nl`, `or`, `pa`, `pl`, `pt-BR`, `pt-PT`, `ro`, `ru`, `sk`, `sl`, `sv`, `ta`, `te`, `th`, `tr`, `uk`, `ur`, `vi`, `zh-Hans`, `zh-Hant`. **Translation verification is AI-driven**: the `scripts/translate_catalog/validate.py` gate (enforced on `pre-push`) is the primary quality bar. Human pseudo-loc and per-locale spot checks (procedure in Appendix B of the audit linked above) are **preferred before a significant release but not required** — spot-checking `de`, `ar`, and `ja` is a reasonable lightweight pass. Full keying rules are in `docs/tech-design-doc.md` §5.1.
 
 #### 6.8.4 Mixpanel analytics for user actions
 

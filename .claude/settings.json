@@ -187,6 +187,7 @@
       "Bash(git rm *)",
       "Bash(git mv *)",
       "Bash(git rev-parse *)",
+      "Bash(git check-ignore *)",
       "Bash(git log *)",
       "Bash(git status)",
       "Bash(git status *)",

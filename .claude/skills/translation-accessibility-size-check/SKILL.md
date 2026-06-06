@@ -32,6 +32,9 @@ bash scripts/translation-accessibility-size-check/run.sh --yes
 ```
 This builds, runs `LocalizationScreenshotCapture` across 10 locales @ xxxLarge in parallel, and writes
 downscaled PNGs to `tmp/loc-size-check/<lang>__<screen>.png`. (It refuses without `--yes`.)
+`run.sh` wipes `tmp/loc-size-check/` at the start of every run, so a prior run's shots can't
+leak into this one. If a previous run was aborted mid-way and you want to confirm/clear
+leftovers first: `python3 scripts/pipeline_tmp.py status size-check` (then `clean size-check`).
 
 ### 3. Inspect every screenshot — this is the check
 **First read `AUDIT_LOG.md`'s "Known issues / decisions"** so you can tell new findings from acknowledged
@@ -53,7 +56,7 @@ defer**, promote it into the **Known issues / decisions** section with its ratio
 
 ### 5. Offer cleanup
 The screenshots are large and left in place for the user. After reporting **and logging**, **ask whether to
-delete `tmp/loc-size-check/`**, and delete it (`rm -rf tmp/loc-size-check`) only on an explicit green light.
+delete `tmp/loc-size-check/`**, and delete it (`rm -rf tmp/loc-size-check`, or `python3 scripts/pipeline_tmp.py clean size-check`) only on an explicit green light.
 
 ## Notes
 - Forced size uses the `FORCE_DYNAMIC_TYPE` env hook (launch arg was flaky on iOS 26.x); inert in prod.

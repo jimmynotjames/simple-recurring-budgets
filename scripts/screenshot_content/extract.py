@@ -8,7 +8,7 @@ tmp/screenshot-content-inputs/source.json, and writes a manifest of the target
 storefronts that still need generating.
 
 Modes:
-  (default)   manifest lists ALL 38 target storefronts (full regenerate).
+  (default)   manifest lists ALL 49 target storefronts (full regenerate).
   --missing   manifest lists only storefronts whose runtime catalog file under
               simple-recurring-budgetsUITests/ScreenshotSeeds/ is absent or empty.
 

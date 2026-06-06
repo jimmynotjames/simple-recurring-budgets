@@ -2,7 +2,7 @@ import XCTest
 
 /// **Ad-hoc** localized-layout screenshot capture — NOT part of `make test`.
 ///
-/// Drives the app in 10 locales at forced `.xxxLarge` and saves a screenshot of each key screen as a
+/// Drives the app in 13 locales at forced `.xxxLarge` and saves a screenshot of each key screen as a
 /// `.keepAlways` attachment named `<lang>__<screen>`. It makes **no layout assertions** — it never
 /// "fails" on truncation; a human/Claude inspects the screenshots (see
 /// `scripts/translation-accessibility-size-check/`). Runs only when the runner `-only-testing`s it.
@@ -66,6 +66,19 @@ final class LocalizationScreenshotCapture: XCTestCase {
 
   @MainActor func testCaptureHindi() {
     captureAll("hi")
+  }
+
+  /// 11-locale App Store expansion (2026-03-31): ur is RTL/Nastaliq, ta + bn are new Indic scripts.
+  @MainActor func testCaptureUrdu() {
+    captureAll("ur")
+  }
+
+  @MainActor func testCaptureTamil() {
+    captureAll("ta")
+  }
+
+  @MainActor func testCaptureBengali() {
+    captureAll("bn")
   }
 
   // MARK: - Per-language sweep (7 screens; 8 shots — Add Budget captures top + scrolled)

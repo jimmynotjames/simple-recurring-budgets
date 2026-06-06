@@ -202,6 +202,15 @@ and the skills point here.
   Generates the per-locale demo data the screenshots are captured from; reuses
   `metadata_locales.py` for the locale map.
 
+**Stale-output hygiene (all fan-out pipelines).** Each pipeline's `validate.py`/`merge.py`/
+`audit_report.py` reads **every** file in its `tmp/<pipeline>-outputs/` dir, not just the
+current manifest — so per-locale leftovers from a previous run silently contaminate the next
+(re-merged, re-counted as done, or skewing a report). `scripts/pipeline_tmp.py status|clean
+<group>` (allowlisted, no prompt) inspects or clears the gitignored `tmp/` working dirs;
+groups are `translate`, `translate-audit`, `metadata`, `screenshot-content`, `size-check` (or
+`all`). Every pipeline skill runs `clean` as a **pre-flight** and offers it as **end-of-run
+cleanup**. (The size-check's `run.sh` already self-wipes its dir; the others rely on this.)
+
 **Per-locale register notes are intentionally duplicated, not DRY.** The in-app
 `REGIONAL_NOTES` (`scripts/translate_catalog/dispatch_prompts.py`) and the App Store
 `CULTURAL_NOTES` (`scripts/translate_metadata/dispatch_prompts.py`) both carry per-language

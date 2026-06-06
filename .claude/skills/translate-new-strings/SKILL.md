@@ -38,6 +38,18 @@ pass the translation gate.
 
 ## Recipe
 
+### Pre-flight — clear stale pipeline outputs
+
+Before anything else, clear any per-locale leftovers from a previous run. `validate.py`
+and `merge.py` read **every** file in `tmp/translate-outputs/` (not just this run's
+manifest), so stale files silently contaminate the run — `dispatch_prompts.py` only
+cleans the manifest's locales, this clears any others too.
+
+```bash
+python3 scripts/pipeline_tmp.py status translate   # inspect leftovers
+python3 scripts/pipeline_tmp.py clean translate    # clear them (allowlisted; no prompt)
+```
+
 ### 0. Catalog maintenance (before translating)
 
 Run whichever of these applies before Step 1. All three scripts are pre-approved in
@@ -335,6 +347,16 @@ Standard four-step from `AGENTS.md`:
 
 ```bash
 make format && make lint-fix && make build && make test
+```
+
+### 7. Cleanup — offer to clear tmp working files
+
+Once `check_translations.py` is green, offer to clear this pipeline's gitignored tmp
+files. Ask first (the intermediate JSON is handy if the user wants to inspect a locale);
+on a yes:
+
+```bash
+python3 scripts/pipeline_tmp.py clean translate
 ```
 
 ## Subagent prompt invariants

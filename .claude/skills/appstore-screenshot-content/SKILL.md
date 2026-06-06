@@ -9,7 +9,7 @@ Canonical recipe for filling the per-locale screenshot demo-content catalog the
 `AppStoreScreenshots` UI test seeds from. Drives `scripts/screenshot_content/`.
 
 **Definition of done:** `python3 scripts/screenshot_content/check_content.py`
-exits 0 — every runtime locale (en-US + 38 targets) has a well-formed catalog
+exits 0 — every runtime locale (en-US + 49 targets) has a well-formed catalog
 entry under `simple-recurring-budgetsUITests/ScreenshotSeeds/`.
 
 This is the **screenshot demo-content** pipeline. Siblings: in-app UI strings →
@@ -43,6 +43,19 @@ Surface those in a single consolidated batch; everything else you decide yoursel
 - **All commands run from the repo root.**
 
 ## Recipe
+
+### 0. Pre-flight — clear stale pipeline outputs
+
+Before extracting, clear any per-storefront leftovers from a previous run. `validate.py`
+and `merge.py` read **every** file in `tmp/screenshot-content-outputs/`, not just this
+run's manifest — so stale files silently contaminate the run. (This clears only the
+gitignored `tmp/screenshot-content-*` working dirs, never the committed `ScreenshotSeeds/`
+catalog.)
+
+```bash
+python3 scripts/pipeline_tmp.py status screenshot-content   # inspect leftovers
+python3 scripts/pipeline_tmp.py clean screenshot-content    # clear them (allowlisted; no prompt)
+```
 
 ### 1. Detect what needs generating
 
@@ -135,6 +148,15 @@ The catalog feeds the `AppStoreScreenshots` UI test, driven by `fastlane
 screenshots`. That is a **separate** flow (see `fastlane/SETUP.md`) and touches the
 simulator, not App Store Connect. Uploading is a further, human-gated step
 (`fastlane push_screenshots`).
+
+### 7. Cleanup — offer to clear tmp working files
+
+After `check_content.py` is green (the catalog is committed, so the tmp outputs are no
+longer needed), offer to clear this pipeline's gitignored tmp files. Ask first; on a yes:
+
+```bash
+python3 scripts/pipeline_tmp.py clean screenshot-content
+```
 
 ## When NOT to use this skill
 

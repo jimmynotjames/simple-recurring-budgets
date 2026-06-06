@@ -33,6 +33,17 @@ Script reference: `scripts/translate_audit/README.md`.
 
 ## Recipe
 
+### Pre-flight — clear stale pipeline outputs
+
+Before extracting, clear any per-locale leftovers from a previous run. `audit_report.py`
+reads **every** file in `tmp/translate-audit-outputs/`, not just this run's locales — so
+stale findings from a prior run silently skew the report.
+
+```bash
+python3 scripts/pipeline_tmp.py status translate-audit   # inspect leftovers
+python3 scripts/pipeline_tmp.py clean translate-audit    # clear them (allowlisted; no prompt)
+```
+
 ### 0. Deterministic consistency check (no LLM — run first)
 
 ```bash
@@ -137,6 +148,18 @@ are the strings the original model got wrong.
 Re-run steps 1–4 restricted to the re-translated keys/locales
 (`audit_extract.py --keys … <locales>`) to confirm the findings cleared. Leave a string that
 still flags after one retry as-is and note it for owner review rather than looping.
+
+### 7. Cleanup — offer to clear tmp working files
+
+After reporting (and handing any flagged subset to re-translation), offer to clear this
+audit's gitignored tmp files. Ask first; on a yes:
+
+```bash
+python3 scripts/pipeline_tmp.py clean translate-audit
+```
+
+(If you handed a subset to `translate-new-strings`, that skill cleans the `translate`
+group separately.)
 
 ## File layout reference
 

@@ -21,7 +21,7 @@ devices([
   "iPad Pro 13-inch (M5)"
 ])
 
-# App runtime locales (37 from locales.py) + the primary development language.
+# App runtime locales (49 from locales.py) + the primary development language.
 languages([
   "en-US",
   "ar",
@@ -94,5 +94,5 @@ override_status_bar(true)
 localize_simulator(true)
 
 concurrent_simulators(true)
-# Don't abort the whole 38-locale run on the first failed locale; capture the rest.
+# Don't abort the whole 50-locale run on the first failed locale; capture the rest.
 stop_after_first_error(false)

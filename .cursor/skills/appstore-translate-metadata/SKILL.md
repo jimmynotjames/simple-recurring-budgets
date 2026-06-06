@@ -60,6 +60,18 @@ The pipeline transcreates whatever non-empty translatable fields exist in
 
 ## Recipe
 
+### 0. Pre-flight — clear stale pipeline outputs
+
+Before extracting, clear any per-storefront leftovers from a previous run. `validate.py`
+and `merge.py` read **every** file in `tmp/metadata-outputs/` (and the audit reads
+`tmp/metadata-audit-outputs/`), not just this run's manifest — so stale files silently
+contaminate the run.
+
+```bash
+python3 scripts/pipeline_tmp.py status metadata   # inspect leftovers
+python3 scripts/pipeline_tmp.py clean metadata    # clear them (allowlisted; no prompt)
+```
+
 ### 1. Detect what needs transcreating
 
 ```bash
@@ -111,7 +123,7 @@ dispatches auto-approvable in `.claude/settings.json`.
 
 **Batch the dispatches, and keep agent calls separate from shell/script calls.**
 Send the subagent calls concurrently in batches (e.g. ~8–12 per message) rather
-than all 38 plus shell commands in one giant message. Never mix `Agent` calls and
+than all 49 plus shell commands in one giant message. Never mix `Agent` calls and
 `Bash` calls in the same message: if one tool call errors (a hygiene-blocked
 command, a "nothing to commit", etc.) the whole parallel batch is cancelled,
 killing in-flight subagents and wasting their work. Run scripts (extract,
@@ -219,6 +231,15 @@ fastlane push_metadata
 
 `push_metadata` / `release` touch App Store Connect — only run them when you
 actually intend to upload. See `fastlane/SETUP.md`.
+
+### 7. Cleanup — offer to clear tmp working files
+
+After the gate is green (and you've shipped or decided not to), offer to clear this
+pipeline's gitignored tmp files. Ask first; on a yes:
+
+```bash
+python3 scripts/pipeline_tmp.py clean metadata
+```
 
 ## When NOT to use this skill
 

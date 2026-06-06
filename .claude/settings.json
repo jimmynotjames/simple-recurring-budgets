@@ -30,6 +30,7 @@
       "Bash(python3 scripts/translate_catalog/locales.py:*)",
       "Bash(python3 scripts/check_translations.py:*)",
       "Bash(python3 scripts/check_source_strings.py:*)",
+      "Bash(python3 scripts/pipeline_tmp.py:*)",
       "Bash(python3 scripts/translate_metadata/extract.py:*)",
       "Bash(python3 scripts/translate_metadata/dispatch_prompts.py:*)",
       "Bash(python3 scripts/translate_metadata/validate.py:*)",

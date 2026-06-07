@@ -1,10 +1,14 @@
-.PHONY: format lint-fix build test test-unit test-only test-ui lint hooks-install system initialize-sims sim-status sim-shutdown sim-clean
+.PHONY: format format-check lint-fix build test test-unit test-only test-ui lint hooks-install system initialize-sims sim-status sim-shutdown sim-clean
 
 system:
 	bash scripts/system-setup.sh
 
 format:
 	swiftformat .
+
+# Check-only (no rewrite) — parity with the CI `lint` job's SwiftFormat step.
+format-check:
+	swiftformat --lint .
 
 lint-fix:
 	swiftlint --fix --quiet . && swiftlint lint --strict

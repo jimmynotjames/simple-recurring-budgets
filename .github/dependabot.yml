@@ -1,0 +1,21 @@
+# Dependabot configuration.
+#
+# github-actions: keeps the action pins in .github/workflows/* current
+# (actions/checkout, setup-python, setup-xcode, …). Fully supported, free,
+# consumes no Actions minutes.
+#
+# NOTE on Swift/SPM: this app has NO Package.swift — the SPM dependencies
+# (mixpanel-swift, mixpanel-swift-common, json-logic-swift) are managed inside
+# simple-recurring-budgets.xcodeproj. Dependabot's `swift` ecosystem requires a
+# Package.swift manifest, so it CANNOT track those packages here. SPM bumps stay
+# manual (Xcode → File → Packages → Update). Adding a Package.swift shim purely
+# to enable Dependabot is intentionally not done — it would be a second source of
+# truth for versions on a 3-dependency app. Revisit if the dep count grows.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"

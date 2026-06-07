@@ -1,0 +1,142 @@
+# CI — runs on every PR and on push to main.
+#
+# Defense-in-depth mirror of the local lefthook gates (lefthook.yml): the hooks
+# give fast local feedback but are bypassable (`git push --no-verify`, a hookless
+# clone, a web-UI merge). These jobs re-run the same gates somewhere unbypassable.
+# Branch protection on `main` should REQUIRE: lint, secrets, i18n-gates, build,
+# unit-tests (set in repo Settings → Branches; CI is advisory without it).
+#
+# Cost note: the three ubuntu jobs are ~free; the two macOS jobs bill at 10x.
+# The full UI suite is intentionally NOT here — invoke it per-PR with a
+# `/test-full` comment (see .github/workflows/full-test-on-demand.yml).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref (a new push to a PR voids the old run).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # --- Tier 1: lint/format parity with pre-commit (ubuntu, ~free) -------------
+  # Pinned to the EXACT versions installed locally via Homebrew. A version skew
+  # would make CI fail on rules your machine doesn't enforce (or vice-versa) —
+  # keep these in lockstep with scripts/system-setup.sh / your brew installs.
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      SWIFTLINT_VERSION: "0.63.2"
+      SWIFTFORMAT_VERSION: "0.61.1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned SwiftFormat (Linux release binary)
+        run: |
+          curl -sSL -o swiftformat_linux.zip \
+            "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat_linux.zip"
+          unzip -o -q swiftformat_linux.zip
+          chmod +x swiftformat_linux
+          ./swiftformat_linux --version
+
+      - name: SwiftFormat (check only, no rewrite)
+        run: ./swiftformat_linux --lint .
+
+      - name: Install pinned SwiftLint (Linux release binary)
+        run: |
+          curl -sSL -o swiftlint_linux.zip \
+            "https://github.com/realm/SwiftLint/releases/download/${SWIFTLINT_VERSION}/swiftlint_linux_amd64.zip"
+          unzip -o -q swiftlint_linux.zip -d swiftlint_bin
+          chmod +x swiftlint_bin/swiftlint
+          swiftlint_bin/swiftlint version
+
+      - name: SwiftLint (strict)
+        run: swiftlint_bin/swiftlint lint --strict
+
+  # --- Tier 1: secret scan over the PR (ubuntu, ~free) -----------------------
+  # Complements pre-commit `gitleaks protect --staged`. Pinned binary instead of
+  # gitleaks-action to avoid that action's org-license requirement.
+  secrets:
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: "8.30.1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so `detect` can scan the whole tree
+      - name: Install pinned gitleaks
+        run: |
+          curl -sSL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar -xzf gitleaks.tar.gz gitleaks
+          chmod +x gitleaks
+          ./gitleaks version
+      - name: gitleaks detect
+        run: ./gitleaks detect --no-banner --redact
+
+  # --- #172: translation / localization gates (ubuntu, ~free) ----------------
+  # Same three Python gates as the pre-push hook, plus a non-blocking
+  # consistency report. Closes issue #172 (enforce these server-side).
+  i18n-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: check_translations.py
+        run: python3 scripts/check_translations.py
+      - name: check_source_strings.py
+        run: python3 scripts/check_source_strings.py
+      - name: check_metadata.py
+        run: python3 scripts/translate_metadata/check_metadata.py
+      - name: consistency_check (informational, non-blocking)
+        run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
+
+  # --- Tier 2: compile check (macOS, 10x) ------------------------------------
+  # Direct xcodebuild (chosen over the make/sandbox path for ephemeral runners).
+  # Mirrors scripts/build.sh — keep the scheme/project in sync with that file.
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 26.5
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.5"
+      - name: xcodebuild build
+        run: |
+          xcodebuild build \
+            -project simple-recurring-budgets.xcodeproj \
+            -scheme simple-recurring-budgets \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+  # --- Tier 3 (auto): unit tests only (macOS, 10x) ---------------------------
+  # Mirrors scripts/test-unit.sh: skips the UITests target, serial. The full UI
+  # suite is on-demand via `/test-full` (full-test-on-demand.yml).
+  unit-tests:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 26.5
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.5"
+      - name: xcodebuild test (unit only)
+        run: |
+          xcodebuild test \
+            -project simple-recurring-budgets.xcodeproj \
+            -scheme simple-recurring-budgets \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -derivedDataPath build/DerivedData \
+            -parallel-testing-enabled NO \
+            -skip-testing:simple-recurring-budgetsUITests \
+            CODE_SIGNING_ALLOWED=NO

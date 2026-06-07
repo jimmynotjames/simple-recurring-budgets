@@ -1,0 +1,92 @@
+# On-demand FULL test suite (unit + accessibility + user-journey UI tests).
+#
+# The UI suite is slow and bills at 10x, so it does NOT run on every PR. Comment
+#   /test-full
+# on a PR to kick it off. (Documented in .github/pull_request_template.md so it
+# shows on every PR.)
+#
+# IMPORTANT: issue_comment workflows always run the copy of THIS file on the
+# default branch — so `/test-full` won't work on the PR that introduces this
+# file; it works on PRs opened after it merges to main.
+name: Full test (on demand)
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  full-test:
+    # Only on PR comments, only the trigger phrase, only from someone with write
+    # access (so a drive-by commenter can't burn macOS minutes).
+    if: >
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/test-full') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: macos-26
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Acknowledge (👀 on the comment)
+        run: |
+          gh api -X POST \
+            "repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions" \
+            -f content=eyes || true
+
+      - name: Resolve PR head SHA
+        id: pr
+        run: |
+          sha=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}" --jq .head.sha)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.sha }}
+
+      - name: Select Xcode 26.5
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.5"
+
+      # Mirrors scripts/test.sh's two-pass strategy (unit warms the sim, then UI),
+      # but serial — the per-repo sim-clone concurrency (SRB_SIM_MAX) is a local
+      # optimization with no analogue on a single ephemeral runner, and the UI
+      # clones are flaky per test.sh's own note.
+      - name: Pass 1 — unit tests (warms the simulator)
+        run: |
+          xcodebuild test \
+            -project simple-recurring-budgets.xcodeproj \
+            -scheme simple-recurring-budgets \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -derivedDataPath build/DerivedData \
+            -parallel-testing-enabled NO \
+            -skip-testing:simple-recurring-budgetsUITests \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Pass 2 — accessibility + user-journey UI tests
+        run: |
+          xcodebuild test \
+            -project simple-recurring-budgets.xcodeproj \
+            -scheme simple-recurring-budgets \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -derivedDataPath build/DerivedData \
+            -parallel-testing-enabled NO \
+            -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
+            -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
+            -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests \
+            -only-testing:simple-recurring-budgetsUITests/AllocationFirstTapUITests \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Report result back to the PR
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            body="✅ \`/test-full\` passed — [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          else
+            body="❌ \`/test-full\` failed — [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          fi
+          gh pr comment "${{ github.event.issue.number }}" --body "$body"

@@ -399,6 +399,8 @@ make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 
 `gitleaks` is optional for solo work but strongly recommended before any secrets or API keys exist in the tree.
 
+The local hooks are bypassable (`--no-verify`, a hookless clone, a web-UI merge); CI (§8.5) re-runs the same gates server-side so they actually run before code reaches `main`.
+
 ### 8.3 Manual commands
 
 - `make system` — machine bootstrap: Homebrew packages above, Python 3.9+ and `xcodebuild` checks, `lefthook install` (see [`scripts/system-setup.sh`](../scripts/system-setup.sh))
@@ -412,6 +414,26 @@ make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 ### 8.4 Pre-push build caveat
 
 The pre-push build needs a resolvable iOS Simulator (booted device or `SIMULATOR_UDID` / `SIMULATOR_NAME` as in `scripts/test.sh`). If destination resolution fails, run tests once with `make test` or boot a simulator, then push again.
+
+### 8.5 Continuous Integration (GitHub Actions)
+
+CI lives in `.github/workflows/` (checked in, versioned with the code) and re-runs the local gates server-side, where they cannot be bypassed. Branch protection on `main` should **require** the PR checks below (one-time repo-admin toggle in Settings → Branches; CI is advisory without it).
+
+**`ci.yml`** — on every `pull_request` and `push` to `main`:
+
+| Job | Runner | Cost | What |
+|-----|--------|------|------|
+| `lint` | ubuntu | ~free | SwiftFormat `--lint` + SwiftLint `--strict`, **pinned** to the local Homebrew versions (SwiftLint 0.63.2 / SwiftFormat 0.61.1) to avoid CI-vs-local rule drift. Keep these versions in lockstep with local installs. |
+| `secrets` | ubuntu | ~free | `gitleaks detect` (pinned 8.30.1) over full history — complements pre-commit `gitleaks protect --staged`. Reviewed-and-accepted findings are allowlisted by fingerprint in `.gitleaksignore` (currently the historical Mixpanel **project** token — a client-side identifier shipped in the app binary, not a server secret). |
+| `i18n-gates` | ubuntu | ~free | `check_translations.py`, `check_source_strings.py`, `check_metadata.py` (the pre-push translation gates), plus a non-blocking `consistency_check.py --ignore-casing`. Enforces issue #172 server-side. |
+| `build` | macOS | 10× | `xcodebuild build` (mirrors `scripts/build.sh`). |
+| `unit-tests` | macOS | 10× | `xcodebuild test` skipping the UITests target (mirrors `scripts/test-unit.sh`). |
+
+The macOS jobs invoke `xcodebuild` directly (not via the Makefile/sim-sandbox), since the per-repo sim sandbox and `SRB_SIM_MAX` concurrency knob are local optimizations with no analogue on a single ephemeral runner. Xcode is pinned to 26.5. Keep the scheme/`-skip-testing` flags in sync with the mirrored scripts.
+
+**`full-test-on-demand.yml`** — the full UI suite (accessibility + user-journey, 10× and slow) does **not** run per-PR. Comment `/test-full` on a PR (documented in `.github/pull_request_template.md`) to run `scripts/test.sh`'s two-pass flow on demand. Restricted to write-access commenters. `issue_comment` workflows always run the default-branch copy of the file, so changes to this trigger only take effect after merging to `main`.
+
+**`dependabot.yml`** — weekly `github-actions` updates only. The SPM deps (`mixpanel-swift`, `mixpanel-swift-common`, `json-logic-swift`) are **not** Dependabot-trackable because the app has no `Package.swift` (deps are Xcode-project-managed); SPM bumps stay manual.
 
 ---
 

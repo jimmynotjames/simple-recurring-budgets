@@ -423,6 +423,8 @@ Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one
 
 All changes go through a PR. **Never push commits directly to `main`**, even for small fixes or config tweaks. The `pre-push` lefthook enforces this and will block the push.
 
+GitHub Actions CI (`.github/workflows/ci.yml`, see `docs/tech-design-doc.md` §8.5) re-runs the lint/secret/translation/build/unit-test gates on every PR — server-side, so they hold even when a hook is bypassed. The full UI suite is opt-in per PR via a `/test-full` comment. When you change the local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts the CI mirrors, update `ci.yml` in the same change to keep them in lockstep.
+
 The correct flow: create a feature branch → commit → push the branch → open a PR → squash-merge.
 
 **Create the branch before the first `git add`.** Run `git checkout -b u/jimmyho/claude-code/<description>` as the very first step, before staging or committing anything. Committing on `main` and then trying to move the commit to a branch requires a force-push to reset `main`, which is destructive and requires user intervention.

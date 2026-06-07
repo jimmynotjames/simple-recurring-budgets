@@ -51,7 +51,7 @@ jobs:
       - name: Install pinned SwiftLint (Linux release binary)
         run: |
           curl -sSL -o swiftlint_linux.zip \
-            "https://github.com/realm/SwiftLint/releases/download/${SWIFTLINT_VERSION}/swiftlint_linux.zip"
+            "https://github.com/realm/SwiftLint/releases/download/${SWIFTLINT_VERSION}/swiftlint_linux_amd64.zip"
           unzip -o -q swiftlint_linux.zip -d swiftlint_bin
           chmod +x swiftlint_bin/swiftlint
           swiftlint_bin/swiftlint version

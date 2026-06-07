@@ -424,7 +424,7 @@ CI lives in `.github/workflows/` (checked in, versioned with the code) and re-ru
 | Job | Runner | Cost | What |
 |-----|--------|------|------|
 | `lint` | ubuntu | ~free | SwiftFormat `--lint` + SwiftLint `--strict`, **pinned** to the local Homebrew versions (SwiftLint 0.63.2 / SwiftFormat 0.61.1) to avoid CI-vs-local rule drift. Keep these versions in lockstep with local installs. |
-| `secrets` | ubuntu | ~free | `gitleaks detect` (pinned 8.30.1) over the tree — complements pre-commit `gitleaks protect --staged`. |
+| `secrets` | ubuntu | ~free | `gitleaks detect` (pinned 8.30.1) over full history — complements pre-commit `gitleaks protect --staged`. Reviewed-and-accepted findings are allowlisted by fingerprint in `.gitleaksignore` (currently the historical Mixpanel **project** token — a client-side identifier shipped in the app binary, not a server secret). |
 | `i18n-gates` | ubuntu | ~free | `check_translations.py`, `check_source_strings.py`, `check_metadata.py` (the pre-push translation gates), plus a non-blocking `consistency_check.py --ignore-casing`. Enforces issue #172 server-side. |
 | `build` | macOS | 10× | `xcodebuild build` (mirrors `scripts/build.sh`). |
 | `unit-tests` | macOS | 10× | `xcodebuild test` skipping the UITests target (mirrors `scripts/test-unit.sh`). |

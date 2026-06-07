@@ -1,0 +1,14 @@
+# gitleaks: reviewed findings that are intentionally allowed.
+# Format: one fingerprint per line (commit:file:rule:startline).
+# Read automatically by `gitleaks detect` (CI `secrets` job + pre-commit).
+#
+# These 4 are the Mixpanel PROJECT token, hardcoded in the 2026-05-02 "Mixpanel
+# base scaffolding" commits and later refactored out (HEAD reads it via
+# MixpanelTokenSource.activeToken). A Mixpanel project token is a CLIENT-SIDE
+# identifier shipped inside the app binary — extractable from any installed copy,
+# so it is not a server secret. Reviewed 2026-06-07, accepted as non-secret; not
+# rotated, history not rewritten. See PR #207.
+9e4399928f7dcb75201cc9d94ce3821b6975f5ba:simple-recurring-budgets/App/simple_recurring_budgetsApp.swift:generic-api-key:16
+9e4399928f7dcb75201cc9d94ce3821b6975f5ba:simple-recurring-budgets/App/simple_recurring_budgetsApp.swift:generic-api-key:19
+59ae5bda8a4bc823b55a420a25a995532ad5f187:simple-recurring-budgets/App/simple_recurring_budgetsApp.swift:generic-api-key:15
+59ae5bda8a4bc823b55a420a25a995532ad5f187:simple-recurring-budgets/App/simple_recurring_budgetsApp.swift:generic-api-key:17

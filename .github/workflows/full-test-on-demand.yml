@@ -8,6 +8,8 @@
 # IMPORTANT: issue_comment workflows always run the copy of THIS file on the
 # default branch — so `/test-full` won't work on the PR that introduces this
 # file; it works on PRs opened after it merges to main.
+#
+# Smoke-tested end-to-end on a real PR in #211 (first run after #207 merged).
 name: Full test (on demand)
 
 on:

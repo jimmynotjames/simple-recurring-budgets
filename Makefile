@@ -1,4 +1,4 @@
-.PHONY: format format-check lint-fix build test test-unit test-only test-ui lint hooks-install system initialize-sims sim-status sim-shutdown sim-clean
+.PHONY: format format-check lint-fix build test test-unit test-only test-ui lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean
 
 system:
 	bash scripts/system-setup.sh
@@ -33,6 +33,12 @@ test-ui:
 
 lint:
 	swiftlint lint --strict
+
+# Full four-step gate (format -> lint-fix -> build -> test) in one command, logged
+# to tmp/gate.log, stopping at the first failure. See scripts/gate.sh for why this
+# single-command form exists (avoids the subshell/`; echo` permission prompt).
+gate:
+	bash scripts/gate.sh
 
 hooks-install:
 	lefthook install

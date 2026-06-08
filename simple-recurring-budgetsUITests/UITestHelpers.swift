@@ -3,6 +3,18 @@ import XCTest
 // Shared factory functions and navigation helpers for all UITest targets.
 // All functions are @MainActor — XCUITest element interactions must run on the main thread.
 
+// MARK: - Timeouts
+
+/// Wait budget for the Settings sheet's navigation bar to appear after tapping the
+/// toolbar button. Settings is the heaviest sheet in the app — a Form with seven
+/// sections including an iCloud account-status row — so on a loaded ephemeral CI
+/// runner it can take several seconds to present and build its accessibility tree,
+/// even though it appears in well under a second locally. The first /test-full CI
+/// run (#211) failed all three Settings tests at the old 2s wait while they passed
+/// locally; this generous headroom absorbs runner variance without masking a real
+/// presentation failure (a sheet that never presents still fails, just later).
+let settingsSheetTimeout: TimeInterval = 10
+
 // MARK: - App factories
 
 /// Returns an XCUIApplication pre-configured with IS_TESTING=1 to suppress Mixpanel analytics.

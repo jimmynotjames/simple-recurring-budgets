@@ -186,7 +186,7 @@ final class AccessibilityAuditTests: XCTestCase {
     app.launch()
     app.buttons["Settings"].tap()
     XCTAssertTrue(
-      app.navigationBars["Settings"].waitForExistence(timeout: 2),
+      app.navigationBars["Settings"].waitForExistence(timeout: settingsSheetTimeout),
       "Settings sheet should be visible"
     )
     try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
@@ -264,7 +264,7 @@ final class AccessibilityAuditTests: XCTestCase {
     let app = largeTextApp()
     app.launch()
     app.buttons["Settings"].tap()
-    XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 2))
+    XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: settingsSheetTimeout))
     try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
   }
 

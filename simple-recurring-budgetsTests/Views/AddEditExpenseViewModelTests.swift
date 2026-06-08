@@ -4,7 +4,6 @@ import SwiftData
 import Testing
 
 @MainActor
-// swiftlint:disable:next type_body_length
 struct AddEditExpenseViewModelTests {
   // MARK: - 5.1  Add-mode defaults
 

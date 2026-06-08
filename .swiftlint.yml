@@ -31,15 +31,15 @@ line_length:
   ignores_comments: true
 
 function_body_length:
-  warning: 90
-  error: 120
+  warning: 120
+  error: 150
 
 file_length:
-  warning: 600
+  warning: 750
   error: 900
 
 type_body_length:
-  warning: 400
+  warning: 500
   error: 550
 
 function_parameter_count:

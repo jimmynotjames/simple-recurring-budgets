@@ -150,8 +150,31 @@ Walks the catalog directly. If it reports gaps, loop back to step 1
 
 The catalog feeds the `AppStoreScreenshots` UI test, driven by `fastlane
 screenshots`. That is a **separate** flow (see `fastlane/SETUP.md`) and touches the
-simulator, not App Store Connect. Uploading is a further, human-gated step
-(`fastlane push_screenshots`).
+simulator, not App Store Connect. Uploading is a further step (`fastlane
+push_screenshots`).
+
+**Capture is long** (50 locales × 2 devices). Run it as a background task so its
+completion notifies you; do not block on it. To report progress without tailing
+the noisy xcodebuild log, use the read-only progress script:
+
+```bash
+python3 scripts/screenshot_content/capture_progress.py   # lists done vs pending locales
+```
+
+It discovers the expected locale set (from `ScreenshotSeeds/*.json`) and device
+count (from `Snapfile`); a locale is "done" once its final `05_settings` shot
+exists for every device. Exit 0 only when all locales are done, so it also works
+as a wait-loop condition.
+
+**Periodic progress, no prompts.** When asked to report capture progress on an
+interval, drive it on a **20-minute** cadence with a non-prompting background
+timer — launch `sleep 1200` as a background Bash task; on its completion
+notification, run `capture_progress.py`, report the diff, and re-arm the next
+`sleep 1200` tick yourself. Stop re-arming once the capture's own background task
+completes (then proceed to rename + `push_screenshots`). Do **not** use the
+Monitor tool for this — it prompts on each re-arm. `capture_progress.py` and
+`sleep *` are allowlisted in `.claude/settings.json`, so the whole loop runs
+unattended. See memory `feedback_no_prompt_periodic_progress`.
 
 ### 7. Cleanup — offer to clear tmp working files
 

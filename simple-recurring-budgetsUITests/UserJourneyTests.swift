@@ -255,7 +255,7 @@ final class UserJourneyTests: XCTestCase {
 
     let settings = SettingsScreen(app: app)
     XCTAssertTrue(
-      settings.navigationBar.waitForExistence(timeout: settingsSheetTimeout),
+      settings.navigationBar.waitForExistence(timeout: 2),
       "Settings sheet should appear"
     )
     settings.tapDone()

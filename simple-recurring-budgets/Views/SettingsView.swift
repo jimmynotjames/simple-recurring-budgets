@@ -558,6 +558,11 @@ private extension SettingsView {
   }
 
   func loadICloudStatus() async {
+    // UI tests: CKContainer.accountStatus() hangs on the account-less Simulator, leaving the iCloud row spinning so the app never idles and XCUITest can't open Settings (#211). Resolve immediately.
+    if ProcessInfo.processInfo.environment["IS_TESTING"] != nil {
+      syncStatus.accountStatus = .unavailable
+      return
+    }
     let old = syncStatus.accountStatus
     do {
       let status = try await CKContainer.default().accountStatus()

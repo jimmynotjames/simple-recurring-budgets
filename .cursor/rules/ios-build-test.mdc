@@ -16,4 +16,6 @@ After any substantive Swift, SwiftUI, or Xcode change, run from the repo root:
 3. `make build` — bare compile (no test runner); catches errors fast
 4. `make test` — full suite on one iPhone simulator (only after 1–3 pass)
 
+**One command for all four:** `make gate` (alias `bash scripts/gate.sh`) runs the four steps in order, logs to `tmp/gate.log`, and stops at the first failure. To wait on a CI run, use `bash scripts/wait_ci.sh <run-id> [pr#]` — never a hand-written `until … sleep … done` loop.
+
 See `AGENTS.md > Build and test` for simulator pinning (`SIMULATOR_UDID`, `SIMULATOR_NAME`), deployment-target rules, scheme name, and rationale.

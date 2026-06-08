@@ -21,6 +21,8 @@ Run in this exact order from the repo root. Fix failures before advancing to the
 
 Steps 1–3 are seconds-cheap and let you fix lint/compile errors before paying the simulator boot + full-suite cost.
 
+**One-command gate:** `make gate` (or `bash scripts/gate.sh`) runs all four steps in order, tees to `tmp/gate.log`, stops at the first failure, and exits with that step's code. Prefer it over hand-writing the chain — it's a single allowlisted command, so it never prompts (unlike the `(make … ) > tmp/gate.log 2>&1; echo "EXIT=$?"` subshell form, which splits into un-allowlistable segments). Run it `run_in_background=true` to be re-invoked on completion instead of blocking. Use the individual `make` targets when you only need one step or want to iterate on a single failure.
+
 ### Per-repo simulator sandbox
 
 Each clone of this repo gets its own dedicated simulator, identified by a unique device name derived from the repo's absolute path (e.g. `iPhone 17 [a1b2c3d4]`). The device lives in the default CoreSimulator device set (required by `xcodebuild`), but the unique name and UDID ensure no two clones ever share a simulator.
@@ -379,7 +381,10 @@ The allowlist permits `make build *`, `make test *`, `make format *`, `make lint
 make build 2>&1 | tail -50               # ✓
 make test 2>&1 | tail -30                # ✓
 make format && make lint-fix             # ✓ both allowed, no file redirect
+make gate                                # ✓ all four steps, one allowlisted command
 ```
+
+For the **full four-step gate**, prefer `make gate` (alias `bash scripts/gate.sh`) over chaining the targets yourself — it logs to `tmp/gate.log`, stops at the first failure, and is a single allowlisted command. Never use the subshell form `(make format && … && make test) > tmp/gate.log 2>&1; echo "EXIT=$?"`: the parens and trailing `; echo` split into segments (`(make format`, `make test) > …`, `echo …`) that match no allow entry and prompt every time.
 
 ### 6. One command per Bash call — no `${PIPESTATUS}`, no `rc=...; echo $rc`, no `|| echo "fallback"`
 
@@ -412,6 +417,21 @@ cd /Users/jimmynotjames/dev/budgets2 && make build   # ✗ prompts
 ```
 
 If you genuinely need to operate in a subdirectory, use an absolute path flag rather than `cd`: `git -C /some/path`, `make -C subdir`, etc.
+
+### 8. Never hand-write a `until … sleep … done` loop to wait on CI
+
+To wait on a GitHub Actions run, use `bash scripts/wait_ci.sh <run-id> [pr#] [poll-seconds]` (covered by the `bash scripts/*` allow entry), ideally `run_in_background=true` so the harness re-invokes the agent on completion. It polls the run to completion (with an ~80-min safety cap), then prints a step-level breakdown plus the PR's checks and mergeability.
+
+```bash
+bash scripts/wait_ci.sh 27157096793 215         # ✓ one allowlisted command
+```
+
+```bash
+until s=$(gh run view 27157096793 --json status,conclusion --jq '...'); \
+  [ "${s%% *}" = "completed" ]; do sleep 30; done; echo "$s"   # ✗ prompts AND foreground sleep is blocked
+```
+
+The hand-written loop splits into segments (`until s=$(…)`, `do sleep 30`, `done`) that match no allow entry, and the harness now blocks foreground `sleep` outright — so it can't run at all. `wait_ci.sh` is the only clean way to wait on CI.
 
 ### Pre-flight check
 

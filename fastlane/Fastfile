@@ -191,4 +191,25 @@ platform :ios do
       submit_for_review: false              # upload only; you press submit in ASC
     )
   end
+
+  # ---------------------------------------------------------------------------
+  # Upload ONLY the screenshots found under $SUBSET_PATH (default: the full tree).
+  # Used by scripts/screenshot_content/upload_with_retry.sh to re-upload just the
+  # storefronts that failed a full run (App Store Connect occasionally 500s mid-
+  # upload). deliver only touches the languages present in the path, so a pruned
+  # directory overwrites just those storefronts and leaves the rest untouched.
+  # ---------------------------------------------------------------------------
+  desc "Upload only the screenshots under $SUBSET_PATH (subset retry)"
+  lane :push_screenshots_subset do
+    upload_to_app_store(
+      screenshots_path: ENV.fetch("SUBSET_PATH", "./fastlane/screenshots"),
+      skip_binary_upload: true,
+      skip_metadata: true,
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      force: true,
+      run_precheck_before_submit: false,
+      submit_for_review: false
+    )
+  end
 end

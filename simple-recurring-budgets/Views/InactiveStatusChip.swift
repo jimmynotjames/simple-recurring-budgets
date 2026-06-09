@@ -16,8 +16,6 @@ import SwiftUI
 struct InactiveStatusChip: View {
   let reason: BudgetInactiveReason
 
-  @Environment(\.colorSchemeContrast) private var colorSchemeContrast
-
   @ScaledMetric(relativeTo: .caption) private var chipSpacing: CGFloat = 3
   @ScaledMetric(relativeTo: .caption) private var chipHPadding: CGFloat = 6
   @ScaledMetric(relativeTo: .caption) private var chipVPadding: CGFloat = 3
@@ -29,7 +27,7 @@ struct InactiveStatusChip: View {
     }
     .font(.caption)
     .fontWeight(.medium)
-    .foregroundStyle(.secondary)
+    .foregroundStyle(Color.primary.opacity(0.6))
     .padding(.horizontal, chipHPadding)
     .padding(.vertical, chipVPadding)
     .background(Capsule().fill(chipBackground))
@@ -98,8 +96,7 @@ struct InactiveStatusChip: View {
   }
 
   private var chipBackground: Color {
-    let opacity = colorSchemeContrast == .increased ? 0.05 : 0.15
-    return Color.primary.opacity(opacity)
+    Color.primary.opacity(0.10)
   }
 }
 

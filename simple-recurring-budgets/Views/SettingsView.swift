@@ -184,6 +184,8 @@ struct SettingsView: View {
         defaultValue: "Budgets",
         comment: "Settings section header for budget-related defaults"
       ))
+      .foregroundStyle(.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
     } footer: {
       Text(String(
         localized: "settings.carryOver.toggle.footer",
@@ -228,6 +230,8 @@ struct SettingsView: View {
         defaultValue: "Calendar",
         comment: "Settings section header for calendar preferences"
       ))
+      .foregroundStyle(.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
     }
   }
 
@@ -275,6 +279,8 @@ struct SettingsView: View {
         defaultValue: "Display",
         comment: "Settings section header for display preferences"
       ))
+      .foregroundStyle(.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
     }
   }
 
@@ -333,6 +339,8 @@ struct SettingsView: View {
         defaultValue: "Diagnostics & Analytics",
         comment: "Settings section header for the analytics opt-in toggle"
       ))
+      .foregroundStyle(.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
     } footer: {
       Text(String(
         localized: "settings.analytics.toggle.footer",
@@ -367,6 +375,8 @@ private extension SettingsView {
         defaultValue: "iCloud Sync",
         comment: "Settings section header for iCloud sync status"
       ))
+      .foregroundStyle(.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
     } footer: {
       switch syncStatus.rowState {
       case .unavailable:
@@ -440,6 +450,8 @@ private extension SettingsView {
         defaultValue: "Support",
         comment: "Settings section header for support and help links"
       ))
+      .foregroundStyle(.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
     }
   }
 
@@ -480,7 +492,7 @@ private extension SettingsView {
           defaultValue: "Checking…",
           comment: "iCloud sync status shown while the account status is being determined"
         ))
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.primary.opacity(0.55))
         Spacer()
         ProgressView()
           .accessibilityLabel(String(

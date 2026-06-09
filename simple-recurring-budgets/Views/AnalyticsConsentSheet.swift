@@ -70,6 +70,7 @@ struct AnalyticsConsentSheet: View {
             .frame(maxWidth: .infinity)
           }
           .buttonStyle(.borderedProminent)
+          .tint(Color.accentFill)
           .controlSize(.large)
 
           Button {

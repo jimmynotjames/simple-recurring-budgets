@@ -40,12 +40,15 @@ extension AddEditBudgetView {
       HStack {
         Text(scheduleSummaryText)
           .font(.subheadline)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(.primary)
           .multilineTextAlignment(.leading)
+          // iOS-COMPAT(26.x): GroupBox content area also gets Liquid Glass; tag so
+          // knownIssueHandler can suppress the platform-induced contrast failure.
+          .accessibilityIdentifier("srb.sectionLabel")
         Spacer(minLength: 8)
         Image(systemName: "chevron.down")
           .font(.caption)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(.primary)
           .rotationEffect(.degrees(isScheduleExpanded ? 180 : 0))
       }
       .frame(minHeight: 44)

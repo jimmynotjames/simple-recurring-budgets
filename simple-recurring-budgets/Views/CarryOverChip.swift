@@ -23,15 +23,18 @@ struct CarryOverChip: View {
   var body: some View {
     HStack(spacing: chipSpacing) {
       if amount != 0 {
+        // Arrow keeps the semantic color (green/orange) as the visual cue.
         Image(systemName: amount > 0 ? "arrow.up" : "arrow.down")
+          .foregroundStyle(dimmedStyle(chipForeground, when: dimmed))
       }
+      // Amount and label use high-contrast colors; the chip background provides the color cue.
       Text(carryOverDisplay.amount)
+        .foregroundStyle(dimmedStyle(.primary, when: dimmed))
       Text(String(localized: "carryOver.label", defaultValue: "carry-over", comment: "Fixed label shown in the carry-over chip on the budgets list"))
-        .foregroundStyle(dimmedStyle(chipForeground.opacity(colorSchemeContrast == .increased ? 1.0 : 0.8), when: dimmed))
+        .foregroundStyle(dimmedStyle(.primary.opacity(0.55), when: dimmed)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
     }
     .font(.footnote)
     .fontWeight(.medium)
-    .foregroundStyle(dimmedStyle(chipForeground, when: dimmed))
     .padding(.horizontal, chipHPadding)
     .padding(.vertical, chipVPadding)
     .background(Capsule().fill(chipBackground))

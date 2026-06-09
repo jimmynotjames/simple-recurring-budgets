@@ -63,13 +63,16 @@ struct BudgetIconPicker: View {
                 .font(.largeTitle)
                 .lineLimit(1)
                 .frame(width: 56, height: 56)
-                .background(
-                  RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(selection == item ? Color.accentColor.opacity(0.25) : Color.clear)
-                )
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .overlay {
+              RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(
+                  selection == item ? Color.accentColor : Color.clear,
+                  lineWidth: 2
+                )
+            }
             .accessibilityLabel(Text(verbatim: item))
             .accessibilityAddTraits(selection == item ? [.isSelected] : [])
           }
@@ -89,6 +92,7 @@ struct BudgetIconPicker: View {
             defaultValue: "Cancel",
             comment: "Button that dismisses the budget icon picker without changing the selection"
           )) { dismiss() }
+            .foregroundStyle(.primary)
         }
         if selection != nil {
           ToolbarItem(placement: .topBarTrailing) {

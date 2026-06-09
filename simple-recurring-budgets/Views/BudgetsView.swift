@@ -123,7 +123,7 @@ struct BudgetsView: View {
           comment: "Empty-state description on the Budgets screen"
         ))
         .font(.subheadline)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
         .multilineTextAlignment(.center)
         .lineLimit(nil)
         .fixedSize(horizontal: false, vertical: true)
@@ -138,6 +138,7 @@ struct BudgetsView: View {
         ))
       }
       .buttonStyle(.borderedProminent)
+      .tint(Color.accentFill)
       .controlSize(.large)
     }
     .padding(.horizontal, 32)

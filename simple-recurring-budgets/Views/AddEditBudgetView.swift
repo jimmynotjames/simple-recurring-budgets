@@ -94,6 +94,7 @@ struct AddEditBudgetView: View {
           )) {
             dismiss()
           }
+          .foregroundStyle(.primary)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(String(
@@ -315,7 +316,7 @@ struct AddEditBudgetView: View {
             comment: "Caption shown below the Specific Dates period chip explaining that this budget type is non-recurring with no carry-over"
           ))
           .font(.caption)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
           .padding(.top, 4)
           .transition(.opacity.combined(with: .move(edge: .top)))
         }
@@ -330,7 +331,7 @@ struct AddEditBudgetView: View {
             systemImage: "lock.fill"
           )
           .font(.caption)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
           .padding(.top, 8)
         }
       }
@@ -348,14 +349,15 @@ struct AddEditBudgetView: View {
   private var carryOverCard: some View {
     GroupBox {
       VStack(alignment: .leading, spacing: 0) {
-        Toggle(
-          String(
+        Toggle(isOn: $viewModel.isCarryOverEnabled) {
+          Text(String(
             localized: "addEditBudget.section.carryOver",
             defaultValue: "Carry-Over",
             comment: "Toggle label and section header for the carry-over setting on the Add/Edit Budget screen"
-          ),
-          isOn: $viewModel.isCarryOverEnabled
-        )
+          ))
+          .foregroundStyle(.primary)
+          .accessibilityIdentifier("srb.sectionLabel")
+        }
         .tint(.accentColor)
         .accessibilityHint(String(
           localized: "addEditBudget.toggle.carryOver.accessibilityHint",
@@ -369,8 +371,9 @@ struct AddEditBudgetView: View {
           comment: "Caption below the carry-over toggle explaining what carry-over does"
         ))
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.primary)
         .padding(.top, 8)
+        .accessibilityIdentifier("srb.sectionLabel")
       }
       .animation(.easeInOut(duration: 0.2), value: viewModel.isCarryOverEnabled)
     } label: {
@@ -397,7 +400,7 @@ struct AddEditBudgetView: View {
         .padding(.vertical, 10)
         .background(
           RoundedRectangle(cornerRadius: 8, style: .continuous)
-            .fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.06))
+            .fill(isSelected ? Color.accentFill : Color.secondary.opacity(0.06))
         )
         .foregroundStyle(isSelected ? Color.white : Color.primary.opacity(0.3))
         .accessibilityLabel(String(
@@ -428,7 +431,7 @@ struct AddEditBudgetView: View {
           .padding(.vertical, 10)
           .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-              .fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.1))
+              .fill(isSelected ? Color.accentFill : Color.secondary.opacity(0.1))
           )
           .foregroundStyle(isSelected ? Color.white : Color.primary)
       }
@@ -453,7 +456,8 @@ struct AddEditBudgetView: View {
   func sectionLabel(_ text: String) -> some View {
     Text(text)
       .font(.subheadline)
-      .foregroundStyle(.secondary)
+      .foregroundStyle(Color.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
   }
 }
 

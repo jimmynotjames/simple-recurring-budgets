@@ -81,7 +81,43 @@ remaining_storefronts() {
   done
 }
 
+# Stage the given storefronts into a pruned dir and run the subset-upload retry
+# loop against them. $* = space-separated storefront names. Returns 0 on a clean
+# upload (fastlane exit 0), 1 if all subset attempts are exhausted.
+subset_upload_loop() {
+  local rem; rem=$(echo "$*" | xargs)
+  [ -z "$rem" ] && { log "subset_upload_loop: nothing to do"; return 0; }
+  local stage="tmp/screenshots-subset" name
+  rm -rf "$stage"; mkdir -p "$stage"
+  for name in $rem; do
+    if [ -d "$SHOTS_DIR/$name" ]; then cp -R "$SHOTS_DIR/$name" "$stage/$name"
+    else log "  WARN: $SHOTS_DIR/$name not found on disk — skipping"; fi
+  done
+  log "staged $(echo "$rem" | wc -w | tr -d ' ') storefront(s) under $stage: $rem"
+  local s=1 rc backoff
+  while [ "$s" -le "$MAX_SUBSET_ATTEMPTS" ]; do
+    log "subset attempt $s/$MAX_SUBSET_ATTEMPTS for: $rem"
+    run_attempt "tmp/fastlane-push-subset-$s.log" push_screenshots_subset "./$stage"; rc=$?
+    if [ "$rc" -eq 0 ]; then log "SUCCESS — subset upload completed on attempt $s ($rem)"; return 0; fi
+    log "subset attempt $s failed (rc=$rc)"
+    backoff=$(( s * 180 )); log "backing off ${backoff}s"; sleep "$backoff"
+    s=$(( s + 1 ))
+  done
+  log "EXHAUSTED subset attempts; still unconfirmed: $rem"
+  return 1
+}
+
 log "=== screenshot upload controller start ($(find "$SHOTS_DIR" -name '*.png' | wc -l | tr -d ' ') pngs on disk) ==="
+
+# ---- Phase 0: subset-only mode -------------------------------------------
+# `SUBSET_ONLY="kn-IN ru" bash scripts/screenshot_content/upload_with_retry.sh`
+# skips the full uploads and (re)uploads only the named storefronts. Used to
+# re-push a couple of locales that needed a retry, and to verify them (a clean
+# fastlane exit 0 means ASC accepted all their shots).
+if [ -n "${SUBSET_ONLY:-}" ]; then
+  log "SUBSET_ONLY mode for: $SUBSET_ONLY"
+  if subset_upload_loop "$SUBSET_ONLY"; then exit 0; else exit 1; fi
+fi
 
 # ---- Phase 1: full uploads with retry ------------------------------------
 attempt=1
@@ -111,25 +147,6 @@ if [ -z "$rem" ]; then
 fi
 
 log "falling back to SUBSET upload of unconfirmed storefronts: $rem"
-stage="tmp/screenshots-subset"
-rm -rf "$stage"; mkdir -p "$stage"
-for name in $rem; do cp -R "$SHOTS_DIR/$name" "$stage/$name"; done
-log "staged $(echo "$rem" | wc -w | tr -d ' ') storefront(s) under $stage"
-
-s=1
-while [ "$s" -le "$MAX_SUBSET_ATTEMPTS" ]; do
-  log "subset attempt $s/$MAX_SUBSET_ATTEMPTS for: $rem"
-  run_attempt "tmp/fastlane-push-subset-$s.log" push_screenshots_subset "./$stage"; rc=$?
-  if [ "$rc" -eq 0 ]; then
-    log "SUCCESS — subset upload completed on attempt $s ($rem)"
-    exit 0
-  fi
-  log "subset attempt $s failed (rc=$rc)"
-  backoff=$(( s * 180 ))
-  log "backing off ${backoff}s"
-  sleep "$backoff"
-  s=$(( s + 1 ))
-done
-
+if subset_upload_loop "$rem"; then exit 0; fi
 log "EXHAUSTED all full + subset attempts; remaining unconfirmed: $rem"
 exit 1

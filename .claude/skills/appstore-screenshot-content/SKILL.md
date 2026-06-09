@@ -176,6 +176,38 @@ Monitor tool for this — it prompts on each re-arm. `capture_progress.py` and
 `sleep *` are allowlisted in `.claude/settings.json`, so the whole loop runs
 unattended. See memory `feedback_no_prompt_periodic_progress`.
 
+#### Uploading (self-healing) and checking job status without prompting
+
+App Store Connect intermittently returns HTTP 500s during deliver's
+finalization; a bare `fastlane push_screenshots` then retries forever instead of
+exiting (it hangs). Don't run the bare lane for a real upload — use the
+controller, which adds hang-detection, bounded retries with backoff, and a
+subset fallback:
+
+```bash
+bash scripts/screenshot_content/upload_with_retry.sh           # full, then auto-subset of stragglers
+SUBSET_ONLY="kn-IN ru" bash scripts/screenshot_content/upload_with_retry.sh   # re-push only these storefronts
+```
+
+A clean exit 0 from a subset run also *verifies* those storefronts (ASC accepted
+all their shots). Run it as a background task; nothing goes live
+(`submit_for_review:false`).
+
+**To check on the job, run the status script — never ad-hoc piped shell.**
+
+```bash
+bash scripts/screenshot_content/screenshot_status.sh
+```
+
+It reports local capture progress, any running capture/upload processes, the
+controller's recent log, and per-storefront upload confirmation. Because it's a
+single `bash scripts/…` command (allowlisted), the `ps`/pipes/`sed`/`$(…)`
+*inside* it are never permission-checked, so it never prompts — unlike ad-hoc
+`ps aux | grep …` or `find … | wc -l` one-liners, whose `ps`/compound segments
+trigger prompts. Prefer this script (or the Read tool on log files) over inline
+verification, and don't run non-essential checks once a background task's exit 0
+already confirms success. See memory `feedback_no_prompt_periodic_progress`.
+
 ### 7. Cleanup — offer to clear tmp working files
 
 After `check_content.py` is green (the catalog is committed, so the tmp outputs are no

@@ -61,6 +61,7 @@ struct ContainerFailureView: View {
           .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
+        .tint(Color.accentFill)
         .controlSize(.large)
         .accessibilityHint(String(
           localized: "containerFailure.action.retry.accessibilityHint",

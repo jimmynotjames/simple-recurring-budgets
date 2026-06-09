@@ -25,7 +25,7 @@ extension AddEditExpenseView {
           comment: "Explanatory caption below the Add Funds toggle (F-6.01)"
         ))
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.primary)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     }

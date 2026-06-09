@@ -10,8 +10,6 @@ struct CarryOverChip: View {
   /// (the paused-state presentation). The background capsule tint is unchanged.
   var dimmed: Bool = false
 
-  @Environment(\.colorSchemeContrast) private var colorSchemeContrast
-
   @ScaledMetric(relativeTo: .footnote) private var chipSpacing: CGFloat = 3
   @ScaledMetric(relativeTo: .footnote) private var chipHPadding: CGFloat = 6
   @ScaledMetric(relativeTo: .footnote) private var chipVPadding: CGFloat = 3
@@ -27,7 +25,6 @@ struct CarryOverChip: View {
       }
       Text(carryOverDisplay.amount)
       Text(String(localized: "carryOver.label", defaultValue: "carry-over", comment: "Fixed label shown in the carry-over chip on the budgets list"))
-        .foregroundStyle(dimmedStyle(chipForeground.opacity(colorSchemeContrast == .increased ? 1.0 : 0.8), when: dimmed))
     }
     .font(.footnote)
     .fontWeight(.medium)
@@ -44,12 +41,11 @@ struct CarryOverChip: View {
   }
 
   private var chipForeground: Color {
-    amount < 0 ? Color.moneyDeficit : Color.moneySurplus
+    amount < 0 ? Color("ChipDeficitForeground") : Color("ChipSurplusForeground")
   }
 
   private var chipBackground: Color {
-    let opacity = colorSchemeContrast == .increased ? 0.05 : 0.15
-    return amount < 0 ? Color.moneyDeficit.opacity(opacity) : Color.moneySurplus.opacity(opacity)
+    amount < 0 ? Color("ChipDeficitBackground") : Color("ChipSurplusBackground")
   }
 
   private var accessibilityLabel: String {
@@ -87,3 +83,6 @@ private func chipPreview(_ chip: some View) -> some View {
 #Preview("Surplus") { chipPreview(CarryOverChip(amount: 42.50, currencyCode: "USD")) }
 #Preview("Deficit") { chipPreview(CarryOverChip(amount: -18.75, currencyCode: "USD")) }
 #Preview("Zero") { chipPreview(CarryOverChip(amount: 0, currencyCode: "USD")) }
+#Preview("Surplus – Dark") { chipPreview(CarryOverChip(amount: 42.50, currencyCode: "USD")).preferredColorScheme(.dark) }
+#Preview("Deficit – Dark") { chipPreview(CarryOverChip(amount: -18.75, currencyCode: "USD")).preferredColorScheme(.dark) }
+#Preview("Zero – Dark") { chipPreview(CarryOverChip(amount: 0, currencyCode: "USD")).preferredColorScheme(.dark) }

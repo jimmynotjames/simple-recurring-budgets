@@ -121,6 +121,7 @@ struct BudgetDetailView: View {
               .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            .tint(Color.accentFill)
             .controlSize(.large)
             .accessibilityLabel(String(
               localized: "budgetDetail.action.resume.accessibilityLabel",
@@ -158,6 +159,7 @@ struct BudgetDetailView: View {
               .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            .tint(Color.accentFill)
             .controlSize(.large)
             .accessibilityLabel(String(
               localized: "budgetDetail.action.addExpense.accessibilityLabel",

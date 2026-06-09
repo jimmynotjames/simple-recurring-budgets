@@ -169,33 +169,14 @@ extension StatusChipRow where Trailing == EmptyView {
     )
   }
 
-  #Preview("With trailing Reset") {
-    rowPreview(
-      StatusChipRow(
-        inactiveReason: nil,
-        isCarryOverEnabled: true,
-        carryOverAmount: 42.50,
-        currencyCode: "USD"
-      ) {
-        Button("Reset") {}
-          .buttonStyle(.bordered)
-          .controlSize(.small)
-      }
-    )
-  }
-
-  #Preview("Paused + carry-over + Reset at xxxLarge") {
+  #Preview("Paused + carry-over at xxxLarge") {
     rowPreview(
       StatusChipRow(
         inactiveReason: .paused(since: PreviewDates.pausedSince),
         isCarryOverEnabled: true,
         carryOverAmount: 42.50,
         currencyCode: "USD"
-      ) {
-        Button("Reset") {}
-          .buttonStyle(.bordered)
-          .controlSize(.small)
-      }
+      )
     )
     .dynamicTypeSize(.xxxLarge)
   }

@@ -47,6 +47,7 @@ struct AddEditExpenseView: View {
           )) {
             dismiss()
           }
+          .foregroundStyle(.primary)
         }
       }
       ToolbarItem(placement: .confirmationAction) {
@@ -208,7 +209,8 @@ struct AddEditExpenseView: View {
   func sectionLabel(_ text: String) -> some View {
     Text(text)
       .font(.subheadline)
-      .foregroundStyle(.secondary)
+      .foregroundStyle(Color.primary)
+      .accessibilityIdentifier("srb.sectionLabel")
   }
 }
 

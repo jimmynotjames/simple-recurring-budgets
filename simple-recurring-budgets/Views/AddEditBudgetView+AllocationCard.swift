@@ -51,7 +51,7 @@ extension AddEditBudgetView {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(Capsule().fill(Color.secondary.opacity(0.12)))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
           }
           .buttonStyle(.plain)
           .accessibilityLabel(String(

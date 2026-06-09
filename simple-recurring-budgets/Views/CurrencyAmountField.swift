@@ -54,7 +54,7 @@ struct CurrencyAmountField: View {
   }
 
   var body: some View {
-    HStack(alignment: .firstTextBaseline, spacing: 2) {
+    HStack(alignment: .center, spacing: 2) {
       affix(affixes.leading)
       DecimalInputField(
         placeholder: placeholder,
@@ -106,7 +106,7 @@ struct CurrencyAmountField: View {
     if !text.isEmpty {
       Text(text)
         .font(.title2.weight(.semibold))
-        .foregroundStyle(tint ?? .secondary)
+        .foregroundStyle(tint ?? .primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
         .accessibilityHidden(true)
     }
   }

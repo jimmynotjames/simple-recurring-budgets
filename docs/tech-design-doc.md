@@ -307,7 +307,10 @@ Exact values are defined in `Resources/Assets.xcassets` with separate light and 
 |---|---|
 | `AppBackground` | Screen/page background; fills behind nav bar, list, and empty states |
 | `CellBackground` | List row background |
-| `AccentColor` | Tint for interactive controls (buttons, chevrons, toggles) |
+| `AccentColor` | Tint for toolbar icons, text links, toggle tint, foreground accent text, icon-picker selection stroke |
+| `AccentFill` | Solid accent backgrounds behind white text (period chips, `.borderedProminent` buttons) |
+
+**Generated symbols:** Xcode emits `Color.accentFill` from the `AccentFill` asset (`GeneratedAssetSymbols`). Use `AccentColor` (or `.accentColor`) for tints and foreground accents; use `Color.accentFill` (`.tint(Color.accentFill)`) for filled controls that render white labels on a sage background. WCAG contrast is met by default in the light/dark asset values — not via `contrast: increased` catalog appearances.
 
 #### Applying to screens
 

@@ -54,7 +54,7 @@ struct CurrencyAmountField: View {
   }
 
   var body: some View {
-    HStack(alignment: .firstTextBaseline, spacing: 2) {
+    HStack(alignment: .center, spacing: 2) {
       affix(affixes.leading)
       DecimalInputField(
         placeholder: placeholder,

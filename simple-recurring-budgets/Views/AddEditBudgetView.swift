@@ -235,7 +235,7 @@ struct AddEditBudgetView: View {
           ),
           text: $viewModel.name
         )
-        .font(.body)
+        .font(.title2)
         .focused($isNameFocused)
         .accessibilityLabel(String(
           localized: "addEditBudget.field.name.accessibilityLabel",
@@ -355,6 +355,7 @@ struct AddEditBudgetView: View {
             defaultValue: "Carry-Over",
             comment: "Toggle label and section header for the carry-over setting on the Add/Edit Budget screen"
           ))
+          .font(.title3)
           .foregroundStyle(.primary)
           .accessibilityIdentifier("srb.sectionLabel")
         }
@@ -456,7 +457,7 @@ struct AddEditBudgetView: View {
   func sectionLabel(_ text: String) -> some View {
     Text(text)
       .font(.subheadline)
-      .foregroundStyle(Color.primary)
+      .foregroundStyle(Color.primary.opacity(0.75))
       .accessibilityIdentifier("srb.sectionLabel")
   }
 }

@@ -1,5 +1,24 @@
 # Architecture Audit
 
+> ## Status update — 2026-06-10
+>
+> Superseded by [`architecture-audit-2026-06-10.md`](architecture-audit-2026-06-10.md) (155 commits / +48 source files later). Disposition of the §4 priority-ranked concerns:
+>
+> | # | Concern | Status |
+> |---|---------|--------|
+> | 1 | Silent save failures | ✅ Resolved — `saveChanges(operation:analytics:)` + `.saveErrorAlert` (#133) |
+> | 2 | Lifecycle staleness after CloudKit merge | ✅ Resolved — `Budget.recomputeToken` (#128) |
+> | 3 | `BudgetLifecycleService` implicit main-actor | ✅ Resolved — module-wide `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` |
+> | 4 | No user-facing error surface | ✅ Resolved — `SaveErrorState` alert with Retry / Send Feedback |
+> | 5 | `fatalError` on container creation | ✅ Resolved — `AppStartup` + `ContainerFailureView` (#135) |
+> | 6 | View actions tested by duplication | ✅ Mostly — reset/pause/resume moved into `BudgetLifecycleService`; `deleteExpense` still view-owned |
+> | 7 | No `NavigationSplitView` for iPad/Mac | ⚠️ Re-scoped — tech-design-doc no longer requires a split view, but PRD still claims macOS while the project targets iPhone+iPad only |
+> | 8 | Dense `sortOrder` rewrites | ⏳ Open, mitigated — only changed rows are rewritten |
+> | 9 | Routes hold object references | ⏳ Open — still blocks deep links / widgets / App Intents |
+> | 10 | No async pattern for AI features | ⏳ Open, deferred — no AI feature shipped yet |
+>
+> The architecture also changed shape: persisted carry-over state was replaced by event-sourced recompute (`AllocationChange` / `LifecycleEvent` rows + `BudgetCalculator.snapshot` / `CarryOverWalker`), so §3.4's "carry-over state is persisted" pitfall and §3.5's enumeration of `try?` sites no longer describe the code. Read the 2026-06-10 audit first; use this document for historical rationale only.
+
 | Field           | Value      |
 |-----------------|------------|
 | **Date**        | 2026-04-30 |

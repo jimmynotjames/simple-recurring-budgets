@@ -4,17 +4,6 @@ import OSLog
 import SwiftData
 import UIKit
 
-// MARK: - BudgetCohortInfo
-
-/// A `Sendable` snapshot of the Budget properties needed to compute cohort
-/// people-properties (§10.3). Callers build this from their `Budget` model
-/// objects and pass it into `refreshCohortPeopleProperties(budgets:)`.
-struct BudgetCohortInfo {
-  let currencyCode: String
-  let periodRawValue: String
-  let isCarryOverEnabled: Bool
-}
-
 // MARK: - MixpanelAnalyticsClient
 
 /// Production `AnalyticsClient` backed by the Mixpanel SDK.
@@ -119,7 +108,7 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
     instanceLock.unlock()
   }
 
-  // MARK: - Concrete-type refresh methods (not on protocol)
+  // MARK: - Super / people-property surface (AnalyticsClient protocol)
 
   /// Re-registers the §10.2 super properties on the live `MixpanelInstance`.
   ///

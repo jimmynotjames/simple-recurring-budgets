@@ -102,6 +102,17 @@ struct RatingPromptCoordinatorTests {
     #expect(harness.spy.trackedEvents.count(where: { $0 == AnalyticsEvent.ratingPromptEligible }) == 1)
   }
 
+  @Test("rating-prompt people properties fire through the AnalyticsClient protocol")
+  func peoplePropertiesObservableThroughProtocol() {
+    // Pre-protocol-widening these went through an `as? MixpanelAnalyticsClient`
+    // downcast and were unobservable under the spy (audit 2026-06-10 §4.3).
+    let harness = makeHarness()
+    let eligibleAt = driveToEligible(harness.coordinator)
+    #expect(harness.spy.ratingPromptFirstEligibleDates == [eligibleAt])
+    harness.coordinator.consumePendingRequest(now: day(13), appVersion: "1.0")
+    #expect(harness.spy.ratingPromptLastRequestedDates == [day(13)])
+  }
+
   @Test("a deficit-producing log is never eligible")
   func deficitLogNotEligible() {
     let harness = makeHarness()

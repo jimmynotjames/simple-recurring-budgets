@@ -63,7 +63,7 @@ final class RatingPromptCoordinator {
     if eligible, state.firstEligibleAt == nil {
       state.firstEligibleAt = now
       analytics.track(AnalyticsEvent.ratingPromptEligible)
-      (analytics as? MixpanelAnalyticsClient)?.setRatingPromptFirstEligible(now)
+      analytics.setRatingPromptFirstEligible(now)
     }
 
     if eligible, state.lastRequestedVersion != appVersion {
@@ -88,7 +88,7 @@ final class RatingPromptCoordinator {
           Self.timeSinceFirstEligibleBucket(firstEligibleAt: state.firstEligibleAt, now: now),
       ]
     )
-    (analytics as? MixpanelAnalyticsClient)?.setRatingPromptLastRequested(now)
+    analytics.setRatingPromptLastRequested(now)
   }
 
   // MARK: - Private

@@ -20,12 +20,50 @@ protocol AnalyticsClient: AnyObject, Sendable {
   func track(_ event: String, properties: [String: any Sendable]?)
   func identify(_ distinctId: String?)
   func reset()
+
+  // MARK: Super / people-property surface (analytics-spec.md §10.2–10.3, §13.2)
+
+  //
+  // These have default no-op implementations below so that clients with no
+  // people/super-property concept (ConsoleAnalyticsClient) need not implement
+  // them. Call sites MUST go through the protocol — never downcast to
+  // `MixpanelAnalyticsClient` — so test doubles can observe the calls
+  // (architecture-audit-2026-06-10.md §4.3).
+
+  /// Re-registers the §10.2 super properties on the live backend.
+  /// Call after any write that affects a super-property value.
+  func refreshSuperProperties()
+  /// Recomputes and persists the §10.3 cohort people-properties from the
+  /// current Budget collection. Call after `budget_created` / `budget_edited` /
+  /// `budget_deleted` so the people profile stays in sync.
+  func refreshCohortPeopleProperties(budgets: [BudgetCohortInfo])
+  /// Sets the F-6.03 `rating_prompt_first_eligible_at` people property (set-once).
+  func setRatingPromptFirstEligible(_ date: Date)
+  /// Refreshes the F-6.03 `rating_prompt_last_requested_at` people property.
+  func setRatingPromptLastRequested(_ date: Date)
 }
 
 extension AnalyticsClient {
   func track(_ event: String) {
     track(event, properties: nil)
   }
+
+  // Default no-ops: only backends with a people/super-property concept override these.
+  func refreshSuperProperties() {}
+  func refreshCohortPeopleProperties(budgets _: [BudgetCohortInfo]) {}
+  func setRatingPromptFirstEligible(_: Date) {}
+  func setRatingPromptLastRequested(_: Date) {}
+}
+
+// MARK: - BudgetCohortInfo
+
+/// A snapshot of the Budget properties needed to compute cohort
+/// people-properties (§10.3). Callers build this from their `Budget` model
+/// objects and pass it into `refreshCohortPeopleProperties(budgets:)`.
+struct BudgetCohortInfo {
+  let currencyCode: String
+  let periodRawValue: String
+  let isCarryOverEnabled: Bool
 }
 
 // MARK: - Canonical event names

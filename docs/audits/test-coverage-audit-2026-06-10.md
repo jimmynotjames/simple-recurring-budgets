@@ -2,7 +2,7 @@
 
 > **Static-only audit.** No tests were executed and the Xcode scheme was not modified. No production or test code was changed by this audit. Recommendations are proposals for follow-up work. Follow-up to [test-coverage-audit-2026-04-30.md](test-coverage-audit-2026-04-30.md); see also [ui-testing-audit-2026-05-31.md](ui-testing-audit-2026-05-31.md), which drove most of the UI-test build-out assessed here.
 
-> **Same-day follow-up (2026-06-10).** Top issues **3–10** were fixed in the PR that landed this audit (one commit per item); the per-item "Follow-up" notes below record what shipped. Items **1** (coverage instrumentation) and **2** (June macOS CI pause, #228) remain open as documented. The body text, inventory, and appendices otherwise preserve the pre-fix snapshot the audit was taken against.
+> **Same-day follow-up (2026-06-10).** Top issues **3–10** were fixed in the PR that landed this audit (one commit per item); the per-item "Follow-up" notes below record what shipped. Item **1** (coverage instrumentation) was fixed in a same-day follow-up PR — see the note under top issue 1 for the recorded baseline. Item **2** (June macOS CI pause, #228) remains open as documented. The body text, inventory, and appendices otherwise preserve the pre-fix snapshot the audit was taken against.
 
 ## Summary
 
@@ -13,6 +13,7 @@ Three significant gaps remain, all carried over from April. **Code coverage is s
 ### Top issues, ordered by impact
 
 1. **Code coverage is still not instrumented** (April A2, unresolved) — no `-enableCodeCoverage YES`, no `.xcresult`-based `xccov` reporting, no threshold gate, in either [scripts/test.sh](../../scripts/test.sh) / [test-unit.sh](../../scripts/test-unit.sh) or CI. Two audits in a row have had to substitute file-level reading for line-level data.
+   **✅ Follow-up:** fixed (report-only, deliberately no gate) — `-enableCodeCoverage YES` on the unit passes of both test scripts, plus `make coverage` ([scripts/coverage.sh](../../scripts/coverage.sh) → [coverage_report.py](../../scripts/coverage_report.py)), which reports the app target excluding `Previews/`, `DebugData`, and `TestDynamicTypeOverride`. **Baseline (unit pass only):** effective 26.0% (2951/11340 lines); **excluding `Views/`: 80.0%** (1622/2028) — the tracked number, since SwiftUI bodies are traversed by the uninstrumented UI pass and read as ~0% here. Per folder: Domain 93.0%, Models 96.3%, Sync 100%, RatingPrompt 93.3%, Settings 92.5%, Formatting 77.8%, App 67.5%, Logging 31.8% (the Mixpanel SDK seam), Views 14.3%. Nothing blocks on these numbers; a CI ratchet stays deferred per long-term rec 7.
 2. **macOS CI jobs paused for June 2026** — `build` and `unit-tests` in [ci.yml](../../.github/workflows/ci.yml) carry `if: false` guards (#228). Tests currently run nowhere unbypassable. Time-boxed and deliberate, but it is the top operational risk until the guards are deleted (~2026-07-01).
 3. **DST / non-UTC time zones untested** (April E1, unresolved) — `PeriodCalculator`, `CarryOverWalker`, `BudgetCalculator`, and `LifecycleClassification` are verified only against fixed-UTC calendars. A spring-forward boundary inside a walk window is the kind of input none of the 633 tests constructs.
    **✅ Follow-up:** fixed — `TestCalendars` helper + `PeriodCalculatorDSTTests` (daily/weekly/monthly boundaries parameterized over LA/Berlin/UTC spring-forward and fall-back, boundary enumeration) + `CarryOverWalkerDSTTests` (walks across both LA transitions). All pass against the existing math — the gap was verification, not behavior.
@@ -120,6 +121,7 @@ Counts: **93 production files → 64 unit-test files (633 `@Test`) + 15 UI-test 
 - **A1. Code coverage is still not instrumented.** No script or workflow passes `-enableCodeCoverage YES`; the shared scheme has no coverage setting; no `xccov` consumer exists. The result-bundle plumbing (`-resultBundlePath` in all three test scripts) is already in place, so the marginal cost is one flag plus a report step.
   - **Severity:** P1 • **Effort:** S • **Horizon:** Short term
   - **Next step:** Add `-enableCodeCoverage YES` to [scripts/test.sh](../../scripts/test.sh) / [test-unit.sh](../../scripts/test-unit.sh) (unit pass only is fine), and a `make`-reachable `xcrun xccov view --report` step. Record a baseline number in the next audit; gate in CI once A2 is resolved.
+  - **✅ Follow-up (2026-06-10):** done as `make coverage` (top issue 1; baseline recorded there). Report-only — no gate anywhere; CI ratchet deferred per long-term rec 7.
 
 - **A2. macOS CI jobs are paused for June 2026.** `build` and `unit-tests` carry `if: false` (#228), so until ~2026-07-01 nothing unbypassable compiles or tests PRs; `/test-full` remains available but bills against the same exhausted budget. This is documented, time-boxed, and tracked — but every prior audit treated "tests run only when a developer runs them" as the top finding, and that is the de-facto state again this month.
   - **Severity:** P1 (time-boxed) • **Effort:** S • **Horizon:** 2026-07-01
@@ -223,7 +225,7 @@ Counts: **93 production files → 64 unit-test files (633 `@Test`) + 15 UI-test 
 
 ## Recommendations — Short term (next 1–2 OpenSpec changes)
 
-1. **Instrument coverage** (A1): `-enableCodeCoverage YES` in the unit-test scripts + an `xccov` report target; record the baseline.
+1. ~~**Instrument coverage** (A1): `-enableCodeCoverage YES` in the unit-test scripts + an `xccov` report target; record the baseline.~~ ✅ done 2026-06-10 (top issue 1; report-only, no gate).
 2. **Re-enable macOS CI on July 1** (A2): delete the two `if: false` guards per #228's checklist; consider folding the two fast UI regression suites into the per-PR job (C3).
 3. ~~**DST sweep** (E1 + J2)~~ ✅ done 2026-06-10 (top issue 3).
 4. ~~**Move `MockKeyValueStore` into the test target** (J1)~~ ✅ done 2026-06-10 (top issue 5).

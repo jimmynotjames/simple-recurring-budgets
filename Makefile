@@ -1,4 +1,4 @@
-.PHONY: format format-check lint-fix build test test-unit test-only test-ui lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean
+.PHONY: format format-check lint-fix build test test-unit test-only test-ui coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean
 
 system:
 	bash scripts/system-setup.sh
@@ -30,6 +30,11 @@ test-only:
 
 test-ui:
 	bash scripts/test-ui.sh
+
+# Line-coverage report from the latest unit .xcresult (run `make test-unit` first).
+# Report-only — not a gate; nothing blocks on these numbers.
+coverage:
+	bash scripts/coverage.sh
 
 lint:
 	swiftlint lint --strict

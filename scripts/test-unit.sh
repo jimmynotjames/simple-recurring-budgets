@@ -23,6 +23,7 @@ xcodebuild test \
     -destination-timeout 300 \
     -derivedDataPath "${SIM_DERIVED}" \
     -resultBundlePath "${RESULT_BUNDLE}" \
+    -enableCodeCoverage YES \
     -parallel-testing-enabled NO \
     -skip-testing:simple-recurring-budgetsUITests
 

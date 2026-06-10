@@ -192,6 +192,7 @@ struct SettingsView: View {
         defaultValue: "Tracks surplus or deficit over time. Default setting for new budgets. Existing budgets are not affected.",
         comment: "Explanatory footer below the default carry-over toggle in Settings"
       ))
+      .foregroundStyle(.readableSecondary)
     }
   }
 
@@ -358,6 +359,7 @@ struct SettingsView: View {
         exceptions. Mentions that the locale-based default can be changed.
         """
       ))
+      .foregroundStyle(.readableSecondary)
     }
   }
 }
@@ -378,24 +380,27 @@ private extension SettingsView {
       .foregroundStyle(.primary)
       .accessibilityIdentifier("srb.sectionLabel")
     } footer: {
-      switch syncStatus.rowState {
-      case .unavailable:
-        Text(String(
-          localized: "settings.iCloud.unavailable.footer",
-          defaultValue: "Sign in to iCloud in Settings to sync your budgets across devices.",
-          comment: "Section footer shown below the iCloud status row when iCloud is unavailable"
-        ))
-      case .paused:
-        Text(String(
-          localized: "settings.iCloud.paused.footer",
-          defaultValue:
-          "Your budgets are saved on this device only. Restart the app to retry iCloud sync.",
-          comment:
-          "Section footer shown below the iCloud status row when the app is signed in to iCloud but the SwiftData container is running in local-only mode"
-        ))
-      default:
-        EmptyView()
+      Group {
+        switch syncStatus.rowState {
+        case .unavailable:
+          Text(String(
+            localized: "settings.iCloud.unavailable.footer",
+            defaultValue: "Sign in to iCloud in Settings to sync your budgets across devices.",
+            comment: "Section footer shown below the iCloud status row when iCloud is unavailable"
+          ))
+        case .paused:
+          Text(String(
+            localized: "settings.iCloud.paused.footer",
+            defaultValue:
+            "Your budgets are saved on this device only. Restart the app to retry iCloud sync.",
+            comment:
+            "Section footer shown below the iCloud status row when the app is signed in to iCloud but the SwiftData container is running in local-only mode"
+          ))
+        default:
+          EmptyView()
+        }
       }
+      .foregroundStyle(.readableSecondary)
     }
   }
 
@@ -492,7 +497,7 @@ private extension SettingsView {
           defaultValue: "Checking…",
           comment: "iCloud sync status shown while the account status is being determined"
         ))
-        .foregroundStyle(.primary.opacity(0.55))
+        .foregroundStyle(.readableSecondary)
         Spacer()
         ProgressView()
           .accessibilityLabel(String(

@@ -101,8 +101,8 @@ struct BudgetRemainingSummary: View {
 
   private var periodText: some View {
     Text(periodDisplayLabel)
-      .font(.callout)
-      .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
+      .font(.subheadline)
+      .foregroundStyle(.readableSecondary)
   }
 }
 

@@ -20,7 +20,7 @@ struct SettingsView: View {
   @Environment(\.requestReview) private var requestReview
 
   /// Holds the user's pending week-start selection until confirmed (F-5.01).
-  @State private var pendingWeekStart: Weekday? = nil
+  @State private var weekStartConfirmation = WeekStartConfirmation()
 
   private var appVersion: String {
     Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -100,8 +100,8 @@ struct SettingsView: View {
           comment: "Title of the confirmation alert shown before applying a week-start day change"
         ),
         isPresented: Binding(
-          get: { pendingWeekStart != nil },
-          set: { if !$0 { pendingWeekStart = nil } }
+          get: { weekStartConfirmation.isPresenting },
+          set: { if !$0 { weekStartConfirmation.cancel() } }
         )
       ) {
         Button(String(
@@ -109,7 +109,7 @@ struct SettingsView: View {
           defaultValue: "Change",
           comment: "Confirm button in the week-start day change alert"
         )) {
-          if let day = pendingWeekStart {
+          if let day = weekStartConfirmation.confirm() {
             let oldDay = settings.weekStartDay
             settings.weekStartDay = day
             analytics.track(
@@ -121,17 +121,16 @@ struct SettingsView: View {
               ]
             )
           }
-          pendingWeekStart = nil
         }
         Button(String(
           localized: "settings.weekStart.alert.cancel",
           defaultValue: "Cancel",
           comment: "Cancel button in the week-start day change alert"
         ), role: .cancel) {
-          pendingWeekStart = nil
+          weekStartConfirmation.cancel()
         }
       } message: {
-        if let day = pendingWeekStart {
+        if let day = weekStartConfirmation.pending {
           Text(String(
             localized: "settings.weekStart.alert.message",
             defaultValue: "Changing to \(weekdayName(day)) will immediately affect all weekly and biweekly budgets.",
@@ -207,8 +206,7 @@ struct SettingsView: View {
         selection: Binding(
           get: { currentDay },
           set: { new in
-            guard new != currentDay else { return }
-            pendingWeekStart = new
+            weekStartConfirmation.select(new, current: currentDay)
           }
         )
         // setting_changed for week_start_day fires on confirmation (via alert confirm handler).
@@ -575,24 +573,9 @@ private extension SettingsView {
   }
 
   func loadICloudStatus() async {
-    // UI tests: CKContainer.accountStatus() hangs on the account-less Simulator, pinning the iCloud row to a spinner so XCUITest can't open Settings (#211). DEBUG-only, like the SyncStatus override.
-    #if DEBUG
-      if ProcessInfo.processInfo.environment["IS_TESTING"] != nil {
-        syncStatus.accountStatus = .unavailable
-        return
-      }
-    #endif
-    let old = syncStatus.accountStatus
-    do {
-      let status = try await CKContainer.default().accountStatus()
-      syncStatus.accountStatus = status == .available ? .available : .unavailable
-    } catch {
-      syncStatus.accountStatus = .unavailable
-    }
-    let new = syncStatus.accountStatus
-    if old != new {
-      Logger.cloudKit.notice("cloudkit.account.transition: \(String(describing: old), privacy: .public) → \(String(describing: new), privacy: .public)")
-    }
+    // Query + mapping live in ICloudStatusLoader so unit tests can drive them
+    // through injected providers (test-coverage-audit-2026-06-10 I2).
+    await ICloudStatusLoader().load(into: syncStatus)
   }
 
   /// Observes iCloud account changes while the sheet is open so the row

@@ -1,21 +1,3 @@
-//
-//  BudgetsViewTests.swift
-//  simple-recurring-budgetsTests
-//
-//  Tests for BudgetsView handler logic:
-//    – move: dense sortOrder rewrite + lastModified bump rule
-//
-//  SwiftUI rendering of the empty-state branch is validated by the
-//  #Preview declarations in BudgetsView.swift.
-//
-//  Note: these tests inline the move algorithm rather than invoking
-//  BudgetsView.move(from:to:) directly. They verify the algorithm is
-//  correct but do not catch view-wiring regressions (e.g. a missing
-//  .onMove modifier). If the handler logic is refactored, update these
-//  tests to match. That's an acceptable trade-off since the @Environment-
-//  driven SwiftData context makes unit-testing the handler directly awkward.
-//
-
 import Foundation
 @testable import simple_recurring_budgets
 import SwiftData
@@ -36,14 +18,12 @@ struct BudgetsViewMoveTests {
     try context.save()
 
     // Move C (index 2) to the front (offset 0): result order [C, A, B]
-    var reordered = [budgetA, budgetB, budgetC]
-    reordered.move(fromOffsets: IndexSet(integer: 2), toOffset: 0)
-
-    let now = Date()
-    for (index, budget) in reordered.enumerated() where budget.sortOrder != index {
-      budget.sortOrder = index
-      budget.lastModified = now
-    }
+    BudgetReorderService.applyMove(
+      budgets: [budgetA, budgetB, budgetC],
+      fromOffsets: IndexSet(integer: 2),
+      toOffset: 0,
+      now: Date()
+    )
     try context.save()
 
     // Fetch sorted by sortOrder and verify sequence
@@ -70,17 +50,14 @@ struct BudgetsViewMoveTests {
     // A stays at index 0 → unchanged
     // C goes from sortOrder 2 → 1 → changed
     // B goes from sortOrder 1 → 2 → changed
-    var reordered = [budgetA, budgetB, budgetC]
-    reordered.move(fromOffsets: IndexSet(integer: 1), toOffset: 3)
-
-    // Pause 1 ms to ensure `now` is strictly after the init-time `lastModified`.
-    Thread.sleep(forTimeInterval: 0.001)
-    let now = Date()
-
-    for (index, budget) in reordered.enumerated() where budget.sortOrder != index {
-      budget.sortOrder = index
-      budget.lastModified = now
-    }
+    // Injected `now` is strictly after the init-time `lastModified` — no sleep needed.
+    let now = originalAModified.addingTimeInterval(60)
+    BudgetReorderService.applyMove(
+      budgets: [budgetA, budgetB, budgetC],
+      fromOffsets: IndexSet(integer: 1),
+      toOffset: 3,
+      now: now
+    )
 
     #expect(budgetA.sortOrder == 0)
     #expect(
@@ -104,13 +81,12 @@ struct BudgetsViewMoveTests {
     try context.save()
 
     // Move B to front: [B, A]
-    var reordered = [budgetA, budgetB]
-    reordered.move(fromOffsets: IndexSet(integer: 1), toOffset: 0)
-    let now = Date()
-    for (index, budget) in reordered.enumerated() where budget.sortOrder != index {
-      budget.sortOrder = index
-      budget.lastModified = now
-    }
+    BudgetReorderService.applyMove(
+      budgets: [budgetA, budgetB],
+      fromOffsets: IndexSet(integer: 1),
+      toOffset: 0,
+      now: Date()
+    )
     try context.save()
 
     // Re-fetch from a new context to confirm persistence

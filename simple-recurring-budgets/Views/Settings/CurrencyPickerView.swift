@@ -103,8 +103,14 @@ struct CurrencyPickerView: View {
   }
 
   private var filteredCodes: [String] {
-    guard !query.isEmpty else { return allCodes }
-    return allCodes.filter { code in
+    Self.filteredCodes(allCodes, matching: query)
+  }
+
+  /// Internal (not private) so CurrencyPickerTests exercises the same code the
+  /// view renders instead of mirroring it (test-coverage-audit-2026-06-10 D3).
+  static func filteredCodes(_ codes: [String], matching query: String) -> [String] {
+    guard !query.isEmpty else { return codes }
+    return codes.filter { code in
       code.localizedCaseInsensitiveContains(query)
         || (displayName(for: code)?.localizedCaseInsensitiveContains(query) ?? false)
     }

@@ -35,17 +35,12 @@ struct CurrencyPickerTests {
 
   // MARK: - 7.2.c  Filtering helper
 
-  /// Mirror the filtering logic from CurrencyPickerView.filteredCodes to test it in isolation.
-  /// Empty query short-circuits to the full list (matching the view's guard statement).
+  /// Calls the production `CurrencyPickerView.filteredCodes(_:matching:)` directly —
+  /// the view's `filteredCodes` computed property forwards to the same static, so these
+  /// tests exercise the rendered code path rather than a mirror of it
+  /// (test-coverage-audit-2026-06-10 D3).
   private func filter(_ codes: [String], by query: String) -> [String] {
-    guard !query.isEmpty else { return codes }
-    return codes.filter { code in
-      code.localizedCaseInsensitiveContains(query)
-        || (
-          CurrencyPickerView.displayName(for: code)?
-            .localizedCaseInsensitiveContains(query) ?? false
-        )
-    }
+    CurrencyPickerView.filteredCodes(codes, matching: query)
   }
 
   @Test func filter_byCodePrefix_includesMatchingCode() {

@@ -33,24 +33,23 @@ struct SettingsCurrencyPickerTests {
 
 // MARK: - Week-start confirmation: cancel discards, confirm commits (task 9.7)
 
+/// Drives the production `WeekStartConfirmation` state machine — the same type
+/// `SettingsView`'s picker binding and alert buttons call — rather than mirroring
+/// its logic in the test body (test-coverage-audit-2026-06-10 D2).
 @Suite("SettingsView — week-start confirmation")
 struct SettingsWeekStartConfirmationTests {
-  /// Selecting a *different* day sets pendingWeekStart (does not immediately commit).
+  /// Selecting a *different* day sets pending (does not immediately commit).
   @Test func selectingNewDay_setsPending_doesNotCommit() {
     let mock = MockKeyValueStore()
     let settings = AppSettings(store: mock)
     // Force a known current value
     settings.weekStartDay = .sunday
 
-    var pending: Weekday? = nil
+    var confirmation = WeekStartConfirmation()
+    confirmation.select(.wednesday, current: settings.weekStartDay)
 
-    // Simulate the picker Binding.set logic from SettingsView:
-    let newDay = Weekday.wednesday
-    if newDay != settings.weekStartDay {
-      pending = newDay
-    }
-
-    #expect(pending == .wednesday, "pending should be set to the newly selected day")
+    #expect(confirmation.pending == .wednesday, "pending should be set to the newly selected day")
+    #expect(confirmation.isPresenting, "the confirmation alert should present")
     #expect(settings.weekStartDay == .sunday, "committed value should NOT change yet")
   }
 
@@ -60,12 +59,12 @@ struct SettingsWeekStartConfirmationTests {
     let settings = AppSettings(store: mock)
     settings.weekStartDay = .sunday
 
-    var pending: Weekday? = Weekday.wednesday
+    var confirmation = WeekStartConfirmation()
+    confirmation.select(.wednesday, current: settings.weekStartDay)
+    confirmation.cancel()
 
-    // Simulate Cancel:
-    pending = nil
-
-    #expect(pending == nil)
+    #expect(confirmation.pending == nil)
+    #expect(!confirmation.isPresenting)
     #expect(settings.weekStartDay == .sunday)
   }
 
@@ -75,15 +74,15 @@ struct SettingsWeekStartConfirmationTests {
     let settings = AppSettings(store: mock)
     settings.weekStartDay = .sunday
 
-    var pending: Weekday? = Weekday.wednesday
+    var confirmation = WeekStartConfirmation()
+    confirmation.select(.wednesday, current: settings.weekStartDay)
 
-    // Simulate Change:
-    if let day = pending {
+    // Mirrors the alert confirm handler in SettingsView:
+    if let day = confirmation.confirm() {
       settings.weekStartDay = day
     }
-    pending = nil
 
-    #expect(pending == nil)
+    #expect(confirmation.pending == nil)
     #expect(settings.weekStartDay == .wednesday)
 
     // Also assert the new value was persisted to the store.
@@ -97,13 +96,19 @@ struct SettingsWeekStartConfirmationTests {
     let settings = AppSettings(store: mock)
     settings.weekStartDay = .monday
 
-    var pending: Weekday? = nil
-    let newDay = Weekday.monday
-    if newDay != settings.weekStartDay {
-      pending = newDay
-    }
+    var confirmation = WeekStartConfirmation()
+    confirmation.select(.monday, current: settings.weekStartDay)
 
-    #expect(pending == nil, "selecting the already-active day should not create a pending change")
+    #expect(
+      confirmation.pending == nil,
+      "selecting the already-active day should not create a pending change"
+    )
+  }
+
+  /// Confirming with nothing pending is a no-op (alert dismissed twice, race-safety).
+  @Test func confirmWithoutPending_returnsNil() {
+    var confirmation = WeekStartConfirmation()
+    #expect(confirmation.confirm() == nil)
   }
 }
 
@@ -111,17 +116,14 @@ struct SettingsWeekStartConfirmationTests {
 
 /// Exercises the code path that `SettingsView.observeSingleNotification` drives:
 /// a posted iCloud-change notification causes `loadICloudStatus()` to re-query
-/// `CKContainer.default().accountStatus()` and write the result into
-/// `SyncStatus.accountStatus`.
+/// the account status and write the result into `SyncStatus.accountStatus`.
 ///
-/// Because `CKContainer` cannot be stubbed directly in unit tests, these tests
-/// verify the intermediate state machine: that mutations to `SyncStatus.accountStatus`
-/// correctly propagate through `rowState`, which is the observable surface
-/// that `SettingsView`'s switch reads. The notification → account-query → assignment
-/// chain is a linear sequence; testing the assignment half here and the queue/actor
-/// semantics via the build's strict concurrency checks is consistent with
-/// `docs/tech-design-doc.md` §5.3 conventions (pure derivation is fully testable
-/// without SwiftUI; async I/O boundaries are smoke-tested manually per task 11.2).
+/// These tests verify the derivation half: that mutations to
+/// `SyncStatus.accountStatus` correctly propagate through `rowState`, which is
+/// the observable surface that `SettingsView`'s switch reads. The query +
+/// assignment half (previously untestable because `CKContainer` cannot be
+/// stubbed) is now covered by `ICloudStatusLoaderTests` through the loader's
+/// injected provider (test-coverage-audit-2026-06-10 I2).
 @Suite("SettingsView — iCloud notification-driven accountStatus update")
 struct SettingsICloudNotificationTests {
   /// Simulates the assignment that `loadICloudStatus` performs after a

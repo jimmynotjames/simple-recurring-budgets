@@ -36,6 +36,19 @@ struct CurrencyDisplayPreferenceTests {
     }
   }
 
+  // MARK: - Localized label
+
+  /// Exact wording is owned by the String Catalog (and varies by run locale),
+  /// so assert the structural contract: every case resolves to a non-empty
+  /// label and no two cases collapse to the same string.
+  @Test func label_nonEmptyAndDistinct_forAllCases() {
+    let labels = CurrencyDisplayPreference.allCases.map(\.label)
+    for label in labels {
+      #expect(!label.isEmpty)
+    }
+    #expect(Set(labels).count == CurrencyDisplayPreference.allCases.count)
+  }
+
   // MARK: - example(locale:) correctness
 
   private let enUS = Locale(identifier: "en_US")

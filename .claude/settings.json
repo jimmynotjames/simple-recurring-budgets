@@ -108,6 +108,8 @@
       "Bash(make sim-clean)",
       "Bash(make sim-clean *)",
       "Bash(make -n test)",
+      "Bash(make coverage)",
+      "Bash(make coverage *)",
       "Bash(make build)",
       "Bash(make test)",
       "Bash(make format)",

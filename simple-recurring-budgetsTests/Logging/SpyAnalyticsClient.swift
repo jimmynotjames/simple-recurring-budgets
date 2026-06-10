@@ -44,7 +44,42 @@ final class SpyAnalyticsClient: AnalyticsClient {
     }
   }
 
-  // MARK: - Super / people property recording (not on AnalyticsClient protocol)
+  // MARK: - Super / people-property surface (AnalyticsClient protocol)
+
+  /// Number of `refreshSuperProperties()` calls received.
+  private(set) var refreshSuperPropertiesCallCount = 0
+  /// Each `refreshCohortPeopleProperties(budgets:)` call's payload, in order.
+  private(set) var cohortRefreshCalls: [[BudgetCohortInfo]] = []
+  /// Dates passed to `setRatingPromptFirstEligible(_:)`, in order.
+  private(set) var ratingPromptFirstEligibleDates: [Date] = []
+  /// Dates passed to `setRatingPromptLastRequested(_:)`, in order.
+  private(set) var ratingPromptLastRequestedDates: [Date] = []
+
+  nonisolated func refreshSuperProperties() {
+    MainActor.assumeIsolated {
+      refreshSuperPropertiesCallCount += 1
+    }
+  }
+
+  nonisolated func refreshCohortPeopleProperties(budgets: [BudgetCohortInfo]) {
+    MainActor.assumeIsolated {
+      cohortRefreshCalls.append(budgets)
+    }
+  }
+
+  nonisolated func setRatingPromptFirstEligible(_ date: Date) {
+    MainActor.assumeIsolated {
+      ratingPromptFirstEligibleDates.append(date)
+    }
+  }
+
+  nonisolated func setRatingPromptLastRequested(_ date: Date) {
+    MainActor.assumeIsolated {
+      ratingPromptLastRequestedDates.append(date)
+    }
+  }
+
+  // MARK: - Super / people property recording (simulated Mixpanel SDK surface)
 
   /// Last dictionary passed to `registerSuperProperties`. Nil until first call.
   private(set) var superProperties: [String: String]?

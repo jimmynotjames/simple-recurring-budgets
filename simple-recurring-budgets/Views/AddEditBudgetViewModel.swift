@@ -143,6 +143,7 @@ final class AddEditBudgetViewModel {
     try context.saveChanges(operation: .budgetDelete, analytics: analytics)
     // Analytics fires only on a successful save (per `add-edit-budget-screen` delta spec).
     analytics.track(AnalyticsEvent.budgetDeleted, properties: props)
+    analytics.refreshCohortPeopleProperties(budgets: budgetCohortInfos(context: context))
   }
 
   // MARK: - Save
@@ -232,11 +233,8 @@ final class AddEditBudgetViewModel {
     }
     analytics.track(AnalyticsEvent.budgetCreated, properties: props)
 
-    if let client = analytics as? MixpanelAnalyticsClient {
-      let infos = budgetCohortInfos(context: context)
-      client.refreshSuperProperties()
-      client.refreshCohortPeopleProperties(budgets: infos)
-    }
+    analytics.refreshSuperProperties()
+    analytics.refreshCohortPeopleProperties(budgets: budgetCohortInfos(context: context))
 
     let jurisdiction = ConsentJurisdiction.kind(for: Locale.current.region?.identifier)
     if jurisdiction == .required, !settings.analyticsOptInExplicitlySet {
@@ -314,10 +312,7 @@ final class AddEditBudgetViewModel {
           orphanedExpenseCount: orphanedCount
         )
       )
-      if let client = analytics as? MixpanelAnalyticsClient {
-        let infos = budgetCohortInfos(context: context)
-        client.refreshCohortPeopleProperties(budgets: infos)
-      }
+      analytics.refreshCohortPeopleProperties(budgets: budgetCohortInfos(context: context))
     }
   }
 

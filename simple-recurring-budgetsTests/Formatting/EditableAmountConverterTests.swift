@@ -17,10 +17,12 @@ struct EditableAmountConverterTests {
 
   // MARK: - Editable seeding (no grouping, currency-aware precision)
 
-  @Test func usd_keepsUpToTwoFractionDigitsWithoutGrouping() {
+  @Test func usd_padsToTwoFractionDigitsWithoutGrouping() {
     let style = EditableAmountConverter(currencyCode: "USD", locale: enUS)
-    #expect(style.editableText(1234.5) == "1234.5")
-    #expect(style.editableText(1000) == "1000")
+    #expect(style.editableText(1234.5) == "1234.50")
+    #expect(style.editableText(1000) == "1000.00")
+    #expect(style.editableText(4) == "4.00")
+    #expect(style.editableText(Decimal(string: "5.5")) == "5.50")
   }
 
   /// A 3-decimal currency must NOT truncate an existing value to two places (the old `0...2` bug).
@@ -43,8 +45,8 @@ struct EditableAmountConverterTests {
 
   @Test func editableText_usesLocaleDecimalSeparator() {
     let style = EditableAmountConverter(currencyCode: "EUR", locale: deDE)
-    // de_DE uses "," for the decimal separator; seeding drops grouping separators.
-    #expect(style.editableText(1234.5) == "1234,5")
+    // de_DE uses "," for the decimal separator; seeding drops grouping separators and pads to 2 places.
+    #expect(style.editableText(1234.5) == "1234,50")
   }
 
   // MARK: - Parsing

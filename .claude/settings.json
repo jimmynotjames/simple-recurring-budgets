@@ -114,6 +114,7 @@
       "Bash(make lint-fix)",
       "Bash(make format && make lint-fix)",
       "Bash(make format && make lint-fix && make build && make test)",
+      "Bash(make format && make lint-fix && make build *)",
       "Bash(make build && make test)",
       "Bash(make gate)",
       "Bash(make gate *)",

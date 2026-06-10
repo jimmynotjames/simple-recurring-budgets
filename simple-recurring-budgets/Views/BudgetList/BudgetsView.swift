@@ -160,19 +160,15 @@ struct BudgetsView: View {
 
   // MARK: - Handlers
 
-  /// Reorders budgets after a user drag-to-reorder gesture.
-  ///
-  /// Rewrites `sortOrder` densely over the new order (0..<count).
-  /// Only mutates — and bumps `lastModified` on — rows whose `sortOrder` actually changed.
-  /// Batches all writes into a single `context.save()`.
+  /// Reorders budgets after a user drag-to-reorder gesture: applies the
+  /// `BudgetReorderService` rewrite, then batches all writes into a single save.
   private func move(from source: IndexSet, to destination: Int) {
-    var reordered = budgets
-    reordered.move(fromOffsets: source, toOffset: destination)
-    let now = Date()
-    for (index, budget) in reordered.enumerated() where budget.sortOrder != index {
-      budget.sortOrder = index
-      budget.lastModified = now
-    }
+    BudgetReorderService.applyMove(
+      budgets: budgets,
+      fromOffsets: source,
+      toOffset: destination,
+      now: Date()
+    )
     do {
       try context.saveChanges(operation: .reorder, analytics: analytics)
       saveError.clear()

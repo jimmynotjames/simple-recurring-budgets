@@ -217,6 +217,46 @@ final class UserJourneyTests: XCTestCase {
     )
   }
 
+  // MARK: - Reorder budgets (drag-to-reorder in Edit mode)
+
+  /// Covers the `.onMove` wiring end-to-end (test-coverage-audit-2026-06-10 C1):
+  /// the unit suite (`BudgetsViewMoveTests`) verifies `BudgetReorderService`'s
+  /// algorithm, but only a real drag confirms the List forwards indices to it.
+  /// Order is asserted by the rows' vertical positions; no relaunch check, since
+  /// UI tests run on an ephemeral in-memory store.
+  func testReorderBudgets() {
+    let app = makeApp(seedBudgets: ["Alpha", "Bravo", "Charlie"])
+    app.launch()
+
+    let budgets = BudgetsScreen(app: app)
+    XCTAssertTrue(budgets.budgetRow(named: "Alpha").waitForExistence(timeout: 3))
+    budgets.editButton.tap()
+
+    // In Edit mode each row grows a trailing reorder grabber. Drag the last
+    // cell (Charlie, index 2) by its trailing edge to above the first cell.
+    let fromCell = app.cells.element(boundBy: 2)
+    let toCell = app.cells.element(boundBy: 0)
+    XCTAssertTrue(fromCell.waitForExistence(timeout: 2))
+    let grabber = fromCell.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5))
+    let target = toCell.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.05))
+    grabber.press(forDuration: 1.0, thenDragTo: target)
+
+    app.buttons["Done"].tap()
+
+    let charlieRow = budgets.budgetRow(named: "Charlie")
+    let alphaRow = budgets.budgetRow(named: "Alpha")
+    let bravoRow = budgets.budgetRow(named: "Bravo")
+    XCTAssertTrue(charlieRow.waitForExistence(timeout: 3))
+    XCTAssertLessThan(
+      charlieRow.frame.minY, alphaRow.frame.minY,
+      "Charlie should render above Alpha after the drag"
+    )
+    XCTAssertLessThan(
+      alphaRow.frame.minY, bravoRow.frame.minY,
+      "Alpha should remain above Bravo after the drag"
+    )
+  }
+
   // MARK: - Budget deletion
 
   func testDeleteBudget() {

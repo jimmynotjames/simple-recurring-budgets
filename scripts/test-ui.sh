@@ -17,6 +17,18 @@ cd "$ROOT"
 # _destination.sh. Honors SRB_SIM_MAX (default 2 → up to 2 sim clones; 1 → serial).
 source "${ROOT}/scripts/_destination.sh"
 
+# Guard: the UI pass requires a prior app lifecycle on the simulator to reliably
+# establish the XCUITest IPC socket. test-unit.sh / test.sh write this sentinel
+# after a successful unit run. make sim-clean wipes .build/sim/ so it auto-clears
+# on simulator reset — no manual cleanup needed.
+WARM_SENTINEL="${ROOT}/.build/sim/warmed"
+if [[ ! -f "${WARM_SENTINEL}" ]]; then
+    echo "error: simulator not warmed up." >&2
+    echo "  Run 'make test' (or 'make test-unit') before 'make test-ui'." >&2
+    echo "  If you just ran make sim-clean / make initialize-sims, run 'make test-unit' first." >&2
+    exit 1
+fi
+
 print_sim_concurrency_reminder
 
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"

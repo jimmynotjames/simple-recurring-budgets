@@ -29,6 +29,10 @@ xcodebuild test \
     -parallel-testing-enabled NO \
     -skip-testing:simple-recurring-budgetsUITests
 
+# Signal to test-ui.sh that the sim has hosted an app lifecycle.
+# Cleared automatically by make sim-clean (which wipes .build/sim/).
+touch "${SIM_DERIVED}/../warmed"
+
 # Step 2 — Accessibility and user-journey UI tests. Honors SRB_SIM_MAX via
 # SIM_PARALLEL_FLAGS (default 2 → up to 2 sim clones; 1 → serial). Runs after the
 # unit pass so the base sim has hosted an app lifecycle before clones are made.

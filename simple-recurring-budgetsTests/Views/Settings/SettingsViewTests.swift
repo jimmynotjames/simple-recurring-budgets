@@ -116,17 +116,14 @@ struct SettingsWeekStartConfirmationTests {
 
 /// Exercises the code path that `SettingsView.observeSingleNotification` drives:
 /// a posted iCloud-change notification causes `loadICloudStatus()` to re-query
-/// `CKContainer.default().accountStatus()` and write the result into
-/// `SyncStatus.accountStatus`.
+/// the account status and write the result into `SyncStatus.accountStatus`.
 ///
-/// Because `CKContainer` cannot be stubbed directly in unit tests, these tests
-/// verify the intermediate state machine: that mutations to `SyncStatus.accountStatus`
-/// correctly propagate through `rowState`, which is the observable surface
-/// that `SettingsView`'s switch reads. The notification → account-query → assignment
-/// chain is a linear sequence; testing the assignment half here and the queue/actor
-/// semantics via the build's strict concurrency checks is consistent with
-/// `docs/tech-design-doc.md` §5.3 conventions (pure derivation is fully testable
-/// without SwiftUI; async I/O boundaries are smoke-tested manually per task 11.2).
+/// These tests verify the derivation half: that mutations to
+/// `SyncStatus.accountStatus` correctly propagate through `rowState`, which is
+/// the observable surface that `SettingsView`'s switch reads. The query +
+/// assignment half (previously untestable because `CKContainer` cannot be
+/// stubbed) is now covered by `ICloudStatusLoaderTests` through the loader's
+/// injected provider (test-coverage-audit-2026-06-10 I2).
 @Suite("SettingsView — iCloud notification-driven accountStatus update")
 struct SettingsICloudNotificationTests {
   /// Simulates the assignment that `loadICloudStatus` performs after a

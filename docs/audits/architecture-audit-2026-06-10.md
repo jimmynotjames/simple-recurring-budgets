@@ -41,7 +41,7 @@ The architecture remains "View + Services, ViewModels on demand," and the escala
 | 6 | View actions tested by algorithm duplication | ✅ Mostly resolved | `resetBudget` / `resetCarryOver` / pause / resume moved into `BudgetLifecycleService` and tested directly. `deleteExpense` remains view-owned (§5.2) |
 | 7 | No `NavigationSplitView` for iPad/Mac | ⚠️ Re-scoped, decision still open | tech-design-doc §3 now says "iPad/Mac can use adaptive layout without requiring a full split view," but the PRD still claims iPadOS **and macOS**, while the project targets iPhone + iPad only (§3.3, §4.5) |
 | 8 | Dense `sortOrder` rewrites on reorder | ⏳ Open, mitigated | `move` now mutates only rows whose `sortOrder` actually changed (§5.6) |
-| 9 | Route enums hold object references | ⏳ Open | Unchanged; blocks deep links, widgets, App Intents (§4.2) |
+| 9 | Route enums hold object references | ✅ Resolved | Routes carry `UUID`s, resolved at the destination via `ModelContext.budget(id:)` / `.expenseItem(id:)` (#224, §4.2) |
 | 10 | No async coordination pattern for AI features | ⏳ Open, deferred | No AI feature has shipped; still no precedent to follow when one does |
 
 Other prior pitfalls that aged out: persisted carry-over state (the whole mechanism was replaced, see §1.2); "no UI tests" (UserJourneyTests, accessibility audit suite, screen objects now exist); ViewModel file inconsistency (`AddEditExpenseViewModel` extracted to its own file in #214).
@@ -98,6 +98,8 @@ The full structural analysis is §4.1; the launch-sized slice of it: nobody has 
 
 Not launch gates — these determine how painful the next year of features is.
 
+> **Status (2026-06-10, same-day follow-up):** §4.2, §4.3, and §4.4 were fixed in three sequential PRs merged the day of this audit — #221 (analytics seam), #222 (feature folders), #224 (UUID routes). Per-section resolution notes below. §4.1, §4.5, §4.6 remain open as written.
+
 ### 4.1 The recompute-from-history walk grows without bound, on the main thread
 
 The event-sourced rewrite (§1.2) trades the old staleness/inconsistency risk for compute: `walkCarryOver` iterates every completed period since `max(effectiveStartDate, lastResetDate)` and, **per period**, filters the entire expense array — O(P × E) per budget per read. A daily budget alive for two years is ~730 periods; with 1,500 expenses that's ~1.1M predicate evaluations per refresh, per row, on the main actor. There is no caching (deliberately — "pure function, no cached state"), no incremental checkpointing, no data archival story, and no `ModelActor`/background precedent in the codebase to offload it to.
@@ -108,13 +110,19 @@ Mitigations when it's time (in increasing order of effort): pre-bucket expenses 
 
 `AppRoute.budgetDetail(Budget)` / `SheetRoute.addExpense(Budget)` hold object references, not identifiers. Unchanged since the last audit, but the cost has grown: the roadmap's widgets, App Intents / Siri (F-7.02-03), and any deep-link or notification-tap entry all need serializable routes (`PersistentIdentifier` or `UUID` + fetch-at-destination). Retrofitting later means touching every `router.path.append` / `router.sheet =` call site at once. If any system-surface feature is scheduled next, do the route refactor first, as its own change.
 
+> **✅ Resolved (2026-06-10, #224).** `AppRoute` / `SheetRoute` now carry `UUID`s, resolved at the destination in `RootView` via `ModelContext.budget(id:)` / `.expenseItem(id:)` (`Models/ModelContext+Lookup.swift`). An unresolvable ID (model deleted elsewhere) silently pops the route / dismisses the sheet. Routes are now serializable-ready for deep links, widgets, and App Intents. Convention documented in tech-design-doc §2.2.
+
 ### 4.3 The `AnalyticsClient` seam is eroding via concrete downcasts
 
 Four production sites downcast the protocol to reach Mixpanel-only surface: `RatingPromptCoordinator` (×2: `setRatingPromptFirstEligible`, `setRatingPromptLastRequested`) and `AddEditBudgetViewModel` (×2: `refreshSuperProperties`, `refreshCohortPeopleProperties`). Consequences: under `SpyAnalyticsClient` these calls silently no-op, so tests **cannot assert** that super/people properties refresh when they should — exactly the regression class that bit issue #127 for view refreshes. Each new people-property feature will add more downcasts. Fix is mechanical: add optional-requirement-style protocol methods (default no-op implementations in a protocol extension) or a small `AnalyticsPeopleClient` sub-protocol, and have the spy record them. Do this before the Mixpanel surface grows again.
 
+> **✅ Resolved (2026-06-10, #221).** The four methods (plus `BudgetCohortInfo`) moved onto `AnalyticsClient` with default no-op implementations; all production downcasts removed; `SpyAnalyticsClient` records the calls and new tests assert them. The previously unobservable gap this exposed — budget **delete** never refreshed cohort people-properties (analytics-spec §10.3) — was fixed in the same PR.
+
 ### 4.4 `Views/` is a flat 37-file folder and the big screens keep absorbing complexity
 
 The prior audit set an informal split threshold of ~20 files; `Views/` is now at 37 with no feature grouping, and the four biggest files are `SettingsView` (612 lines), `BudgetDetailView` (585 + three sibling extension files), `AddEditBudgetView` (530 + three siblings), `AddEditBudgetViewModel` (493). PR #214 **raised the SwiftLint size limits** rather than splitting — a ratchet in the wrong direction. None of this is wrong yet (the extension-file pattern is disciplined, naming is consistent), but discovery cost for agents and humans is climbing, and the next features land in exactly these files. Adopt `Views/Budget/`, `Views/Expense/`, `Views/Settings/` feature folders on the next view-heavy change, and treat any further lint-limit raise as a smell requiring justification in the PR.
+
+> **✅ Partially resolved (2026-06-10, #222).** `Views/` reorganized into `BudgetList/`, `BudgetDetail/`, `BudgetForm/`, `ExpenseForm/`, `Settings/`, `Shared/` (pure `git mv`, tests mirrored; `RootView` / `ContainerFailureView` stay at root). The file-size concern stands: no files were split, and the #214 lint-limit raise remains — treat any further raise as a smell requiring justification in the PR.
 
 ### 4.5 iPad/Mac adaptive layout remains an unmade decision
 

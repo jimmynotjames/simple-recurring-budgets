@@ -443,7 +443,7 @@ Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one
 
 All changes go through a PR. **Never push commits directly to `main`**, even for small fixes or config tweaks. The `pre-push` lefthook enforces this and will block the push.
 
-GitHub Actions CI (`.github/workflows/ci.yml`, see `docs/tech-design-doc.md` §8.5) re-runs the lint/secret/translation/build/unit-test gates on every PR — server-side, so they hold even when a hook is bypassed. The full UI suite is opt-in per PR via a `/test-full` comment. When you change the local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts the CI mirrors, update `ci.yml` in the same change to keep them in lockstep.
+GitHub Actions CI (`.github/workflows/ci.yml`, see `docs/tech-design-doc.md` §8.5) re-runs the lint/secret/translation/build/unit-test gates on every PR — server-side, so they hold even when a hook is bypassed. The full UI suite is opt-in per PR via a `/test-full` comment. When you change the local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts the CI mirrors, update `ci.yml` in the same change to keep them in lockstep. *(⏸️ Temporarily, June 2026: the macOS jobs — `build`, `unit-tests`, and the `/test-full` trigger — are disabled for Actions-budget reasons; only the ubuntu lint/secrets/i18n gates run server-side. The local four-step gate is the sole compile/test verification until issue #228 re-enables them, ~2026-07-01.)*
 
 The correct flow: create a feature branch → commit → push the branch → open a PR → squash-merge.
 

@@ -2,10 +2,13 @@
 import SwiftData
 import Testing
 
+/// Top-level smoke test for the test target (replaces the Xcode template placeholder).
 struct simple_recurring_budgetsTests {
-  @Test func example() {
-    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-    // Swift Testing Documentation
-    // https://developer.apple.com/documentation/testing
+  /// The SchemaV1 schema loads into a container and accepts a trivial fetch.
+  @Test func schemaLoads() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let budgets = try context.fetch(FetchDescriptor<Budget>())
+    #expect(budgets.isEmpty)
   }
 }

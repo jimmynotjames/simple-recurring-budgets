@@ -172,7 +172,7 @@ Every new UI surface must:
 
 - Use named color assets from `Resources/Assets.xcassets` with separate light/dark appearances for all custom colors (see `docs/tech-design-doc.md` §5.5 for the color asset table and `appBackground()` modifier pattern).
 - Use semantic system colors throughout; no hard-coded color literals.
-- Permitted system-palette exceptions: `Color.moneySurplus` / `Color.moneyDeficit` (defined in `Views/Color+Money.swift`), iCloud sync-status system colors, and `.tint(.red)` for destructive controls (per `docs/tech-design-doc.md` §5.5).
+- Permitted system-palette exceptions: `Color.moneySurplus` / `Color.moneyDeficit` (defined in `Views/Shared/Color+Money.swift`), iCloud sync-status system colors, and `.tint(.red)` for destructive controls (per `docs/tech-design-doc.md` §5.5).
 
 #### 6.8.3 Localization — source strings and translations
 

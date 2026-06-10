@@ -2,6 +2,8 @@
 
 > **Static-only audit.** No tests were executed and the Xcode scheme was not modified. No production or test code was changed by this audit. Recommendations are proposals for follow-up work. Follow-up to [test-coverage-audit-2026-04-30.md](test-coverage-audit-2026-04-30.md); see also [ui-testing-audit-2026-05-31.md](ui-testing-audit-2026-05-31.md), which drove most of the UI-test build-out assessed here.
 
+> **Same-day follow-up (2026-06-10).** Top issues **3–10** were fixed in the PR that landed this audit (one commit per item); the per-item "Follow-up" notes below record what shipped. Items **1** (coverage instrumentation) and **2** (June macOS CI pause, #228) remain open as documented. The body text, inventory, and appendices otherwise preserve the pre-fix snapshot the audit was taken against.
+
 ## Summary
 
 Since the 2026-04-30 audit the test surface has been transformed. The suite has grown from a strong-Domain/weak-everywhere-else profile to **64 unit-test files (633 `@Test` functions) plus a real UI-test target (15 files, 55 XCTest methods)** covering accessibility audits, fourteen user-journey flows, and two regression suites for known-fragile input fields. The three top issues from April are materially resolved: **CI exists** ([.github/workflows/ci.yml](../../.github/workflows/ci.yml) — lint, secrets, i18n gates, build, unit tests, plus an on-demand `/test-full` full-suite workflow), **the bootstrap path is testable and tested** (`AppStartup` recovery seam with injected container factory, `ContainerFailureView` instead of `fatalError`, `PersistentStoreURLTests` pinning the single-store-URL invariant), and **the UI-test target is no longer empty** (`AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, `AllocationFirstTapUITests`, all wired into `make test` and `scripts/test.sh`). New feature areas shipped since April — the budget-calculations rewrite, pause/resume, Specific Dates, budget icons, the rating prompt, Mixpanel Phase 1, recents — all arrived **with** dedicated unit suites; the Mixpanel §18.1 test contracts (#1–#10) are individually implemented as named suites.
@@ -13,13 +15,21 @@ Three significant gaps remain, all carried over from April. **Code coverage is s
 1. **Code coverage is still not instrumented** (April A2, unresolved) — no `-enableCodeCoverage YES`, no `.xcresult`-based `xccov` reporting, no threshold gate, in either [scripts/test.sh](../../scripts/test.sh) / [test-unit.sh](../../scripts/test-unit.sh) or CI. Two audits in a row have had to substitute file-level reading for line-level data.
 2. **macOS CI jobs paused for June 2026** — `build` and `unit-tests` in [ci.yml](../../.github/workflows/ci.yml) carry `if: false` guards (#228). Tests currently run nowhere unbypassable. Time-boxed and deliberate, but it is the top operational risk until the guards are deleted (~2026-07-01).
 3. **DST / non-UTC time zones untested** (April E1, unresolved) — `PeriodCalculator`, `CarryOverWalker`, `BudgetCalculator`, and `LifecycleClassification` are verified only against fixed-UTC calendars. A spring-forward boundary inside a walk window is the kind of input none of the 633 tests constructs.
+   **✅ Follow-up:** fixed — `TestCalendars` helper + `PeriodCalculatorDSTTests` (daily/weekly/monthly boundaries parameterized over LA/Berlin/UTC spring-forward and fall-back, boundary enumeration) + `CarryOverWalkerDSTTests` (walks across both LA transitions). All pass against the existing math — the gap was verification, not behavior.
 4. **`makeProductionModelContainer` CloudKit→local fallback branch still uncovered** (April B1, narrowed but open) — the recovery seam around it (`AppStartup`) is well tested, and the shared-store-URL invariant is pinned by `PersistentStoreURLTests`, but the actual try-CloudKit-else-local selection in [simple_recurring_budgetsApp.swift](../../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift) still has no test for either branch outcome.
+   **✅ Follow-up:** fixed — extracted `ProductionContainerFactory.make(cloud:local:)` with injectable container factories; `ProductionContainerFactoryTests` covers both branch outcomes, the both-fail handoff, and the shared store URL.
 5. **`MockKeyValueStore` still ships in the production target** (April J2, unresolved) — defined in [Settings/KeyValueStore.swift](../../simple-recurring-budgets/Settings/KeyValueStore.swift) with no `#if DEBUG` guard; now referenced by eight test files, so moving it is still a one-file mechanical change.
+   **✅ Follow-up:** fixed — moved to `simple-recurring-budgetsTests/Helpers/MockKeyValueStore.swift`; the protocol stays in production.
 6. **Drag-to-reorder wiring has no test at any layer** — `BudgetsViewMoveTests` still inlines the move algorithm (April D1), the file still contains the suite's last remaining `Thread.sleep` (April J1), and none of the fourteen UI journeys performs a drag, so a dropped `.onMove` modifier remains invisible to the suite.
+   **✅ Follow-up:** fixed — `BudgetReorderService.applyMove` extracted (tests call it with injected `now`; sleep deleted) and `UserJourneyTests.testReorderBudgets` drags a row through the real List in Edit mode. (No relaunch-persistence assertion — UI tests run on an ephemeral in-memory store, correcting the suggestion in C1 below.)
 7. **SwiftData migration harness still absent** (April B2, unresolved) — [BudgetMigrationPlan.swift](../../simple-recurring-budgets/Models/BudgetMigrationPlan.swift) still ships `stages: []` with no fixture round-trip pattern; four new `@Model` types have landed since April, so the first real migration is closer, not further away.
+   **✅ Follow-up:** fixed — `MigrationTestSupport` (temp-URL SchemaV1 fixture writer + reopen-through-plan) and a `BudgetMigrationPlanTests` identity round-trip establish the pattern for SchemaV2.
 8. **Settings iCloud status check still hard-wires `CKContainer`** (April I2, unresolved) — `loadICloudStatus()` gained an `IS_TESTING` short-circuit (so UI tests no longer hang, #211) but still cannot be driven through a stubbed account status; only the `accountStatus → rowState` half is unit-tested.
+   **✅ Follow-up:** fixed — `ICloudStatusLoader` owns the query (injected provider; the #211 short-circuit folded into the default) and mapping; `ICloudStatusLoaderTests` drives available / unavailable / throwing / sign-in-transition paths.
 9. **Mirrored-logic unit tests remain** in `SettingsWeekStartConfirmationTests` and `CurrencyPickerTests.filter` (April D3/D4) — lower risk now that `UserJourneyTests.testSettingsRoundTrip` exercises the real Settings screen, but the mirrors still drift silently.
+   **✅ Follow-up:** fixed — week-start flow extracted to a `WeekStartConfirmation` state machine the view and tests share; `filteredCodes(_:matching:)` promoted to an internal static the view forwards to and the tests call.
 10. **The empty unit-test placeholder still ships** (April C2, half-resolved) — `simple_recurring_budgetsTests.example()` is still an empty body; the UI-target `testExample` is now at least a real launch smoke test.
+    **✅ Follow-up:** fixed — replaced with a SchemaV1-loads smoke test.
 
 ---
 
@@ -123,20 +133,24 @@ Counts: **93 production files → 64 unit-test files (633 `@Test`) + 15 UI-test 
 - **B1. `makeProductionModelContainer`'s branch selection is untested.** The function now *throws* instead of crashing (recovery is `AppStartup`'s job, which is tested), and the shared-`storeURL` invariant is pinned. But no test exercises "CloudKit config succeeds → `.cloudKit` backing" vs "CloudKit fails, local succeeds → `.localFallback`" — the branch is chosen by a `try?` on a real `ModelContainer` init, which unit tests can't force to fail.
   - **Severity:** P1 • **Effort:** M • **Horizon:** Short term
   - **Next step:** Same shape as the `AppStartup` fix: inject two factory closures (cloud, local) into a small static helper, defaulting to the real `ModelContainer` inits; test the four outcome combinations with throwing closures and assert the returned backing and (via a spy logger seam or just the backing) the path taken.
+  - **✅ Follow-up (2026-06-10):** done as `ProductionContainerFactory` + `ProductionContainerFactoryTests` (top issue 4).
 
 - **B2. SwiftData migration harness still absent.** `stages` is still `[]`, and SchemaV1 has grown to five model types since April (`AllocationChange`, `LifecycleEvent` added by the rewrite). The first real migration will be written under pressure without a fixture pattern.
   - **Severity:** P1 (preventive) • **Effort:** M • **Horizon:** Before any SchemaV2
   - **Next step:** As recommended in April: a `MigrationTestSupport` helper that writes a SchemaV1 store to a temp URL and re-opens it through `BudgetMigrationPlan`; ship the V1-open sanity test now.
+  - **✅ Follow-up (2026-06-10):** done as `MigrationTestSupport` + `BudgetMigrationPlanTests` (top issue 7).
 
 ### C. UI tests
 
 - **C1. No reorder journey.** `UserJourneyTests` covers create/edit/delete/pause/navigation/settings but never drags a row, so the `.onMove` wiring — the exact regression the inlined `BudgetsViewMoveTests` admits it can't catch — has no tripwire. XCUITest's `press(forDuration:thenDragTo:)` works on List reorder handles in edit mode.
   - **Severity:** P1 • **Effort:** S–M (drag gestures flake; budget one retry) • **Horizon:** Short term
   - **Next step:** One journey: seed three budgets via `SEED_BUDGETS`, enter edit mode, drag row 3 to position 1, assert the new order persists after relaunch (relaunch also exercises sortOrder persistence).
+  - **✅ Follow-up (2026-06-10):** done as `UserJourneyTests.testReorderBudgets` (top issue 6) — without the relaunch assertion, which this audit suggested in error: UI tests run on an ephemeral in-memory store, so relaunch would wipe the seeded data. Order is asserted from the rendered rows' positions instead.
 
 - **C2. Unit-target placeholder remains.** `simple_recurring_budgetsTests.example()` is still an empty Xcode-template body.
   - **Severity:** P2 • **Effort:** S • **Horizon:** Short term
   - **Next step:** Delete it or convert it to a schema-loads smoke test.
+  - **✅ Follow-up (2026-06-10):** converted to a schema-loads smoke test (top issue 10).
 
 - **C3. The UI suite's CI exposure is comment-gated.** `/test-full` is the only server-side runner of the 55 UI tests, and it must be remembered per-PR. Fine while macOS minutes are scarce; revisit when A2 lifts.
   - **Severity:** P2 • **Effort:** S • **Horizon:** Long term
@@ -146,16 +160,20 @@ Counts: **93 production files → 64 unit-test files (633 `@Test`) + 15 UI-test 
 
 - **D1. `BudgetsViewMoveTests`** — still inlines the move/sortOrder rewrite and still contains the suite's last `Thread.sleep(forTimeInterval: 0.001)`. Pair with C1: extract a `BudgetReorderService.applyMove(rows:from:to:now:)`, pass `now` explicitly, delete the sleep.
   - **Severity:** P2 (P1 if C1 isn't done) • **Effort:** S • **Horizon:** Short term
+  - **✅ Follow-up (2026-06-10):** done as part of top issue 6 — service extracted, tests call it, sleep deleted.
 - **D2. `SettingsWeekStartConfirmationTests`** — still simulates the picker Binding's set-logic in the test body. Extraction (a tiny `pending/select/confirm/cancel` helper) remains the right fix; mitigated by `testSettingsRoundTrip`.
   - **Severity:** P2 • **Effort:** S • **Horizon:** Long term
+  - **✅ Follow-up (2026-06-10):** done as `WeekStartConfirmation` (top issue 9).
 - **D3. `CurrencyPickerTests.filter`** — still mirrors the private `filteredCodes`. Promote to an internal static and call it.
   - **Severity:** P2 • **Effort:** S • **Horizon:** Long term
+  - **✅ Follow-up (2026-06-10):** done — `filteredCodes(_:matching:)` is now an internal static the view and tests share (top issue 9).
 
 ### E. Time and locale correctness
 
 - **E1. DST and non-UTC time zones remain the biggest correctness blind spot.** Production date math runs on the user's calendar; tests run on UTC. The rewrite raised the stakes: `walkCarryOver` re-derives **every** period boundary from the walk-window start on every read, so a DST-shifted boundary doesn't just move one period edge — it can re-bucket historical expenses between periods and change the cumulative carry-over. Zero tests construct a DST transition.
   - **Severity:** P0 for DST-region users • **Effort:** S–M • **Horizon:** Short term
   - **Next step:** Parameterize the shared test-calendar helper over `[UTC, America/Los_Angeles, Europe/Berlin]` and run the existing `PeriodCalculator` boundary cases plus one `walkCarryOver` multi-period case across the 2026-03-08 and 2026-11-01 US transitions. The helpers are already centralized enough per-file for this to be mostly mechanical.
+  - **✅ Follow-up (2026-06-10):** done as `TestCalendars` + `PeriodCalculatorDSTTests` + `CarryOverWalkerDSTTests` (top issue 3); all pass against the existing math. Pre-existing fixed-UTC suites were left as-is — new time-zone-sensitive tests should build on `TestCalendars`.
 - **E2. Non-Gregorian calendars** — unchanged from April; one documented-behavior test would close it.
   - **Severity:** P2 • **Effort:** S • **Horizon:** Long term
 - **E3. Relative-day strings still en-US-only** (`DateExpenseListFormattingTests`) — unchanged.
@@ -190,13 +208,16 @@ Counts: **93 production files → 64 unit-test files (633 `@Test`) + 15 UI-test 
   - **Severity:** P2 • **Effort:** S • **Horizon:** Long term
 - **I2. `CKContainer` seam** — unchanged in unit-testability; the new `IS_TESTING` short-circuit fixed the UI-test hang but is a bypass, not a seam. An injected `() async -> AccountStatus` would let the short-circuit and the tests share one mechanism.
   - **Severity:** P2 • **Effort:** M • **Horizon:** Long term
+  - **✅ Follow-up (2026-06-10):** done as `ICloudStatusLoader` + `ICloudStatusLoaderTests` (top issue 8); the #211 short-circuit now lives in the default provider.
 
 ### J. Test hygiene
 
 - **J1. `MockKeyValueStore` still ships in the app binary.** Now referenced by eight test files; still a single-file move into `simple-recurring-budgetsTests/Helpers/`.
   - **Severity:** P1 • **Effort:** S • **Horizon:** Short term
+  - **✅ Follow-up (2026-06-10):** done (top issue 5).
 - **J2. Fixed-UTC calendar helpers duplicated per file.** Now ~10 copies (some deliberately local per their comments). Centralizing is also the prerequisite for the E1 time-zone parameterization.
   - **Severity:** P2 • **Effort:** S • **Horizon:** Short term (fold into E1)
+  - **Follow-up (2026-06-10):** partially — `TestCalendars` is the shared base going forward; the existing per-file UTC copies were deliberately left untouched to keep the E1 change reviewable.
 
 ---
 
@@ -204,20 +225,20 @@ Counts: **93 production files → 64 unit-test files (633 `@Test`) + 15 UI-test 
 
 1. **Instrument coverage** (A1): `-enableCodeCoverage YES` in the unit-test scripts + an `xccov` report target; record the baseline.
 2. **Re-enable macOS CI on July 1** (A2): delete the two `if: false` guards per #228's checklist; consider folding the two fast UI regression suites into the per-PR job (C3).
-3. **DST sweep** (E1 + J2): centralize the test-calendar helper, parameterize over three time zones, add the two US-2026 transition cases to `PeriodCalculator` and `walkCarryOver` tests.
-4. **Move `MockKeyValueStore` into the test target** (J1).
-5. **Add the reorder UI journey** (C1) and, with it, extract the move handler so `BudgetsViewMoveTests` stops inlining and loses the last `Thread.sleep` (D1).
-6. **Make the production-container branch testable** (B1): inject cloud/local factory closures, test all four outcomes.
-7. **Delete or repurpose `example()`** (C2).
+3. ~~**DST sweep** (E1 + J2)~~ ✅ done 2026-06-10 (top issue 3).
+4. ~~**Move `MockKeyValueStore` into the test target** (J1)~~ ✅ done 2026-06-10 (top issue 5).
+5. ~~**Add the reorder UI journey** (C1) + extract the move handler (D1)~~ ✅ done 2026-06-10 (top issue 6).
+6. ~~**Make the production-container branch testable** (B1)~~ ✅ done 2026-06-10 (top issue 4).
+7. ~~**Delete or repurpose `example()`** (C2)~~ ✅ done 2026-06-10 (top issue 10).
 8. **Assert `CarryOverChip` label variants** (G1) using the `BudgetSummaryAccessibilityLabelTests` pattern.
 
 ## Recommendations — Long term
 
-1. **Migration harness before SchemaV2** (B2) — the single most valuable piece of not-yet-needed infrastructure.
+1. ~~**Migration harness before SchemaV2** (B2)~~ ✅ done 2026-06-10 (top issue 7).
 2. **Snapshot strategy for Dark Mode / appearance** (G2), scoped to top-level screens × light/dark; piggyback on the existing screenshot tooling rather than adding a new dependency if possible.
 3. **Forced-container-failure launch mode** (H2) to UI-test the recovery surface.
-4. **Seam the iCloud account query** (I2) and retire the `IS_TESTING` bypass.
-5. **Retire the remaining mirrored-logic tests** (D2, D3) via small extractions.
+4. ~~**Seam the iCloud account query** (I2)~~ ✅ done 2026-06-10 (top issue 8).
+5. ~~**Retire the remaining mirrored-logic tests** (D2, D3)~~ ✅ done 2026-06-10 (top issue 9).
 6. **Locale/calendar parameterization matrix** for formatter and relative-day tests (E2, E3, F1, F2) — one parameterized sweep closes four P2s.
 7. **Coverage floor in CI** once A1 yields a baseline: set 1–2 points below current, ratchet upward.
 

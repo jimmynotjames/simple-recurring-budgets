@@ -297,7 +297,7 @@ Services in `Domain/` implement all budget math with no SwiftUI dependencies:
 
 The app uses a warm earth-tone palette defined as named color assets in `Resources/Assets.xcassets`, with separate light and dark appearances. All views must use these named assets — never hard-coded color literals.
 
-**Exceptions:** Semantic system colors are used for money signals (`Color.moneySurplus` / `Color.moneyDeficit` defined as extensions on `Color` in `Views/Color+Money.swift`), iCloud sync-status icons (system `.green` / `.orange`), and destructive button tints (`.tint(.red)`). These adapt to light/dark mode via the system palette and do not need custom asset catalog slots. If a future theme change (F-4.01–02) needs per-theme control over these, they can be promoted to named assets at that time.
+**Exceptions:** Semantic system colors are used for money signals (`Color.moneySurplus` / `Color.moneyDeficit` defined as extensions on `Color` in `Views/Shared/Color+Money.swift`), iCloud sync-status icons (system `.green` / `.orange`), and destructive button tints (`.tint(.red)`). These adapt to light/dark mode via the system palette and do not need custom asset catalog slots. If a future theme change (F-4.01–02) needs per-theme control over these, they can be promoted to named assets at that time.
 
 #### Color assets
 

@@ -316,7 +316,7 @@ struct AddEditBudgetView: View {
             comment: "Caption shown below the Specific Dates period chip explaining that this budget type is non-recurring with no carry-over"
           ))
           .font(.caption)
-          .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
+          .foregroundStyle(.readableSecondary)
           .padding(.top, 4)
           .transition(.opacity.combined(with: .move(edge: .top)))
         }
@@ -331,7 +331,7 @@ struct AddEditBudgetView: View {
             systemImage: "lock.fill"
           )
           .font(.caption)
-          .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
+          .foregroundStyle(.readableSecondary)
           .padding(.top, 8)
         }
       }
@@ -403,6 +403,10 @@ struct AddEditBudgetView: View {
           RoundedRectangle(cornerRadius: 8, style: .continuous)
             .fill(isSelected ? Color.accentFill : Color.secondary.opacity(0.06))
         )
+        // 0.3 is below WCAG AA contrast on purpose: in edit mode the period is
+        // immutable, and the washed-out chips are the disabled-state affordance
+        // (SC 1.4.3 exempts inactive controls; VoiceOver announces "Locked.").
+        // No accessibility audit covers the edit-mode form (issue #223 survey).
         .foregroundStyle(isSelected ? Color.white : Color.primary.opacity(0.3))
         .accessibilityLabel(String(
           localized: "addEditBudget.chip.period.accessibilityLabel",

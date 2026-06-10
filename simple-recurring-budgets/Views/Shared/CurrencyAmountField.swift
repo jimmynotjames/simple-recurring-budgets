@@ -106,7 +106,7 @@ struct CurrencyAmountField: View {
     if !text.isEmpty {
       Text(text)
         .font(.title2.weight(.semibold))
-        .foregroundStyle(tint ?? .primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
+        .foregroundStyle(tint.map(AnyShapeStyle.init) ?? .readableSecondary)
         .accessibilityHidden(true)
     }
   }

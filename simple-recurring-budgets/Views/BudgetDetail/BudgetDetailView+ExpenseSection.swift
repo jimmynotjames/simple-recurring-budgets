@@ -15,7 +15,7 @@ extension BudgetDetailView {
           comment: "Empty state message shown when a budget has no expenses at all"
         ))
         .font(.body)
-        .foregroundStyle(.primary.opacity(0.55)) // 0.55 calibrated for WCAG AA 4.5:1 on white/dark bg
+        .foregroundStyle(.readableSecondary)
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 32)
         .listRowBackground(Color.clear)
@@ -28,7 +28,7 @@ extension BudgetDetailView {
         Section(currentSectionTitle) {
           Text(currentPeriodEmptyText)
             .font(.subheadline)
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(.readableSecondary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 12)
             .listRowBackground(Color("CellBackground"))

@@ -145,7 +145,7 @@ struct BudgetDetailView: View {
             }
           } else {
             Button {
-              router.sheet = .addExpense(budget)
+              router.sheet = .addExpense(budget.id)
             } label: {
               HStack(spacing: 8) {
                 Image(systemName: "plus")
@@ -221,7 +221,7 @@ struct BudgetDetailView: View {
             ),
             systemImage: "pencil"
           ) {
-            router.sheet = .editBudget(budget)
+            router.sheet = .editBudget(budget.id)
           }
           if showPauseResumeItem {
             if isPaused {

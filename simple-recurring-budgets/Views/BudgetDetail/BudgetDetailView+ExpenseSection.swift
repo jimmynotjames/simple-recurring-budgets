@@ -68,7 +68,7 @@ extension BudgetDetailView {
 
   func expenseRow(_ expense: ExpenseItem) -> some View {
     Button {
-      router.path.append(AppRoute.expenseDetail(expense))
+      router.path.append(AppRoute.expenseDetail(expense.id))
     } label: {
       ExpenseRowView(expense: expense, currencyCode: budget.currencyCode)
     }

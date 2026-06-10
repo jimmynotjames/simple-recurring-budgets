@@ -11,7 +11,7 @@ import Foundation
 /// @Environment(Router.self) private var router
 /// // …
 /// router.sheet = .addBudget
-/// router.path.append(.budgetDetail(budget))
+/// router.path.append(.budgetDetail(budget.id))
 /// ```
 @Observable
 @MainActor

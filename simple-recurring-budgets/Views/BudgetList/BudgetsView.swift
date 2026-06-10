@@ -238,7 +238,7 @@ struct BudgetRowView: View {
       // static-text element rather than a non-activatable nested element.
       VStack(alignment: .leading, spacing: 0) {
         Button {
-          router.path.append(.budgetDetail(budget))
+          router.path.append(.budgetDetail(budget.id))
         } label: {
           VStack(alignment: .leading, spacing: rowSpacing) {
             nameText
@@ -291,7 +291,7 @@ struct BudgetRowView: View {
       .frame(maxWidth: .infinity, alignment: .leading)
 
       Button {
-        router.sheet = .addExpense(budget)
+        router.sheet = .addExpense(budget.id)
       } label: {
         Image(systemName: "plus.circle.fill")
           .font(.largeTitle)

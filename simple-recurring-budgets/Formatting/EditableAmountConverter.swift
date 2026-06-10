@@ -30,7 +30,7 @@ struct EditableAmountConverter {
     guard let value else { return "" }
     let maxFraction = Self.fractionDigits(for: currencyCode, locale: locale)
     return value.formatted(
-      .number.grouping(.never).precision(.fractionLength(0 ... maxFraction)).locale(locale)
+      .number.grouping(.never).precision(.fractionLength(maxFraction ... maxFraction)).locale(locale)
     )
   }
 

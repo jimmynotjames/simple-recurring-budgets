@@ -15,6 +15,8 @@ Usage:
     python3 sim_clean.py --slug-from-file .build/sim/device.udid
     python3 sim_clean.py --slug a1b2c3d4
 """
+from __future__ import annotations
+
 import argparse
 import json
 import re

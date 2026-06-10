@@ -16,7 +16,7 @@ RESULT_BUNDLE="${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S)-unit.xcresult"
 
 # Unit tests only — skips the accessibility UI test suite.
 # Use `make test` to run both unit and accessibility UI tests.
-exec xcodebuild test \
+xcodebuild test \
     -project simple-recurring-budgets.xcodeproj \
     -scheme simple-recurring-budgets \
     -destination "${DESTINATION}" \
@@ -25,3 +25,7 @@ exec xcodebuild test \
     -resultBundlePath "${RESULT_BUNDLE}" \
     -parallel-testing-enabled NO \
     -skip-testing:simple-recurring-budgetsUITests
+
+# Signal to test-ui.sh that the sim has hosted an app lifecycle.
+# Cleared automatically by make sim-clean (which wipes .build/sim/).
+touch "${ROOT}/.build/sim/warmed"

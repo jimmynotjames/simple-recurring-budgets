@@ -196,10 +196,10 @@ struct ExpenseRowPushNavigationTests {
     try context.save()
 
     let router = Router()
-    router.path.append(AppRoute.expenseDetail(expense))
+    router.path.append(AppRoute.expenseDetail(expense.id))
 
     #expect(router.path.count == 1)
-    #expect(router.path.last == AppRoute.expenseDetail(expense))
+    #expect(router.path.last == AppRoute.expenseDetail(expense.id))
   }
 
   @Test func appRoute_expenseDetail_isHashable() throws {
@@ -209,8 +209,8 @@ struct ExpenseRowPushNavigationTests {
     context.insert(expense)
     try context.save()
 
-    let routeA = AppRoute.expenseDetail(expense)
-    let routeB = AppRoute.expenseDetail(expense)
+    let routeA = AppRoute.expenseDetail(expense.id)
+    let routeB = AppRoute.expenseDetail(expense.id)
     #expect(routeA == routeB)
     #expect(routeA.hashValue == routeB.hashValue)
   }

@@ -70,6 +70,8 @@ Pure display-only subviews (row cells, badges, amount formatters) remain logic-f
 
 The app's information architecture is a simple stack: Budgets list → Budget detail → Expense detail. A `NavigationStack` with a `Hashable` route enum and `navigationDestination(for:)` handles this cleanly — type-safe, state-driven, and deep-linkable. iPad/Mac can use adaptive layout without requiring a full split view.
 
+Route enums (`AppRoute`, `SheetRoute`) carry the model's stable `id` (`UUID`), never a live model reference, so routes stay serializable for future deep links, widgets, and App Intents. `RootView` resolves the UUID at the destination via `ModelContext.budget(id:)` / `.expenseItem(id:)` (`Models/ModelContext+Lookup.swift`); an unresolvable ID — the model was deleted (e.g., on another device) after the route was set — silently pops the push or dismisses the sheet.
+
 A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned by the app entry point (`simple_recurring_budgetsApp`) as `@State` and injected into the SwiftUI environment via `.environment(router)`. `RootView` and all descendant screens access it via `@Environment(Router.self)` so leaf screens trigger pushes and sheets without holding navigation state themselves.
 
 `AppRoute` push cases: `budgetDetail(Budget)` (Budgets list → Budget detail), `expenseDetail(ExpenseItem)` (Budget detail → Expense edit, F-2.04 edit path). `SheetRoute` sheet cases: `addBudget`, `editBudget(Budget)`, `addExpense(Budget)`, `settings`. Existing-expense editing is reached via push (`AppRoute.expenseDetail`), not a sheet.

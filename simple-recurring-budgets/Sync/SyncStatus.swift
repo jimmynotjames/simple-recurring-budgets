@@ -7,8 +7,8 @@ import Observation
 /// for the Settings screen's iCloud row.
 ///
 /// `containerBacking` is determined once at app launch from the outcome of
-/// `makeProductionModelContainer` and never changes. `accountStatus` is
-/// updated asynchronously by `SettingsView` via `CKContainer.accountStatus()`
+/// `ProductionContainerFactory.make` and never changes. `accountStatus` is
+/// updated asynchronously by `SettingsView` via `ICloudStatusLoader`
 /// and `CKAccountChangedNotification` observers.
 ///
 /// Inject via `.environment(syncStatus)` from `simple_recurring_budgetsApp`

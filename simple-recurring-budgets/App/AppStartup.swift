@@ -32,7 +32,7 @@ struct ContainerCreationFailure: Equatable, Hashable {
 /// which calls `retry()` from its **Retry** button.
 ///
 /// `makeContainer` is injected so tests can drive the failure / retry paths
-/// without going through `simple_recurring_budgetsApp.makeProductionModelContainer`.
+/// without going through `ProductionContainerFactory.make`.
 @Observable @MainActor
 final class AppStartup {
   /// The live container on the success path; `nil` while the failure surface
@@ -44,7 +44,7 @@ final class AppStartup {
   private(set) var error: ContainerCreationFailure?
 
   /// Container-creation function, injected for testability. The production
-  /// closure wraps `simple_recurring_budgetsApp.makeProductionModelContainer`.
+  /// closure wraps `ProductionContainerFactory.make`.
   private let makeContainer: @MainActor () throws -> (ModelContainer, SyncStatus.ContainerBacking)
 
   init(makeContainer: @escaping @MainActor () throws -> (ModelContainer, SyncStatus.ContainerBacking)) {

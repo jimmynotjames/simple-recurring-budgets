@@ -4,7 +4,8 @@ import Foundation
 ///
 /// Backed by the iCloud key-value store through the shared `KeyValueStore`
 /// abstraction, so the counters sync across the user's devices and are unit-testable
-/// with `MockKeyValueStore`. **Independent of analytics consent** — these signals
+/// with the test target's in-memory `KeyValueStore` double. **Independent of analytics
+/// consent** — these signals
 /// drive prompt eligibility and must work for users who declined analytics. They
 /// deliberately do **not** reuse `AppSettings.analyticsFirstOpenAt` (analytics state).
 ///

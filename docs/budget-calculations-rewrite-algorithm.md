@@ -3,16 +3,18 @@
 
 | Field            | Value                                                                  |
 | ---------------- | ---------------------------------------------------------------------- |
-| **Version**      | 1.0                                                                    |
-| **Last Updated** | 2026-05-15                                                             |
+| **Version**      | 1.1                                                                    |
+| **Last Updated** | 2026-06-11                                                             |
 | **Author**       | Jimmy Ho                                                               |
-| **Status**       | Design proposal. Not yet implemented; not yet synced to openspec specs |
-| **Inputs**       | [budget-calculations-rewrite.md](budget-calculations-rewrite.md)       |
+| **Status**       | **HISTORICAL — shipped.** The rewrite is fully implemented (`Domain/BudgetCalculator.swift` and friends) and synced to the openspec specs. The current authoritative spec is `openspec/specs/budget-math/spec.md`; read this doc for design rationale only, not as pending work. |
+| **Inputs**       | [budget-calculations-rewrite-reqs.md](budget-calculations-rewrite-reqs.md) |
 
 
-> This document is the implementation design for the rewrite briefing in
-> [budget-calculations-rewrite.md](budget-calculations-rewrite.md). It is the input to the
-> code change. Section numbers `§X.Y` without further qualification refer to **that** briefing;
+> **HISTORICAL.** This document was the implementation design for the rewrite briefing in
+> [budget-calculations-rewrite-reqs.md](budget-calculations-rewrite-reqs.md). The change has
+> shipped; where this doc and the code or `openspec/specs/budget-math/spec.md` disagree (e.g.
+> the lifecycle enum shipped as `BudgetLifecycleState`, not `LifecycleState`), the code and spec
+> win. Section numbers `§X.Y` without further qualification refer to **that** briefing;
 > internal cross-references use `§A.X` (this doc).
 >
 > Scope: **core period/budget math only.** UI surfaces (chips, lifecycle presentations, date

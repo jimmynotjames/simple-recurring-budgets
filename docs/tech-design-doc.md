@@ -74,7 +74,7 @@ Route enums (`AppRoute`, `SheetRoute`) carry the model's stable `id` (`UUID`), n
 
 A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned by the app entry point (`simple_recurring_budgetsApp`) as `@State` and injected into the SwiftUI environment via `.environment(router)`. `RootView` and all descendant screens access it via `@Environment(Router.self)` so leaf screens trigger pushes and sheets without holding navigation state themselves.
 
-`AppRoute` push cases: `budgetDetail(Budget)` (Budgets list → Budget detail), `expenseDetail(ExpenseItem)` (Budget detail → Expense edit, F-2.04 edit path). `SheetRoute` sheet cases: `addBudget`, `editBudget(Budget)`, `addExpense(Budget)`, `settings`. Existing-expense editing is reached via push (`AppRoute.expenseDetail`), not a sheet.
+`AppRoute` push cases: `budgetDetail(UUID)` (Budgets list → Budget detail), `expenseDetail(UUID)` (Budget detail → Expense edit, F-2.04 edit path). `SheetRoute` sheet cases: `addBudget`, `editBudget(UUID)`, `addExpense(UUID)`, `settings`, `analyticsConsent`. Existing-expense editing is reached via push (`AppRoute.expenseDetail`), not a sheet.
 
 `AddEditExpenseView` does not own a `NavigationStack`; the navigation context is provided by the caller. For the sheet path (`addExpense`), `RootView` wraps it in `NavigationStack { }`. For the push path (`expenseDetail`), the outer `NavigationStack` in `RootView` provides the context directly.
 
@@ -277,7 +277,7 @@ Translations for all 49 App Store storefront locales were produced and merged by
 **Two-pass UI test strategy** (`scripts/test.sh`): Unit tests run first (`-skip-testing:simple-recurring-budgetsUITests`) to warm the simulator — XCUITest requires the sim to have hosted at least one app lifecycle before its IPC socket is reliable. Pass 2 then runs the two XCUITest classes with `-only-testing`:
 
 - **`AccessibilityAuditTests`** — 30 tests using `XCUIApplication.performAccessibilityAudit()` (Xcode 15+) to verify VoiceOver labels, touch-target sizes, Dynamic Type adoption, and text clipping across every major screen.
-- **`UserJourneyTests`** — 10 end-to-end flow tests (create budget, navigate to detail, add expense ×2, edit budget, pause/resume, delete/edit expense, delete budget, settings round-trip). Uses XCTestCase with `continueAfterFailure = false`.
+- **`UserJourneyTests`** — 15 end-to-end flow tests (create budget, navigate to detail, add expense ×2, edit budget, pause/resume, delete/edit expense, reorder budgets, delete budget, settings round-trip, and 4 Add/Edit-Budget period-chip flows). Uses XCTestCase with `continueAfterFailure = false`.
 
 Five **screen objects** (`BudgetsScreen`, `BudgetDetailScreen`, `AddBudgetScreen`, `AddExpenseScreen`, `SettingsScreen`) in `simple-recurring-budgetsUITests/` encapsulate element queries. When view labels or navigation change, update the matching screen object. `make test-ui` runs only the UI pass (no unit re-run), useful when iterating on failures.
 
@@ -484,6 +484,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 0.24    | 2026-06-11 | Jimmy Ho | Docs-vs-code audit fixes: §2.2 route case signatures corrected to UUID payloads (`budgetDetail(UUID)`, `editBudget(UUID)`, `addExpense(UUID)`) and `SheetRoute.analyticsConsent` added to the case list; §5.3 `UserJourneyTests` count 10 → 15 (reorder-budgets + 4 period-chip flows). |
 | 0.23    | 2026-06-02 | Jimmy Ho | Rebrand doc sync: intro and §1 use Wren as product name; §5.1 proper-noun list adds Wren. |
 | 0.22    | 2026-06-02 | Jimmy Ho | §4.5 KV-key table: add six `ratingPrompt*` keys (owner `RatingPromptState`, consent-independent) for F-6.03. §9 future table: mark F-6.03 implemented (`rating-prompt`). See `product-features-planning.md` F-6.03 and `analytics-spec.md` §12. |
 | 0.21    | 2026-06-01 | Jimmy Ho | §5.3: rewrite testing section — two-pass UI script strategy, `UserJourneyTests` (10 flows, XCTestCase), `AccessibilityAuditTests` runs in pass 2 (not excluded), screen objects, `make test-ui`. Note that Swift Testing is not supported in XCUITest targets. |

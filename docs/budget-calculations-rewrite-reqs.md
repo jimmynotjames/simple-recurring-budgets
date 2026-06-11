@@ -1,5 +1,9 @@
 # Budget calculations rewrite
 
+> **HISTORICAL — shipped.** This briefing fed the rewrite that is now fully implemented in
+> `Domain/` and synced to `openspec/specs/budget-math/spec.md` (the current authoritative spec).
+> Keep it for requirements rationale only; do not treat it as pending work.
+
 This briefing describes the new desired end state for the budget carry-over / remaining algorithm. It captures the requirements, conflicts with prior feature descriptions, and edge cases the new behavior must handle. **It does not prescribe a design.** A separate chat will read this and produce the design and implementation.
 
 Sections are numbered (e.g. §2.4, §5.5) so they can be referenced from elsewhere.

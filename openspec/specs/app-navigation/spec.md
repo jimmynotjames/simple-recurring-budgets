@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Centralized `Router`/`AppRoute`/`SheetRoute` pattern for type-safe, state-driven navigation in the primary `NavigationStack`. Synced from change `budgets-screen` (2026-04-25); expense sheet routing and placeholder exemptions updated for F-2.04 (`add-edit-expense-screen`, 2026-04-29); push navigation for expense edit added (`expense-row-push-navigation`, 2026-04-30).
+Centralized `Router`/`AppRoute`/`SheetRoute` pattern for type-safe, state-driven navigation in the primary `NavigationStack`. Synced from change `budgets-screen` (2026-04-25); expense sheet routing and placeholder exemptions updated for F-2.04 (`add-edit-expense-screen`, 2026-04-29); push navigation for expense edit added (`expense-row-push-navigation`, 2026-04-30); route payloads corrected to stable UUIDs and `analyticsConsent` sheet case added to match shipped code (docs-vs-code audit, 2026-06-11).
 ## Requirements
 ### Requirement: App provides a centralized observable Router for navigation state
 
@@ -32,36 +32,37 @@ A single `Router` instance SHALL be owned by the app entry point (`simple_recurr
 
 The system SHALL define `AppRoute` as a `Hashable` enum whose cases enumerate destinations reachable by push navigation within the primary `NavigationStack`. The enum SHALL include:
 
-- `case budgetDetail(Budget)` — drill into the expense list for a specific budget.
-- `case expenseDetail(ExpenseItem)` — push into the Add/Edit/View Expense screen for an existing expense (F-2.04 edit path from Budget Detail; no separate view vs edit mode per F-2.04 AC).
+- `case budgetDetail(UUID)` — drill into the expense list for a specific budget.
+- `case expenseDetail(UUID)` — push into the Add/Edit/View Expense screen for an existing expense (F-2.04 edit path from Budget Detail; no separate view vs edit mode per F-2.04 AC).
 
-`AppRoute` cases MAY carry SwiftData `@Model` payloads directly (`Budget`, `ExpenseItem`) when the destination needs a live model reference. Cases SHALL NOT be added speculatively for destinations that have no consumer.
+`AppRoute` cases SHALL carry the model's stable `id` (`Budget.id` / `ExpenseItem.id`), never a live `@Model` reference, so routes stay serializable for deep links, widgets, and App Intents. `RootView` resolves the UUID at the destination via `ModelContext.budget(id:)` / `.expenseItem(id:)`; when the UUID no longer resolves (the model was deleted, e.g. on another device, after the route was set) the route SHALL be silently popped instead of rendering. Cases SHALL NOT be added speculatively for destinations that have no consumer.
 
-#### Scenario: budgetDetail carries the Budget model
+#### Scenario: budgetDetail carries the Budget id
 
-- **WHEN** a row is activated with a specific `Budget`
-- **THEN** `AppRoute.budgetDetail(budget)` is appended to the path with that budget instance as its associated value
+- **WHEN** a row is activated for a specific `Budget`
+- **THEN** `AppRoute.budgetDetail(budget.id)` is appended to the path with that budget's `UUID` as its associated value
 
-#### Scenario: expenseDetail carries the ExpenseItem model
+#### Scenario: expenseDetail carries the ExpenseItem id
 
 - **WHEN** the user taps an expense row on `BudgetDetailView`
-- **THEN** `AppRoute.expenseDetail(expense)` is appended to `router.path` with that `ExpenseItem` instance as its associated value
+- **THEN** `AppRoute.expenseDetail(expense.id)` is appended to `router.path` with that expense's `UUID` as its associated value
 
 ### Requirement: SheetRoute enumerates sheet presentation destinations
 
 The system SHALL define `SheetRoute` as a `Hashable, Identifiable` enum whose cases enumerate destinations reachable by modal sheet presentation. The enum SHALL include:
 
 - `case addBudget`
-- `case editBudget(Budget)`
-- `case addExpense(Budget)`
+- `case editBudget(UUID)`
+- `case addExpense(UUID)`
 - `case settings`
+- `case analyticsConsent`
 
-`SheetRoute.expense(ExpenseItem)` is removed. The existing-expense edit path is now reached via `AppRoute.expenseDetail(ExpenseItem)` (push navigation). `SheetRoute.id` SHALL return `Self` so that `.sheet(item:)` can distinguish between sheets and animate transitions correctly when the value changes.
+Like `AppRoute`, cases SHALL carry the model's stable `id` (UUID), never a live `@Model` reference; `RootView` resolves the UUID at the presentation site and SHALL silently dismiss the sheet when it no longer resolves. `SheetRoute.expense(ExpenseItem)` is removed. The existing-expense edit path is now reached via `AppRoute.expenseDetail(UUID)` (push navigation). `SheetRoute.id` SHALL return `Self` so that `.sheet(item:)` can distinguish between sheets and animate transitions correctly when the value changes.
 
 #### Scenario: SheetRoute is Identifiable for use with .sheet(item:)
 
 - **WHEN** `RootView` declares `.sheet(item: $router.sheet)`
-- **THEN** the binding compiles and dismiss/present transitions correctly track the active case (none / `.addBudget` / `.editBudget` / `.addExpense` / `.settings`)
+- **THEN** the binding compiles and dismiss/present transitions correctly track the active case (none / `.addBudget` / `.editBudget` / `.addExpense` / `.settings` / `.analyticsConsent`)
 
 ### Requirement: RootView is the sole NavigationStack host and sheet host
 
@@ -69,16 +70,17 @@ The system SHALL host the primary `NavigationStack` and the single sheet present
 
 - Bind the navigation path to `$router.path`.
 - Embed `BudgetsView` as the stack root.
-- Resolve push destinations via `.navigationDestination(for: AppRoute.self) { ... }` switching on each `AppRoute` case:
-  - `.budgetDetail(let budget)` → `BudgetDetailView(budget: budget)`
-  - `.expenseDetail(let expense)` → `AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))`
-- Present sheets via `.sheet(item: $router.sheet) { ... }` switching on the active `SheetRoute` case (`.addBudget`, `.editBudget`, `.addExpense`, `.settings`). The `.expense` case is no longer present in `SheetRoute` and SHALL NOT appear in this switch.
+- Resolve push destinations via `.navigationDestination(for: AppRoute.self) { ... }` switching on each `AppRoute` case, resolving the UUID through `ModelContext`:
+  - `.budgetDetail(let id)` → `BudgetDetailView(budget:)` with `context.budget(id: id)`
+  - `.expenseDetail(let id)` → `AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing:))` with `context.expenseItem(id: id)`
+  - an unresolvable UUID renders a blank destination that pops itself on appear
+- Present sheets via `.sheet(item: $router.sheet) { ... }` switching on the active `SheetRoute` case (`.addBudget`, `.editBudget`, `.addExpense`, `.settings`, `.analyticsConsent`), resolving UUID payloads through `ModelContext` the same way (an unresolvable UUID dismisses the sheet on appear). The `.expense` case is no longer present in `SheetRoute` and SHALL NOT appear in this switch.
 
 `RootView` SHALL NOT introduce new navigation state of its own; all navigation state lives in `Router`.
 
 #### Scenario: RootView routes expenseDetail push destination
 
-- **WHEN** `router.path` contains `AppRoute.expenseDetail(expense)` for some `ExpenseItem`
+- **WHEN** `router.path` contains `AppRoute.expenseDetail(expense.id)` for some `ExpenseItem`
 - **THEN** `RootView`'s `navigationDestination(for: AppRoute.self)` resolves it to `AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))`, presenting the screen as a push within the `NavigationStack`
 
 #### Scenario: RootView routes push destinations via AppRoute
@@ -93,7 +95,7 @@ The system SHALL host the primary `NavigationStack` and the single sheet present
 
 ### Requirement: Placeholder destinations are exempt from the no-hard-coded-English rule until replaced
 
-All `AppRoute` and `SheetRoute` cases SHALL resolve to real, fully-localized screens — no placeholder bodies remain. The Add/Edit Budget sheet (`SheetRoute.addBudget` and `SheetRoute.editBudget(Budget)`) renders the real, fully-localized `AddEditBudgetView`. The Settings sheet (`SheetRoute.settings`) renders the real `SettingsView`. The Add Expense sheet (`SheetRoute.addExpense(Budget)`) renders the real `AddEditExpenseView` in Add mode. The existing-expense edit path (`AppRoute.expenseDetail(ExpenseItem)`) renders `AddEditExpenseView` in Edit mode via push navigation; it is no longer a sheet.
+All `AppRoute` and `SheetRoute` cases SHALL resolve to real, fully-localized screens — no placeholder bodies remain. The Add/Edit Budget sheet (`SheetRoute.addBudget` and `SheetRoute.editBudget(UUID)`) renders the real, fully-localized `AddEditBudgetView`. The Settings sheet (`SheetRoute.settings`) renders the real `SettingsView`. The Add Expense sheet (`SheetRoute.addExpense(UUID)`) renders the real `AddEditExpenseView` in Add mode. The analytics-consent sheet (`SheetRoute.analyticsConsent`) renders the real `AnalyticsConsentSheet`. The existing-expense edit path (`AppRoute.expenseDetail(UUID)`) renders `AddEditExpenseView` in Edit mode via push navigation; it is no longer a sheet.
 
 All placeholder exemptions have been retired. There are no remaining `AppRoute` or `SheetRoute` cases with placeholder bodies.
 
@@ -109,13 +111,13 @@ All placeholder exemptions have been retired. There are no remaining `AppRoute` 
 
 #### Scenario: Edit Budget sheet renders the real screen with the budget seed
 
-- **WHEN** any caller sets `Router.sheet = .editBudget(budget)` for some `Budget`
-- **THEN** `RootView` SHALL render the real `AddEditBudgetView` configured for Edit mode, seeded from that `Budget`, with all user-visible strings sourced from `Localizable.xcstrings`
+- **WHEN** any caller sets `Router.sheet = .editBudget(budget.id)` for some `Budget`
+- **THEN** `RootView` SHALL resolve the id via `ModelContext.budget(id:)` and render the real `AddEditBudgetView` configured for Edit mode, seeded from that `Budget`, with all user-visible strings sourced from `Localizable.xcstrings`
 
 #### Scenario: Add Expense sheet renders the real screen with the budget context
 
-- **WHEN** any caller sets `Router.sheet = .addExpense(budget)` for some `Budget`
-- **THEN** `RootView` SHALL render the real `AddEditExpenseView` configured for Add mode wrapped in a `NavigationStack`, with the in-flight `Budget` available to the VM for attachment on Save, and all user-visible strings sourced from `Localizable.xcstrings`
+- **WHEN** any caller sets `Router.sheet = .addExpense(budget.id)` for some `Budget`
+- **THEN** `RootView` SHALL resolve the id via `ModelContext.budget(id:)` and render the real `AddEditExpenseView` configured for Add mode wrapped in a `NavigationStack`, with the resolved `Budget` available to the VM for attachment on Save, and all user-visible strings sourced from `Localizable.xcstrings`
 
 #### Scenario: Settings sheet renders the real screen
 

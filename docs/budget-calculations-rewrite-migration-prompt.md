@@ -3,7 +3,7 @@
 | Field            | Value                                                                  |
 | ---------------- | ---------------------------------------------------------------------- |
 | **Author**       | Jimmy Ho                                                               |
-| **Status**       | Active. To be consumed by `/opsx:propose`.                             |
+| **Status**       | **HISTORICAL — consumed and shipped.** This one-time migration prompt was executed; the algorithm it describes is live in `Domain/`. Do **not** re-run it. Current authoritative spec: `openspec/specs/budget-math/spec.md`. |
 | **Purpose**      | Migrate the app to the new budget-calculations algorithm while preserving the current UI feature surface. New algorithm-enabled features are deferred to future changes. |
 
 > **Read this first.** This document is the **primary directive** for the change. If it conflicts
@@ -31,13 +31,13 @@ each their own separate future change. See §4 below for the explicit out-of-sco
 
 Read these before designing. Where they conflict with each other, the precedence is:
 
-**This doc** → [`budget-calculations-rewrite-algorithm.md`](budget-calculations-rewrite-algorithm.md) → [`budget-calculations-rewrite.md`](budget-calculations-rewrite.md) → other docs.
+**This doc** → [`budget-calculations-rewrite-algorithm.md`](budget-calculations-rewrite-algorithm.md) → [`budget-calculations-rewrite-reqs.md`](budget-calculations-rewrite-reqs.md) → other docs.
 
 | Doc | Role |
 | --- | --- |
 | **This doc** | Migration scope, what's in/out, the compatibility seam. |
 | [`budget-calculations-rewrite-algorithm.md`](budget-calculations-rewrite-algorithm.md) | The algorithm design — schema, `BudgetCalculator.snapshot(...)`, helpers (`allocationInEffect`, `walkCarryOver`, `isActive`, `currentPeriodSpillover`), write-site rules, edge cases, test plan. **This is your math source of truth.** |
-| [`budget-calculations-rewrite.md`](budget-calculations-rewrite.md) | Briefing — requirements and edge cases the algorithm satisfies. Background reading; do not re-design from it. |
+| [`budget-calculations-rewrite-reqs.md`](budget-calculations-rewrite-reqs.md) | Briefing — requirements and edge cases the algorithm satisfies. Background reading; do not re-design from it. |
 | [`main-prd.md`](main-prd.md) | Product PRD. §6.7 has been updated for the new carry-over behavior (live walker + asymmetric coupling). |
 | [`product-features-planning.md`](product-features-planning.md) | Feature backlog. F-2.01, F-2.02, F-2.07 already reflect the new chip refresh rules. F-2.08, F-7.05, F-7.06, F-7.07 stay **Open** after this change. |
 | [`tech-design-doc.md`](tech-design-doc.md) | Tech reference. §3 (data model), §4.3 (CloudKit constraints), §5.4 (service layer) — read carefully; you'll be reshaping all three. |

@@ -12,8 +12,8 @@ The system SHALL present a single SwiftUI view, `AddEditExpenseView`, used for b
 
 `AddEditExpenseView` SHALL NOT wrap its own body in a `NavigationStack`. The navigation context (and therefore the navigation bar that hosts toolbar items) SHALL be provided by the caller:
 
-- When presented as a **sheet** (`SheetRoute.addExpense(Budget)`), `RootView` SHALL wrap `AddEditExpenseView` in a `NavigationStack` at the sheet presentation site.
-- When presented as a **push** (`AppRoute.expenseDetail(ExpenseItem)`), `RootView`'s existing outer `NavigationStack` provides the navigation context; no additional wrapper is needed.
+- When presented as a **sheet** (`SheetRoute.addExpense(UUID)`), `RootView` SHALL wrap `AddEditExpenseView` in a `NavigationStack` at the sheet presentation site.
+- When presented as a **push** (`AppRoute.expenseDetail(UUID)`), `RootView`'s existing outer `NavigationStack` provides the navigation context; no additional wrapper is needed.
 
 This ensures that the view is not embedded inside a nested `NavigationStack`, which would produce a double navigation bar when pushed.
 
@@ -21,8 +21,8 @@ The `AddEditExpenseView` previews SHALL also wrap the view in a `NavigationStack
 
 The two access paths are:
 
-- `SheetRoute.addExpense(Budget)` — Add mode.
-- `AppRoute.expenseDetail(ExpenseItem)` — existing expense (F-2.04: same surface for view and in-place edit), reached via push navigation from `BudgetDetailView`.
+- `SheetRoute.addExpense(UUID)` — Add mode.
+- `AppRoute.expenseDetail(UUID)` — existing expense (F-2.04: same surface for view and in-place edit), reached via push navigation from `BudgetDetailView`.
 
 `SheetRoute.expense(ExpenseItem)` is removed. No `SheetRoute` case for an existing expense remains.
 
@@ -41,17 +41,17 @@ The title SHALL be displayed inline (`.navigationBarTitleDisplayMode(.inline)`).
 
 #### Scenario: Add mode is presented via SheetRoute.addExpense (sheet)
 
-- **WHEN** a caller sets `Router.sheet = .addExpense(budget)` for some `Budget`
+- **WHEN** a caller sets `Router.sheet = .addExpense(budget.id)` for some `Budget`
 - **THEN** `RootView` SHALL present a `NavigationStack` containing `AddEditExpenseView` configured for Add mode, with the in-flight `Budget` available to the VM for attachment on Save
 
 #### Scenario: Existing expense path is presented via AppRoute.expenseDetail (push)
 
-- **WHEN** the user taps an expense row on `BudgetDetailView`, appending `AppRoute.expenseDetail(expense)` to `router.path`
+- **WHEN** the user taps an expense row on `BudgetDetailView`, appending `AppRoute.expenseDetail(expense.id)` to `router.path`
 - **THEN** `RootView`'s `navigationDestination` SHALL push `AddEditExpenseView` configured for Edit/View mode, seeded from that `ExpenseItem`, inside the existing outer `NavigationStack` — no nested `NavigationStack` is introduced
 
 #### Scenario: No nested NavigationStack when pushed
 
-- **WHEN** `AppRoute.expenseDetail(expense)` is resolved by `RootView`'s `navigationDestination`
+- **WHEN** `AppRoute.expenseDetail(expense.id)` is resolved by `RootView`'s `navigationDestination`
 - **THEN** the resulting screen SHALL have exactly one navigation bar (from the outer `NavigationStack`); a double navigation bar SHALL NOT appear
 
 #### Scenario: Add-mode title flips between Add Expense and Add Funds
@@ -632,7 +632,7 @@ The constraint SHALL be implemented in two stages:
 
 When `BudgetLifecycleResult.lifecycleState != .paused`, the date-bounds rule SHALL be the existing rule (no paused-state constraints introduced by this requirement). The pre-start (`now < startDate`) and post-end (`now > endDate`) clamping rules from F-2.04 apply independently and are not changed by this requirement.
 
-The same two-stage validation SHALL apply in Add mode (the in-flight budget passed via `SheetRoute.addExpense(budget)`) and in Edit mode (`expense.budget`). In Edit mode, if the existing `expense.date` is outside the valid union (e.g., the user edits an expense from a since-paused budget whose date now sits inside a paused gap created by a later pause action), the picker SHALL load with its current value but Save SHALL be blocked with the same caption until the user picks a date inside an active interval, or until the user reverts the date to a value inside the active union.
+The same two-stage validation SHALL apply in Add mode (the in-flight budget passed via `SheetRoute.addExpense(budget.id)`) and in Edit mode (`expense.budget`). In Edit mode, if the existing `expense.date` is outside the valid union (e.g., the user edits an expense from a since-paused budget whose date now sits inside a paused gap created by a later pause action), the picker SHALL load with its current value but Save SHALL be blocked with the same caption until the user picks a date inside an active interval, or until the user reverts the date to a value inside the active union.
 
 The date seed for Add mode on a paused budget SHALL be `pauseEffectiveDate` (the most recent unbalanced `.pause` event's `effectiveDate`), guaranteeing that the initial value lies inside the active union and the picker does not open with an out-of-range default.
 

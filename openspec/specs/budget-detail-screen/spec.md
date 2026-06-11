@@ -4,14 +4,14 @@ Single-budget screen with remaining/carry-over header, period-aware expense sect
 ## Requirements
 ### Requirement: Budget detail screen is the resolved destination of `AppRoute.budgetDetail`
 
-`RootView` SHALL resolve `AppRoute.budgetDetail(Budget)` to `BudgetDetailView(budget:)` (no longer a placeholder `Text`). The screen SHALL set `navigationBarTitleDisplayMode(.inline)` and apply `appBackground()`. The screen SHALL NOT set a string `navigationTitle`; the budget title is rendered as scroll-aware content per the "Scroll-aware content-area budget title" requirement.
+`RootView` SHALL resolve `AppRoute.budgetDetail(UUID)` (via `ModelContext.budget(id:)`) to `BudgetDetailView(budget:)` (no longer a placeholder `Text`). The screen SHALL set `navigationBarTitleDisplayMode(.inline)` and apply `appBackground()`. The screen SHALL NOT set a string `navigationTitle`; the budget title is rendered as scroll-aware content per the "Scroll-aware content-area budget title" requirement.
 
 The screen SHALL render its primary content as a SwiftUI `List` with `listStyle(.insetGrouped)` and `scrollContentBackground(.hidden)` so the `appBackground()` color shows through.
 
 #### Scenario: Drill into Budget detail from the Budgets row
 
 - **WHEN** the user taps a `Budget` row's drill-in button on the Budgets screen
-- **THEN** `AppRoute.budgetDetail(budget)` is appended to `router.path` and `RootView` pushes `BudgetDetailView(budget: budget)` onto the navigation stack, which renders the budget's icon + name as a scroll-aware content title (not a string navigation title)
+- **THEN** `AppRoute.budgetDetail(budget.id)` is appended to `router.path` and `RootView` pushes `BudgetDetailView(budget: budget)` onto the navigation stack, which renders the budget's icon + name as a scroll-aware content title (not a string navigation title)
 
 #### Scenario: AppBackground shows through the list
 
@@ -156,7 +156,7 @@ The inline period descriptor SHALL be sourced from `Budget.periodInlineLabel`. F
 
 The second List section SHALL be a single full-width primary action button styled `.borderedProminent` at `.controlSize(.large)` with the system headline font. The button's label, action, and the caption beneath it SHALL be state-driven from `BudgetLifecycleResult.lifecycleState`:
 
-- **`.active`, `.preStart`, `.postEnd`** — the button SHALL be a `Label` composed of the localized title (key `budgetDetail.action.addExpense`, en-US "Add Expense") and the SF Symbol `plus`. Activating it SHALL set `router.sheet = .addExpense(budget)` for this specific budget. No caption is rendered beneath the button. The button SHALL provide a localized accessibility label that includes the budget's name (key `budgetDetail.action.addExpense.accessibilityLabel`) and a localized accessibility hint (key `budgetDetail.action.addExpense.accessibilityHint`).
+- **`.active`, `.preStart`, `.postEnd`** — the button SHALL be a `Label` composed of the localized title (key `budgetDetail.action.addExpense`, en-US "Add Expense") and the SF Symbol `plus`. Activating it SHALL set `router.sheet = .addExpense(budget.id)` for this specific budget. No caption is rendered beneath the button. The button SHALL provide a localized accessibility label that includes the budget's name (key `budgetDetail.action.addExpense.accessibilityLabel`) and a localized accessibility hint (key `budgetDetail.action.addExpense.accessibilityHint`).
 - **`.paused`** — the button SHALL be a `Label` composed of the localized title (key `budgetDetail.action.resume`, en-US "Resume Budget") and the SF Symbol `play.circle`. Activating it SHALL call `BudgetLifecycleService.resumeBudget(budget, context:context, now: Date())`, then — when the call returns `true` — fire the `budget_resumed` analytics event (see budget-detail-screen analytics requirements) and re-invoke `BudgetLifecycleService.result(for:)`. Directly below the button, in `.caption`/`.secondary` styling, a single line SHALL render the localized caption `budgetDetail.action.resume.caption.format` (en-US "Paused since %@. Resume to log new expenses.") with the formatted `BudgetLifecycleResult.pausedSince` (locale-aware `Date.formatted(date: .abbreviated, time: .omitted)`). The caption is the only paused-state explainer on this surface; there is no separate disabled Add Expense affordance. The button SHALL provide a localized accessibility label (key `budgetDetail.action.resume.accessibilityLabel`) and accessibility hint (key `budgetDetail.action.resume.accessibilityHint`).
 
 The section SHALL use `listRowBackground(Color.clear)`, hide the row separator, and apply `listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))` so the button reads as a free-standing prominent action rather than a List row.
@@ -166,7 +166,7 @@ The "Resume to log **new** expenses" wording quietly acknowledges that backdated
 #### Scenario: Active state shows Add Expense
 
 - **WHEN** the lifecycle service returns `lifecycleState == .active`
-- **THEN** the primary button reads "Add Expense" with the SF Symbol `plus`, no caption is rendered below it, and activating it sets `router.sheet = SheetRoute.addExpense(budget)`
+- **THEN** the primary button reads "Add Expense" with the SF Symbol `plus`, no caption is rendered below it, and activating it sets `router.sheet = SheetRoute.addExpense(budget.id)`
 
 #### Scenario: Pre-start state still shows Add Expense
 
@@ -204,7 +204,7 @@ The "Resume to log **new** expenses" wording quietly acknowledges that backdated
 
 The screen SHALL place a single `topBarTrailing` toolbar item rendered as a `Menu` whose label is the SF Symbol `ellipsis.circle`. The Menu SHALL contain, in order:
 
-1. **Edit Budget** (key `budgetDetail.menu.editBudget`, system image `pencil`) — activating it sets `router.sheet = .editBudget(budget)`. Visible in every lifecycle state.
+1. **Edit Budget** (key `budgetDetail.menu.editBudget`, system image `pencil`) — activating it sets `router.sheet = .editBudget(budget.id)`. Visible in every lifecycle state.
 2. **Pause Budget** / **Resume Budget** (state-driven; see below).
 3. A `Divider`.
 4. **Reset Carry-Over…** (key `budgetDetail.menu.resetCarryOver`, system image `arrow.counterclockwise.circle`, `role: .destructive`) — activating it triggers the Reset Carry-Over confirmation flow. Visible only when `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`; omitted entirely otherwise (per F-2.08, Reset Carry-Over is hidden for Specific Dates budgets). Visible in every lifecycle state in which the screen is rendered, regardless of the live carry-over balance's magnitude or sign.
@@ -223,7 +223,7 @@ The Menu SHALL provide a localized accessibility label (key `budgetDetail.menu.a
 #### Scenario: Edit Budget opens the edit sheet
 
 - **WHEN** the user taps the ellipsis Menu and selects Edit Budget
-- **THEN** `router.sheet` is set to `SheetRoute.editBudget(budget)` and the Add/Edit Budget sheet opens in Edit mode for this budget
+- **THEN** `router.sheet` is set to `SheetRoute.editBudget(budget.id)` and the Add/Edit Budget sheet opens in Edit mode for this budget
 
 #### Scenario: Reset Carry-Over opens the destructive confirmation
 
@@ -746,7 +746,7 @@ The preview fixtures SHALL live in `Previews/BudgetDetailFixtures.swift` as `Deb
 
 ### Requirement: Tapping an expense row pushes AddEditExpenseView in Edit mode
 
-Each expense row rendered in `BudgetDetailView` SHALL be wrapped in a tappable affordance (a `Button` with `.buttonStyle(.plain)`) whose action appends `AppRoute.expenseDetail(expense)` to `router.path`. `RootView` SHALL resolve that route to `AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))`, presenting the screen as a push within the `NavigationStack`.
+Each expense row rendered in `BudgetDetailView` SHALL be wrapped in a tappable affordance (a `Button` with `.buttonStyle(.plain)`) whose action appends `AppRoute.expenseDetail(expense.id)` to `router.path`. `RootView` SHALL resolve that route to `AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))`, presenting the screen as a push within the `NavigationStack`.
 
 The row's visual appearance SHALL be unchanged from the non-tappable state — `.buttonStyle(.plain)` ensures no system button highlighting is applied. Swipe actions (trailing swipe-to-delete) SHALL continue to function because SwiftUI's swipe gesture takes priority over the tap gesture on list rows, and the `.swipeActions` modifier is applied outside the `Button` wrapper.
 
@@ -755,12 +755,12 @@ In Edit mode, `AddEditExpenseView` provides a trailing Save toolbar button only 
 #### Scenario: Tapping a current-period expense row pushes the edit view
 
 - **WHEN** the user taps an expense row in the Current section of `BudgetDetailView`
-- **THEN** `AppRoute.expenseDetail(expense)` is appended to `router.path` and `RootView` pushes `AddEditExpenseView` seeded with that `ExpenseItem`
+- **THEN** `AppRoute.expenseDetail(expense.id)` is appended to `router.path` and `RootView` pushes `AddEditExpenseView` seeded with that `ExpenseItem`
 
 #### Scenario: Tapping a past-period expense row pushes the edit view
 
 - **WHEN** the user taps an expense row in the Past section of `BudgetDetailView`
-- **THEN** `AppRoute.expenseDetail(expense)` is appended to `router.path` and `RootView` pushes `AddEditExpenseView` seeded with that `ExpenseItem`
+- **THEN** `AppRoute.expenseDetail(expense.id)` is appended to `router.path` and `RootView` pushes `AddEditExpenseView` seeded with that `ExpenseItem`
 
 #### Scenario: Swipe-to-delete still works on tappable rows
 

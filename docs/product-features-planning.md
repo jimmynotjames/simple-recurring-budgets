@@ -187,10 +187,10 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
   - **Display section** — Currency Display preference picker: bound to `AppSettings.currencyDisplay`; picker row labels show `"<option label> — <locale-aware example>"` where the example is derived live from `Locale.autoupdatingCurrent` using the canonical `Decimal.formatted(currencyCode:display:locale:)` formatter; value is persisted to `NSUbiquitousKeyValueStore` and applied app-wide to all monetary rendering; see F-3.04 for currency display requirements.
   - **Diagnostics & Analytics section** — Analytics opt-in toggle bound to `AppSettings.analyticsOptIn`; see F-8.02 and [analytics-spec.md](analytics-spec.md).
   - **iCloud Sync Status section** — Shows a tri-state row derived from `SyncStatus.rowState`: `.checking` (spinner), `.available` (green checkmark icon, syncing), `.paused` (orange exclamation icon, local-only container despite iCloud sign-in), `.unavailable` (orange x icon, not signed in); section footer appears only for `.unavailable` and `.paused` states; account status is re-queried live on `CKAccountChanged` notifications.
-  - **Support section** — "Send Feedback" (opens `mailto:` link), "Rate the App" (invokes `requestReview()`), "Privacy Policy" (opens URL in browser; URL is TBD until launch).
+  - **Support section** — "Send Feedback" (opens `mailto:` link), "Rate the App" (invokes `requestReview()`), "Privacy Policy" (opens the privacy policy URL in browser).
   - **About section** — Displays app version and build number from `CFBundleShortVersionString` / `CFBundleVersion`.
   - Done button dismisses the sheet.
-- **Edge Cases / Notes:** `privacyPolicyURL` is intentionally left as a TODO placeholder until the URL is decided before launch.
+- **Edge Cases / Notes:** None
 - **Dependencies:** F-2.01, F-2.07, F-3.04, F-5.01
 
 ##### F-2.06: First-run empty state

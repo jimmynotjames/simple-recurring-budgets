@@ -63,6 +63,14 @@ Capture localized screenshots in the Simulator, then map folders to storefront c
 
 Upload localized App Store screenshots only (no binary, no metadata)
 
+### ios push_screenshots_subset
+
+```sh
+[bundle exec] fastlane ios push_screenshots_subset
+```
+
+Upload only the screenshots under $SUBSET_PATH (subset retry)
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

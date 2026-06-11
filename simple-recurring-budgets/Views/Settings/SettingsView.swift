@@ -6,8 +6,7 @@ import SwiftUI
 // MARK: - AppInfo
 
 private enum AppInfo {
-  // TODO: Replace with real privacy policy URL before launch.
-  static let privacyPolicyURL = "https://example.com/privacy"
+  static let privacyPolicyURL = "https://www.termsfeed.com/live/9bf5a2a7-b34d-416e-86df-bbd5097410cc"
 }
 
 // MARK: - SettingsView

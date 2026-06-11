@@ -506,6 +506,12 @@ struct BudgetDetailView: View {
     BudgetDetailPreview(budget: DebugData.detailMonthlyCurrentAndPast(), icon: "🛍️")
   }
 
+  // Future-dated expenses — "Upcoming" bucket above the current section;
+  // current and past sections render below (audit L2). With icon.
+  #Preview("Upcoming · Daily") {
+    BudgetDetailPreview(budget: DebugData.detailDailyWithUpcoming(), icon: "🍔")
+  }
+
   // No current-period expenses; all expenses are from past periods (weekly budget).
   #Preview("Past Periods Only") {
     BudgetDetailPreview(budget: DebugData.detailWeeklyPastOnly())

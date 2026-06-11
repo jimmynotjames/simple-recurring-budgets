@@ -178,7 +178,7 @@ The Settings screen SHALL include a "Support" section that contains exactly thre
 2. **Rate the App** — a `Button` whose action invokes `@Environment(\.requestReview)`, presenting Apple's StoreKit review prompt. The row SHALL include a localized accessibility hint ("Opens the App Store rating prompt").
 3. **Privacy Policy** — a SwiftUI `Link` whose destination is the URL string in `AppInfo.privacyPolicyURL`. The row SHALL include a localized accessibility hint ("Opens the privacy policy in your browser").
 
-The destination of the **Privacy Policy** link is intentionally a placeholder (`https://example.com/privacy`, marked with a `// TODO` in the source) and SHALL NOT be replaced as part of this capability. Resolving the real URL is out of scope; the `// TODO` SHALL remain in source until a separate change addresses it.
+The destination of the **Privacy Policy** link is `https://www.termsfeed.com/live/9bf5a2a7-b34d-416e-86df-bbd5097410cc`, stored as the static constant `AppInfo.privacyPolicyURL` in `SettingsView.swift`. The placeholder and `// TODO` comment have been removed.
 
 If the device has no `mailto:` handler installed, the Send Feedback `Link` MAY no-op when activated. This edge case is acknowledged and accepted; the screen SHALL NOT add a fallback flow for it as part of this capability.
 
@@ -195,7 +195,7 @@ If the device has no `mailto:` handler installed, the Send Feedback `Link` MAY n
 #### Scenario: Privacy Policy opens the configured URL
 
 - **WHEN** the user taps the **Privacy Policy** row
-- **THEN** the system SHALL open the URL in `AppInfo.privacyPolicyURL` via the system browser. The placeholder destination is acknowledged.
+- **THEN** the system SHALL open the URL in `AppInfo.privacyPolicyURL` via the system browser.
 
 ---
 

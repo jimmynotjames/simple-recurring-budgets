@@ -6,10 +6,13 @@ import Observation
 /// Tracks the app's iCloud sync availability and exposes a derived view-state
 /// for the Settings screen's iCloud row.
 ///
-/// `containerBacking` is determined once at app launch from the outcome of
-/// `ProductionContainerFactory.make` and never changes. `accountStatus` is
-/// updated asynchronously by `SettingsView` via `ICloudStatusLoader`
-/// and `CKAccountChangedNotification` observers.
+/// `containerBacking` is determined at app launch from the outcome of
+/// `ProductionContainerFactory.make` and changes at runtime in exactly one
+/// case: when container creation failed at launch and a later **Retry** from
+/// `ContainerFailureView` succeeds, the `@main` App writes the retry's
+/// resolved backing here so Settings doesn't misreport local-only after
+/// recovery. `accountStatus` is updated asynchronously by `SettingsView` via
+/// `ICloudStatusLoader` and `CKAccountChangedNotification` observers.
 ///
 /// Inject via `.environment(syncStatus)` from `simple_recurring_budgetsApp`
 /// and consume in views via `@Environment(SyncStatus.self)`.
@@ -18,7 +21,7 @@ final class SyncStatus {
   // MARK: - Nested types
 
   /// How the live SwiftData `ModelContainer` is backed.
-  /// Set once at launch; never mutated.
+  /// Set at launch; re-written only by a successful container-failure Retry.
   enum ContainerBacking {
     /// CloudKit-backed — data syncs across the user's iCloud-paired devices.
     case cloudKit
@@ -49,8 +52,11 @@ final class SyncStatus {
 
   // MARK: - State
 
-  /// Immutable launch-time backing. Set once in `init`; read from `SettingsView`.
-  let containerBacking: ContainerBacking
+  /// Launch-time backing, read from `SettingsView`. Mutable for one writer
+  /// only: the `@main` App's container-failure Retry handler, which corrects
+  /// the placeholder `.localFallback` seed once a successful retry resolves
+  /// the real backing (see the class doc).
+  var containerBacking: ContainerBacking
 
   /// Mutable account status. Updated by `SettingsView` asynchronously.
   var accountStatus: AccountStatus

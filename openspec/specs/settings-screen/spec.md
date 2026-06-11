@@ -116,7 +116,7 @@ The Settings screen SHALL include an "iCloud Sync" section that displays a singl
 
 `SyncStatus` SHALL carry two pieces of state:
 
-- `containerBacking` — set once at app launch from the outcome of `simple_recurring_budgetsApp.makeProductionModelContainer`. Values: `cloudKit` when the SwiftData `ModelContainer` was constructed with `cloudKitDatabase: .automatic`; `localFallback` when CloudKit container construction failed and the app fell back to `cloudKitDatabase: .none`. This value SHALL NOT change at runtime.
+- `containerBacking` — set at app launch from the outcome of `simple_recurring_budgetsApp.makeProductionModelContainer`. Values: `cloudKit` when the SwiftData `ModelContainer` was constructed with `cloudKitDatabase: .automatic`; `localFallback` when CloudKit container construction failed and the app fell back to `cloudKitDatabase: .none`. This value SHALL NOT change at runtime, with one exception: when container creation failed at launch (the `container-creation-recovery` surface is showing, and the value was seeded as a `.localFallback` placeholder) and a later **Retry** succeeds, the app SHALL update `containerBacking` to the retry's resolved backing so the row does not misreport local-only sync after recovery.
 - `accountStatus` — initialized to `.checking`; updated by `SettingsView` from `CKContainer.default().accountStatus()` and from observers of `CKAccountChangedNotification` and `NSUbiquityIdentityDidChange` while the screen is alive. Values: `.checking`, `.available`, `.unavailable`.
 
 The row's view-state SHALL be derived from `(containerBacking, accountStatus)` using exactly this mapping:

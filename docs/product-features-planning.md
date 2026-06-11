@@ -1,7 +1,7 @@
 # Product Features Planning
 
-**Version:** 1.2  
-**Last Updated:** 2026-06-02
+**Version:** 1.3  
+**Last Updated:** 2026-06-11
 **Author/Owner:** Jimmy Ho
 
 For north-star vision, guiding principles, and global constraints, see [main-prd.md](main-prd.md).
@@ -10,6 +10,7 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 | Version | Date       | Author   | Changes |
 | ------- | ---------- | -------- | ------- |
+| 1.3     | 2026-06-11 | Jimmy Ho | Docs-vs-code audit fixes: F-3.03 locale count 38 → 49 (status prose and AC) to match the 2026-06 locale expansion; canonical storefront list remains PRD §6.8.3. |
 | 1.2     | 2026-06-02 | Jimmy Ho | F-6.03 (App Store rating prompt) **Implemented** by change `rating-prompt`: `RatingPromptCoordinator` + KV-backed `RatingPromptState`, Add-mode expense-save trigger hook, root-level `ratingPromptPresenter()`, and the `rating_prompt_eligible` / `rating_prompt_requested` analytics events (pulled forward from F-8.03). Paired with analytics-spec.md v0.15 and tech-design-doc.md §4.5 KV-key additions. |
 | 1.1     | 2026-06-02 | Jimmy Ho | F-6.03 (App Store rating prompt) reworked around Apple's native `requestReview`: clarified it uses `@Environment(\.requestReview)` with no custom dialog / pre-prompt; replaced the unworkable "tracks prompt outcomes" AC (the native API has no shown/dismiss/rate callback) with platform-throttling + local once-per-version guard; added positive-moment trigger rule, analytics-consent-independent eligibility counters, the `rating_prompt_eligible` / `rating_prompt_requested` analytics ACs, and a TestFlight-validation note. Finalized the eligibility thresholds (balanced profile: ≥ 7 days installed, ≥ 3 distinct logging days, ≥ 10 lifetime expenses, non-deficit triggering log, once-per-version guard). Paired with analytics-spec.md v0.14 (removed `rating_prompt_shown` / `rating_prompt_resolved`). |
 | 1.0     | 2026-05-31 | Jimmy Ho | Synced feature statuses to shipped codebase: F-2.01, F-2.02, F-2.03, F-2.04, and F-3.04 → Implemented; removed stale "budget-calculations rewrite outstanding" status prose; fixed broken links to deleted `budget-calculations-rewrite.md` (now point to `budget-calculations-rewrite-algorithm.md` where retained); F-2.02/F-2.05/F-8.02 prose fixes (Untitled placeholder, seven Settings sections, rewrite analytics events shipped). |
@@ -264,11 +265,11 @@ For north-star vision, guiding principles, and global constraints, see [main-prd
 
 ##### F-3.03: Internationalization of text — initial build-out
 
-- **Status:** Implemented. The one-time i18n build-out is complete: English source coverage was keyed and audited under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md), and translations for all 38 App Store storefront locales are complete and merged. The durable per-change maintenance requirement (keying every new string + re-running the translation pipeline) now lives in [main-prd.md §6.8.3](main-prd.md#68-cross-cutting-ongoing-concerns); this entry covers only the historical build-out.
+- **Status:** Implemented. The one-time i18n build-out is complete: English source coverage was keyed and audited under [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md), and translations for all 49 App Store storefront locales are complete and merged (38 at the initial build-out, expanded to 49 with the 2026-06 locale expansion). The durable per-change maintenance requirement (keying every new string + re-running the translation pipeline) now lives in [main-prd.md §6.8.3](main-prd.md#68-cross-cutting-ongoing-concerns); this entry covers only the historical build-out.
 - **Description:** All user-facing text shipped to date is keyed and translatable; labels change automatically to match the device's locale. Ongoing maintenance (every new string) is a cross-cutting requirement — see PRD §6.8.3, not this entry.
 - **Acceptance Criteria (initial build-out — all met):**
   - All shipped user-facing strings use `Text("key", comment:)` or `String(localized: KEY, defaultValue:, comment:)`; no hard-coded English literals; every key carries a translator-friendly `comment:` and the catalog has no orphan keys.
-  - All 38 storefront locales have translations for all catalog keys (produced via `scripts/translate_catalog/`). The canonical storefront list lives in PRD §6.8.3.
+  - All 49 storefront locales have translations for all catalog keys (produced via `scripts/translate_catalog/`). The canonical storefront list lives in PRD §6.8.3.
 - **Edge Cases / Notes:** Per-change maintenance checklist and storefront list migrated to PRD §6.8.3. Pseudo-localization smoke procedure in [Appendix B of the audit](audits/localization+voiceover-audit-2026-04-30.md); full keying rules in `docs/tech-design-doc.md` §5.1.
 - **Dependencies:** None
 

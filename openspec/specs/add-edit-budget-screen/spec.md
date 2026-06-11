@@ -9,7 +9,7 @@ SwiftUI sheet used for both creating a new `Budget` and editing an existing one.
 The system SHALL present a single SwiftUI sheet, `AddEditBudgetView`, used for both creating a new `Budget` and editing an existing `Budget`. The sheet SHALL be presented from the existing `Router.sheet` mechanism via two existing `SheetRoute` cases:
 
 - `SheetRoute.addBudget` — Add mode.
-- `SheetRoute.editBudget(Budget)` — Edit mode.
+- `SheetRoute.editBudget(UUID)` — Edit mode (carries `budget.id`; `RootView` resolves it via `ModelContext.budget(id:)`).
 
 No new `SheetRoute` cases SHALL be introduced.
 
@@ -24,7 +24,7 @@ The sheet SHALL expose two toolbar items: a leading `Cancel` button (key `addEdi
 
 #### Scenario: Edit mode is presented via SheetRoute.editBudget
 
-- **WHEN** a caller sets `Router.sheet = .editBudget(budget)` for some `Budget`
+- **WHEN** a caller sets `Router.sheet = .editBudget(budget.id)` for some `Budget`
 - **THEN** `RootView` SHALL present `AddEditBudgetView` configured for Edit mode, seeded from that `Budget`
 
 #### Scenario: Sheet exposes Cancel and Save toolbar items
@@ -282,7 +282,7 @@ For recurring period types, `startDate` is pre-filled at Add-mode init and re-an
 
 ### Requirement: VM exposes a save method that takes ModelContext at the call site
 
-The `AddEditBudgetViewModel` SHALL expose a `save` method that takes `ModelContext` at the call site and performs the Add or Edit branch documented below. The method SHALL surface a persistence-save failure to its caller — it SHALL be marked `throws` (or otherwise report failure), routing its `context.save()` through the shared persistence-save helper rather than `try? context.save()`. The view SHALL read `@Environment(\.modelContext)`, invoke the save method from inside `body`, and dismiss the sheet **only** when the call returns without error; on a thrown persistence error the view SHALL present the standard save-error alert and SHALL NOT dismiss (see the `persistence-error-handling` capability). The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The save body SHALL NOT consult `AppSettings` — `AppSettings` is read only at construction time via `init(settings:)` to seed the Add-mode Carry-Over default.
+The `AddEditBudgetViewModel` SHALL expose a `save` method that takes `ModelContext` at the call site and performs the Add or Edit branch documented below. The method SHALL surface a persistence-save failure to its caller — it SHALL be marked `throws` (or otherwise report failure), routing its `context.save()` through the shared persistence-save helper rather than `try? context.save()`. The view SHALL read `@Environment(\.modelContext)`, invoke the save method from inside `body`, and dismiss the sheet **only** when the call returns without error; on a thrown persistence error the view SHALL present the standard save-error alert and SHALL NOT dismiss (see the `persistence-error-handling` capability). The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The save body SHALL NOT consult `AppSettings` for any budget field value or draft default — those are read only at construction time via `init(settings:)` to seed the Add-mode Carry-Over default and week-start anchor. The save signature does accept `settings: AppSettings` (passed at the call site, never stored) solely for two post-save analytics concerns in the Add branch: reading `analyticsFirstOpenAt` to compute the `time_since_first_app_open_bucket` property on a first-budget `budget_created` event, and reading `analyticsOptInExplicitlySet` to decide whether to present the analytics-consent sheet in consent-required jurisdictions. The Edit branch SHALL NOT read `settings` at all.
 
 #### Scenario: Save reports failure to the caller
 

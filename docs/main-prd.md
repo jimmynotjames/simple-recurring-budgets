@@ -3,8 +3,8 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.3        |
-| **Last Updated**   | 2026-06-02 |
+| **Version**        | 1.4        |
+| **Last Updated**   | 2026-06-11 |
 | **Author / Owner** | Jimmy Ho   |
 
 
@@ -190,7 +190,7 @@ Every new user-initiated action that materially changes app state (a new destruc
 
 #### 6.8.5 UI test screen objects
 
-The app has a suite of 10 user-journey tests in `simple-recurring-budgetsUITests/UserJourneyTests.swift` (Swift Testing, serialized) covering create budget, navigate to detail, add expense (from row and from detail), edit budget, pause/resume, delete expense, edit expense, delete budget, and settings round-trip. Five screen objects encapsulate element queries: `BudgetsScreen`, `BudgetDetailScreen`, `AddBudgetScreen`, `AddExpenseScreen`, and `SettingsScreen`.
+The app has a suite of 15 user-journey tests in `simple-recurring-budgetsUITests/UserJourneyTests.swift` (`XCTestCase` with `continueAfterFailure = false` — Swift Testing is not supported in XCUITest targets) covering create budget, navigate to detail, add expense (from row and from detail), edit budget, pause/resume, delete expense, edit expense, reorder budgets, delete budget, settings round-trip, and period-chip behavior on the Add/Edit Budget sheet. Five screen objects encapsulate element queries: `BudgetsScreen`, `BudgetDetailScreen`, `AddBudgetScreen`, `AddExpenseScreen`, and `SettingsScreen`.
 
 **Per-change rule:** when a view's navigation structure, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` before treating the change complete. Run `make test-ui` (UI-only pass, no unit re-run) to confirm no journey regressions. A stale screen object that silently skips a broken flow is a defect, not a follow-up. UI tests run slowly; update screen objects proactively so agents do not loop on test failures after the fact.
 
@@ -345,6 +345,7 @@ None
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 1.4     | 2026-06-11 | Jimmy Ho | Docs-vs-code audit fixes: §6.8.5 UserJourneyTests corrected to 15 tests on `XCTestCase` (`continueAfterFailure = false`; Swift Testing is not supported in XCUITest targets — the previous "Swift Testing, serialized" claim was wrong) and flow list updated (reorder budgets, period-chip flows). |
 | 1.3     | 2026-06-02 | Jimmy Ho | Rebrand doc sync: title → Wren Product Requirements Document; §8.2 branding expanded; §10.1 Wren glossary entry. |
 | 1.2     | 2026-05-31 | Jimmy Ho | §7.2 expanded data model (Specific Dates, LifecycleEvent, icon, add-funds); §8.3 analytics consent sheet note; §10.1 glossary entries for Specific Dates and Paused budget. |
 | 1.1     | 2026-05-31 | Jimmy Ho | §6.8 is now the canonical home for the per-change maintenance requirements of all four cross-cutting concerns. Migrated the detailed maintenance checklists (Dynamic Type, VoiceOver, Dark Mode, Localization source-strings + translations, Mixpanel user-action analytics) from `product-features-planning.md` F-3.01/F-3.02/F-3.03/F-3.05/F-8.02 into new subsections §6.8.1–§6.8.4. Those feature entries are reframed as completed initial build-outs. |

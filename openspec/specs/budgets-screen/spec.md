@@ -267,7 +267,7 @@ The `CarryOverChip` SHALL provide a single localized accessibility label that de
 
 ### Requirement: Each row provides a one-tap Add Expense button
 
-Each row SHALL include a per-row Add Expense button that, when activated, presents the Add Expense sheet for that specific budget (`SheetRoute.addExpense(budget)`). The button SHALL:
+Each row SHALL include a per-row Add Expense button that, when activated, presents the Add Expense sheet for that specific budget (`SheetRoute.addExpense(budget.id)`). The button SHALL:
 
 - Be visually distinct from the row's drill-in target (a `plus.circle.fill` SF Symbol rendered with the tint color).
 - Use a fixed minimum width of 60pt and a fixed minimum tap target height of 44pt, *not* scaling with Dynamic Type, so the touch target meets HIG at all text sizes while leaving room for amount text to grow.
@@ -278,7 +278,7 @@ This delivers the "fast expense logging" signature element from `docs/ux-design-
 #### Scenario: Tapping the per-row plus opens Add Expense for that budget
 
 - **WHEN** the user taps the per-row `plus.circle.fill` button
-- **THEN** the Add Expense sheet is presented for that specific budget (`router.sheet = .addExpense(budget)`)
+- **THEN** the Add Expense sheet is presented for that specific budget (`router.sheet = .addExpense(budget.id)`)
 
 #### Scenario: Add Expense button keeps a 44pt tap target at all Dynamic Type sizes
 
@@ -287,12 +287,12 @@ This delivers the "fast expense logging" signature element from `docs/ux-design-
 
 ### Requirement: Tapping the row drills into Budget detail
 
-The row's name + amount + period + indicator bar region SHALL be wrapped in a single button. Activating that button SHALL push `AppRoute.budgetDetail(budget)` onto the navigation path. The carry-over chip and the per-row Add Expense button SHALL NOT be part of this tap target.
+The row's name + amount + period + indicator bar region SHALL be wrapped in a single button. Activating that button SHALL push `AppRoute.budgetDetail(budget.id)` onto the navigation path. The carry-over chip and the per-row Add Expense button SHALL NOT be part of this tap target.
 
 #### Scenario: Drill-in pushes Budget detail
 
 - **WHEN** the user taps the row's primary content area (name / amount / period / bar)
-- **THEN** `AppRoute.budgetDetail(budget)` is appended to the navigation path
+- **THEN** `AppRoute.budgetDetail(budget.id)` is appended to the navigation path
 
 #### Scenario: Tapping the chip does not drill in
 
@@ -374,7 +374,7 @@ The inactive presentation SHALL be:
   - `.paused` → key `chip.paused.accessibilityLabel.format` (existing key reused — en-US "Paused since %@").
   - `.postEnd` → key `chip.inactive.postEnd.accessibilityLabel.format` (en-US "Ended %@").
 
-The inactive presentation SHALL NOT affect the row's drill-in tap target, the per-row Add Expense button, or the swipe / reorder affordances. The user can still drill into an inactive budget's detail screen, add an expense to it from the row's `plus.circle.fill` button (which presents `SheetRoute.addExpense(budget)` regardless of lifecycle state — the date-bounds constraint lives in the Add/Edit Expense screen), and reorder the row.
+The inactive presentation SHALL NOT affect the row's drill-in tap target, the per-row Add Expense button, or the swipe / reorder affordances. The user can still drill into an inactive budget's detail screen, add an expense to it from the row's `plus.circle.fill` button (which presents `SheetRoute.addExpense(budget.id)` regardless of lifecycle state — the date-bounds constraint lives in the Add/Edit Expense screen), and reorder the row.
 
 Specific Dates budgets (`Budget.period == .specificDates`) viewed before `startDate` or after `endDate` SHALL receive the same `.preStart` / `.postEnd` treatment as recurring budgets (same chip, same copy, same allocation-as-amount choice). Specific Dates budgets cannot be `.paused` per F-2.08, so the `.paused` variant never fires for them.
 
@@ -431,7 +431,7 @@ Specific Dates budgets (`Budget.period == .specificDates`) viewed before `startD
 #### Scenario: Inactive row still supports row-level Add Expense
 
 - **WHEN** the user taps the per-row `plus.circle.fill` button on a row whose budget is in any inactive lifecycle state (`.preStart`, `.paused`, or `.postEnd`)
-- **THEN** `router.sheet = .addExpense(budget)` is set as it would be for an active budget (the Add/Edit Expense screen's date-bounds rules — see `add-edit-expense-screen` — handle the lifecycle-state date constraint)
+- **THEN** `router.sheet = .addExpense(budget.id)` is set as it would be for an active budget (the Add/Edit Expense screen's date-bounds rules — see `add-edit-expense-screen` — handle the lifecycle-state date constraint)
 
 #### Scenario: Active row is unaffected by inactive-state styling
 

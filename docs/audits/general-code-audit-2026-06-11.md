@@ -1,5 +1,24 @@
 # General Code Audit (pre-launch)
 
+> ## Status update — 2026-06-11 (resolved same day)
+>
+> Every finding was dispositioned in the same PR that introduced this audit
+> (PR #236, one commit per finding). Use the table below as the authoritative
+> status; the finding sections retain the original as-found analysis.
+>
+> | # | Status | Resolution |
+> |---|--------|------------|
+> | M1 | ✅ Fixed — `1cbd293` | `specificDatesDisplayLabel` degrades to a single-date render on an inverted window; debug assert at the `periodDisplayLabel` call site; regression test added |
+> | M2 | ✅ Fixed — `7f4e56c` | Save-error alert's Cancel / Send Feedback actions now `context.rollback()`; Retry unchanged. Implements the existing "no data is persisted" spec scenario |
+> | L1 | ✅ Fixed — `4475081` | Successful container-failure Retry writes the resolved backing into `SyncStatus`; settings-screen spec amended with the retry exception |
+> | L2 | ✅ Fixed — `9e0bd88` | Three-way `PartitionedExpenses` split; future-dated expenses render in a single "Upcoming" section (no footer — deemed self-explanatory); current total now agrees with Remaining; key translated to all 49 locales |
+> | L3 | ✅ Fixed — `4026829` | Shared `onCalendarDayChange` modifier refreshes lifecycle math in `BudgetDetailView` / `BudgetRowView` on day change (also covers time-zone/clock shifts). Closes issue #70 |
+> | L4 | ☑️ Accepted — by design | Paused periods contribute 0 per §A.5.4 regardless of expenses; blocking backdating into historical paused gaps was judged not worth the added validation. No code change |
+> | L5 | ✅ Fixed — `fa958ec` | Feedback email subject → "Wren app feedback"; re-translated across all 49 locales |
+> | L6 | ✅ Fixed — `2d9bc22` | `saveEdit` applies date edits before the allocation edit so the new amount lands on the re-anchored grid; regression test for the weekly anchor-moved-earlier case |
+> | C1/C2 | ✅ Fixed — `ae3f1ba` | Both carry-over-chip doc comments rewritten to describe the shipped chip-hiding (`isCarryOverEnabled && !isSpecificDates` into `StatusChipRow`) |
+> | C3 | ✅ Fixed — `ae3f1ba` | `BudgetLifecycleResult` header rewritten: F-7.05/F-7.07 shipped without plumbing `effectiveAllocation` |
+
 | Field        | Value |
 |--------------|-------|
 | **Date**     | 2026-06-11 |

@@ -328,6 +328,11 @@ struct BudgetRowView: View {
     .onChange(of: budget.recomputeToken) {
       refreshLifecycle()
     }
+    // Recompute when a period boundary passes while the app stays foregrounded
+    // (issue #70) — scenePhase/recomputeToken don't fire at midnight.
+    .onCalendarDayChange {
+      refreshLifecycle()
+    }
   }
 
   private func refreshLifecycle() {

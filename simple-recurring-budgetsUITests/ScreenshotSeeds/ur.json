@@ -7,28 +7,28 @@
       "icon": "🍛",
       "period": "daily",
       "currencyCode": "PKR",
-      "allocation": "2000",
+      "allocation": "2500",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "صبح کی چائے",
-          "amount": "150",
+          "amount": "180",
           "daysAgo": 0
         },
         {
           "name": "دوپہر کا کھانا",
-          "amount": "600",
+          "amount": "650",
           "daysAgo": 0
         },
         {
           "name": "باہر ڈنر",
-          "amount": "1200",
+          "amount": "1500",
           "daysAgo": 1
         },
         {
-          "name": "بریانی",
-          "amount": "550",
+          "name": "ہلکا لنچ",
+          "amount": "750",
           "daysAgo": 2
         }
       ]
@@ -44,13 +44,13 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "ہفتے کا سودا",
+          "name": "ہفتے کی گروسری",
           "amount": "4800",
           "daysAgo": 1
         },
         {
           "name": "سبزی منڈی",
-          "amount": "1500",
+          "amount": "1400",
           "daysAgo": 3
         }
       ]
@@ -71,8 +71,8 @@
           "daysAgo": 2
         },
         {
-          "name": "پارلر",
-          "amount": "3000",
+          "name": "ہیئر کٹ",
+          "amount": "1500",
           "daysAgo": 5
         }
       ]

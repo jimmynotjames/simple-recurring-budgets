@@ -7,28 +7,28 @@
       "icon": "🍔",
       "period": "daily",
       "currencyCode": "AUD",
-      "allocation": "45",
+      "allocation": "40",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Flat white",
-          "amount": "5.50",
+          "amount": "5.00",
           "daysAgo": 0
         },
         {
           "name": "Lunch",
-          "amount": "18.00",
+          "amount": "16.50",
           "daysAgo": 0
         },
         {
           "name": "Dinner out",
-          "amount": "34.00",
+          "amount": "32.00",
           "daysAgo": 1
         },
         {
           "name": "Quick lunch",
-          "amount": "19.00",
+          "amount": "18.00",
           "daysAgo": 2
         }
       ]
@@ -39,18 +39,18 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "AUD",
-      "allocation": "140",
+      "allocation": "120",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Woolies shop",
-          "amount": "82.40",
+          "amount": "72.40",
           "daysAgo": 1
         },
         {
           "name": "Farmers market",
-          "amount": "24.50",
+          "amount": "23.50",
           "daysAgo": 3
         }
       ]
@@ -67,7 +67,7 @@
       "expenses": [
         {
           "name": "Skincare",
-          "amount": "39.00",
+          "amount": "38.00",
           "daysAgo": 2
         },
         {

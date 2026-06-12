@@ -7,28 +7,28 @@
       "icon": "🌮",
       "period": "daily",
       "currencyCode": "MXN",
-      "allocation": "250",
+      "allocation": "300",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Café de la mañana",
-          "amount": "55.00",
+          "amount": "55",
           "daysAgo": 0
         },
         {
           "name": "Comida corrida",
-          "amount": "110.00",
+          "amount": "120",
           "daysAgo": 0
         },
         {
-          "name": "Cena fuera",
-          "amount": "210.00",
+          "name": "Cena con amigos",
+          "amount": "260",
           "daysAgo": 1
         },
         {
           "name": "Tacos rápidos",
-          "amount": "95.00",
+          "amount": "110",
           "daysAgo": 2
         }
       ]
@@ -39,18 +39,18 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "MXN",
-      "allocation": "1200",
+      "allocation": "900",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Súper de la semana",
-          "amount": "680.00",
+          "amount": "540",
           "daysAgo": 1
         },
         {
           "name": "Mercado",
-          "amount": "230.00",
+          "amount": "180",
           "daysAgo": 3
         }
       ]
@@ -58,21 +58,21 @@
     {
       "role": "personal",
       "name": "Cuidado personal",
-      "icon": "💅",
+      "icon": "💄",
       "period": "monthly",
       "currencyCode": "MXN",
-      "allocation": "1500",
+      "allocation": "900",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Skincare",
-          "amount": "420.00",
+          "amount": "280",
           "daysAgo": 2
         },
         {
           "name": "Corte de cabello",
-          "amount": "350.00",
+          "amount": "320",
           "daysAgo": 5
         }
       ]

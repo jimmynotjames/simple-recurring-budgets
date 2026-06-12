@@ -7,23 +7,23 @@
       "icon": "🍔",
       "period": "daily",
       "currencyCode": "PLN",
-      "allocation": "70",
+      "allocation": "60",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Poranna kawa",
-          "amount": "16.00",
+          "amount": "15.00",
           "daysAgo": 0
         },
         {
           "name": "Lunch",
-          "amount": "34.00",
+          "amount": "28.00",
           "daysAgo": 0
         },
         {
           "name": "Kolacja na mieście",
-          "amount": "62.00",
+          "amount": "52.00",
           "daysAgo": 1
         },
         {
@@ -39,25 +39,25 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "PLN",
-      "allocation": "250",
+      "allocation": "350",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Cotygodniowe zakupy",
-          "amount": "148.50",
+          "name": "Duże zakupy",
+          "amount": "189.40",
           "daysAgo": 1
         },
         {
           "name": "Bazarek",
-          "amount": "42.00",
+          "amount": "47.50",
           "daysAgo": 3
         }
       ]
     },
     {
       "role": "personal",
-      "name": "Uroda i pielęgnacja",
+      "name": "Uroda",
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "PLN",
@@ -66,13 +66,13 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Kosmetyki do twarzy",
+          "name": "Kosmetyki",
           "amount": "89.00",
           "daysAgo": 2
         },
         {
           "name": "Fryzjer",
-          "amount": "130.00",
+          "amount": "120.00",
           "daysAgo": 5
         }
       ]

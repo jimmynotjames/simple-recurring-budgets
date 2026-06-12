@@ -4,38 +4,38 @@
     {
       "role": "everyday-food",
       "name": "Hrana",
-      "icon": "🍔",
+      "icon": "🍽️",
       "period": "daily",
       "currencyCode": "EUR",
-      "allocation": "25",
+      "allocation": "28",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Jutranja kava",
-          "amount": "2.20",
+          "amount": "2.50",
           "daysAgo": 0
         },
         {
           "name": "Malica",
-          "amount": "8.50",
+          "amount": "9.50",
           "daysAgo": 0
         },
         {
           "name": "Večerja v mestu",
-          "amount": "19.00",
+          "amount": "22.00",
           "daysAgo": 1
         },
         {
           "name": "Hitro kosilo",
-          "amount": "10.50",
+          "amount": "11.00",
           "daysAgo": 2
         }
       ]
     },
     {
       "role": "groceries",
-      "name": "Živila",
+      "name": "Trgovina",
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "EUR",
@@ -45,12 +45,12 @@
       "expenses": [
         {
           "name": "Tedenski nakup",
-          "amount": "44.20",
+          "amount": "43.20",
           "daysAgo": 1
         },
         {
           "name": "Tržnica",
-          "amount": "13.50",
+          "amount": "14.50",
           "daysAgo": 3
         }
       ]
@@ -58,7 +58,7 @@
     {
       "role": "personal",
       "name": "Nega",
-      "icon": "💄",
+      "icon": "💆",
       "period": "monthly",
       "currencyCode": "EUR",
       "allocation": "70",
@@ -67,7 +67,7 @@
       "expenses": [
         {
           "name": "Kozmetika",
-          "amount": "22.00",
+          "amount": "19.90",
           "daysAgo": 2
         },
         {

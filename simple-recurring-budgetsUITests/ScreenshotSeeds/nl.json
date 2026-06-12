@@ -4,7 +4,7 @@
     {
       "role": "everyday-food",
       "name": "Eten",
-      "icon": "🍽️",
+      "icon": "🍔",
       "period": "daily",
       "currencyCode": "EUR",
       "allocation": "25",
@@ -12,7 +12,7 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Koffie",
+          "name": "Koffie onderweg",
           "amount": "3.50",
           "daysAgo": 0
         },
@@ -28,7 +28,7 @@
         },
         {
           "name": "Broodje",
-          "amount": "8.00",
+          "amount": "7.50",
           "daysAgo": 2
         }
       ]
@@ -44,13 +44,13 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Albert Heijn",
-          "amount": "43.20",
+          "name": "Weekboodschappen",
+          "amount": "46.80",
           "daysAgo": 1
         },
         {
           "name": "Markt",
-          "amount": "14.50",
+          "amount": "13.50",
           "daysAgo": 3
         }
       ]
@@ -61,7 +61,7 @@
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "EUR",
-      "allocation": "70",
+      "allocation": "75",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [

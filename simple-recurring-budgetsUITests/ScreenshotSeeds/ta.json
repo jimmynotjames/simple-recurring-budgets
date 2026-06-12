@@ -3,7 +3,7 @@
   "budgets": [
     {
       "role": "everyday-food",
-      "name": "உணவு",
+      "name": "சாப்பாடு",
       "icon": "🍛",
       "period": "daily",
       "currencyCode": "INR",
@@ -13,7 +13,7 @@
       "expenses": [
         {
           "name": "காலை டீ",
-          "amount": "20",
+          "amount": "25",
           "daysAgo": 0
         },
         {
@@ -27,8 +27,8 @@
           "daysAgo": 1
         },
         {
-          "name": "ஃபில்டர் காபி",
-          "amount": "30",
+          "name": "டிஃபன்",
+          "amount": "150",
           "daysAgo": 2
         }
       ]
@@ -39,29 +39,29 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "INR",
-      "allocation": "1500",
+      "allocation": "2500",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "வாராந்திர மளிகை",
-          "amount": "850",
+          "amount": "1450",
           "daysAgo": 1
         },
         {
-          "name": "காய்கறி கடை",
-          "amount": "260",
+          "name": "காய்கறி சந்தை",
+          "amount": "420",
           "daysAgo": 3
         }
       ]
     },
     {
       "role": "personal",
-      "name": "அழகு பராமரிப்பு",
-      "icon": "💅",
+      "name": "அழகு & பராமரிப்பு",
+      "icon": "💄",
       "period": "monthly",
       "currencyCode": "INR",
-      "allocation": "2500",
+      "allocation": "2000",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
@@ -71,8 +71,8 @@
           "daysAgo": 2
         },
         {
-          "name": "சலூன்",
-          "amount": "800",
+          "name": "பார்லர்",
+          "amount": "550",
           "daysAgo": 5
         }
       ]

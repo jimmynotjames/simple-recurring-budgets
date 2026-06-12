@@ -4,31 +4,31 @@
     {
       "role": "everyday-food",
       "name": "Їжа",
-      "icon": "🍜",
+      "icon": "🍔",
       "period": "daily",
       "currencyCode": "UAH",
-      "allocation": "700",
+      "allocation": "650",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Ранкова кава",
-          "amount": "85",
+          "amount": "85.00",
           "daysAgo": 0
         },
         {
           "name": "Обід",
-          "amount": "260",
+          "amount": "240.00",
           "daysAgo": 0
         },
         {
           "name": "Вечеря в кафе",
-          "amount": "540",
+          "amount": "520.00",
           "daysAgo": 1
         },
         {
           "name": "Швидкий обід",
-          "amount": "290",
+          "amount": "280.00",
           "daysAgo": 2
         }
       ]
@@ -39,26 +39,26 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "UAH",
-      "allocation": "2200",
+      "allocation": "2000",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Закупи в АТБ",
-          "amount": "1280",
+          "name": "Закупи на тиждень",
+          "amount": "1150.00",
           "daysAgo": 1
         },
         {
-          "name": "Базар",
-          "amount": "420",
+          "name": "Ринок",
+          "amount": "380.00",
           "daysAgo": 3
         }
       ]
     },
     {
       "role": "personal",
-      "name": "Краса і догляд",
-      "icon": "💅",
+      "name": "Догляд за собою",
+      "icon": "💄",
       "period": "monthly",
       "currencyCode": "UAH",
       "allocation": "2500",
@@ -67,12 +67,12 @@
       "expenses": [
         {
           "name": "Догляд за шкірою",
-          "amount": "650",
+          "amount": "650.00",
           "daysAgo": 2
         },
         {
-          "name": "Манікюр",
-          "amount": "550",
+          "name": "Стрижка",
+          "amount": "550.00",
           "daysAgo": 5
         }
       ]

@@ -23,12 +23,12 @@
         },
         {
           "name": "Dinner out",
-          "amount": "34.00",
+          "amount": "32.00",
           "daysAgo": 1
         },
         {
           "name": "Quick lunch",
-          "amount": "18.50",
+          "amount": "18.00",
           "daysAgo": 2
         }
       ]
@@ -39,17 +39,17 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "CAD",
-      "allocation": "130",
+      "allocation": "120",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Weekly grocery run",
-          "amount": "78.40",
+          "amount": "74.60",
           "daysAgo": 1
         },
         {
-          "name": "Farmers' market",
+          "name": "Farmers market",
           "amount": "22.50",
           "daysAgo": 3
         }

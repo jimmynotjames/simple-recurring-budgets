@@ -7,12 +7,12 @@
       "icon": "🍱",
       "period": "daily",
       "currencyCode": "TWD",
-      "allocation": "350",
+      "allocation": "400",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "早上咖啡",
+          "name": "早餐拿鐵",
           "amount": "65",
           "daysAgo": 0
         },
@@ -22,8 +22,8 @@
           "daysAgo": 0
         },
         {
-          "name": "聚餐",
-          "amount": "280",
+          "name": "晚餐聚餐",
+          "amount": "320",
           "daysAgo": 1
         },
         {
@@ -67,12 +67,12 @@
       "expenses": [
         {
           "name": "保養品",
-          "amount": "750",
+          "amount": "780",
           "daysAgo": 2
         },
         {
           "name": "剪髮",
-          "amount": "600",
+          "amount": "650",
           "daysAgo": 5
         }
       ]

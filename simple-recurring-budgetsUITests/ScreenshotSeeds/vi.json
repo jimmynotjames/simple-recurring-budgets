@@ -13,7 +13,7 @@
       "expenses": [
         {
           "name": "Cà phê sáng",
-          "amount": "30000",
+          "amount": "35000",
           "daysAgo": 0
         },
         {
@@ -22,12 +22,12 @@
           "daysAgo": 0
         },
         {
-          "name": "Đi ăn tối",
+          "name": "Ăn tối ngoài",
           "amount": "180000",
           "daysAgo": 1
         },
         {
-          "name": "Bún ăn vội",
+          "name": "Bún ăn nhanh",
           "amount": "45000",
           "daysAgo": 2
         }
@@ -44,7 +44,7 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Mua đồ cả tuần",
+          "name": "Đi siêu thị",
           "amount": "420000",
           "daysAgo": 1
         },
@@ -66,13 +66,13 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Mỹ phẩm dưỡng da",
+          "name": "Mỹ phẩm",
           "amount": "450000",
           "daysAgo": 2
         },
         {
           "name": "Cắt tóc",
-          "amount": "250000",
+          "amount": "300000",
           "daysAgo": 5
         }
       ]

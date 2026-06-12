@@ -3,11 +3,11 @@
   "budgets": [
     {
       "role": "everyday-food",
-      "name": "ଖାଦ୍ୟ",
+      "name": "ଖାଇବା",
       "icon": "🍛",
       "period": "daily",
       "currencyCode": "INR",
-      "allocation": "500",
+      "allocation": "450",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
@@ -17,17 +17,17 @@
           "daysAgo": 0
         },
         {
-          "name": "ଦୁପୁର ଖାଇବା",
+          "name": "ଲଞ୍ଚ",
           "amount": "180",
           "daysAgo": 0
         },
         {
-          "name": "ବାହାରେ ରାତ୍ରି ଭୋଜନ",
-          "amount": "420",
+          "name": "ବାହାରେ ଡିନର",
+          "amount": "320",
           "daysAgo": 1
         },
         {
-          "name": "ତରବରିଆ ଲଞ୍ଚ",
+          "name": "ଝଟପଟ ଲଞ୍ଚ",
           "amount": "150",
           "daysAgo": 2
         }
@@ -35,44 +35,44 @@
     },
     {
       "role": "groceries",
-      "name": "ଗ୍ରୋସେରୀ",
+      "name": "ଗ୍ରୋସରୀ",
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "INR",
-      "allocation": "1800",
+      "allocation": "2500",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "ସାପ୍ତାହିକ ବଜାର",
-          "amount": "1050",
+          "amount": "1450",
           "daysAgo": 1
         },
         {
-          "name": "ସବ୍ଜି ବଜାର",
-          "amount": "340",
+          "name": "ପନିପରିବା",
+          "amount": "420",
           "daysAgo": 3
         }
       ]
     },
     {
       "role": "personal",
-      "name": "ସୌନ୍ଦର୍ଯ୍ୟ ଯତ୍ନ",
+      "name": "ସୌନ୍ଦର୍ଯ୍ୟ",
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "INR",
-      "allocation": "1500",
+      "allocation": "2000",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "ସ୍କିନକେୟାର",
-          "amount": "450",
+          "amount": "650",
           "daysAgo": 2
         },
         {
-          "name": "ସେଲୁନ",
-          "amount": "350",
+          "name": "ପାର୍ଲର",
+          "amount": "550",
           "daysAgo": 5
         }
       ]

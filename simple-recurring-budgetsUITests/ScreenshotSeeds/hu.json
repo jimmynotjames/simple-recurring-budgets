@@ -7,18 +7,18 @@
       "icon": "🍔",
       "period": "daily",
       "currencyCode": "HUF",
-      "allocation": "5500",
+      "allocation": "7000",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Reggeli kávé",
-          "amount": "950",
+          "amount": "850",
           "daysAgo": 0
         },
         {
           "name": "Ebéd",
-          "amount": "2400",
+          "amount": "2600",
           "daysAgo": 0
         },
         {
@@ -28,7 +28,7 @@
         },
         {
           "name": "Gyors ebéd",
-          "amount": "2200",
+          "amount": "2900",
           "daysAgo": 2
         }
       ]
@@ -39,18 +39,18 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "HUF",
-      "allocation": "25000",
+      "allocation": "22000",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Heti nagybevásárlás",
-          "amount": "14800",
+          "amount": "13400",
           "daysAgo": 1
         },
         {
           "name": "Piac",
-          "amount": "4600",
+          "amount": "4200",
           "daysAgo": 3
         }
       ]
@@ -61,18 +61,18 @@
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "HUF",
-      "allocation": "22000",
+      "allocation": "20000",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Arcápolás",
-          "amount": "6900",
+          "amount": "5900",
           "daysAgo": 2
         },
         {
           "name": "Fodrász",
-          "amount": "9500",
+          "amount": "9000",
           "daysAgo": 5
         }
       ]

@@ -17,6 +17,36 @@ This is the **screenshot demo-content** pipeline. Siblings: in-app UI strings �
 All three target the same markets but use different artifacts; `metadata_locales.py`
 owns the runtime↔storefront mapping that `content_locales.py` reuses.
 
+## "Regenerate screenshots" ≠ regenerate this content
+
+When the user asks to "regenerate" / "redo" / "refresh" **screenshots**, the
+default reading is: re-run the **capture** (`fastlane screenshots`) against the
+existing committed catalog — **not** this content pipeline. Only treat it as a
+content request when the user explicitly names the seed content ("seed content",
+"demo budgets/data", "ScreenshotSeeds", "locale content", "SOURCE.json").
+
+If the wording could plausibly mean either, ask one clarification question
+before running anything ("Re-capture the screenshots from the existing seed
+catalog, or regenerate the seed content itself?") — and if no answer is
+available, lean strongly toward re-capture.
+
+## When to regenerate content
+
+The committed catalog is a curated, human-validated artifact: once screenshots
+built from it have been inspected and shipped, the content is approved — don't
+churn it. Regeneration is nondeterministic, so every run replaces approved
+content with different-but-equivalent content and forces a fresh ~2 h capture,
+a 500-shot re-inspection, and a re-upload.
+
+- **Default** (`extract.py --missing`): fill only absent/empty locales — i.e.
+  new storefronts after a locale expansion. Removed locales just lose their file.
+- **`SOURCE.json` changed**: the structural contract is derived from it, so
+  regenerate everything (full manifest).
+- **One locale is wrong or aging** (e.g. inflation makes its anchored amounts
+  look stale): regenerate just that storefront via locale args — not the world.
+- **Full overwrite-regeneration of all locales is exceptional**: only on an
+  explicit, unambiguous user request for fresh content everywhere.
+
 ## Autonomy
 
 Run end to end **autonomously, without pausing on mechanical steps** — extract,

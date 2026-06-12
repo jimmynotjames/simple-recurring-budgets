@@ -145,20 +145,40 @@ struct AddEditExpenseView: View {
 
   private var nameCard: some View {
     GroupBox {
-      TextField(
-        String(
-          localized: "addEditExpense.field.name.placeholder",
-          defaultValue: "e.g. Coffee",
-          comment: "Placeholder text for the expense description field"
-        ),
-        text: $viewModel.name
-      )
-      .font(.body)
-      .accessibilityLabel(String(
-        localized: "addEditExpense.field.name.accessibilityLabel",
-        defaultValue: "Expense description",
-        comment: "VoiceOver label for the expense description text field"
-      ))
+      // Mirrors CurrencyAmountField's trailing-✕ pattern so the two text inputs clear
+      // the same way. Clearing also resets the Recents filter below, restoring the
+      // full suggestion row.
+      HStack(alignment: .center, spacing: 2) {
+        TextField(
+          String(
+            localized: "addEditExpense.field.name.placeholder",
+            defaultValue: "e.g. Coffee",
+            comment: "Placeholder text for the expense description field"
+          ),
+          text: $viewModel.name
+        )
+        .font(.body)
+        .accessibilityLabel(String(
+          localized: "addEditExpense.field.name.accessibilityLabel",
+          defaultValue: "Expense description",
+          comment: "VoiceOver label for the expense description text field"
+        ))
+        if !viewModel.name.isEmpty {
+          Button {
+            viewModel.name = ""
+          } label: {
+            Image(systemName: "xmark.circle.fill")
+              .foregroundStyle(.secondary)
+              .font(.body)
+          }
+          .buttonStyle(.plain)
+          .accessibilityLabel(String(
+            localized: "addEditExpense.field.name.clearButton.accessibilityLabel",
+            defaultValue: "Clear description",
+            comment: "VoiceOver label for the trailing clear button in the expense description field"
+          ))
+        }
+      }
     } label: {
       sectionLabel(String(
         localized: "addEditExpense.section.name",

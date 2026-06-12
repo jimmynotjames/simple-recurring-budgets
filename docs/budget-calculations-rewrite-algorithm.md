@@ -570,6 +570,13 @@ The function performs the following in order. Each step references the helpers i
   symmetric live coupling for this state): `spillover = remaining`.
   - `.preStart`, `.paused`: `spillover = 0`. (`remaining` is also 0 in both states per step 9 /
   step 2, so this is a no-op — explicit for clarity.)
+
+  **Reset interaction.** The spillover's input honors `lastResetDate` (§A.5.6 "Reset
+  interaction"): the input is recomputed from post-reset expenses only
+  (`spilloverRemaining = effectiveAllocation − Σ expenses in
+  [max(effectivePeriodStart, lastResetDate ?? .distantPast), effectivePeriodEnd)`), and when
+  `lastResetDate >= effectiveEndExclusive` (reset after the budget ended), `spillover = 0`.
+  Step 9's `remaining` is **not** affected.
 13. **Assemble `carryOver`.** `carryOver = walkerSum + currentPeriodSpillover` (recurring).
   `carryOver = nil` for Specific Dates (handled in §A.4.2).
 14. **Return** the snapshot.
@@ -961,6 +968,26 @@ briefing's "frozen at final tally" requirement (§2.9, §6.5).
 **Why `.paused` spillover is 0.** Step 9 forces `remaining = 0` for paused periods, so the
 `.active` rule would have returned 0 anyway. Explicit case for clarity.
 
+**Reset interaction.** A manual reset (`lastResetDate`, §A.6.4/§A.6.5) trims the walker — and
+it equally trims the spillover. The `currentPeriodSpillover` function itself is unchanged (it
+stays a pure 3-input classifier); the snapshot assembly feeds it a *reset-aware* input:
+
+- `spilloverRemaining = effectiveAllocation − Σ expenses in
+  [max(effectivePeriodStart, lastResetDate ?? .distantPast), effectivePeriodEnd)` — pre-reset
+  expenses are excluded while the full allocation is still awarded, mirroring the walker's
+  no-proration convention for the period containing a reset (§A.5.3). The input therefore
+  equals the contribution the walker will compute for this period once it closes, so committed
+  overflow carries continuously across the boundary (period-boundary continuity above) and a
+  mid-period reset zeroes a current-period deficit from the Carry-over chip immediately.
+- When `lastResetDate >= effectiveEndExclusive` — the reset was performed after the budget
+  ended, reachable only in `.postEnd` because the write paths stamp `now` — `spillover = 0`.
+  Without this carve-out, the symmetric `.postEnd` rule would re-fold the final period's
+  remaining right back in (after Reset Budget deletes the expenses, that would be the *full
+  final allocation*), making post-end resets ineffective forever since the final period never
+  closes.
+- Step 9's `remaining` is **not** reset-aware — the post-reset rebound (§A.6.4) intentionally
+  keeps the current envelope reflecting all of today's expenses.
+
 ---
 
 ## A.6. State changes from user actions
@@ -1073,8 +1100,11 @@ clamps. Same for moving `startDate` later.
 2. `save()`.
 
 That is all. The walker's `walkStart = max(effectiveStartDate, lastResetDate)` automatically
-excludes prior completed periods that ended before the reset. No expenses are deleted; no
-allocation history is touched.
+excludes prior completed periods that ended before the reset, and the current period's
+spillover input is likewise recomputed from post-reset expenses (§A.5.6 "Reset interaction"),
+so the Carry-over chip reads 0 immediately after the reset — including when the current
+period was in deficit, and permanently when the budget had already ended. No expenses are
+deleted; no allocation history is touched.
 
 Post-reset rebound (briefing §6.3 item 1) is automatic: the current period's `remaining = allocation − currentPeriodSpend` is independent of the walker and still reflects today's existing expenses.
 
@@ -1088,6 +1118,11 @@ Post-reset rebound (briefing §6.3 item 1) is automatic: the current period's `r
 allocation continues to be whatever was in effect. The current pause state continues to be
 whatever it was (the briefing says Reset Budget while paused leaves the pause state alone —
 briefing §6.7 item 11).
+
+On a `.postEnd` budget, `lastResetDate >= effectiveEndExclusive` suppresses the final
+period's spillover entirely (§A.5.6 "Reset interaction"), so the post-reset Carry-over is 0
+rather than the rebounded final-period remaining (which, with expenses deleted, would be the
+full final allocation).
 
 ### A.6.6. Pause budget
 

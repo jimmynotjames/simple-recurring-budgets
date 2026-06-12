@@ -11,6 +11,12 @@ import Foundation
 /// - `.postEnd`: symmetric — the entire final-period remaining folds in (the period will
 ///   never close normally, so there is no future boundary to wait for).
 /// - `.preStart`, `.paused`: 0 (remaining is also 0 in both states).
+///
+/// **Reset interaction lives in the caller.** This function is a pure 3-input classifier;
+/// `BudgetCalculator.recurringBranch` is responsible for passing a *reset-aware* `remaining`
+/// (full allocation minus post-`lastResetDate` expenses, and 0 spillover when the reset was
+/// stamped after the budget ended) so the live spillover matches the walker's eventual
+/// contribution for the reset period. See the budget-math spec, "Reset interaction".
 func currentPeriodSpillover(
   remaining: Decimal,
   effectiveAllocation: Decimal,

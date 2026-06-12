@@ -92,15 +92,17 @@ func timeSinceBudgetCreatedBucket(seconds: TimeInterval) -> String {
 // boundaries. Boundaries are deliberately coarse to avoid pseudo-identification.
 
 /// Buckets the number of Recents tiles visible in the section at tap time into the
-/// `recents_visible_count` property values. Inputs outside `[1, recentsDisplayLimit]`
-/// fold into the nearest bucket (negatives → `"0"`, beyond cap → `"8-15"`).
+/// `recents_visible_count` property values. The top bucket is open-ended (`"8+"`)
+/// because the display cap exceeds 15 tiles; the product question is dense-vs-sparse
+/// row, so finer granularity above 8 isn't worth the extra cardinality. Negative
+/// inputs fold into `"0"`.
 func recentsVisibleCountBucket(_ count: Int) -> String {
   switch count {
   case ..<1: "0"
   case 1: "1"
   case 2 ... 3: "2-3"
   case 4 ... 7: "4-7"
-  default: "8-15"
+  default: "8+"
   }
 }
 

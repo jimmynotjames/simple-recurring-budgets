@@ -32,10 +32,13 @@ struct RecentsBucketingTests {
     #expect(recentsVisibleCountBucket(7) == "4-7")
   }
 
-  @Test func visibleCount_eightThroughFifteenAndBeyond_collapse() {
-    #expect(recentsVisibleCountBucket(8) == "8-15")
-    #expect(recentsVisibleCountBucket(15) == "8-15")
-    #expect(recentsVisibleCountBucket(100) == "8-15") // beyond the cap, still saturates
+  @Test func visibleCount_eightAndBeyond_collapse() {
+    // Open-ended top bucket: the 30-tile display cap means counts 16-30 are real,
+    // and they all land in "8+" alongside 8-15.
+    #expect(recentsVisibleCountBucket(8) == "8+")
+    #expect(recentsVisibleCountBucket(15) == "8+")
+    #expect(recentsVisibleCountBucket(30) == "8+") // full display-capped row
+    #expect(recentsVisibleCountBucket(100) == "8+") // beyond the cap, still saturates
   }
 
   // MARK: - recentsTapPositionBucket

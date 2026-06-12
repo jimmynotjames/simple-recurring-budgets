@@ -271,6 +271,101 @@ struct BudgetCalculatorCarryOverTests {
   }
 }
 
+// MARK: - Snapshot: reset-aware spillover (change reset-aware-spillover, issues #241/#242)
+
+struct BudgetCalculatorResetAwareSpilloverTests {
+  @Test func midPeriodReset_zeroesCurrentDeficit_remainingUnchanged() {
+    // #242: daily budget, deficit of 30 today, then Reset Carry-Over mid-period.
+    let startDate = d(2026, 4, 15)
+    let budget = makeBudget(allocation: 50, startDate: startDate)
+    budget.lastResetDate = d(2026, 4, 15, hour: 12)
+    let exp = expense(amount: 80, date: d(2026, 4, 15, hour: 10)) // pre-reset
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal)
+    // Spillover input = 50 − (post-reset expenses: 0) = 50 → no committed overflow.
+    #expect(snap.carryOver == 0)
+    // Post-reset rebound (§A.6.4): the envelope still reflects all of today's expenses.
+    #expect(snap.remaining == -30)
+  }
+
+  @Test func postResetOverspend_spillsAgain() {
+    let startDate = d(2026, 4, 15)
+    let budget = makeBudget(allocation: 50, startDate: startDate)
+    budget.lastResetDate = d(2026, 4, 15, hour: 12)
+    let expenses = [
+      expense(amount: 80, date: d(2026, 4, 15, hour: 10)), // pre-reset — excluded from spillover
+      expense(amount: 60, date: d(2026, 4, 15, hour: 13)), // post-reset — overspends the fresh 50
+    ]
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 14), calendar: cal)
+    // Spillover input = 50 − 60 = −10 → overspend lands live.
+    #expect(snap.carryOver == -10)
+    #expect(snap.remaining == -90) // 50 − 140, all expenses
+  }
+
+  @Test func liveSpilloverMatchesWalkerContributionAfterPeriodCloses() {
+    // The committed overflow that spills live in the reset period must equal the
+    // contribution the walker computes for that period once it completes — the
+    // carry-over must not jump at the period boundary.
+    let startDate = d(2026, 4, 15)
+    let budget = makeBudget(allocation: 50, startDate: startDate)
+    budget.lastResetDate = d(2026, 4, 15, hour: 12)
+    let expenses = [
+      expense(amount: 80, date: d(2026, 4, 15, hour: 10)), // pre-reset
+      expense(amount: 60, date: d(2026, 4, 15, hour: 13)), // post-reset overspend
+    ]
+    let live = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 14), calendar: cal)
+    let closed = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 16), calendar: cal)
+    // Live: spillover = 50 − 60 = −10. Closed: walker contribution for Apr 15 = 50 − 60 = −10.
+    #expect(live.carryOver == -10)
+    #expect(closed.carryOver == live.carryOver)
+  }
+
+  @Test func postEndResetCarryOver_zeroesPermanently() {
+    // #241: weekly budget ended Apr 30 with surplus carry-over; reset after the end.
+    let startDate = d(2026, 4, 1) // Wednesday — weekly anchor
+    let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, endDate: d(2026, 4, 30))
+    let exp = expense(amount: 60, date: d(2026, 4, 2, hour: 10)) // week 1: +40 surplus
+    // Sanity: before the reset the post-end carry-over is nonzero.
+    let before = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal)
+    #expect(before.lifecycleState == .postEnd)
+    #expect(before.carryOver != 0)
+
+    budget.lastResetDate = d(2026, 5, 10) // after effectiveEndExclusive (May 1)
+    let after = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal)
+    #expect(after.carryOver == 0)
+  }
+
+  @Test func postEndResetBudget_doesNotResurrectFinalAllocation() {
+    // #241: Reset Budget on an ended budget deletes expenses, so the final period's
+    // remaining rebounds to the full allocation. Without the post-end carve-out the
+    // symmetric .postEnd rule would fold that rebound straight back into carry-over.
+    let startDate = d(2026, 4, 1)
+    let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, endDate: d(2026, 4, 30))
+    budget.lastResetDate = d(2026, 5, 10)
+    // Expenses already deleted by resetBudget — snapshot with none.
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 15), calendar: cal)
+    #expect(snap.lifecycleState == .postEnd)
+    #expect(snap.carryOver == 0)
+  }
+
+  @Test func resetDuringFinalPeriod_postEndFoldsPostResetExpensesOnly() {
+    // Reset mid-final-period (before the end), then the budget ends. The symmetric
+    // .postEnd fold applies to the reset-aware input: full allocation − post-reset spend.
+    let startDate = d(2026, 4, 1) // Wednesday; final period Apr 29 – May 1 (clamped)
+    let budget = makeBudget(period: .weekly, allocation: 50, startDate: startDate, endDate: d(2026, 4, 30))
+    budget.lastResetDate = d(2026, 4, 30, hour: 10) // inside the final period, before end
+    let expenses = [
+      expense(amount: 80, date: d(2026, 4, 29, hour: 9)), // pre-reset — excluded from spillover
+      expense(amount: 10, date: d(2026, 4, 30, hour: 12)), // post-reset
+    ]
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 5, 15), calendar: cal)
+    #expect(snap.lifecycleState == .postEnd)
+    // Walker window [Apr 30 10:00, Apr 29) is empty → 0. Spillover = 50 − 10 = 40.
+    #expect(snap.carryOver == 40)
+    // The envelope still reflects all final-period expenses: 50 − 90.
+    #expect(snap.remaining == -40)
+  }
+}
+
 // MARK: - Snapshot: weekly period anchoring from startDate
 
 struct BudgetCalculatorWeeklyAnchorTests {

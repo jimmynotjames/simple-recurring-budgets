@@ -171,11 +171,36 @@ enum BudgetCalculator {
       .active
     }
 
-    let spillover = currentPeriodSpillover(
-      remaining: remaining,
-      effectiveAllocation: effectiveAllocation,
-      lifecycleState: lifecycleState
-    )
+    // Spillover honors `lastResetDate` (budget-math spec, "Reset interaction"):
+    // its input excludes pre-reset expenses while still awarding the full allocation —
+    // mirroring the walker's no-proration convention for the period containing a reset —
+    // so the input equals the contribution the walker computes for this period once it
+    // closes, and committed overflow carries continuously across the boundary (ordinary
+    // slack still waits for the close, per the asymmetric rule). `remaining` above
+    // intentionally keeps all current-period expenses (post-reset rebound, §A.6.4).
+    // A reset stamped after the budget ended (`lastResetDate >= effectiveEndExclusive`,
+    // reachable only in .postEnd because the write paths stamp `now`) leaves nothing to
+    // spill: without this carve-out a
+    // post-end Reset Budget would fold the rebounded final-period remaining — the full
+    // allocation — back into carry-over.
+    let spillover: Decimal
+    if let lastReset = budget.lastResetDate, lastReset >= effectiveEndExclusive {
+      spillover = 0
+    } else {
+      let spilloverRemaining: Decimal
+      if isCurrentPaused {
+        spilloverRemaining = 0
+      } else {
+        let lowerBound = max(effectivePeriodStart, budget.lastResetDate ?? .distantPast)
+        let postReset = expenses.filter { $0.date >= lowerBound && $0.date < effectivePeriodEnd }
+        spilloverRemaining = effectiveAllocation - postReset.reduce(Decimal(0)) { $0 + $1.amount }
+      }
+      spillover = currentPeriodSpillover(
+        remaining: spilloverRemaining,
+        effectiveAllocation: effectiveAllocation,
+        lifecycleState: lifecycleState
+      )
+    }
 
     return BudgetSnapshot(
       lifecycleState: lifecycleState,

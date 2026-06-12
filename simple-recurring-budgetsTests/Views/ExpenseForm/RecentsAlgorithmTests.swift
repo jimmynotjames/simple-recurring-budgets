@@ -4,11 +4,13 @@ import SwiftData
 import Testing
 
 /// Tests for `AddEditExpenseViewModel.computeRecentCandidates(for:limit:)` — the pure,
-/// static F-7.04 algorithm that builds the Recents candidate set from a budget's history.
+/// static F-7.04 algorithm that builds the Recents candidate corpus from a budget's
+/// history.
 ///
 /// The helper is exercised directly (not through a VM init) so the cases stay focused on
-/// the algorithm itself: sort order, dedup-by-description, exclusion filters, and the
-/// cap. VM-level integration (cached at init, exposed via `hasRecentSources` etc.) lives
+/// the algorithm itself: sort order, per-name base tiles, recurrence-gated amount
+/// variants, exclusion filters, and the corpus cap. VM-level integration (cached at
+/// init, display capping in `filteredRecentSuggestions`, provenance-aware apply) lives
 /// in `AddEditExpenseViewModelRecentsTests`.
 @MainActor
 struct RecentsAlgorithmTests {
@@ -61,7 +63,9 @@ struct RecentsAlgorithmTests {
   // MARK: - Deduplication
 
   @Test func duplicatesByName_keepMostRecentOccurrenceAmount() throws {
-    // Two "Coffee" entries at different amounts; the more recent (date(0)) wins.
+    // Two "Coffee" entries at different amounts, each logged ONCE; the more recent
+    // (date(0)) is the base tile, and the older singleton pair stays below the
+    // recurrence threshold so no variant tile appears.
     let budget = try makeBudget(with: [
       ExpenseItem(amount: 5.50, name: "Coffee", date: date(-86400)), // older Coffee
       ExpenseItem(amount: 6.00, name: "Coffee", date: date(0)), // newer Coffee
@@ -156,14 +160,114 @@ struct RecentsAlgorithmTests {
     #expect(result.map(\.name) == (0 ..< 5).map { "Item \($0)" })
   }
 
-  @Test func defaultCap_isFifteen() throws {
+  @Test func defaultLimit_isCorpusCapNotDisplayCap() throws {
+    // 25 unique names exceed the old 15-tile display default but sit well under the
+    // corpus cap: the algorithm's default must return ALL of them — display trimming
+    // happens downstream in `filteredRecentSuggestions`, never here. This is the
+    // corpus/display decoupling that lets a typed query surface names beyond the row.
     let expenses = (0 ..< 25).map { i in
       ExpenseItem(amount: Decimal(i + 1), name: "Item \(i)", date: date(TimeInterval(-i * 60)))
     }
     let budget = try makeBudget(with: expenses)
     let result = AddEditExpenseViewModel.computeRecentCandidates(for: budget)
-    #expect(result.count == AddEditExpenseViewModel.recentsDisplayLimit)
-    #expect(result.count == 15)
+    #expect(result.count == 25)
+  }
+
+  @Test func capConstants_pinWorkshopDecisions() {
+    // Deliberate pins for the cap design: display (Caps A/B) = 30, corpus (Cap C) =
+    // 200, variant recurrence gate = 3, extra variants per name = 2. Changing any of
+    // these is a product decision — update the test alongside the constant.
+    #expect(AddEditExpenseViewModel.recentsDisplayLimit == 30)
+    #expect(AddEditExpenseViewModel.recentsCorpusLimit == 200)
+    #expect(AddEditExpenseViewModel.variantRecurrenceThreshold == 3)
+    #expect(AddEditExpenseViewModel.maxVariantsPerName == 2)
+  }
+
+  // MARK: - Recurrence-gated amount variants
+
+  @Test func recurringSecondAmount_earnsVariantTile() throws {
+    // "Coffee" at 5.75 once (most recent → base tile) and at 4.50 three times
+    // (meets the recurrence threshold → variant tile), clustered base-first.
+    let budget = try makeBudget(with: [
+      ExpenseItem(amount: 5.75, name: "Coffee", date: date(0)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-3600)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-7200)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-10800)),
+    ])
+    let result = AddEditExpenseViewModel.computeRecentCandidates(for: budget)
+    #expect(result.map(\.name) == ["Coffee", "Coffee"])
+    #expect(result.map(\.amount) == [5.75, 4.50])
+  }
+
+  @Test func secondAmountBelowThreshold_doesNotEarnVariantTile() throws {
+    // The 4.50 pair occurs only twice — one short of the threshold — so only the
+    // base tile (most recent amount) surfaces.
+    let budget = try makeBudget(with: [
+      ExpenseItem(amount: 5.75, name: "Coffee", date: date(0)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-3600)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-7200)),
+    ])
+    let result = AddEditExpenseViewModel.computeRecentCandidates(for: budget)
+    #expect(result.count == 1)
+    #expect(result[0].amount == 5.75)
+  }
+
+  @Test func priceJitter_collapsesToSingleBaseTile() throws {
+    // Three one-off "Groceries" amounts (the canonical jitter case the gate exists
+    // for): no pair recurs, so only the most recent amount surfaces.
+    let budget = try makeBudget(with: [
+      ExpenseItem(amount: 103.55, name: "Groceries", date: date(0)),
+      ExpenseItem(amount: 91.10, name: "Groceries", date: date(-86400)),
+      ExpenseItem(amount: 87.32, name: "Groceries", date: date(-172_800)),
+    ])
+    let result = AddEditExpenseViewModel.computeRecentCandidates(for: budget)
+    #expect(result.count == 1)
+    #expect(result[0].amount == 103.55)
+  }
+
+  @Test func variantsPerName_cappedAtTwoExtras_byPairRecency() throws {
+    // Base (9.99, most recent) plus three qualifying variant pairs; only the two
+    // most recently used variants survive the per-name cap (1.00's pair is oldest).
+    var expenses = [ExpenseItem(amount: 9.99, name: "Coffee", date: date(0))]
+    for (amount, baseOffset) in [(Decimal(2.00), -1000.0), (Decimal(3.00), -2000.0), (Decimal(1.00), -3000.0)] {
+      for occurrence in 0 ..< 3 {
+        expenses.append(ExpenseItem(
+          amount: amount, name: "Coffee", date: date(baseOffset - Double(occurrence) * 10000)
+        ))
+      }
+    }
+    let budget = try makeBudget(with: expenses)
+    let result = AddEditExpenseViewModel.computeRecentCandidates(for: budget)
+    #expect(result.map(\.amount) == [9.99, 2.00, 3.00])
+  }
+
+  @Test func variantTiles_clusterAfterBase_groupsOrderedByRecency() throws {
+    // "Lunch" is the most recent name overall, but "Coffee" has a qualifying variant:
+    // groups order by their most recent date, and Coffee's variant stays adjacent to
+    // its base rather than interleaving by raw date.
+    let budget = try makeBudget(with: [
+      ExpenseItem(amount: 14.25, name: "Lunch", date: date(0)),
+      ExpenseItem(amount: 5.75, name: "Coffee", date: date(-50)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-3600)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-7200)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-10800)),
+    ])
+    let result = AddEditExpenseViewModel.computeRecentCandidates(for: budget)
+    #expect(result.map(\.name) == ["Lunch", "Coffee", "Coffee"])
+    #expect(result.map(\.amount) == [14.25, 5.75, 4.50])
+  }
+
+  @Test func variantOccurrences_countAcrossCaseAndDiacriticFolds() throws {
+    // The recurrence count aggregates across the folded-name equivalence class:
+    // "coffee" + "Coffee" + "COFFEE" at 4.50 are THREE occurrences of one pair.
+    let budget = try makeBudget(with: [
+      ExpenseItem(amount: 5.75, name: "Coffee", date: date(0)),
+      ExpenseItem(amount: 4.50, name: "coffee", date: date(-3600)),
+      ExpenseItem(amount: 4.50, name: "Coffee", date: date(-7200)),
+      ExpenseItem(amount: 4.50, name: "COFFEE", date: date(-10800)),
+    ])
+    let result = AddEditExpenseViewModel.computeRecentCandidates(for: budget)
+    #expect(result.map(\.amount) == [5.75, 4.50])
   }
 
   // MARK: - Mixed input

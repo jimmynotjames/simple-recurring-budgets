@@ -4,8 +4,9 @@ import SwiftData
 import Testing
 
 /// Tests for `AddEditExpenseViewModel`'s F-7.04 Recents API surface — the cached
-/// candidate set, the typed-query filter, the Add-mode-only visibility gate, and the
-/// `applyRecent` method (including its analytics emission). The static algorithm itself
+/// candidate corpus, the typed-query filter and its display cap, the Add-mode-only
+/// visibility gate, the provenance-aware `applyRecent` (including its analytics
+/// emission), and the double-tap `applyRecentFullReplace`. The static algorithm itself
 /// is covered separately by `RecentsAlgorithmTests`; here we exercise the VM-level wiring.
 @MainActor
 struct AddEditExpenseViewModelRecentsTests {
@@ -127,6 +128,34 @@ struct AddEditExpenseViewModelRecentsTests {
     #expect(vm.filteredRecentSuggestions.count == 2) // all candidates
   }
 
+  // MARK: - Display cap vs corpus (Caps A/B vs C)
+
+  @Test func filteredRecents_emptyQuery_cappedAtDisplayLimit() throws {
+    // 35 unique names → all 35 live in the corpus, but the unfiltered row renders at
+    // most `recentsDisplayLimit`.
+    let specs = (0 ..< 35).map { i in
+      ExpenseSpec(name: "Item \(i)", amount: Decimal(i + 1), hoursAgo: Double(i))
+    }
+    let budget = try makeBudgetWithExpenses(specs)
+    let vm = AddEditExpenseViewModel(adding: budget)
+    #expect(vm.filteredRecentSuggestions.count == AddEditExpenseViewModel.recentsDisplayLimit)
+  }
+
+  @Test func filteredRecents_querySurfacesNameBeyondDisplayedRow() throws {
+    // "Zebra" is the oldest of 31 names, so it falls outside the 30-tile unfiltered
+    // row — but typing must still find it, because the filter searches the corpus,
+    // not the rendered row. This is the search-depth defect the cap decoupling fixed.
+    var specs = (0 ..< 30).map { i in
+      ExpenseSpec(name: "Item \(i)", amount: Decimal(i + 1), hoursAgo: Double(i))
+    }
+    specs.append(ExpenseSpec(name: "Zebra", amount: 99.00, hoursAgo: 500))
+    let budget = try makeBudgetWithExpenses(specs)
+    let vm = AddEditExpenseViewModel(adding: budget)
+    #expect(!vm.filteredRecentSuggestions.contains { $0.name == "Zebra" }) // not in row
+    vm.name = "zeb"
+    #expect(vm.filteredRecentSuggestions.map(\.name) == ["Zebra"]) // but searchable
+  }
+
   // MARK: - shouldShowRecentsSection
 
   @Test func shouldShowRecentsSection_trueInAddModeWithSources() throws {
@@ -156,7 +185,7 @@ struct AddEditExpenseViewModelRecentsTests {
 
   // MARK: - applyRecent
 
-  @Test func applyRecent_writesNameAndAmount() throws {
+  @Test func applyRecent_writesNameAndAmount_whenAmountEmpty() throws {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
@@ -165,6 +194,113 @@ struct AddEditExpenseViewModelRecentsTests {
     vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
     #expect(vm.name == "Coffee")
     #expect(vm.amount == 5.50)
+  }
+
+  // MARK: - applyRecent amount provenance (smart apply)
+
+  @Test func applyRecent_preservesUserTypedAmount() throws {
+    // The core smart-apply rule: a user-typed amount is fresher intent than the
+    // tile's historical amount, so the tap fills the description only.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget)
+    vm.amount = 12.80 // simulates a keystroke-originated binding write
+    let pick = try #require(vm.filteredRecentSuggestions.first)
+    vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
+    #expect(vm.name == "Coffee")
+    #expect(vm.amount == 12.80) // user's amount survives
+  }
+
+  @Test func applyRecent_replacesTileSeededAmount_onSuggestionSwitch() throws {
+    // Tapping a second tile is suggestion-switching: the first tile's seed is not
+    // user input, so the second tap replaces it fully.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+      ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget)
+    let suggestions = vm.filteredRecentSuggestions
+    let coffee = try #require(suggestions.first { $0.name == "Coffee" })
+    let lunch = try #require(suggestions.first { $0.name == "Lunch" })
+    vm.applyRecent(coffee, visibleCount: 2, tapPosition: 0, analytics: SpyAnalyticsClient())
+    vm.applyRecent(lunch, visibleCount: 2, tapPosition: 1, analytics: SpyAnalyticsClient())
+    #expect(vm.name == "Lunch")
+    #expect(vm.amount == 14.25)
+  }
+
+  @Test func applyRecent_clearedAmount_reArmsFilling() throws {
+    // Typing an amount then clearing it (✕ / delete-all) returns the draft to empty
+    // provenance, so the next tile tap fills again.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget)
+    vm.amount = 12.80
+    vm.amount = nil // ✕ clear
+    let pick = try #require(vm.filteredRecentSuggestions.first)
+    vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
+    #expect(vm.amount == 5.50)
+  }
+
+  @Test func applyRecent_userTypedAmountSurvivesSuggestionSwitching() throws {
+    // A typed amount stays sticky across multiple tile taps — browsing names must
+    // not clobber it.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+      ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget)
+    vm.amount = 12.80
+    let suggestions = vm.filteredRecentSuggestions
+    let coffee = try #require(suggestions.first { $0.name == "Coffee" })
+    let lunch = try #require(suggestions.first { $0.name == "Lunch" })
+    vm.applyRecent(coffee, visibleCount: 2, tapPosition: 0, analytics: SpyAnalyticsClient())
+    vm.applyRecent(lunch, visibleCount: 2, tapPosition: 1, analytics: SpyAnalyticsClient())
+    #expect(vm.name == "Lunch")
+    #expect(vm.amount == 12.80)
+  }
+
+  // MARK: - applyRecentFullReplace (double-tap)
+
+  @Test func fullReplace_overridesUserTypedAmount() throws {
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget)
+    vm.amount = 12.80
+    let pick = try #require(vm.filteredRecentSuggestions.first)
+    vm.applyRecentFullReplace(pick)
+    #expect(vm.name == "Coffee")
+    #expect(vm.amount == 5.50) // explicit double-tap wins over provenance
+  }
+
+  @Test func fullReplace_seedIsReplaceableByLaterTap() throws {
+    // A full replace marks the amount tile-seeded, so a later single tap on another
+    // tile still applies fully.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+      ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget)
+    vm.amount = 12.80
+    let suggestions = vm.filteredRecentSuggestions
+    let coffee = try #require(suggestions.first { $0.name == "Coffee" })
+    let lunch = try #require(suggestions.first { $0.name == "Lunch" })
+    vm.applyRecentFullReplace(coffee)
+    vm.applyRecent(lunch, visibleCount: 2, tapPosition: 1, analytics: SpyAnalyticsClient())
+    #expect(vm.amount == 14.25)
+  }
+
+  @Test func fullReplace_resetsIsAddFunds() throws {
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget)
+    let pick = try #require(vm.filteredRecentSuggestions.first)
+    vm.isAddFunds = true
+    vm.applyRecentFullReplace(pick)
+    #expect(vm.isAddFunds == false)
   }
 
   @Test func applyRecent_resetsIsAddFundsToFalse_whenWasOn() throws {

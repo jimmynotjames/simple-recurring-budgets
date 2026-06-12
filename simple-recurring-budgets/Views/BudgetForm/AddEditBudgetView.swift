@@ -253,9 +253,15 @@ struct AddEditBudgetView: View {
     .backgroundStyle(Color("CellBackground"))
   }
 
+  private var hasIcon: Bool {
+    !(viewModel.icon ?? "").isEmpty
+  }
+
   /// Optional icon prefix. A tappable chip that opens the budget icon picker
-  /// (`BudgetIconPicker`, a curated emoji grid). Shows the chosen icon, or a faint
-  /// smiley placeholder inviting the user to pick one.
+  /// (`BudgetIconPicker`, a curated emoji grid). Shows the chosen icon, or an
+  /// accent-tinted smiley placeholder inviting the user to pick one. The accent
+  /// wash only appears in the empty state — a chosen emoji renders in its own
+  /// colors, so the chip reverts to the neutral fill.
   private var iconField: some View {
     Button {
       showIconPicker = true
@@ -265,14 +271,14 @@ struct AddEditBudgetView: View {
           Text(verbatim: icon)
         } else {
           Image(systemName: "face.smiling")
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color.accentColor)
         }
       }
       .font(.title3)
       .frame(minWidth: 44, minHeight: 44)
       .background(
         RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(Color.secondary.opacity(0.12))
+          .fill(hasIcon ? Color.secondary.opacity(0.12) : Color.accentColor.opacity(0.12))
       )
       .contentShape(Rectangle())
     }

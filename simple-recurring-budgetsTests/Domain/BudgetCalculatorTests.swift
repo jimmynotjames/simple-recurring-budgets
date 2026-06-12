@@ -518,6 +518,65 @@ struct BudgetCalculatorSpecificDatesTests {
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
     #expect(snap.lifecycleState == .active) // pause is ignored for specificDates
   }
+
+  @Test func snapshot_specificDates_singleDayWindow_endEqualsStart() {
+    // endDate is the inclusive last *day*, so start == end is a valid 1-day window.
+    let day = d(2026, 4, 15)
+    let budget = makeBudget(period: .specificDates, allocation: 100, startDate: day, endDate: day)
+    let exp = expense(amount: 30, date: d(2026, 4, 15, hour: 10))
+
+    let during = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 12), calendar: cal)
+    #expect(during.lifecycleState == .active)
+    #expect(during.remaining == 70)
+    #expect(during.carryOver == nil)
+    #expect(during.effectivePeriodStart == d(2026, 4, 15))
+    #expect(during.effectivePeriodEnd == d(2026, 4, 16))
+
+    let after = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 16), calendar: cal)
+    #expect(after.lifecycleState == .postEnd)
+    #expect(after.remaining == 70) // frozen final tally
+  }
+
+  @Test func snapshot_specificDates_multiRowDrift_latestRowWinsRegardlessOfNow() {
+    // F-2.08 says exactly one AllocationChange row should ever exist for this type.
+    // If drift (CloudKit divergence, UI bug) produces extra rows, the branch takes
+    // the latest by (effectiveFrom, lastModified) with NO `<= now` filter — pinned
+    // here so the degradation mode stays visible and deliberate.
+    let budget = makeBudget(period: .specificDates, allocation: 300, startDate: d(2026, 4, 1), endDate: d(2026, 4, 30))
+    let driftRow = AllocationChange(effectiveFrom: d(2026, 4, 20), amount: 250)
+    driftRow.budget = budget
+    budget.allocationChangesStorage = (budget.allocationChangesStorage ?? []) + [driftRow]
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal)
+    // now (Apr 10) is BEFORE the drift row's effectiveFrom (Apr 20) — it wins anyway.
+    #expect(snap.effectiveAllocation == 250)
+    #expect(snap.remaining == 250)
+  }
+}
+
+// MARK: - Snapshot: window edges (pre-#240 safety net, Group A)
+
+struct BudgetCalculatorWindowEdgeTests {
+  @Test func expenseBeforeStartDate_neverCounted() {
+    let budget = makeBudget(startDate: d(2026, 4, 10))
+    let exp = expense(amount: 15, date: d(2026, 4, 5, hour: 10)) // before the window
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 12), calendar: cal)
+    // Walker boundaries start at effectiveStartDate (Apr 10): Apr 10 + Apr 11 at 20
+    // each, the Apr 5 expense outside every bucket. Current day untouched.
+    #expect(snap.carryOver == 40)
+    #expect(snap.remaining == 20)
+  }
+
+  @Test func expenseAfterEndDate_excludedFromFinalTally() {
+    let budget = makeBudget(startDate: d(2026, 4, 1), endDate: d(2026, 4, 10))
+    let exp = expense(amount: 5, date: d(2026, 4, 12, hour: 10)) // after the window
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 20), calendar: cal)
+    // effectiveNow clamps to Apr 10 → final period [Apr 10, Apr 11); the Apr 12
+    // expense is past effectivePeriodEnd and never counted. Walker Apr 1–9 = 180;
+    // postEnd folds the untouched final day's 20 → carryOver = 200.
+    #expect(snap.lifecycleState == .postEnd)
+    #expect(snap.remaining == 20)
+    #expect(snap.carryOver == 200)
+  }
 }
 
 // MARK: - Snapshot: paused state

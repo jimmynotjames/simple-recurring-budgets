@@ -24,11 +24,12 @@ struct BudgetSnapshot: Equatable {
   let remaining: Decimal
 
   /// Signed cumulative carry-over (walker sum + current-period spillover).
-  /// `nil` for `.specificDates` budgets — F-2.08 specifies that the carry-over chip
-  /// is hidden for that type, but **no code currently hides it**. The F-2.08 UI work
-  /// must add explicit chip-hiding in `BudgetDetailView` and `BudgetRowView`; today
-  /// `BudgetLifecycleResult.carryOverAmount` flattens `nil` → `0`, so an out-of-flow
-  /// specificDates budget would render `$0.00` rather than no chip.
+  /// `nil` for `.specificDates` budgets — F-2.08 hides the carry-over chip for that
+  /// type, which both surfaces implement by passing
+  /// `isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates` into
+  /// `StatusChipRow` (see `BudgetDetailView.headerRow` and `BudgetRowView`).
+  /// `BudgetLifecycleResult.carryOverAmount` flattens this `nil` → `0`; the flattened
+  /// value is never rendered because the chip is hidden upstream.
   let carryOver: Decimal?
 
   /// Inclusive start of the effective current period.

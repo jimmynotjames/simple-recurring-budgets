@@ -3,7 +3,7 @@
   "budgets": [
     {
       "role": "everyday-food",
-      "name": "ਖਾਣਾ",
+      "name": "ਖਾਣਾ-ਪੀਣਾ",
       "icon": "🍛",
       "period": "daily",
       "currencyCode": "INR",
@@ -13,12 +13,12 @@
       "expenses": [
         {
           "name": "ਸਵੇਰ ਦੀ ਚਾਹ",
-          "amount": "30",
+          "amount": "25",
           "daysAgo": 0
         },
         {
-          "name": "ਦੁਪਹਿਰ ਦੀ ਥਾਲੀ",
-          "amount": "220",
+          "name": "ਦੁਪਹਿਰ ਦਾ ਖਾਣਾ",
+          "amount": "180",
           "daysAgo": 0
         },
         {
@@ -28,7 +28,7 @@
         },
         {
           "name": "ਛੇਤੀ ਲੰਚ",
-          "amount": "180",
+          "amount": "150",
           "daysAgo": 2
         }
       ]
@@ -44,7 +44,7 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "ਹਫ਼ਤੇ ਦਾ ਰਾਸ਼ਨ",
+          "name": "ਹਫ਼ਤਾਵਾਰ ਰਾਸ਼ਨ",
           "amount": "1450",
           "daysAgo": 1
         },
@@ -58,21 +58,21 @@
     {
       "role": "personal",
       "name": "ਸੈਲੂਨ ਤੇ ਕੇਅਰ",
-      "icon": "💇‍♀️",
+      "icon": "💄",
       "period": "monthly",
       "currencyCode": "INR",
-      "allocation": "2000",
+      "allocation": "3000",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "ਸਕਿਨਕੇਅਰ",
-          "amount": "650",
+          "amount": "850",
           "daysAgo": 2
         },
         {
           "name": "ਹੇਅਰਕੱਟ",
-          "amount": "500",
+          "amount": "400",
           "daysAgo": 5
         }
       ]

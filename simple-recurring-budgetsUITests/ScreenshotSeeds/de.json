@@ -12,62 +12,62 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Kaffee",
-          "amount": "3.20",
+          "name": "Kaffee am Morgen",
+          "amount": "3.50",
           "daysAgo": 0
         },
         {
           "name": "Mittagessen",
-          "amount": "11.50",
+          "amount": "10.50",
           "daysAgo": 0
         },
         {
-          "name": "Abendessen",
-          "amount": "16.00",
+          "name": "Abendessen auswärts",
+          "amount": "22.00",
           "daysAgo": 1
         },
         {
-          "name": "Snack",
-          "amount": "4.50",
+          "name": "Schnelles Mittag",
+          "amount": "9.50",
           "daysAgo": 2
         }
       ]
     },
     {
       "role": "groceries",
-      "name": "Wocheneinkauf",
+      "name": "Lebensmittel",
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "EUR",
-      "allocation": "70",
+      "allocation": "75",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Supermarkt",
-          "amount": "42.80",
+          "name": "Wocheneinkauf",
+          "amount": "43.80",
           "daysAgo": 1
         },
         {
           "name": "Wochenmarkt",
-          "amount": "13.50",
+          "amount": "14.20",
           "daysAgo": 3
         }
       ]
     },
     {
       "role": "personal",
-      "name": "Beauty & Pflege",
-      "icon": "💄",
+      "name": "Drogerie & Pflege",
+      "icon": "🧴",
       "period": "monthly",
       "currencyCode": "EUR",
-      "allocation": "60",
+      "allocation": "70",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Pflegeprodukte",
-          "amount": "18.00",
+          "amount": "21.90",
           "daysAgo": 2
         },
         {

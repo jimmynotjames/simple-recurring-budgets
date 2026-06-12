@@ -7,13 +7,13 @@
       "icon": "🍛",
       "period": "daily",
       "currencyCode": "INR",
-      "allocation": "500",
+      "allocation": "400",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "सकाळचा चहा",
-          "amount": "30",
+          "amount": "20",
           "daysAgo": 0
         },
         {
@@ -23,7 +23,7 @@
         },
         {
           "name": "बाहेर डिनर",
-          "amount": "420",
+          "amount": "350",
           "daysAgo": 1
         },
         {
@@ -49,7 +49,7 @@
           "daysAgo": 1
         },
         {
-          "name": "भाजी मंडई",
+          "name": "भाजी मार्केट",
           "amount": "480",
           "daysAgo": 3
         }
@@ -57,11 +57,11 @@
     },
     {
       "role": "personal",
-      "name": "ब्युटी अँड केअर",
+      "name": "ब्युटी & केअर",
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "INR",
-      "allocation": "2000",
+      "allocation": "2500",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [

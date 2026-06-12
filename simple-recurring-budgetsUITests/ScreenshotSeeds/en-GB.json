@@ -7,28 +7,28 @@
       "icon": "🍔",
       "period": "daily",
       "currencyCode": "GBP",
-      "allocation": "24",
+      "allocation": "25",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Morning coffee",
-          "amount": "3.20",
+          "name": "Flat white",
+          "amount": "3.40",
           "daysAgo": 0
         },
         {
-          "name": "Meal deal",
+          "name": "Lunch",
           "amount": "9.50",
           "daysAgo": 0
         },
         {
           "name": "Dinner out",
-          "amount": "21.00",
+          "amount": "22.00",
           "daysAgo": 1
         },
         {
-          "name": "Lunch out",
-          "amount": "11.50",
+          "name": "Meal deal",
+          "amount": "4.25",
           "daysAgo": 2
         }
       ]
@@ -49,8 +49,8 @@
           "daysAgo": 1
         },
         {
-          "name": "Market veg",
-          "amount": "12.40",
+          "name": "Greengrocer",
+          "amount": "12.60",
           "daysAgo": 3
         }
       ]

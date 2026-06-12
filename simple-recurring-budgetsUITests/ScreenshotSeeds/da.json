@@ -7,28 +7,28 @@
       "icon": "🍔",
       "period": "daily",
       "currencyCode": "DKK",
-      "allocation": "200",
+      "allocation": "250",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Morgenkaffe",
-          "amount": "42.00",
+          "amount": "42",
           "daysAgo": 0
         },
         {
           "name": "Frokost",
-          "amount": "85.00",
+          "amount": "89",
           "daysAgo": 0
         },
         {
           "name": "Ude at spise",
-          "amount": "165.00",
+          "amount": "195",
           "daysAgo": 1
         },
         {
           "name": "Hurtig frokost",
-          "amount": "79.00",
+          "amount": "98",
           "daysAgo": 2
         }
       ]
@@ -39,40 +39,40 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "DKK",
-      "allocation": "650",
+      "allocation": "700",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Storindkøb",
-          "amount": "385.50",
+          "amount": "412.50",
           "daysAgo": 1
         },
         {
           "name": "Torvet",
-          "amount": "118.00",
+          "amount": "128",
           "daysAgo": 3
         }
       ]
     },
     {
       "role": "personal",
-      "name": "Personlig pleje",
+      "name": "Hudpleje & hår",
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "DKK",
-      "allocation": "550",
+      "allocation": "600",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Hudpleje",
-          "amount": "169.00",
+          "amount": "189",
           "daysAgo": 2
         },
         {
           "name": "Klipning",
-          "amount": "295.00",
+          "amount": "350",
           "daysAgo": 5
         }
       ]

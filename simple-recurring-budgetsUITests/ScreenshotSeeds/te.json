@@ -13,22 +13,22 @@
       "expenses": [
         {
           "name": "మార్నింగ్ చాయ్",
-          "amount": "30",
+          "amount": "25.00",
           "daysAgo": 0
         },
         {
           "name": "లంచ్",
-          "amount": "180",
+          "amount": "180.00",
           "daysAgo": 0
         },
         {
           "name": "డిన్నర్ బయట",
-          "amount": "340",
+          "amount": "320.00",
           "daysAgo": 1
         },
         {
           "name": "క్విక్ లంచ్",
-          "amount": "160",
+          "amount": "150.00",
           "daysAgo": 2
         }
       ]
@@ -39,18 +39,18 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "INR",
-      "allocation": "1800",
+      "allocation": "2500",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "వీక్లీ గ్రోసరీ",
-          "amount": "1050",
+          "amount": "1450.00",
           "daysAgo": 1
         },
         {
-          "name": "కూరగాయల మార్కెట్",
-          "amount": "320",
+          "name": "కూరగాయలు",
+          "amount": "420.00",
           "daysAgo": 3
         }
       ]
@@ -66,13 +66,13 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "స్కిన్‌కేర్",
-          "amount": "650",
+          "name": "స్కిన్ కేర్",
+          "amount": "650.00",
           "daysAgo": 2
         },
         {
-          "name": "హెయిర్‌కట్",
-          "amount": "400",
+          "name": "హెయిర్ కట్",
+          "amount": "400.00",
           "daysAgo": 5
         }
       ]

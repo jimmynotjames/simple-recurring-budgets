@@ -4,10 +4,10 @@
     {
       "role": "everyday-food",
       "name": "Makan",
-      "icon": "🍛",
+      "icon": "🍜",
       "period": "daily",
       "currencyCode": "IDR",
-      "allocation": "150000",
+      "allocation": "120000",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
@@ -39,29 +39,29 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "IDR",
-      "allocation": "500000",
+      "allocation": "400000",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Belanja mingguan",
-          "amount": "285000",
+          "amount": "235000",
           "daysAgo": 1
         },
         {
           "name": "Pasar",
-          "amount": "95000",
+          "amount": "75000",
           "daysAgo": 3
         }
       ]
     },
     {
       "role": "personal",
-      "name": "Skincare & Salon",
+      "name": "Perawatan",
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "IDR",
-      "allocation": "450000",
+      "allocation": "500000",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
@@ -72,7 +72,7 @@
         },
         {
           "name": "Potong rambut",
-          "amount": "120000",
+          "amount": "90000",
           "daysAgo": 5
         }
       ]

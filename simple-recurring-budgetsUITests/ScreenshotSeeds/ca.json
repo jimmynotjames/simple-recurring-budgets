@@ -4,7 +4,7 @@
     {
       "role": "everyday-food",
       "name": "Menjar",
-      "icon": "🥖",
+      "icon": "🍽️",
       "period": "daily",
       "currencyCode": "EUR",
       "allocation": "25",
@@ -13,12 +13,12 @@
       "expenses": [
         {
           "name": "Cafè del matí",
-          "amount": "1.60",
+          "amount": "1.50",
           "daysAgo": 0
         },
         {
           "name": "Menú del dia",
-          "amount": "13.50",
+          "amount": "12.50",
           "daysAgo": 0
         },
         {
@@ -28,7 +28,7 @@
         },
         {
           "name": "Entrepà ràpid",
-          "amount": "5.50",
+          "amount": "9.50",
           "daysAgo": 2
         }
       ]
@@ -45,12 +45,12 @@
       "expenses": [
         {
           "name": "Compra setmanal",
-          "amount": "48.20",
+          "amount": "44.80",
           "daysAgo": 1
         },
         {
-          "name": "Mercat",
-          "amount": "14.30",
+          "name": "Mercat de la plaça",
+          "amount": "14.20",
           "daysAgo": 3
         }
       ]
@@ -67,7 +67,7 @@
       "expenses": [
         {
           "name": "Cosmètica",
-          "amount": "22.50",
+          "amount": "21.00",
           "daysAgo": 2
         },
         {

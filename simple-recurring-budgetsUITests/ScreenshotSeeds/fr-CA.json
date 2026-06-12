@@ -7,13 +7,13 @@
       "icon": "🍔",
       "period": "daily",
       "currencyCode": "CAD",
-      "allocation": "40",
+      "allocation": "35",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Café du matin",
-          "amount": "4.25",
+          "amount": "4.75",
           "daysAgo": 0
         },
         {
@@ -23,12 +23,12 @@
         },
         {
           "name": "Souper au resto",
-          "amount": "34.00",
+          "amount": "29.00",
           "daysAgo": 1
         },
         {
-          "name": "Dîner sur le pouce",
-          "amount": "15.75",
+          "name": "Lunch rapide",
+          "amount": "15.50",
           "daysAgo": 2
         }
       ]
@@ -57,7 +57,7 @@
     },
     {
       "role": "personal",
-      "name": "Soins perso",
+      "name": "Soins & beauté",
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "CAD",
@@ -72,7 +72,7 @@
         },
         {
           "name": "Coupe de cheveux",
-          "amount": "55.00",
+          "amount": "48.00",
           "daysAgo": 5
         }
       ]

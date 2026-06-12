@@ -13,22 +13,22 @@
       "expenses": [
         {
           "name": "সকালের চা",
-          "amount": "25",
+          "amount": "30",
           "daysAgo": 0
         },
         {
           "name": "দুপুরের খাবার",
-          "amount": "180",
+          "amount": "220",
           "daysAgo": 0
         },
         {
-          "name": "বাইরে ডিনার",
-          "amount": "480",
+          "name": "রাতে বাইরে খাওয়া",
+          "amount": "450",
           "daysAgo": 1
         },
         {
-          "name": "ঝটপট লাঞ্চ",
-          "amount": "150",
+          "name": "হালকা লাঞ্চ",
+          "amount": "180",
           "daysAgo": 2
         }
       ]
@@ -49,8 +49,8 @@
           "daysAgo": 1
         },
         {
-          "name": "কাঁচাবাজার",
-          "amount": "520",
+          "name": "শাকসবজি",
+          "amount": "420",
           "daysAgo": 3
         }
       ]

@@ -13,12 +13,12 @@
       "expenses": [
         {
           "name": "Café de la mañana",
-          "amount": "2.20",
+          "amount": "1.80",
           "daysAgo": 0
         },
         {
           "name": "Menú del día",
-          "amount": "13.50",
+          "amount": "12.50",
           "daysAgo": 0
         },
         {
@@ -35,7 +35,7 @@
     },
     {
       "role": "groceries",
-      "name": "Compra",
+      "name": "Súper",
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "EUR",
@@ -45,12 +45,12 @@
       "expenses": [
         {
           "name": "Compra semanal",
-          "amount": "48.60",
+          "amount": "44.20",
           "daysAgo": 1
         },
         {
-          "name": "Mercado",
-          "amount": "14.20",
+          "name": "Mercado del barrio",
+          "amount": "13.60",
           "daysAgo": 3
         }
       ]
@@ -66,8 +66,8 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Cosmética",
-          "amount": "21.95",
+          "name": "Crema facial",
+          "amount": "19.90",
           "daysAgo": 2
         },
         {

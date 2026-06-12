@@ -7,28 +7,28 @@
       "icon": "🍔",
       "period": "daily",
       "currencyCode": "NOK",
-      "allocation": "300",
+      "allocation": "350",
       "startOffsetDays": 3,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Morgenkaffe",
-          "amount": "49",
+          "amount": "52",
           "daysAgo": 0
         },
         {
           "name": "Lunsj",
-          "amount": "139",
+          "amount": "165",
           "daysAgo": 0
         },
         {
           "name": "Middag ute",
-          "amount": "265",
+          "amount": "295",
           "daysAgo": 1
         },
         {
           "name": "Kjapp lunsj",
-          "amount": "129",
+          "amount": "149",
           "daysAgo": 2
         }
       ]
@@ -39,13 +39,13 @@
       "icon": "🛒",
       "period": "weekly",
       "currencyCode": "NOK",
-      "allocation": "1200",
+      "allocation": "1100",
       "startOffsetDays": 5,
       "isCarryOverEnabled": true,
       "expenses": [
         {
           "name": "Ukehandel",
-          "amount": "742",
+          "amount": "642.50",
           "daysAgo": 1
         },
         {
@@ -57,17 +57,17 @@
     },
     {
       "role": "personal",
-      "name": "Hudpleie",
+      "name": "Hud & hår",
       "icon": "💄",
       "period": "monthly",
       "currencyCode": "NOK",
-      "allocation": "1000",
+      "allocation": "950",
       "startOffsetDays": 8,
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Ansiktskrem",
-          "amount": "289",
+          "name": "Hudpleie",
+          "amount": "279",
           "daysAgo": 2
         },
         {

@@ -4,7 +4,7 @@
     {
       "role": "everyday-food",
       "name": "Mat",
-      "icon": "🍔",
+      "icon": "🍽️",
       "period": "daily",
       "currencyCode": "SEK",
       "allocation": "250",
@@ -13,22 +13,22 @@
       "expenses": [
         {
           "name": "Morgonkaffe",
-          "amount": "45.00",
+          "amount": "45",
           "daysAgo": 0
         },
         {
           "name": "Lunch",
-          "amount": "135.00",
+          "amount": "125",
           "daysAgo": 0
         },
         {
           "name": "Middag ute",
-          "amount": "220.00",
+          "amount": "215",
           "daysAgo": 1
         },
         {
           "name": "Snabb lunch",
-          "amount": "125.00",
+          "amount": "115",
           "daysAgo": 2
         }
       ]
@@ -44,13 +44,13 @@
       "isCarryOverEnabled": true,
       "expenses": [
         {
-          "name": "Veckohandling",
-          "amount": "540.00",
+          "name": "Veckohandel",
+          "amount": "540",
           "daysAgo": 1
         },
         {
           "name": "Saluhallen",
-          "amount": "165.00",
+          "amount": "175",
           "daysAgo": 3
         }
       ]
@@ -58,7 +58,7 @@
     {
       "role": "personal",
       "name": "Skönhet",
-      "icon": "💄",
+      "icon": "💅",
       "period": "monthly",
       "currencyCode": "SEK",
       "allocation": "800",
@@ -67,12 +67,12 @@
       "expenses": [
         {
           "name": "Hudvård",
-          "amount": "245.00",
+          "amount": "245",
           "daysAgo": 2
         },
         {
           "name": "Klippning",
-          "amount": "450.00",
+          "amount": "450",
           "daysAgo": 5
         }
       ]

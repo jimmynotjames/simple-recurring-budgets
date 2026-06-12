@@ -16,7 +16,7 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Run the four-step gate (`make format && make lint-fix && make build && make test` per AGENTS.md) — all green; the two Recents unit suites and `RecentsBucketingTests` must pass with the relabel.
-- [ ] 3.2 Run `openspec validate --change recents-rework-spec-sync` (or the project's equivalent artifact validation) and fix any delta-format errors.
-- [ ] 3.3 Cross-check the delta spec against the implementation on PR #244 one final time (placement, caps 30/200/3/2, provenance behaviors, double-tap, clear button, localization keys) — the spec describes shipped code, so any mismatch is a spec bug to fix here, not a code change.
-- [ ] 3.4 Commit on the `recents-ux-workshop` branch so the spec sync, docs sync, and bucket relabel ride PR #244 (update the PR's "Known-stale" section to reflect that these items are now resolved).
+- [x] 3.1 Run the four-step gate (`make format && make lint-fix && make build && make test` per AGENTS.md) — all green; the two Recents unit suites and `RecentsBucketingTests` must pass with the relabel. (684 unit tests green; one UI load-flake retried to green on a simulator-contended run.)
+- [x] 3.2 Run `openspec validate recents-rework-spec-sync` — change is valid.
+- [x] 3.3 Cross-check the delta spec against the implementation on PR #244 one final time (placement, caps 30/200/3/2, provenance behaviors, double-tap, clear button, localization keys) — verified, no mismatches.
+- [x] 3.4 Committed `e52fd4d` on `recents-ux-workshop`; PR #244 body rewritten — "Known-stale" replaced with the formalization summary and the intentionally-deferred future candidates.

@@ -15,52 +15,107 @@ struct RecentExpenseSuggestion: Identifiable, Hashable {
 // MARK: - ViewModel: candidate set, filter, and apply
 
 extension AddEditExpenseViewModel {
-  /// How many recents to surface at once (after dedup). Sized to give less-frequent picks
-  /// a fighting chance on dense budgets — a user who logs three times a day but also gets
-  /// a croissant every Monday should still see the croissant.
-  static let recentsDisplayLimit: Int = 15
+  /// How many tiles the row *displays* at once — both before filtering (Cap A) and
+  /// after the typed query filters the corpus (Cap B). Distinct from
+  /// `recentsCorpusLimit`: the filter searches the full memoized corpus, then this cap
+  /// trims what's rendered. Sized to give less-frequent picks a fighting chance on
+  /// dense budgets — a user who logs three times a day but also gets a croissant every
+  /// Monday should still see the croissant.
+  static let recentsDisplayLimit: Int = 30
 
-  /// Compute the recents candidate set from a budget's expense history. Pure function;
+  /// How many candidate tiles the memoized *search corpus* holds (Cap C). Typing in the
+  /// Description field filters this full set — not the displayed row — so a name beyond
+  /// the visible tiles still surfaces once a query narrows the matches. The cap exists
+  /// purely to bound the sheet-open memoization and the per-keystroke O(C) substring
+  /// filter on pathological budgets; ~200 unique names covers a year+ of realistic
+  /// per-category logging.
+  static let recentsCorpusLimit: Int = 200
+
+  /// How many times an exact (name, amount) pair must recur before it earns an *extra*
+  /// variant tile beyond its name's base tile. Gates out coincidental repeats (two
+  /// round-number "Lunch $20" months apart) while true fixtures — a small and a large
+  /// coffee at stable prices — qualify within a couple of weeks. The base most-recent
+  /// amount per name always shows regardless of count.
+  static let variantRecurrenceThreshold: Int = 3
+
+  /// Maximum *extra* variant tiles per name beyond the base tile (so max 3 tiles share
+  /// one name). Keeps a single multi-price fixture from crowding other names out of
+  /// the row.
+  static let maxVariantsPerName: Int = 2
+
+  /// Compute the recents candidate corpus from a budget's expense history. Pure function;
   /// called from `AddEditExpenseViewModel.init` to populate `cachedRecentCandidates`.
   ///
-  /// **Algorithm: hash-then-sort.** One O(N) scan into a dict keyed by lowercased name,
-  /// keeping the most recent occurrence per unique name, then an O(M log M) sort of the
-  /// M unique entries by date descending, then `prefix(limit)`. For heavy-duplicate
-  /// budgets (M << N), this is much faster than sort-then-dedup, which would touch all
-  /// N entries up front. Worst case (every entry unique → M = N) it's O(N log N), no
-  /// worse than the naive approach.
+  /// **Algorithm: pair-aggregate, then group, then flatten.**
+  /// - **Pass 1 (O(N)):** aggregate expenses into (folded name, amount) pairs, tracking
+  ///   each pair's occurrence count and most-recent occurrence. Names fold for case AND
+  ///   diacritic insensitivity so "Café" / "cafe" / "CAFÉ" collapse — the same
+  ///   equivalence class the typed-query filter (`range(of:options:)`) considers equal.
+  /// - **Pass 2:** per name, the most-recent pair becomes the **base tile** (preserving
+  ///   the original "most recent amount wins" behavior as the floor); other pairs
+  ///   qualify as **variant tiles** only when their count meets
+  ///   `variantRecurrenceThreshold`, capped at `maxVariantsPerName`. The recurrence gate
+  ///   is what separates a real two-price fixture (small/large coffee) from one-off
+  ///   price jitter (groceries at $87.32 / $91.10 / $103.55 → one tile, not three).
+  /// - **Pass 3:** name groups sort by their most-recent date descending and flatten —
+  ///   base first, variants clustered immediately after, so duplicate names read as one
+  ///   family — then `prefix(recentsCorpusLimit)`.
   ///
-  /// **F-7.04 workshop defaults:**
-  /// - **Ranking:** recency-driven, descending. Duplicates by description (case-
-  ///   insensitive) collapse to the most recent occurrence, whose amount is the one
-  ///   surfaced.
+  /// **F-7.04 exclusions (unchanged):**
   /// - **Excludes Add Funds entries (F-6.01)** — surplus-direction rows don't reuse
   ///   meaningfully as expense suggestions.
-  /// - **Excludes unnamed entries** — "Untitled $7.50" isn't actionable as a suggestion.
+  /// - **Excludes unnamed entries** — "Untitled $7.50" isn't actionable as a suggestion,
+  ///   and description-optional quick logging would otherwise flood the row with bare
+  ///   amounts.
   static func computeRecentCandidates(
     for budget: Budget?,
-    limit: Int = recentsDisplayLimit
+    limit: Int = recentsCorpusLimit
   ) -> [RecentExpenseSuggestion] {
     guard let budget else { return [] }
-    // Pass 1 (O(N)): collapse to most-recent per unique name. The dict stores both the
-    // source ExpenseItem and its trimmed display name so Pass 2 doesn't re-trim.
-    var byKey: [String: (item: ExpenseItem, displayName: String)] = [:]
+    // Per-(name, amount) aggregate: the most recent source occurrence (whose model ID
+    // becomes the tile identity and whose trimmed name is the one displayed) plus the
+    // pair's total occurrence count for the recurrence gate.
+    struct PairAggregate {
+      var item: ExpenseItem
+      var displayName: String
+      var count: Int
+    }
+    // Pass 1 (O(N)): aggregate by folded name, then by exact amount within the name.
+    var byName: [String: [Decimal: PairAggregate]] = [:]
     for expense in budget.expenseItems {
       guard !expense.isAddFunds else { continue }
       let trimmed = (expense.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
       guard !trimmed.isEmpty else { continue }
-      // Fold the dedup key for case AND diacritic insensitivity so "Café" / "cafe" /
-      // "CAFÉ" all collapse — and so the dedup equivalence class matches what the
-      // filter (`range(of:options:)` below) considers equal.
       let key = foldedKey(trimmed)
-      if let existing = byKey[key], existing.item.date >= expense.date {
-        continue // existing is at least as recent — keep it
+      let amount = expense.displayAmount
+      if var existing = byName[key]?[amount] {
+        existing.count += 1
+        if expense.date > existing.item.date {
+          existing.item = expense
+          existing.displayName = trimmed
+        }
+        byName[key]?[amount] = existing
+      } else {
+        byName[key, default: [:]][amount] = PairAggregate(
+          item: expense, displayName: trimmed, count: 1
+        )
       }
-      byKey[key] = (expense, trimmed)
     }
-    // Pass 2 (O(M log M)): sort unique entries by recency, take top K.
-    return byKey.values
-      .sorted { $0.item.date > $1.item.date }
+    // Pass 2: per name, base tile (most recent pair) + recurrence-gated variants.
+    var groups: [[PairAggregate]] = []
+    for pairs in byName.values {
+      let sorted = pairs.values.sorted { $0.item.date > $1.item.date }
+      guard let base = sorted.first else { continue }
+      let variants = sorted.dropFirst()
+        .filter { $0.count >= Self.variantRecurrenceThreshold }
+        .prefix(Self.maxVariantsPerName)
+      groups.append([base] + variants)
+    }
+    // Pass 3: order groups by recency (a group's first tile is its most recent pair),
+    // flatten so variants cluster after their base, cap the corpus.
+    return groups
+      .sorted { $0[0].item.date > $1[0].item.date }
+      .flatMap(\.self)
       .prefix(limit)
       .map { record in
         RecentExpenseSuggestion(
@@ -86,17 +141,25 @@ extension AddEditExpenseViewModel {
     !cachedRecentCandidates.isEmpty
   }
 
-  /// Candidates filtered against the current typed query. Empty query → all candidates;
+  /// The tiles to render, filtered against the current typed query and capped for
+  /// display. Empty query → the corpus's first `recentsDisplayLimit` tiles (Cap A);
   /// non-empty query → case- AND diacritic-insensitive substring match against name (so
-  /// typing "cafe" finds a "Café" recent). The same equivalence is used to dedup the
-  /// candidate set; see `foldedKey(_:)`. Filter cost is O(K) — the candidate set is
-  /// already memoized and capped at `recentsDisplayLimit`.
+  /// typing "cafe" finds a "Café" recent) across the **full** memoized corpus — not just
+  /// the unfiltered row — then the same display cap (Cap B). The match equivalence is
+  /// the same folding used to group the corpus; see `foldedKey(_:)`. Filter cost is
+  /// O(C) per keystroke with C ≤ `recentsCorpusLimit`.
   var filteredRecentSuggestions: [RecentExpenseSuggestion] {
     let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !trimmed.isEmpty else { return cachedRecentCandidates }
-    return cachedRecentCandidates.filter {
-      $0.name.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+    guard !trimmed.isEmpty else {
+      return Array(cachedRecentCandidates.prefix(Self.recentsDisplayLimit))
     }
+    return Array(
+      cachedRecentCandidates
+        .filter {
+          $0.name.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+        }
+        .prefix(Self.recentsDisplayLimit)
+    )
   }
 
   /// True only when the Recents section should appear: Add mode with at least one
@@ -105,12 +168,23 @@ extension AddEditExpenseViewModel {
     !isEditing && hasRecentSources
   }
 
-  /// F-7.04: apply a tapped Recents suggestion to the draft. Writes both `name` and
-  /// `amount` AND resets the Add Funds toggle to off — a Recents tile represents a
-  /// prior expense, so the toggle is reset to match that semantic. Otherwise a user
-  /// who toggled Add Funds on (and abandoned the action) could silently log the
-  /// recent's amount as an add-funds adjustment. The date stays today/clamped per
-  /// F-2.04, and Save is not triggered — the user reviews then confirms.
+  /// F-7.04: apply a tapped Recents suggestion to the draft. Always writes `name` and
+  /// resets the Add Funds toggle to off — a Recents tile represents a prior expense,
+  /// so the toggle is reset to match that semantic; otherwise a user who toggled Add
+  /// Funds on (and abandoned the action) could silently log the recent's amount as an
+  /// add-funds adjustment.
+  ///
+  /// **Smart-apply provenance rule for `amount`:** the tile's amount is written only
+  /// when the draft amount is `.empty` or `.tileSeeded` (a previous tile's seed being
+  /// replaced by suggestion-switching). A `.userTyped` amount survives the tap — with
+  /// the section rendered as the Description field's autocomplete, the tap reads as
+  /// "complete the description," and completing one field must not silently destroy a
+  /// sibling the user just filled (the unnoticed-overwrite → wrong saved amount is the
+  /// costly failure mode; the reverse is visible and fixable in place). Escape hatch
+  /// when the user *does* want the tile's amount over their own: clear (✕) then re-tap.
+  ///
+  /// The date stays today/clamped per F-2.04, and Save is not triggered — the user
+  /// reviews then confirms.
   ///
   /// Emits an `expense_recent_reused` analytics event with strictly categorical, bucketed
   /// properties (no PII per analytics-spec.md §2.1): the budget's period, the number of
@@ -134,7 +208,9 @@ extension AddEditExpenseViewModel {
 
     isAddFunds = false
     name = suggestion.name
-    amount = suggestion.amount
+    if amountProvenance != .userTyped {
+      seedAmount(from: suggestion)
+    }
 
     let period = budget?.periodEnum ?? .daily
     analytics.track(
@@ -147,13 +223,40 @@ extension AddEditExpenseViewModel {
       ]
     )
   }
+
+  /// F-7.04 double-tap full replace: writes `name` AND `amount` unconditionally,
+  /// overriding the provenance rule — the explicit second tap is the user saying
+  /// "no, really, all of it." Also resets Add Funds, same as `applyRecent`.
+  ///
+  /// No analytics here: the double-tap's first tap already ran `applyRecent` and
+  /// emitted `expense_recent_reused` (the tile's tap gesture fires simultaneously with
+  /// the button action, not instead of it), so tracking again would double-count the
+  /// reuse. A dedicated full-replace property is deferred to the formalization pass.
+  func applyRecentFullReplace(_ suggestion: RecentExpenseSuggestion) {
+    isAddFunds = false
+    name = suggestion.name
+    seedAmount(from: suggestion)
+  }
+
+  /// Write a suggestion's amount into the draft as a tile seed: the observer-suppression
+  /// flag keeps `amount`'s `didSet` from classifying the write as user typing, and the
+  /// resulting `.tileSeeded` provenance lets a later tile tap replace it.
+  private func seedAmount(from suggestion: RecentExpenseSuggestion) {
+    isSeedingAmountFromSuggestion = true
+    amount = suggestion.amount
+    amountProvenance = .tileSeeded
+    isSeedingAmountFromSuggestion = false
+  }
 }
 
 // MARK: - View entry point
 
 extension AddEditExpenseView {
-  /// F-7.04 Recents section. Renders above the Amount card in Add mode when the budget
-  /// has prior expense candidates; hidden entirely otherwise.
+  /// F-7.04 Recents section. Renders below the Description card in Add mode when the
+  /// budget has prior expense candidates; hidden entirely otherwise. Placement is
+  /// deliberate: the Description field doubles as the tiles' filter query, so the
+  /// suggestions sit directly beneath their input (standard autocomplete idiom), while
+  /// the Amount card keeps the top slot for the amount-first quick-log flow.
   ///
   /// **Empty-state policy (two cases):**
   /// - *True-empty* (`hasRecentSources == false`) — the whole section is gone so the
@@ -280,6 +383,16 @@ private struct RecentsSectionView: View {
       .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
     .buttonStyle(.plain)
+    // Double-tap = full replace, overriding the amount-provenance rule. Deliberately
+    // `simultaneousGesture`, not a counted `onTapGesture` pair: a recognized-together
+    // gesture keeps single taps instant (no ~0.3s wait-for-second-tap delay), at the
+    // cost that a double-tap's first tap runs the normal smart apply before the second
+    // tap upgrades it — which converges to the same full-replace end state.
+    .simultaneousGesture(
+      TapGesture(count: 2).onEnded {
+        viewModel.applyRecentFullReplace(suggestion)
+      }
+    )
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(String(
       localized: "addEditExpense.recents.tile.accessibilityLabel",
@@ -291,6 +404,14 @@ private struct RecentsSectionView: View {
       defaultValue: "Fills the amount and description for review.",
       comment: "VoiceOver hint for an F-7.04 Recents tile; explains the tap populates the draft for review and does not save."
     ))
+    // VoiceOver parallel for the sighted double-tap (VO's own double-tap is activation).
+    .accessibilityAction(named: String(
+      localized: "addEditExpense.recents.tile.accessibilityAction.fullReplace",
+      defaultValue: "Replace amount and description",
+      comment: "VoiceOver custom action name on an F-7.04 Recents tile; mirrors the sighted double-tap that overwrites both fields even when the user already typed an amount."
+    )) {
+      viewModel.applyRecentFullReplace(suggestion)
+    }
   }
 
   /// Reserves the tile row's height with a quiet "No matches" label so the form below
@@ -376,6 +497,38 @@ private struct RecentsSectionView: View {
       ExpenseItem(amount: 4.50, name: "Morning coffee", date: now.addingTimeInterval(-3600)),
       ExpenseItem(amount: 9.25, name: "Lunch", date: now.addingTimeInterval(-7200)),
     ]
+    for expense in expenses {
+      expense.budget = budget
+    }
+    budget.expenseItems = expenses
+    return NavigationStack {
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget))
+    }
+    .modelContainer(PreviewContainer.make())
+    .environment(AppSettings())
+  }
+
+  #Preview("Recents — amount variants") {
+    // Expected tiles: TWO "Coffee" tiles clustered together (4.50 base + 5.75 variant,
+    // both recurring ≥ variantRecurrenceThreshold times) and ONE "Groceries" tile
+    // (three one-off jittered amounts collapse to the most recent).
+    let budget = Budget(name: "Daily — variants demo", currencyCode: "USD", period: .daily)
+    let now = Date()
+    budget.startDate = Calendar.current.date(byAdding: .day, value: -30, to: now)
+    var expenses: [ExpenseItem] = []
+    for day in 0 ..< 5 {
+      expenses.append(ExpenseItem(
+        amount: 4.50, name: "Coffee", date: now.addingTimeInterval(Double(-day) * 86400)
+      ))
+    }
+    for day in 0 ..< 3 {
+      expenses.append(ExpenseItem(
+        amount: 5.75, name: "Coffee", date: now.addingTimeInterval(Double(-day) * 86400 - 3600)
+      ))
+    }
+    expenses.append(ExpenseItem(amount: 87.32, name: "Groceries", date: now.addingTimeInterval(-7200)))
+    expenses.append(ExpenseItem(amount: 91.10, name: "Groceries", date: now.addingTimeInterval(-93600)))
+    expenses.append(ExpenseItem(amount: 103.55, name: "Groceries", date: now.addingTimeInterval(-180_000)))
     for expense in expenses {
       expense.budget = budget
     }

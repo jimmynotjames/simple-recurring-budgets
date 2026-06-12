@@ -11,7 +11,38 @@ final class AddEditExpenseViewModel {
     case edit(ExpenseItem)
   }
 
-  var amount: Decimal?
+  /// Who last wrote the `amount` draft. Drives the F-7.04 smart-apply rule in
+  /// `applyRecent`: a Recents tap only writes `amount` when the draft is `.empty` or
+  /// `.tileSeeded` — fresher user keystrokes always win over staler suggestion data,
+  /// and a silent overwrite the user might not notice before Save is the failure mode
+  /// this exists to prevent.
+  enum AmountProvenance {
+    /// No amount in the draft (initial state, or the user cleared/deleted it).
+    case empty
+    /// The user typed (or edited to) the current amount this session.
+    case userTyped
+    /// A Recents tile seeded the current amount; a later tile tap may replace it.
+    case tileSeeded
+  }
+
+  var amount: Decimal? {
+    didSet {
+      // Classify the write. Skipped for tile seeds (`applyRecent` sets the flag and
+      // classifies as `.tileSeeded` itself) and for echo writes — after an external
+      // write, `CurrencyAmountField` re-seeds its text and re-parses it back through
+      // the binding with an equal value, which must not be mistaken for typing.
+      guard !isSeedingAmountFromSuggestion, amount != oldValue else { return }
+      amountProvenance = amount == nil ? .empty : .userTyped
+    }
+  }
+
+  /// See `AmountProvenance`. Internal (not `private(set)`) because `applyRecent` lives
+  /// in `AddEditExpenseView+RecentsSection.swift` and reclassifies on tile seed.
+  @ObservationIgnored var amountProvenance: AmountProvenance = .empty
+  /// True while `applyRecent` writes `amount`, so the property observer above doesn't
+  /// classify the tile seed as user typing. Internal for the same cross-file reason.
+  @ObservationIgnored var isSeedingAmountFromSuggestion = false
+
   var name: String
   var date: Date
   let currencyCode: String
@@ -59,11 +90,13 @@ final class AddEditExpenseViewModel {
   /// post-end clamped-default caption (F-2.04). `nil` outside the post-end case.
   private let cachedEndDateFormatted: String?
 
-  /// F-7.04 Recents candidates, memoized at sheet-open. Recomputing during typing would
-  /// re-sort and re-dedup `budget.expenseItems` on every keystroke; caching reduces the
-  /// per-keystroke filter cost to O(K). Always populated (including Edit mode, where the
-  /// section is hidden) so a future presentation change doesn't strand a stale empty.
-  /// See `AddEditExpenseView+RecentsSection.swift` for the algorithm.
+  /// F-7.04 Recents search corpus, memoized at sheet-open: up to `recentsCorpusLimit`
+  /// candidate tiles. Typing filters this full corpus; `filteredRecentSuggestions`
+  /// applies the smaller `recentsDisplayLimit` cap to what's rendered. Recomputing
+  /// during typing would re-aggregate `budget.expenseItems` on every keystroke; caching
+  /// reduces the per-keystroke filter cost to O(C). Always populated (including Edit
+  /// mode, where the section is hidden) so a future presentation change doesn't strand
+  /// a stale empty. See `AddEditExpenseView+RecentsSection.swift` for the algorithm.
   let cachedRecentCandidates: [RecentExpenseSuggestion]
 
   var isEditing: Bool {

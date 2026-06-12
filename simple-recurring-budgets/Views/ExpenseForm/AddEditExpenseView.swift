@@ -21,9 +21,9 @@ struct AddEditExpenseView: View {
   var body: some View {
     ScrollView {
       VStack(spacing: 16) {
-        recentsSection
         amountCard
         nameCard
+        recentsSection
         whenCard
         addFundsCard
         if viewModel.isEditing {

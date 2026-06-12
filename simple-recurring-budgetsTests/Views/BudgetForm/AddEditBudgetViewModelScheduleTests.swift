@@ -254,6 +254,48 @@ struct AddEditBudgetViewModelScheduleTests {
     #expect(budget.endDate == nil)
   }
 
+  @Test func saveEdit_recurring_combinedStartDateAndAllocationEdit_stampsAllocationOnNewGrid() throws {
+    // Audit L6: when one Save edits BOTH the startDate (re-anchoring the weekly
+    // grid) and the allocation, the new amount must be stamped at the current
+    // period start of the NEW grid. The old ordering computed it from the
+    // pre-edit grid; when the new anchor moved the current period start
+    // earlier, the freshly typed amount landed mid-period and the current
+    // period silently kept the old allocation.
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let today = cal.startOfDay(for: Date())
+
+    // Old anchor: today's weekday (start two weeks ago) → old current period
+    // starts today. New anchor: yesterday's weekday (start 15 days ago) → new
+    // current period starts yesterday, i.e. EARLIER — the broken direction.
+    let originalStart = try #require(cal.date(byAdding: .day, value: -14, to: today))
+    let newStart = try #require(cal.date(byAdding: .day, value: -15, to: today))
+    let expectedNewPeriodStart = try #require(cal.date(byAdding: .day, value: -1, to: today))
+
+    let budget = Budget(name: "Coffee", currencyCode: "USD", period: .weekly, isCarryOverEnabled: true)
+    budget.startDate = originalStart
+    let change = AllocationChange(effectiveFrom: originalStart, amount: 100)
+    change.budget = budget
+    budget.allocationChangesStorage = [change]
+    context.insert(budget)
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.startDate = newStart
+    vm.allocation = 150
+    try vm.save(context: context)
+
+    // The new amount's row sits on the new grid's current period boundary…
+    let allocs = try context.fetch(FetchDescriptor<AllocationChange>())
+    let newRow = try #require(allocs.first(where: { $0.amount == 150 }))
+    #expect(newRow.effectiveFrom == expectedNewPeriodStart)
+    // …so the user-visible current period actually uses the amount they typed.
+    let snapshot = BudgetCalculator.snapshot(
+      budget: budget, expenses: [], now: Date(), calendar: cal
+    )
+    #expect(snapshot.effectiveAllocation == 150)
+  }
+
   @Test func saveEdit_specificDates_startDateEdit_stillRealignsAllocation() throws {
     // Defence: the specific-dates realignment must continue to work; the change
     // I made for recurring (no realignment) MUST NOT regress this case.

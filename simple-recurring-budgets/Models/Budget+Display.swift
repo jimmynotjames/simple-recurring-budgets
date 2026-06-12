@@ -13,6 +13,11 @@ extension Budget {
   /// ranges). A same-day Specific Dates budget is a valid 1-day window per the
   /// `Budget.endDate` inclusive-day convention.
   ///
+  /// **Inverted window** (`endDate < startDate` — a data-integrity violation, typically
+  /// a partial CloudKit sync; see `Budget.isWindowValid`): `Range` construction would
+  /// trap, and this label renders on every Budgets-list row, so the helper degrades to
+  /// the single start date in release and trips an assert in debug.
+  ///
   /// **Why `..<` and not `...`:** `Date.IntervalFormatStyle.format(_:)` only accepts
   /// `Range<Date>` (half-open); there's no closed-range overload. The formatter just
   /// emits both bounds as dates, so the rendered string is identical to what a closed
@@ -21,6 +26,10 @@ extension Budget {
   @MainActor var periodDisplayLabel: String {
     let p = periodEnum
     if p == .specificDates, let start = startDate, let end = endDate {
+      // Defense-in-depth (mirrors `AddEditExpenseViewModel.dateRange`): trip in debug
+      // on an inverted window; in release the helper degrades to a single-date render
+      // so the Budgets list cannot crash on a corrupt record.
+      assert(isWindowValid, "periodDisplayLabel: inverted budget window — endDate < startDate")
       return Self.specificDatesDisplayLabel(start: start, end: end)
     }
     return p.listLabel
@@ -30,7 +39,11 @@ extension Budget {
   /// previews can produce the same string production renders without duplicating the
   /// formatter configuration.
   static func specificDatesDisplayLabel(start: Date, end: Date) -> String {
-    if start == end {
+    // `>=` (not `==`) so an inverted window (endDate < startDate) takes the single-date
+    // path instead of trapping in the `Range` construction below. The debug assert for
+    // that integrity violation lives in `periodDisplayLabel` (the production call site),
+    // keeping this helper pure so tests can exercise the degraded render directly.
+    if start >= end {
       return start.formatted(date: .abbreviated, time: .omitted)
     }
     return (start ..< end).formatted(

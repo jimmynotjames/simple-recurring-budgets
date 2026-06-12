@@ -22,6 +22,28 @@
       return budget
     }
 
+    /// Daily budget with future-dated expenses — exercises the "Upcoming" bucket
+    /// (audit L2): one expense tomorrow, one next week (a different future period),
+    /// plus current-period and past entries so all three sections render together.
+    static func detailDailyWithUpcoming(now: Date = Date()) -> Budget {
+      let budget = Budget(name: "Food & Coffee", currencyCode: "USD", period: .daily)
+      let cal = Calendar.current
+      let startDate = cal.date(byAdding: .day, value: -3, to: cal.startOfDay(for: now))!
+      budget.startDate = startDate
+      let days: (Int) -> Date = { cal.date(byAdding: .day, value: $0, to: now) ?? now }
+      let expenses = [
+        ExpenseItem(amount: 4.50, name: "Morning coffee", date: now.addingTimeInterval(-3600)),
+        ExpenseItem(amount: 9.25, name: "Lunch", date: now.addingTimeInterval(-7200)),
+        ExpenseItem(amount: 11.80, name: "Groceries", date: days(-1)),
+        // Future-dated (Upcoming bucket): tomorrow + a different future period.
+        ExpenseItem(amount: 32.00, name: "Birthday dinner", date: days(1)),
+        ExpenseItem(amount: 58.00, name: "Concert tickets", date: days(6)),
+      ]
+      attachToDetail(expenses, to: budget)
+      addDetailChange(amount: 25, startDate: startDate, to: budget)
+      return budget
+    }
+
     static func detailMonthlyCurrentAndPast(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Monthly Discretionary", currencyCode: "USD", period: .monthly)
       let cal = Calendar.current

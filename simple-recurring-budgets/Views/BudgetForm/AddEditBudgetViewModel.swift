@@ -268,6 +268,15 @@ final class AddEditBudgetViewModel {
       budget.icon = icon
       iconChanged = true
     }
+    // Date edits MUST precede the allocation edit (audit L6): for weekly/biweekly
+    // budgets a startDate edit re-anchors the whole period grid, and
+    // `applyAllocationEdit` stamps the new amount at the *current period start* —
+    // computed from whatever startDate the budget carries at that moment. Running
+    // dates first stamps the amount on the grid the user just chose. The previous
+    // order pinned it to the pre-edit grid, where it could land mid-period under
+    // the new anchoring and not take effect until the next boundary — the current
+    // period kept the old amount while the header displayed the new one.
+    let dateEdits = applyDateEdits(to: budget)
     if let newAlloc = allocation, budget.currentAllocation != newAlloc {
       try BudgetLifecycleService.applyAllocationEdit(
         budget,
@@ -285,7 +294,6 @@ final class AddEditBudgetViewModel {
       budget.isCarryOverEnabled = isCarryOverEnabled
       carryOverToggleChanged = true
     }
-    let dateEdits = applyDateEdits(to: budget)
     let changed = nameChanged || iconChanged || allocationChanged || currencyChanged
       || carryOverToggleChanged || dateEdits.startChanged || dateEdits.endChanged
     if changed {

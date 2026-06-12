@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 // MARK: - SaveErrorState
@@ -11,7 +12,15 @@ import SwiftUI
 ///   caller's success path is responsible for clearing it (typically by
 ///   re-setting the bound `@State` to `nil` after the next successful save,
 ///   handled by `setForFailure` / `clear` here).
-/// - **Cancel** clears the state but does not dismiss the host sheet.
+/// - **Cancel** clears the state and **rolls back the context's pending
+///   changes** (the failed mutation), then leaves the host sheet open. Without
+///   the rollback the abandoned mutation lingers unsaved in the main context —
+///   the UI diverges from the store (e.g. a swipe-deleted row stays hidden),
+///   tapping Save again on an Add sheet would stack a second pending insert,
+///   and the main context's default autosave could silently commit the
+///   "cancelled" change later. Spec: "no data is persisted" on cancel.
+/// - **Send Feedback** (escalated path) abandons the operation the same way —
+///   it also rolls back before clearing.
 /// - When `consecutiveFailureCount >= 3` the alert also exposes **Send Feedback**.
 struct SaveErrorState: Identifiable, Equatable {
   let id = UUID()
@@ -69,9 +78,14 @@ extension SaveErrorState? {
 extension View {
   /// Presents the standard save-error alert when `state` is non-nil.
   ///
-  /// The bound state is cleared by the alert's Cancel / Send Feedback buttons.
-  /// Retry invokes `state.retry` but leaves the state in place — the caller's
+  /// The bound state is cleared by the alert's Cancel / Send Feedback buttons,
+  /// which also roll back the model context's pending (failed) changes — see
+  /// the abandonment rationale on `SaveErrorState`. Retry invokes `state.retry`
+  /// but leaves the state and the pending changes in place — the caller's
   /// success branch should clear it after the next successful save.
+  ///
+  /// Requires a `.modelContainer` ancestor (true for every production screen
+  /// and preview that performs saves).
   func saveErrorAlert(_ state: Binding<SaveErrorState?>) -> some View {
     modifier(SaveErrorAlertModifier(state: state))
   }
@@ -80,6 +94,7 @@ extension View {
 private struct SaveErrorAlertModifier: ViewModifier {
   @Binding var state: SaveErrorState?
   @Environment(\.openURL) private var openURL
+  @Environment(\.modelContext) private var context
 
   func body(content: Content) -> some View {
     content.alert(
@@ -114,6 +129,9 @@ private struct SaveErrorAlertModifier: ViewModifier {
             errorCode: current.errorCode
           )
           openURL(url)
+          // Abandoning the operation — discard the failed mutation so it can't
+          // linger pending and commit later (see `SaveErrorState` doc).
+          context.rollback()
           state = nil
         }
       }
@@ -123,6 +141,9 @@ private struct SaveErrorAlertModifier: ViewModifier {
         defaultValue: "Cancel",
         comment: "Button that dismisses the save-failure alert without retrying. The host sheet stays open with the user's input intact."
       ), role: .cancel) {
+        // Abandoning the operation — discard the failed mutation so the UI and
+        // store agree and autosave can't commit it later (see `SaveErrorState`).
+        context.rollback()
         state = nil
       }
     } message: { current in

@@ -5,20 +5,22 @@ import SwiftData
 
 /// The display-ready output of a `BudgetLifecycleService.result(for:)` call.
 ///
-/// `effectiveAllocation` from `BudgetSnapshot` is intentionally not exposed here — it
-/// will be plumbed when the start-date / end-date input UI ships (F-7.05 / F-7.07).
+/// `effectiveAllocation` from `BudgetSnapshot` is intentionally not exposed here —
+/// the F-7.05 / F-7.07 date-input UI shipped without needing it (view surfaces read
+/// `Budget.currentAllocation`, which `applyAllocationEdit` keeps equal to the
+/// current period's in-effect allocation). Plumb it only if a surface ever needs
+/// the period-accurate value for a non-current period.
 struct BudgetLifecycleResult: Equatable {
   /// `effectiveAllocation − net expenses in current period`. May be negative.
   /// Not adjusted by carry-over (PRD §6.7).
   let remaining: Decimal
   /// Carry-over from completed prior active periods plus the current-period spillover.
   /// Maps to `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that
-  /// `BudgetCalculator.snapshot` returns for `.specificDates` budgets — see F-2.08, which
-  /// requires the carry-over chip to be **hidden** for that type (the chip-hiding work
-  /// lives in `BudgetDetailView` and `BudgetRowView` and ships with the F-2.08 UI). Until
-  /// then this fallback is unreachable in normal flow; the F-2.08 work should either
-  /// stop calling this entry point for specificDates budgets or replace `BudgetLifecycleResult`
-  /// with a sum type that does not flatten `nil`.
+  /// `BudgetCalculator.snapshot` returns for `.specificDates` budgets and is exercised
+  /// on every specificDates read. The flattened `0` is never rendered: per F-2.08 both
+  /// surfaces hide the carry-over chip for that type by passing
+  /// `isCarryOverEnabled && !isSpecificDates` into `StatusChipRow` — see
+  /// `BudgetDetailView.headerRow` and `BudgetRowView`.
   let carryOverAmount: Decimal
   /// Inclusive start of the current budget period.
   let periodStart: Date

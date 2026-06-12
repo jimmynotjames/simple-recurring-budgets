@@ -50,6 +50,22 @@ struct BudgetDisplayTests {
     #expect(!label.contains("–"))
   }
 
+  @Test func specificDatesDisplayLabel_invertedWindow_rendersStartDateWithoutTrapping() {
+    // Inverted window (endDate < startDate) — a data-integrity violation, typically a
+    // partial CloudKit sync. `Range` construction would trap; the helper must degrade
+    // to the single start date so the Budgets list cannot crash on a corrupt record.
+    // Calls the static helper directly: the production call site (`periodDisplayLabel`)
+    // carries a debug assert for this state, which would trip under the test runner.
+    let label = Budget.specificDatesDisplayLabel(
+      start: Self.d(2026, 5, 25),
+      end: Self.d(2026, 5, 8)
+    )
+    #expect(label.contains("May"))
+    #expect(label.contains("25"))
+    // Single-date form — no range separator.
+    #expect(!label.contains("–"))
+  }
+
   @Test func periodDisplayLabel_specificDates_yearCrossing_includesYear() {
     let budget = Budget(period: .specificDates)
     budget.startDate = Self.d(2025, 12, 28)

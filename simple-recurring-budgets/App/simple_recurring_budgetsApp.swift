@@ -24,9 +24,11 @@ struct simple_recurring_budgetsApp: App {
     _startup = State(initialValue: initialStartup)
 
     let initialSettings = AppSettings()
-    // SyncStatus presents an iCloud indicator in Settings; on the failure
-    // path, no RootView/SettingsView are constructed, so the seed value
-    // doesn't matter. Default to `.localFallback` when no backing exists.
+    // SyncStatus presents an iCloud indicator in Settings. On the failure
+    // path no RootView/SettingsView are constructed, so seed a placeholder
+    // `.localFallback`; the ContainerFailureView Retry handler in `body`
+    // overwrites it with the real backing once a retry succeeds, so Settings
+    // never misreports local-only after recovery.
     let initialSyncStatus = SyncStatus(
       containerBacking: initialStartup.containerBacking ?? .localFallback
     )
@@ -125,6 +127,14 @@ struct simple_recurring_budgetsApp: App {
         // and the failure view does not need them.
         ContainerFailureView(error: error) {
           startup.retry()
+          // A successful retry resolved a real backing — correct the
+          // placeholder seed so the Settings iCloud row reflects the live
+          // container instead of claiming local-only until the next launch
+          // (general-code-audit-2026-06-11 L1). No-op on a failed retry
+          // (`containerBacking` stays nil and the failure surface persists).
+          if let backing = startup.containerBacking {
+            syncStatus.containerBacking = backing
+          }
         }
       }
     }

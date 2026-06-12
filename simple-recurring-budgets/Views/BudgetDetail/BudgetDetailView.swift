@@ -357,6 +357,11 @@ struct BudgetDetailView: View {
     .onChange(of: budget.recomputeToken) {
       refreshLifecycle()
     }
+    // Recompute when a period boundary passes while the app stays foregrounded
+    // (issue #70) — scenePhase/recomputeToken don't fire at midnight.
+    .onCalendarDayChange {
+      refreshLifecycle()
+    }
   }
 
   // MARK: - Header row
@@ -504,6 +509,12 @@ struct BudgetDetailView: View {
   // Both current and past period expenses (monthly, long — exceeds screen height). With icon.
   #Preview("Current & Past Months") {
     BudgetDetailPreview(budget: DebugData.detailMonthlyCurrentAndPast(), icon: "🛍️")
+  }
+
+  // Future-dated expenses — "Upcoming" bucket above the current section;
+  // current and past sections render below (audit L2). With icon.
+  #Preview("Upcoming · Daily") {
+    BudgetDetailPreview(budget: DebugData.detailDailyWithUpcoming(), icon: "🍔")
   }
 
   // No current-period expenses; all expenses are from past periods (weekly budget).

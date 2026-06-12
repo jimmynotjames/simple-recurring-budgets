@@ -22,8 +22,19 @@ extension BudgetDetailView {
         .listRowSeparator(.hidden)
       }
     } else {
-      let current = currentPeriodExpenses
+      let future = futurePeriodExpenses
       let past = pastPeriodExpenses
+      let current = currentPeriodExpenses
+      // Future-dated expenses live above the current section (the list is
+      // reverse-chronological) in a single "Upcoming" bucket for all future
+      // periods — they don't count toward Remaining until their date arrives,
+      // so mixing them into the current section made its total disagree with
+      // the headline (audit L2).
+      if !future.isEmpty {
+        Section(futureSectionTitle) {
+          ForEach(future) { expense in expenseRow(expense) }
+        }
+      }
       if current.isEmpty {
         Section(currentSectionTitle) {
           Text(currentPeriodEmptyText)
@@ -139,8 +150,15 @@ extension BudgetDetailView {
     currentPeriodExpenses.reduce(0) { $0 + $1.amount }
   }
 
-  private var partitionedExpenses: (current: [ExpenseItem], past: [ExpenseItem]) {
-    budget.expenseItems.partitioned(byPeriodStart: lifecycle?.periodStart)
+  private var partitionedExpenses: PartitionedExpenses {
+    budget.expenseItems.partitioned(
+      byPeriodStart: lifecycle?.periodStart,
+      periodEnd: lifecycle?.periodEnd
+    )
+  }
+
+  var futurePeriodExpenses: [ExpenseItem] {
+    partitionedExpenses.future
   }
 
   var currentPeriodExpenses: [ExpenseItem] {
@@ -149,6 +167,17 @@ extension BudgetDetailView {
 
   var pastPeriodExpenses: [ExpenseItem] {
     partitionedExpenses.past
+  }
+
+  /// Single bucket for all future-dated expenses, regardless of period type —
+  /// unlike `currentSectionTitle` / `pastSectionTitle` there is no per-period
+  /// variant (audit L2 decision).
+  var futureSectionTitle: String {
+    String(
+      localized: "budgetDetail.section.future",
+      defaultValue: "Upcoming",
+      comment: "Section header on the Budget detail screen for expenses dated after the current period ends — a single bucket for all future-dated entries, shown above the current-period section. One word — keep terse."
+    )
   }
 
   var currentSectionTitle: String {

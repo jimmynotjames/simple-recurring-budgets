@@ -20,7 +20,7 @@ enum FeedbackMailto {
   static var defaultSubject: String {
     String(
       localized: "feedback.email.subject",
-      defaultValue: "Budgets app feedback",
+      defaultValue: "Wren app feedback",
       comment: "Subject line of the email that opens when the user taps Send Feedback in Settings."
     )
   }

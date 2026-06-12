@@ -43758,6 +43758,312 @@
         }
       }
     },
+    "budgetDetail.section.future": {
+      "comment": "Section header on the Budget detail screen for expenses dated after the current period ends — a single bucket for all future-dated entries, shown above the current-period section. One word — keep terse.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "القادم"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "আসন্ন"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propers"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nadcházející"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kommende"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anstehend"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Επερχόμενα"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximos"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tulevat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À venir"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À venir"
+          }
+        },
+        "gu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "આવતું"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "קרוב"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आने वाले"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nadolazeće"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Közelgő"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mendatang"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prossimi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今後"
+          }
+        },
+        "kn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ಮುಂದಿನ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "예정"
+          }
+        },
+        "ml": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "വരാവുന്നത്"
+          }
+        },
+        "mr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "येणारे"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mendatang"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kommende"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komend"
+          }
+        },
+        "or": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ଆସନ୍ନ"
+          }
+        },
+        "pa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ਆਉਂਦਾ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przyszłe"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximos"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximas"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viitoare"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предстоящие"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nadchádzajúce"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prihajajoče"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kommande"
+          }
+        },
+        "ta": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "விரைவில்"
+          }
+        },
+        "te": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "రాబోయే"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ที่จะมา"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yaklaşan"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Майбутні"
+          }
+        },
+        "ur": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آنے والے"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sắp tới"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待支出"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待支"
+          }
+        }
+      }
+    },
     "budgetDetail.section.past.biweekly": {
       "comment": "Section header for expenses from previous biweekly periods",
       "localizations": {
@@ -57202,37 +57508,37 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ملاحظات حول Wren"
+            "value": "تعليقات تطبيق Wren"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren এর জন্য মতামত"
+            "value": "Wren অ্যাপ প্রতিক্রিয়া"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comentaris per a Wren"
+            "value": "Comentaris sobre Wren"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zpětná vazba pro Wren"
+            "value": "Zpětná vazba k aplikaci Wren"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback til Wren"
+            "value": "Wren-feedback"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback für Wren"
+            "value": "Feedback zur Wren App"
           }
         },
         "el": {
@@ -57244,139 +57550,139 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback for Wren"
+            "value": "Wren app feedback"
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback for Wren"
+            "value": "Wren app feedback"
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback for Wren"
+            "value": "Wren app feedback"
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback for Wren"
+            "value": "Wren app feedback"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comentarios para Wren"
+            "value": "Comentarios de Wren"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comentarios para Wren"
+            "value": "Comentarios de Wren"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Palaute – Wren"
+            "value": "Wren-sovelluksen palaute"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Retour sur Wren"
+            "value": "Commentaires Wren"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Commentaires pour Wren"
+            "value": "Commentaires sur Wren"
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren માટે પ્રતિસાદ"
+            "value": "Wren app ફીડબેક"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "משוב על Wren"
+            "value": "פידבק על אפליקציית Wren"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren के लिए फ़ीडबैक"
+            "value": "Wren ऐप्प के बारे में प्रतिक्रिया"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Povratne informacije za Wren"
+            "value": "Povratne informacije Wrena"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Visszajelzés a Wrenről"
+            "value": "Wren alkalmazás visszajelzés"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Masukan untuk Wren"
+            "value": "Umpan balik aplikasi Wren"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback per Wren"
+            "value": "Feedback su Wren"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wrenへのフィードバック"
+            "value": "Wrenアプリフィードバック"
           }
         },
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren ಗಾಗಿ ಪ್ರತಿಕ್ರಿಯೆ"
+            "value": "Wren ಪ್ರತಿಕ್ರಿಯೆ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren 피드백"
+            "value": "Wren 앱 피드백"
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren ന് ഫീഡ്‌ബാക്ക്"
+            "value": "Wren ആപ്പ് ഫീഡ്‌ബാക്ക്"
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren साठी प्रतिक्रिया"
+            "value": "Wren ऍप प्रतिक्रिया"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maklum Balas untuk Wren"
+            "value": "Maklum balas Wren"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tilbakemelding om Wren"
+            "value": "Tilbakemelding om Wren-appen"
           }
         },
         "nl": {
@@ -57388,49 +57694,49 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren ପାଇଁ ମତାମତ"
+            "value": "Wren ଆପର ମତାମତ"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren ਲਈ ਫੀਡਬੈਕ"
+            "value": "Wren ਐਪ ਸਮੀਖਿਆ"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opinia o Wren"
+            "value": "Opinia o aplikacji Wren"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback para o Wren"
+            "value": "Feedback do Wren"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback para o Wren"
+            "value": "Feedback da Wren"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback pentru Wren"
+            "value": "Feedback app Wren"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отзыв о Wren"
+            "value": "Отзыв о приложении Wren"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spätná väzba pre Wren"
+            "value": "Spätna väzba Wren"
           }
         },
         "sl": {
@@ -57442,61 +57748,61 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback om Wren"
+            "value": "Feedback för Wren"
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren க்கான கருத்து"
+            "value": "Wren பயன்பாட கருத்து"
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren కోసం ప్రతిపాదన"
+            "value": "Wren యాప్ ఫీడ్‌బ్యాక్"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ความคิดเห็นสำหรับ Wren"
+            "value": "ข้อเสนอแนะเกี่ยวกับแอป Wren"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren için geri bildirim"
+            "value": "Wren geri bildirimi"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Відгук про Wren"
+            "value": "Відгук застосунку Wren"
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren کے لیے تاثرات"
+            "value": "Wren ایپ کی رائے"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Phản hồi về Wren"
+            "value": "Phản hồi ứng dụng Wren"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren 反馈"
+            "value": "Wren 应用反馈"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren 意見回饋"
+            "value": "Wren 應用程式意見反應"
           }
         }
       }

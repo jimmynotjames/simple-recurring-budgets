@@ -48,9 +48,9 @@ The fields are:
 - **Currency** (`String`, ISO-4217 code) — selected via a currency pill button on the Allocation card; the pill displays the current code with a `chevron.up.chevron.down` SF Symbol and opens the currency picker on activation. Accessibility label `"Currency, <code>"` (key `addEditBudget.field.currency.accessibilityLabel`); accessibility hint `"Opens currency picker"` (key `addEditBudget.field.currency.accessibilityHint`). The view SHALL capture the budget's `currencyCode` at sheet-open time into a private `initialCurrencyCode` view-state value (via `.onAppear`). When `viewModel.currencyCode` differs from `initialCurrencyCode`, the Allocation card SHALL render an inline caption beneath the amount/pill row showing the localized text `"Changing currency only updates the label. I.e. No currency conversion."` (key `addEditBudget.note.currencyLabelOnly`). The caption SHALL be styled `.font(.caption)` and `.foregroundStyle(.secondary)`, and SHALL transition in via `.opacity.combined(with: .move(edge: .top))` animated by `.easeInOut(duration: 0.2)` keyed to `viewModel.currencyCode`. When `viewModel.currencyCode` first diverges from `initialCurrencyCode`, the view SHALL post an `AccessibilityNotification.Announcement` containing the same localized text so VoiceOver users hear the disclaimer without needing to navigate to the caption.
 - **Period** (`BudgetPeriod`) — selected from a chip group in the Period card. The four recurring cases (`.daily`, `.weekly`, `.biweekly`, `.monthly`) SHALL render in a 2×2 `LazyVGrid`. The `.specificDates` case SHALL render as a separate full-width chip directly below the grid (visually distinguishing the non-recurring case). The selected chip SHALL render with the accent colour fill and white foreground, with `.fontWeight(.semibold)`; unselected chips SHALL render with a low-opacity secondary background and primary foreground, with `.fontWeight(.regular)`. Each chip SHALL declare `.accessibilityAddTraits(.isSelected)` when it is the active selection. Each chip SHALL provide a per-period accessibility label (key `addEditBudget.chip.period.accessibilityLabel`, e.g. `"Daily period"`, `"Specific Dates period"`).
 
-  In **Add mode**, every chip SHALL be a tappable `Button`; tapping a chip SHALL set `viewModel.period` to that case (animated by `.easeInOut(duration: 0.15)`). In **Edit mode**, chips SHALL be rendered as static `Text`-based labels (NOT `Button`s); tapping a chip SHALL have no effect. In Edit mode, non-selected chips SHALL render with a more subdued background (`Color.secondary.opacity(0.06)`) and a dimmed foreground (`Color.primary.opacity(0.3)`); the selected chip retains the accent fill and white foreground. In Edit mode, every chip SHALL declare an additional accessibility hint with the localized text `"Locked. Period can't be changed after creating your budget."` (key `addEditBudget.chip.period.locked.accessibilityHint`); in Add mode no such hint is applied.
+  In **Add mode**, every chip SHALL be a tappable `Button`; tapping a chip SHALL set `viewModel.period` to that case (animated by `.easeInOut(duration: 0.15)`). In **Edit mode**, chips SHALL be rendered as static `Text`-based labels (NOT `Button`s); tapping a chip SHALL have no effect. In Edit mode, non-selected chips SHALL render with a more subdued background (`Color.secondary.opacity(0.06)`) and a dimmed foreground (`Color.primary.opacity(0.3)`); the selected chip retains the accent fill and white foreground. In Edit mode, every chip SHALL declare an additional accessibility hint with the localized text `"Locked. Period type can't be changed after creating your budget."` (key `addEditBudget.chip.period.locked.accessibilityHint`); in Add mode no such hint is applied.
 
-  In Edit mode, the Period card SHALL render a `Label` directly below the chip grid (below the `.specificDates` chip when applicable) using `systemImage: "lock.fill"` and the localized text `"This can't be changed after creating your budget."` (key `addEditBudget.note.periodLocked`), styled `.font(.caption)` and `.foregroundStyle(.secondary)`. The caption SHALL NOT render in Add mode.
+  In Edit mode, the Period card SHALL render a `Label` directly below the chip grid (below the `.specificDates` chip when applicable) using `systemImage: "lock.fill"` and the localized text `"Period type can't be changed after creating your budget."` (key `addEditBudget.note.periodLocked`), styled `.font(.caption)` and `.foregroundStyle(.secondary)`. The caption SHALL NOT render in Add mode. The wording names the *period type* specifically because the start/end dates remain editable in Edit mode for every period type — only the period type is immutable post-creation.
 - **Carry-Over** (`Bool`) — a `Toggle` in the Carry-Over card titled `"Carry-Over"` (key `addEditBudget.section.carryOver`). The toggle SHALL be tinted with the accent colour. A short caption (key `addEditBudget.note.carryOver`) SHALL render below the toggle in both on and off states (per `docs/main-prd.md` §6.7: the underlying carry-over figure is maintained internally even when display is off, so the caption remains accurate either way). The Carry-Over card SHALL NOT render when `viewModel.period == .specificDates` (see F-2.08 and the "Specific Dates conditional UI" requirement).
 - **Start Date** (`Date?` in `AddEditBudgetViewModel`) and **End Date** (`Date?`) — bound to the two `DateColumn` buttons in the Dates card; surfaced only when `viewModel.period == .specificDates` (see the "Specific Dates conditional UI" requirement for full details).
 
@@ -137,17 +137,17 @@ The fields are:
 #### Scenario: Locked period chips carry a VoiceOver hint
 
 - **WHEN** the sheet is presented in Edit mode and VoiceOver focus moves to any period chip
-- **THEN** VoiceOver announces the chip's per-period label followed by the localized hint sourced from `addEditBudget.chip.period.locked.accessibilityHint` ("Locked. Period can't be changed after creating your budget.")
+- **THEN** VoiceOver announces the chip's per-period label followed by the localized hint sourced from `addEditBudget.chip.period.locked.accessibilityHint` ("Locked. Period type can't be changed after creating your budget.")
 
 #### Scenario: Period card shows a lock caption in Edit mode
 
 - **WHEN** the sheet is presented in Edit mode
-- **THEN** the Period card renders a `Label` below the chip grid with `systemImage: "lock.fill"` and the localized text from `addEditBudget.note.periodLocked` ("This can't be changed after creating your budget.")
+- **THEN** the Period card renders a `Label` below the chip grid with `systemImage: "lock.fill"` and the localized text from `addEditBudget.note.periodLocked` ("Period type can't be changed after creating your budget.")
 
 #### Scenario: Period card does not show a lock caption in Add mode
 
 - **WHEN** the sheet is presented in Add mode
-- **THEN** the Period card renders only the chips (and, when `.specificDates` is selected, the explanatory blurb); no lock caption is rendered
+- **THEN** the Period card renders only the chips (and, when `.specificDates` is selected, the explanatory blurb; when `.biweekly` is selected, the biweekly note); no lock caption is rendered
 
 #### Scenario: Currency-change inline caption appears when draft currency diverges from initial
 
@@ -376,13 +376,15 @@ When the user activates the Save toolbar button in Edit mode on a recurring-peri
 
 The alert's title SHALL be the localized string for key `addEditBudget.orphanWarning.title` (en-US source: `"Start date is after \(count) logged expenses"`, where `count` is the number of items in `Budget.expenseItems` whose `date` is before the drafted `startDate`). The alert's message SHALL be the localized string for key `addEditBudget.orphanWarning.message` (en-US source: `"Those expenses still show in your list but won't be counted by this budget."`). The cancel button SHALL use key `addEditBudget.orphanWarning.cancel` (en-US source: `"Cancel"`, `role: .cancel`). The confirm button SHALL use key `addEditBudget.orphanWarning.confirm` (en-US source: `"Save Changes"`) and SHALL invoke the same `viewModel.save(...)` + `dismiss()` sequence the bare Save toolbar button invokes today.
 
-The count SHALL be exposed on `AddEditBudgetViewModel` as a computed property `var orphanedExpenseCount: Int` that returns `0` in Add mode (no bound budget) and when `startDate == nil`, and otherwise returns `budget.expenseItems.count(where: { $0.date < startDate })` (equivalent to `filter { ... }.count`; the predicate is the contract). The view SHALL gate the Save toolbar button's action through this property: if `orphanedExpenseCount > 0` it SHALL set a presentation-state `@State var showOrphanWarning = true`; otherwise it SHALL invoke save directly.
+The count SHALL be exposed on `AddEditBudgetViewModel` as a computed property `var orphanedExpenseCount: Int` that returns `0` in Add mode (no bound budget) and when `startDate == nil`, and otherwise returns `budget.expenseItems.count(where: { $0.date < startDate })` (equivalent to `filter { ... }.count`; the predicate is the contract).
+
+**Save-gate precedence.** The view SHALL gate the Save toolbar button's action in this order: (1) if `viewModel.isBiweeklyStartDateEdited` it SHALL present the biweekly re-anchor confirmation (`showBiweeklyReanchorWarning = true`) — that alert subsumes this orphan message when `orphanedExpenseCount > 0` (see "Save-time biweekly re-anchor confirmation"); (2) else if `orphanedExpenseCount > 0` it SHALL set `@State var showOrphanWarning = true`; (3) else it SHALL invoke save directly. Consequently the standalone orphan alert described here fires for non-biweekly periods (and for `.specificDates`); for biweekly Edit-mode start-date changes the re-anchor confirmation is the surface, with the orphan sentence folded in.
 
 The alert SHALL NOT replace or duplicate any existing save-side-effect behavior — the existing `viewModel.save(context:analytics:settings:router:)` method, its persistence logic, and the `dismiss()` call SHALL fire from the confirm branch exactly as they fire today from a bare Save tap.
 
 The alert SHALL NOT fire in Add mode (where `orphanedExpenseCount` is always `0`).
 
-The alert SHALL fire across every period type — including `.specificDates` — wherever an Edit-mode `startDate` change orphans at least one existing expense. (The inline Schedule-disclosure warning is recurring-only, because Specific Dates uses the Dates card rather than the Schedule disclosure; the Save-time alert is the cross-period surface.)
+The standalone alert SHALL fire across every period type except biweekly Edit-mode start-date changes — including `.specificDates` — wherever an Edit-mode `startDate` change orphans at least one existing expense and the biweekly re-anchor gate does not take precedence. (The inline Schedule-disclosure warning is recurring-only, because Specific Dates uses the Dates card rather than the Schedule disclosure; the Save-time alert is the cross-period surface.)
 
 #### Scenario: Save with no orphaned expenses commits immediately
 
@@ -414,10 +416,80 @@ The alert SHALL fire across every period type — including `.specificDates` —
 - **WHEN** the user opens Edit for a `.specificDates` budget that has expenses dated before the drafted `startDate`, and taps Save
 - **THEN** the orphan-warning alert is presented with the count of pre-`startDate` expenses, identical to the recurring-budget flow. (The inline Schedule-disclosure warning does not appear because Specific Dates uses the Dates card, not the Schedule disclosure — see the modified Schedule disclosure requirement below.)
 
+#### Scenario: Biweekly start-date edits route to the re-anchor confirmation instead
+
+- **WHEN** the user opens Edit for a `.biweekly` budget, moves `startDate` forward past existing expenses, and taps Save
+- **THEN** the standalone orphan alert is NOT shown; instead the "Change Start Date?" re-anchor alert is presented with the orphan sentence appended to its message (per "Save-time biweekly re-anchor confirmation")
+
 #### Scenario: orphanedExpenseCount is zero when startDate equals the earliest expense date
 
 - **WHEN** the drafted `startDate` is exactly equal to the `date` of the earliest expense (boundary equality, not strictly after)
 - **THEN** `orphanedExpenseCount == 0` and no alert is presented (the filter is `$0.date < startDate`, half-open at the start)
+
+### Requirement: Biweekly explanatory note in the Period card
+
+When and only when `viewModel.period == .biweekly`, the Period card SHALL render a caption directly below the chip grid (and below the `.specificDates` chip slot) with the localized text `"Repeating 14-day period. Choose your start date below to choose which day each cycle begins on."` (key `addEditBudget.note.biweekly`), styled `.font(.caption)` and `.foregroundStyle(.readableSecondary)`, transitioning in via `.opacity.combined(with: .move(edge: .top))`. The note SHALL render in **both Add and Edit modes** (it is not gated on edit state), because the start date is editable in both. The note SHALL NOT render for any other period type.
+
+This note coexists with the Specific Dates blurb and the Edit-mode period-lock caption; they are mutually exclusive by period/mode and never render together for the same period.
+
+#### Scenario: Biweekly note shows when Biweekly is selected in Add mode
+
+- **WHEN** the user opens Add and selects the Biweekly period chip
+- **THEN** a `.caption` note reading "Repeating 14-day period. Choose your start date below to choose which day each cycle begins on." renders below the period chip grid
+
+#### Scenario: Biweekly note shows in Edit mode for a biweekly budget
+
+- **WHEN** the user opens Edit for a `.biweekly` budget
+- **THEN** the biweekly note renders below the (locked) period chip grid, alongside the period-lock caption
+
+#### Scenario: Biweekly note is absent for non-biweekly periods
+
+- **WHEN** `viewModel.period` is `.daily`, `.weekly`, `.monthly`, or `.specificDates`
+- **THEN** the biweekly note (`addEditBudget.note.biweekly`) does not render
+
+### Requirement: Save-time biweekly re-anchor confirmation
+
+Editing a biweekly budget's `startDate` re-anchors its 14-day cycle grid and recomputes every past period (and the carry-over figure), because biweekly is the only recurring period whose grid is anchored to the budget's own `startDate`. To make that consequence explicit, when the user activates the Save toolbar button in **Edit mode** on a `.biweekly` budget AND the drafted `viewModel.startDate` (normalized via `calendar.startOfDay`) differs from the persisted `Budget.startDate`, the system SHALL present a confirmation alert before invoking `viewModel.save(...)`. The user SHALL be able to cancel (returning to the form with all draft state intact) or confirm (proceeding to the existing save path unchanged).
+
+The gate SHALL be exposed on `AddEditBudgetViewModel` as a computed property `var isBiweeklyStartDateEdited: Bool` that returns `false` in Add mode, `false` when `period != .biweekly`, `false` when `startDate == nil`, and otherwise returns `true` iff `calendar.startOfDay(for: startDate)` differs from the bound `Budget.startDate`.
+
+The alert's title SHALL use key `addEditBudget.biweeklyReanchor.title` (en-US source: `"Change Start Date?"`). The cancel button SHALL use key `addEditBudget.biweeklyReanchor.cancel` (en-US source: `"Cancel"`, `role: .cancel`). The confirm button SHALL use key `addEditBudget.biweeklyReanchor.confirm` (en-US source: `"Change"`) and SHALL invoke the same `viewModel.save(...)` + `dismiss()` sequence the bare Save toolbar button invokes today.
+
+The alert's message SHALL be the localized string for key `addEditBudget.biweeklyReanchor.message` (en-US source: `"This will re-align current and future two-week cycles and recalculate past periods."`). When the same edit ALSO strands logged expenses (`viewModel.orphanedExpenseCount > 0`), the orphan sentence (`addEditBudget.orphanWarning.message`) SHALL be appended to the message, space-separated, so both consequences land in one alert and the warnings never stack.
+
+**Save-gate precedence.** The Save toolbar action SHALL evaluate, in order: (1) if `isBiweeklyStartDateEdited` set `showBiweeklyReanchorWarning = true`; (2) else if `orphanedExpenseCount > 0` set `showOrphanWarning = true`; (3) else invoke save directly. This makes the re-anchor confirmation supersede the standalone orphan warning for biweekly start-date edits (which is why the orphan message folds into it).
+
+The alert SHALL NOT fire in Add mode, SHALL NOT fire for non-biweekly periods, and SHALL NOT fire when the drafted start date equals the persisted value. The alert SHALL NOT alter any save side effect; the existing `viewModel.save(context:analytics:settings:router:)` + `dismiss()` SHALL fire from the confirm branch exactly as from a bare Save tap.
+
+#### Scenario: Editing a biweekly start date presents the re-anchor alert on Save
+
+- **WHEN** the user opens Edit for a `.biweekly` budget, changes `startDate` to a different day via the Schedule disclosure, and taps Save
+- **THEN** an alert titled "Change Start Date?" is presented with message "This will re-align current and future two-week cycles and recalculate past periods." and buttons `Cancel` and `Change`; `viewModel.save(...)` has not yet been invoked
+
+#### Scenario: Confirming the re-anchor alert commits the save
+
+- **WHEN** the re-anchor alert is presented and the user taps `Change`
+- **THEN** `viewModel.save(context:analytics:settings:router:)` fires, the sheet dismisses, and `Budget.startDate` holds the new value
+
+#### Scenario: Cancelling the re-anchor alert preserves draft state
+
+- **WHEN** the re-anchor alert is presented and the user taps `Cancel`
+- **THEN** the alert dismisses, the sheet remains presented with the drafted `startDate` intact, no save is performed, and the persisted `Budget.startDate` is unchanged
+
+#### Scenario: Re-anchor alert folds in the orphan sentence when expenses are stranded
+
+- **WHEN** the user opens Edit for a `.biweekly` budget with expenses dated before the new start, moves `startDate` forward past them, and taps Save
+- **THEN** a single "Change Start Date?" alert is presented whose message is the re-align sentence followed by "Those expenses still show in your list but won't be counted by this budget."; no separate orphan-warning alert is shown
+
+#### Scenario: Re-anchor alert does not fire when the start date is unchanged
+
+- **WHEN** the user opens Edit for a `.biweekly` budget, edits only the name, and taps Save
+- **THEN** `isBiweeklyStartDateEdited == false`, no re-anchor alert is presented, and the save proceeds (subject to the orphan-warning gate, which is also inert here)
+
+#### Scenario: Re-anchor alert is biweekly- and edit-only
+
+- **WHEN** the budget is `.daily`, `.weekly`, `.monthly`, or `.specificDates`, OR the sheet is in Add mode
+- **THEN** `isBiweeklyStartDateEdited == false` and the re-anchor alert never fires (a non-biweekly start-date change still routes to the standalone orphan warning when applicable)
 
 ### Requirement: budget_edited analytics event carries per-field change flags
 
@@ -612,7 +684,9 @@ The summary SHALL be built from two fragments concatenated with `" · "`:
 
 **Inline orphan warning.** When `viewModel.orphanedExpenseCount > 0`, a single localized `Text` view SHALL render inside the expanded content (below the Clear-end-date affordance when present), `.frame(maxWidth: .infinity, alignment: .leading)`, styled `.font(.caption).foregroundStyle(.orange)`. The text SHALL use key `addEditBudget.orphanWarning.inline` (en-US source: `"Start date is after \(count) logged expenses. Those expenses still show in your list but won't be counted by this budget."`, where `count` is `viewModel.orphanedExpenseCount`). The warning SHALL NOT render when `orphanedExpenseCount == 0`. The warning SHALL NOT include a leading SF Symbol icon (the orange color carries the warning signal; an icon would indent wrapped text and misalign with the left edge of the date chips above).
 
-**Auto-expand on appear.** The main view's `onAppear` SHALL set `isScheduleExpanded = true` when `viewModel.orphanedExpenseCount > 0` at the moment the sheet appears. This ensures a user re-opening Edit on a budget already in the orphaning state sees the inline warning without an extra tap. The auto-expand SHALL NOT fire when `orphanedExpenseCount == 0` (the collapsed default is preserved for the common case). It SHALL fire after the existing `onAppear` side effects (`initialCurrencyCode` capture, name-field focus seeding).
+**Auto-expand on appear.** The main view's `onAppear` SHALL set `isScheduleExpanded = true` when, at the moment the sheet appears, EITHER `viewModel.orphanedExpenseCount > 0` OR `viewModel.period == .biweekly`. The orphan condition ensures a user re-opening Edit on an already-orphaning budget sees the inline warning without an extra tap; the biweekly condition surfaces the start date because it is the cycle anchor. When neither condition holds, the auto-expand SHALL NOT fire (the collapsed default is preserved for the common case). It SHALL fire after the existing `onAppear` side effects (`initialCurrencyCode` capture, name-field focus seeding).
+
+**Auto-expand on biweekly selection.** In Add mode, when the user taps the `.biweekly` period chip, the chip-tap handler SHALL set `isScheduleExpanded = true` within the same `withAnimation` that updates `viewModel.period`, so the start date is immediately visible. This is auto-expand only: selecting a different period afterward SHALL NOT auto-collapse the disclosure (the user retains manual control once expanded).
 
 **Animation.** Expanded content SHALL appear with `.transition(.opacity.combined(with: .move(edge: .top)))` animated by `.easeInOut(duration: 0.2)` keyed to `isScheduleExpanded`.
 
@@ -623,7 +697,17 @@ The summary SHALL be built from two fragments concatenated with `" · "`:
 #### Scenario: Recurring Add opens with Schedule collapsed
 
 - **WHEN** the user opens Add for a default-period (`.daily`) budget
-- **THEN** the Schedule card renders directly below the Period card, the disclosure row reads "Starts {today, abbreviated} · No end date" (the start fragment uses the set form because `startDate` is pre-filled per the "Add mode seeds defaults" requirement), the trailing chevron points down, the chip area is not rendered, and (because Add mode has no `expenseItems`) the auto-expand-on-orphan behavior does not fire
+- **THEN** the Schedule card renders directly below the Period card, the disclosure row reads "Starts {today, abbreviated} · No end date" (the start fragment uses the set form because `startDate` is pre-filled per the "Add mode seeds defaults" requirement), the trailing chevron points down, the chip area is not rendered, and (because Add mode has no `expenseItems` and the period is not biweekly) the auto-expand behavior does not fire
+
+#### Scenario: Selecting Biweekly in Add mode auto-expands the Schedule
+
+- **WHEN** the user opens Add and taps the Biweekly period chip
+- **THEN** the Schedule disclosure expands (start/end `DateColumn` chips visible) without an extra tap, and switching to another period afterward leaves it expanded
+
+#### Scenario: Editing a biweekly budget opens the Schedule expanded
+
+- **WHEN** the user opens Edit for a `.biweekly` budget
+- **THEN** on `onAppear` the Schedule disclosure is rendered already expanded so the start date (cycle anchor) is visible, regardless of orphan state
 
 #### Scenario: Tapping the disclosure row expands the chip area
 
@@ -666,9 +750,9 @@ The summary SHALL be built from two fragments concatenated with `" · "`:
 - **WHEN** the user opens Edit for a budget whose persisted `Budget.startDate` is after the `date` of at least one item in `Budget.expenseItems` (i.e. a confirmed-orphan save happened in a prior session)
 - **THEN** on `onAppear` the Schedule disclosure is rendered already expanded with the inline orphan warning visible, **without** the user tapping the disclosure row
 
-#### Scenario: Re-opening Edit on a non-orphaning budget preserves the collapsed default
+#### Scenario: Re-opening Edit on a non-orphaning, non-biweekly budget preserves the collapsed default
 
-- **WHEN** the user opens Edit for a budget whose persisted `Budget.startDate` is at or before every `expenseItems.date` (or there are no expenses)
+- **WHEN** the user opens Edit for a non-biweekly budget whose persisted `Budget.startDate` is at or before every `expenseItems.date` (or there are no expenses)
 - **THEN** on `onAppear` the Schedule disclosure is rendered collapsed (the default behavior); the auto-expand does not fire
 
 ### Requirement: Cancel dismisses without persisting any changes

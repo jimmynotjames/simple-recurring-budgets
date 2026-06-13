@@ -406,6 +406,41 @@ final class UserJourneyTests: XCTestCase {
     )
   }
 
+  /// Opening Edit on an existing biweekly budget auto-expands the Schedule
+  /// disclosure so the start date (the cycle anchor) is visible on open —
+  /// without the user tapping the disclosure row. (Seeding only makes monthly
+  /// budgets, so this creates a biweekly one via the Add path first.)
+  func testEditBiweeklyBudgetOpensScheduleExpanded() {
+    let app = makeApp()
+    app.launch()
+
+    let budgets = BudgetsScreen(app: app)
+    budgets.tapAddBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    form.fillName("Rent")
+    form.selectPeriod("Biweekly")
+    form.fillAllocation("1200")
+    form.tapSave()
+
+    XCTAssertTrue(
+      budgets.addExpenseButton(for: "Rent").waitForExistence(timeout: 5),
+      "Biweekly budget should appear in the list after saving"
+    )
+
+    budgets.tapBudget(named: "Rent")
+    let detail = BudgetDetailScreen(app: app, budgetName: "Rent")
+    XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
+    detail.tapEditBudget()
+
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    XCTAssertTrue(
+      form.startDateChip.waitForExistence(timeout: 2),
+      "Editing a biweekly budget should open with the Schedule disclosure already expanded (start-date chip visible)"
+    )
+  }
+
   /// The Edit-mode period-lock caption names the period type specifically
   /// ("Period type can't be changed…"), since dates remain editable.
   func testEditBudgetPeriodLockCaptionNamesPeriodType() {

@@ -21,6 +21,7 @@
 - [x] 4.3 Re-anchor alert journey — **resolved as a manual carve-out** (user decision): triggering the alert requires driving a graphical `DatePicker`, which this repo exercises manually (`testAddBudgetSpecificDatesPeriod`). The gate (`isBiweeklyStartDateEdited`) is fully unit-tested and the gate→alert binding is trivial SwiftUI; a documented carve-out comment + manual steps live in `UserJourneyTests.swift`, and `AddBudgetScreen.reanchorAlert` is provided for the manual pass / future automation.
 - [x] 4.4 Add an assertion that the Edit-mode period-lock caption reads the reworded "Period type can't be changed after creating your budget." text — guards the copy fix against regression.
 - [x] 4.5 Ran the new journeys (`testBiweeklyPeriodShowsNoteAndExpandsSchedule`, `testEditBudgetPeriodLockCaptionNamesPeriodType`) plus the full `make test-ui` suite — all green, no stale queries.
+- [x] 4.6 Add `testEditBiweeklyBudgetOpensScheduleExpanded`: create a biweekly budget via the Add path, open Edit, and assert the Schedule disclosure is auto-expanded on open (start-date chip visible) — covers the edit-open auto-expand scenario (closes the verify SUGGESTION). Green via `make test-only`.
 
 ## 5. Docs alignment
 

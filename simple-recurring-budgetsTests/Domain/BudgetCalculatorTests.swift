@@ -47,7 +47,7 @@ struct BudgetCalculatorSnapshotActiveTests {
   @Test func snapshot_active_noExpenses_remainingEqualsAllocation() {
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(startDate: startDate)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active)
     #expect(snap.remaining == 20)
     #expect(snap.effectiveAllocation == 20)
@@ -57,7 +57,7 @@ struct BudgetCalculatorSnapshotActiveTests {
     let startDate = d(2026, 4, 15)
     let budget = makeBudget(startDate: startDate)
     let exp = expense(amount: 12.50, date: d(2026, 4, 15, hour: 10))
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal, weekStart: .sunday)
     #expect(snap.remaining == 7.50)
   }
 
@@ -65,7 +65,7 @@ struct BudgetCalculatorSnapshotActiveTests {
     let startDate = d(2026, 4, 15)
     let budget = makeBudget(startDate: startDate)
     let exp = expense(amount: 25, date: d(2026, 4, 15, hour: 10))
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal, weekStart: .sunday)
     #expect(snap.remaining == -5)
   }
 
@@ -73,7 +73,7 @@ struct BudgetCalculatorSnapshotActiveTests {
     let startDate = d(2026, 4, 15)
     let budget = makeBudget(startDate: startDate)
     let exp = expense(amount: -10, date: d(2026, 4, 15, hour: 10)) // negative = add funds
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal, weekStart: .sunday)
     #expect(snap.remaining == 30) // 20 - (-10)
   }
 }
@@ -84,7 +84,7 @@ struct BudgetCalculatorSnapshotPreStartTests {
   @Test func snapshot_preStart_nowBeforeStartDate() {
     let startDate = d(2026, 4, 20)
     let budget = makeBudget(startDate: startDate)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .preStart)
     #expect(snap.remaining == 0)
     #expect(snap.carryOver == 0)
@@ -95,7 +95,7 @@ struct BudgetCalculatorSnapshotPreStartTests {
   @Test func snapshot_preStart_effectiveAllocationReflectsInitialConfig() {
     let startDate = d(2026, 4, 20)
     let budget = makeBudget(allocation: 50, startDate: startDate)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.effectiveAllocation == 50)
   }
 
@@ -106,7 +106,7 @@ struct BudgetCalculatorSnapshotPreStartTests {
     let change = AllocationChange(effectiveFrom: d(2026, 4, 15), amount: 20)
     change.budget = budget
     budget.allocationChangesStorage = [change]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active)
   }
 }
@@ -118,7 +118,7 @@ struct BudgetCalculatorSnapshotPostEndTests {
     let startDate = d(2026, 4, 1)
     let endDate = d(2026, 4, 30)
     let budget = makeBudget(startDate: startDate, endDate: endDate)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .postEnd)
   }
 
@@ -128,7 +128,7 @@ struct BudgetCalculatorSnapshotPostEndTests {
     let budget = makeBudget(startDate: startDate, endDate: endDate)
     // Expense on Apr 28 — inside the window
     let exp = expense(amount: 5, date: d(2026, 4, 28))
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .postEnd)
     // Apr has 30 days; daily budget Apr 1–Apr 30 = 30 periods.
     // Prior periods Apr 1–29 each at allocation 20: 29 × 20 = 580
@@ -145,7 +145,7 @@ struct BudgetCalculatorSnapshotPostEndTests {
     let endDate = d(2026, 4, 30)
     let budget = makeBudget(startDate: startDate, endDate: endDate)
     // now = Apr 30 midday — endDate itself; budget is active through all of Apr 30
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 30, hour: 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 30, hour: 12), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active)
   }
 
@@ -153,7 +153,7 @@ struct BudgetCalculatorSnapshotPostEndTests {
     let startDate = d(2026, 4, 1)
     let endDate = d(2026, 4, 30)
     let budget = makeBudget(startDate: startDate, endDate: endDate)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 1), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 1), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .postEnd)
   }
 }
@@ -164,7 +164,7 @@ struct BudgetCalculatorCarryOverTests {
   @Test func carryOver_zeroPriorPeriods_isZero() {
     let startDate = d(2026, 4, 15)
     let budget = makeBudget(startDate: startDate)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.carryOver == 0)
   }
 
@@ -173,7 +173,7 @@ struct BudgetCalculatorCarryOverTests {
     let budget = makeBudget(startDate: startDate)
     // Apr 14 had expense 18; Apr 15 is current
     let exp = expense(amount: 18, date: d(2026, 4, 14, hour: 10))
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     // Walker: Apr 14 = 20 − 18 = 2; current period has no expenses → spillover = 0
     #expect(snap.carryOver == 2)
   }
@@ -186,7 +186,7 @@ struct BudgetCalculatorCarryOverTests {
       expense(amount: 15, date: d(2026, 4, 13, hour: 10)), // day2: +5
       expense(amount: 20, date: d(2026, 4, 14, hour: 10)), // day3: 0
     ]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     // Walker: −5 + 5 + 0 = 0; current period empty → spillover = 0
     #expect(snap.carryOver == 0)
   }
@@ -198,7 +198,7 @@ struct BudgetCalculatorCarryOverTests {
       expense(amount: 18, date: d(2026, 4, 14, hour: 10)), // prior: +2 carry
       expense(amount: 21, date: d(2026, 4, 15, hour: 10)), // current: overspend by 1
     ]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 12), calendar: cal, weekStart: .sunday)
     // Walker = 2; current remaining = 20 − 21 = −1 → spillover = −1; total = 1
     #expect(snap.remaining == -1)
     #expect(snap.carryOver == 1)
@@ -211,7 +211,7 @@ struct BudgetCalculatorCarryOverTests {
       expense(amount: 18, date: d(2026, 4, 14, hour: 10)), // prior: +2 carry
       expense(amount: 10, date: d(2026, 4, 15, hour: 10)), // current: 10 remaining (ordinary slack)
     ]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 12), calendar: cal, weekStart: .sunday)
     // Walker = 2; current remaining = 10, inside [0, 20] → spillover = 0; total = 2
     #expect(snap.remaining == 10)
     #expect(snap.carryOver == 2)
@@ -222,7 +222,7 @@ struct BudgetCalculatorCarryOverTests {
     let budget = makeBudget(startDate: startDate)
     // Add $30 funds → remaining = 20 − (−30) = 50, which is > 20 → excess = 30
     let exp = expense(amount: -30, date: d(2026, 4, 15, hour: 10))
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 12), calendar: cal, weekStart: .sunday)
     #expect(snap.remaining == 50)
     #expect(snap.carryOver == 30) // 0 walker + 30 spillover
   }
@@ -239,7 +239,7 @@ struct BudgetCalculatorCarryOverTests {
       budget: budget,
       expenses: oldExpenses + [newExpense],
       now: d(2026, 4, 15),
-      calendar: cal
+      calendar: cal, weekStart: .sunday
     )
     // Walk window starts at max(Apr 1, Apr 13) = Apr 13 00:00
     // Period Apr 13: ends Apr 14, Apr 14 <= Apr 15 (currentPeriodStart) → included
@@ -250,11 +250,12 @@ struct BudgetCalculatorCarryOverTests {
   }
 
   @Test func carryOver_weeklyMidPeriodReset_excludesPreResetExpensesFromContainingPeriod() {
-    // Weekly budget anchored on Wed (Apr 1, 2026). Week 1 = Apr 1–7, week 2 begins Apr 8.
-    // User resets on Fri Apr 3 (mid-week); spends both before and after the reset within
-    // week 1; then week 1 closes. The walker should exclude pre-reset expenses from
-    // week 1's contribution and still award the full $100 allocation.
-    let startDate = d(2026, 4, 1) // Wednesday — weekly anchor is Wed
+    // Weekly budget on a Wednesday grid (user's Week Starts On = Wednesday). Week 1 =
+    // Apr 1–7 2026, week 2 begins Apr 8. User resets on Fri Apr 3 (mid-week); spends
+    // both before and after the reset within week 1; then week 1 closes. The walker
+    // should exclude pre-reset expenses from week 1's contribution and still award
+    // the full $100 allocation.
+    let startDate = d(2026, 4, 1) // Wednesday — aligned with the Wednesday grid
     let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate)
     budget.lastResetDate = d(2026, 4, 3) // Fri, mid week 1
     let expenses = [
@@ -263,7 +264,7 @@ struct BudgetCalculatorCarryOverTests {
       expense(amount: 30, date: d(2026, 4, 5, hour: 10)), // post-reset (week 1)
     ]
     let now = d(2026, 4, 8) // Wed — start of week 2
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: now, calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: now, calendar: cal, weekStart: .wednesday)
     // Walker week 1: $100 allocation − post-reset expenses ($30) = $70.
     // Pre-reset ($20 + $15) are excluded by the walkWindowStart clamp.
     // Current period (week 2) has no expenses → spillover = 0.
@@ -280,7 +281,7 @@ struct BudgetCalculatorResetAwareSpilloverTests {
     let budget = makeBudget(allocation: 50, startDate: startDate)
     budget.lastResetDate = d(2026, 4, 15, hour: 12)
     let exp = expense(amount: 80, date: d(2026, 4, 15, hour: 10)) // pre-reset
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 14), calendar: cal, weekStart: .sunday)
     // Spillover input = 50 − (post-reset expenses: 0) = 50 → no committed overflow.
     #expect(snap.carryOver == 0)
     // Post-reset rebound (§A.6.4): the envelope still reflects all of today's expenses.
@@ -295,7 +296,7 @@ struct BudgetCalculatorResetAwareSpilloverTests {
       expense(amount: 80, date: d(2026, 4, 15, hour: 10)), // pre-reset — excluded from spillover
       expense(amount: 60, date: d(2026, 4, 15, hour: 13)), // post-reset — overspends the fresh 50
     ]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 14), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 14), calendar: cal, weekStart: .sunday)
     // Spillover input = 50 − 60 = −10 → overspend lands live.
     #expect(snap.carryOver == -10)
     #expect(snap.remaining == -90) // 50 − 140, all expenses
@@ -312,8 +313,8 @@ struct BudgetCalculatorResetAwareSpilloverTests {
       expense(amount: 80, date: d(2026, 4, 15, hour: 10)), // pre-reset
       expense(amount: 60, date: d(2026, 4, 15, hour: 13)), // post-reset overspend
     ]
-    let live = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 14), calendar: cal)
-    let closed = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 16), calendar: cal)
+    let live = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 15, hour: 14), calendar: cal, weekStart: .sunday)
+    let closed = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 16), calendar: cal, weekStart: .sunday)
     // Live: spillover = 50 − 60 = −10. Closed: walker contribution for Apr 15 = 50 − 60 = −10.
     #expect(live.carryOver == -10)
     #expect(closed.carryOver == live.carryOver)
@@ -321,16 +322,16 @@ struct BudgetCalculatorResetAwareSpilloverTests {
 
   @Test func postEndResetCarryOver_zeroesPermanently() {
     // #241: weekly budget ended Apr 30 with surplus carry-over; reset after the end.
-    let startDate = d(2026, 4, 1) // Wednesday — weekly anchor
+    let startDate = d(2026, 4, 1) // Wednesday — aligned with the Wednesday grid below
     let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, endDate: d(2026, 4, 30))
     let exp = expense(amount: 60, date: d(2026, 4, 2, hour: 10)) // week 1: +40 surplus
     // Sanity: before the reset the post-end carry-over is nonzero.
-    let before = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal)
+    let before = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal, weekStart: .wednesday)
     #expect(before.lifecycleState == .postEnd)
     #expect(before.carryOver != 0)
 
     budget.lastResetDate = d(2026, 5, 10) // after effectiveEndExclusive (May 1)
-    let after = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal)
+    let after = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 15), calendar: cal, weekStart: .wednesday)
     #expect(after.carryOver == 0)
   }
 
@@ -342,7 +343,7 @@ struct BudgetCalculatorResetAwareSpilloverTests {
     let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, endDate: d(2026, 4, 30))
     budget.lastResetDate = d(2026, 5, 10)
     // Expenses already deleted by resetBudget — snapshot with none.
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 15), calendar: cal, weekStart: .wednesday)
     #expect(snap.lifecycleState == .postEnd)
     #expect(snap.carryOver == 0)
   }
@@ -350,14 +351,14 @@ struct BudgetCalculatorResetAwareSpilloverTests {
   @Test func resetDuringFinalPeriod_postEndFoldsPostResetExpensesOnly() {
     // Reset mid-final-period (before the end), then the budget ends. The symmetric
     // .postEnd fold applies to the reset-aware input: full allocation − post-reset spend.
-    let startDate = d(2026, 4, 1) // Wednesday; final period Apr 29 – May 1 (clamped)
+    let startDate = d(2026, 4, 1) // Wednesday grid; final period Apr 29 – May 1 (clamped)
     let budget = makeBudget(period: .weekly, allocation: 50, startDate: startDate, endDate: d(2026, 4, 30))
     budget.lastResetDate = d(2026, 4, 30, hour: 10) // inside the final period, before end
     let expenses = [
       expense(amount: 80, date: d(2026, 4, 29, hour: 9)), // pre-reset — excluded from spillover
       expense(amount: 10, date: d(2026, 4, 30, hour: 12)), // post-reset
     ]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 5, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 5, 15), calendar: cal, weekStart: .wednesday)
     #expect(snap.lifecycleState == .postEnd)
     // Walker window [Apr 30 10:00, Apr 29) is empty → 0. Spillover = 50 − 10 = 40.
     #expect(snap.carryOver == 40)
@@ -366,19 +367,22 @@ struct BudgetCalculatorResetAwareSpilloverTests {
   }
 }
 
-// MARK: - Snapshot: weekly period anchoring from startDate
+// MARK: - Snapshot: weekly period grid follows the global week-start setting (#240)
 
 struct BudgetCalculatorWeeklyAnchorTests {
-  @Test func snapshot_weeklyBudget_anchorsOnStartDate_notAppSettings() {
-    // Budget started on a Wednesday; week should run Wed → Tue
+  @Test func snapshot_weeklyBudget_followsGlobalWeekStart() {
+    // Budget started on a Wednesday, but the weekly grid comes from the caller's
+    // weekStart (the user's Week Starts On setting) — NOT from startDate's weekday.
     let startDate = d(2026, 4, 1) // Wednesday
     let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate)
-    let now = d(2026, 4, 5) // Sunday Apr 5 — but this is within the Wed Apr 1 week
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal)
+    let now = d(2026, 4, 5) // Sunday Apr 5 — start of a new Sunday-grid week
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active)
-    // Period should start on Wed Apr 1 (not Sun Mar 29)
-    #expect(snap.effectivePeriodStart == d(2026, 4, 1))
-    #expect(snap.effectivePeriodEnd == d(2026, 4, 8))
+    // Period runs on the Sunday grid: [Apr 5, Apr 12) — not Wed Apr 1's private week.
+    #expect(snap.effectivePeriodStart == d(2026, 4, 5))
+    #expect(snap.effectivePeriodEnd == d(2026, 4, 12))
+    // The partial first week [Apr 1, Apr 5) closed at the full allocation (no proration).
+    #expect(snap.carryOver == 100)
   }
 }
 
@@ -409,7 +413,7 @@ struct BudgetCalculatorStartDateEditTests {
 
     // Snapshot on Mon Apr 20 — currentPeriodStart is Apr 20, so the walker covers
     // two completed weeks: Apr 6–12 (back-dated) and Apr 13–19 (original).
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 20), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 20), calendar: cal, weekStart: .monday)
 
     #expect(snap.effectivePeriodStart == d(2026, 4, 20))
     // Both completed weeks must be credited at allocation 100. The back-dated
@@ -432,7 +436,7 @@ struct BudgetCalculatorStartDateEditTests {
     // Snapshot on Mon Apr 27 — currentPeriodStart is Apr 27. Walker covers Apr 20–26
     // (one completed week). Allocation at Apr 20 is satisfied by the existing
     // AllocationChange at Apr 13 (effectiveFrom <= Apr 20) → amount 100.
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 27), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 27), calendar: cal, weekStart: .monday)
 
     #expect(snap.effectivePeriodStart == d(2026, 4, 27))
     // Exactly one completed week credited (the original Apr 13–19 period must NOT
@@ -459,7 +463,7 @@ struct BudgetCalculatorAllocationHistoryTests {
     // Apr 1–9 (9 days) at alloc 20 = 9 × 20 = 180
     // Apr 10–14 (5 days) at alloc 25 = 5 × 25 = 125
     // Total walker = 305; current period Apr 15 alloc = 25, no expenses → spillover = 0
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.effectiveAllocation == 25)
     #expect(snap.carryOver == 305)
   }
@@ -477,7 +481,7 @@ struct BudgetCalculatorAllocationHistoryTests {
     // now = Apr 10 (same day as allocation change)
     // Current period: Apr 10 with alloc 25; no prior completed periods with the new alloc
     // Apr 1–9 still used alloc 20
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal, weekStart: .sunday)
     #expect(snap.effectiveAllocation == 25)
     // Walker: Apr 1–9 at 20 each = 180 (9 complete days)
     #expect(snap.carryOver == 180)
@@ -492,7 +496,7 @@ struct BudgetCalculatorSpecificDatesTests {
     let endDate = d(2026, 4, 30)
     let budget = makeBudget(period: .specificDates, allocation: 350, startDate: startDate, endDate: endDate)
     let exp = expense(amount: 120, date: d(2026, 4, 15))
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active)
     #expect(snap.remaining == 230)
     #expect(snap.carryOver == nil)
@@ -502,7 +506,7 @@ struct BudgetCalculatorSpecificDatesTests {
     let startDate = d(2026, 4, 1)
     let endDate = d(2026, 4, 30)
     let budget = makeBudget(period: .specificDates, allocation: 350, startDate: startDate, endDate: endDate)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .postEnd)
     #expect(snap.carryOver == nil)
   }
@@ -515,7 +519,7 @@ struct BudgetCalculatorSpecificDatesTests {
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10))
     pauseEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active) // pause is ignored for specificDates
   }
 
@@ -525,14 +529,14 @@ struct BudgetCalculatorSpecificDatesTests {
     let budget = makeBudget(period: .specificDates, allocation: 100, startDate: day, endDate: day)
     let exp = expense(amount: 30, date: d(2026, 4, 15, hour: 10))
 
-    let during = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 12), calendar: cal)
+    let during = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15, hour: 12), calendar: cal, weekStart: .sunday)
     #expect(during.lifecycleState == .active)
     #expect(during.remaining == 70)
     #expect(during.carryOver == nil)
     #expect(during.effectivePeriodStart == d(2026, 4, 15))
     #expect(during.effectivePeriodEnd == d(2026, 4, 16))
 
-    let after = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 16), calendar: cal)
+    let after = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 16), calendar: cal, weekStart: .sunday)
     #expect(after.lifecycleState == .postEnd)
     #expect(after.remaining == 70) // frozen final tally
   }
@@ -546,7 +550,7 @@ struct BudgetCalculatorSpecificDatesTests {
     let driftRow = AllocationChange(effectiveFrom: d(2026, 4, 20), amount: 250)
     driftRow.budget = budget
     budget.allocationChangesStorage = (budget.allocationChangesStorage ?? []) + [driftRow]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal, weekStart: .sunday)
     // now (Apr 10) is BEFORE the drift row's effectiveFrom (Apr 20) — it wins anyway.
     #expect(snap.effectiveAllocation == 250)
     #expect(snap.remaining == 250)
@@ -559,7 +563,7 @@ struct BudgetCalculatorWindowEdgeTests {
   @Test func expenseBeforeStartDate_neverCounted() {
     let budget = makeBudget(startDate: d(2026, 4, 10))
     let exp = expense(amount: 15, date: d(2026, 4, 5, hour: 10)) // before the window
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 12), calendar: cal, weekStart: .sunday)
     // Walker boundaries start at effectiveStartDate (Apr 10): Apr 10 + Apr 11 at 20
     // each, the Apr 5 expense outside every bucket. Current day untouched.
     #expect(snap.carryOver == 40)
@@ -569,7 +573,7 @@ struct BudgetCalculatorWindowEdgeTests {
   @Test func expenseAfterEndDate_excludedFromFinalTally() {
     let budget = makeBudget(startDate: d(2026, 4, 1), endDate: d(2026, 4, 10))
     let exp = expense(amount: 5, date: d(2026, 4, 12, hour: 10)) // after the window
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 20), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 20), calendar: cal, weekStart: .sunday)
     // effectiveNow clamps to Apr 10 → final period [Apr 10, Apr 11); the Apr 12
     // expense is past effectivePeriodEnd and never counted. Walker Apr 1–9 = 180;
     // postEnd folds the untouched final day's 20 → carryOver = 200.
@@ -589,7 +593,7 @@ struct BudgetCalculatorPausedTests {
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 10))
     pauseEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent]
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 12), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .paused)
     #expect(snap.remaining == 0)
   }
@@ -606,7 +610,7 @@ struct BudgetCalculatorPausedTests {
     pauseEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent]
     // now = midnight Apr 10 (in the pause-action period but BEFORE the pause moment).
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active)
   }
 
@@ -622,7 +626,7 @@ struct BudgetCalculatorPausedTests {
     pauseEvent.budget = budget; resumeEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent, resumeEvent]
     // now = 12:00 on Apr 15 — strictly after the resume moment.
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15, hour: 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 15, hour: 12), calendar: cal, weekStart: .sunday)
     #expect(snap.lifecycleState == .active)
   }
 
@@ -654,7 +658,7 @@ struct BudgetCalculatorPausedTests {
 
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
-      now: d(2026, 4, 20), calendar: cal
+      now: d(2026, 4, 20), calendar: cal, weekStart: .sunday
     )
     // Apr 1–4: 4 × 20 = 80
     // Apr 5 (pause-action): active, 20
@@ -679,7 +683,7 @@ struct BudgetCalculatorPausedTests {
     budget.lifecycleEventsStorage = [pauseEvent]
     // Budget is paused on Apr 11+. User backdates an expense to Apr 5.
     let backdatedExpense = expense(amount: 8, date: d(2026, 4, 5, hour: 10))
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [backdatedExpense], now: d(2026, 4, 12), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [backdatedExpense], now: d(2026, 4, 12), calendar: cal, weekStart: .sunday)
     // Apr 1–4: 4 × 20 = 80; Apr 5: 20 − 8 = 12; Apr 6–9 (4 days): 4 × 20 = 80; Apr 10: active, 20 − 0 = 20
     // Walker total = 80 + 12 + 80 + 20 = 192; current period Apr 11 is paused → remaining = 0, spillover = 0
     #expect(snap.lifecycleState == .paused)

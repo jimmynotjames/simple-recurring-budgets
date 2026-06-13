@@ -46,8 +46,8 @@ struct BudgetLifecycleResultTests {
     pauseEvent.budget = budget; ctx.insert(pauseEvent)
     try ctx.save()
 
-    let r1 = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
-    let r2 = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let r1 = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
+    let r2 = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(r1 == r2)
     #expect(r1.lifecycleState == .paused)
@@ -70,7 +70,7 @@ struct BudgetLifecycleResultTests {
 
     // 60 seconds after the pause moment — still inside the pause-action period.
     let oneMinuteAfter = pauseMoment.addingTimeInterval(60)
-    let result = BudgetLifecycleService.result(for: budget, now: oneMinuteAfter, calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: oneMinuteAfter, calendar: cal, weekStart: .sunday)
 
     #expect(result.lifecycleState == .paused)
     #expect(result.pausedSince == pauseMoment)
@@ -83,7 +83,7 @@ struct BudgetLifecycleResultTests {
     let budget = makeBudget(startDate: startDate, in: ctx)
     let originalLastModified = budget.lastModified
 
-    _ = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    _ = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(budget.lastModified == originalLastModified)
     #expect(budget.lastResetDate == nil)
@@ -98,7 +98,7 @@ struct BudgetLifecycleResultTests {
     let exp = ExpenseItem(amount: 18, date: d(2026, 4, 14, hour: 10))
     exp.budget = budget; ctx.insert(exp)
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result.remaining == 20) // current period Apr 15, no expenses
     #expect(result.carryOverAmount == 2) // walker: 20 − 18 = 2
@@ -115,7 +115,7 @@ struct BudgetLifecycleResultTests {
     let currentExpense = ExpenseItem(amount: 5, date: d(2026, 4, 15, hour: 9))
     currentExpense.budget = budget; ctx.insert(currentExpense)
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result.remaining == 15) // 20 − 5, regardless of carry-over
   }
@@ -128,7 +128,7 @@ struct BudgetLifecycleResultTests {
     let exp = ExpenseItem(amount: 15, date: d(2026, 4, 15, hour: 9))
     exp.budget = budget; ctx.insert(exp)
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result.remaining == -5)
   }
@@ -141,7 +141,7 @@ struct BudgetLifecycleResultTests {
     let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, in: ctx)
     let now = d(2026, 4, 12, hour: 1) // just after Sun Apr 12
 
-    let result = BudgetLifecycleService.result(for: budget, now: now, calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: now, calendar: cal, weekStart: .sunday)
 
     #expect(result.periodStart == d(2026, 4, 12))
     #expect(result.periodEnd == d(2026, 4, 19))
@@ -159,13 +159,13 @@ struct BudgetLifecycleApplyAllocationEditTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: now, calendar: cal)
+    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
     // Should have original row (Apr 1 = 20) and a new row (Apr 15 = 30)
     #expect(budget.allocationChanges.count == 2)
     #expect(budget.lastModified == now)
     // Snapshot should now use 30 for Apr 15
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal, weekStart: .sunday)
     #expect(snap.effectiveAllocation == 30)
   }
 
@@ -178,15 +178,15 @@ struct BudgetLifecycleApplyAllocationEditTests {
 
     let now = d(2026, 4, 15, hour: 10)
     // First edit
-    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 25, context: ctx, now: now, calendar: cal)
+    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 25, context: ctx, now: now, calendar: cal, weekStart: .sunday)
     let countAfterFirst = budget.allocationChanges.count
 
     // Second edit in same period
-    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 35, context: ctx, now: now, calendar: cal)
+    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 35, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
     // Should not have added a second row — mutated the existing one
     #expect(budget.allocationChanges.count == countAfterFirst)
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal, weekStart: .sunday)
     #expect(snap.effectiveAllocation == 35)
   }
 
@@ -201,10 +201,10 @@ struct BudgetLifecycleApplyAllocationEditTests {
     try ctx.save()
 
     // Edit on Apr 15
-    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: d(2026, 4, 15), calendar: cal)
+    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     // Apr 10's contribution should still use alloc 20
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
     // Walker: Apr 1–14 with alloc 20; Apr 10 had expense 5 → +15; rest +20 each
     // Apr 1–9 = 9 × 20 = 180; Apr 10 = 15; Apr 11–14 = 4 × 20 = 80; total = 275
     #expect(snap.carryOver == 275)
@@ -227,7 +227,7 @@ struct BudgetLifecycleApplyAllocationEditTests {
     try ctx.save()
 
     let now = d(2026, 5, 15)
-    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 1800, context: ctx, now: now, calendar: cal)
+    try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 1800, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
     #expect(budget.allocationChanges.count == 1) // no new row inserted
     let only = try #require(budget.allocationChanges.first)
@@ -253,7 +253,7 @@ struct BudgetLifecycleApplyAllocationEditTests {
     try ctx.save()
 
     try BudgetLifecycleService.applyAllocationEdit(
-      budget, newAmount: 1500, context: ctx, now: d(2026, 5, 15), calendar: cal
+      budget, newAmount: 1500, context: ctx, now: d(2026, 5, 15), calendar: cal, weekStart: .sunday
     )
 
     #expect(budget.allocationChanges.count == 1)
@@ -298,7 +298,7 @@ struct BudgetLifecycleResetCarryOverTests {
     // Snapshot now on Apr 14 (the reset day): walk window = max(Apr 1, Apr 14) = Apr 14 00:00
     // Apr 14 period is [Apr 14, Apr 15). It is the current period → walker goes up to Apr 14 start.
     // No completed period in the window since Apr 14 is the current period.
-    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 14), calendar: cal)
+    let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 14), calendar: cal, weekStart: .sunday)
     #expect(snap.carryOver == 0)
   }
 
@@ -328,7 +328,7 @@ struct BudgetLifecyclePauseTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: now, calendar: cal)
+    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
     #expect(result == true)
     #expect(budget.lifecycleEvents.count == 1)
@@ -345,7 +345,7 @@ struct BudgetLifecyclePauseTests {
     try ctx.save()
 
     let now = d(2026, 4, 10)
-    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: now, calendar: cal)
+    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
     #expect(result == true)
     #expect(budget.lifecycleEvents.count == 1)
@@ -361,7 +361,7 @@ struct BudgetLifecyclePauseTests {
     change.budget = b; ctx.insert(b); ctx.insert(change)
     try ctx.save()
 
-    let result = try BudgetLifecycleService.pauseBudget(b, context: ctx, now: d(2026, 4, 15), calendar: cal)
+    let result = try BudgetLifecycleService.pauseBudget(b, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result == false)
     #expect(b.lifecycleEvents.isEmpty)
@@ -376,7 +376,7 @@ struct BudgetLifecyclePauseTests {
     ev.budget = budget; ctx.insert(ev)
     try ctx.save()
 
-    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result == false)
     #expect(budget.lifecycleEvents.count == 1) // no new event inserted
@@ -389,7 +389,7 @@ struct BudgetLifecyclePauseTests {
     budget.endDate = d(2026, 4, 10)
     try ctx.save()
 
-    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+    let result = try BudgetLifecycleService.pauseBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result == false)
     #expect(budget.lifecycleEvents.isEmpty)
@@ -409,7 +409,7 @@ struct BudgetLifecycleResumeTests {
     try ctx.save()
 
     let now = d(2026, 4, 20, hour: 9)
-    let result = try BudgetLifecycleService.resumeBudget(budget, context: ctx, now: now, calendar: cal)
+    let result = try BudgetLifecycleService.resumeBudget(budget, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
     #expect(result == true)
     #expect(budget.lifecycleEvents.count == 2)
@@ -427,7 +427,7 @@ struct BudgetLifecycleResumeTests {
     change.budget = b; ctx.insert(b); ctx.insert(change)
     try ctx.save()
 
-    let result = try BudgetLifecycleService.resumeBudget(b, context: ctx, now: d(2026, 4, 15), calendar: cal)
+    let result = try BudgetLifecycleService.resumeBudget(b, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result == false)
     #expect(b.lifecycleEvents.isEmpty)
@@ -439,7 +439,7 @@ struct BudgetLifecycleResumeTests {
     let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
     try ctx.save()
 
-    let result = try BudgetLifecycleService.resumeBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+    let result = try BudgetLifecycleService.resumeBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result == false)
     #expect(budget.lifecycleEvents.isEmpty)
@@ -455,7 +455,7 @@ struct BudgetLifecycleResumeTests {
     ev.budget = budget; ctx.insert(ev)
     try ctx.save()
 
-    let result = try BudgetLifecycleService.resumeBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal)
+    let result = try BudgetLifecycleService.resumeBudget(budget, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result == false)
     #expect(budget.lifecycleEvents.count == 1) // no resume event added
@@ -471,7 +471,7 @@ struct BudgetLifecyclePausedSinceTests {
     let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
     try ctx.save()
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result.pausedSince == nil)
     #expect(result.lifecycleState == .active)
@@ -489,7 +489,7 @@ struct BudgetLifecyclePausedSinceTests {
     }
     try ctx.save()
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 20), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 20), calendar: cal, weekStart: .sunday)
 
     #expect(result.lifecycleState == .paused)
     #expect(result.pausedSince == d(2026, 4, 15))
@@ -510,7 +510,7 @@ struct BudgetLifecyclePausedSinceTests {
     try ctx.save()
 
     // `now` falls strictly between the pause and the future resume.
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 20), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 20), calendar: cal, weekStart: .sunday)
 
     #expect(result.lifecycleState == .paused)
     #expect(result.pausedSince == d(2026, 4, 10))
@@ -527,7 +527,7 @@ struct BudgetLifecyclePausedSinceTests {
     }
     try ctx.save()
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result.lifecycleState == .active)
     #expect(result.pausedSince == nil)
@@ -539,7 +539,7 @@ struct BudgetLifecyclePausedSinceTests {
     let budget = makeBudget(startDate: d(2026, 4, 15), in: ctx)
     try ctx.save()
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
     #expect(result.lifecycleState == .active)
   }

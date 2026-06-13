@@ -132,8 +132,8 @@ struct SettingsView: View {
         if let day = weekStartConfirmation.pending {
           Text(String(
             localized: "settings.weekStart.alert.message",
-            defaultValue: "Changing to \(weekdayName(day)) will immediately affect all weekly and biweekly budgets.",
-            comment: "Alert body for the week-start day change; argument is the name of the newly selected weekday"
+            defaultValue: "Changing to \(weekdayName(day)) will immediately regroup all weekly budgets — including past weeks — onto the new week. Biweekly budgets keep their own cycle.",
+            comment: "Alert body for the week-start day change; argument is the name of the newly selected weekday. Warns that weekly budgets re-align immediately (history included) and that biweekly budgets are unaffected."
           ))
         }
       }
@@ -218,8 +218,8 @@ struct SettingsView: View {
       .pickerStyle(.menu)
       .accessibilityHint(String(
         localized: "settings.weekStart.accessibilityHint",
-        defaultValue: "Changing this affects all weekly and biweekly budgets",
-        comment: "VoiceOver hint for the week-start day picker in Settings"
+        defaultValue: "Changing this regroups all weekly budgets, including their history",
+        comment: "VoiceOver hint for the week-start day picker in Settings. Biweekly budgets are unaffected by this setting."
       ))
       .listRowBackground(Color("CellBackground"))
     } header: {

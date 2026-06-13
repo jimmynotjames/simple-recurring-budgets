@@ -246,7 +246,7 @@ final class AddEditBudgetViewModel {
     budget: Budget,
     context: ModelContext,
     analytics: any AnalyticsClient,
-    settings _: AppSettings
+    settings: AppSettings
   ) throws {
     // Per-field diff locals: `allocationChanged`, `startChanged`, `endChanged`
     // feed the F-8.02 flags on `budget_edited` (see `docs/analytics-spec.md`
@@ -268,21 +268,22 @@ final class AddEditBudgetViewModel {
       budget.icon = icon
       iconChanged = true
     }
-    // Date edits MUST precede the allocation edit (audit L6): for weekly/biweekly
-    // budgets a startDate edit re-anchors the whole period grid, and
-    // `applyAllocationEdit` stamps the new amount at the *current period start* —
-    // computed from whatever startDate the budget carries at that moment. Running
-    // dates first stamps the amount on the grid the user just chose. The previous
-    // order pinned it to the pre-edit grid, where it could land mid-period under
-    // the new anchoring and not take effect until the next boundary — the current
-    // period kept the old amount while the header displayed the new one.
+    // Date edits MUST precede the allocation edit (audit L6): for biweekly budgets a
+    // startDate edit re-anchors the 14-day cycle grid, and `applyAllocationEdit` keys
+    // the new amount on `max(currentPeriodStart, effectiveStartDate)` — both computed
+    // from whatever startDate the budget carries at that moment. Running dates first
+    // stamps the amount against the window the user just chose. (Weekly budgets now
+    // grid on the global AppSettings.weekStartDay, so startDate edits no longer move
+    // their period boundaries — but the edit key's effectiveStartDate component still
+    // depends on the post-edit startDate, so the ordering stays load-bearing.)
     let dateEdits = applyDateEdits(to: budget)
     if let newAlloc = allocation, budget.currentAllocation != newAlloc {
       try BudgetLifecycleService.applyAllocationEdit(
         budget,
         newAmount: newAlloc,
         context: context,
-        analytics: analytics
+        analytics: analytics,
+        weekStart: settings.weekStartDay
       )
       allocationChanged = true
     }

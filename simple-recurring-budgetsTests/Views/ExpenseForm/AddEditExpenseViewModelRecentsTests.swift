@@ -44,13 +44,13 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.hasRecentSources == true)
   }
 
   @Test func hasRecentSources_falseWhenBudgetIsEmpty() throws {
     let budget = try makeBudgetWithExpenses([])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.hasRecentSources == false)
   }
 
@@ -60,7 +60,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Refund A", amount: -10.00, hoursAgo: 1),
       ExpenseSpec(name: "Refund B", amount: -20.00, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.hasRecentSources == false)
   }
 
@@ -71,7 +71,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.name == "") // Add-mode default
     #expect(vm.filteredRecentSuggestions.count == 2)
   }
@@ -82,7 +82,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
       ExpenseSpec(name: "Groceries", amount: 42.00, hoursAgo: 3),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "co"
     #expect(vm.filteredRecentSuggestions.map(\.name) == ["Coffee"])
   }
@@ -91,7 +91,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "COFFEE"
     #expect(vm.filteredRecentSuggestions.count == 1)
   }
@@ -103,7 +103,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Café", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Smoothie", amount: 8.75, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "cafe"
     #expect(vm.filteredRecentSuggestions.map(\.name) == ["Café"])
   }
@@ -113,7 +113,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "Pizza"
     #expect(vm.filteredRecentSuggestions.isEmpty)
   }
@@ -123,7 +123,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "   "
     #expect(vm.filteredRecentSuggestions.count == 2) // all candidates
   }
@@ -137,7 +137,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Item \(i)", amount: Decimal(i + 1), hoursAgo: Double(i))
     }
     let budget = try makeBudgetWithExpenses(specs)
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.filteredRecentSuggestions.count == AddEditExpenseViewModel.recentsDisplayLimit)
   }
 
@@ -150,7 +150,7 @@ struct AddEditExpenseViewModelRecentsTests {
     }
     specs.append(ExpenseSpec(name: "Zebra", amount: 99.00, hoursAgo: 500))
     let budget = try makeBudgetWithExpenses(specs)
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(!vm.filteredRecentSuggestions.contains { $0.name == "Zebra" }) // not in row
     vm.name = "zeb"
     #expect(vm.filteredRecentSuggestions.map(\.name) == ["Zebra"]) // but searchable
@@ -162,13 +162,13 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.shouldShowRecentsSection == true)
   }
 
   @Test func shouldShowRecentsSection_falseInAddModeWithoutSources() throws {
     let budget = try makeBudgetWithExpenses([])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.shouldShowRecentsSection == false)
   }
 
@@ -178,7 +178,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
     let firstExpense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
-    let vm = AddEditExpenseViewModel(editing: firstExpense)
+    let vm = AddEditExpenseViewModel(editing: firstExpense, weekStart: .sunday)
     #expect(vm.hasRecentSources == true) // candidates were computed
     #expect(vm.shouldShowRecentsSection == false) // but section is gated off in Edit
   }
@@ -189,7 +189,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let pick = try #require(vm.filteredRecentSuggestions.first)
     vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
     #expect(vm.name == "Coffee")
@@ -204,7 +204,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 12.80 // simulates a keystroke-originated binding write
     let pick = try #require(vm.filteredRecentSuggestions.first)
     vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
@@ -219,7 +219,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let suggestions = vm.filteredRecentSuggestions
     let coffee = try #require(suggestions.first { $0.name == "Coffee" })
     let lunch = try #require(suggestions.first { $0.name == "Lunch" })
@@ -235,7 +235,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 12.80
     vm.amount = nil // ✕ clear
     let pick = try #require(vm.filteredRecentSuggestions.first)
@@ -250,7 +250,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 12.80
     let suggestions = vm.filteredRecentSuggestions
     let coffee = try #require(suggestions.first { $0.name == "Coffee" })
@@ -267,7 +267,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 12.80
     let pick = try #require(vm.filteredRecentSuggestions.first)
     vm.applyRecentFullReplace(pick)
@@ -282,7 +282,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 12.80
     let suggestions = vm.filteredRecentSuggestions
     let coffee = try #require(suggestions.first { $0.name == "Coffee" })
@@ -296,7 +296,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let pick = try #require(vm.filteredRecentSuggestions.first)
     vm.isAddFunds = true
     vm.applyRecentFullReplace(pick)
@@ -307,7 +307,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     // Capture the pick first — toggling `isAddFunds` from false to true triggers the
     // didSet that seeds `name = "Add funds"`, which would filter our candidate set down
     // to zero before we could grab a suggestion. F-6.01 seeding behavior, not under test.
@@ -321,7 +321,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let pick = try #require(vm.filteredRecentSuggestions.first)
     #expect(vm.isAddFunds == false)
     vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
@@ -333,7 +333,7 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "co" // a 2-char query
     let spy = SpyAnalyticsClient()
     let visible = vm.filteredRecentSuggestions
@@ -355,7 +355,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let spy = SpyAnalyticsClient()
     let pick = try #require(vm.filteredRecentSuggestions.first)
     vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: spy)
@@ -383,7 +383,7 @@ struct AddEditExpenseViewModelRecentsTests {
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "co"
     let spy = SpyAnalyticsClient()
     let pick = try #require(vm.filteredRecentSuggestions.first)

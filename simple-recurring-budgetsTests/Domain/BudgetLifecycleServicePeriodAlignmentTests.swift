@@ -36,46 +36,66 @@ private func makeBudget(
   return b
 }
 
-// ============================================================================
-// GROUP B — PINS CURRENT PER-BUDGET WEEKLY ANCHORING (issue #240 / "Option 1")
-// These tests intentionally pin the CURRENT behavior where the weekly grid is
-// derived from Budget.startDate's weekday. Option 1 will switch weekly budgets
-// to a global grid from AppSettings.weekStartDay; when that lands, UPDATE the
-// expectations in this suite deliberately — do not "fix" them to pass.
-// ============================================================================
+// MARK: - Write-path period alignment
 
-struct BudgetLifecycleWeeklyAnchorPinTests {
-  @Test func applyAllocationEdit_weekly_rowLandsOnBudgetWeekdayGrid() throws {
+struct BudgetLifecyclePeriodAlignmentTests {
+  @Test func applyAllocationEdit_weekly_rowLandsOnGlobalGrid() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
-    // Weekly budget anchored Wed 2026-04-01 → weeks run Wed→Tue.
+    // Weekly budget started Wed 2026-04-01; the grid is the global Sunday week (#240).
     let budget = makeBudget(period: .weekly, startDate: d(2026, 4, 1), in: ctx)
     try ctx.save()
 
-    // Edit on Mon Apr 13. Current behavior derives weekStart from startDate
-    // (Wednesday), so the containing period starts Wed Apr 8 — NOT a global-grid
-    // week start. daysBack = (Mon 2 − Wed 4 + 7) % 7 = 5 → Apr 8.
+    // Edit on Mon Apr 13 → current Sunday-grid period starts Sun Apr 12, and the
+    // edit key max(Apr 12, Apr 1) = Apr 12 → a fresh row on the global grid (the
+    // budget's Wednesday startDate no longer defines a private Wed→Tue grid).
     try BudgetLifecycleService.applyAllocationEdit(
-      budget, newAmount: 150, context: ctx, now: d(2026, 4, 13, hour: 10), calendar: cal
+      budget, newAmount: 150, context: ctx, now: d(2026, 4, 13, hour: 10), calendar: cal, weekStart: .sunday
     )
 
     #expect(budget.allocationChanges.count == 2)
     let newRow = budget.allocationChanges.first { $0.amount == 150 }
-    #expect(newRow?.effectiveFrom == d(2026, 4, 8))
+    #expect(newRow?.effectiveFrom == d(2026, 4, 12))
 
     let snap = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: d(2026, 4, 13, hour: 10), calendar: cal
+      budget: budget, expenses: [], now: d(2026, 4, 13, hour: 10), calendar: cal, weekStart: .sunday
     )
-    // Current period [Apr 8–15) uses the edited 150; closed week [Apr 1–8) walked
-    // at the original 100 → carryOver = 100.
+    // Current period [Apr 12–19) uses the edited 150; the closed partial week
+    // [Apr 1–5) and full week [Apr 5–12) walked at the original 100 → carryOver 200.
     #expect(snap.effectiveAllocation == 150)
-    #expect(snap.carryOver == 100)
+    #expect(snap.carryOver == 200)
   }
-}
 
-// MARK: - Write-path period alignment (Group A — survives #240 / Option 1)
+  @Test func applyAllocationEdit_weekly_firstPartialPeriod_mutatesStartRow_consistentReads() throws {
+    let container = try TestModelContainer.make()
+    let ctx = ModelContext(container)
+    // Weekly budget started Wed 2026-04-01 on a Sunday grid: the first period is the
+    // clipped [Apr 1, Apr 5). An edit during it keys on max(Mar 29, Apr 1) = Apr 1 and
+    // mutates the initial startDate row — the weekly variant of the #247 class.
+    let budget = makeBudget(period: .weekly, startDate: d(2026, 4, 1), in: ctx)
+    try ctx.save()
 
-struct BudgetLifecyclePeriodAlignmentTests {
+    try BudgetLifecycleService.applyAllocationEdit(
+      budget, newAmount: 150, context: ctx, now: d(2026, 4, 3, hour: 10), calendar: cal, weekStart: .sunday
+    )
+
+    #expect(budget.allocationChanges.count == 1)
+    #expect(budget.allocationChanges.first?.amount == 150)
+
+    // Live: lookup at max(Mar 29, Apr 1) = Apr 1 → the mutated row → 150.
+    let live = BudgetCalculator.snapshot(
+      budget: budget, expenses: [], now: d(2026, 4, 3, hour: 10), calendar: cal, weekStart: .sunday
+    )
+    #expect(live.effectiveAllocation == 150)
+
+    // Closed: the partial week's walker lookup (boundary Mar 29 → earliest-row
+    // fallback) sees the same mutated row → carry-over credits it at 150.
+    let closed = BudgetCalculator.snapshot(
+      budget: budget, expenses: [], now: d(2026, 4, 6), calendar: cal, weekStart: .sunday
+    )
+    #expect(closed.carryOver == 150)
+  }
+
   @Test func applyAllocationEdit_biweekly_rowLandsOnCycleStart() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
@@ -84,7 +104,7 @@ struct BudgetLifecyclePeriodAlignmentTests {
     try ctx.save()
 
     try BudgetLifecycleService.applyAllocationEdit(
-      budget, newAmount: 150, context: ctx, now: d(2026, 4, 20, hour: 10), calendar: cal
+      budget, newAmount: 150, context: ctx, now: d(2026, 4, 20, hour: 10), calendar: cal, weekStart: .sunday
     )
 
     #expect(budget.allocationChanges.count == 2)
@@ -92,7 +112,7 @@ struct BudgetLifecyclePeriodAlignmentTests {
     #expect(newRow?.effectiveFrom == d(2026, 4, 15))
 
     let snap = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: d(2026, 4, 20, hour: 10), calendar: cal
+      budget: budget, expenses: [], now: d(2026, 4, 20, hour: 10), calendar: cal, weekStart: .sunday
     )
     // Cycle 2 uses 150 live; closed cycle 1 walked at 100.
     #expect(snap.effectiveAllocation == 150)
@@ -109,62 +129,57 @@ struct BudgetLifecyclePeriodAlignmentTests {
     // row's effectiveFrom → in-place mutation, no new row, and the mutated amount
     // applies retroactively to the whole first period.
     try BudgetLifecycleService.applyAllocationEdit(
-      budget, newAmount: 600, context: ctx, now: d(2026, 2, 28, hour: 10), calendar: cal
+      budget, newAmount: 600, context: ctx, now: d(2026, 2, 28, hour: 10), calendar: cal, weekStart: .sunday
     )
     #expect(budget.allocationChanges.count == 1)
     #expect(budget.allocationChanges.first?.amount == 600)
 
     // Edit in a later month inserts a fresh row at that month's start.
     try BudgetLifecycleService.applyAllocationEdit(
-      budget, newAmount: 650, context: ctx, now: d(2026, 3, 31, hour: 10), calendar: cal
+      budget, newAmount: 650, context: ctx, now: d(2026, 3, 31, hour: 10), calendar: cal, weekStart: .sunday
     )
     #expect(budget.allocationChanges.count == 2)
     let marchRow = budget.allocationChanges.first { $0.amount == 650 }
     #expect(marchRow?.effectiveFrom == d(2026, 3, 1))
 
     let snap = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: d(2026, 3, 31, hour: 10), calendar: cal
+      budget: budget, expenses: [], now: d(2026, 3, 31, hour: 10), calendar: cal, weekStart: .sunday
     )
     // Closed February walks at the mutated 600 (retroactive within the first period).
     #expect(snap.effectiveAllocation == 650)
     #expect(snap.carryOver == 600)
   }
 
-  /// ⚠️ Pins a suspected production bug — DO NOT "fix" the expectations here without
-  /// reading this comment. A monthly budget created mid-month stores its initial
-  /// AllocationChange at `startDate` (Jan 15), but `applyAllocationEdit` inserts the
-  /// edited row at `currentPeriodStart` (Jan 1, the calendar-month grid start). The
-  /// live read then looks up `allocationInEffect(at: max(currentPeriodStart,
-  /// effectiveStartDate)) = Jan 15`, which still resolves to the ORIGINAL row — the
-  /// user's edit has no visible effect on the current allocation — while the walker,
-  /// looking up the closed January at boundary Jan 1, uses the EDITED amount. The two
-  /// reads disagree about the same month. Tracked in issue #247; characterized here
-  /// so the inconsistency is visible the day it changes.
-  @Test func applyAllocationEdit_monthly_midMonthStart_insertedRowShadowedByStartRow() throws {
+  /// The #247 fix: a monthly budget created mid-month keys its first-period edit on
+  /// `max(currentPeriodStart, effectiveStartDate)` = the startDate row, mutating it in
+  /// place — so the live read (lookup at Jan 15) and the walker's closed-month lookup
+  /// (boundary Jan 1 → earliest-row fallback) both observe the edit. Before the fix
+  /// the edit inserted a shadowed row at Jan 1: live showed 500 while the walker
+  /// credited 600.
+  @Test func applyAllocationEdit_monthly_midMonthStart_mutatesStartRow_liveAndWalkerAgree() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let budget = makeBudget(period: .monthly, allocation: 500, startDate: d(2026, 1, 15), in: ctx)
     try ctx.save()
 
     try BudgetLifecycleService.applyAllocationEdit(
-      budget, newAmount: 600, context: ctx, now: d(2026, 1, 31, hour: 10), calendar: cal
+      budget, newAmount: 600, context: ctx, now: d(2026, 1, 31, hour: 10), calendar: cal, weekStart: .sunday
     )
-    // The edit inserts at the month-grid start (Jan 1), not at startDate (Jan 15).
-    #expect(budget.allocationChanges.count == 2)
-    let editedRow = budget.allocationChanges.first { $0.amount == 600 }
-    #expect(editedRow?.effectiveFrom == d(2026, 1, 1))
+    // The governing startDate row is mutated in place — no shadowed second row.
+    #expect(budget.allocationChanges.count == 1)
+    let row = budget.allocationChanges.first
+    #expect(row?.effectiveFrom == d(2026, 1, 15))
+    #expect(row?.amount == 600)
 
-    // Live snapshot in January: lookup at max(Jan 1, Jan 15) = Jan 15 → the original
-    // 500 row wins (latest effectiveFrom ≤ Jan 15). The edit is invisible live.
+    // Live snapshot in January sees the edit immediately.
     let live = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: d(2026, 1, 31, hour: 12), calendar: cal
+      budget: budget, expenses: [], now: d(2026, 1, 31, hour: 12), calendar: cal, weekStart: .sunday
     )
-    #expect(live.effectiveAllocation == 500)
+    #expect(live.effectiveAllocation == 600)
 
-    // After January closes: the walker credits the closed month at boundary Jan 1,
-    // where the edited 600 row wins — disagreeing with what the live chip showed.
+    // After January closes, the walker credits the month at the same 600.
     let closed = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: d(2026, 2, 10), calendar: cal
+      budget: budget, expenses: [], now: d(2026, 2, 10), calendar: cal, weekStart: .sunday
     )
     #expect(closed.carryOver == 600)
   }
@@ -179,7 +194,7 @@ struct BudgetLifecyclePeriodAlignmentTests {
     // so the pause succeeds — but the event's effectiveDate clamps to the stored
     // endDate (midnight Apr 30), not the tap moment.
     let didPause = try BudgetLifecycleService.pauseBudget(
-      budget, context: ctx, now: d(2026, 4, 30, hour: 12), calendar: cal
+      budget, context: ctx, now: d(2026, 4, 30, hour: 12), calendar: cal, weekStart: .sunday
     )
 
     #expect(didPause)
@@ -200,7 +215,9 @@ struct BudgetLifecyclePeriodAlignmentTests {
     }
     try ctx.save()
 
-    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 21, hour: 10))
+    try BudgetLifecycleService.resetBudget(
+      budget, context: ctx, now: d(2026, 4, 21, hour: 10), weekStart: .sunday
+    )
 
     #expect(budget.expenseItems.isEmpty)
     #expect(budget.lastResetDate == d(2026, 4, 21, hour: 10))
@@ -210,7 +227,7 @@ struct BudgetLifecyclePeriodAlignmentTests {
 
     // Next day: walker window [Apr 21, Apr 19) is empty → 0; the current week
     // [Apr 19–26) contains the resume → active; no expenses survive the reset.
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 22), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 22), calendar: cal, weekStart: .sunday)
     #expect(result.lifecycleState == .active)
     #expect(result.remaining == 100)
     #expect(result.carryOverAmount == 0)
@@ -228,7 +245,7 @@ struct BudgetLifecyclePeriodAlignmentTests {
 
     try BudgetLifecycleService.resetCarryOver(budget, context: ctx, now: d(2026, 4, 18, hour: 10))
 
-    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 25), calendar: cal)
+    let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 25), calendar: cal, weekStart: .sunday)
     // Walker window [Apr 18, Apr 15) empty → 0. Spillover input = 100 − (post-reset
     // expenses: none) = 100 → ordinary slack → 0. carryOver = 0.
     // remaining keeps ALL current-cycle expenses (post-reset rebound, §A.6.4): 100 − 40.

@@ -333,10 +333,15 @@ struct BudgetRowView: View {
     .onCalendarDayChange {
       refreshLifecycle()
     }
+    // Recompute when Week Starts On changes (confirmed in Settings or synced from
+    // another device via iCloud KVS) — weekly budgets re-grid immediately (#240).
+    .onChange(of: settings.weekStartDay) {
+      refreshLifecycle()
+    }
   }
 
   private func refreshLifecycle() {
-    lifecycle = BudgetLifecycleService.result(for: budget)
+    lifecycle = BudgetLifecycleService.result(for: budget, weekStart: settings.weekStartDay)
   }
 }
 

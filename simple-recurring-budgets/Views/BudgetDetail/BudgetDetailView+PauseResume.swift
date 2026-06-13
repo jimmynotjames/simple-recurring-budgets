@@ -15,7 +15,8 @@ extension BudgetDetailView {
       succeeded = try BudgetLifecycleService.pauseBudget(
         budget,
         context: context,
-        analytics: analytics
+        analytics: analytics,
+        weekStart: settings.weekStartDay
       )
     } catch let error as PersistenceError {
       saveError.setForFailure(error, retry: { [self] in pauseBudgetTapped() })
@@ -52,7 +53,8 @@ extension BudgetDetailView {
       succeeded = try BudgetLifecycleService.resumeBudget(
         budget,
         context: context,
-        analytics: analytics
+        analytics: analytics,
+        weekStart: settings.weekStartDay
       )
     } catch let error as PersistenceError {
       saveError.setForFailure(error, retry: { [self] in resumeBudgetTapped() })

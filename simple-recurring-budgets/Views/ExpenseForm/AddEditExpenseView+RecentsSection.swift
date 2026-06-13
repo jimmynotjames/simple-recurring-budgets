@@ -452,7 +452,7 @@ private struct RecentsSectionView: View {
 #if DEBUG
   #Preview("Recents — Light") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -460,7 +460,7 @@ private struct RecentsSectionView: View {
 
   #Preview("Recents — Dark") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -471,7 +471,7 @@ private struct RecentsSectionView: View {
     let budget = Budget(name: "Daily — fresh", currencyCode: "USD", period: .daily)
     budget.startDate = Calendar.current.startOfDay(for: Date())
     return NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget, weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -479,7 +479,7 @@ private struct RecentsSectionView: View {
 
   #Preview("Recents — Empty: no filter matches") {
     let budget = DebugData.dailyDefault()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "Pizza"
     return NavigationStack {
       AddEditExpenseView(viewModel: vm)
@@ -502,7 +502,7 @@ private struct RecentsSectionView: View {
     }
     budget.expenseItems = expenses
     return NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget, weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -534,7 +534,7 @@ private struct RecentsSectionView: View {
     }
     budget.expenseItems = expenses
     return NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget, weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -543,7 +543,7 @@ private struct RecentsSectionView: View {
   #Preview("Recents — Edit mode (no section)") {
     let budget = DebugData.dailyDefault()
     return NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0]))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0], weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -551,7 +551,7 @@ private struct RecentsSectionView: View {
 
   #Preview("Recents — xxxLarge Dynamic Type") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())

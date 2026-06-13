@@ -29,7 +29,7 @@ struct AddEditExpenseDateBoundsTests {
     context.insert(budget); context.insert(change)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.dateRange.lowerBound == startDate)
     // Per Budget.endDate convention (inclusive day), the upper bound is the last
     // moment of endDate's day — not startOfDay(endDate). Clamping at start-of-day
@@ -63,7 +63,7 @@ struct AddEditExpenseDateBoundsTests {
     context.insert(budget); context.insert(change)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.dateRange.upperBound > utcDate(2100, 1, 1))
     // Active budget never surfaces a paused caption (proactive or violation).
     #expect(vm.dateContextCaption == nil)
@@ -86,7 +86,7 @@ struct AddEditExpenseDateBoundsTests {
     context.insert(pause1); context.insert(resume1); context.insert(pause2)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 12, hour: 10) // In the paused gap between pause1 and resume1
     // Behavioral invariant: Save is blocked. Caption-text assertions live in
@@ -107,7 +107,7 @@ struct AddEditExpenseDateBoundsTests {
     context.insert(budget); context.insert(change); context.insert(pauseEvent)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 5, hour: 10) // In active period before pause
     #expect(vm.canSave == true)
@@ -127,7 +127,7 @@ struct AddEditExpenseDateBoundsTests {
     context.insert(budget); context.insert(change); context.insert(pauseEvent)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.dateRange.upperBound == pauseDate)
     #expect(vm.dateRange.lowerBound == startDate)
   }
@@ -146,7 +146,7 @@ struct AddEditExpenseDateBoundsTests {
     context.insert(budget); context.insert(change); context.insert(pauseEvent)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     // Seed should land on the pause event date (the precise upper bound of the active
     // union under moment-granular UI), not Date() (which would be in a paused gap).
     #expect(vm.date == pauseDate)

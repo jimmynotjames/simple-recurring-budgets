@@ -40,7 +40,7 @@ struct BudgetRecomputeTokenTests {
 
     #expect(budget.lastModified == lastModifiedBefore, "Precondition: lastModified must NOT change")
     #expect(budget.recomputeToken != tokenBefore, "Token must change when an expense is inserted")
-    #expect(BudgetLifecycleService.result(for: budget).remaining == 45)
+    #expect(BudgetLifecycleService.result(for: budget, weekStart: .sunday).remaining == 45)
   }
 
   /// Editing an existing expense's amount (count unchanged) still changes the token,

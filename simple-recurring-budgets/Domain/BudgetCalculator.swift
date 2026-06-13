@@ -2,10 +2,19 @@ import Foundation
 
 /// Financial math service — pure, stateless, no SwiftData or SwiftUI dependencies.
 ///
-/// The single entry point is `snapshot(budget:expenses:now:calendar:)`. It reads
+/// The single entry point is `snapshot(budget:expenses:now:calendar:weekStart:)`. It reads
 /// `Budget` and `[ExpenseItem]` and returns an immutable `BudgetSnapshot`; it never
 /// mutates any model or saves to a `ModelContext`. Production callers pass
 /// `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC calendar.
+///
+/// `weekStart` is the **global** week grid (production callers pass
+/// `AppSettings.weekStartDay`; the parameter deliberately has no default so every call
+/// site chooses explicitly). It governs only `.weekly` budgets — every weekly budget
+/// shares the grid, like every monthly budget shares the calendar-month grid, and a
+/// `startDate` that falls mid-grid just clips the first period (full allocation, no
+/// proration). Biweekly cycles stay anchored to the budget's own `startDate` — a
+/// weekday cannot determine which of two alternating weeks a 14-day cycle restarts
+/// in — so `weekStart` never affects them (see budget-math spec, #240).
 enum BudgetCalculator {
   // MARK: - Main entry point
 
@@ -13,7 +22,8 @@ enum BudgetCalculator {
     budget: Budget,
     expenses: [ExpenseItem],
     now: Date,
-    calendar: Calendar
+    calendar: Calendar,
+    weekStart: Weekday
   ) -> BudgetSnapshot {
     let effectiveStartDate = calendar.startOfDay(for: budget.effectiveStartDate)
     let effectiveEndInclusive: Date? = budget.endDate.map { calendar.startOfDay(for: $0) }
@@ -81,9 +91,9 @@ enum BudgetCalculator {
       expenses: expenses,
       now: now,
       calendar: calendar,
+      weekStart: weekStart,
       period: period,
       effectiveStartDate: effectiveStartDate,
-      effectiveEndInclusive: effectiveEndInclusive,
       effectiveEndExclusive: effectiveEndExclusive,
       sortedAllocationChanges: sortedAllocationChanges,
       sortedLifecycleEvents: sortedLifecycleEvents
@@ -97,13 +107,16 @@ enum BudgetCalculator {
     expenses: [ExpenseItem],
     now: Date,
     calendar: Calendar,
+    weekStart: Weekday,
     period: RecurringBudgetPeriod,
     effectiveStartDate: Date,
-    effectiveEndInclusive: Date?,
     effectiveEndExclusive: Date,
     sortedAllocationChanges: [AllocationChange],
     sortedLifecycleEvents: [LifecycleEvent]
   ) -> BudgetSnapshot {
+    // Re-derived locally (rather than passed in) to keep the parameter list at the
+    // lint cap; same normalization as the snapshot entry point.
+    let effectiveEndInclusive: Date? = budget.endDate.map { calendar.startOfDay(for: $0) }
     // Clamp `now` to `effectiveEndInclusive` so post-end snapshots reflect the *final*
     // period (the one containing `endDate`) rather than whatever period calendar-now
     // would fall into. Without this clamp, a daily budget that ended Apr 10 viewed on
@@ -112,8 +125,9 @@ enum BudgetCalculator {
     // below still uses raw `now` to decide postEnd vs active — only the period math is clamped.
     let effectiveNow = effectiveEndInclusive.map { min(now, $0) } ?? now
 
-    let weekdayRaw = calendar.component(.weekday, from: effectiveStartDate)
-    let weekStart = Weekday(rawValue: weekdayRaw) ?? .sunday
+    // `weekStart` arrives from the caller (the global AppSettings.weekStartDay) and is
+    // consumed only by the weekly grid. The biweekly cycle stays anchored to the
+    // budget's own start date — its 14-day phase comes from a date, not a weekday.
     let biweeklyAnchor = effectiveStartDate
 
     let currentPeriodStart = PeriodCalculator.periodStart(

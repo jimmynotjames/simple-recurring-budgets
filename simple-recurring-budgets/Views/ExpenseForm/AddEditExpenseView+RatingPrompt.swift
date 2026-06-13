@@ -11,7 +11,8 @@ extension AddEditExpenseView {
     guard let ratingPrompt,
           let signals = RatingPromptCoordinator.expenseLogSignals(
             isAddMode: !viewModel.isEditing,
-            budget: viewModel.budget
+            budget: viewModel.budget,
+            weekStart: settings.weekStartDay
           )
     else { return }
     ratingPrompt.recordExpenseLogged(

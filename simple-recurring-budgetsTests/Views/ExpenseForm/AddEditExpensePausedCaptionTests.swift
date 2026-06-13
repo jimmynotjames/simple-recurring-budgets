@@ -35,7 +35,7 @@ struct AddEditExpensePausedCaptionTests {
     context.insert(budget); context.insert(change); context.insert(pauseEvent)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let caption = vm.dateContextCaption
     #expect(caption != nil)
     #expect(caption != violationCopy()) // Sheet opens on a valid date → proactive, not violation.
@@ -55,7 +55,7 @@ struct AddEditExpensePausedCaptionTests {
     context.insert(budget); context.insert(change); context.insert(pauseEvent)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.date = utcDate(2026, 4, 5, hour: 9) // Earlier valid date inside the active interval.
     let caption = vm.dateContextCaption
     #expect(caption != nil)
@@ -79,7 +79,7 @@ struct AddEditExpensePausedCaptionTests {
     context.insert(pause1); context.insert(resume1); context.insert(pause2)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 12, hour: 10) // Inside the paused gap [Apr 10, Apr 15).
     #expect(vm.dateContextCaption == violationCopy())
@@ -102,7 +102,7 @@ struct AddEditExpensePausedCaptionTests {
     context.insert(pause1); context.insert(resume1); context.insert(pause2)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.date = utcDate(2026, 4, 12, hour: 10) // Paused gap
     #expect(vm.dateContextCaption == violationCopy())
@@ -125,7 +125,7 @@ struct AddEditExpensePausedCaptionTests {
     context.insert(budget); context.insert(change)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.dateContextCaption == nil)
   }
 
@@ -145,7 +145,7 @@ struct AddEditExpensePausedCaptionTests {
     context.insert(budget); context.insert(change); context.insert(pauseEvent); context.insert(existing)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: existing)
+    let vm = AddEditExpenseViewModel(editing: existing, weekStart: .sunday)
     let caption = vm.dateContextCaption
     #expect(caption != nil)
     #expect(caption != violationCopy())

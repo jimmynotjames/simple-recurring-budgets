@@ -20,7 +20,7 @@ struct AddEditExpenseDateContextCaptionTests {
 
   @Test func addMode_preStartBudget_showsPreStartCaption() throws {
     let budget = DebugData.dailyPreStart()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let caption = vm.dateContextCaption
     let formatted = try #require(budget.startDate?.formatted(date: .abbreviated, time: .omitted))
     let expected = String(
@@ -35,7 +35,7 @@ struct AddEditExpenseDateContextCaptionTests {
 
   @Test func addMode_postEndBudget_showsPostEndCaption() throws {
     let budget = DebugData.weeklyPostEnd()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     let caption = vm.dateContextCaption
     let formatted = try #require(budget.endDate?.formatted(date: .abbreviated, time: .omitted))
     let expected = String(
@@ -51,7 +51,7 @@ struct AddEditExpenseDateContextCaptionTests {
   @Test func addMode_activeBudget_returnsNil() {
     // dailyDefault is an active budget — the caption should be nil.
     let budget = DebugData.dailyDefault()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.dateContextCaption == nil)
   }
 
@@ -72,7 +72,7 @@ struct AddEditExpenseDateContextCaptionTests {
     expense.budget = budget
     context.insert(expense)
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     #expect(vm.dateContextCaption == nil)
   }
 
@@ -87,7 +87,7 @@ struct AddEditExpenseDateContextCaptionTests {
     expense.budget = budget
     context.insert(expense)
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     #expect(vm.dateContextCaption == nil)
   }
 
@@ -95,7 +95,7 @@ struct AddEditExpenseDateContextCaptionTests {
 
   @Test func addMode_postEndBudget_dateSeededToEndOfEndDateDay() throws {
     let budget = DebugData.weeklyPostEnd()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     // The picker upper bound is the last moment of endDate's day; the seed
     // must land at the same moment so the picker opens inside dateRange.
     let cal = Calendar.autoupdatingCurrent
@@ -111,7 +111,7 @@ struct AddEditExpenseDateContextCaptionTests {
 
   @Test func addMode_preStartBudget_dateSeededToEffectiveStartDate() {
     let budget = DebugData.dailyPreStart()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     // For pre-start, `max(Date(), effectiveStartDate)` collapses to
     // effectiveStartDate because `Date()` < startDate.
     #expect(vm.date == budget.effectiveStartDate)
@@ -139,7 +139,7 @@ struct AddEditExpenseDateContextCaptionTests {
     change.budget = budget
     budget.allocationChangesStorage = [change]
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.dateContextCaption == nil)
   }
 }

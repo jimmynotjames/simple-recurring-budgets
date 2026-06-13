@@ -3,10 +3,12 @@ import Foundation
 /// Pure date-math service for computing budget period boundaries.
 ///
 /// All methods accept `RecurringBudgetPeriod` — `.specificDates` cannot reach this service
-/// at compile time. Weekly/biweekly anchoring derives from the budget's `startDate`
-/// (passed in as `weekStart` and `biweeklyAnchor`); `AppSettings.weekStartDay` is not
-/// consulted here. Production callers pass `Calendar.autoupdatingCurrent`; tests inject
-/// a fixed-UTC calendar.
+/// at compile time. `weekStart` is the global week grid (production callers thread
+/// `AppSettings.weekStartDay` down through `BudgetCalculator.snapshot`); it is consumed
+/// only by the `.weekly` branch. `biweeklyAnchor` is the budget's own `startDate` — the
+/// 14-day cycle's phase comes from that date and never from `weekStart` (#240).
+/// Production callers pass `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC
+/// calendar.
 enum PeriodCalculator {
   // MARK: - Period Start
 
@@ -15,7 +17,7 @@ enum PeriodCalculator {
   /// - Parameters:
   ///   - date: The reference date.
   ///   - period: The budget's repeating period (recurring types only).
-  ///   - weekStart: The budget's weekly anchor weekday (derived from `Budget.startDate`).
+  ///   - weekStart: The global week-start day (`AppSettings.weekStartDay`); weekly only.
   ///   - biweeklyAnchor: The cycle anchor for biweekly periods (ignored for others).
   ///   - calendar: The calendar to use for all date arithmetic.
   static func periodStart(

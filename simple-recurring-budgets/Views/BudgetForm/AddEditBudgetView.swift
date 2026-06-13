@@ -23,6 +23,9 @@ struct AddEditBudgetView: View {
   @State var showCurrencyPicker = false
   @State private var showDeleteConfirmation = false
   @State private var showOrphanWarning = false
+  /// Save-time confirmation shown when a biweekly budget's start date is edited, since
+  /// that re-anchors the 14-day grid and recalculates past periods (and carry-over).
+  @State private var showBiweeklyReanchorWarning = false
   @State private var showIconPicker = false
   /// Standard save-error alert state (`persistence-error-handling` capability).
   /// Populated when `viewModel.save`/`viewModel.delete` throws a
@@ -69,6 +72,10 @@ struct AddEditBudgetView: View {
         if viewModel.orphanedExpenseCount > 0 {
           isScheduleExpanded = true
         }
+        // Biweekly cycles anchor to the start date, so surface it on open.
+        if viewModel.period == .biweekly {
+          isScheduleExpanded = true
+        }
       }
       .navigationTitle(
         viewModel.isEditing
@@ -102,7 +109,11 @@ struct AddEditBudgetView: View {
             defaultValue: "Save",
             comment: "Button that saves the budget and dismisses the Add/Edit Budget sheet"
           )) {
-            if viewModel.orphanedExpenseCount > 0 {
+            if viewModel.isBiweeklyStartDateEdited {
+              // Biweekly re-anchor confirmation; its message folds in the orphan
+              // sentence when expenses are also stranded, so we never stack alerts.
+              showBiweeklyReanchorWarning = true
+            } else if viewModel.orphanedExpenseCount > 0 {
               showOrphanWarning = true
             } else {
               commitSave()
@@ -142,7 +153,46 @@ struct AddEditBudgetView: View {
           comment: "Body of the orphan-expense alert on the Edit Budget Save confirmation. Explains that orphaned expenses stay in the list but are not counted by the budget."
         ))
       }
+      .alert(
+        String(
+          localized: "addEditBudget.biweeklyReanchor.title",
+          defaultValue: "Change Start Date?",
+          comment: "Title of the confirmation alert shown when the user taps Save on Edit Budget after changing a biweekly budget's start date. Changing it re-anchors the 14-day cycle grid."
+        ),
+        isPresented: $showBiweeklyReanchorWarning
+      ) {
+        Button(String(
+          localized: "addEditBudget.biweeklyReanchor.cancel",
+          defaultValue: "Cancel",
+          comment: "Cancel button on the biweekly re-anchor alert; returns the user to the Edit Budget form with draft state preserved."
+        ), role: .cancel) {}
+        Button(String(
+          localized: "addEditBudget.biweeklyReanchor.confirm",
+          defaultValue: "Change",
+          comment: "Confirm button on the biweekly re-anchor alert; commits the Save and dismisses the Edit Budget sheet."
+        )) { commitSave() }
+      } message: {
+        Text(biweeklyReanchorMessage)
+      }
     }
+  }
+
+  /// Body for the biweekly re-anchor confirmation. The base sentence explains the
+  /// re-alignment; when the same edit also strands logged expenses, the orphan
+  /// sentence is appended so both consequences land in a single alert.
+  private var biweeklyReanchorMessage: String {
+    let base = String(
+      localized: "addEditBudget.biweeklyReanchor.message",
+      defaultValue: "This will re-align current and future two-week cycles and recalculate past periods.",
+      comment: "Body of the biweekly re-anchor alert on the Edit Budget Save confirmation. Warns that changing the start date re-aligns the 14-day cycles and recalculates past periods (and carry-over)."
+    )
+    guard viewModel.orphanedExpenseCount > 0 else { return base }
+    let orphan = String(
+      localized: "addEditBudget.orphanWarning.message",
+      defaultValue: "Those expenses still show in your list but won't be counted by this budget.",
+      comment: "Body of the orphan-expense alert on the Edit Budget Save confirmation. Explains that orphaned expenses stay in the list but are not counted by the budget."
+    )
+    return "\(base) \(orphan)"
   }
 
   private func commitSave() {
@@ -327,6 +377,18 @@ struct AddEditBudgetView: View {
           .transition(.opacity.combined(with: .move(edge: .top)))
         }
 
+        if viewModel.period == .biweekly {
+          Text(String(
+            localized: "addEditBudget.note.biweekly",
+            defaultValue: "Repeating 14-day period. Choose your start date below to choose which day each cycle begins on.",
+            comment: "Caption below the period chip grid when Biweekly is selected. Explains the 14-day cycle is anchored to the budget's start date, so the start date sets which day each cycle begins on."
+          ))
+          .font(.caption)
+          .foregroundStyle(.readableSecondary)
+          .padding(.top, 4)
+          .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+
         if viewModel.isEditing {
           Label(
             String(
@@ -341,7 +403,7 @@ struct AddEditBudgetView: View {
           .padding(.top, 8)
         }
       }
-      .animation(.easeInOut(duration: 0.2), value: isSpecificDates)
+      .animation(.easeInOut(duration: 0.2), value: viewModel.period)
     } label: {
       sectionLabel(String(
         localized: "addEditBudget.section.period",
@@ -433,6 +495,10 @@ struct AddEditBudgetView: View {
         dismissKeyboard()
         withAnimation(.easeInOut(duration: 0.15)) {
           viewModel.period = p
+          // Biweekly cycles anchor to the start date — auto-reveal it (never auto-collapse).
+          if p == .biweekly {
+            isScheduleExpanded = true
+          }
         }
       } label: {
         Text(p.listLabel)

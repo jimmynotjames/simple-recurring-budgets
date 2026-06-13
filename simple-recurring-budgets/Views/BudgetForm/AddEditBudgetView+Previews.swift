@@ -55,6 +55,16 @@ import SwiftUI
       .environment(Router())
   }
 
+  #Preview("Edit — Biweekly (note + schedule)") {
+    // Biweekly edit: the explanatory note shows under the period chips and the
+    // Schedule disclosure auto-expands so the start date (the cycle anchor) is visible.
+    let budget = DebugData.biweeklyDefault()
+    return AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))
+      .modelContainer(PreviewContainer.make())
+      .environment(AppSettings())
+      .environment(Router())
+  }
+
   #Preview("Edit — Orphaning start date") {
     // weeklyDefault has expenses at day 0, -7, -21, -35.
     // Moving startDate to 20 days ago orphans the day-21 and day-35 expenses (count = 2).

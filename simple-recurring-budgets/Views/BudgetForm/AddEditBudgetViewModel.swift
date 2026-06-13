@@ -94,6 +94,16 @@ final class AddEditBudgetViewModel {
     return budget.expenseItems.count(where: { $0.date < start })
   }
 
+  /// True in Edit mode when the budget is biweekly and the drafted `startDate` differs
+  /// from the persisted value — gates the Save-time re-anchor confirmation. Biweekly is
+  /// the only recurring type whose grid is anchored to `startDate` (weekly grids on the
+  /// global week-start setting; daily/monthly are unaffected), so only it warns.
+  var isBiweeklyStartDateEdited: Bool {
+    guard case let .edit(budget) = mode, period == .biweekly, let start = startDate else { return false }
+    let normalized = Calendar.autoupdatingCurrent.startOfDay(for: start)
+    return budget.startDate != normalized
+  }
+
   // MARK: - Init (Add mode)
 
   init(settings: AppSettings) {

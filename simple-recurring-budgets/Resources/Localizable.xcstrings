@@ -695,7 +695,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poistaa tämän budjetin ja sen kulut pysyvästi."
+            "value": "Poistaa tämän budjetin ja sen menot pysyvästi."
           }
         },
         "fr": {
@@ -737,7 +737,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Véglegesen törli ezt a büdzsét és a hozzá tartozó kiadásokat."
+            "value": "Véglegesen törli ezt a költségkeretet és a kiadásait."
           }
         },
         "id": {
@@ -773,19 +773,19 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഈ ബജറ്റ്‌ നിരന്തരമായി ഇല്ലാതാക്കി അതിന്റെ ചെലവുകളും ഇല്ലാതാക്കുന്നു."
+            "value": "ഈ ബജറ്റും അതിന്റെ ചെലവുകളും ശാശ്വതമായി ഇല്ലാതാക്കുന്നു."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "हा budget आणि त्याचे सर्व खर्च कायमचे हटवते."
+            "value": "हे budget आणि त्याचे खर्च कायमचे हटवते."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Memadamkan belanjawan ini dan perbelanjaannya secara kekal."
+            "value": "Memadam bajet ini dan perbelanjaannya secara kekal."
           }
         },
         "nb": {
@@ -803,7 +803,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଏହି ବଜେଟ୍ ଏବଂ ଏହାର ଖର୍ଚ୍ଚ ସ୍ଥାୟୀভାବେ ବିଲୋପ କରେ।"
+            "value": "ଏହି ବଜେଟ୍ ଓ ଏହାର ଖର୍ଚ୍ଚକୁ ସ୍ଥାୟୀ ଭାବେ ବିଲୋପ କରେ।"
           }
         },
         "pa": {
@@ -1870,13 +1870,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dies passt die aktuellen und zukünftigen Zwei-Wochen-Zyklen an und neuberechnet frühere Zeiträume."
+            "value": "Damit werden aktuelle und künftige Zwei-Wochen-Zyklen neu ausgerichtet und frühere Zeiträume neu berechnet."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Θα γίνει επανευθυγράμμιση των τρέχουσων και μελλοντικών διδυμοϊκών περιόδων και επανυπολογισμός των προηγούμενων περιόδων."
+            "value": "Θα ευθυγραμμίσει εκ νέου τους τρέχοντες και μελλοντικούς δεκαπενθήμερους κύκλους και θα υπολογίσει ξανά τις προηγούμενες περιόδους."
           }
         },
         "en": {
@@ -1954,7 +1954,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prilagoditi će se trenutni i budući ciklusi od 14 dana te će se ponovno izračunati prošla razdoblja."
+            "value": "Time se usklađuju trenutni i budući dvotjedni ciklusi te se ponovno izračunavaju prošla razdoblja."
           }
         },
         "hu": {
@@ -1996,7 +1996,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഇത് നിലവിലെ കാലയളവ്, ഭാവിയിലെ രണ്ടാഴ്ച കാലയളവ് പുനരിരിപ്പിക്കും, കഴിഞ്ഞ കാലയളവുകൾ പുനഃകണക്കാക്കും."
+            "value": "ഇത് നിലവിലെയും ഭാവിയിലെയും രണ്ടാഴ്ച ചക്രങ്ങൾ വീണ്ടും ക്രമീകരിക്കുകയും കഴിഞ്ഞ കാലയളവുകൾ വീണ്ടും കണക്കാക്കുകയും ചെയ്യും."
           }
         },
         "mr": {
@@ -2846,13 +2846,13 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouillé. Tu ne peux pas modifier le type de Période une fois ton Budget créé."
+            "value": "Verrouillé. Le type de période ne peut pas être modifié après la création du budget."
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "બંધ. તમારો બજેટ બનાવ્યા પછી સમયગાળો પ્રકાર બદલી શકાતો નથી."
+            "value": "લૉક કરેલું. બજેટ બનાવ્યા પછી સમયગાળાનો પ્રકાર બદલી શકાતો નથી."
           }
         },
         "he": {
@@ -3570,7 +3570,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Concluído"
+            "value": "OK"
           }
         },
         "pt-PT": {
@@ -4604,7 +4604,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přidělená částka: %@"
+            "value": "Rozpočtená částka, %@"
           }
         },
         "da": {
@@ -4730,7 +4730,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ವಿತರಣ ಮೊತ್ತ, %@"
+            "value": "ಹಂಚಿಕೆ ಮೊತ್ತ, %@"
           }
         },
         "ko": {
@@ -4808,7 +4808,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сумма бюджета, %@"
+            "value": "Сумма лимита, %@"
           }
         },
         "sk": {
@@ -5472,7 +5472,7 @@
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "کرنسی کاانتخاب کھولتا ہے"
+            "value": "کرنسی منتخب کرنے کا اختیار کھولتا ہے"
           }
         },
         "vi": {
@@ -5818,7 +5818,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obri un calendari per seleccionar la data de finalització."
+            "value": "Obre un calendari per triar la data de fi."
           }
         },
         "cs": {
@@ -6428,7 +6428,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selecciona la data de finalització"
+            "value": "Tria la data de fi"
           }
         },
         "cs": {
@@ -6638,7 +6638,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выберите дату окончания"
+            "value": "Дата окончания"
           }
         },
         "sk": {
@@ -6680,7 +6680,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bitiş tarihini seçin"
+            "value": "Bitiş tarihi seç"
           }
         },
         "uk": {
@@ -6944,7 +6944,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Откройте календарь, чтобы выбрать дополнительную дату окончания."
+            "value": "Открывает календарь для выбора даты окончания."
           }
         },
         "sk": {
@@ -6956,7 +6956,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odpre koledar za izbor opcionalnega datuma konca."
+            "value": "Odpre koledar za izbiro neobveznega datuma konca."
           }
         },
         "sv": {
@@ -7544,7 +7544,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sem data de término"
+            "value": "Sem data de fim"
           }
         },
         "ro": {
@@ -8261,7 +8261,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selecciona la data de començament"
+            "value": "Tria la data d'inici"
           }
         },
         "cs": {
@@ -8471,7 +8471,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выберите дату начала"
+            "value": "Дата начала"
           }
         },
         "sk": {
@@ -8513,7 +8513,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Başlangıç tarihini seçin"
+            "value": "Başlangıç tarihi seç"
           }
         },
         "uk": {
@@ -9593,7 +9593,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Megnyit egy választót az ikon kiválasztásához a költségvetéshez."
+            "value": "Megnyit egy választót a költségkeret ikonjához."
           }
         },
         "id": {
@@ -9899,7 +9899,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Költségvetés ikon"
+            "value": "Költségkeret ikonja"
           }
         },
         "id": {
@@ -10043,7 +10043,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bütçe ikonu"
+            "value": "Bütçe simgesi"
           }
         },
         "uk": {
@@ -11529,7 +11529,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Удалить"
+            "value": "Убрать"
           }
         },
         "sk": {
@@ -11577,7 +11577,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Видалити"
+            "value": "Прибрати"
           }
         },
         "ur": {
@@ -11769,7 +11769,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഐച്ഛികം ഐക്കൺ"
+            "value": "ഓപ്ഷണൽ ഐക്കൺ"
           }
         },
         "mr": {
@@ -11835,7 +11835,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Дополнительный значок"
+            "value": "Значок (необязательно)"
           }
         },
         "sk": {
@@ -11847,7 +11847,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcionalna ikona"
+            "value": "Neobvezna ikona"
           }
         },
         "sv": {
@@ -11877,7 +11877,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "İsteğe Bağlı İkon"
+            "value": "İsteğe Bağlı Simge"
           }
         },
         "uk": {
@@ -11931,7 +11931,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Període de 14 dies que es repeteix. Trieu la vostra data d'inici a continuació per triar quin dia comença cada cicle."
+            "value": "Període repetitiu de 14 dies. Tria la data d'inici a sota per definir quin dia comença cada cicle."
           }
         },
         "cs": {
@@ -11997,7 +11997,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toistuvaa 14 päivän jakso. Valitse alkamispäivä alla, jotta voit valita, mihin päivään kukin jakso alkaa."
+            "value": "Toistuva 14 päivän jakso. Valitse alkamispäivä alta, niin määrität minä päivänä kukin jakso alkaa."
           }
         },
         "fr": {
@@ -12051,7 +12051,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Periodo ricorrente di 14 giorni. Scegli la tua data di inizio di seguito per scegliere il giorno in cui inizia ogni ciclo."
+            "value": "Periodo ricorrente di 14 giorni. Scegli la data di inizio qui sotto per decidere in quale giorno parte ogni ciclo."
           }
         },
         "ja": {
@@ -12075,7 +12075,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "14 ദിവസത്തെ ആവർത്തിച്ചുള്ള കാലയളവ്. താഴെ ആരംഭ തീയതി തിരഞ്ഞെടുത്ത് ഓരോ സൈക്കിൾ എത്ര ദിവസത്ത് ആരംഭിക്കണം എന്ന് നിര്ണയിക്കുക."
+            "value": "ആവർത്തിക്കുന്ന 14-ദിവസ കാലയളവ്. ഓരോ ചക്രവും ഏത് ദിവസം തുടങ്ങണമെന്ന് നിശ്ചയിക്കാൻ താഴെ ആരംഭ തീയതി തിരഞ്ഞെടുക്കുക."
           }
         },
         "mr": {
@@ -12105,7 +12105,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ପୁନରାବୃତ୍ତି 14-ଦିନର ଅବଧି। ଆପଣର ଆରମ୍ଭ ତାରିଖ ବାଛନ୍ତୁ ଯାହା ପ୍ରତିଟି ଚକ୍ର କେଉଁ ଦିନରେ ଆରମ୍ଭ ହୋଇବ ତାହା ଚୟନ କରିବାକୁ"
+            "value": "ପୁନରାବୃତ୍ତ ୧୪-ଦିନିଆ ଅବଧି। ପ୍ରତ୍ୟେକ ଚକ୍ର କେଉଁ ଦିନରୁ ଆରମ୍ଭ ହେବ ତାହା ବାଛିବାକୁ ତଳେ ଆରମ୍ଭ ତାରିଖ ବାଛନ୍ତୁ।"
           }
         },
         "pa": {
@@ -12153,7 +12153,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ponavljajoče se 14-dnevno obdobje. Izberite datum začetka spodaj, da izberete, v kateri dan se vsak cikel začne."
+            "value": "Ponavljajoče se 14-dnevno obdobje. Spodaj izberi datum začetka, ki določa, na kateri dan se začne vsak cikel."
           }
         },
         "sv": {
@@ -12165,13 +12165,13 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "14 நாட்களின் புரிய வரும் காலம். கீழே உங்களின் தொடக்கத் தேதியைத் தேர்ந்தெடுத்து ஒவ்வொரு சுழற்சி எந்த நாளில் தொடங்குகிறது என்பதைத் தேர்ந்தெடுக்கவும்."
+            "value": "மீண்டும் வரும் 14 நாள் காலம். ஒவ்வொரு சுழற்சியும் எந்த நாளில் தொடங்க வேண்டும் என்பதைத் தேர்ந்தெடுக்க கீழே தொடக்கத் தேதியைத் தேர்வு செய்யவும்."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "14-రోజుల వ్యవధి పునరావృతమవుతుంది. ప్రతి చక్రం ఎంటి నాడు ప్రారంభం అవాలో నిర్ణయించడానికి మీ ప్రారంభ తేదీను ఎంచుకోండి."
+            "value": "పునరావృతమయ్యే 14-రోజుల వ్యవధి. ప్రతి సైకిల్ ఏ రోజున మొదలవ్వాలో నిర్ణయించడానికి కింద ప్రారంభ తేదీని ఎంచుకోండి."
           }
         },
         "th": {
@@ -12195,7 +12195,7 @@
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "14 دن کی دہرائی مدت۔ اپنی آغاز کی تاریخ منتخب کریں تاکہ ہر مدت کس دن شروع ہو۔"
+            "value": "ہر 14 دن میں دہرائی جانے والی مدت۔ نیچے آغاز کی تاریخ منتخب کریں تاکہ طے ہو کہ ہر دور کس دن شروع ہو۔"
           }
         },
         "vi": {
@@ -12230,7 +12230,7 @@
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "সময়কালের মধ্যে জমা থাকা এবং সঞ্চয়।"
+            "value": "বিভিন্ন সময়কাল জুড়ে জমা হওয়া বেশি ও কম খরচ।"
           }
         },
         "ca": {
@@ -12302,7 +12302,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kumulatiivinen ylite ja alijäämä jaksojen välillä."
+            "value": "Yli- ja alijäämä kertyvät jaksosta toiseen."
           }
         },
         "fr": {
@@ -12320,7 +12320,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "સમયગાળાઓમાં સંચયી વધારો અને ઉણપ."
+            "value": "સમયગાળાઓમાં વધારે અને ઓછા ખર્ચનો સંચિત હિસાબ."
           }
         },
         "he": {
@@ -12368,25 +12368,25 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಅವಧಿಗಳಾದ್ಯಂತ ಸಂಚಿತ ಮೀರಿದ ಮತ್ತು ಅತ್ಯಲ್ಪ ಖರ್ಚಾಗತಿಕೆ."
+            "value": "ಅವಧಿಗಳಾದ್ಯಂತ ಒಟ್ಟು ಹೆಚ್ಚುವರಿ ಮತ್ತು ಕಡಿಮೆ ಖರ್ಚು."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기간별 초과 및 미달 지출이 누적 적용됩니다."
+            "value": "기간별 초과 및 미달 지출의 누적입니다."
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "കാലയളവുകളിലുടനീളം ജമയായി അമിതവ്യയവും കുറവ്വ്യയവും."
+            "value": "കാലയളവുകളിലുടനീളം കൂട്ടിച്ചേർക്കുന്ന അധിക- ഉം കുറവ്- ചെലവുകൾ."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "कालावधींमध्ये संचयी अधिक आणि कमी खर्च."
+            "value": "कालावधींमध्ये एकत्रित जास्त- आणि कमी-खर्च."
           }
         },
         "ms": {
@@ -12410,13 +12410,13 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଅବଧି ଜୁଡ଼ି ଅଳ୍ପ ଓ ବାହୁଲ୍ୟ ଖର୍ଚ୍ଚ।"
+            "value": "ଅବଧି ସାରା ଅଧିକ ଓ କମ୍ ଖର୍ଚ୍ଚର ସମଷ୍ଟି।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਮਿਆਦਾਂ ਭਰ ਜਮ ਹੋਈ ਜਾਂ ਘਾਟੇ ਵਾਲੀ ਖਰਚ।"
+            "value": "ਮਿਆਦਾਂ ਦੌਰਾਨ ਕੁੱਲ ਵੱਧ ਅਤੇ ਘੱਟ ਖਰਚ।"
           }
         },
         "pl": {
@@ -12440,7 +12440,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cheltuielile și economiile se acumulează între perioade."
+            "value": "Surplusul și deficitul cumulate de la o perioadă la alta."
           }
         },
         "ru": {
@@ -12452,7 +12452,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kumulatívne prekročenie a úspora výdavkov naprieč obdobiami."
+            "value": "Kumulatívne prečerpanie a úspory naprieč obdobiami."
           }
         },
         "sl": {
@@ -12470,7 +12470,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "காலங்களூடே சேர்க்கப்பட்ட மிகமாற்றம் மற்றும் குறைவான செலவு."
+            "value": "காலங்களுக்கு இடையே கூடுதல் மற்றும் குறைவான செலவுகளின் ஒட்டுமொத்தம்."
           }
         },
         "te": {
@@ -12482,7 +12482,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "สะสมการใช้จ่ายมากเกินกว่าและน้อยกว่าอัตราในแต่ละช่วงเวลา"
+            "value": "ยอดใช้เกินและใช้ไม่หมดสะสมข้ามรอบ"
           }
         },
         "tr": {
@@ -12547,7 +12547,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Změna měny aktualizuje pouze popisek. Tj. Neprovádí se žádný přepočet měny."
+            "value": "Změna měny upraví jen označení. Žádný převod měny se neprovede."
           }
         },
         "da": {
@@ -12924,13 +12924,13 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu ne peux pas modifier le type de Période une fois ton Budget créé."
+            "value": "Le type de période ne peut pas être modifié après la création du budget."
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "તમારો બજેટ બનાવ્યા પછી સમયગાળો પ્રકાર બદલી શકાતો નથી."
+            "value": "બજેટ બનાવ્યા પછી સમયગાળાનો પ્રકાર બદલી શકાતો નથી."
           }
         },
         "he": {
@@ -13145,7 +13145,7 @@
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "একটি ভ্রমণ, জন্মদিন সপ্তাহান্তের জন্য বা যেকোনো এককালীন খরচ উইন্ডোর জন্য ভালো। শেষ হলে শেষ। পুনরাবৃত্তি বা উদ্বৃত্ত স্থানান্তর নেই।"
+            "value": "কোনো ভ্রমণ, জন্মদিনের সপ্তাহান্ত, বা একবারের খরচের জন্য উপযুক্ত। শেষ হলে শেষ। কোনো পুনরাবৃত্তি নেই, কোনো উদ্বৃত্ত স্থানান্তর নেই।"
           }
         },
         "ca": {
@@ -13235,7 +13235,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "ટ્રિપ, જન્મદિનની વીકએન્ડ, અથવા કોઈ એકવારની ખર્ચ વિંડો માટે સારું. એક વાર પૂર્ણ થવા પછી, તે સમાપ્ત છે. કોઈ પુનરાવર્તન નથી, કોઈ આગળ વહન નથી."
+            "value": "પ્રવાસ, જન્મદિવસની રજાઓ કે કોઈ એક વખતના ખર્ચ માટે યોગ્ય. પૂરું થાય એટલે પૂરું. કોઈ પુનરાવર્તન નહીં, આગળ વહન નહીં."
           }
         },
         "he": {
@@ -13259,7 +13259,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ideális egy úthoz, egy születésnapi hétvégéhez vagy bármilyen egymagas kiadási időszakhoz. Ha vége, vége. Nincs ismétlődés, nincs átvitel."
+            "value": "Jó egy utazáshoz, egy születésnapi hétvégéhez vagy bármilyen egyszeri költéshez. Ha letelt, letelt. Nincs ismétlés, nincs átvitel."
           }
         },
         "id": {
@@ -13283,25 +13283,25 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಟ್ರಿಪ್, ಜನ್ಮದಿನದ ವಾರಾಂತ್ಯ ಅಥವಾ ಯಾವುದೇ ಏಕ-ಬಾರಿ ಖರ್ಚಾಗತಿಕೆಯ ವಿಂಡೋಗಾಗಿ ಸೂಕ್ತ. ಮುಗಿದಾಗ, ಮುಗಿದೆ. ಪುನರಾವರ್ತನೆ ಅಥವಾ ಮುಂದಕ್ಕೆ ಸಾಗಿಸುವಿಕೆ ಇಲ್ಲ."
+            "value": "ಒಂದು ಪ್ರವಾಸ, ಹುಟ್ಟುಹಬ್ಬದ ವಾರಾಂತ್ಯ ಅಥವಾ ಒಮ್ಮೆ ಮಾತ್ರ ಖರ್ಚು ಮಾಡುವ ಸಂದರ್ಭಕ್ಕೆ ಸೂಕ್ತ. ಮುಗಿದ ಮೇಲೆ ಮುಗಿಯಿತು. ಪುನರಾವರ್ತನೆ ಇಲ್ಲ, ಮುಂದಕ್ಕೆ ಸಾಗಿಸುವಿಕೆ ಇಲ್ಲ."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여행, 생일 주말, 또는 일회성 지출 기간에 좋습니다. 끝나면 끝입니다. 반복 없음, 이월 없음."
+            "value": "여행, 생일 주말, 일회성 지출 기간에 적합해요. 끝나면 그대로 끝나고, 반복도 이월도 없어요."
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "യാത്ര, ജന്മദിന പലായനം, അല്ലെങ്കിൽ ഏതെങ്കിലും ഒരു തവണ വ്യയ വിൻഡോയ്ക്ക് നല്ലത്. കഴിഞ്ഞാൽ കഴിഞ്ഞത്. ആവർത്തനം ഇല്ല, കാരി-ഓവർ ഇല്ല."
+            "value": "ഒരു യാത്ര, ജന്മദിന വാരാന്ത്യം, അല്ലെങ്കിൽ ഏതെങ്കിലും ഒറ്റത്തവണ ചെലവിന് അനുയോജ്യം. തീരുമ്പോൾ അവസാനിക്കും. ആവർത്തനമില്ല, കാരി-ഓവർ ഇല്ല."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "यात्रेसाठी, वाढदिवस सुट्टीसाठी किंवा कोणत्याही एकबारी खर्च खिडकीसाठी चांगले. एकदा संपल्यानंतर, संपले. पुन्हा न होणारे, पुढे नेलेली शिल्लक नाही."
+            "value": "सहल, वाढदिवसाचा वीकेंड किंवा एखाद्या एकवेळच्या खर्चासाठी उपयुक्त. संपले की संपले. पुनरावृत्ती नाही, पुढे नेलेली शिल्लक नाही."
           }
         },
         "ms": {
@@ -13325,13 +13325,13 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଯାତ୍ରା, ଜନ୍ମଦିନ ସପ୍ତାହ, କିମ୍ବା ଯେକୌଣସି ଏକକାଳୀନ ଖର୍ଚ୍ଚ ଜାନକାରୀ ପାଇଁ ଭଲ। ସାରିବାପରେ ସାରିଯାଏ। ପୁନରାବୃତ୍ତି ନାହିଁ, ଆଗକୁ ନିଆ ବାକି ନାହିଁ।"
+            "value": "ଗୋଟିଏ ଭ୍ରମଣ, ଜନ୍ମଦିନ ସପ୍ତାହାନ୍ତ, କିମ୍ବା ଯେକୌଣସି ଏକ-ଥରିଆ ଖର୍ଚ୍ଚ ପାଇଁ ଉପଯୋଗୀ। ଶେଷ ହେଲେ, ଶେଷ। କୌଣସି ପୁନରାବୃତ୍ତି ନାହିଁ, ଆଗକୁ ନିଆ ବାକି ନାହିଁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਸਫ਼ਰ, ਜਨਮਦਿਨ ਦਾ ਪਿੱਛਾ ਖਿਲਾਰੀ, ਜਾਂ ਕੋਈ ਵੀ ਇਕੱਲੀ ਖਰਚ ਖਿੜਕੀ ਲਈ ਚੰਗਾ। ਜਦੋਂ ਇਹ ਪੂਰਾ ਹੋ, ਇਹ ਪੂਰਾ ਹੋ। ਕੋਈ ਦੋਬਾਰਾ ਨਹੀਂ, ਕੋਈ ਅੱਗੇ ਲਿਜਾਣਾ ਨਹੀਂ।"
+            "value": "ਕਿਸੇ ਯਾਤਰਾ, ਜਨਮਦਿਨ ਦੇ ਵੀਕੈਂਡ ਜਾਂ ਕਿਸੇ ਇੱਕ-ਵਾਰੀ ਖਰਚ ਲਈ ਢੁੱਕਵਾਂ। ਮੁੱਕਣ 'ਤੇ ਮੁੱਕ ਜਾਂਦਾ ਹੈ। ਨਾ ਦੁਹਰਾਅ, ਨਾ ਅੱਗੇ ਲਿਜਾਣਾ।"
           }
         },
         "pl": {
@@ -13367,7 +13367,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vhodné na cestu, narodeninový víkend alebo akýkoľvek jednorázový výdavkový okno. Keď je to hotové, je to hotové. Bez opakovania, bez prenosu."
+            "value": "Vhodné na výlet, narodeninový víkend či jednorazové výdavky. Keď sa skončí, je hotovo. Žiadne opakovanie ani prenos."
           }
         },
         "sl": {
@@ -13385,7 +13385,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "ஒரு பயணம், ஜன்மநாள் வார முடிவு அல்லது எந்தவொரு ஒரு முறை செலவு சாளரத்திற்கும் நல்லது. முடிந்தவுடன், முடிந்துவிட்டது. மீண்டும் செய்தல் இல்லை, முன்கொண்டுசெல் இல்லை."
+            "value": "ஒரு பயணம், பிறந்தநாள் வார இறுதி அல்லது ஒரு முறை மட்டுமே செலவிடும் காலத்திற்கு ஏற்றது. முடிந்தவுடன், அது முடிந்தது. மீண்டும் வராது, முன்கொண்டுசெல் இல்லை."
           }
         },
         "te": {
@@ -13421,7 +13421,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Phù hợp cho chuyến đi, một kỳ lễ sinh nhật hay bất kỳ khoảng thời gian chi tiêu một lần nào. Khi nó kết thúc, nó kết thúc. Không lặp lại, không chuyển tiếp."
+            "value": "Phù hợp cho một chuyến đi, một dịp sinh nhật hay bất kỳ khoản chi một lần nào. Khi kỳ kết thúc là kết thúc. Không lặp lại, không chuyển tiếp."
           }
         },
         "zh-Hans": {
@@ -14342,13 +14342,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Date de début après %lld dépense enregistrée. Cette dépense s'affiche toujours dans votre liste mais ne sera pas comptée par ce budget."
+                  "value": "La date de début est postérieure à %lld dépense enregistrée. Cette dépense reste dans ta liste mais n'est pas comptée par ce budget."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Date de début après %lld dépenses enregistrées. Ces dépenses s'affichent toujours dans votre liste mais ne seront pas comptées par ce budget."
+                  "value": "La date de début est postérieure à %lld dépenses enregistrées. Ces dépenses restent dans ta liste mais ne sont pas comptées par ce budget."
                 }
               }
             }
@@ -14378,13 +14378,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "શરૂઆતની તારીખ %lld નોંધાયેલ ખર્ચ પછી છે. તે ખર્ચ તમારી સૂચીમાં દેખાય છે પરંતુ આ બજેટ દ્વારા ગણવામાં આવશે નહીં."
+                  "value": "શરૂઆતની તારીખ %lld નોંધાયેલા ખર્ચ પછીની છે. એ ખર્ચ તમારી યાદીમાં દેખાશે પણ આ બજેટમાં ગણાશે નહીં."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "શરૂઆતની તારીખ %lld નોંધાયેલ ખર્ચ પછી છે. તે ખર્ચ તમારી સૂચીમાં દેખાય છે પરંતુ આ બજેટ દ્વારા ગણવામાં આવશે નહીં."
+                  "value": "શરૂઆતની તારીખ %lld નોંધાયેલા ખર્ચ પછીની છે. એ ખર્ચ તમારી યાદીમાં દેખાશે પણ આ બજેટમાં ગણાશે નહીં."
                 }
               }
             }
@@ -14492,13 +14492,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Data di inizio è successiva a %lld spesa registrata. Questa spesa è ancora visibile nel tuo elenco ma non verrà conteggiata da questo budget."
+                  "value": "La data di inizio è successiva a %lld spesa registrata. Quella spesa resta nell'elenco ma non verrà conteggiata da questo budget."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Data di inizio è successiva a %lld spese registrate. Queste spese sono ancora visibili nel tuo elenco ma non verranno conteggiate da questo budget."
+                  "value": "La data di inizio è successiva a %lld spese registrate. Quelle spese restano nell'elenco ma non verranno conteggiate da questo budget."
                 }
               }
             }
@@ -14654,13 +14654,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ਼ %lld ਦਰਜ ਕੀਤੇ ਗਏ ਖਰਚ ਤੋਂ ਪਹਿਲਾਂ ਹੈ। ਇਹ ਖਰਚ ਅਜੇ ਵੀ ਤੁਸੀਂ ਦੀ ਸੂਚੀ ਵਿੱਚ ਆਉਂਦਾ ਹੈ ਪਰ ਇਸ ਬਜਟ ਨਾਲ ਗਿਣਿਆ ਨਹੀਂ ਜਾਵੇਗਾ।"
+                  "value": "ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ਼ %lld ਦਰਜ ਖਰਚ ਤੋਂ ਬਾਅਦ ਦੀ ਹੈ। ਉਹ ਖਰਚ ਤੁਹਾਡੀ ਸੂਚੀ ਵਿੱਚ ਰਹੇਗਾ ਪਰ ਇਸ ਬਜਟ ਵਿੱਚ ਨਹੀਂ ਗਿਣਿਆ ਜਾਵੇਗਾ।"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ਼ %lld ਦਰਜ ਕੀਤੇ ਗਏ ਖਰਚਿਆਂ ਤੋਂ ਪਹਿਲਾਂ ਹੈ। ਇਹ ਖਰਚੇ ਅਜੇ ਵੀ ਤੁਸੀਂ ਦੀ ਸੂਚੀ ਵਿੱਚ ਆਉਂਦੇ ਹਨ ਪਰ ਇਸ ਬਜਟ ਨਾਲ ਨਹੀਂ ਗਿਣੇ ਜਾਣਗੇ।"
+                  "value": "ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ਼ %lld ਦਰਜ ਖਰਚਿਆਂ ਤੋਂ ਬਾਅਦ ਦੀ ਹੈ। ਉਹ ਖਰਚੇ ਤੁਹਾਡੀ ਸੂਚੀ ਵਿੱਚ ਰਹਿਣਗੇ ਪਰ ਇਸ ਬਜਟ ਵਿੱਚ ਨਹੀਂ ਗਿਣੇ ਜਾਣਗੇ।"
                 }
               }
             }
@@ -14822,25 +14822,25 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženih stroških. Ti stroški se še vedno prikažejo na tvoji listi, vendar jih ta proračun ne bo upošteval."
+                  "value": "Datum začetka je po %lld zabeleženih stroških. Ti še naprej ostajajo na seznamu, a jih ta proračun ne upošteva."
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženi stroški. Ta strošek se še vedno prikaže na tvoji listi, vendar ga ta proračun ne bo upošteval."
+                  "value": "Datum začetka je po %lld zabeleženem strošku. Ta še naprej ostaja na seznamu, a ga ta proračun ne upošteva."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženih stroških. Ti stroški se še vedno prikažejo na tvoji listi, vendar jih ta proračun ne bo upošteval."
+                  "value": "Datum začetka je po %lld zabeleženih stroških. Ti še naprej ostajajo na seznamu, a jih ta proračun ne upošteva."
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženih stroških. Ta stroška se še vedno prikažeta na tvoji listi, vendar ju ta proračun ne bo upošteval."
+                  "value": "Datum začetka je po %lld zabeleženih stroških. Ta še naprej ostajata na seznamu, a ju ta proračun ne upošteva."
                 }
               }
             }
@@ -15107,7 +15107,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ces dépenses figurent toujours dans votre liste, mais ne seront pas comptabilisées par ce budget."
+            "value": "Ces dépenses restent dans ta liste mais ne sont pas comptées par ce budget."
           }
         },
         "fr-CA": {
@@ -15143,7 +15143,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ezek a tranzakciók még mindig megjelennek a listában, de erre a költségvetésre nem vonatkoznak."
+            "value": "Ezek a kiadások továbbra is megjelennek a listádban, de ez a költségkeret nem számolja őket."
           }
         },
         "id": {
@@ -15215,7 +15215,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਇਹ ਖਰਚੇ ਅਜੇ ਵੀ ਤੁਸੀਂ ਦੀ ਸੂਚੀ ਵਿੱਚ ਆਉਂਦੇ ਹਨ ਪਰ ਇਸ ਬਜਟ ਨਾਲ ਗਿਣੇ ਨਹੀਂ ਜਾਣਗੇ।"
+            "value": "ਉਹ ਖਰਚੇ ਤੁਹਾਡੀ ਸੂਚੀ ਵਿੱਚ ਰਹਿਣਗੇ ਪਰ ਇਸ ਬਜਟ ਵਿੱਚ ਨਹੀਂ ਗਿਣੇ ਜਾਣਗੇ।"
           }
         },
         "pl": {
@@ -15233,7 +15233,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Essas despesas continuam a aparecer na sua lista, mas não serão contabilizadas por este orçamento."
+            "value": "Essas despesas continuam na lista, mas não são contadas por este orçamento."
           }
         },
         "ro": {
@@ -15257,7 +15257,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ti stroški se še vedno prikazujejo na tvoji listi, vendar jih ta proračun ne bo števal."
+            "value": "Ti stroški še naprej ostajajo na seznamu, a jih ta proračun ne upošteva."
           }
         },
         "sv": {
@@ -15842,13 +15842,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "सुरुवात तारीख %lld नोंदवलेल्या खर्चानंतर आहे"
+                  "value": "सुरुवात तारीख %lld नोंदवलेल्या खर्चानंतरची आहे"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "सुरुवात तारीख %lld नोंदवलेल्या खर्चानंतर आहे"
+                  "value": "सुरुवात तारीख %lld नोंदवलेल्या खर्चांनंतरची आहे"
                 }
               }
             }
@@ -16094,25 +16094,25 @@
               "few": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženih stroških"
+                  "value": "Datum začetka je po %lld zabeleženih stroških"
                 }
               },
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženi stroški"
+                  "value": "Datum začetka je po %lld zabeleženem strošku"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženih stroških"
+                  "value": "Datum začetka je po %lld zabeleženih stroških"
                 }
               },
               "two": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "Datum začetka je po %lld vloženih stroških"
+                  "value": "Datum začetka je po %lld zabeleženih stroških"
                 }
               }
             }
@@ -16685,13 +16685,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyez pour afficher ou masquer les contrôles de date de début et de date de fin."
+            "value": "Touche pour afficher ou masquer les dates de début et de fin."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyez pour afficher ou masquer les contrôles de date de début et de date de fin."
+            "value": "Touche pour afficher ou masquer la date de début et la date de fin."
           }
         },
         "gu": {
@@ -16721,7 +16721,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Érintse meg az ütemezési vezérlők megjelenítéséhez vagy elrejtéséhez."
+            "value": "Koppints a kezdő- és befejezés dátuma vezérlők megjelenítéséhez vagy elrejtéséhez."
           }
         },
         "id": {
@@ -16757,7 +16757,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ആരംഭ തീയതി ഉം അവസാന തീയതി നിയന്ത്രണങ്ങൾ കാണിക്കാൻ അല്ലെങ്കിൽ മറയ്ക്കാൻ ടാപ് ചെയ്യുക."
+            "value": "ആരംഭ തീയതിയും അവസാന തീയതിയും കാണിക്കാനോ മറയ്ക്കാനോ ടാപ്പ് ചെയ്യുക."
           }
         },
         "mr": {
@@ -16823,7 +16823,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нажмите, чтобы показать или скрыть элементы управления датой начала и датой окончания."
+            "value": "Нажми, чтобы показать или скрыть поля дат начала и окончания."
           }
         },
         "sk": {
@@ -16865,7 +16865,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Başlangıç tarihi ve bitiş tarihi kontrollerini göstermek veya gizlemek için dokunun."
+            "value": "Başlangıç ve bitiş tarihi denetimlerini göstermek ya da gizlemek için dokun."
           }
         },
         "uk": {
@@ -17711,7 +17711,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ਵਿੱਚ ਖਤਮ ਹੋ"
+            "value": "%@ ਨੂੰ ਖ਼ਤਮ"
           }
         },
         "pl": {
@@ -18017,7 +18017,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ਵਿੱਚ ਸ਼ੁਰੂ ਹੋ"
+            "value": "%@ ਤੋਂ ਸ਼ੁਰੂ"
           }
         },
         "pl": {
@@ -18317,7 +18317,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆଜଠାରୁ ଆରମ୍ଭ"
+            "value": "ଆଜିଠାରୁ ଆରମ୍ଭ"
           }
         },
         "pa": {
@@ -18550,7 +18550,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Raspodjela"
+            "value": "Dodjela"
           }
         },
         "hu": {
@@ -18568,7 +18568,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allocazione"
+            "value": "Stanziamento"
           }
         },
         "ja": {
@@ -18658,7 +18658,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Бюджет"
+            "value": "Лимит"
           }
         },
         "sk": {
@@ -19722,7 +19722,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Período"
+            "value": "Periodo"
           }
         },
         "es-MX": {
@@ -21021,7 +21021,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಚಾಲುವಾಗಿದ್ದಾಗ, ಅವ್ಯಯಿತ ಅಥವಾ ಮೀರಿದ ಮೊತ್ತಗಳು ಅವಧಿಗಳಾದ್ಯಂತ ಫಾರವರ್ಡ್ ಕ್ಯಾರಿ ಆಗುತ್ತವೆ"
+            "value": "ಆನ್ ಆಗಿದ್ದರೆ, ಖರ್ಚಾಗದ ಅಥವಾ ಹೆಚ್ಚು ಖರ್ಚಾದ ಮೊತ್ತ ಅವಧಿಗಳಾದ್ಯಂತ ಮುಂದಕ್ಕೆ ಸಾಗುತ್ತದೆ"
           }
         },
         "ko": {
@@ -21033,7 +21033,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഓൺ ചെയ്യുമ്പോൾ ഖരച്ച് അല്ലെങ്കിൽ ജമയായ തുകാണ് കാലയളവുകൾ കടന്ന് കൊണ്ടുവരുന്നു"
+            "value": "ഓണാക്കുമ്പോൾ, ചെലവഴിക്കാത്തതോ അധികം ചെലവഴിച്ചതോ ആയ തുകകൾ കാലയളവുകളിലേക്ക് മുന്നോട്ട് കൊണ്ടുപോകുന്നു"
           }
         },
         "mr": {
@@ -21870,7 +21870,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poistaa tämän kulun pysyvästi."
+            "value": "Poistaa tämän menon pysyvästi."
           }
         },
         "fr": {
@@ -21948,13 +21948,13 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഈ ചെലവ് നിരന്തരമായി ഇല്ലാതാക്കുന്നു."
+            "value": "ഈ ചെലവ് ശാശ്വതമായി ഇല്ലാതാക്കുന്നു."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "हा खर्च कायमचे हटवते."
+            "value": "हा खर्च कायमचा हटवते."
           }
         },
         "ms": {
@@ -22487,13 +22487,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajoute à votre solde restant au lieu de le diminuer."
+            "value": "S'ajoute à ton solde restant au lieu de le réduire."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajoute à votre solde restant au lieu de soustraire."
+            "value": "Ajoute à ton solde restant au lieu de le soustraire."
           }
         },
         "gu": {
@@ -22547,7 +22547,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಉಳಿದ ಶಿಲ್ಕುಗೆ ಸೇರಿಸುತ್ತದೆ ಬದಲಾಗಿ ವ್ಯವಕಲನ ಮಾಡುತ್ತದೆ."
+            "value": "ಕಳೆಯುವ ಬದಲು ನಿಮ್ಮ ಉಳಿದ ಶಿಲ್ಕಿಗೆ ಸೇರಿಸುತ್ತದೆ."
           }
         },
         "ko": {
@@ -22559,13 +22559,13 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ബാലൻസിൽനിന്ന് കുറയ്ക്കുന്നതിനുപകരായി ബാലൻസിലേക്ക് ചേർക്കുന്നു."
+            "value": "നിങ്ങളുടെ ബാക്കി ബാലൻസിൽ നിന്ന് കുറയ്ക്കുന്നതിന് പകരം ചേർക്കുന്നു."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "शिल्लक रक्कमे वजा करण्याऐवजी त्यामध्ये जोडते."
+            "value": "वजा करण्याऐवजी तुमच्या उरलेल्या शिल्लकीत भर घालते."
           }
         },
         "ms": {
@@ -22637,7 +22637,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dodaj ostalim preostalim sredstvom namesto odštevanja."
+            "value": "Doda k preostalemu stanju, namesto da odšteje."
           }
         },
         "sv": {
@@ -22655,7 +22655,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "మిగిలిన బ్యాలెన్స్ నుండి తీసివేయడం instead జోడిస్తుంది."
+            "value": "తీసివేయడానికి బదులు మీ మిగిలిన బ్యాలెన్స్‌కు జోడిస్తుంది."
           }
         },
         "th": {
@@ -23050,7 +23050,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επίλεξε ημερομηνία εντός ενεργής περιόδου αυτού του προϋπολογισμού."
+            "value": "Επιλέξτε ημερομηνία εντός ενεργής περιόδου αυτού του προϋπολογισμού."
           }
         },
         "en": {
@@ -23098,13 +23098,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez une date dans une période active de ce budget."
+            "value": "Choisis une date dans une période active de ce budget."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez une date dans une période active de ce budget."
+            "value": "Choisis une date à l'intérieur d'une période active de ce budget."
           }
         },
         "gu": {
@@ -23170,7 +23170,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഈ ബജറ്റിന്റെ സജീവ കാലയളവിനുമിച്ച് തീയതി തിരഞ്ഞെടുക്കുക."
+            "value": "ഈ ബജറ്റിന്റെ സജീവമായ കാലയളവിനുള്ളിലെ ഒരു തീയതി തിരഞ്ഞെടുക്കുക."
           }
         },
         "mr": {
@@ -23182,7 +23182,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pilih tarikh dalam tempoh aktif belanjawan ini."
+            "value": "Pilih tarikh dalam tempoh aktif bajet ini."
           }
         },
         "nb": {
@@ -23236,7 +23236,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выберите дату в активном периоде этого бюджета."
+            "value": "Выбери дату внутри активного периода этого бюджета."
           }
         },
         "sk": {
@@ -24211,7 +24211,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa chi tiêu?"
+            "value": "Xóa khoản chi?"
           }
         },
         "zh-Hans": {
@@ -24696,7 +24696,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "പണ തുക"
+            "value": "പണത്തിന്റെ തുക"
           }
         },
         "mr": {
@@ -24816,7 +24816,7 @@
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "رقم کی رقم"
+            "value": "رقم کی مقدار"
           }
         },
         "vi": {
@@ -25150,7 +25150,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "التاريخ"
+            "value": "التوقيت"
           }
         },
         "bn": {
@@ -26079,7 +26079,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esborrar descripció"
+            "value": "Esborra la descripció"
           }
         },
         "cs": {
@@ -26283,7 +26283,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Șterge descriere"
+            "value": "Șterge descrierea"
           }
         },
         "ru": {
@@ -26713,7 +26713,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Σε παύση από %@. Μπορείς να προσθέσεις έξοδα με ημερομηνία πριν από τότε."
+            "value": "Σε παύση από %@. Μπορείτε να προσθέσετε έξοδα με προγενέστερη ημερομηνία."
           }
         },
         "en": {
@@ -26791,7 +26791,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pauzirano od %@. I dalje možeš dodati troškove s datumom prije toga."
+            "value": "Pauzirano od %@. Možeš dodavati troškove s ranijim datumom."
           }
         },
         "hu": {
@@ -26821,7 +26821,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ರಿಂದ ವಿರಾಮಗೊಂಡಿದೆ. ನೀವು ಅದಕ್ಕಿಂತ ಮೊದಲೆ ದಿನಾಂಕಾಯ್ತ ಖರ್ಚುಗಳನ್ನು ಸೇರಿಸಬಹುದು."
+            "value": "%@ ರಿಂದ ವಿರಾಮಗೊಂಡಿದೆ. ಅದಕ್ಕೂ ಮುಂಚಿನ ದಿನಾಂಕದ ಖರ್ಚುಗಳನ್ನು ಈಗಲೂ ಸೇರಿಸಬಹುದು."
           }
         },
         "ko": {
@@ -26833,7 +26833,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ മുതൽ താൽക്കാലികമായി നിർത്തിയിരിക്കുന്നു. നിങ്ങൾക്കുള്ള ചെലവുകൾ അതിനുമുമ്പ് ദ്വാരം കൂട്ടാൻ കഴിയും."
+            "value": "%@ മുതൽ താൽക്കാലികമായി നിർത്തി. അതിന് മുമ്പുള്ള തീയതിയിലെ ചെലവുകൾ ഇപ്പോഴും ചേർക്കാം."
           }
         },
         "mr": {
@@ -26869,7 +26869,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ਤੋਂ ਰੋਕਿਆ। ਤੁਸੀਂ ਅਜੇ ਵੀ ਉਸ ਤੋਂ ਪਹਿਲਾਂ ਦੀ ਤਾਰੀਖ਼ ਦੇ ਖਰਚੇ ਸ਼ਾਮਲ ਕਰ ਸਕਦੇ ਹੋ।"
+            "value": "%@ ਤੋਂ ਰੁਕਿਆ। ਤੁਸੀਂ ਉਸ ਤੋਂ ਪਹਿਲਾਂ ਦੀ ਤਾਰੀਖ਼ ਵਾਲੇ ਖਰਚੇ ਹਾਲੇ ਵੀ ਜੋੜ ਸਕਦੇ ਹੋ।"
           }
         },
         "pl": {
@@ -27103,7 +27103,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A költségvetés végződött: %@"
+            "value": "A költségkeret ekkor zárult: %@."
           }
         },
         "id": {
@@ -27139,7 +27139,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ബജറ്റ് %@ എ അവസാനിച്ചു."
+            "value": "ബജറ്റ് %@ ന് അവസാനിച്ചു."
           }
         },
         "mr": {
@@ -27151,7 +27151,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanja berakhir pada %@."
+            "value": "Bajet berakhir pada %@."
           }
         },
         "nb": {
@@ -27175,7 +27175,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਬਜਟ %@ ਤੇ ਖਤਮ ਹੋਇਆ।"
+            "value": "ਬਜਟ %@ ਨੂੰ ਖ਼ਤਮ ਹੋਇਆ।"
           }
         },
         "pl": {
@@ -27409,7 +27409,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A költségvetés kezdődik: %@"
+            "value": "A költségkeret ekkor indul: %@."
           }
         },
         "id": {
@@ -27457,7 +27457,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanja bermula pada %@."
+            "value": "Bajet bermula pada %@."
           }
         },
         "nb": {
@@ -27631,7 +27631,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Δεν υπάρχουν αντίστοιχες πρόσφατες δαπάνες"
+            "value": "Κανένα πρόσφατο έξοδο που να ταιριάζει"
           }
         },
         "en": {
@@ -27691,7 +27691,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "કોઈ મેળતા તાજેતરના ખર્ચ નથી"
+            "value": "કોઈ મેળ ખાતા તાજેતરના ખર્ચ નથી"
           }
         },
         "he": {
@@ -27739,7 +27739,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಹೊಂದಿಕೊಳ್ಳುವ ಇತ್ತೀಚಿನ ಖರ್ಚುಗಳ ಸಂಖ್ಯೆ ಇಲ್ಲ"
+            "value": "ಹೊಂದಿಕೆಯಾಗುವ ಇತ್ತೀಚಿನ ಖರ್ಚುಗಳಿಲ್ಲ"
           }
         },
         "ko": {
@@ -27847,7 +27847,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "ఇటీవలి ఖర్చులకు సరిపోలే లేవు"
+            "value": "సరిపోలే ఇటీవలి ఖర్చులు లేవు"
           }
         },
         "th": {
@@ -27889,7 +27889,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無相符的近期開支"
+            "value": "沒有符合的近期支出"
           }
         }
       }
@@ -27925,7 +27925,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ingen matches"
+            "value": "Ingen match"
           }
         },
         "de": {
@@ -28153,7 +28153,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "సరిపోలే లేవు"
+            "value": "సరిపోలికలు లేవు"
           }
         },
         "th": {
@@ -28525,7 +28525,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reemplaçar import i descripció"
+            "value": "Substitueix l'import i la descripció"
           }
         },
         "cs": {
@@ -28729,7 +28729,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Înlocuiește suma și descriere"
+            "value": "Înlocuiește suma și descrierea"
           }
         },
         "ru": {
@@ -28963,7 +28963,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ವಿಮರ್ಶೆಗಾಗಿ ಮೊತ್ತ ಮತ್ತು ವಿವರಣೆಯನ್ನು ಭರ್ತಿ ಮಾಡುತ್ತದೆ."
+            "value": "ಪರಿಶೀಲನೆಗಾಗಿ ಮೊತ್ತ ಮತ್ತು ವಿವರಣೆಯನ್ನು ತುಂಬುತ್ತದೆ."
           }
         },
         "ko": {
@@ -28975,7 +28975,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "സമീക്ഷയ്ക്കായി തുക ഉം വിവരണം പൂരിപ്പിക്കുന്നു."
+            "value": "അവലോകനത്തിനായി തുകയും വിവരണവും പൂരിപ്പിക്കുന്നു."
           }
         },
         "mr": {
@@ -29969,7 +29969,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opis (opciono)"
+            "value": "Opis (neobvezno)"
           }
         },
         "sv": {
@@ -30040,7 +30040,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "التاريخ"
+            "value": "التوقيت"
           }
         },
         "bn": {
@@ -30423,7 +30423,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lisää kulu"
+            "value": "Lisää meno"
           }
         },
         "fr": {
@@ -31735,7 +31735,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Membuka butiran belanjawan"
+            "value": "Buka butiran bajet"
           }
         },
         "nb": {
@@ -32124,7 +32124,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "ఖర్చు ఫారమ్‌ను జోడించండని తెరుస్తుంది"
+            "value": "ఖర్చు జోడించే ఫారమ్‌ను తెరుస్తుంది"
           }
         },
         "th": {
@@ -32548,7 +32548,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ restantes en este período %2$@"
+            "value": "%1$@ disponible este %2$@"
           }
         },
         "es-MX": {
@@ -32596,7 +32596,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "preostaje %1$@ za ovaj %2$@ period"
+            "value": "Preostalo %1$@ u razdoblju %2$@"
           }
         },
         "hu": {
@@ -32853,7 +32853,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ por encima del presupuesto en este período %2$@"
+            "value": "%1$@ por encima del presupuesto este %2$@"
           }
         },
         "es-MX": {
@@ -32901,7 +32901,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ prekoračenja za ovaj %2$@ period"
+            "value": "%1$@ iznad proračuna u razdoblju %2$@"
           }
         },
         "hu": {
@@ -32955,7 +32955,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ melebihi belanjawan dalam tempoh %2$@ ini"
+            "value": "%1$@ melebihi bajet tempoh %2$@ ini"
           }
         },
         "nb": {
@@ -32979,7 +32979,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ ਇਸ %2$@ ਮਿਆਦ ਵਿੱਚ ਬਜਟ ਤੋਂ ਅੱਪਰ"
+            "value": "ਇਸ %2$@ ਮਿਆਦ ਵਿੱਚ ਬਜਟ ਤੋਂ %1$@ ਵੱਧ"
           }
         },
         "pl": {
@@ -33284,7 +33284,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ਬਜਟ ਤੋਂ ਅੱਪਰ %@"
+            "value": "ਬਜਟ ਤੋਂ %@ ਵੱਧ %@"
           }
         },
         "pl": {
@@ -33554,7 +33554,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ അവസാനിച്ചത് %@"
+            "value": "%@ %@ %@ ന് അവസാനിച്ചു"
           }
         },
         "mr": {
@@ -34392,7 +34392,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lisää kulu"
+            "value": "Lisää meno"
           }
         },
         "fr": {
@@ -34871,7 +34871,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "ఖర్చు ఫారమ్‌ను జోడించండని తెరుస్తుంది"
+            "value": "ఖర్చు జోడించే ఫారమ్‌ను తెరుస్తుంది"
           }
         },
         "th": {
@@ -35570,7 +35570,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Συνεχίζει τον προϋπολογισμό για να μπορείς να καταγράφεις έξοδα ξανά"
+            "value": "Συνεχίζει τον προϋπολογισμό για να καταγράφετε ξανά έξοδα"
           }
         },
         "en": {
@@ -35648,7 +35648,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nastavlja proračun kako bi mogao ponovno bilježiti troškove"
+            "value": "Nastavlja proračun kako bi opet mogao bilježiti troškove"
           }
         },
         "hu": {
@@ -35690,7 +35690,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ബജറ്റ് പുനരാരംഭിക്കുന്നതിനാൽ നിങ്ങൾക്ക് ചെലവുകൾ ഫിരിഞ്ഞ് കൂട്ടാൻ കഴിയും"
+            "value": "വീണ്ടും ചെലവുകൾ രേഖപ്പെടുത്താൻ ബജറ്റ് പുനരാരംഭിക്കുന്നു"
           }
         },
         "mr": {
@@ -35720,7 +35720,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ବଜେଟ୍ ପୁନଃଆରମ୍ଭ କରେ ଯାଥା ଆପଣ ଖର୍ଚ୍ଚ ଲଗ୍ କରିପାରିବେ"
+            "value": "ବଜେଟ୍ ପୁଣି ଚାଲୁ କରେ ଯାହାଦ୍ୱାରା ଆପଣ ପୁଣି ଖର୍ଚ୍ଚ ଲେଖିପାରିବେ"
           }
         },
         "pa": {
@@ -35828,7 +35828,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢復預算，以便再次記錄支出"
+            "value": "繼續這項預算，即可重新記錄支出"
           }
         }
       }
@@ -35875,7 +35875,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Συνέχεια %@"
+            "value": "Συνέχιση %@"
           }
         },
         "en": {
@@ -36133,7 +36133,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢復%@"
+            "value": "繼續 %@"
           }
         }
       }
@@ -36180,7 +36180,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Σε παύση από %@. Συνέχισε για να καταγράψεις νέα έξοδα."
+            "value": "Σε παύση από %@. Συνεχίστε για να καταγράφετε νέα έξοδα."
           }
         },
         "en": {
@@ -36258,7 +36258,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pauzirano od %@. Nastavi za unos novih troškova."
+            "value": "Pauzirano od %@. Nastavi za bilježenje novih troškova."
           }
         },
         "hu": {
@@ -36438,7 +36438,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自%@起已暫停。恢復以記錄新的支出。"
+            "value": "自 %@ 起已暫停。繼續即可記錄新支出。"
           }
         }
       }
@@ -36623,7 +36623,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ingenting registrert denne perioden"
+            "value": "Ingenting loggført denne perioden"
           }
         },
         "nl": {
@@ -36922,7 +36922,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiada yang dilog hari ini"
+            "value": "Tiada catatan hari ini"
           }
         },
         "nb": {
@@ -36940,7 +36940,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆଜ କିଛି ଲିପିବଦ୍ଧ ହୋଇନାହିଁ"
+            "value": "ଆଜି କିଛି ଲେଖାଯାଇନାହିଁ"
           }
         },
         "pa": {
@@ -36994,7 +36994,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inget registrerat idag"
+            "value": "Inget loggat i dag"
           }
         },
         "ta": {
@@ -37227,7 +37227,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiada yang dilog bulan ini"
+            "value": "Tiada catatan bulan ini"
           }
         },
         "nb": {
@@ -37299,7 +37299,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inget registrerat den här månaden"
+            "value": "Inget loggat den här månaden"
           }
         },
         "ta": {
@@ -37538,7 +37538,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ingenting registrert denne perioden"
+            "value": "Ingenting loggført denne perioden"
           }
         },
         "nl": {
@@ -37837,7 +37837,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiada yang dilog minggu ini"
+            "value": "Tiada catatan minggu ini"
           }
         },
         "nb": {
@@ -37909,7 +37909,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inget registrerat den här veckan"
+            "value": "Inget loggat den här veckan"
           }
         },
         "ta": {
@@ -40546,7 +40546,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metti in pausa"
+            "value": "Sospendi budget"
           }
         },
         "ja": {
@@ -40851,7 +40851,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Azzera Budget…"
+            "value": "Reimposta budget…"
           }
         },
         "ja": {
@@ -40869,7 +40869,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "예산 초기화…"
+            "value": "예산 재설정…"
           }
         },
         "ml": {
@@ -41024,7 +41024,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يحذف نهائياً جميع المصروفات لهذه الميزانية، وينعيد تعيين المُرحَّل إلى صفر، ويستأنف الميزانية إن كانت متوقفة مؤقتاً."
+            "value": "يحذف نهائياً كل مصروف في هذه الميزانية، ويُصفّر المُرحَّل، ويستأنف الميزانية إذا كانت متوقفة مؤقتاً."
           }
         },
         "bn": {
@@ -41036,7 +41036,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suprimeix permanentment totes les despeses d'aquest pressupost, restableix el romanent a zero i repren el pressupost si està en pausa."
+            "value": "Suprimeix permanentment totes les despeses d'aquest pressupost, restableix el romanent a zero i reactiva el pressupost si està en pausa."
           }
         },
         "cs": {
@@ -41120,13 +41120,13 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "આ બજેટનો બધો ખર્ચ સ્થાયી રીતે કાઢી નાખે છે, આગળ વહનને શૂન્યમાં ફરી સેટ કરે છે, અને બજેટ થોભાવેલો હોય તો તેને ફરી શરૂ કરે છે."
+            "value": "આ બજેટના દરેક ખર્ચ કાયમ માટે કાઢી નાખે છે, આગળ વહન શૂન્ય પર ફરી સેટ કરે છે, અને બજેટ થોભાવેલું હોય તો ફરી શરૂ કરે છે."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מחק לצמיתות כל הוצאה עבור התקציב זה, אפס יתרה מועברת לאפס, וחזור את התקציב אם הוא מושהה."
+            "value": "מוחק לצמיתות את כל ההוצאות בתקציב הזה, מאפס את היתרה המועברת ומחדש את התקציב אם הוא מושהה."
           }
         },
         "hi": {
@@ -41180,7 +41180,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഈ ബജറ്റിന്റെ ഓരോ ചെലവും നിരന്തരമായി ഇല്ലാതാക്കുന്നു, കാരി-ഓവർ പൂജ്യത്തിലേക്ക് പുനഃസജ്ജിക്കുന്നു, ഉം നിർത്തിയാണെങ്കിൽ ബജറ്റ് പുനരാരംഭിക്കുന്നു."
+            "value": "ഈ ബജറ്റിന്റെ എല്ലാ ചെലവുകളും ശാശ്വതമായി ഇല്ലാതാക്കുകയും കാരി-ഓവർ പൂജ്യമാക്കുകയും, താൽക്കാലികമായി നിർത്തിയിട്ടുണ്ടെങ്കിൽ ബജറ്റ് പുനരാരംഭിക്കുകയും ചെയ്യുന്നു."
           }
         },
         "mr": {
@@ -41228,7 +41228,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deleta permanentemente todas as despesas deste orçamento, reseta o saldo acumulado para zero e retoma o orçamento se pausado."
+            "value": "Exclui permanentemente todas as despesas deste orçamento, zera o saldo acumulado e retoma o orçamento se ele estiver pausado."
           }
         },
         "pt-PT": {
@@ -41270,7 +41270,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "இந்தப் பட்ஜெட்டின் ஒவ்வொரு செலவையும் நிரந்தரமாக நீக்குகிறது, முன்கொண்டுசெல்லை பூஜ்ஜியமாக மீட்டமைக்கிறது, மற்றும் பட்ஜெட் இடைநிறுத்தப்பட்டால் அதைத் தொடர்க்கிறது."
+            "value": "இந்த பட்ஜெட்டின் ஒவ்வொரு செலவையும் நிரந்தரமாக நீக்கி, முன்கொண்டுசெல்லை பூஜ்ஜியமாக மீட்டமைத்து, இடைநிறுத்தப்பட்டிருந்தால் பட்ஜெட்டை மீண்டும் தொடங்கும்."
           }
         },
         "te": {
@@ -41288,7 +41288,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bu bütçenin tüm harcamalarını kalıcı olarak siler, devir bakiyesini sıfırlarla ve bütçe duraklatılmışsa sürdürür."
+            "value": "Bu bütçedeki tüm harcamaları kalıcı olarak siler, devri sıfırlar ve duraklatılmışsa bütçeyi yeniden başlatır."
           }
         },
         "uk": {
@@ -41714,7 +41714,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tyhjentää siirron saldoon nollaan. Menot eivät muutu."
+            "value": "Nollaa siirtosaldon. Menoihin tämä ei vaikuta."
           }
         },
         "fr": {
@@ -41738,7 +41738,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "נקה את יתרת היתרה המועברת לאפס. הוצאות לא מושפעות."
+            "value": "מאפס את היתרה המועברת לאפס. ההוצאות אינן מושפעות."
           }
         },
         "hi": {
@@ -41870,7 +41870,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Počisti stanje prenosa na nič. Stroški niso vplivani."
+            "value": "Ponastavi stanje prenosa na nič. Stroški ostanejo nespremenjeni."
           }
         },
         "sv": {
@@ -41882,13 +41882,13 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "முன்கொண்டுசெல் இருப்பை பூஜ்ஜியத்திற்குத் தெளிவுசெய்கிறது. செலவுகளை பாதிக்கப்படாது."
+            "value": "முன்கொண்டுசெல் இருப்பை பூஜ்ஜியமாக அழிக்கும். செலவுகள் பாதிக்கப்படாது."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "క్యారీ-ఓవర్ బ్యాలెన్స్‌ను సున్నాకు క్లియర్ చేస్తుంది. ఖర్చులు ప్రభావితం కాబట్టే."
+            "value": "క్యారీ-ఓవర్ బ్యాలెన్స్‌ను సున్నాకు తుడిచివేస్తుంది. ఖర్చులపై ప్రభావం ఉండదు."
           }
         },
         "th": {
@@ -41918,7 +41918,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa sô dư chuyển tiếp về không. Khoản chi không bị ảnh hưởng."
+            "value": "Đặt số dư chuyển tiếp về 0. Khoản chi không bị ảnh hưởng."
           }
         },
         "zh-Hans": {
@@ -42372,13 +42372,13 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset Anggaran"
+            "value": "Atur Ulang Anggaran"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Azzera Budget"
+            "value": "Reimposta budget"
           }
         },
         "ja": {
@@ -42396,7 +42396,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "예산 초기화"
+            "value": "예산 재설정"
           }
         },
         "ml": {
@@ -42647,13 +42647,13 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "બધો ખર્ચ સ્થાયી રીતે કાઢી નાખવામાં આવશે, આગળ વહન શૂન્યમાં ફરી સેટ થશે, અને બજેટ થોભાવેલો હોય તો તે ફરી શરૂ થશે."
+            "value": "બધા ખર્ચ કાયમ માટે કાઢી નાખવામાં આવશે, આગળ વહન શૂન્ય પર ફરી સેટ થશે, અને થોભાવેલું હોય તો બજેટ ફરી શરૂ થશે."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כל ההוצאות יימחקו לצמיתות, יתרה מועברת תאופס לאפס, ואם מושהה, התקציב יחזור."
+            "value": "כל ההוצאות יימחקו לצמיתות, היתרה המועברת תתאפס לאפס, ואם התקציב מושהה הוא יחודש."
           }
         },
         "hi": {
@@ -42707,7 +42707,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "എല്ലാ ചെലവുകളും നിരന്തരമായി ഇല്ലാതാക്കപ്പെടും, കാരി-ഓവർ പൂജ്യത്തിലേക്ക് പുനഃസജ്ജിക്കപ്പെടും, ഉം നിർത്തിയാണെങ്കിൽ ബജറ്റ് പുനരാരംഭിക്കപ്പെടും."
+            "value": "എല്ലാ ചെലവുകളും ശാശ്വതമായി ഇല്ലാതാക്കും, കാരി-ഓവർ പൂജ്യമാകും, താൽക്കാലികമായി നിർത്തിയിട്ടുണ്ടെങ്കിൽ ബജറ്റ് പുനരാരംഭിക്കും."
           }
         },
         "mr": {
@@ -42755,7 +42755,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todas as despesas serão permanentemente deletadas, o saldo acumulado será redefinido para zero e, se pausado, o orçamento será retomado."
+            "value": "Todas as despesas serão excluídas permanentemente, o saldo acumulado será zerado e, se estiver pausado, o orçamento será retomado."
           }
         },
         "pt-PT": {
@@ -42785,7 +42785,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vsi stroški bodo trajno izbrisani, prenos se bo ponastavil na nič in, če je pavziran, se bo proračun nadaljeval."
+            "value": "Vsi stroški bodo trajno izbrisani, prenos se bo ponastavil na nič, začasno ustavljen proračun pa se bo nadaljeval."
           }
         },
         "sv": {
@@ -42982,7 +42982,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset Anggaran?"
+            "value": "Atur Ulang Anggaran?"
           }
         },
         "it": {
@@ -43287,7 +43287,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset ke Nol"
+            "value": "Atur Ulang ke Nol"
           }
         },
         "it": {
@@ -43568,7 +43568,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "יתרת היתרה המועברת תתנוקה ותתחיל טרי מאפס."
+            "value": "היתרה המועברת תאופס ותתחיל מחדש מאפס."
           }
         },
         "hi": {
@@ -43622,7 +43622,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "കാരി-ഓവർ ബാലൻസ് മായ്ക്കാനും പൂജ്യത്തിൽ നിന്ന് ശുദ്ധമായി ആരംഭിക്കാനും ആണ്."
+            "value": "കാരി-ഓവർ ബാലൻസ് മായ്ച്ച് പൂജ്യത്തിൽ നിന്ന് പുതുതായി ആരംഭിക്കും."
           }
         },
         "mr": {
@@ -43712,7 +43712,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "முன்கொண்டுசெல் இருப்பு தெளிவுசெய்யப்பட்டு பூஜ்ஜியத்திலிருந்து புதிதாக தொடங்கும்."
+            "value": "முன்கொண்டுசெல் இருப்பு அழிக்கப்பட்டு பூஜ்ஜியத்திலிருந்து புதிதாகத் தொடங்கும்."
           }
         },
         "te": {
@@ -43783,7 +43783,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restablir romanent?"
+            "value": "Restablir el romanent?"
           }
         },
         "cs": {
@@ -44453,7 +44453,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Período actual"
+            "value": "Periodo actual"
           }
         },
         "fi": {
@@ -44710,7 +44710,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dags dato"
+            "value": "I dag"
           }
         },
         "de": {
@@ -44860,7 +44860,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "I dag"
+            "value": "Inneværende dag"
           }
         },
         "nl": {
@@ -45165,7 +45165,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nåværende måned"
+            "value": "Inneværende måned"
           }
         },
         "nl": {
@@ -45368,7 +45368,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Período actual"
+            "value": "Periodo actual"
           }
         },
         "fi": {
@@ -45775,7 +45775,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nåværende uke"
+            "value": "Inneværende uke"
           }
         },
         "nl": {
@@ -46003,13 +46003,13 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "આવતું"
+            "value": "આગામી"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "קרוב"
+            "value": "עתידיות"
           }
         },
         "hi": {
@@ -46063,7 +46063,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "വരാവുന്നത്"
+            "value": "വരാനുള്ളവ"
           }
         },
         "mr": {
@@ -46159,7 +46159,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "రాబోయే"
+            "value": "రాబోయేవి"
           }
         },
         "th": {
@@ -46201,7 +46201,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "待支"
+            "value": "即將到來"
           }
         }
       }
@@ -46284,7 +46284,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Períodos anteriores"
+            "value": "Periodos anteriores"
           }
         },
         "fi": {
@@ -47199,7 +47199,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Períodos anteriores"
+            "value": "Periodos anteriores"
           }
         },
         "fi": {
@@ -48126,7 +48126,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Créez votre premier budget récurrent pour commencer à suivre vos dépenses chaque jour, semaine, quinzaine ou mois."
+            "value": "Crée ton premier budget récurrent pour suivre tes dépenses au jour, à la semaine, aux deux semaines ou au mois."
           }
         },
         "fr-CA": {
@@ -48186,7 +48186,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ನಿಮ್ಮ ಮೊದಲ ಪುನರಾವರ್ತಿತ ಬಜೆಟ್ ರಚಿಸಿ ಪ್ರತಿದಿನ, ವಾರ, ದ್ವಿ-ವಾರ ಅಥವಾ ತಿಂಗಳಿಗೊಮ್ಮೆ ನೀವು ಹೇಗೆ ಖರ್ಚ ಮಾಡುತ್ತೀರಿ ಎಂಬುದನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಲು ಪ್ರಾರಂಭಿಸಿ."
+            "value": "ಪ್ರತಿ ದಿನ, ವಾರ, ಎರಡು ವಾರ ಅಥವಾ ತಿಂಗಳಿಗೆ ನೀವು ಎಷ್ಟು ಖರ್ಚು ಮಾಡುತ್ತೀರಿ ಎಂದು ಗಮನಿಸಲು ನಿಮ್ಮ ಮೊದಲ ಪುನರಾವರ್ತಿತ ಬಜೆಟ್ ರಚಿಸಿ."
           }
         },
         "ko": {
@@ -48198,7 +48198,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഓരോ ദിവസം, സാപ്താഹിക്, രണ്ടാഴ്ച, അല്ലെങ്കിൽ മാസത്തിൽ നിങ്ങൾ ഖരച് കുറിച്ച് ട്രാക് ചെയ്യാൻ നിങ്ങളുടെ ആദ്യത്തെ ആവർത്തന ബജറ്റ് സൃഷ്ടിക്കുക."
+            "value": "ഓരോ ദിവസവും, ആഴ്ചയും, രണ്ടാഴ്ചയും, മാസവും ചെലവഴിക്കുന്നത് ട്രാക്ക് ചെയ്യാൻ നിങ്ങളുടെ ആദ്യ ആവർത്തന ബജറ്റ് സൃഷ്ടിക്കുക."
           }
         },
         "mr": {
@@ -48228,7 +48228,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆପଣ ଯାହା ଖର୍ଚ୍ଚ କରିଥାନ୍ତେ ତାହା ଟ୍ରାକ୍ କରିବାକୁ ଆଣିଥିବା ଅନୁରଣନଶୀଳ ବଜେଟ୍ ତୈରି କରନ୍ତୁ। ପ୍ରତିଦିନ, ସାପ୍ତାହିକ, ଦୁଇ-ସାପ୍ତାହିକ, କିମ୍ବା ମାସିକ।"
+            "value": "ଆପଣ ପ୍ରତିଦିନ, ସପ୍ତାହ, ପକ୍ଷ, କିମ୍ବା ମାସରେ କଣ ଖର୍ଚ୍ଚ କରୁଛନ୍ତି ତାହା ଟ୍ରାକ୍ କରିବାକୁ ଆପଣଙ୍କ ପ୍ରଥମ ପୁନରାବୃତ୍ତ ବଜେଟ୍ ତିଆରି କରନ୍ତୁ।"
           }
         },
         "pa": {
@@ -48258,7 +48258,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Creează primul tău buget recurent pentru a urmări ce cheltuiești în fiecare zi, săptămână, bilunar sau lună."
+            "value": "Creează primul buget recurent ca să urmărești ce cheltuiești zilnic, săptămânal, la două săptămâni sau lunar."
           }
         },
         "ru": {
@@ -48294,7 +48294,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "మీ మొదటి పునరావృత్తి బడ్జెట్‌ను సృష్టించండి ప్రతిదిన, వారానికో, ఫోర్ట్‌నైట్‌కో లేదా నెలవారీ మీరు ఎంత ఖర్చు చేస్తారో ట్రాక్ చేయడానికి ప్రారంభించండి."
+            "value": "మీరు ప్రతి రోజు, వారం, రెండు వారాలు లేదా నెలకు ఖర్చు చేసేదాన్ని ట్రాక్ చేయడం మొదలుపెట్టడానికి మీ మొదటి పునరావృత బడ్జెట్‌ను సృష్టించండి."
           }
         },
         "th": {
@@ -48981,7 +48981,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ underskud overførsel"
+            "value": "Overførsel med underskud på %@"
           }
         },
         "de": {
@@ -49035,7 +49035,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ alijäämä siirto"
+            "value": "%@ alijäämäsiirto"
           }
         },
         "fr": {
@@ -49131,7 +49131,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ underskudd overføring"
+            "value": "%@ overføring av underskudd"
           }
         },
         "nl": {
@@ -49268,7 +49268,7 @@
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ উদ্বৃত্ত উদ্বৃত্ত স্থানান্তর"
+            "value": "%@ উদ্বৃত্ত স্থানান্তর"
           }
         },
         "ca": {
@@ -49286,7 +49286,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ overskud overførsel"
+            "value": "Overførsel med overskud på %@"
           }
         },
         "de": {
@@ -49340,7 +49340,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ylijäämä siirto"
+            "value": "%@ ylijäämäsiirto"
           }
         },
         "fr": {
@@ -49436,7 +49436,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ overskudd overføring"
+            "value": "%@ overføring av overskudd"
           }
         },
         "nl": {
@@ -49819,7 +49819,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "సున్న క్యారీ-ఓవర్"
+            "value": "సున్నా క్యారీ-ఓవర్"
           }
         },
         "th": {
@@ -50022,7 +50022,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "적자"
+            "value": "부족"
           }
         },
         "ml": {
@@ -50160,7 +50160,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "赤字"
+            "value": "超支"
           }
         },
         "zh-Hant": {
@@ -50770,7 +50770,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "盈余"
+            "value": "结余"
           }
         },
         "zh-Hant": {
@@ -52024,7 +52024,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pausat des de %@"
+            "value": "En pausa des del %@"
           }
         },
         "cs": {
@@ -52330,7 +52330,7 @@
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pausat · %@"
+            "value": "En pausa · %@"
           }
         },
         "cs": {
@@ -52946,7 +52946,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sdílet anonymní data o využití"
+            "value": "Sdílet anonymní data o používání"
           }
         },
         "da": {
@@ -53126,7 +53126,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Udostępniaj anonimowe dane użytkowania"
+            "value": "Udostępniaj anonimowe dane o użytkowaniu"
           }
         },
         "pt-BR": {
@@ -53233,7 +53233,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لمساعدتنا على استكشاف المشاكل وفهم الاستخدام، تُرسل هذه التطبيق بيانات الاستخدام المجهولة إلى الأنظمة الخلفية للتحليل. تتضمن الأمثلة إعدادات الميزانية مثل الفترة، رمز العملة، المُرحَّل قيد التشغيل/الإيقاف، المبلغ المخصّص، وما إلى ذلك. لا يتم مشاركة: أسماء المصروفات، المبالغ، التواريخ، أي معرفات Apple/iCloud، أي ملاحظات نصية حرة أو معلومات شخصية. يمكن تغيير هذا القرار في أي وقت على شاشة الإعدادات."
+            "value": "للمساعدة في معالجة المشكلات وفهم الاستخدام، يرسل هذا التطبيق بيانات استخدام مجهولة المصدر إلى الأنظمة الخلفية لتحليلها. ومن أمثلة ما تتم مشاركته إعدادات الميزانية مثل الفترة، ورمز العملة، وتفعيل المُرحَّل أو إيقافه، ومبلغ المخصّص، وما إلى ذلك. ولا تتم مشاركة أسماء المصروفات أو مبالغها أو تواريخها، ولا أي معرّفات من Apple أو iCloud، ولا أي ملاحظات نصية حرة أو معلومات شخصية. ويمكن تغيير هذا القرار في أي وقت من شاشة الإعدادات."
           }
         },
         "bn": {
@@ -53257,7 +53257,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "For at hjælpe med at løse problemer og forstå brugen sender denne app anonym brugsdata til backend-systemer til analyse. Eksempler på delt data omfatter budgetindstillinger som periode, valutakode, overførsel til/fra, tildelt beløb og lignende. Deles aldrig: Udgiftnavne, beløb, datoer, Apple/iCloud-identifikatorer, fritekstnoter eller personlige data. Du kan ændre denne indstilling når som helst på Indstillinger-skærmen."
+            "value": "For at hjælpe med fejlfinding og forstå brugen sender appen anonyme brugsdata til backend-systemer til analyse. Eksempler på det, der deles, er budgetindstillinger som periode, valutakode, overførsel til/fra, tildelt beløb og så videre. Deles aldrig: udgifters navne, beløb og datoer, Apple-/iCloud-id'er samt fritekstnoter og personlige oplysninger. Du kan ændre valget når som helst under Indstillinger."
           }
         },
         "de": {
@@ -53329,13 +53329,13 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "સમસ્યાઓ હલ કરવામાં મદદ કરવા અને વપરાશ સમજવા માટે, આ ઍપ્લિકેશન વિશ્લેષણ માટે બેકએન્ડ સિસ્ટમમાં અનામિક વપરાશ ડેટા મોકલે છે. શેર કર્યેલી વસ્તુઓના ઉદાહરણમાં બજેટ સેટિંગ્સ જેમ કે સમયગાળો, ચલણ કોડ, આગળ વહન ચાલુ/બંધ, ફાળવણી રકમ, વગેરે શામેલ છે. ક્યારે પણ શેર કર્યેલું નથી: ખર્ચ નામો, રકમો, તારીખો, કોઈ Apple/iCloud ઓળખકર્તા, કોઈ મુક્ત-ટેક્સ્ટ નોંધો અથવા ગોપનીય તથ્યો. આ નિર્ણય સેટિંગ્સ સ્ક્રીનમાં કોઈ પણ સમયે બદલી શકાય છે."
+            "value": "સમસ્યાઓ ઉકેલવામાં અને વપરાશ સમજવામાં મદદ માટે, આ ઍપ વિશ્લેષણ માટે બૅકએન્ડ સિસ્ટમમાં અનામી વપરાશ ડેટા મોકલે છે. શું શૅર થાય છે તેના ઉદાહરણ: બજેટ સેટિંગ્સ જેવા કે સમયગાળો, ચલણ કોડ, આગળ વહન ચાલુ/બંધ, ફાળવણીની રકમ, વગેરે. ક્યારેય શૅર થતું નથી: ખર્ચના નામ, રકમ, તારીખો, કોઈપણ Apple/iCloud ઓળખકર્તા, કોઈપણ મુક્ત-લખાણ નોંધ કે વ્યક્તિગત માહિતી. આ નિર્ણય સેટિંગ્સ સ્ક્રીન પર ગમે ત્યારે બદલી શકાય છે."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "כדי לעזור בפתרון בעיות והבנת השימוש, האפליקציה שולחת נתוני שימוש אנונימיים למערכות עורק לניתוח. דוגמאות לאלה שנשותפו כוללות הגדרות תקציב כמו תקופה, קוד מטבע, יתרה מועברת פעם/כיבוי, סכום הקצאה וכן הלאה. לא ממש משותף: שמות הוצאה, סכומים, תאריכים, כל מזהה Apple/iCloud, הערות חופשיות או מידע אישי. החלטה זו יכולה להשתנות בכל עת במסך ההגדרות."
+            "value": "כדי לסייע באיתור תקלות ובהבנת השימוש, האפליקציה שולחת נתוני שימוש אנונימיים למערכות העורף לצורך ניתוח. בין הדוגמאות למידע המשותף: הגדרות תקציב כמו תקופה, קוד מטבע, מצב יתרה מועברת והפעלתה, סכום הקצאה וכדומה. לעולם לא משותפים: שמות הוצאות, סכומים, תאריכים, מזהי Apple או iCloud כלשהם, וכל הערה חופשית או מידע אישי. אפשר לשנות את ההחלטה הזו בכל עת במסך ההגדרות."
           }
         },
         "hi": {
@@ -53347,7 +53347,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kako bi se riješili problemi i razumjela upotreba, ova aplikacija šalje anonimne podatke o korištenju u sustave za analizu. Primjeri onoga što se dijeli obuhvaćaju postavke proračuna kao što su razdoblje, kod valute, prijenos uključen/isključen, iznos dodjele i tako dalje. Nikad se ne dijele: Nazivi troškova, iznosi, datumi, bilo koji Apple/iCloud identifikatori, bilo koje slobodne napomene ili osobne informacije. Ova se odluka može promijeniti u bilo kojem trenutku na zaslon Postavke."
+            "value": "Radi otklanjanja problema i razumijevanja korištenja, ova aplikacija šalje anonimne podatke o korištenju pozadinskim sustavima na analizu. Primjeri onoga što se dijeli uključuju postavke proračuna poput razdoblja, koda valute, uključenog ili isključenog prijenosa, iznosa dodjele i slično. Nikad se ne dijeli: nazivi troškova, iznosi, datumi, identifikatori Applea ili iClouda te bilo kakve slobodne bilješke ili osobni podaci. Ovu odluku možeš promijeniti u svakom trenutku na zaslonu Postavke."
           }
         },
         "hu": {
@@ -53389,7 +53389,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "പ്രശ്നങ്ങൾ പരിഹരിക്കാനും ഉപയോഗം മനസ്സിലാക്കാനും, ഈ അപ്ലിക്കേഷൻ വിശകലനത്തിനായി ബാക്കെൻഡ് സിസ്റ്റങ്ങളിലേക്ക് അജ്ഞാത ഉപയോഗ ഡാറ്റ അയയ്ക്കുന്നു. പങ്കിടൂ എന്നതിൽ കാലയളവ്, കറൻസി കോഡ്, കാരി-ഓവർ ഓൺ/ഓഫ്, വകയിരുത്തൽ തുക തുടങ്ങിയ ബജറ്റ് ക്രമീകരണങ്ങൾ അടങ്ങിയിരിക്കും. ഒരിക്കലും പങ്കിടൂ: ചെലവ് പേരുകൾ, തുകാണ്, തീയതികൾ, ആപ്പിൾ/iCloud ഐഡന്റിഫയറുകൾ, സ്വതന്ത്ര-ടെക്സ്റ്റ് നോട്ടുകൾ അല്ലെങ്കിൽ വ്യക്തിഗത വിവരങ്ങൾ. ഈ തീരുമാനം എപ്പോൾ വേണ്ടിയും ക്രമീകരണങ്ങൾ സ്ക്രീനിൽ മാറ്റാൻ കഴിയും."
+            "value": "പ്രശ്നങ്ങൾ പരിഹരിക്കാനും ഉപയോഗം മനസ്സിലാക്കാനും സഹായിക്കുന്നതിന്, ഈ ആപ്പ് വിശകലനത്തിനായി അജ്ഞാത ഉപയോഗ ഡാറ്റ ബാക്കെൻഡ് സിസ്റ്റങ്ങളിലേക്ക് അയയ്ക്കുന്നു. പങ്കിടുന്നതിന്റെ ഉദാഹരണങ്ങൾ: കാലയളവ്, കറൻസി കോഡ്, കാരി-ഓവർ ഓൺ/ഓഫ്, വകയിരുത്തൽ തുക തുടങ്ങിയ ബജറ്റ് ക്രമീകരണങ്ങൾ. ഒരിക്കലും പങ്കിടാത്തവ: ചെലവുകളുടെ പേരുകൾ, തുകകൾ, തീയതികൾ, ഏതെങ്കിലും Apple/iCloud ഐഡന്റിഫയറുകൾ, സ്വതന്ത്ര-ടെക്സ്റ്റ് കുറിപ്പുകൾ അല്ലെങ്കിൽ വ്യക്തിഗത വിവരങ്ങൾ. ഈ തീരുമാനം ക്രമീകരണങ്ങൾ സ്ക്രീനിൽ എപ്പോൾ വേണമെങ്കിലും മാറ്റാം."
           }
         },
         "mr": {
@@ -53413,13 +53413,13 @@
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voor probleemoplossing en gebruiksanalyse stuurt deze app anonieme gebruiksgegevens naar backend-systemen. Voorbeelden: budgetinstellingen zoals periode, valutacode, overdracht aan/uit, toewijzingsbedrag, enzovoort. Nooit gedeeld: Uitgavenamen, bedragen, datums, Apple-/iCloud-identifiers, aantekeningen of persoonlijke informatie. Dit keuze kan je altijd wijzigen in Instellingen."
+            "value": "Om problemen op te lossen en het gebruik te begrijpen, stuurt deze app anonieme gebruiksgegevens naar backendsystemen voor analyse. Voorbeelden van wat er wordt gedeeld: budgetinstellingen zoals periode, valutacode, overdracht aan/uit, toegewezen bedrag, enzovoort. Wordt nooit gedeeld: namen, bedragen en datums van uitgaven, Apple- of iCloud-identificatiegegevens, vrije notities of persoonlijke gegevens. Je kunt deze keuze altijd wijzigen in het scherm Instellingen."
           }
         },
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ସମସ୍ୟା ତ୍ରୁଟିଗୁଣ୍ଡ ଏବଂ ବ୍ୟବହାର ବୁଝିବାରେ ସାହାଯ୍ୟ କରିବାକୁ, ଏହି ଆପ୍ ବିଶ୍ଳେଷଣ ପାଇଁ ବ୍ୟାକେଣ୍ଡ ସିଷ୍ଟମକୁ ଅଜ୍ଞାତ ବ୍ୟବହାର ତଥ୍ୟ ପଠାଏ। ଉଦାହରଣ ନିଅନ୍ତୋ ଅନ୍ତର୍ଭୁକ୍ତ: ଅବଧି, ମୁଦ୍ରା କୋଡ୍, ଆଗକୁ ନିଆ ବାକି ଅନ/ଅଫ୍, ବଣ୍ଟନ ରାଶି, ଇତ୍ୟାଦି ବଜେଟ୍ ସେଟିଂସ୍। କେବେପି ସେୟାର୍ ହୋଇ ନଆ: ଖର୍ଚ୍ଚ ନାମ, ରାଶି, ତାରିଖ, ଯେକୌଣସି ଆପ୍ପୁଲ୍/iCloud ଚିହ୍ନିକାରୀ, ଯେକୌଣସି ମୁକ୍ତ ଲେଖନୀ ଟିପ୍ପଣୀ କିମ୍ବା ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ। ଏହି ନିର୍ଣ୍ଣୟ ସେଟିଂସ୍ ପରଦାରେ ଯେକୌଣସି ସମୟରେ ବଦଳାଯାଇ ପାରିବ।"
+            "value": "ସମସ୍ୟା ସମାଧାନ ଓ ବ୍ୟବହାର ବୁଝିବାରେ ସାହାଯ୍ୟ ପାଇଁ, ଏହି ଆପ୍ ବିଶ୍ଳେଷଣ ନିମନ୍ତେ ବ୍ୟାକେଣ୍ଡ ସିଷ୍ଟମକୁ ଅଜ୍ଞାତ ବ୍ୟବହାର ତଥ୍ୟ ପଠାଏ। ଯାହା ସେୟାର ହୁଏ ତାହାର ଉଦାହରଣ: ଅବଧି, ମୁଦ୍ରା କୋଡ୍, ଆଗକୁ ନିଆ ବାକି ଚାଲୁ/ବନ୍ଦ, ବଣ୍ଟନ ରାଶି ଆଦି ବଜେଟ୍ ସେଟିଂସ୍। କେବେବି ସେୟାର ହୁଏନାହିଁ: ଖର୍ଚ୍ଚର ନାମ, ରାଶି, ତାରିଖ, ଯେକୌଣସି Apple/iCloud ପରିଚୟ, ଯେକୌଣସି ମୁକ୍ତ-ଲେଖା ନୋଟ୍ କିମ୍ବା ବ୍ୟକ୍ତିଗତ ସୂଚନା। ଏହି ନିଷ୍ପତ୍ତି ସେଟିଂସ୍ ସ୍କ୍ରିନରୁ ଯେକୌଣସି ସମୟରେ ବଦଳାଯାଇପାରିବ।"
           }
         },
         "pa": {
@@ -53473,19 +53473,19 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "För att felsöka problem och förstå användningen skickar denna app anonym användningsdata till backend-system för analys. Exempel på vad som delas inkluderar budgetinställningar som period, valutakod, överföring på/av, tilldelningsbelopp och så vidare. Aldrig delat: Utgiftnamn, belopp, datum, Apple/iCloud-identifierare, anteckningar eller personlig information. Detta val kan ändras när som helst på Inställningar-skärmen."
+            "value": "För att hjälpa till att felsöka problem och förstå användningen skickar appen anonym användningsdata till backend-system för analys. Exempel på vad som delas: budgetinställningar som period, valutakod, överföring på/av, tilldelat belopp och så vidare. Delas aldrig: namn på utgifter, belopp, datum, Apple- eller iCloud-identifierare, fritextanteckningar eller personlig information. Du kan ändra det här valet när som helst under Inställningar."
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "சிக்கல்களை தீர்க்க மற்றும் பயன்பாட்டை புரிந்து கொள்ள, இந்த பயன்பாடு பகுப்பாய்வுக்கான பின்மாதிரி அமைப்புக்களுக்கு அநாமதேய பயன்பாட்டுத் தரவு அனுப்புகிறது. பகிர்ந்து கொள்ளப்பட்ட பட்ஜெட் அமைப்புகளான காலம், நாணய குறியீட்டு, முன்கொண்டுசெல் இயக்க/இயக்க அல்ல, ஒதுக்கீடு தொகை, முதலியன. ஒருபோதும் பகிர்ந்து கொள்ளப்படாது: செலவு பெயர்கள், தொகைகள், தேதிகள், எந்த Apple/iCloud அடையாளம், கட்டற்ற உரை குறிப்புகள் அல்லது ব்যக்திগত தகவல். இந்த முடிவை எப்பொழுதும் அமைப்புகள் திரையில் மாற்றலாம்."
+            "value": "சிக்கல்களைக் களைய உதவவும் பயன்பாட்டைப் புரிந்துகொள்ளவும், இந்த ஆப் அநாமதேய பயன்பாட்டுத் தரவை பகுப்பாய்விற்காக பின்னணி அமைப்புகளுக்கு அனுப்புகிறது. பகிரப்படுவதற்கான எடுத்துக்காட்டுகள்: காலம், நாணயக் குறியீடு, முன்கொண்டுசெல் இயக்கம்/நிறுத்தம், ஒதுக்கீட்டுத் தொகை போன்ற பட்ஜெட் அமைப்புகள். ஒருபோதும் பகிரப்படாதவை: செலவுப் பெயர்கள், தொகைகள், தேதிகள், எந்த Apple/iCloud அடையாளங்களும், எந்த சுயவிவரக் குறிப்புகளும் அல்லது தனிப்பட்ட தகவல்களும். இந்த முடிவை அமைப்புகள் திரையில் எப்போது வேண்டுமானாலும் மாற்றலாம்."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "సమస్యలను సమస్యా పరిష్కారం చేయడానికి మరియు వినియోగాన్ని అర్థం చేసుకోవడానికి, ఈ యాప్ విశ్లేషణ కోసం బ్యాకెండ్ సిస్టమ్‌లకు అజ్ఞాత వినియోగ డేటాను పంపుతుంది. పంచుకోసే వాటిలో ఉదాహరణలు బడ్జెట్ సెట్టింగ్‌లు వంటి వ్యవధి, కరెన్సీ కోడ్, క్యారీ-ఓవర్ ఆన్/ఆఫ్, కేటాయింపు మొత్తం మరియు అందువంటిది. ఎప్పుడూ పంచుకోనిది: ఖర్చు పేర్లు, మొత్తాలు, తేదీలు, ఏదైనా Apple/iCloud గుర్తింపులు, ఏదైనా స్వేచ్ఛా-టెక్సట్ నోట్‌లు లేదా వ్యక్తిగత సమాచారం. ఈ నిర్ణయం ఎప్పుడైనా సెట్టింగ్‌ల స్క్రీన్‌లో మార్చవచ్చు."
+            "value": "సమస్యలను పరిష్కరించడంలో సాయపడటానికి, వినియోగాన్ని అర్థం చేసుకోవడానికి, ఈ యాప్ విశ్లేషణ కోసం అనామక వినియోగ డేటాను బ్యాకెండ్ సిస్టమ్‌లకు పంపుతుంది. వ్యవధి, కరెన్సీ కోడ్, క్యారీ-ఓవర్ ఆన్/ఆఫ్, కేటాయింపు మొత్తం వంటి బడ్జెట్ సెట్టింగ్‌లు షేర్ చేసే వాటికి ఉదాహరణలు. ఎప్పటికీ షేర్ చేయనివి: ఖర్చు పేర్లు, మొత్తాలు, తేదీలు, ఏ Apple/iCloud గుర్తింపులు, ఏ ఫ్రీ-టెక్స్ట్ నోట్‌లు లేదా వ్యక్తిగత సమాచారం. ఈ నిర్ణయాన్ని సెట్టింగ్‌లు స్క్రీన్‌లో ఎప్పుడైనా మార్చవచ్చు."
           }
         },
         "th": {
@@ -53497,7 +53497,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sorunları gidermeye ve kullanımı anlamaya yardımcı olmak için bu uygulama anonim kullanım verilerini arka uç sistemlerine gönderir. Paylaşılan verilere dönem, para birimi kodu, devir açık/kapalı, tahsis tutarı gibi bütçe ayarları dahildir. Asla paylaşılmaz: Harcama adları, tutarları, tarihleri, herhangi bir Apple/iCloud tanımlayıcısı, serbest metin notları ya da kişisel bilgiler. Bu karar Ayarlar ekranından istediğin zaman değiştirilebilir."
+            "value": "Sorunları gidermeye ve kullanımı anlamaya yardımcı olmak için bu uygulama, analiz amacıyla arka uç sistemlere anonim kullanım verisi gönderir. Paylaşılanlara örnekler: dönem, para birimi kodu, devir açık/kapalı, tahsis tutarı gibi bütçe ayarları. Asla paylaşılmaz: harcama adları, tutarlar, tarihler, Apple/iCloud kimlikleri, serbest metin notları ya da kişisel bilgiler. Bu tercihi Ayarlar ekranından istediğin zaman değiştirebilirsin."
           }
         },
         "uk": {
@@ -53515,7 +53515,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Để giúp khắc phục sự cố và hiểu cách sử dụng, ứng dụng này gửi dữ liệu sử dụng nặc danh đến các hệ thống phụ trợ để phân tích. Ví dụ về những gì được chia sẻ bao gồm cài đặt ngân sách như kỳ, mã tiền tệ, chuyển tiếp bật/tắt, số tiền phân bổ, v.v. Không bao giờ chia sẻ: Tên khoản chi, số tiền, ngày, bất kỳ mã định danh Apple/iCloud nào, bất kỳ ghi chú văn bản tự do hay thông tin cá nhân nào. Quyết định này có thể được thay đổi bất kỳ lúc nào trên màn hình Cài đặt."
+            "value": "Để giúp khắc phục sự cố và hiểu cách sử dụng, ứng dụng gửi dữ liệu sử dụng ẩn danh đến hệ thống máy chủ để phân tích. Ví dụ những gì được chia sẻ gồm thiết lập ngân sách như kỳ, mã tiền tệ, bật/tắt chuyển tiếp, số tiền phân bổ, v.v. Không bao giờ chia sẻ: tên khoản chi, số tiền, ngày, mọi mã định danh Apple/iCloud, mọi ghi chú tự do hay thông tin cá nhân. Bạn có thể thay đổi lựa chọn này bất cứ lúc nào trong màn hình Cài đặt."
           }
         },
         "zh-Hans": {
@@ -53634,7 +53634,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "ધન્યવાદ નહીં"
+            "value": "ના, આભાર"
           }
         },
         "he": {
@@ -53694,7 +53694,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "നന്ദിയില്ല"
+            "value": "വേണ്ട"
           }
         },
         "mr": {
@@ -53724,7 +53724,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ନାହିଁ ଧନ୍ୟବାଦ"
+            "value": "ନା, ଧନ୍ୟବାଦ"
           }
         },
         "pa": {
@@ -53790,7 +53790,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "ధన్యవాదాలు లేదు"
+            "value": "వద్దు, థాంక్స్"
           }
         },
         "th": {
@@ -53814,7 +53814,7 @@
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "نہ شکریہ"
+            "value": "نہیں، شکریہ"
           }
         },
         "vi": {
@@ -53921,7 +53921,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Haluatko auttaa kehittämään sovellusta?"
+            "value": "Autatko parantamaan sovellusta?"
           }
         },
         "fr": {
@@ -53939,7 +53939,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "ઍપ્લિકેશન બહતર બનાવવામાં મદદ કરશો?"
+            "value": "ઍપ સુધારવામાં મદદ કરશો?"
           }
         },
         "he": {
@@ -53999,7 +53999,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "അപ്ലിക്കേഷൻ മെച്ചപ്പെടുത്തുകയോ?"
+            "value": "ആപ്പ് മെച്ചപ്പെടുത്താൻ സഹായിക്കണോ?"
           }
         },
         "mr": {
@@ -54035,7 +54035,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਐਪਲੀਕੇਸ਼ਨ ਵਿੱਚ ਸਹਾਇਤਾ ਕਰੋ?"
+            "value": "ਐਪ ਬਿਹਤਰ ਬਣਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰੋਗੇ?"
           }
         },
         "pl": {
@@ -54089,13 +54089,13 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "பயன்பாட்டை மேம்படுத்த உதவ வாழ்க?"
+            "value": "ஆப்பை மேம்படுத்த உதவலாமா?"
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "అప్‌ను మెరుగుపరచడానికి సహాయం చేయాలా?"
+            "value": "యాప్‌ను మెరుగుపరచడంలో సాయపడతారా?"
           }
         },
         "th": {
@@ -54353,7 +54353,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tentar novamente"
+            "value": "Tentar de novo"
           }
         },
         "pt-PT": {
@@ -54539,7 +54539,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tente d'ouvrir vos données à nouveau."
+            "value": "Tente de rouvrir tes données."
           }
         },
         "fr-CA": {
@@ -54575,7 +54575,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Megkísérli az adatok megnyitását."
+            "value": "Újra megpróbálja megnyitni az adataidat."
           }
         },
         "id": {
@@ -54647,7 +54647,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਤੁਸੀਂ ਦਾ ਡੇਟਾ ਦੋਬਾਰਾ ਖੋਲ੍ਹਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰਦਾ ਹੈ।"
+            "value": "ਤੁਹਾਡਾ ਡਾਟਾ ਮੁੜ ਖੋਲ੍ਹਣ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰਦਾ ਹੈ।"
           }
         },
         "pl": {
@@ -54665,7 +54665,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tenta abrir os seus dados novamente."
+            "value": "Tenta abrir os teus dados de novo."
           }
         },
         "ro": {
@@ -54851,7 +54851,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envoyer des commentaires"
+            "value": "Envoyer un commentaire"
           }
         },
         "gu": {
@@ -55223,7 +55223,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ത്രുടി വിശദാംശങ്ങൾ ഉള്ള ഈ-മെയിൽ തുറക്കുന്നു, വ്യക്തിഗത ഡാറ്റ നിയന്ത്രണ."
+            "value": "പിശക് വിശദാംശങ്ങളുമായി ഒരു ഇമെയിൽ തുറക്കുന്നു, വ്യക്തിഗത ഡാറ്റ ഇല്ല."
           }
         },
         "mr": {
@@ -55313,7 +55313,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "பிழை விவரங்களுடன் மின்னஞ்சல் திறக்கிறது, ஆனால் ব்যக்திगत தரவு இல்லை."
+            "value": "பிழை விவரங்களுடன் ஒரு மின்னஞ்சலைத் திறக்கும், தனிப்பட்ட தரவு இல்லை."
           }
         },
         "te": {
@@ -55517,7 +55517,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ನಿಮ್ಮ ಬಜೆಟ್‌ಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ಏನಾದರೂ ತಪ್ಪಾದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ, ಅಥವಾ ನಾವು ಸಹಾಯ ಮಾಡಲು ವಿವರಗಳನ್ನು ಕಳುಹಿಸಿ."
+            "value": "ನಿಮ್ಮ ಬಜೆಟ್‌ಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ಏನೋ ತಪ್ಪಾಯಿತು. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ, ಅಥವಾ ನಾವು ಸಹಾಯ ಮಾಡಲು ವಿವರಗಳನ್ನು ನಮಗೆ ಕಳುಹಿಸಿ."
           }
         },
         "ko": {
@@ -55559,13 +55559,13 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆପଣାର ବଜେଟ୍ ଲୋଡ୍ କରିବାରେ କିଛି ଭୁଲ ହୋଇଗଲା। ଆବାର ଚେଷ୍ଟା କରନ୍ତୁ, କିମ୍ବା ବିବରଣୀ ପଠାନ୍ତୁ ଯାଥା ଆମେ ସାହାଯ୍ୟ କରିପାରିବା।"
+            "value": "ଆପଣଙ୍କ ବଜେଟ୍ ଲୋଡ୍ କରିବାରେ କିଛି ଗଡ଼ବଡ଼ ହେଲା। ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ, କିମ୍ବା ଆମେ ସାହାଯ୍ୟ କରିପାରିବାକୁ ବିବରଣୀ ପଠାନ୍ତୁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਤੁਸੀਂ ਦੇ ਬਜਟ ਨੂੰ ਲੋਡ ਕਰਨ ਵਿੱਚ ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ, ਜਾਂ ਸਾਨੂੰ ਵੇਰਵੇ ਭੇਜੋ ਤਾਂ ਜੋ ਸਾਂ ਸਹਾਇਤਾ ਕਰ ਸਕੀ।"
+            "value": "ਤੁਹਾਡੇ ਬਜਟ ਲੋਡ ਕਰਨ ਵਿੱਚ ਕੁਝ ਗੜਬੜ ਹੋਈ। ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ, ਜਾਂ ਸਾਨੂੰ ਵੇਰਵੇ ਭੇਜੋ ਤਾਂ ਜੋ ਅਸੀਂ ਮਦਦ ਕਰ ਸਕੀਏ।"
           }
         },
         "pl": {
@@ -55595,7 +55595,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "При загрузке бюджетов произошла ошибка. Повторите попытку или отправьте нам сведения, чтобы мы могли помочь."
+            "value": "Не удалось загрузить бюджеты. Попробуй ещё раз или пришли нам подробности — мы поможем."
           }
         },
         "sk": {
@@ -55625,7 +55625,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "మీ బడ్జెట్‌లను లోడ్ చేయడంలో ఎంత ఖర్చయైనా ఉంది. మళ్లీ ప్రయత్నించండి, లేదా మాకు వివరాలను పంపండి కనుక మేము సహాయం చేయవచ్చు."
+            "value": "మీ బడ్జెట్‌లను లోడ్ చేయడంలో ఏదో తప్పు జరిగింది. మళ్లీ ప్రయత్నించండి, లేదా మేము సాయపడేలా వివరాలను మాకు పంపండి."
           }
         },
         "th": {
@@ -55763,7 +55763,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'app n'a pas pu ouvrir votre magasin de données. Contexte de diagnostic (pas de données personnelles) :"
+            "value": "Impossible d'ouvrir ton magasin de données. Contexte de diagnostic (aucune donnée personnelle) :"
           }
         },
         "fr-CA": {
@@ -55835,7 +55835,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ആപ്ലിക്കേഷൻ നിങ്ങളുടെ ഡാറ്റ സ്റ്റോർ തുറക്കാൻ കഴിഞ്ഞില്ല. വിശകലനാത്മക സന്ദർഭം (വ്യക്തിഗത ഡാറ്റ നിയന്ത്രണ):"
+            "value": "ആപ്പിന് നിങ്ങളുടെ ഡാറ്റ സ്റ്റോർ തുറക്കാനായില്ല. ഡയഗ്നോസ്റ്റിക് സന്ദർഭം (വ്യക്തിഗത ഡാറ്റ ഇല്ല):"
           }
         },
         "mr": {
@@ -55871,7 +55871,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਐਪਲੀਕੇਸ਼ਨ ਤੁਸੀਂ ਦਾ ਡੇਟਾ ਸਟੋਰ ਖੋਲ੍ਹ ਨਹੀਂ ਸਕਿਆ। ਡਾਇਗਨੌਸਟਿਕ ਰੂਪ-ਰੰਗ (ਕੋਈ ਨਿਜੀ ਡੇਟਾ ਨਹੀਂ):"
+            "value": "ਐਪ ਤੁਹਾਡਾ ਡਾਟਾ ਸਟੋਰ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕੀ। ਡਾਇਗਨੌਸਟਿਕ ਪ੍ਰਸੰਗ (ਕੋਈ ਨਿੱਜੀ ਡਾਟਾ ਨਹੀਂ):"
           }
         },
         "pl": {
@@ -55889,7 +55889,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "A app não conseguiu abrir o armazenamento de dados. Contexto de diagnóstico (sem dados pessoais):"
+            "value": "A app não conseguiu abrir os teus dados. Contexto de diagnóstico (sem dados pessoais):"
           }
         },
         "ro": {
@@ -55925,7 +55925,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "பயன்பாடு உங்கள் தரவு சேமிப்பிடத்தைத் திறக்க முடியவில்லை. நோயறிதல் சூழல் (ஆனால் ব்যக்திگत தரவு இல்லை):"
+            "value": "உங்கள் தரவுச் சேமிப்பகத்தை ஆப்பால் திறக்க முடியவில்லை. கண்டறிதல் சூழல் (தனிப்பட்ட தரவு இல்லை):"
           }
         },
         "te": {
@@ -55943,7 +55943,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uygulama veri deponuzu açamadı. Tanılama bağlamı (kişisel veri içermez):"
+            "value": "Uygulama veri deponu açamadı. Tanılama bilgileri (kişisel veri içermez):"
           }
         },
         "uk": {
@@ -56003,7 +56003,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Popiš prosím, co se na tvém zařízení dělo, když tento problém začal:"
+            "value": "Popiš, co se na tvém zařízení dělo, když to začalo:"
           }
         },
         "da": {
@@ -56129,7 +56129,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಅಪ್ಲಿಕೇಶನ್ ನಿಮ್ಮ ಡೇಟಾ ಸ್ಟೋರ್ ತೆರೆಯಲಾಗಲಿಲ್ಲ ಎಂದು ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಕಿ ಆಗುತ್ತಿತ್ತೆ ಎಂಬುದನ್ನು ವರ್ಣಿಸಿ:"
+            "value": "ಇದು ಪ್ರಾರಂಭವಾದಾಗ ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಏನು ನಡೆಯುತ್ತಿತ್ತು ಎಂದು ದಯವಿಟ್ಟು ವಿವರಿಸಿ:"
           }
         },
         "ko": {
@@ -56141,7 +56141,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "നിങ്ങളുടെ ഉപകരണത്തിൽ അത് നിർത്തി എന്ന സമയത്ത് എന്തായിരുന്നെന്ന് വിവരിക്കുക:"
+            "value": "ഇത് തുടങ്ങിയപ്പോൾ നിങ്ങളുടെ ഉപകരണത്തിൽ എന്താണ് സംഭവിച്ചതെന്ന് വിവരിക്കുക:"
           }
         },
         "mr": {
@@ -56159,7 +56159,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vær så god og beskriv hva som skjedde på enheten din da problemet startet:"
+            "value": "Beskriv hva som skjedde på enheten da dette begynte:"
           }
         },
         "nl": {
@@ -56177,7 +56177,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਕਿਰਪਾ ਕਰਕੇ ਵੇਰਵਾ ਦਿਓ ਕਿ ਤੁਸੀਂ ਦਾ ਯੰਤਰ ਕੀ ਕਰ ਰਿਹਾ ਸੀ ਜਦ ਇਹ ਸ਼ੁਰੂ ਹੋਇਆ:"
+            "value": "ਕਿਰਪਾ ਕਰਕੇ ਦੱਸੋ ਕਿ ਜਦੋਂ ਇਹ ਸ਼ੁਰੂ ਹੋਇਆ ਉਦੋਂ ਤੁਹਾਡੇ ਡਿਵਾਈਸ 'ਤੇ ਕੀ ਹੋ ਰਿਹਾ ਸੀ:"
           }
         },
         "pl": {
@@ -56249,7 +56249,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bu sorun başladığında cihazında neler olduğunu açıkla:"
+            "value": "Bu sorun başladığında cihazında ne yapıyordun, lütfen anlat:"
           }
         },
         "uk": {
@@ -56375,7 +56375,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible d'ouvrir vos données"
+            "value": "Impossible d'ouvrir tes données"
           }
         },
         "fr-CA": {
@@ -56483,7 +56483,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਤੁਸੀਂ ਦਾ ਡੇਟਾ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕੇ"
+            "value": "ਤੁਹਾਡਾ ਡਾਟਾ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕਿਆ"
           }
         },
         "pl": {
@@ -58398,7 +58398,7 @@
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "کریں سی تلاش کریں"
+            "value": "کرنسی تلاش کریں"
           }
         },
         "vi": {
@@ -59182,7 +59182,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿ ಸಾಹಿತ್ಯವು ಪುನರಾವರ್ತಿತವಾಗಿ ವಿಫಲವಾಗಿದೆ. ರೋಗನಿರ್ಣಯ ಸನ್ನಿವೇಶ (ವ್ಯಕ್ತಿಗತ ಡೇಟಾ ಇಲ್ಲ):"
+            "value": "ಆ್ಯಪ್‌ನಲ್ಲಿ ಒಂದು ಉಳಿತ ಪದೇ ಪದೇ ವಿಫಲವಾಯಿತು. ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಸಂದರ್ಭ (ವೈಯಕ್ತಿಕ ಡೇಟಾ ಇಲ್ಲ):"
           }
         },
         "ko": {
@@ -59194,7 +59194,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "അപ്ലിക്കേഷനിലെ ഒരു സംരക്ഷണ ഇരുപത്താൻ പരാജയപ്പെട്ടു. വിശകലനാത്മക സന്ദർഭം (വ്യക്തിഗത ഡാറ്റ നിയന്ത്രണ):"
+            "value": "ആപ്പിലെ ഒരു സേവ് ആവർത്തിച്ച് പരാജയപ്പെട്ടു. ഡയഗ്നോസ്റ്റിക് സന്ദർഭം (വ്യക്തിഗത ഡാറ്റ ഇല്ല):"
           }
         },
         "mr": {
@@ -59224,13 +59224,13 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆପର ସଂଗ୍ରହ ବାରମ୍ବାର ବିଫଳ ହୋଇଗଲା। ନିରାକରଣ ପ୍ରସଙ୍ଗ (ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ ନାହିଁ):"
+            "value": "ଆପ୍‌ରେ ଏକ ସେଭ୍ ବାରମ୍ବାର ବିଫଳ ହେଲା। ଡାଏଗ୍ନୋଷ୍ଟିକ୍ ତଥ୍ୟ (କୌଣସି ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ ନାହିଁ):"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਐਪਲੀਕੇਸ਼ਨ ਵਿੱਚ ਸੇਵ ਆਜੀਸੂ ਵਿਫ਼ਲ ਹੋਈ। ਡਾਇਗਨੌਸਟਿਕ ਰੂਪ-ਰੰਗ (ਕੋਈ ਨਿਜੀ ਡੇਟਾ ਨਹੀਂ):"
+            "value": "ਐਪ ਵਿੱਚ ਸੰਭਾਲਣਾ ਵਾਰ-ਵਾਰ ਅਸਫਲ ਹੋਇਆ। ਡਾਇਗਨੌਸਟਿਕ ਪ੍ਰਸੰਗ (ਕੋਈ ਨਿੱਜੀ ਡਾਟਾ ਨਹੀਂ):"
           }
         },
         "pl": {
@@ -59284,7 +59284,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "பயன்பாட்டுல் ஒரு சேமிப்பு பல முறை தோல்வியடைந்தது. நோயறிதல் சூழல் (ஆனால் ব்যக்திगत தரவு இல்லை):"
+            "value": "ஆப்பில் ஒரு சேமிப்பு மீண்டும் மீண்டும் தோல்வியடைந்தது. கண்டறிதல் சூழல் (தனிப்பட்ட தரவு இல்லை):"
           }
         },
         "te": {
@@ -59536,7 +59536,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਕਿਰਪਾ ਕਰਕੇ ਵੇਰਵਾ ਦਿਓ ਕਿ ਜਦ ਇਹ ਹੋਿਆ ਤੁਸੀਂ ਕੀ ਕਰ ਰਹੇ ਸੀ:"
+            "value": "ਕਿਰਪਾ ਕਰਕੇ ਦੱਸੋ ਕਿ ਜਦੋਂ ਇਹ ਹੋਇਆ ਉਦੋਂ ਤੁਸੀਂ ਕੀ ਕਰ ਰਹੇ ਸੀ:"
           }
         },
         "pl": {
@@ -59758,7 +59758,7 @@
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren ऐप्प के बारे में प्रतिक्रिया"
+            "value": "Wren ऐप पर फ़ीडबैक"
           }
         },
         "hr": {
@@ -59878,7 +59878,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spätna väzba Wren"
+            "value": "Spätná väzba k aplikácii Wren"
           }
         },
         "sl": {
@@ -59896,7 +59896,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren பயன்பாட கருத்து"
+            "value": "Wren ஆப் கருத்து"
           }
         },
         "te": {
@@ -59944,7 +59944,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wren 應用程式意見反應"
+            "value": "Wren app 意見回饋"
           }
         }
       }
@@ -60123,7 +60123,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dua Minggu Sekali"
+            "value": "Dwimingguan"
           }
         },
         "nb": {
@@ -60171,7 +60171,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilunar"
+            "value": "La două săptămâni"
           }
         },
         "ru": {
@@ -60428,7 +60428,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "dua minggu sekali"
+            "value": "dwimingguan"
           }
         },
         "nb": {
@@ -60476,7 +60476,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "bilunar"
+            "value": "la două săptămâni"
           }
         },
         "ru": {
@@ -61887,7 +61887,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "תאריכים ספציפיים"
+            "value": "תאריכים מסוימים"
           }
         },
         "hi": {
@@ -61923,7 +61923,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "特定の日付"
+            "value": "特定の期間"
           }
         },
         "kn": {
@@ -62043,7 +62043,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "วันที่ระบุ"
+            "value": "วันที่เจาะจง"
           }
         },
         "tr": {
@@ -62192,7 +62192,7 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "תאריכים ספציפיים"
+            "value": "תאריכים מסוימים"
           }
         },
         "hi": {
@@ -62228,7 +62228,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "特定の日付"
+            "value": "特定の期間"
           }
         },
         "kn": {
@@ -62557,13 +62557,13 @@
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "या खिडकीमध्ये"
+            "value": "या कालावधीत"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "dalam jendela ini"
+            "value": "dalam tempoh ini"
           }
         },
         "nb": {
@@ -62581,7 +62581,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଏହି ଜାନକାରୀ ମଧ୍ୟରେ"
+            "value": "ଏହି ଅବଧିରେ"
           }
         },
         "pa": {
@@ -63761,7 +63761,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸುವುದು ವಿಫಲವಾಗಿದೆ. ನಿಮ್ಮ ಮಾಹಿತಿ ಇನ್ನೂ ಇಲ್ಲಿದೆ — ದಯಕರದಿಂದ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+            "value": "ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸುವಲ್ಲಿ ಏನೋ ತಪ್ಪಾಯಿತು. ನಿಮ್ಮ ಮಾಹಿತಿ ಇನ್ನೂ ಇಲ್ಲಿದೆ — ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
           }
         },
         "ko": {
@@ -63809,7 +63809,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਤੁਸੀਂ ਦੀ ਤਬਦੀਲੀਆਂ ਸੇਵ ਕਰਨ ਵਿੱਚ ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਤੁਸੀਂ ਦੀ ਜਾਣਕਾਰੀ ਅਜੇ ਵੀ ਮੌਜੂਦ ਹੈ — ਕਿਰਪਾ ਕਰਕੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"
+            "value": "ਤੁਹਾਡੀਆਂ ਤਬਦੀਲੀਆਂ ਸੰਭਾਲਣ ਵਿੱਚ ਕੁਝ ਗੜਬੜ ਹੋਈ। ਤੁਹਾਡੀ ਜਾਣਕਾਰੀ ਹਾਲੇ ਵੀ ਇੱਥੇ ਹੈ — ਕਿਰਪਾ ਕਰਕੇ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"
           }
         },
         "pl": {
@@ -63839,7 +63839,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось сохранить изменения. Данные на месте — попробуй ещё раз."
+            "value": "Не удалось сохранить изменения. Твои данные на месте — попробуй ещё раз."
           }
         },
         "sk": {
@@ -63869,7 +63869,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "మీ మార్పులను సేవ్ చేయడంలో ఎంత సమస్య ఉంది. మీ సమాచారం ఇప్పటికీ ఇక్కడ ఉంది — దయచేసి మళ్లీ ప్రయత్నించండి."
+            "value": "మీ మార్పులను సేవ్ చేయడంలో ఏదో తప్పు జరిగింది. మీ సమాచారం ఇంకా ఇక్కడే ఉంది — దయచేసి మళ్లీ ప్రయత్నించండి."
           }
         },
         "th": {
@@ -64067,7 +64067,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ನಾವು ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಬಹುದಿಲ್ಲ. ನಿಮ್ಮ ಮಾಹಿತಿ ಇನ್ನೂ ಇಲ್ಲಿದೆ — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ, ಅಥವಾ ನಾವು ಸಹಾಯ ಮಾಡಲು ದೋಷ ವಿವರಗಳನ್ನು ಕಳುಹಿಸಿ."
+            "value": "ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಲಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಾಹಿತಿ ಇನ್ನೂ ಇಲ್ಲಿದೆ — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ, ಅಥವಾ ನಾವು ಸಹಾಯ ಮಾಡಲು ದೋಷದ ವಿವರಗಳನ್ನು ನಮಗೆ ಕಳುಹಿಸಿ."
           }
         },
         "ko": {
@@ -64079,7 +64079,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "നിങ്ങളുടെ മാറ്റങ്ങൾ സംരക്ഷിക്കാൻ ഞങ്ങൾക്ക് കഴിഞ്ഞില്ല. നിങ്ങളുടെ വിവരങ്ങൾ ഇതുവരെ ഇവിടെയുണ്ട് — വീണ്ടും ശ്രമിക്കുക, അല്ലെങ്കിൽ നിങ്ങളെ സഹായിക്കാൻ ഞങ്ങൾക്ക് ത്രുടി വിശദാംശങ്ങൾ അയയ്ക്കുക."
+            "value": "നിങ്ങളുടെ മാറ്റങ്ങൾ സേവ് ചെയ്യാനായില്ല. നിങ്ങളുടെ വിവരങ്ങൾ ഇപ്പോഴും ഇവിടെയുണ്ട് — വീണ്ടും ശ്രമിക്കുക, അല്ലെങ്കിൽ സഹായിക്കാൻ പിശക് വിശദാംശങ്ങൾ ഞങ്ങൾക്ക് അയയ്ക്കുക."
           }
         },
         "mr": {
@@ -64109,13 +64109,13 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆମେ ଆପଣାର ପରିବର୍ତ୍ତନ ସେଭ୍ କରିପାରିନାହିଁ। ଆପଣାର ତଥ୍ୟ ତଥାପି ଏଠାରେ — ଆବାର ଚେଷ୍ଟା କରନ୍ତୁ, କିମ୍ବା ତ୍ରୁଟି ବିବରଣୀ ପଠାନ୍ତୁ ଯାଥା ଆମେ ସାହାଯ୍ୟ କରିପାରିବା।"
+            "value": "ଆମେ ଆପଣଙ୍କ ପରିବର୍ତ୍ତନ ସେଭ୍ କରିପାରିଲୁ ନାହିଁ। ଆପଣଙ୍କ ସୂଚନା ଏବେବି ଏଠାରେ ଅଛି — ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ, କିମ୍ବା ଆମେ ସାହାଯ୍ୟ କରିପାରିବାକୁ ତ୍ରୁଟି ବିବରଣୀ ପଠାନ୍ତୁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਸਾਂ ਤੁਸੀਂ ਦੀ ਤਬਦੀਲੀਆਂ ਨਹੀਂ ਸੇਵ ਕਰ ਸਕੇ। ਤੁਸੀਂ ਦੀ ਜਾਣਕਾਰੀ ਅਜੇ ਵੀ ਮੌਜੂਦ ਹੈ — ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ, ਜਾਂ ਸਾਨੂੰ ਗਲਤੀ ਦਾ ਵੇਰਵਾ ਭੇਜੋ ਤਾਂ ਜੋ ਸਾਂ ਸਹਾਇਤਾ ਕਰ ਸਕੀ।"
+            "value": "ਅਸੀਂ ਤੁਹਾਡੀਆਂ ਤਬਦੀਲੀਆਂ ਸੰਭਾਲ ਨਹੀਂ ਸਕੇ। ਤੁਹਾਡੀ ਜਾਣਕਾਰੀ ਹਾਲੇ ਵੀ ਇੱਥੇ ਹੈ — ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ, ਜਾਂ ਸਾਨੂੰ ਗ਼ਲਤੀ ਦੇ ਵੇਰਵੇ ਭੇਜੋ ਤਾਂ ਜੋ ਅਸੀਂ ਮਦਦ ਕਰ ਸਕੀਏ।"
           }
         },
         "pl": {
@@ -64433,7 +64433,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tentar novamente"
+            "value": "Tentar de novo"
           }
         },
         "pt-PT": {
@@ -64625,7 +64625,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envoyer des commentaires"
+            "value": "Envoyer un commentaire"
           }
         },
         "gu": {
@@ -64985,7 +64985,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಸಾಹಿತ್ಯ ಮಾಡಲಾಗಲಿಲ್ಲ"
+            "value": "ಉಳಿಸಲಾಗಲಿಲ್ಲ"
           }
         },
         "ko": {
@@ -65302,7 +65302,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഡയഗ്നോസ്റ്റിക്സ് ഉം വിശകലനം"
+            "value": "ഡയഗ്നോസ്റ്റിക്സും അനലിറ്റിക്സും"
           }
         },
         "mr": {
@@ -65547,7 +65547,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "ઍપ્લિકેશન સુધારવા માટે અનામિક વપરાશ ડેટા મોકલવા માટે ઍપ્લિકેશનને માત્ર આપે છે. કોઈ ખર્ચ વિગતો, iCloud ઓળખકર્તા, અથવા ગોપનીય તથ્યો ક્યારે પણ સમાવેશ થાય છે નહીં."
+            "value": "ઍપને સુધારવામાં મદદ માટે અનામી વપરાશ ડેટા મોકલવાની મંજૂરી આપે છે. ખર્ચની વિગતો, iCloud ઓળખકર્તા કે વ્યક્તિગત માહિતી ક્યારેય સામેલ થતી નથી."
           }
         },
         "he": {
@@ -65637,13 +65637,13 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆପୁକୁ ଅଜ୍ଞାତ ବ୍ୟବହାର ତଥ୍ୟ ପଠାଇବାକୁ ଅନୁମତି ଦିଏ ଆପ୍ ଉନ୍ନତ କରିବାରେ। ଏକେବାରେ ଖର୍ଚ୍ଚ ବିବରଣୀ, iCloud ଚିହ୍ନିକାରୀ, କିମ୍ବା ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ ଅନ୍ତର୍ଭୁକ୍ତ ନୁହେଁ।"
+            "value": "ଆପ୍‌କୁ ଉନ୍ନତ କରିବାରେ ସାହାଯ୍ୟ ପାଇଁ ଆପ୍‌କୁ ଅଜ୍ଞାତ ବ୍ୟବହାର ତଥ୍ୟ ପଠାଇବାକୁ ଅନୁମତି ଦିଏ। କୌଣସି ଖର୍ଚ୍ଚ ବିବରଣୀ, iCloud ପରିଚୟ, କିମ୍ବା ବ୍ୟକ୍ତିଗତ ସୂଚନା କେବେବି ଅନ୍ତର୍ଭୁକ୍ତ ହୁଏନାହିଁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਐਪਲੀਕੇਸ਼ਨ ਨੂੰ ਐਪਲੀਕੇਸ਼ਨ ਬਿਹਤਰ ਬਣਾਉਣ ਵਿੱਚ ਸਹਾਇਤਾ ਕਰਨ ਲਈ ਅਗਿਆਤ ਵਰਤੋਂ ਡੇਟਾ ਭੇਜਣ ਦੀ ਆਗਿਆ ਦਿੰਦਾ ਹੈ। ਕੋਈ ਖਰਚ ਵਿਸਥਾਰ, iCloud ਪਛਾਣਕਾਰ, ਜਾਂ ਨਿਜੀ ਜਾਣਕਾਰੀ ਕਦੇ ਸ਼ਾਮਲ ਨਹੀਂ।"
+            "value": "ਐਪ ਨੂੰ ਬਿਹਤਰ ਬਣਾਉਣ ਵਿੱਚ ਮਦਦ ਲਈ ਐਪ ਨੂੰ ਅਗਿਆਤ ਵਰਤੋਂ ਡਾਟਾ ਭੇਜਣ ਦਿੰਦਾ ਹੈ। ਕੋਈ ਖਰਚ ਵੇਰਵੇ, iCloud ਪਛਾਣਕਾਰ ਜਾਂ ਨਿੱਜੀ ਜਾਣਕਾਰੀ ਕਦੇ ਸ਼ਾਮਲ ਨਹੀਂ ਹੁੰਦੀ।"
           }
         },
         "pl": {
@@ -65697,7 +65697,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "பயன்பாட்டை மேம்படுத்த உதவ அநாமதேய பயன்பாட்டுத் தரவு அனுப்ப பயன்பாட்டை அனுமதிக்கிறது. எந்த செலவு விவரங்களும், iCloud அடையாளங்களும், அல்லது ஆனால் ஒருபோதும் சேர்க்கப்படாது."
+            "value": "ஆப்பை மேம்படுத்த உதவ அநாமதேய பயன்பாட்டுத் தரவை அனுப்ப ஆப்பை அனுமதிக்கும். செலவு விவரங்கள், iCloud அடையாளங்கள் அல்லது தனிப்பட்ட தகவல்கள் ஒருபோதும் சேர்க்கப்படாது."
           }
         },
         "te": {
@@ -65727,7 +65727,7 @@
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "ایپ کو ایپ کو بہتر بنانے میں مدد کے لیے گمنام استعمال کے ڈیٹا بھیجنے کی اجازت دیتا ہے۔ کوئی خرچ کی تفصیلات، iCloud شناخت کار، یا ذاتی معلومات کبھی شامل نہیں ہوتی۔"
+            "value": "ایپ کو بہتر بنانے میں مدد کے لیے گمنام استعمال کا ڈیٹا بھیجنے کی اجازت دیتا ہے۔ اخراجات کی تفصیلات، iCloud کی شناخت، یا ذاتی معلومات کبھی شامل نہیں کی جاتیں۔"
           }
         },
         "vi": {
@@ -65780,7 +65780,7 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonym brugsdata hjælper med at løse problemer og forstå brugen. Inkluderet: Budgetindstillinger som periode, valutakode, overførsel til/fra, tildelt beløb og lignende. Aldrig inkluderet: Udgiftnavne, beløb, datoer, Apple/iCloud-identifikatorer, friitekstnoter eller personlige data. Den indledende indstilling blev valgt automatisk på baggrund af dit devices region."
+            "value": "Anonyme brugsdata hjælper med fejlfinding og med at forstå brugen. Det indgår: budgetindstillinger som periode, valutakode, overførsel til/fra, tildelt beløb og så videre. Det indgår aldrig: udgifters navne, beløb og datoer, Apple-/iCloud-id'er samt fritekstnoter og personlige oplysninger. Den første indstilling blev valgt automatisk ud fra enhedens region."
           }
         },
         "de": {
@@ -65852,13 +65852,13 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "અનામિક વપરાશ ડેટા સમસ્યાઓ હલ કરવામાં મદદ કરે છે અને વપરાશ સમજવામાં. શામેલ: બજેટ સેટિંગ્સ જેમ કે સમયગાળો, ચલણ કોડ, આગળ વહન ચાલુ/બંધ, ફાળવણી રકમ, વગેરે. ક્યારે પણ શામેલ નથી: ખર્ચ નામો, રકમો, તારીખો, કોઈ Apple/iCloud ઓળખકર્તા, કોઈ મુક્ત-ટેક્સ્ટ નોંધો અથવા ગોપનીય તથ્યો. પ્રાથમિક સેટિંગ તમારા ઉપકરણના પ્રદેશ પર આધારે આપમેળે પસંદ કર્યું હતું."
+            "value": "અનામી વપરાશ ડેટા સમસ્યાઓ ઉકેલવામાં અને વપરાશ સમજવામાં મદદ કરે છે. શું સામેલ છે: બજેટ સેટિંગ્સ જેવા કે સમયગાળો, ચલણ કોડ, આગળ વહન ચાલુ/બંધ, ફાળવણીની રકમ, વગેરે. શું ક્યારેય સામેલ થતું નથી: ખર્ચના નામ, રકમ, તારીખો, કોઈપણ Apple/iCloud ઓળખકર્તા, કોઈપણ મુક્ત-લખાણ નોંધ કે વ્યક્તિગત માહિતી. શરૂઆતનું સેટિંગ તમારા ઉપકરણના પ્રદેશ પ્રમાણે આપમેળે પસંદ થયું હતું."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "נתוני שימוש אנונימיים עוזרים לפתור בעיות ולהבין שימוש. מה כלול: הגדרות תקציב כמו תקופה, קוד מטבע, יתרה מועברת פעם/כיבוי, סכום הקצאה וכן הלאה. מה לא כלול לעולם: שמות הוצאה, סכומים, תאריכים, כל מזהה Apple/iCloud, הערות חופשיות או מידע אישי. ההגדרה ההתחלתית נבחרה באופן אוטומטי על סמך אזורך של ההתקן."
+            "value": "נתוני שימוש אנונימיים מסייעים באיתור תקלות ובהבנת השימוש. מה כלול: הגדרות תקציב כמו תקופה, קוד מטבע, מצב יתרה מועברת והפעלתה, סכום הקצאה וכדומה. מה לעולם לא כלול: שמות הוצאות, סכומים, תאריכים, מזהי Apple או iCloud כלשהם, וכל הערה חופשית או מידע אישי. ההגדרה הראשונית נבחרה אוטומטית לפי האזור של המכשיר שלך."
           }
         },
         "hi": {
@@ -65912,7 +65912,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "അജ്ഞാത ഉപയോഗ ഡാറ്റ പ്രശ്നങ്ങൾ പരിഹരിക്കാനും ഉപയോഗം മനസ്സിലാക്കാനും സഹായിക്കുന്നു. എന്താണ് ഉൾപ്പെടുത്തിയിരിക്കുന്നത്: കാലയളവ്, കറൻസി കോഡ്, കാരി-ഓവർ ഓൺ/ഓഫ്, വകയിരുത്തൽ തുക തുടങ്ങിയ ബജറ്റ് ക്രമീകരണങ്ങൾ. എന്താണ് എപ്പോൾ ഉൾപ്പെടുത്താറില്ല: ചെലവ് പേരുകൾ, തുകാണ്, തീയതികൾ, ആപ്പിൾ/iCloud ഐഡന്റിഫയറുകൾ, സ്വതന്ത്ര-ടെക്സ്റ്റ് നോട്ടുകൾ അല്ലെങ്കിൽ വ്യക്തിഗത വിവരങ്ങൾ. പ്രാരംഭിക സജ്ജീകരണം നിങ്ങളുടെ ഉപകരണത്തിന്റെ പ്രദേശത്തിന്റെ അടിസ്ഥാനത്തിൽ സ്വയമായി തിരഞ്ഞെടുത്തിരിക്കുന്നു."
+            "value": "അജ്ഞാത ഉപയോഗ ഡാറ്റ പ്രശ്നങ്ങൾ പരിഹരിക്കാനും ഉപയോഗം മനസ്സിലാക്കാനും സഹായിക്കുന്നു. ഉൾപ്പെടുന്നവ: കാലയളവ്, കറൻസി കോഡ്, കാരി-ഓവർ ഓൺ/ഓഫ്, വകയിരുത്തൽ തുക തുടങ്ങിയ ബജറ്റ് ക്രമീകരണങ്ങൾ. ഒരിക്കലും ഉൾപ്പെടാത്തവ: ചെലവുകളുടെ പേരുകൾ, തുകകൾ, തീയതികൾ, ഏതെങ്കിലും Apple/iCloud ഐഡന്റിഫയറുകൾ, സ്വതന്ത്ര-ടെക്സ്റ്റ് കുറിപ്പുകൾ അല്ലെങ്കിൽ വ്യക്തിഗത വിവരങ്ങൾ. നിങ്ങളുടെ ഉപകരണത്തിന്റെ പ്രദേശം അനുസരിച്ച് പ്രാരംഭ ക്രമീകരണം സ്വയമേവ തിരഞ്ഞെടുത്തു."
           }
         },
         "mr": {
@@ -65942,7 +65942,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଅଜ୍ଞାତ ବ୍ୟବହାର ତଥ୍ୟ ସମସ୍ୟା ତ୍ରୁଟିଗୁଣ୍ଡ ଏବଂ ବ୍ୟବହାର ବୁଝିବାରେ ସାହାଯ୍ୟ କରେ। ଅନ୍ତର୍ଭୁକ୍ତ: ଅବଧି, ମୁଦ୍ରା କୋଡ୍, ଆଗକୁ ନିଆ ବାକି ଅନ/ଅଫ୍, ବଣ୍ଟନ ରାଶି, ଇତ୍ୟାଦି ବଜେଟ୍ ସେଟିଂସ୍। ସେବାପି ଅନ୍ତର୍ଭୁକ୍ତ ନୁହେଁ: ଖର୍ଚ୍ଚ ନାମ, ରାଶି, ତାରିଖ, ଯେକୌଣସି ଆପ୍ପୁଲ୍/iCloud ଚିହ୍ନିକାରୀ, ଯେକୌଣସି ମୁକ୍ତ ଲେଖନୀ ଟିପ୍ପଣୀ କିମ୍ବା ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ। ଆଙ୍ଗୁଳିଆ ସେଟିଂ ଆପଣାର ଡିଭାଇସର ଅଞ୍ଚଳ ଆଧାରିତ ସ୍ୱୟଂଚାଳିତଭାବେ ଚୟନିତ ହୋଇଥିଲା।"
+            "value": "ଅଜ୍ଞାତ ବ୍ୟବହାର ତଥ୍ୟ ସମସ୍ୟା ସମାଧାନ ଓ ବ୍ୟବହାର ବୁଝିବାରେ ସାହାଯ୍ୟ କରେ। ଯାହା ଅନ୍ତର୍ଭୁକ୍ତ: ଅବଧି, ମୁଦ୍ରା କୋଡ୍, ଆଗକୁ ନିଆ ବାକି ଚାଲୁ/ବନ୍ଦ, ବଣ୍ଟନ ରାଶି ଆଦି ବଜେଟ୍ ସେଟିଂସ୍। ଯାହା କେବେବି ଅନ୍ତର୍ଭୁକ୍ତ ହୁଏନାହିଁ: ଖର୍ଚ୍ଚର ନାମ, ରାଶି, ତାରିଖ, ଯେକୌଣସି Apple/iCloud ପରିଚୟ, ଯେକୌଣସି ମୁକ୍ତ-ଲେଖା ନୋଟ୍ କିମ୍ବା ବ୍ୟକ୍ତିଗତ ସୂଚନା। ଆପଣଙ୍କ ଡିଭାଇସର ଅଞ୍ଚଳ ଅନୁଯାୟୀ ପ୍ରାରମ୍ଭିକ ସେଟିଂ ସ୍ୱୟଂଚାଳିତ ଭାବେ ବଛାଯାଇଥିଲା।"
           }
         },
         "pa": {
@@ -65966,7 +65966,7 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os dados anónimos de uso ajudam a resolver problemas e compreender a utilização. O que está incluído: definições de orçamento como período, código de moeda, transição ativada/desativada, montante de verba, e assim sucessivamente. O que nunca está incluído: nomes de despesas, montantes, datas, identificadores Apple/iCloud, notas em texto livre ou informações pessoais. A definição inicial foi escolhida automaticamente com base na região do seu dispositivo."
+            "value": "Os dados de utilização anónimos ajudam a resolver problemas e a compreender a utilização. O que se inclui: definições do orçamento como período, código de moeda, transição ativada/desativada, montante da verba, etc. O que nunca se inclui: nomes de despesas, montantes, datas, identificadores Apple/iCloud, notas em texto livre ou informação pessoal. A definição inicial foi escolhida automaticamente com base na região do teu dispositivo."
           }
         },
         "ro": {
@@ -65996,19 +65996,19 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anonym användningsdata hjälper till att felsöka problem och förstå användningen. Vad som ingår: Budgetinställningar som period, valutakod, överföring på/av, tilldelningsbelopp och så vidare. Vad som aldrig ingår: Utgiftnamn, belopp, datum, Apple/iCloud-identifierare, anteckningar eller personlig information. Inställningen valdes automatiskt baserat på din enhets region."
+            "value": "Anonym användningsdata hjälper till att felsöka problem och förstå användningen. Vad som ingår: budgetinställningar som period, valutakod, överföring på/av, tilldelat belopp och så vidare. Vad som aldrig ingår: namn på utgifter, belopp, datum, Apple- eller iCloud-identifierare, fritextanteckningar eller personlig information. Den ursprungliga inställningen valdes automatiskt utifrån enhetens region."
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "அநாமதேய பயன்பாட்டுத் தரவு சிக்கல்களைத் தீர்க்கவும் பயன்பாட்டைப் புரிந்து கொள்ளவும் உதவுகிறது. என்ன சேர்க்கப்பட்டுள்ளது: பட்ஜெட் அமைப்புகள், கால அளவு, நாணய குறியீட்டு, முன்கொண்டுசெல் இயக்க/இயக்க, ஒதுக்கீடு தொகை, முதலியன. என்ன ஒருபோதும் சேர்க்கப்படாது: செலவு பெயர்கள், தொகைகள், தேதிகள், எந்த Apple/iCloud அடையாளங்கள், கட்டற்ற உரை குறிப்புகள் அல்லது ஆனால் தகவல். ஆரம்ப அமைப்பு உங்கள் சாதனத்தின் பகுதி ஆதாரத்தில் தேர்வு செய்யப்பட்டது."
+            "value": "அநாமதேய பயன்பாட்டுத் தரவு சிக்கல்களைக் களையவும் பயன்பாட்டைப் புரிந்துகொள்ளவும் உதவுகிறது. சேர்க்கப்படுபவை: காலம், நாணயக் குறியீடு, முன்கொண்டுசெல் இயக்கம்/நிறுத்தம், ஒதுக்கீட்டுத் தொகை போன்ற பட்ஜெட் அமைப்புகள். ஒருபோதும் சேர்க்கப்படாதவை: செலவுப் பெயர்கள், தொகைகள், தேதிகள், எந்த Apple/iCloud அடையாளங்களும், எந்த சுயவிவரக் குறிப்புகளும் அல்லது தனிப்பட்ட தகவல்களும். உங்கள் சாதனத்தின் பிராந்தியத்தின் அடிப்படையில் தொடக்க அமைப்பு தானாகத் தேர்ந்தெடுக்கப்பட்டது."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "అజ్ఞాత వినియోగ డేటా సమస్యలను సమస్యా పరిష్కారం చేయడానికి మరియు వినియోగాన్ని అర్థం చేసుకోవడానికి సహాయపడుతుంది. ఏమి చేర్చబడినది: బడ్జెట్ సెట్టింగ్‌లు వంటి వ్యవధి, కరెన్సీ కోడ్, క్యారీ-ఓవర్ ఆన్/ఆఫ్, కేటాయింపు మొత్తం మరియు అందువంటిది. ఏమి ఎప్పుడూ చేర్చబడవు: ఖర్చు పేర్లు, మొత్తాలు, తేదీలు, ఏదైనా Apple/iCloud గుర్తింపులు, ఏదైనా స్వేచ్ఛా-టెక్సట్ నోట్‌లు లేదా వ్యక్తిగత సమాచారం. ప్రారంభ సెట్టింగ్ మీ పరికరం యొక్క ప్రాంతం ఆధారంగా స్వయంచాలకంగా ఎంచుకోబడింది."
+            "value": "అనామక వినియోగ డేటా సమస్యలను పరిష్కరించడంలో, వినియోగాన్ని అర్థం చేసుకోవడంలో సాయపడుతుంది. చేర్చేవి: వ్యవధి, కరెన్సీ కోడ్, క్యారీ-ఓవర్ ఆన్/ఆఫ్, కేటాయింపు మొత్తం వంటి బడ్జెట్ సెట్టింగ్‌లు. ఎప్పటికీ చేర్చనివి: ఖర్చు పేర్లు, మొత్తాలు, తేదీలు, ఏ Apple/iCloud గుర్తింపులు, ఏ ఫ్రీ-టెక్స్ట్ నోట్‌లు లేదా వ్యక్తిగత సమాచారం. మీ పరికరం ప్రాంతం ఆధారంగా తొలి సెట్టింగ్ ఆటోమేటిక్‌గా ఎంచుకోబడింది."
           }
         },
         "th": {
@@ -66038,7 +66038,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dữ liệu sử dụng nặc danh giúp khắc phục sự cố và hiểu cách sử dụng. Những gì được đưa vào: Cài đặt ngân sách như kỳ, mã tiền tệ, chuyển tiếp bật/tắt, số tiền phân bổ, v.v. Những gì không bao giờ được đưa vào: Tên khoản chi, số tiền, ngày, bất kỳ mã định danh Apple/iCloud nào, bất kỳ ghi chú văn bản tự do hay thông tin cá nhân nào. Cài đặt ban đầu được chọn tự động dựa trên vùng của thiết bị của bạn."
+            "value": "Dữ liệu sử dụng ẩn danh giúp khắc phục sự cố và hiểu cách sử dụng. Những gì được bao gồm: thiết lập ngân sách như kỳ, mã tiền tệ, bật/tắt chuyển tiếp, số tiền phân bổ, v.v. Những gì không bao giờ bao gồm: tên khoản chi, số tiền, ngày, mọi mã định danh Apple/iCloud, mọi ghi chú tự do hay thông tin cá nhân. Thiết lập ban đầu được chọn tự động dựa trên khu vực của thiết bị."
           }
         },
         "zh-Hans": {
@@ -66079,7 +66079,7 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sdílet anonymní data o využití"
+            "value": "Sdílet anonymní data o používání"
           }
         },
         "da": {
@@ -66259,7 +66259,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Udostępniaj anonimowe dane użytkowania"
+            "value": "Udostępniaj anonimowe dane o użytkowaniu"
           }
         },
         "pt-BR": {
@@ -66827,7 +66827,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "പുതിയ ബജറ്റ് സൃഷ്ടിക്കുമ്പോൾ കാരി-ഓവർ സ്ഥിരമായി ഓൺ ആണ്ട് സെറ്റിൻഗ് ചെയ്യുന്നു"
+            "value": "പുതിയ ബജറ്റ് സൃഷ്ടിക്കുമ്പോൾ കാരി-ഓവർ സ്ഥിരസ്ഥിതിയായി ഓണാകണോ എന്ന് നിശ്ചയിക്കുന്നു"
           }
         },
         "mr": {
@@ -67072,7 +67072,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "સમય દર સમય વધારો અથવા ઘાટ ટ્રેક કરે છે. નવા બજેટ માટે ડિફોલ્ટ સેટિંગ. હાલના બજેટ અસરગ્રસ્ત નથી."
+            "value": "સમય જતાં વધારો કે ખાધ ટ્રૅક કરે છે. નવા બજેટ માટેનું મૂળભૂત સેટિંગ. હાલના બજેટ પર અસર થતી નથી."
           }
         },
         "he": {
@@ -67120,19 +67120,19 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಸಮಯದ ಸಿದ್ಧಾರ್ಥ ಅಥವಾ ಕೊರತೆಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡುತ್ತದೆ. ಹೊಸ ಬಜೆಟ್‌ಗಾಗಿ ಡಿಫಾಲ್ಟ್ ಸೆಟ್ಟಿಂಗ್. ಇತಿಹಾಸ ಬಜೆಟ್‌ಗಳು ಪ್ರಭಾವಿತವಾಗುವುದಿಲ್ಲ."
+            "value": "ಕಾಲಾನುಕ್ರಮದಲ್ಲಿ ಉಳಿತಾಯ ಅಥವಾ ಕೊರತೆಯನ್ನು ಗಮನಿಸುತ್ತದೆ. ಹೊಸ ಬಜೆಟ್‌ಗಳಿಗೆ ಡಿಫಾಲ್ಟ್ ಸೆಟ್ಟಿಂಗ್. ಈಗಿರುವ ಬಜೆಟ್‌ಗಳ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "시간에 따라 흑자 또는 적자를 추적해요. 새 예산의 기본 설정이에요. 기존 예산에는 영향이 없어요."
+            "value": "시간에 따라 잉여나 부족을 추적해요. 새 예산의 기본 설정이며, 기존 예산에는 영향을 주지 않아요."
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "സമയത്തിന് ഇതര അല്ലെങ്കിൽ കമ്മി ട്രാക് ചെയ്യുന്നു. പുതിയ ബജറ്റുകളുടെ സ്ഥിരസജ്ജീകരണം. നിലവിലുള്ള ബജറ്റുകൾ ബാധിതമല്ല."
+            "value": "കാലക്രമേണ മിച്ചമോ കമ്മിയോ ട്രാക്ക് ചെയ്യുന്നു. പുതിയ ബജറ്റുകൾക്കുള്ള സ്ഥിരസ്ഥിതി ക്രമീകരണം. നിലവിലുള്ള ബജറ്റുകളെ ബാധിക്കില്ല."
           }
         },
         "mr": {
@@ -67144,7 +67144,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menjejaki lebihan atau defisit dari semasa ke semasa. Tetapan lalai untuk belanjawan baharu. Belanjawan sedia ada tidak terjejas."
+            "value": "Menjejaki lebihan atau defisit dari masa ke masa. Tetapan lalai untuk bajet baharu. Bajet sedia ada tidak terjejas."
           }
         },
         "nb": {
@@ -67168,7 +67168,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਸਮੇਂ ਦੇ ਨਾਲ ਵਾਧਾ ਜਾਂ ਘਾਟਾ ਟਰੈਕ ਕਰਦਾ ਹੈ। ਨਵੇ ਬਜਟਾਂ ਲਈ ਪੂਰਵ ਨਿਯਤ ਸੈਟਿੰਗ। ਮੌਜੂਦਾ ਬਜਟ ਪ੍ਰਭਾਵਤ ਨਹੀਂ ਹਨ।"
+            "value": "ਸਮੇਂ ਨਾਲ ਵਾਧਾ ਜਾਂ ਘਾਟਾ ਟਰੈਕ ਕਰਦਾ ਹੈ। ਨਵੇਂ ਬਜਟ ਲਈ ਮੂਲ ਸੈਟਿੰਗ। ਮੌਜੂਦਾ ਬਜਟ 'ਤੇ ਅਸਰ ਨਹੀਂ ਪੈਂਦਾ।"
           }
         },
         "pl": {
@@ -67228,7 +67228,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "కాలానికి సంచిత సర్ప్లస్ లేదా లోటుని ట్రాక్ చేస్తుంది. కొత్త బడ్జెట్‌ల కోసం డిఫాల్ట్ సెట్టింగ్. ఉపస్థిత బడ్జెట్‌లు ప్రభావితం కాబట్టే."
+            "value": "కాలక్రమంలో మిగులు లేదా లోటును ట్రాక్ చేస్తుంది. కొత్త బడ్జెట్‌లకు డిఫాల్ట్ సెట్టింగ్. ఉన్న బడ్జెట్‌లపై ప్రభావం ఉండదు."
           }
         },
         "th": {
@@ -67682,7 +67682,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "કોડ + સંજ્ঞા"
+            "value": "કોડ + પ્રતીક"
           }
         },
         "he": {
@@ -69010,7 +69010,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Concluído"
+            "value": "OK"
           }
         },
         "pt-PT": {
@@ -69363,7 +69363,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "అప్‌కు ఫీడ్‌బ్యాక్ పంపడానికి కొత్త ఇమెయిల్‌ను తెరుస్తుంది"
+            "value": "యాప్ గురించి అభిప్రాయాన్ని పంపడానికి కొత్త ఇమెయిల్‌ను తెరుస్తుంది"
           }
         },
         "th": {
@@ -69506,7 +69506,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envoyer des commentaires"
+            "value": "Envoyer un commentaire"
           }
         },
         "gu": {
@@ -69787,7 +69787,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud Sync está activo"
+            "value": "Sincronización con iCloud activa"
           }
         },
         "es-MX": {
@@ -69907,7 +69907,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud ସିଙ୍କ୍ ସକ୍ରିୟ"
+            "value": "iCloud ସିଙ୍କ୍ ସକ୍ରିୟ ଅଛି"
           }
         },
         "pa": {
@@ -69931,13 +69931,13 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud Sync está ativo"
+            "value": "Sincronização iCloud ativa"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud Sync este activ"
+            "value": "Sincronizarea iCloud este activă"
           }
         },
         "ru": {
@@ -70212,7 +70212,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud ସିଙ୍ଗ୍ ସକ୍ରିୟ"
+            "value": "iCloud ସିଙ୍କ୍ ସକ୍ରିୟ ଅଛି"
           }
         },
         "pa": {
@@ -70236,13 +70236,13 @@
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud sync está ativo"
+            "value": "Sincronização iCloud ativa"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud sync este activ"
+            "value": "Sincronizarea iCloud este activă"
           }
         },
         "ru": {
@@ -70559,7 +70559,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kontrolujem…"
+            "value": "Overuje sa…"
           }
         },
         "sl": {
@@ -70864,7 +70864,7 @@
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kontrolujem dostupnosť iCloud"
+            "value": "Overuje sa dostupnosť iCloudu"
           }
         },
         "sl": {
@@ -71372,7 +71372,7 @@
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sinkronisasi iCloud dijeda. Anggaran kamu tersimpan di perangkat ini tapi tidak tersinkron ke perangkat lain."
+            "value": "Sinkronisasi iCloud dijeda. Anggaranmu tersimpan di perangkat ini tetapi tidak tersinkron ke perangkat lain."
           }
         },
         "it": {
@@ -71414,7 +71414,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Penyegerakan iCloud dijeda. Belanjawan anda disimpan pada peranti ini tetapi tidak disegerakkan ke peranti lain."
+            "value": "Penyegerakan iCloud dijeda. Bajet anda disimpan pada peranti ini tetapi tidak disegerakkan ke peranti lain."
           }
         },
         "nb": {
@@ -71438,7 +71438,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud ਸਿੰਕ ਰੋਕਿਆ। ਤੁਸੀਂ ਦੇ ਬਜਟ ਇਸ ਯੰਤਰ ਤੇ ਸੰਭਾਲੇ ਹਨ ਪਰ ਹੋਰ ਯੰਤਰਾਂ ਵਿੱਚ ਸਿੰਕ ਨਹੀਂ ਹੋ ਰਹੇ।"
+            "value": "iCloud ਸਿੰਕ ਰੁਕਿਆ ਹੈ। ਤੁਹਾਡੇ ਬਜਟ ਇਸ ਡਿਵਾਈਸ 'ਤੇ ਸੰਭਾਲੇ ਹਨ ਪਰ ਹੋਰ ਡਿਵਾਈਸਾਂ ਨਾਲ ਸਿੰਕ ਨਹੀਂ ਹੋ ਰਹੇ।"
           }
         },
         "pl": {
@@ -71480,7 +71480,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sinhronizacija iCloud je začasno ustavljena. Tvoji proračuni se shranjujejo na tej napravi, vendar se ne sinhronizirani na druge naprave."
+            "value": "Sinhronizacija z iCloud je začasno ustavljena. Tvoji proračuni so shranjeni v tej napravi, a se ne sinhronizirajo z drugimi."
           }
         },
         "sv": {
@@ -71498,7 +71498,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud సంకలనం విరామం ఇవ్వబడింది. మీ బడ్జెట్‌లు ఈ పరికరంలో సేవ్ చేయబడతాయి కానీ ఇతర పరికరాలకు సంకలనం కాబట్టే."
+            "value": "iCloud సింక్ విరామంలో ఉంది. మీ బడ్జెట్‌లు ఈ పరికరంలో సేవ్ అయ్యాయి, కానీ ఇతర పరికరాలకు సింక్ కావడం లేదు."
           }
         },
         "th": {
@@ -71671,13 +71671,13 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A költségvetéseid csak ezen az eszközön vannak mentve. Az iCloud-szinkronizálás újraindításához indítsd újra az appot."
+            "value": "A költségkereteid csak ezen az eszközön vannak mentve. Indítsd újra az appot az iCloud-szinkronizáláshoz."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anggaran kamu hanya tersimpan di perangkat ini. Mulai ulang aplikasi untuk mencoba sinkronisasi iCloud lagi."
+            "value": "Anggaranmu hanya tersimpan di perangkat ini. Mulai ulang aplikasi untuk mencoba sinkronisasi iCloud lagi."
           }
         },
         "it": {
@@ -71719,7 +71719,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belanjawan anda disimpan pada peranti ini sahaja. Mulakan semula aplikasi untuk mencuba semula penyegerakan iCloud."
+            "value": "Bajet anda disimpan pada peranti ini sahaja. Mulakan semula app untuk cuba lagi penyegerakan iCloud."
           }
         },
         "nb": {
@@ -71743,7 +71743,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਤੁਸੀਂ ਦੇ ਬਜਟ ਸਿਰਫ਼ ਇਸ ਯੰਤਰ ਤੇ ਸੰਭਾਲੇ ਹਨ। iCloud ਸਿੰਕ ਮੁੜ-ਕੋਸ਼ਿਸ਼ ਲਈ ਐਪਲੀਕੇਸ਼ਨ ਮੁੜ-ਸ਼ੁਰੂ ਕਰੋ।"
+            "value": "ਤੁਹਾਡੇ ਬਜਟ ਸਿਰਫ਼ ਇਸ ਡਿਵਾਈਸ 'ਤੇ ਸੰਭਾਲੇ ਹਨ। iCloud ਸਿੰਕ ਮੁੜ ਕਰਨ ਲਈ ਐਪ ਨੂੰ ਮੁੜ ਚਾਲੂ ਕਰੋ।"
           }
         },
         "pl": {
@@ -71815,7 +71815,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bütçelerin yalnızca bu cihaza kaydedildi. iCloud eşlemesini yeniden denemek için uygulamayı yeniden başlat."
+            "value": "Bütçelerin yalnızca bu cihazda kayıtlı. iCloud eşitlemesini yeniden denemek için uygulamayı kapatıp aç."
           }
         },
         "uk": {
@@ -72281,13 +72281,13 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az iCloud nem érhető el. Jelentkezz be az iCloud-ba a Beállításokban a költségvetéseid szinkronizálásához."
+            "value": "Az iCloud nem érhető el. Jelentkezz be az iCloudba a Beállításokban a szinkronizáláshoz."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud tidak tersedia. Masuk ke iCloud di Pengaturan untuk menyinkronkan anggaran kamu."
+            "value": "iCloud tidak tersedia. Masuk ke iCloud di Pengaturan untuk menyinkronkan anggaranmu."
           }
         },
         "it": {
@@ -72329,7 +72329,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud tidak tersedia. Log masuk ke iCloud dalam Tetapan untuk menyegerakkan belanjawan anda."
+            "value": "iCloud tidak tersedia. Log masuk ke iCloud dalam Tetapan untuk menyegerakkan bajet anda."
           }
         },
         "nb": {
@@ -72353,7 +72353,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud ਉਪਲਬਧ ਨਹੀਂ। ਤੁਸੀਂ ਦੇ ਬਜਟ ਸਿੰਕ ਕਰਨ ਲਈ ਸੈਟਿੰਗ ਵਿੱਚ iCloud ਵਿੱਚ ਦਾਖਲ ਹੋ।"
+            "value": "iCloud ਉਪਲਬਧ ਨਹੀਂ। ਆਪਣੇ ਬਜਟ ਸਿੰਕ ਕਰਨ ਲਈ ਸੈਟਿੰਗਾਂ ਵਿੱਚ iCloud ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰੋ।"
           }
         },
         "pl": {
@@ -72425,7 +72425,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "iCloud kullanılamıyor. Bütçelerini eşlemek için Ayarlar'dan iCloud'a giriş yap."
+            "value": "iCloud kullanılamıyor. Bütçelerini eşitlemek için Ayarlar’dan iCloud’a giriş yap."
           }
         },
         "uk": {
@@ -72586,7 +72586,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jelentkezz be az iCloud-ba a Beállításokban, hogy szinkronizáld a költségvetéseidet az eszközök között."
+            "value": "A költségkeretek eszközök közötti szinkronizálásához jelentkezz be az iCloudba a Beállításokban."
           }
         },
         "id": {
@@ -72634,7 +72634,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log masuk ke iCloud dalam Tetapan untuk menyegerakkan belanjawan anda merentas peranti."
+            "value": "Log masuk ke iCloud dalam Tetapan untuk menyegerakkan bajet anda merentas peranti."
           }
         },
         "nb": {
@@ -72658,7 +72658,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਯੰਤਰਾਂ ਵਿੱਚ ਤੁਸੀਂ ਦੇ ਬਜਟ ਸਿੰਕ ਕਰਨ ਲਈ ਸੈਟਿੰਗ ਵਿੱਚ iCloud ਵਿੱਚ ਦਾਖਲ ਹੋ।"
+            "value": "ਆਪਣੇ ਬਜਟ ਡਿਵਾਈਸਾਂ ਵਿਚਕਾਰ ਸਿੰਕ ਕਰਨ ਲਈ ਸੈਟਿੰਗਾਂ ਵਿੱਚ iCloud ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰੋ।"
           }
         },
         "pl": {
@@ -72975,7 +72975,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurações"
+            "value": "Ajustes"
           }
         },
         "pt-PT": {
@@ -73041,7 +73041,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Налаштування"
+            "value": "Параметри"
           }
         },
         "ur": {
@@ -73268,7 +73268,7 @@
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਤੁਸੀਂ ਦੇ ਬ੍ਰਾ ਵਜ਼ਰ ਵਿੱਚ ਗੋਪਨੀਯਤਾ ਨੀਤੀ ਖੋਲ੍ਹਦਾ ਹੈ"
+            "value": "ਤੁਹਾਡੇ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਪਰਦੇਦਾਰੀ ਨੀਤੀ ਖੋਲ੍ਹਦਾ ਹੈ"
           }
         },
         "pl": {
@@ -73872,7 +73872,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଆପ୍ ସଂଗ୍ରହ ମୂଲ୍ୟାୟନ ଲକ୍ଷ୍ୟଳ ଖୋଲେ"
+            "value": "App Store ରେଟିଂ ପ୍ରମ୍ପ୍ଟ ଖୋଲେ"
           }
         },
         "pa": {
@@ -76007,7 +76007,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ସଂସ୍ଅନ %1$@, ନିର୍ମାଣ %2$@"
+            "value": "ସଂସ୍କରଣ %1$@, ବିଲ୍ଡ %2$@"
           }
         },
         "pa": {
@@ -76163,7 +76163,7 @@
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Σφάλμα"
+            "value": "Debug"
           }
         },
         "en": {
@@ -76331,7 +76331,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Depurar"
+            "value": "Debug"
           }
         },
         "pt-PT": {
@@ -76391,7 +76391,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deneme"
+            "value": "Debug"
           }
         },
         "uk": {
@@ -76618,7 +76618,7 @@
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ସଂସ୍ଅନ"
+            "value": "ସଂସ୍କରଣ"
           }
         },
         "pa": {
@@ -76767,7 +76767,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wenn du das änderst, wirkt sich das auch auf vorhandene Wöchentlich-Budgets aus und berechnet vergangene Wochen neu"
+            "value": "Das ändert auch bestehende wöchentliche Budgets und berechnet frühere Wochen neu"
           }
         },
         "el": {
@@ -76827,7 +76827,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modifier cette option affectera aussi tes Budgets hebdomadaires existants et recalculera les semaines antérieures"
+            "value": "Ceci modifie aussi les budgets hebdomadaires existants et recalcule les semaines passées"
           }
         },
         "gu": {
@@ -76881,7 +76881,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಇದನ್ನು ಬದಲಾಯಿಸುವುದು ಇತಿಮಾತ್ರ ಇರುವ ಪ್ರತಿ ವಾರದ ಬಜೆಟ್‌ಗಳನ್ನು ಪ್ರಭಾವಿತ ಮಾಡುತ್ತದೆ ಮತ್ತು ಹಿಂದಿನ ವಾರಗಳನ್ನು ಮರುಗಣಿಸುತ್ತದೆ"
+            "value": "ಇದನ್ನು ಬದಲಾಯಿಸಿದರೆ ಈಗಿರುವ ಪ್ರತಿ ವಾರದ ಬಜೆಟ್‌ಗಳ ಮೇಲೂ ಪರಿಣಾಮ ಬೀರುತ್ತದೆ ಮತ್ತು ಹಿಂದಿನ ವಾರಗಳನ್ನು ಮರುಲೆಕ್ಕ ಹಾಕುತ್ತದೆ"
           }
         },
         "ko": {
@@ -76893,7 +76893,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഇത് മാറ്റുന്നത് നിലവിലുള്ള പ്രതിവാര ബജറ്റുകളെയും ബാധിക്കും, കഴിഞ്ഞ വാരങ്ങൾ പുനർ കണക്കാക്കും"
+            "value": "ഇത് മാറ്റുന്നത് നിലവിലുള്ള പ്രതിവാര ബജറ്റുകളെയും ബാധിക്കുകയും കഴിഞ്ഞ ആഴ്ചകൾ വീണ്ടും കണക്കാക്കുകയും ചെയ്യും"
           }
         },
         "mr": {
@@ -76953,7 +76953,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schimbarea acesteia va afecta și bugete-le săptămânale existente și va recalcula săptămânile anterioare"
+            "value": "Modifică și bugetele săptămânale existente și recalculează săptămânile anterioare"
           }
         },
         "ru": {
@@ -77682,7 +77682,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Änderung auf %@ wirkt sich auch auf vorhandene Wöchentlich-Budgets aus und berechnet vergangene Wochen neu."
+            "value": "Die Umstellung auf %@ ändert auch bestehende wöchentliche Budgets und berechnet frühere Wochen neu."
           }
         },
         "el": {
@@ -77730,7 +77730,7 @@
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vaihtaminen %@:ksi vaikuttaa myös olemassa oleviin viikoittaisiin budjetteihin ja laskee viime viikot uudelleen."
+            "value": "Vaihto päivään %@ vaikuttaa myös nykyisiin viikkobudjetteihin ja laskee menneet viikot uudelleen."
           }
         },
         "fr": {
@@ -77742,7 +77742,7 @@
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changer pour %@ affectera aussi tes Budgets hebdomadaires existants et recalculera les semaines antérieures."
+            "value": "Passer à %@ modifiera aussi les budgets hebdomadaires existants et recalculera les semaines passées."
           }
         },
         "gu": {
@@ -77754,13 +77754,13 @@
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שינוי ל־%@ ישפיע גם על תקציבים שבועיים קיימים וישחשב מחדש שבועות קודמים."
+            "value": "המעבר ליום %@ ישפיע גם על תקציבים שבועיים קיימים ויחשב מחדש שבועות שעברו."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ में बदलने से आपके मौजूदा साप्ताहिक बजट भी प्रभावित होंगे और पिछले सप्ताह फिर से गणना होंगे।"
+            "value": "%@ पर बदलने से मौजूदा साप्ताहिक बजट भी प्रभावित होंगे और पिछले हफ़्तों की दोबारा गणना होगी।"
           }
         },
         "hr": {
@@ -77796,7 +77796,7 @@
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ಕ್ಕೆ ಬದಲಾಯಿಸುವುದು ಇತಿಮಾತ್ರ ಇರುವ ಪ್ರತಿ ವಾರದ ಬಜೆಟ್‌ಗಳನ್ನು ಪ್ರಭಾವಿತ ಮಾಡುತ್ತದೆ ಮತ್ತು ಹಿಂದಿನ ವಾರಗಳನ್ನು ಮರುಗಣಿಸುತ್ತದೆ."
+            "value": "%@ ಗೆ ಬದಲಾಯಿಸಿದರೆ ಈಗಿರುವ ಪ್ರತಿ ವಾರದ ಬಜೆಟ್‌ಗಳ ಮೇಲೂ ಪರಿಣಾಮ ಬೀರುತ್ತದೆ ಮತ್ತು ಹಿಂದಿನ ವಾರಗಳನ್ನು ಮರುಲೆಕ್ಕ ಹಾಕುತ್ತದೆ."
           }
         },
         "ko": {
@@ -77808,7 +77808,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഈ സ്ഥിതിയിലാണ് %@ ലേക്ക് മാറ്റുന്നത് നിലവിലുള്ള പ്രതിവാര ബജറ്റുകളെയും ബാധിക്കും, കഴിഞ്ഞ വാരങ്ങൾ പുനർ കണക്കാക്കും."
+            "value": "%@ ലേക്ക് മാറ്റുന്നത് നിലവിലുള്ള പ്രതിവാര ബജറ്റുകളെയും ബാധിക്കുകയും കഴിഞ്ഞ ആഴ്ചകൾ വീണ്ടും കണക്കാക്കുകയും ചെയ്യും."
           }
         },
         "mr": {
@@ -77868,7 +77868,7 @@
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schimbarea în %@ va afecta și bugete-le săptămânale existente și va recalcula săptămânile anterioare."
+            "value": "Trecerea la %@ va afecta și bugetele săptămânale existente și va recalcula săptămânile anterioare."
           }
         },
         "ru": {
@@ -77898,7 +77898,7 @@
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ இல் மாற்றுவது நிலவும் வாரம் பட்ஜெட்டுகளையும் பாதிக்கும் மற்றும் கடந்த வாரங்களை மீண்டும் கணக்கிடும்"
+            "value": "%@ என மாற்றுவது தற்போதைய வாரப் பட்ஜெட்களையும் பாதித்து, கடந்த வாரங்களை மீண்டும் கணக்கிடும்."
           }
         },
         "te": {
@@ -78358,7 +78358,7 @@
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "અઠવાડિયો શરૂ થાય"
+            "value": "અઠવાડિયું શરૂ થાય"
           }
         },
         "he": {
@@ -78418,7 +78418,7 @@
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ആഴ്ച ആരംഭിക്കുന്നത് കാൾ"
+            "value": "ആഴ്ച ആരംഭിക്കുന്നത്"
           }
         },
         "mr": {
@@ -78520,7 +78520,7 @@
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "สัปดาห์เริ่มวัน"
+            "value": "วันเริ่มต้นสัปดาห์"
           }
         },
         "tr": {
@@ -78735,7 +78735,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Membuka borang tambah belanjawan"
+            "value": "Buka borang tambah bajet"
           }
         },
         "nb": {
@@ -78819,7 +78819,7 @@
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "బడ్జెట్ ఫారమ్‌ను జోడించండని తెరుస్తుంది"
+            "value": "బడ్జెట్ జోడించే ఫారమ్‌ను తెరుస్తుంది"
           }
         },
         "th": {
@@ -79040,7 +79040,7 @@
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tambah belanjawan"
+            "value": "Tambah bajet"
           }
         },
         "nb": {
@@ -79991,7 +79991,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurações"
+            "value": "Ajustes"
           }
         },
         "pt-PT": {
@@ -80057,7 +80057,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Налаштування"
+            "value": "Параметри"
           }
         },
         "ur": {

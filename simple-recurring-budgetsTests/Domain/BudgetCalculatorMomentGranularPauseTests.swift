@@ -45,7 +45,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     // now is one minute after the pause moment, same period (the day Apr 10).
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
-      now: d(2026, 4, 10, hour: 14, minute: 1), calendar: cal
+      now: d(2026, 4, 10, hour: 14, minute: 1), calendar: cal, weekStart: .sunday
     )
     #expect(snap.lifecycleState == .paused)
   }
@@ -63,7 +63,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     // also short-circuits to remaining = 0.
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [exp],
-      now: d(2026, 4, 11, hour: 9), calendar: cal
+      now: d(2026, 4, 11, hour: 9), calendar: cal, weekStart: .sunday
     )
     #expect(snap.carryOver == 188)
     #expect(snap.remaining == 0)
@@ -78,7 +78,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     budget.lifecycleEventsStorage = [pauseEvent, resumeEvent]
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
-      now: d(2026, 4, 10, hour: 12), calendar: cal
+      now: d(2026, 4, 10, hour: 12), calendar: cal, weekStart: .sunday
     )
     #expect(snap.lifecycleState == .active)
   }
@@ -91,7 +91,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     budget.lifecycleEventsStorage = [pauseEvent]
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
-      now: d(2026, 4, 20), calendar: cal
+      now: d(2026, 4, 20), calendar: cal, weekStart: .sunday
     )
     #expect(snap.lifecycleState == .preStart)
   }
@@ -104,7 +104,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     budget.lifecycleEventsStorage = [pauseEvent]
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
-      now: d(2026, 5, 5), calendar: cal
+      now: d(2026, 5, 5), calendar: cal, weekStart: .sunday
     )
     #expect(snap.lifecycleState == .postEnd)
   }
@@ -113,7 +113,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     let budget = makeBudget(startDate: d(2026, 4, 1))
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
-      now: d(2026, 4, 15), calendar: cal
+      now: d(2026, 4, 15), calendar: cal, weekStart: .sunday
     )
     #expect(snap.lifecycleState == .active)
   }
@@ -126,7 +126,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     budget.lifecycleEventsStorage = [pauseEvent]
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
-      now: d(2026, 4, 10, hour: 13, minute: 59), calendar: cal
+      now: d(2026, 4, 10, hour: 13, minute: 59), calendar: cal, weekStart: .sunday
     )
     #expect(snap.lifecycleState == .active)
   }

@@ -133,11 +133,12 @@ final class RatingPromptCoordinator {
     isAddMode: Bool,
     budget: Budget?,
     now: Date = Date(),
-    calendar: Calendar = .autoupdatingCurrent
+    calendar: Calendar = .autoupdatingCurrent,
+    weekStart: Weekday
   ) -> (isActiveBudget: Bool, remainingIsNonNegative: Bool)? {
     guard isAddMode, let budget else { return nil }
     let snapshot = BudgetCalculator.snapshot(
-      budget: budget, expenses: budget.expenseItems, now: now, calendar: calendar
+      budget: budget, expenses: budget.expenseItems, now: now, calendar: calendar, weekStart: weekStart
     )
     return (snapshot.lifecycleState == .active, snapshot.remaining >= 0)
   }

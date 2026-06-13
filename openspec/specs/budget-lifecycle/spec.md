@@ -4,25 +4,25 @@ Orchestrates the pure-read snapshot entry point, write-path methods, and display
 ## Requirements
 ### Requirement: Pure-read result(for:) entry point
 
-The system SHALL provide a `BudgetLifecycleService.result(for:now:calendar:)` entry point as a compatibility seam between view sites and the pure read `BudgetCalculator.snapshot(...)`. The method SHALL:
+The system SHALL provide a `BudgetLifecycleService.result(for:now:calendar:weekStart:)` entry point as a compatibility seam between view sites and the pure read `BudgetCalculator.snapshot(...)`. The method SHALL:
 
-1. Call `BudgetCalculator.snapshot(budget:expenses:now:calendar:)` to compute a `BudgetSnapshot`.
+1. Call `BudgetCalculator.snapshot(budget:expenses:now:calendar:weekStart:)` to compute a `BudgetSnapshot`.
 2. Map the snapshot to a `BudgetLifecycleResult` (see "BudgetLifecycleResult returned for display") and return it.
 3. NOT mutate `Budget`, `ExpenseItem`, `AllocationChange`, or `LifecycleEvent` rows. The walker is live; there are no fields on `Budget` for the read path to persist.
 4. NOT accept a `ModelContext` or call `ModelContext.save()` from the read path.
 
-All time-dependent inputs (`now`, `calendar`) SHALL be parameters with production defaults (`Date()`, `Calendar.autoupdatingCurrent`) so that tests can inject deterministic values.
+All time-dependent inputs (`now`, `calendar`) SHALL be parameters with production defaults (`Date()`, `Calendar.autoupdatingCurrent`) so that tests can inject deterministic values. The `weekStart: Weekday` parameter SHALL have **no default value**; production callers SHALL pass `AppSettings.weekStartDay` (read at the call site — the service itself remains settings-free and pure).
 
-The biweekly anchor used for period math SHALL be derived from `Budget.startDate` per the `budget-math` capability. `AppSettings.weekStartDay` SHALL NOT be consulted from this service at math-time.
+The biweekly anchor used for period math SHALL be derived from `Budget.startDate` per the `budget-math` capability; the weekly grid SHALL come from the caller-provided `weekStart`.
 
 #### Scenario: result(for:) is a pure read pass-through
 
-- **WHEN** `BudgetLifecycleService.result(for:)` is called with a budget, a fixed `now`, and a fixed calendar
+- **WHEN** `BudgetLifecycleService.result(for:)` is called with a budget, a fixed `now`, a fixed calendar, and a `weekStart`
 - **THEN** the service calls `BudgetCalculator.snapshot(...)` exactly once, does not mutate the budget or its child rows, does not touch any model context, and returns a `BudgetLifecycleResult` mapped from the snapshot
 
 #### Scenario: Idempotent across repeated calls
 
-- **WHEN** `result(for:)` is called twice in a row with the same `now` and no intervening writes
+- **WHEN** `result(for:)` is called twice in a row with the same `now`, the same `weekStart`, and no intervening writes
 - **THEN** both calls return equal `BudgetLifecycleResult` values, and the budget's stored fields are unchanged between calls
 
 ### Requirement: BudgetLifecycleResult returned for display
@@ -75,7 +75,7 @@ The system SHALL return a `BudgetLifecycleResult` value with the following field
 
 ### Requirement: Pause budget write-path
 
-The system SHALL provide `BudgetLifecycleService.pauseBudget(_ budget: Budget, context: ModelContext, now: Date) -> Bool` for the Pause Budget action. The method SHALL implement the eligibility, clamping, and write rules below.
+The system SHALL provide `BudgetLifecycleService.pauseBudget(_ budget: Budget, context: ModelContext, now: Date, calendar: Calendar, weekStart: Weekday) -> Bool` for the Pause Budget action. The `weekStart` parameter (no default; production callers pass `AppSettings.weekStartDay`) is threaded into the eligibility snapshot. The method SHALL implement the eligibility, clamping, and write rules below.
 
 **Eligibility.** The method SHALL return `false` without mutating any row, calling `context.save()`, or otherwise changing observable state when any of the following holds:
 
@@ -121,7 +121,7 @@ The method SHALL NOT mutate `Budget.startDate`, `Budget.endDate`, `AllocationCha
 
 ### Requirement: Resume budget write-path
 
-The system SHALL provide `BudgetLifecycleService.resumeBudget(_ budget: Budget, context: ModelContext, now: Date) -> Bool` for the Resume Budget action. The method SHALL implement the eligibility and write rules below.
+The system SHALL provide `BudgetLifecycleService.resumeBudget(_ budget: Budget, context: ModelContext, now: Date, calendar: Calendar, weekStart: Weekday) -> Bool` for the Resume Budget action. The `weekStart` parameter (no default; production callers pass `AppSettings.weekStartDay`) is threaded into the eligibility snapshot. The method SHALL implement the eligibility and write rules below.
 
 **Eligibility.** The method SHALL return `false` without mutating any row, calling `context.save()`, or otherwise changing observable state when any of the following holds:
 
@@ -197,7 +197,7 @@ The pause/resume write paths SHALL NOT introduce any classification logic of the
 
 ### Requirement: Screen / ViewModel consumption contract
 
-Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `result(for:)` eagerly on budget access — at minimum on screen appearance, on `scenePhase == .active`, and via `.onChange(of: budget.lastModified)` so that mid-period writes refresh the chip. Because `result(for:)` is a pure read, no `ModelContext` or `AppSettings` is required at the call site.
+Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `result(for:)` eagerly on budget access — at minimum on screen appearance, on `scenePhase == .active`, via `.onChange(of: budget.lastModified)` so that mid-period writes refresh the chip, and via `.onChange(of: settings.weekStartDay)` so that a week-start change (local or synced from another device) re-grids weekly budgets immediately. Because `result(for:)` is a pure read, no `ModelContext` is required at the call site; the call site reads `AppSettings.weekStartDay` solely to supply the `weekStart` parameter.
 
 Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the source of truth for current-period display values rather than recomputing them. Neither screens nor ViewModels SHALL call `BudgetCalculator.snapshot(...)` directly for the eager access flow — `BudgetLifecycleService` is the single entry point.
 
@@ -216,17 +216,25 @@ Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the s
 - **WHEN** any user-initiated write that bumps `Budget.lastModified` lands (expense add/edit/delete, allocation edit, manual reset)
 - **THEN** the screen (or its ViewModel) calls `BudgetLifecycleService.result(for:)` so the chip reflects the new state without waiting for a period boundary
 
+#### Scenario: Screen calls result(for:) on week-start change
+
+- **WHEN** `AppSettings.weekStartDay` changes — whether confirmed locally in Settings or applied by the iCloud key-value store external-change observer
+- **THEN** every visible budget surface re-invokes `BudgetLifecycleService.result(for:)` with the new `weekStart`, so weekly budgets re-grid without requiring navigation or scene transitions
+
 ### Requirement: Allocation edit write-path
 
-The system SHALL provide `BudgetLifecycleService.applyAllocationEdit(_ budget: Budget, newAmount: Decimal, context: ModelContext, now: Date, calendar: Calendar)` for view sites that change a budget's allocation in Edit mode. The method SHALL implement the algorithm doc §A.6.2 insert-or-mutate convention with a period-type carve-out for `.specificDates`:
+The system SHALL provide `BudgetLifecycleService.applyAllocationEdit(_ budget: Budget, newAmount: Decimal, context: ModelContext, now: Date, calendar: Calendar, weekStart: Weekday)` for view sites that change a budget's allocation in Edit mode. The method SHALL implement the algorithm doc §A.6.2 insert-or-mutate convention — keyed so the write, the live read, and the walker always agree — with a period-type carve-out for `.specificDates`:
 
 **For recurring periods (`.daily`, `.weekly`, `.biweekly`, `.monthly`):**
 
-1. Compute `currentPeriodStart` for the budget using its `RecurringBudgetPeriod`.
-2. If an `AllocationChange` row already exists with `effectiveFrom == currentPeriodStart`, update its `amount` to `newAmount` and bump its `lastModified = now`.
-3. Otherwise, insert a new `AllocationChange(effectiveFrom: currentPeriodStart, amount: newAmount, lastModified: now)` linked to the budget.
-4. Bump `Budget.lastModified = now`.
-5. Call `context.save()` exactly once.
+1. Compute `currentPeriodStart` for the budget using its `RecurringBudgetPeriod` (weekly periods use the caller-provided `weekStart`).
+2. Compute the edit key: `key = max(currentPeriodStart, calendar.startOfDay(for: budget.effectiveStartDate))` — the same instant the snapshot's live read uses for `allocationInEffect`.
+3. Locate the **governing row**: the latest `AllocationChange` (by `(effectiveFrom, lastModified)`) with `effectiveFrom <= key`. If a governing row exists and its `effectiveFrom >= currentPeriodStart` (it took effect within the current period), update its `amount` to `newAmount` and bump its `lastModified = now`.
+4. Otherwise, insert a new `AllocationChange(effectiveFrom: key, amount: newAmount, lastModified: now)` linked to the budget.
+5. Bump `Budget.lastModified = now`.
+6. Call `context.save()` exactly once.
+
+For budgets whose `startDate` is aligned to the period grid, `key == currentPeriodStart` and this rule is byte-for-byte the previous insert-or-mutate convention. For budgets whose first period starts mid-grid (a monthly budget created mid-month; a weekly budget whose `startDate` is not on the global week-start day), the rule mutates the initial `startDate` row instead of inserting a shadowed row at the grid boundary — guaranteeing the live read (`allocationInEffect` at `key`) and the walker's closed-period lookup (grid boundary with earliest-row fallback) both observe the edit (fixes #247).
 
 The method SHALL NOT mutate any other `AllocationChange` row for recurring periods. Prior periods continue to consult their historical allocations via `allocationInEffect` (forward-only semantics per F-2.03).
 
@@ -252,7 +260,17 @@ This `.specificDates` branch is the documented exception to the forward-only all
 #### Scenario: Prior periods are unaffected (recurring)
 
 - **WHEN** the user changes the allocation in the current period of a recurring budget
-- **THEN** no `AllocationChange` row whose `effectiveFrom < currentPeriodStart` is mutated, and the walker continues to use the historical amounts for those periods
+- **THEN** no `AllocationChange` row governing a prior period is mutated, and the walker continues to use the historical amounts for those periods
+
+#### Scenario: Mid-month-start monthly edit mutates the startDate row — live and walker agree (#247)
+
+- **WHEN** a monthly budget has `startDate = 2026-01-15` with its initial `AllocationChange(effectiveFrom: 2026-01-15, amount: 500)` and the user edits the allocation to 600 on 2026-01-31
+- **THEN** the initial row is mutated in place (`amount = 600`, exactly one `AllocationChange` row exists), the live snapshot's `effectiveAllocation` is 600, and after January closes the walker credits January at 600 — the two reads never disagree
+
+#### Scenario: Weekly first-partial-period edit mutates the startDate row (#247 under the global grid)
+
+- **WHEN** a weekly budget has `startDate = Wednesday 2026-04-01` (initial row at Apr 1, amount 100), `weekStart = .sunday`, and the user edits the allocation to 150 on Friday 2026-04-03
+- **THEN** the key is `max(2026-03-29, 2026-04-01) = 2026-04-01`, the initial row is mutated to 150 (row count stays 1), the live `effectiveAllocation` is 150, and after the partial week closes the walker credits it at 150
 
 #### Scenario: Specific Dates allocation edit overwrites the single row
 
@@ -291,7 +309,7 @@ The walker (in the `budget-math` capability) trims its walk window to periods wh
 
 ### Requirement: Reset budget write-path
 
-The system SHALL provide `BudgetLifecycleService.resetBudget(_ budget: Budget, context: ModelContext, now: Date)` for the Reset Budget toolbar action. The method SHALL:
+The system SHALL provide `BudgetLifecycleService.resetBudget(_ budget: Budget, context: ModelContext, now: Date, weekStart: Weekday)` for the Reset Budget toolbar action. The `weekStart` parameter (no default; production callers pass `AppSettings.weekStartDay`) is threaded into the internal post-delete snapshot that decides whether a balancing `.resume` event is needed. The method SHALL:
 
 1. Delete every `ExpenseItem` whose `budget == budget`.
 2. Set `Budget.lastResetDate = now`.

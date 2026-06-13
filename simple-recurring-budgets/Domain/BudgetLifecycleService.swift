@@ -49,16 +49,21 @@ enum BudgetLifecycleService {
 
   /// Returns display-ready values for `budget`. Pure read — does not mutate the budget
   /// or touch the model context.
+  ///
+  /// `weekStart` is the global week grid (callers pass `AppSettings.weekStartDay`;
+  /// no default — the call site must choose). The service itself stays settings-free.
   static func result(
     for budget: Budget,
     now: Date = Date(),
-    calendar: Calendar = .autoupdatingCurrent
+    calendar: Calendar = .autoupdatingCurrent,
+    weekStart: Weekday
   ) -> BudgetLifecycleResult {
     let snapshot = BudgetCalculator.snapshot(
       budget: budget,
       expenses: budget.expenseItems,
       now: now,
-      calendar: calendar
+      calendar: calendar,
+      weekStart: weekStart
     )
     let pausedSince: Date? = snapshot.lifecycleState == .paused
       ? Self.pausedSinceDate(from: budget.lifecycleEvents, now: now)
@@ -113,7 +118,8 @@ enum BudgetLifecycleService {
     context: ModelContext,
     analytics: (any AnalyticsClient)? = nil,
     now: Date = Date(),
-    calendar: Calendar = .autoupdatingCurrent
+    calendar: Calendar = .autoupdatingCurrent,
+    weekStart: Weekday
   ) throws {
     guard let periodRaw = BudgetPeriod(rawValue: budget.period) else { return }
     // Specific Dates: latest-wins whole-window overwrite (F-2.08). Exactly one
@@ -138,8 +144,6 @@ enum BudgetLifecycleService {
     guard let period = RecurringBudgetPeriod(periodRaw) else { return }
 
     let effectiveStartDate = calendar.startOfDay(for: budget.effectiveStartDate)
-    let weekdayRaw = calendar.component(.weekday, from: effectiveStartDate)
-    let weekStart = Weekday(rawValue: weekdayRaw) ?? .sunday
 
     let currentPeriodStart = PeriodCalculator.periodStart(
       containing: now,
@@ -149,11 +153,26 @@ enum BudgetLifecycleService {
       calendar: calendar
     )
 
-    if let existing = budget.allocationChanges.first(where: { $0.effectiveFrom == currentPeriodStart }) {
-      existing.amount = newAmount
-      existing.lastModified = now
+    // The edit keys on the same instant the snapshot's live read uses —
+    // `allocationInEffect(at: max(currentPeriodStart, effectiveStartDate))` — so the
+    // write, the live read, and the walker's closed-period lookup (grid boundary with
+    // earliest-row fallback) always agree. For grid-aligned budgets `key ==
+    // currentPeriodStart` and this is the original insert-or-mutate convention; for a
+    // first period that starts mid-grid (monthly created mid-month, weekly whose
+    // startDate is off the global week grid), the edit mutates the row governing the
+    // period instead of inserting a row the live read would shadow (issue #247).
+    let editKey = max(currentPeriodStart, effectiveStartDate)
+    let governingRow = budget.allocationChanges
+      .filter { $0.effectiveFrom <= editKey }
+      .max { lhs, rhs in
+        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+        return lhs.lastModified < rhs.lastModified
+      }
+    if let governingRow, governingRow.effectiveFrom >= currentPeriodStart {
+      governingRow.amount = newAmount
+      governingRow.lastModified = now
     } else {
-      let change = AllocationChange(effectiveFrom: currentPeriodStart, amount: newAmount, lastModified: now)
+      let change = AllocationChange(effectiveFrom: editKey, amount: newAmount, lastModified: now)
       change.budget = budget
       context.insert(change)
     }
@@ -200,7 +219,8 @@ enum BudgetLifecycleService {
     _ budget: Budget,
     context: ModelContext,
     analytics: (any AnalyticsClient)? = nil,
-    now: Date = Date()
+    now: Date = Date(),
+    weekStart: Weekday
   ) throws {
     for expense in Array(budget.expenseItems) {
       context.delete(expense)
@@ -211,7 +231,8 @@ enum BudgetLifecycleService {
       budget: budget,
       expenses: budget.expenseItems,
       now: now,
-      calendar: .autoupdatingCurrent
+      calendar: .autoupdatingCurrent,
+      weekStart: weekStart
     )
     if snapshot.lifecycleState == .paused {
       let event = LifecycleEvent(kind: .resume, effectiveDate: now)
@@ -238,14 +259,16 @@ enum BudgetLifecycleService {
     context: ModelContext,
     analytics: (any AnalyticsClient)? = nil,
     now: Date = Date(),
-    calendar: Calendar = .autoupdatingCurrent
+    calendar: Calendar = .autoupdatingCurrent,
+    weekStart: Weekday
   ) throws -> Bool {
     guard budget.periodEnum != .specificDates else { return false }
     let snapshot = BudgetCalculator.snapshot(
       budget: budget,
       expenses: budget.expenseItems,
       now: now,
-      calendar: calendar
+      calendar: calendar,
+      weekStart: weekStart
     )
     guard snapshot.lifecycleState != .paused, snapshot.lifecycleState != .postEnd else { return false }
 
@@ -270,14 +293,16 @@ enum BudgetLifecycleService {
     context: ModelContext,
     analytics: (any AnalyticsClient)? = nil,
     now: Date = Date(),
-    calendar: Calendar = .autoupdatingCurrent
+    calendar: Calendar = .autoupdatingCurrent,
+    weekStart: Weekday
   ) throws -> Bool {
     guard budget.periodEnum != .specificDates else { return false }
     let snapshot = BudgetCalculator.snapshot(
       budget: budget,
       expenses: budget.expenseItems,
       now: now,
-      calendar: calendar
+      calendar: calendar,
+      weekStart: weekStart
     )
     guard snapshot.lifecycleState == .paused else { return false }
 

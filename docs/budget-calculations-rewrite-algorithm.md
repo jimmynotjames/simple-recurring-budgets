@@ -530,11 +530,15 @@ The function performs the following in order. Each step references the helpers i
    active, `effectiveNow` may strip time-of-day from `now`. That has no effect on period
    detection — `periodStart` is start-of-day-aligned for every recurring period type — and is
    correct.)
-5. **Derive period anchors from `startDate`** (§2.4). For weekly/biweekly:
-  - `weekStart = effectiveStartDate.weekday` (per `Calendar`).
-  - `biweeklyAnchor = effectiveStartDate`.
-  - The global `AppSettings.weekStartDay` is **not** consulted by the algorithm — it only seeds
-  the pre-populated `startDate` in the UI at creation time.
+5. **Resolve period anchors** (#240, change `weekly-global-week-start`):
+  - `weekStart` is the **caller-provided global week grid** — production callers pass
+  `AppSettings.weekStartDay` into `snapshot(budget:expenses:now:calendar:weekStart:)` (the
+  parameter has no default). It is consumed only by the `.weekly` branch of
+  `PeriodCalculator`; every weekly budget shares this grid, like every monthly budget
+  shares the calendar-month grid. A weekly `startDate` off the grid clips the first
+  period via `effectivePeriodStart = max(...)` in step 6 (full allocation, no proration).
+  - `biweeklyAnchor = effectiveStartDate` — the 14-day cycle's phase comes from the
+  budget's own start date and is never affected by `weekStart`.
 6. **Compute the current period.** `currentPeriodStart = PeriodCalculator.periodStart(containing:
   effectiveNow, ...)`;` currentPeriodEnd = PeriodCalculator.periodEnd(containing: effectiveNow,
    ...)`. Then:
@@ -543,8 +547,15 @@ The function performs the following in order. Each step references the helpers i
 7. **Classify the current period** (§A.5.4). `isCurrentPaused = !isActive(periodStart:
   effectivePeriodStart, periodEnd: currentPeriodEnd, events: lifecycleEvents)`. Note: pass`  effectivePeriodStart`(i.e.`max(currentPeriodStart, effectiveStartDate)`), **not`**  currentPeriodStart`. This ensures a pre-start pause event stored at` startDate − ε`is  correctly classified as "before the first period" even when`startDate`falls mid-period  (e.g. a monthly budget with`startDate = April 15` — see §A.5.4 "Pre-start pause").
 8. **Look up the current allocation** (§A.5.2). `effectiveAllocation = allocationInEffect(at:
-  max(currentPeriodStart, effectiveStartDate), history: allocationChanges)`. Under the §A.2.2  / §A.6.1 storage convention (the initial` AllocationChange.effectiveFrom`is always a  natural period boundary),`allocationInEffect(at: currentPeriodStart)`would already find  the initial entry directly — for a monthly budget with`startDate = June 16`, both the  initial entry and` currentPeriodStart`for the first month equal`June 1`. The`  max(...)`clamp is therefore **defensive**: it guards against the malformed-sync-record  case where a row's`effectiveFrom`somehow sits at a mid-period date (e.g.`June 16`itself  rather than`June 1`), by querying at` effectiveStartDate`so the lookup still lands on the  row directly rather than falling through to`sorted.first?.amount`. In normal flow the
-   clamp is a no-op.
+  max(currentPeriodStart, effectiveStartDate), history: allocationChanges)`. The `max(...)`
+  clamp is **load-bearing** for first periods that start mid-grid: the initial
+  `AllocationChange.effectiveFrom` is written at `effectiveStartDate` (§A.6.1), which for a
+  monthly budget created mid-month — or, since #240, a weekly budget whose `startDate` is off
+  the global `weekStart` grid — sits *inside* the first grid period. Querying at
+  `effectiveStartDate` lands on that row directly; querying at `currentPeriodStart` alone
+  would fall through to the earliest-row fallback (same amount today, but the direct hit is
+  what the §A.6.2 governing-row edit key relies on for live/walker agreement). For
+  grid-aligned budgets the clamp is a no-op.
 9. **Compute `remaining` for the current period.**
   - If `isCurrentPaused`: `remaining = 0`. The UI hides the Remaining chip and renders
    "Paused since X" instead — see §A.5.5.
@@ -1037,14 +1048,18 @@ needed.
    `effectiveStartDate` — this is what allows §A.5.2's "mutate vs. insert" rule to correctly
    recognize a future same-period edit (see §A.2.2 storage rules + "Why monthly mid-month uses
    the month boundary" note):
-  - **Daily / weekly / biweekly:** `effectiveFrom = effectiveStartDate` (the cycle anchors on
-  `effectiveStartDate`, so its start-of-day value is already the natural boundary).
-  - **Monthly:** `effectiveFrom = start of the calendar month containing effectiveStartDate`
-  (which equals `effectiveStartDate` when the user picked the first of a month; equals an
-  earlier date when they picked mid-month).
-  - **Specific Dates:** `effectiveFrom = effectiveStartDate`.
-   Equivalently, for recurring budgets: `effectiveFrom = PeriodCalculator.periodStart(containing:  effectiveStartDate, period: <recurring>, weekStart: effectiveStartDate.weekday,  biweeklyAnchor: effectiveStartDate, calendar: calendar)`. The `lastModified` field defaults
-   to `Date()` on insert.
+  - **All period types:** `effectiveFrom = effectiveStartDate` (what the Add-mode save path
+  actually writes — see the data-models spec "Initial AllocationChange row on Budget
+  creation"). For monthly budgets created mid-month — and, since #240, weekly budgets whose
+  `startDate` is off the global `weekStart` grid — this value sits *inside* the first grid
+  period rather than on its boundary; the read paths are built for that (step 8's
+  `max(...)` clamp, the walker's earliest-row fallback, and the §A.6.2 governing-row edit
+  key).
+   (Since #240 the weekly grid is global, so a weekly `effectiveFrom = effectiveStartDate` may
+   sit mid-grid; that is fine — the read path looks up allocation at
+   `max(currentPeriodStart, effectiveStartDate)` and the walker's boundary lookups use the
+   earliest-row fallback, so the row is found either way. See §A.6.2 for the matching edit-key
+   rule.) The `lastModified` field defaults to `Date()` on insert.
 3. `save()`.
 
 `.specificDates` budgets require both `startDate` and `endDate` from the UI; otherwise Save is
@@ -1067,11 +1082,20 @@ the tiebreak for cross-device duplicates (§A.5.2).
    entry's `effectiveFrom` is the natural month boundary, not `effectiveStartDate` itself).
    `save()`.
   - **Normal (`now >= effectiveStartDate`).** Compute `currentPeriodStart` for `now` against
-  the budget's anchors (§A.4 steps 5–6, using `effectiveStartDate` and `effectiveEndExclusive`).
-  If an `AllocationChange` already exists with `effectiveFrom == currentPeriodStart`: **mutate
-  it** (set both `amount` and `lastModified = now`). Else: **insert** a new
-  `AllocationChange(effectiveFrom: currentPeriodStart, amount: newValue)` — its `lastModified`
-  defaults to `Date()` on insert. `save()`.
+  the budget's anchors (§A.4 steps 5–6; weekly uses the caller-provided global `weekStart`).
+  Compute the **edit key** `key = max(currentPeriodStart, effectiveStartDate)` — the same
+  instant the snapshot's live read uses for `allocationInEffect` (§A.4.1 step 8). Find the
+  **governing row**: the latest `AllocationChange` (by `(effectiveFrom, lastModified)`) with
+  `effectiveFrom <= key`. If it exists and its `effectiveFrom >= currentPeriodStart` (it
+  governs only the current period): **mutate it** (set both `amount` and `lastModified = now`).
+  Else: **insert** a new `AllocationChange(effectiveFrom: key, amount: newValue)`. `save()`.
+  For grid-aligned budgets `key == currentPeriodStart` and this is the original
+  insert-or-mutate convention byte for byte. For a first period that starts mid-grid (a
+  monthly budget created mid-month; a weekly budget whose `startDate` is off the global
+  week grid), the rule mutates the initial `startDate` row instead of inserting a row at
+  the grid boundary that the live read would shadow — guaranteeing the live read and the
+  walker's closed-period lookup (boundary + earliest-row fallback) both observe the edit
+  (issue #247, change `weekly-global-week-start`).
 3. While paused: the normal-branch write happens; `currentPeriodStart` refers to the paused
   period. The entry has no effect until the budget resumes (§5.5, §A.5.2). The briefing notes
    that either storage convention (record at paused-period's start vs. record at the
@@ -1284,8 +1308,8 @@ briefing's "design flaw exposers" — they are walked explicitly.
 | **1 ★** | `startDate` in the future, `now < startDate` | Step 2 short-circuit returns `.preStart` snapshot (§A.4.1).                                           |
 | 2       | `startDate` in the past (backfill)           | Walker iterates from `startDate` forward through completed periods.                                   |
 | 3       | `startDate == nil` at read time              | Fallback to `createdAt` in step 1 (§A.4.1, §A.2.1). Safety net only.                                  |
-| 4       | Weekly, `startDate == Wednesday`             | `weekStart = startDate.weekday = Wednesday`; `PeriodCalculator` anchors weeks to Wed (§A.4.1 step 5). |
-| 5       | Biweekly, `startDate == some Monday`         | `biweeklyAnchor = startDate`; biweekly cycles align to that Monday.                                   |
+| 4       | Weekly, `startDate == Wednesday`             | Since #240: the grid is the global `weekStart` (e.g. Sunday); the Wednesday `startDate` only clips the first period (§A.4.1 steps 5–6). |
+| 5       | Biweekly, `startDate == some Monday`         | `biweeklyAnchor = startDate`; biweekly cycles align to that Monday, independent of `weekStart`.       |
 
 
 ### A.9.5. End Date (briefing §6.5)
@@ -1389,8 +1413,8 @@ determinism:
   backdated edits, allocation edit (latest-wins), stray pause event ignored, stray reset event
    ignored.
 7. **Date arithmetic correctness.** Per-period-type anchor tests:
-  - Weekly, `startDate = Wednesday`.
-  - Biweekly, `startDate = some Monday`.
+  - Weekly, `startDate = Wednesday` on a Sunday `weekStart` grid (partial first period, #240).
+  - Biweekly, `startDate = some Monday` (anchor independent of `weekStart`).
   - Monthly, partial first period (startDate mid-month).
 8. `**endDate` inclusivity (§A.4.0).** Expense dated on the last day still counts:
   - Recurring (monthly), `endDate = May 15`, expense dated `May 15 14:00` — included in

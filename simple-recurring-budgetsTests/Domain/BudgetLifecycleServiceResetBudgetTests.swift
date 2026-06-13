@@ -43,7 +43,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
     #expect(budget.expenseItems.count == 3)
 
-    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15))
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15), weekStart: .sunday)
 
     #expect(budget.expenseItems.isEmpty)
   }
@@ -56,7 +56,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now, weekStart: .sunday)
 
     #expect(budget.lastResetDate == now)
     #expect(budget.lastModified == now)
@@ -69,7 +69,7 @@ struct BudgetLifecycleResetBudgetTests {
     let budget = makeBudget(startDate: startDate, in: ctx)
     try ctx.save()
 
-    try BudgetLifecycleService.resetBudget(budget, context: ctx)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, weekStart: .sunday)
 
     #expect(!budget.allocationChanges.isEmpty)
   }
@@ -88,7 +88,7 @@ struct BudgetLifecycleResetBudgetTests {
     resumeEvent.budget = budget; ctx.insert(resumeEvent)
     try ctx.save()
 
-    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15))
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: d(2026, 4, 15), weekStart: .sunday)
 
     #expect(budget.lifecycleEvents.count == 2)
     #expect(budget.lifecycleEvents.contains { $0.kind == .pause && $0.effectiveDate == d(2026, 4, 5) })
@@ -109,7 +109,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now, weekStart: .sunday)
 
     #expect(budget.expenseItems.isEmpty)
     #expect(budget.lastResetDate == now)
@@ -131,7 +131,7 @@ struct BudgetLifecycleResetBudgetTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now)
+    try BudgetLifecycleService.resetBudget(budget, context: ctx, now: now, weekStart: .sunday)
 
     #expect(budget.expenseItems.isEmpty)
     #expect(budget.lastResetDate == now)
@@ -146,7 +146,7 @@ struct BudgetLifecycleResetBudgetTests {
     // (see LifecycleClassification.isPausedAtMoment). In real flow the snapshot's `Date()`
     // is strictly after the service's `now`; the test mirrors that with a 1s delta.
     let snapshotNow = now.addingTimeInterval(1)
-    let result = BudgetLifecycleService.result(for: budget, now: snapshotNow)
+    let result = BudgetLifecycleService.result(for: budget, now: snapshotNow, weekStart: .sunday)
     #expect(result.lifecycleState == .active)
   }
 
@@ -162,7 +162,7 @@ struct BudgetLifecycleResetBudgetTests {
     }
     try ctx.save()
 
-    try BudgetLifecycleService.resetBudget(budgetA, context: ctx)
+    try BudgetLifecycleService.resetBudget(budgetA, context: ctx, weekStart: .sunday)
 
     #expect(budgetA.expenseItems.isEmpty)
     #expect(budgetB.expenseItems.count == 1)

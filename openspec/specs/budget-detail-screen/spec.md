@@ -658,13 +658,14 @@ If the persistence-save helper throws, the deletion is surfaced as an *interacti
 
 ### Requirement: Eager lifecycle refresh on task, scene-active, and expense-count change
 
-The screen SHALL invoke `BudgetLifecycleService.result(for:)` for the bound `Budget` on three triggers:
+The screen SHALL invoke `BudgetLifecycleService.result(for:)` for the bound `Budget` on four triggers:
 
 1. `.task(id: budget.persistentModelID)` — initial load and identity changes.
 2. `onChange(of: scenePhase)` when the new phase equals `.active`.
 3. `onChange(of: budget.expenseItems.count)` — every insert or delete from the Add Expense sheet, swipe-to-delete, or Reset Budget operation.
+4. `onChange(of: settings.weekStartDay)` — a Week Starts On change (confirmed locally in Settings or synced from another device via the iCloud key-value store) re-grids weekly budgets immediately.
 
-The screen SHALL bind the returned `BudgetLifecycleResult` to a `@State` property and use it to drive the header `remaining`, `carryOverAmount`, and `periodStart` (used by the section partitioning). The screen SHALL NOT call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly — `BudgetLifecycleService` is the sole entry point for the eager sequence (consistent with `docs/tech-design-doc.md` §5.4).
+The screen SHALL pass `weekStart: settings.weekStartDay` per the `budget-lifecycle` capability. The screen SHALL bind the returned `BudgetLifecycleResult` to a `@State` property and use it to drive the header `remaining`, `carryOverAmount`, and `periodStart` (used by the section partitioning). The screen SHALL NOT call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly — `BudgetLifecycleService` is the sole entry point for the eager sequence (consistent with `docs/tech-design-doc.md` §5.4).
 
 When the lifecycle result is unavailable (initial state before the first call returns), the screen MAY fall back to the budget's persisted `carryOverAmount` for chip rendering and SHALL evaluate the section partitions as empty arrays (showing the empty-budget caption) until the result resolves.
 
@@ -682,6 +683,11 @@ When the lifecycle result is unavailable (initial state before the first call re
 
 - **WHEN** `budget.expenseItems.count` changes (via Add Expense sheet, swipe-to-delete, or Reset Budget confirmation)
 - **THEN** `BudgetLifecycleService.result(for:)` is invoked so the header re-derives `remaining` and the section partitioning re-evaluates against the latest set
+
+#### Scenario: Refresh on week-start change
+
+- **WHEN** `AppSettings.weekStartDay` changes while `BudgetDetailView` is visible
+- **THEN** `BudgetLifecycleService.result(for:)` is invoked with the new `weekStart` so the header period label, `remaining`, and `carryOverAmount` re-derive on the new weekly grid
 
 #### Scenario: Refresh keyed by persistentModelID for row recycling
 

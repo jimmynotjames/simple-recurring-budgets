@@ -255,25 +255,27 @@ struct AddEditBudgetViewModelScheduleTests {
   }
 
   @Test func saveEdit_recurring_combinedStartDateAndAllocationEdit_stampsAllocationOnNewGrid() throws {
-    // Audit L6: when one Save edits BOTH the startDate (re-anchoring the weekly
-    // grid) and the allocation, the new amount must be stamped at the current
-    // period start of the NEW grid. The old ordering computed it from the
-    // pre-edit grid; when the new anchor moved the current period start
-    // earlier, the freshly typed amount landed mid-period and the current
-    // period silently kept the old allocation.
+    // Audit L6: when one Save edits BOTH the startDate (re-anchoring the biweekly
+    // cycle) and the allocation, the new amount must be stamped against the NEW
+    // anchor's current cycle. The old ordering computed it from the pre-edit
+    // anchor; when the new anchor moved the current cycle start earlier, the
+    // freshly typed amount landed mid-period and the current period silently
+    // kept the old allocation. (Originally a weekly fixture; switched to biweekly
+    // by #240 — weekly grids are now global, so startDate edits re-anchor only
+    // biweekly cycles, which is exactly where the L6 ordering stays load-bearing.)
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let cal = Calendar.autoupdatingCurrent
     let today = cal.startOfDay(for: Date())
 
-    // Old anchor: today's weekday (start two weeks ago) → old current period
-    // starts today. New anchor: yesterday's weekday (start 15 days ago) → new
-    // current period starts yesterday, i.e. EARLIER — the broken direction.
+    // Old anchor: 14 days ago → old current cycle starts today. New anchor:
+    // 15 days ago → new current cycle starts yesterday, i.e. EARLIER — the
+    // broken direction.
     let originalStart = try #require(cal.date(byAdding: .day, value: -14, to: today))
     let newStart = try #require(cal.date(byAdding: .day, value: -15, to: today))
     let expectedNewPeriodStart = try #require(cal.date(byAdding: .day, value: -1, to: today))
 
-    let budget = Budget(name: "Coffee", currencyCode: "USD", period: .weekly, isCarryOverEnabled: true)
+    let budget = Budget(name: "Coffee", currencyCode: "USD", period: .biweekly, isCarryOverEnabled: true)
     budget.startDate = originalStart
     let change = AllocationChange(effectiveFrom: originalStart, amount: 100)
     change.budget = budget
@@ -285,13 +287,14 @@ struct AddEditBudgetViewModelScheduleTests {
     vm.allocation = 150
     try vm.save(context: context)
 
-    // The new amount's row sits on the new grid's current period boundary…
+    // The new amount's row sits on the new anchor's current cycle boundary…
     let allocs = try context.fetch(FetchDescriptor<AllocationChange>())
     let newRow = try #require(allocs.first(where: { $0.amount == 150 }))
     #expect(newRow.effectiveFrom == expectedNewPeriodStart)
     // …so the user-visible current period actually uses the amount they typed.
+    // (weekStart is irrelevant for biweekly — any value yields the same cycle.)
     let snapshot = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: Date(), calendar: cal
+      budget: budget, expenses: [], now: Date(), calendar: cal, weekStart: .sunday
     )
     #expect(snapshot.effectiveAllocation == 150)
   }

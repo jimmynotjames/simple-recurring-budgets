@@ -27,7 +27,9 @@ struct RootView: View {
             }
           case let .expenseDetail(id):
             if let expense = context.expenseItem(id: id) {
-              AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))
+              AddEditExpenseView(
+                viewModel: AddEditExpenseViewModel(editing: expense, weekStart: settings.weekStartDay)
+              )
             } else {
               unresolvedPushDestination
             }
@@ -48,7 +50,9 @@ struct RootView: View {
         case let .addExpense(id):
           if let budget = context.budget(id: id) {
             NavigationStack {
-              AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: budget))
+              AddEditExpenseView(
+                viewModel: AddEditExpenseViewModel(adding: budget, weekStart: settings.weekStartDay)
+              )
             }
           } else {
             unresolvedSheetDestination

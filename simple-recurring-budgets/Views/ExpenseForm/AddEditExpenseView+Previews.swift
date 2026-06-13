@@ -6,7 +6,7 @@ import SwiftUI
 #if DEBUG
   #Preview("Add — Light") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -14,7 +14,7 @@ import SwiftUI
 
   #Preview("Add — Dark") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.weeklyDefault()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.weeklyDefault(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -25,7 +25,7 @@ import SwiftUI
     let budget = DebugData.dailyDefault()
     return NavigationStack {
       AddEditExpenseView(
-        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
+        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0], weekStart: .sunday)
       )
     }
     .modelContainer(PreviewContainer.make())
@@ -36,7 +36,7 @@ import SwiftUI
     let budget = DebugData.monthlyDefault()
     return NavigationStack {
       AddEditExpenseView(
-        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0])
+        viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0], weekStart: .sunday)
       )
     }
     .modelContainer(PreviewContainer.make())
@@ -46,7 +46,7 @@ import SwiftUI
 
   #Preview("xxxLarge Type") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyDefault(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -54,7 +54,7 @@ import SwiftUI
   }
 
   #Preview("Empty — Save disabled") {
-    let vm = AddEditExpenseViewModel(adding: DebugData.dailyDefault())
+    let vm = AddEditExpenseViewModel(adding: DebugData.dailyDefault(), weekStart: .sunday)
     vm.amount = nil
     return NavigationStack {
       AddEditExpenseView(viewModel: vm)
@@ -65,7 +65,7 @@ import SwiftUI
 
   #Preview("Add — Pre-start budget") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyPreStart()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.dailyPreStart(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
@@ -73,14 +73,14 @@ import SwiftUI
 
   #Preview("Add — Post-end budget") {
     NavigationStack {
-      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.weeklyPostEnd()))
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(adding: DebugData.weeklyPostEnd(), weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())
   }
 
   #Preview("Add Funds toggled on") {
-    let vm = AddEditExpenseViewModel(adding: DebugData.dailyDefault())
+    let vm = AddEditExpenseViewModel(adding: DebugData.dailyDefault(), weekStart: .sunday)
     vm.isAddFunds = true
     vm.amount = 25
     return NavigationStack {

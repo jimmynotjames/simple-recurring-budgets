@@ -34,7 +34,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     let budget = makeBudget(in: context)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.name = "Coffee"
     // isAddFunds defaults to false
@@ -55,7 +55,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     let budget = makeBudget(in: context)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 25
     vm.name = "Refund"
     vm.isAddFunds = true
@@ -80,7 +80,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
 
     #expect(vm.isAddFunds == true)
     #expect(vm.amount == 10) // displayAmount, not signed
@@ -95,7 +95,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
 
     #expect(vm.isAddFunds == false)
     #expect(vm.amount == 4.50)
@@ -114,7 +114,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
 
     #expect(vm.isAddFunds == true)
     #expect(vm.name == "") // empty, not "Add funds"
@@ -134,7 +134,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     #expect(vm.isAddFunds == false)
     #expect(vm.amount == 5)
 
@@ -163,7 +163,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     #expect(vm.isAddFunds == true)
     #expect(vm.amount == 25)
 
@@ -191,7 +191,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     vm.isAddFunds = true
     vm.amount = 12
     try vm.save(context: context, analytics: spy)
@@ -207,7 +207,7 @@ struct AddEditExpenseViewModelAddFundsTests {
 
   @Test func descriptionSeed_emptyName_toggleOn_seedsDefault() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.name == "")
 
     vm.isAddFunds = true
@@ -217,7 +217,7 @@ struct AddEditExpenseViewModelAddFundsTests {
 
   @Test func descriptionSeed_nonEmptyName_toggleOn_doesNotOverwrite() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "Refund from Acme"
 
     vm.isAddFunds = true
@@ -227,7 +227,7 @@ struct AddEditExpenseViewModelAddFundsTests {
 
   @Test func descriptionSeed_whitespaceOnlyName_toggleOn_seedsDefault() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.name = "   "
 
     vm.isAddFunds = true
@@ -237,7 +237,7 @@ struct AddEditExpenseViewModelAddFundsTests {
 
   @Test func descriptionSeed_toggleOnThenOff_retainsSeededName() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.isAddFunds = true
     #expect(vm.name == "Add funds")
 
@@ -248,7 +248,7 @@ struct AddEditExpenseViewModelAddFundsTests {
 
   @Test func descriptionSeed_secondToggleOn_doesNotOverwriteNonEmpty() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.isAddFunds = true
     #expect(vm.name == "Add funds")
     vm.isAddFunds = false

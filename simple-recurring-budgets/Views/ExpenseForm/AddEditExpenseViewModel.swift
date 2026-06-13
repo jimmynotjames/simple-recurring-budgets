@@ -69,6 +69,13 @@ final class AddEditExpenseViewModel {
 
   private let mode: Mode
 
+  /// Captured at init: the global week-start day (`AppSettings.weekStartDay`) threaded
+  /// into every `BudgetCalculator.snapshot` call this VM makes. A plain `Weekday` value
+  /// (not `AppSettings`) per the add-edit-expense-screen spec's no-stored-settings rule.
+  /// Like `cachedBudgetSnapshot`, it does not track setting changes made while the
+  /// sheet is open.
+  private let weekStart: Weekday
+
   /// Cached at init: the lifecycle snapshot for the bound budget at sheet-open time.
   /// Avoids re-computing on every SwiftUI body evaluation. `nil` when no budget is
   /// reachable (orphan edit case).
@@ -119,7 +126,7 @@ final class AddEditExpenseViewModel {
   private var isDateValid: Bool {
     guard let budget, cachedBudgetSnapshot?.lifecycleState == .paused else { return true }
     let snapAtDate = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: date, calendar: .autoupdatingCurrent
+      budget: budget, expenses: [], now: date, calendar: .autoupdatingCurrent, weekStart: weekStart
     )
     return snapAtDate.lifecycleState == .active
   }
@@ -223,13 +230,14 @@ final class AddEditExpenseViewModel {
     return lower ... max(lower, upper)
   }
 
-  init(adding budget: Budget) {
+  init(adding budget: Budget, weekStart: Weekday) {
     amount = nil
     name = ""
     currencyCode = budget.currencyCode
     mode = .add(budget)
+    self.weekStart = weekStart
     let snapshot = BudgetCalculator.snapshot(
-      budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent
+      budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent, weekStart: weekStart
     )
     cachedBudgetSnapshot = snapshot
     let pauseDate = Self.latestPauseEffectiveDate(for: budget)
@@ -257,19 +265,20 @@ final class AddEditExpenseViewModel {
     }
   }
 
-  init(editing expense: ExpenseItem) {
+  init(editing expense: ExpenseItem, weekStart: Weekday) {
     amount = expense.displayAmount
     name = expense.name ?? ""
     date = expense.date
     currencyCode = expense.budget?.currencyCode ?? (Locale.current.currency?.identifier ?? "USD")
     mode = .edit(expense)
+    self.weekStart = weekStart
     // Seed F-6.01 toggle from the existing row so the title, amount tint, and Add Funds
     // card all reflect the row the user tapped on. Bypasses the didSet (which seeds
     // a default description) by assigning before the property's initial value matters.
     isAddFunds = expense.isAddFunds
     if let budget = expense.budget {
       cachedBudgetSnapshot = BudgetCalculator.snapshot(
-        budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent
+        budget: budget, expenses: [], now: Date(), calendar: .autoupdatingCurrent, weekStart: weekStart
       )
       let pauseDate = Self.latestPauseEffectiveDate(for: budget)
       cachedPauseEffectiveDate = pauseDate

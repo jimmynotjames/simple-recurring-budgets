@@ -15,7 +15,7 @@ struct AddEditExpenseViewModelTests {
     try context.save()
 
     let beforeConstruction = Date()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
 
     #expect(vm.amount == nil)
     #expect(vm.name == "")
@@ -40,7 +40,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
 
     #expect(vm.amount == 4.50)
     #expect(vm.name == "Morning coffee")
@@ -64,7 +64,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
 
     // The field shows the absolute value; sign is NOT carried through
     #expect(vm.amount == 10)
@@ -83,7 +83,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
 
     let expected = Locale.current.currency?.identifier ?? "USD"
     #expect(vm.currencyCode == expected)
@@ -93,28 +93,28 @@ struct AddEditExpenseViewModelTests {
 
   @Test func canSave_falseWhenAmountNil() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = nil
     #expect(vm.canSave == false)
   }
 
   @Test func canSave_falseWhenAmountZero() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 0
     #expect(vm.canSave == false)
   }
 
   @Test func canSave_falseWhenAmountNegative() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = -1
     #expect(vm.canSave == false)
   }
 
   @Test func canSave_trueWhenPositiveAmountWithEmptyDescription() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5.00
     vm.name = ""
     #expect(vm.canSave == true)
@@ -122,7 +122,7 @@ struct AddEditExpenseViewModelTests {
 
   @Test func canSave_trueWhenPositiveAmountWithDescription() {
     let budget = Budget()
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5.00
     vm.name = "Coffee"
     #expect(vm.canSave == true)
@@ -139,7 +139,7 @@ struct AddEditExpenseViewModelTests {
     try context.save()
 
     let fixedDate = Date(timeIntervalSinceReferenceDate: 800_000_000)
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5.00
     vm.name = "Coffee"
     vm.date = fixedDate
@@ -163,7 +163,7 @@ struct AddEditExpenseViewModelTests {
     let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.name = "  Coffee  "
     try vm.save(context: context)
@@ -178,7 +178,7 @@ struct AddEditExpenseViewModelTests {
     let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.name = "   "
     try vm.save(context: context)
@@ -193,7 +193,7 @@ struct AddEditExpenseViewModelTests {
     let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 5
     vm.name = ""
     try vm.save(context: context)
@@ -210,7 +210,7 @@ struct AddEditExpenseViewModelTests {
     let budget = Budget(name: "Food", currencyCode: "USD", period: .daily)
     context.insert(budget); try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = nil
     try vm.save(context: context)
 
@@ -233,7 +233,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     try vm.save(context: context)
 
     #expect(expense.lastModified == originalLastModified)
@@ -255,7 +255,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     vm.name = "New name"
     try vm.save(context: context)
 
@@ -278,7 +278,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     // Seeded with displayAmount (10); user changes it to 15
     vm.amount = 15
     try vm.save(context: context)
@@ -302,7 +302,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     // amount is seeded as displayAmount = 10; leave it at 10 (no change)
     #expect(vm.amount == 10)
     try vm.save(context: context)
@@ -327,7 +327,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     vm.name = "New name"
     vm.amount = 99.99
     try vm.save(context: context)
@@ -352,7 +352,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     vm.name = "  New  "
     try vm.save(context: context)
     #expect(expense.name == "New")
@@ -368,7 +368,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     vm.name = "   "
     try vm.save(context: context)
     #expect(expense.name == nil)
@@ -390,7 +390,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     // Drift by 20 seconds — under the .minute granularity threshold
     vm.date = fixedDate.addingTimeInterval(20)
     try vm.save(context: context)
@@ -414,7 +414,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     vm.amount = 999
     vm.name = "Changed"
     vm.date = Date()
@@ -445,7 +445,7 @@ struct AddEditExpenseViewModelTests {
     let originalCount = try context.fetch(FetchDescriptor<ExpenseItem>()).count
     #expect(originalCount == 2)
 
-    let vm = AddEditExpenseViewModel(editing: expense1)
+    let vm = AddEditExpenseViewModel(editing: expense1, weekStart: .sunday)
     try vm.delete(context: context)
 
     let remaining = try context.fetch(FetchDescriptor<ExpenseItem>())
@@ -468,7 +468,7 @@ struct AddEditExpenseViewModelTests {
 
     let originalCount = try context.fetch(FetchDescriptor<ExpenseItem>()).count
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     try vm.delete(context: context)
 
     let afterCount = try context.fetch(FetchDescriptor<ExpenseItem>()).count
@@ -526,7 +526,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(budget)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     vm.amount = 1
     try vm.save(context: context) // must compile with (context:) only
     let all = try context.fetch(FetchDescriptor<ExpenseItem>())
@@ -546,7 +546,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     try vm.delete(context: context) // must compile with (context:) only
     let remaining = try context.fetch(FetchDescriptor<ExpenseItem>())
     #expect(remaining.isEmpty)
@@ -562,7 +562,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(budget)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(adding: budget)
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.isEditing == false)
   }
 
@@ -577,7 +577,7 @@ struct AddEditExpenseViewModelTests {
     context.insert(expense)
     try context.save()
 
-    let vm = AddEditExpenseViewModel(editing: expense)
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
     #expect(vm.isEditing == true)
   }
 }

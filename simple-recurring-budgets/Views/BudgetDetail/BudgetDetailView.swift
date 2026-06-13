@@ -362,6 +362,11 @@ struct BudgetDetailView: View {
     .onCalendarDayChange {
       refreshLifecycle()
     }
+    // Recompute when Week Starts On changes (confirmed in Settings or synced from
+    // another device via iCloud KVS) — weekly budgets re-grid immediately (#240).
+    .onChange(of: settings.weekStartDay) {
+      refreshLifecycle()
+    }
   }
 
   // MARK: - Header row
@@ -405,7 +410,7 @@ struct BudgetDetailView: View {
   // MARK: - Actions
 
   func refreshLifecycle() {
-    lifecycle = BudgetLifecycleService.result(for: budget)
+    lifecycle = BudgetLifecycleService.result(for: budget, weekStart: settings.weekStartDay)
   }
 
   // pauseBudgetTapped / resumeBudgetTapped live in BudgetDetailView+PauseResume.swift
@@ -449,7 +454,9 @@ struct BudgetDetailView: View {
     let period = budget.periodEnum
     do {
       try withAnimation {
-        try BudgetLifecycleService.resetBudget(budget, context: context, analytics: analytics)
+        try BudgetLifecycleService.resetBudget(
+          budget, context: context, analytics: analytics, weekStart: settings.weekStartDay
+        )
       }
     } catch let error as PersistenceError {
       saveError.setForFailure(error, retry: { [self] in resetBudget() })

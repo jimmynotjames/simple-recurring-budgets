@@ -38,14 +38,14 @@ struct RatingPromptExpenseSignalsTests {
     let ctx = try ModelContext(TestModelContainer.make())
     let budget = makeBudget(startDate: date(2026, 1, 1), in: ctx)
     let signals = RatingPromptCoordinator.expenseLogSignals(
-      isAddMode: false, budget: budget, now: date(2026, 1, 10), calendar: Self.utcCalendar
+      isAddMode: false, budget: budget, now: date(2026, 1, 10), calendar: Self.utcCalendar, weekStart: .sunday
     )
     #expect(signals == nil)
   }
 
   @Test("nil budget produces no signals")
   func nilBudgetReturnsNil() {
-    #expect(RatingPromptCoordinator.expenseLogSignals(isAddMode: true, budget: nil) == nil)
+    #expect(RatingPromptCoordinator.expenseLogSignals(isAddMode: true, budget: nil, weekStart: .sunday) == nil)
   }
 
   @Test("add mode on an active, non-deficit budget → (active, non-negative)")
@@ -54,7 +54,7 @@ struct RatingPromptExpenseSignalsTests {
     let budget = makeBudget(allocation: 20, startDate: date(2026, 1, 1), in: ctx)
     try ctx.save()
     let signals = RatingPromptCoordinator.expenseLogSignals(
-      isAddMode: true, budget: budget, now: date(2026, 1, 10), calendar: Self.utcCalendar
+      isAddMode: true, budget: budget, now: date(2026, 1, 10), calendar: Self.utcCalendar, weekStart: .sunday
     )
     #expect(signals?.isActiveBudget == true)
     #expect(signals?.remainingIsNonNegative == true)
@@ -70,7 +70,7 @@ struct RatingPromptExpenseSignalsTests {
     ctx.insert(overspend)
     try ctx.save()
     let signals = RatingPromptCoordinator.expenseLogSignals(
-      isAddMode: true, budget: budget, now: now, calendar: Self.utcCalendar
+      isAddMode: true, budget: budget, now: now, calendar: Self.utcCalendar, weekStart: .sunday
     )
     #expect(signals?.isActiveBudget == true)
     #expect(signals?.remainingIsNonNegative == false)
@@ -85,7 +85,7 @@ struct RatingPromptExpenseSignalsTests {
     ctx.insert(pause)
     try ctx.save()
     let signals = RatingPromptCoordinator.expenseLogSignals(
-      isAddMode: true, budget: budget, now: date(2026, 1, 10), calendar: Self.utcCalendar
+      isAddMode: true, budget: budget, now: date(2026, 1, 10), calendar: Self.utcCalendar, weekStart: .sunday
     )
     #expect(signals?.isActiveBudget == false)
   }

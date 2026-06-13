@@ -146,6 +146,69 @@ struct PeriodCalculatorPeriodStartTests {
     #expect(result == utcDate(2026, 3, 29))
   }
 
+  /// Dates BEFORE the anchor exercise `floorDiv`'s negative branch: daysDiff = −7
+  /// gives floorDiv(−7, 14) = −1 (truncating division would give 0), so the date
+  /// lands in the cycle starting anchor − 14 — never in a phantom cycle at the
+  /// anchor itself. Load-bearing for back-dated snapshots and the #240 guarantee
+  /// that biweekly phase math stays anchored to the budget's own startDate.
+  @Test func periodStart_biweekly_dateBeforeAnchor_negativePhase() {
+    let anchor = utcDate(2026, 4, 12) // Sunday
+    let weekBefore = utcDate(2026, 4, 5) // daysDiff = −7 → floorDiv = −1
+    let start = PeriodCalculator.periodStart(
+      containing: weekBefore,
+      period: .biweekly,
+      weekStart: .sunday,
+      biweeklyAnchor: anchor,
+      calendar: utcCalendar
+    )
+    #expect(start == utcDate(2026, 3, 29)) // anchor − 14
+    let end = PeriodCalculator.periodEnd(
+      containing: weekBefore,
+      period: .biweekly,
+      weekStart: .sunday,
+      biweeklyAnchor: anchor,
+      calendar: utcCalendar
+    )
+    #expect(end == utcDate(2026, 4, 12)) // the cycle before the anchor ends AT the anchor
+  }
+
+  /// Exactly one full cycle before the anchor: daysDiff = −14 divides evenly
+  /// (remainder 0, no extra −1 step), so the date IS its own cycle start.
+  @Test func periodStart_biweekly_exactlyOneCycleBeforeAnchor_isOwnCycleStart() {
+    let anchor = utcDate(2026, 4, 12)
+    let oneCycleBefore = utcDate(2026, 3, 29) // daysDiff = −14 → floorDiv = −1 exactly
+    let result = PeriodCalculator.periodStart(
+      containing: oneCycleBefore,
+      period: .biweekly,
+      weekStart: .sunday,
+      biweeklyAnchor: anchor,
+      calendar: utcCalendar
+    )
+    #expect(result == utcDate(2026, 3, 29)) // not Mar 15 — no double subtraction
+  }
+
+  /// Saturday week-start across a year boundary: Fri 2027-01-01 belongs to the
+  /// week that began Sat 2026-12-26.
+  @Test func periodStart_weekly_saturdayWeekStart_acrossYearBoundary() {
+    let newYearsDay = utcDate(2027, 1, 1) // Friday
+    let start = PeriodCalculator.periodStart(
+      containing: newYearsDay,
+      period: .weekly,
+      weekStart: .saturday,
+      biweeklyAnchor: newYearsDay,
+      calendar: utcCalendar
+    )
+    #expect(start == utcDate(2026, 12, 26))
+    let end = PeriodCalculator.periodEnd(
+      containing: newYearsDay,
+      period: .weekly,
+      weekStart: .saturday,
+      biweeklyAnchor: newYearsDay,
+      calendar: utcCalendar
+    )
+    #expect(end == utcDate(2027, 1, 2))
+  }
+
   // MARK: 3.5 — Monthly
 
   @Test func periodStart_monthly_returnsFirstOfMonth() {

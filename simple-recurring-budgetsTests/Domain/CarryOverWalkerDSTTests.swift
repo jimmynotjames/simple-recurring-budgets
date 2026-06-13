@@ -73,4 +73,38 @@ struct CarryOverWalkerDSTTests {
     // 4 completed periods (10-30, 10-31, 11-01 [25h], 11-02) × $10 − $4.
     #expect(carryOver == 36)
   }
+
+  /// Biweekly cycle spanning the US 2026-03-08 spring-forward (the only biweekly
+  /// DST coverage): the 14-day cycle [03-01, 03-15) contains a 23-hour day, and
+  /// neither the cycle count nor the expense bucketing may shift. A late-evening
+  /// expense on the cycle's last day (03-14 23:30) must stay inside the cycle,
+  /// not re-bucket past the DST-shifted boundary.
+  @Test func biweeklyWalk_acrossSpringForward_fullCycleAwarded() {
+    let cal = TestCalendars.gregorian(in: "America/Los_Angeles")
+    let windowStart = TestCalendars.date(2026, 3, 1, in: cal) // Sunday anchor
+    let currentPeriodStart = TestCalendars.date(2026, 3, 15, in: cal)
+
+    let change = AllocationChange(effectiveFrom: windowStart, amount: 200)
+    let expenses = [
+      // Midday on the 23-hour transition day, mid-cycle.
+      ExpenseItem(amount: 50, date: TestCalendars.date(2026, 3, 8, hour: 12, in: cal)),
+      // Last evening of the cycle — inside [03-01, 03-15) despite the missing hour.
+      ExpenseItem(amount: 25, date: TestCalendars.date(2026, 3, 14, hour: 23, minute: 30, in: cal)),
+    ]
+
+    let carryOver = walkCarryOver(
+      from: windowStart,
+      to: currentPeriodStart,
+      period: .biweekly,
+      weekStart: .sunday,
+      biweeklyAnchor: windowStart,
+      sortedAllocationChanges: [change],
+      sortedLifecycleEvents: [],
+      expenses: expenses,
+      calendar: cal
+    )
+
+    // One completed 14-day cycle (335 absolute hours): $200 − $75.
+    #expect(carryOver == 125)
+  }
 }

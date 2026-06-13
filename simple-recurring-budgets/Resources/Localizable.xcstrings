@@ -75202,306 +75202,306 @@
       }
     },
     "settings.weekStart.accessibilityHint": {
-      "comment": "VoiceOver hint for the week-start day picker in Settings",
+      "comment": "VoiceOver hint for the week-start day picker in Settings. Biweekly budgets are unaffected by this setting.",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يؤثر تغيير هذا الإعداد على جميع الميزانيات الأسبوعية وميزانيات كل أسبوعين"
+            "value": "سيؤثر تغيير هذا أيضاً على الميزانيات الأسبوعية الموجودة ويعيد حساب الأسابيع السابقة"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "এটি পরিবর্তন করা সমস্ত সাপ্তাহিক এবং পাক্ষিক বাজেটগুলিকে প্রভাবিত করে"
+            "value": "এটি পরিবর্তন করলে বিদ্যমান সাপ্তাহিক বাজেট প্রভাবিত হবে এবং অতীতের সপ্তাহগুলি পুনঃগণনা করা হবে"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "El canvi afecta tots els pressupostos setmanals i quinzenals"
+            "value": "Canviar aquest paràmetre afecta els pressupostos setmanals existents i recalcula les setmanes passades"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Změna ovlivní všechny týdenní a dvoutýdenní rozpočty"
+            "value": "Změna také ovlivňuje existující týdenní rozpočty a přepočítá minulé týdny"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ændring af dette påvirker alle ugentlige og 14-dages budgetter"
+            "value": "Ændring heraf påvirker også eksisterende ugentlige budgetter og genberegner tidligere uger"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Änderung betrifft alle wöchentlichen und zweiwöchentlichen Budgets"
+            "value": "Wenn du das änderst, wirkt sich das auch auf vorhandene Wöchentlich-Budgets aus und berechnet vergangene Wochen neu"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Η αλλαγή αυτή επηρεάζει όλους τους εβδομαδιαίους και δεκαπενθήμερους προϋπολογισμούς"
+            "value": "Η αλλαγή αυτή επηρεάζει επίσης τους υπάρχοντες εβδομαδιαίους προϋπολογισμούς και επανυπολογίζει τις προηγούμενες εβδομάδες"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing this affects all weekly and biweekly budgets"
+            "value": "Changing this also affects existing weekly budgets and recalculates past weeks"
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing this affects all weekly and fortnightly budgets"
+            "value": "Changing this also affects existing weekly budgets and recalculates past weeks"
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing this affects all weekly and biweekly budgets"
+            "value": "Changing this also affects existing weekly budgets and recalculates past weeks"
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing this affects all weekly and fortnightly budgets"
+            "value": "Changing this also affects existing weekly budgets and recalculates past weeks"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambiar esto afecta a todos los presupuestos semanales y quincenales"
+            "value": "Cambiar esto también afecta a los presupuestos semanales y recalcula las semanas anteriores"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambiar esto afecta todos los presupuestos semanales y quincenales"
+            "value": "Cambiar esto también afecta los presupuestos semanales existentes y recalcula las semanas anteriores"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Muutos vaikuttaa kaikkiin viikoittaisiin ja kahden viikon budjetteihin"
+            "value": "Tämän muuttaminen vaikuttaa myös olemassa oleviin viikoittaisiin budjetteihin ja laskee viime viikot uudelleen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cette modification affecte tous les budgets hebdomadaires et bihebdomadaires"
+            "value": "La modification affecte aussi les budgets hebdomadaires existants et recalcule les semaines précédentes"
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce changement affecte tous les budgets hebdomadaires et bihebdomadaires"
+            "value": "Modifier cette option affectera aussi tes Budgets hebdomadaires existants et recalculera les semaines antérieures"
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "આ બધા સાપ્તાહિક અને પખવાડિક બજેટને અસર કરે છે"
+            "value": "આ બદલવાથી હાલના સાપ્તાહિક બજેટને અસર પડે છે અને તેના ભૂતકાલનાં અઠવાડિયાંનો ફરીથી ગણતરી થાય છે"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "שינוי זה משפיע על כל התקציבים השבועיים והדו-שבועיים"
+            "value": "שינוי זה משפיע גם על תקציבים שבועיים קיימים ומחשב מחדש שבועות קודמים"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "इसे बदलने से सभी साप्ताहिक और द्विसाप्ताहिक बजट प्रभावित होते हैं"
+            "value": "इसे बदलने से आपके मौजूदा साप्ताहिक बजट भी प्रभावित होंगे और पिछले सप्ताह फिर से गणना होगी"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Promjena utječe na sve tjedne i dvotjedne proračune"
+            "value": "Promjena također utječe na postojeće tjedne proračune i ponovno računa prošle tjedne"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Módosítása minden heti és kéthetes büdzsét érint"
+            "value": "A módosítás a meglévő heti költségkereteket is érinti, és újraszámítja az eddigi heteket"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mengubah ini akan memengaruhi semua anggaran mingguan dan dua mingguan"
+            "value": "Mengubah ini juga memengaruhi Anggaran Mingguan yang sudah ada dan menghitung ulang minggu sebelumnya"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La modifica interessa tutti i budget settimanali e bisettimanali"
+            "value": "Cambiarla incide anche sui budget settimanali esistenti e ricalcola le settimane precedenti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "変更するとすべての週次・隔週予算に影響します"
+            "value": "この設定を変更すると、既存の毎週の予算にも影響し、過去の週が再計算されます"
           }
         },
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಇದನ್ನು ಬದಲಾಯಿಸುವುದು ಎಲ್ಲಾ ಸಾಪ್ತಾಹಿಕ ಮತ್ತು ದ್ವಿ-ವಾರ ಬಜೆಟ್‌ಗಳನ್ನು ಪ್ರಭಾವಿತ ಮಾಡುತ್ತದೆ"
+            "value": "ಇದನ್ನು ಬದಲಾಯಿಸುವುದು ಇತಿಮಾತ್ರ ಇರುವ ಪ್ರತಿ ವಾರದ ಬಜೆಟ್‌ಗಳನ್ನು ಪ್ರಭಾವಿತ ಮಾಡುತ್ತದೆ ಮತ್ತು ಹಿಂದಿನ ವಾರಗಳನ್ನು ಮರುಗಣಿಸುತ್ತದೆ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "변경하면 모든 주간 및 격주 예산에 영향을 줘요"
+            "value": "이를 변경하면 기존 매주 예산도 영향을 받으며 지난 주들이 다시 계산됩니다"
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ഇത് മാറ്റുന്നത് എല്ലാ പ്രതിവാര ഉം രണ്ടാഴ്ച ബജറ്റുകൾ ബാധിക്കുന്നു"
+            "value": "ഇത് മാറ്റുന്നത് നിലവിലുള്ള പ്രതിവാര ബജറ്റുകളെയും ബാധിക്കും, കഴിഞ്ഞ വാരങ്ങൾ പുനർ കണക്കാക്കും"
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "हे बदलल्याने सर्व साप्ताहिक आणि द्वि-साप्ताहिक budgets प्रभावित होतात"
+            "value": "याचे बदलल्याने विद्यमान साप्ताहिक budgets वर परिणाम होतो आणि गेलेल्या आठवड्यांची पुनर्गणना होते"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mengubah ini mempengaruhi semua belanjawan mingguan dan dua mingguan"
+            "value": "Menukar ini juga akan mempengaruhi bajet mingguan yang sedia ada dan mengira semula minggu-minggu lampau"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Endring av dette påvirker alle ukentlige og annenhverukentlige budsjetter"
+            "value": "Endring av dette påvirker også eksisterende ukentlige budsjetter og gjenkalkuleringer av tidligere uker"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dit heeft invloed op alle wekelijkse en tweewekelijkse budgetten"
+            "value": "Dit wijzigen beïnvloedt ook bestaande wekelijkse budgetten en herberekent voorbije weken"
           }
         },
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ଏଠି ପରିବର୍ତ୍ତନ ସବୁ ସାପ୍ତାହିକ ଏବଂ ଦୁଇ-ସାପ୍ତାହିକ ବଜେଟ୍ କୁ ପ୍ରଭାବିତ କରେ"
+            "value": "ଏହା ପରିବର୍ତ୍ତନ ମଧ୍ୟ ବିଦ୍ୟମାନ ସାପ୍ତାହିକ ବଜେଟ୍କୁ ପ୍ରଭାବିତ କରେ ଏବଂ ଅତୀତ ସପ୍ତାହଗୁଡ଼ିକୁ ପୁନର୍ନିର୍ଣ୍ଣୟ କରେ"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਇਹ ਬਦਲਣਾ ਸਾਰੇ ਹਫ਼ਤਾਵਾਰ ਅਤੇ ਦੋ-ਹਫ਼ਤਾਵਾਰ ਬਜਟ ਨੂੰ ਪ੍ਰਭਾਵਤ ਕਰਦਾ ਹੈ"
+            "value": "ਇਸ ਨੂੰ ਬਦਲਣ ਨਾਲ ਮੌਜੂਦਾ ਹਫ਼ਤਾਵਾਰ ਬਜਟ ਵੀ ਬਦਲ ਜਾਂਦੇ ਹਨ ਅਤੇ ਪਿਛਲੇ ਹਫ਼ਤੇ ਦੁਬਾਰਾ ਗਿਣੇ ਜਾਂਦੇ ਹਨ"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zmiana ta wpływa na wszystkie budżety tygodniowe i dwutygodniowe"
+            "value": "Zmiana wpłynie też na istniejące budżety tygodniowe i ponownie przelicza poprzednie tygodnie"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alterar isso afeta todos os orçamentos semanais e quinzenais"
+            "value": "Mudar isso também afeta os orçamentos semanais existentes e recalcula as semanas anteriores"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esta alteração afeta todos os orçamentos semanais e quinzenais"
+            "value": "Mudar isto também afeta os orçamentos semanais existentes e recalcula as semanas anteriores"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modificarea aceasta afectează toate bugetele săptămânale și bilunare"
+            "value": "Schimbarea acesteia va afecta și bugete-le săptămânale existente și va recalcula săptămânile anterioare"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изменение влияет на все еженедельные и двухнедельные бюджеты"
+            "value": "Изменение этого также повлияет на существующие еженедельные бюджеты и пересчитает прошлые недели"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zmena ovplyvní všetky týždenné a dvojtýždenné rozpočty"
+            "value": "Zmena tiež ovplyvní existujúce týždňové rozpočty a prepočíta minulé týždne"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sprememba tega vpliva na vse tedenske in dvotedenske proračune"
+            "value": "Sprememba vpliva tudi na obstoječe tedenske proračune in ponovno izračuna pretekle tedne"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ändringen påverkar alla vecko- och tvåveckorsbudgetar"
+            "value": "Att ändra detta påverkar också befintliga veckovisa budgetar och omberäknar tidigare veckor"
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "இதை மாற்றுவது அனைத்து வாரம் மற்றும் இருவாரம் பட்ஜெட்டுகளையும் பாதிக்கிறது"
+            "value": "இதை மாற்றுவது நிலவும் வாரம் பட்ஜெட்டுகளையும் பாதிக்கும் மற்றும் கடந்த வாரங்களை மீண்டும் கணக்கிடும்"
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "ఇది సమస్త వారానికో మరియు ఫోర్ట్‌నైట్‌కో బడ్జెట్‌లను ప్రభావితం చేస్తుంది"
+            "value": "ఇది మార్చడం వల్ల ఇప్పటికే ఉన్న వారానికోసారి బడ్జెట్‌లను ప్రభావితం చేస్తుంది"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "การเปลี่ยนแปลงนี้ส่งผลต่องบประมาณรายสัปดาห์และรายสองสัปดาห์ทั้งหมด"
+            "value": "การเปลี่ยนแปลงนี้ยังส่งผลต่องบประมาณรายสัปดาห์ที่มีอยู่และคำนวณสัปดาห์ที่ผ่านมาใหม่"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bu değişiklik tüm haftalık ve iki haftada bir bütçeleri etkiler"
+            "value": "Bunu değiştirmek mevcut haftalık bütçeleri etkiler ve geçmiş haftaları yeniden hesaplar"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Зміна впливає на всі тижневі та двотижневі бюджети"
+            "value": "Зміна також вплине на існуючі щотижневі бюджети та перерахує минулі тижні"
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "اس کو تبدیل کرنا تمام ہفتہ وار اور ہر دو ہفتے بجٹس کو متاثر کرتا ہے"
+            "value": "اس کو بدلنے سے موجودہ ہفتہ وار بجٹس بھی متاثر ہوں گے اور پچھلے ہفتے دوبارہ منتقل ہوں گے"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thay đổi này ảnh hưởng đến tất cả ngân sách hàng tuần và hai tuần"
+            "value": "Thay đổi này cũng ảnh hưởng đến các ngân sách hàng tuần hiện có và tính toán lại các tuần trước"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "更改此设置将影响所有每周和每两周预算"
+            "value": "更改此设置也会影响现有的每周预算，并重新计算过往周数"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "變更此設定將影響所有每週和雙週預算"
+            "value": "變更此設定也會影響現有的每週預算，並重新計算過去的週數"
           }
         }
       }
@@ -76117,306 +76117,306 @@
       }
     },
     "settings.weekStart.alert.message": {
-      "comment": "Alert body for the week-start day change; argument is the name of the newly selected weekday",
+      "comment": "Alert body for the week-start day change; argument is the name of the newly selected weekday. Warns that the change also re-aligns existing weekly budgets and recalculates their past weeks.",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "سيؤثر التغيير إلى %@ فوراً على جميع الميزانيات الأسبوعية وميزانيات كل أسبوعين."
+            "value": "سيؤثر التبديل إلى %@ أيضاً على الميزانيات الأسبوعية الموجودة ويعيد حساب الأسابيع السابقة."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ এতে পরিবর্তন করলে সমস্ত সাপ্তাহিক এবং পাক্ষিক বাজেটগুলি অবিলম্বে প্রভাবিত হবে।"
+            "value": "%@ এ পরিবর্তন করলে বিদ্যমান সাপ্তাহিক বাজেটও প্রভাবিত হবে এবং অতীতের সপ্তাহগুলি পুনঃগণনা করা হবে।"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "El canvi a %@ afectarà immediatament tots els pressupostos setmanals i quinzenals."
+            "value": "Canviar a %@ afectarà els pressupostos setmanals existents i recalcularà les setmanes passades."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Změna na %@ okamžitě ovlivní všechny týdenní a dvoutýdenní rozpočty."
+            "value": "Změna na %@ také ovlivní existující týdenní rozpočty a přepočítá minulé týdny."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skift til %@ påvirker straks alle ugentlige og 14-dages budgetter."
+            "value": "Ændring til %@ vil også påvirke eksisterende ugentlige budgetter og genberegne tidligere uger."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Umstellung auf %@ betrifft sofort alle wöchentlichen und zweiwöchentlichen Budgets."
+            "value": "Die Änderung auf %@ wirkt sich auch auf vorhandene Wöchentlich-Budgets aus und berechnet vergangene Wochen neu."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Η αλλαγή σε %@ θα επηρεάσει άμεσα όλους τους εβδομαδιαίους και δεκαπενθήμερους προϋπολογισμούς."
+            "value": "Η αλλαγή σε %@ θα επηρεάσει επίσης τους υπάρχοντες εβδομαδιαίους προϋπολογισμούς και θα επανυπολογίσει τις προηγούμενες εβδομάδες."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing to %@ will immediately affect all weekly and biweekly budgets."
+            "value": "Changing to %@ will also affect existing weekly budgets and recalculate past weeks."
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing to %@ will immediately affect all weekly and fortnightly budgets."
+            "value": "Changing to %@ will also affect existing weekly budgets and recalculate past weeks."
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing to %@ will immediately affect all weekly and biweekly budgets."
+            "value": "Changing to %@ will also affect existing weekly budgets and recalculate past weeks."
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changing to %@ will immediately affect all weekly and fortnightly budgets."
+            "value": "Changing to %@ will also affect existing weekly budgets and recalculate past weeks."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambiar a %@ afectará inmediatamente a todos los presupuestos semanales y quincenales."
+            "value": "Cambiar a %@ también afectará a los presupuestos semanales y recalculará las semanas anteriores"
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambiar a %@ afectará inmediatamente todos los presupuestos semanales y quincenales."
+            "value": "Cambiar a %@ también afectará los presupuestos semanales existentes y recalculará las semanas anteriores."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Muuttaminen arvoon %@ vaikuttaa välittömästi kaikkiin viikoittaisiin ja kahden viikon budjetteihin."
+            "value": "Vaihtaminen %@:ksi vaikuttaa myös olemassa oleviin viikoittaisiin budjetteihin ja laskee viime viikot uudelleen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passer à %@ affectera immédiatement tous les budgets hebdomadaires et bihebdomadaires."
+            "value": "Passer à %@ affectera aussi les budgets hebdomadaires existants et recalculera les semaines précédentes."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passer à %@ affectera immédiatement tous les budgets hebdomadaires et bihebdomadaires."
+            "value": "Changer pour %@ affectera aussi tes Budgets hebdomadaires existants et recalculera les semaines antérieures."
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ માટે બદલવાથી બધા સાપ્તાહિક અને પખવાડિક બજેટને તરત અસર થશે."
+            "value": "આ %@ માં બદલવાથી હાલના સાપ્તાહિક બજેટને અસર પડશે અને તેના ભૂતકાલનાં અઠવાડિયાંની ફરીથી ગણતરી થશે"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מעבר ל%@ ישפיע מיד על כל התקציבים השבועיים והדו-שבועיים."
+            "value": "שינוי ל־%@ ישפיע גם על תקציבים שבועיים קיימים וישחשב מחדש שבועות קודמים."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ में बदलने से सभी साप्ताहिक और द्विसाप्ताहिक बजट तुरंत प्रभावित होंगे।"
+            "value": "%@ में बदलने से आपके मौजूदा साप्ताहिक बजट भी प्रभावित होंगे और पिछले सप्ताह फिर से गणना होंगे।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Promjena na %@ odmah će utjecati na sve tjedne i dvotjedne proračune."
+            "value": "Promjena na %@ će također utjecati na postojeće tjedne proračune i ponovno izračunati prošle tjedne."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A(z) %@ napra váltás azonnal hatással lesz az összes heti és kéthetes büdzsére."
+            "value": "A %@-ra való módosítás a meglévő heti költségkereteket is érinti, és újraszámítja az eddigi heteket."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mengubah ke %@ akan langsung memengaruhi semua anggaran mingguan dan dua mingguan."
+            "value": "Mengubah ke %@ juga akan memengaruhi Anggaran Mingguan yang sudah ada dan menghitung ulang minggu sebelumnya."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il passaggio a %@ avrà effetto immediato su tutti i budget settimanali e bisettimanali."
+            "value": "Passare a %@ avrà effetto anche sui budget settimanali esistenti e ricalcolerà le settimane precedenti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@に変更すると、すべての週次・隔週予算にすぐに影響します。"
+            "value": "%@に変更すると、既存の毎週の予算にも影響し、過去の週が再計算されます。"
           }
         },
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ಗೆ ಬದಲಾಯಿಸುವುದು ಎಲ್ಲಾ ಸಾಪ್ತಾಹಿಕ ಮತ್ತು ದ್ವಿ-ವಾರ ಬಜೆಟ್‌ಗಳನ್ನು ಅನುಕೂಲವಾಗಿ ಪ್ರಭಾವಿತ ಮಾಡುತ್ತದೆ."
+            "value": "%@ಕ್ಕೆ ಬದಲಾಯಿಸುವುದು ಇತಿಮಾತ್ರ ಇರುವ ಪ್ರತಿ ವಾರದ ಬಜೆಟ್‌ಗಳನ್ನು ಪ್ರಭಾವಿತ ಮಾಡುತ್ತದೆ ಮತ್ತು ಹಿಂದಿನ ವಾರಗಳನ್ನು ಮರುಗಣಿಸುತ್ತದೆ."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@(으)로 변경하면 모든 주간 및 격주 예산에 즉시 영향을 줘요."
+            "value": "%@로 변경하면 기존 매주 예산도 영향을 받으며 지난 주들이 다시 계산됩니다"
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ലേക്ക് മാറ്റുന്നത് എല്ലാ പ്രതിവാര ഉം രണ്ടാഴ്ച ബജറ്റുകൾ ഉടൻ ബാധിക്കുന്നു."
+            "value": "ഈ സ്ഥിതിയിലാണ് %@ ലേക്ക് മാറ്റുന്നത് നിലവിലുള്ള പ്രതിവാര ബജറ്റുകളെയും ബാധിക്കും, കഴിഞ്ഞ വാരങ്ങൾ പുനർ കണക്കാക്കും."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ मध्ये बदलल्याने सर्व साप्ताहिक आणि द्वि-साप्ताहिक budgets लगेच प्रभावित होतील."
+            "value": "हे %@ ला बदलल्याने विद्यमान साप्ताहिक budgets वर परिणाम होतो आणि गेलेल्या आठवड्यांची पुनर्गणना होते."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menukar kepada %@ akan segera mempengaruhi semua belanjawan mingguan dan dua mingguan."
+            "value": "Menukar ke %@ juga akan mempengaruhi bajet mingguan yang sedia ada dan mengira semula minggu-minggu lampau."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Endring til %@ vil umiddelbart påvirke alle ukentlige og annenhverukentlige budsjetter."
+            "value": "Endring til %@ vil også påvirke eksisterende ukentlige budsjetter og gjenkalkuleringer av tidligere uker."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Overschakelen naar %@ heeft direct invloed op alle wekelijkse en tweewekelijkse budgetten."
+            "value": "Wijzigen naar %@ beïnvloedt ook bestaande wekelijkse budgetten en herberekent voorbije weken."
           }
         },
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ କୁ ପରିବର୍ତ୍ତନ ସବୁ ସାପ୍ତାହିକ ଏବଂ ଦୁଇ-ସାପ୍ତାହିକ ବଜେଟ୍ ତୋ ତୋ ପ୍ରଭାବିତ କରେ।"
+            "value": "%@କୁ ପରିବର୍ତ୍ତନ ମଧ୍ୟ ବିଦ୍ୟମାନ ସାପ୍ତାହିକ ବଜେଟ୍କୁ ପ୍ରଭାବିତ କରିବ ଏବଂ ଅତୀତ ସପ୍ତାହଗୁଡ଼ିକୁ ପୁନର୍ନିର୍ଣ୍ଣୟ କରିବ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ਵਿੱਚ ਬਦਲਣਾ ਸਾਰੇ ਹਫ਼ਤਾਵਾਰ ਅਤੇ ਦੋ-ਹਫ਼ਤਾਵਾਰ ਬਜਟ ਨੂੰ ਤੁਰੰਤ ਪ੍ਰਭਾਵਤ ਕਰੇਗਾ।"
+            "value": "ਬਦਲ ਕੇ %@ ਕਰਨ ਨਾਲ ਪਹਿਲਾਂ ਤੋਂ ਮੌਜੂਦ ਹਫ਼ਤਾਵਾਰ ਬਜਟ ਵੀ ਪ੍ਰਭਾਵਿਤ ਹੋਣਗੇ ਅਤੇ ਪਿਛਲੇ ਹਫ਼ਤੇ ਦੁਬਾਰਾ ਗਿਣੇ ਜਾਣਗੇ।"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zmiana na %@ natychmiast wpłynie na wszystkie budżety tygodniowe i dwutygodniowe."
+            "value": "Zmiana na %@ wpłynie też na istniejące budżety tygodniowe i ponownie przelicza poprzednie tygodnie."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alterar para %@ afetará imediatamente todos os orçamentos semanais e quinzenais."
+            "value": "Mudar para %@ também afetará os orçamentos semanais existentes e recalculará as semanas anteriores."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alterar para %@ irá afetar imediatamente todos os orçamentos semanais e quinzenais."
+            "value": "Mudar para %@ também vai afetar os teus orçamentos semanais existentes e recalcular as semanas anteriores."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schimbarea la %@ va afecta imediat toate bugetele săptămânale și bilunare."
+            "value": "Schimbarea în %@ va afecta și bugete-le săptămânale existente și va recalcula săptămânile anterioare."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Переход на %@ немедленно повлияет на все еженедельные и двухнедельные бюджеты."
+            "value": "Переключение на %@ также повлияет на существующие еженедельные бюджеты и пересчитает прошлые недели."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zmena na %@ okamžite ovplyvní všetky týždenné a dvojtýždenné rozpočty."
+            "value": "Zmena na %@ tiež ovplyvní existujúce týždňové rozpočty a prepočíta minulé týždne."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sprememba na %@ bo takoj vplivala na vse tedenske in dvotedenske proračune."
+            "value": "Sprememba na %@ bo vplivala tudi na obstoječe tedenske proračune in ponovno izračunala pretekle tedne."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Att byta till %@ påverkar omedelbart alla vecko- och tvåveckorsbudgetar."
+            "value": "Att ändra till %@ påverkar också befintliga veckovisa budgetar och omberäknar tidigare veckor."
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ஆக மாற்றுவது அனைத்து வாரம் மற்றும் இருவாரம் பட்ஜெட்டுகளையும் உடனடியாக பாதிக்கிறது."
+            "value": "%@ இல் மாற்றுவது நிலவும் வாரம் பட்ஜெட்டுகளையும் பாதிக்கும் மற்றும் கடந்த வாரங்களை மீண்டும் கணக்கிடும்"
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ కు మార్చడం వెంటనే సమస్త వారానికో మరియు ఫోర్ట్‌నైట్‌కో బడ్జెట్‌లను ప్రభావితం చేస్తుంది."
+            "value": "మీరు %@ కు మారితే, ఇప్పటికే ఉన్న వారానికోసారి బడ్జెట్‌లను ప్రభావితం చేస్తుంది."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "การเปลี่ยนเป็น %@ จะส่งผลต่องบประมาณรายสัปดาห์และรายสองสัปดาห์ทั้งหมดทันที"
+            "value": "การเปลี่ยนเป็น %@ จะส่งผลต่องบประมาณรายสัปดาห์ที่มีอยู่และคำนวณสัปดาห์ที่ผ่านมาใหม่"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ olarak değiştirmek tüm haftalık ve iki haftada bir bütçeleri hemen etkiler."
+            "value": "%@ olarak değiştirmek mevcut haftalık bütçeleri de etkileyecek ve geçmiş haftaları yeniden hesaplayacak."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Зміна на %@ одразу вплине на всі тижневі та двотижневі бюджети."
+            "value": "Зміна на %@ також вплине на існуючі щотижневі бюджети та перерахує минулі тижні."
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ میں تبدیل کرنا فوری طور پر تمام ہفتہ وار اور ہر دو ہفتے بجٹس کو متاثر کرے گا۔"
+            "value": "%@ میں تبدیل کرنے سے موجودہ ہفتہ وار بجٹس بھی متاثر ہوں گے اور پچھلے ہفتے دوبارہ شمار کیے جائیں گے۔"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thay đổi sang %@ sẽ ảnh hưởng ngay đến tất cả ngân sách hàng tuần và hai tuần."
+            "value": "Thay đổi thành %@ cũng sẽ ảnh hưởng đến các ngân sách hàng tuần hiện có và tính toán lại các tuần trước."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "更改为%@将立即影响所有每周和每两周预算。"
+            "value": "更改为 %@ 将也影响现有的每周预算，并重新计算过往周数。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "變更為 %@ 將立即影響所有每週和雙週預算。"
+            "value": "變更為 %@ 也會影響現有的每週預算，並重新計算過去的週數。"
           }
         }
       }

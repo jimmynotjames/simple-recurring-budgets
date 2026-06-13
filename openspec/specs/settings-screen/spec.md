@@ -46,7 +46,7 @@ The Settings screen SHALL include a "Calendar" section that contains a menu-styl
 
 Selecting a different value from the current `AppSettings.weekStartDay` SHALL NOT directly write the value. Instead the system SHALL hold the candidate value in a transient view-local state and present a confirmation alert (localized title, body, and buttons). The alert's body SHALL include the newly-selected weekday name as an interpolated argument.
 
-The alert body and the picker's accessibility hint SHALL accurately describe the cascade scope per the `budget-math` capability: the change applies **immediately to all weekly budgets, regrouping their full history (past weeks included) onto the new grid**, and **biweekly budgets are unaffected** (their 14-day cycle stays anchored to their own start date). The copy SHALL NOT claim any effect on biweekly budgets.
+The alert body and the picker's accessibility hint SHALL accurately reflect the cascade scope per the `budget-math` capability: the change **also affects existing weekly budgets and recalculates their past weeks** onto the new grid. The copy SHALL NOT claim any effect on biweekly budgets (whose 14-day cycle stays anchored to their own start date); it need not mention biweekly explicitly.
 
 The system SHALL commit the candidate value to `AppSettings.weekStartDay` only when the user activates the alert's "Change" (confirmation) button. Activating the alert's "Cancel" (cancel-role) button SHALL discard the candidate value with no write. Dismissing the alert by any other means SHALL also discard the candidate value.
 

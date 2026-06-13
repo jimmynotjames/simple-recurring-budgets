@@ -393,7 +393,7 @@ struct AddEditBudgetView: View {
           Label(
             String(
               localized: "addEditBudget.note.periodLocked",
-              defaultValue: "This can't be changed after creating your budget.",
+              defaultValue: "Period type can't be changed after creating your budget.",
               comment: "Caption below the period chip grid in edit mode, explaining that the period is locked"
             ),
             systemImage: "lock.fill"
@@ -483,7 +483,7 @@ struct AddEditBudgetView: View {
         ))
         .accessibilityHint(String(
           localized: "addEditBudget.chip.period.locked.accessibilityHint",
-          defaultValue: "Locked. Period can't be changed after creating your budget.",
+          defaultValue: "Locked. Period type can't be changed after creating your budget.",
           comment: "VoiceOver hint for a period chip in Edit mode; tells the user the period is immutable post-creation"
         ))
         .accessibilityAddTraits(isSelected ? .isSelected : [])

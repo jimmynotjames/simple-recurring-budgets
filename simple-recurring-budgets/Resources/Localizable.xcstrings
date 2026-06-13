@@ -2756,301 +2756,301 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مقفل. لا يمكن تغيير الفترة بعد إنشاء ميزانيتك."
+            "value": "مقفولة. لا يمكن تغيير نوع الفترة بعد إنشاء ميزانيتك."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "লক করা হয়েছে। বাজেট তৈরির পর সময়কাল পরিবর্তন করা যায় না।"
+            "value": "লক করা। আপনার বাজেট তৈরির পরে সময়কাল ধরন পরিবর্তন করা যায় না।"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloquejat. El període no es pot canviar un cop creat el pressupost."
+            "value": "Bloquejat. El tipus de Període no pot canviar després de crear el teu pressupost."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zamčeno. Období nelze po vytvoření rozpočtu změnit."
+            "value": "Uzamčeno. Typ období nelze po vytvoření rozpočtu změnit."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Låst. Perioden kan ikke ændres, efter du har oprettet dit budget."
+            "value": "Låst. Periodetypen kan ikke ændres efter oprettelsen af dit budget."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gesperrt. Der Zeitraum kann nach dem Erstellen deines Budgets nicht mehr geändert werden."
+            "value": "Gesperrt. Der Zeitraumtyp kann nach dem Erstellen deines Budgets nicht geändert werden."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κλειδωμένο. Η περίοδος δεν μπορεί να αλλαχθεί μετά τη δημιουργία του προϋπολογισμού."
+            "value": "Κλειδωμένη. Ο τύπος περιόδου δεν μπορεί να αλλάξει."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. El periodo no se puede cambiar una vez creado el presupuesto."
+            "value": "Bloqueado. El tipo de periodo no se puede cambiar después de crear tu presupuesto."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. El período no puede cambiarse después de crear tu presupuesto."
+            "value": "Bloqueado. El tipo de periodo no puede cambiar después de crear tu presupuesto."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lukittu. Kautta ei voi muuttaa budjetin luomisen jälkeen."
+            "value": "Lukittu. Jakson tyyppiä ei voi muuttaa budjetin luomisen jälkeen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouillé. La période ne peut pas être modifiée après la création du budget."
+            "value": "Verrouillée. Tu ne peux pas changer le type de Période après la création de ton Budget."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouillé. La période ne peut pas être modifiée après la création du budget."
+            "value": "Verrouillé. Tu ne peux pas modifier le type de Période une fois ton Budget créé."
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "લૉક કર્યું. બજેટ બનાવ્યા પછી સમયગાળો બદલી શકાતો નથી."
+            "value": "બંધ. તમારો બજેટ બનાવ્યા પછી સમયગાળો પ્રકાર બદલી શકાતો નથી."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "נעול. לא ניתן לשנות את התקופה לאחר יצירת התקציב."
+            "value": "נעול. לא ניתן לשנות את סוג התקופה לאחר יצירת התקציב שלך."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "लॉक है। बजट बनाने के बाद अवधि बदली नहीं जा सकती।"
+            "value": "अवधि लॉक है। बजट बनाने के बाद अवधि का प्रकार बदला नहीं जा सकता।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaključano. Razdoblje se ne može promijeniti nakon stvaranja proračuna."
+            "value": "Zaključano. Vrstu razdoblja nije moguće promijeniti nakon kreiranja proračuna."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zárolt. Az időszak a költségvetés létrehozása után nem módosítható."
+            "value": "Zárolva. Az Időszak típusa nem módosítható a Költségkeret létrehozása után."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terkunci. Periode tidak dapat diubah setelah anggaran dibuat."
+            "value": "Terkunci. Jenis periode tidak dapat diubah setelah membuat anggaran Anda."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloccato. Il periodo non può essere modificato dopo aver creato il budget."
+            "value": "Bloccato. Il tipo di Periodo non può essere cambiato dopo aver creato il tuo Budget."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ロック済み。予算を作成した後は期間を変更できません。"
+            "value": "ロック済み。期間の種類は予算を作成した後は変更できません。"
           }
         },
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಲಾಕ್ ಮಾಡಿದೆ. ನಿಮ್ಮ ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಅವಧಿ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
+            "value": "ಲಾಕ್ ಆಗಿದೆ. ನಿಮ್ಮ ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಅವಧಿ ಪ್ರಕಾರವನ್ನು ಬದಲಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "잠김. 예산 생성 후에는 기간을 변경할 수 없습니다."
+            "value": "잠금됨. 예산을 만든 후에는 기간 유형을 바꿀 수 없어요."
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ലോക്ക് ചെയ്തിരിക്കുന്നു. ബജറ്റ് സൃഷ്ടിച്ച ശേഷം കാലയളവ് മാറ്റാൻ കഴിയില്ല."
+            "value": "പൂരിപ്പിച്ചത്. നിങ്ങളുടെ ബജറ്റ് സൃഷ്ടിച്ചതിനുശേഷം കാലയളവ് തരം മാറ്റാൻ കഴിയില്ല."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "लॉक केलेले. Budget तयार केल्यानंतर कालावधी बदलता येत नाही."
+            "value": "लॉक केलेले. तुमच्या budget तयार केल्यानंतर कालावधी प्रकार बदलला जाऊ शकत नाही."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dikunci. Tempoh tidak boleh diubah selepas bajet dibuat."
+            "value": "Terkunci. Jenis tempoh tidak boleh diubah setelah membuat bajet anda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Låst. Perioden kan ikke endres etter at budsjettet er opprettet."
+            "value": "Låst. Periodetype kan ikke endres etter at du har opprettet budsjett."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vergrendeld. Periode kan niet worden gewijzigd na het aanmaken van je budget."
+            "value": "Vergrendeld. Je periodesoort kan niet meer worden gewijzigd nadat je je budget hebt aangemaakt."
           }
         },
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ବନ୍ଦ। ବଜେଟ୍ ତୈରି ହେବାପରେ ଅବଧି ପରିବର୍ତ୍ତନ କରାଯାଇ ପାରିବ ନାହିଁ।"
+            "value": "ଲକ୍‌ ହୋଇଛି। ଆପଣଙ୍କ ବଜେଟ୍ ତୈରି ହେବାପରେ ଅବଧି ପ୍ରକାର ପରିବର୍ତ୍ତନ କରାଯାଇ ପାରିବ ନାହିଁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਲੱਕ ਕੀਤਾ ਹੋਇਆ। ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਮਿਆਦ ਨਹੀਂ ਬਦਲੀ ਜਾ ਸਕਦੀ।"
+            "value": "ਲੌਕ ਹੈ। ਆਪਣਾ ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਮਿਆਦ ਦੀ ਕਿਸਮ ਨੂੰ ਨਹੀਂ ਬਦਲਿਆ ਜਾ ਸਕਦਾ।"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zablokowane. Okresu nie można zmienić po utworzeniu budżetu."
+            "value": "Zablokowano. Typ okresu nie może być zmieniony po utworzeniu budżetu."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. O período não pode ser alterado após a criação do orçamento."
+            "value": "Bloqueado. O tipo de Período não pode ser alterado após criar seu orçamento."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. O período não pode ser alterado após criar o orçamento."
+            "value": "Bloqueado. O tipo de Período não pode ser alterado após criar o teu orçamento."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Blocat. Perioada nu poate fi modificată după crearea bugetului."
+            "value": "Perioadă blocată. Tipul de perioadă nu poate fi schimbat după crearea bugetului."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Заблокировано. Период нельзя изменить после создания бюджета."
+            "value": "Заблокирован. Тип периода нельзя изменить после создания бюджета."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zamknuté. Obdobie nemožno po vytvorení rozpočtu zmeniť."
+            "value": "Uzamknuté. Typ obdobia sa nedá zmeniť po vytvorení rozpočtu."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaklenjeno. Obdobja ne moreš spremeniti po ustvarjanju proračuna."
+            "value": "Zaklenjeno. Vrste obdobja ne moreš spremeniti po ustvarjanju proračuna."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Låst. Perioden kan inte ändras efter att din budget har skapats."
+            "value": "Låst. Periodtypen kan inte ändras efter att du skapat budgeten."
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "பூட்டப்பட்டது. உங்கள் பட்ஜெட்டை உருவாக்கியபின் காலத்தை மாற்ற முடியாது."
+            "value": "பூட்டப்பட்டுள்ளது. பட்ஜெட்டை உருவாக்கியதற்குப் பிறகு காலம் வகை மாற்ற முடியாது."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "లాక్ చేయబడింది. బడ్జెట్‌ను సృష్టించిన తర్వాత వ్యవధిని మార్చలేము."
+            "value": "లాక్‌ చేయబడింది. మీ బడ్జెట్‌ను సృష్టించిన తర్వాత వ్యవధి రకం మార్చలేరు."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ล็อกอยู่ ไม่สามารถเปลี่ยนรอบเวลาได้หลังจากสร้างงบประมาณแล้ว"
+            "value": "ล็อก ไม่สามารถเปลี่ยนประเภทรอบหลังจากสร้างงบประมาณแล้ว"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kilitli. Bütçeni oluşturduktan sonra dönem değiştirilemez."
+            "value": "Kilitli. Bütçeni oluşturduktan sonra dönem türünü değiştiremezsin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Заблоковано. Після створення бюджету змінити період неможливо."
+            "value": "Заблоковано. Тип періоду не можна змінити після створення бюджету."
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "بند ہے۔ بجٹ بنانے کے بعد مدت تبدیل نہیں کی جا سکتی۔"
+            "value": "مقفل ہے۔ آپ کے بجٹ کو بنانے کے بعد مدت کی قسم تبدیل نہیں کی جا سکتی۔"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đã khóa. Kỳ không thể thay đổi sau khi tạo ngân sách."
+            "value": "Bị khóa. Loại kỳ không thể thay đổi sau khi tạo ngân sách của bạn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已锁定。预算创建后无法更改周期。"
+            "value": "已锁定。创建预算后无法更改周期类型。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已鎖定。預算建立後無法更改週期。"
+            "value": "已鎖定。建立預算後無法變更週期類型。"
           }
         }
       }
@@ -12834,301 +12834,301 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لا يمكن تغيير هذا بعد إنشاء ميزانيتك."
+            "value": "لا يمكن تغيير نوع الفترة بعد إنشاء ميزانيتك."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "বাজেট তৈরির পর এটি পরিবর্তন করা যায় না।"
+            "value": "আপনার বাজেট তৈরির পরে সময়কাল ধরন পরিবর্তন করা যায় না।"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Això no es pot canviar un cop creat el pressupost."
+            "value": "El tipus de Període no pot canviar després de crear el teu pressupost."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toto nelze po vytvoření rozpočtu změnit."
+            "value": "Typ období nelze po vytvoření rozpočtu změnit."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dette kan ikke ændres, efter du har oprettet dit budget."
+            "value": "Periodetypen kan ikke ændres efter oprettelsen af dit budget."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dies kann nach dem Erstellen deines Budgets nicht mehr geändert werden."
+            "value": "Der Zeitraumtyp kann nach dem Erstellen deines Budgets nicht geändert werden."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Δεν μπορεί να αλλαχθεί μετά τη δημιουργία του προϋπολογισμού."
+            "value": "Ο τύπος περιόδου δεν μπορεί να αλλάξει μετά τη δημιουργία του προϋπολογισμού σας."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esto no se puede cambiar una vez creado el presupuesto."
+            "value": "El tipo de periodo no se puede cambiar después de crear tu presupuesto."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esto no puede cambiarse después de crear tu presupuesto."
+            "value": "El tipo de periodo no puede cambiar después de crear tu presupuesto."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tätä ei voi muuttaa budjetin luomisen jälkeen."
+            "value": "Jakson tyyppiä ei voi muuttaa budjetin luomisen jälkeen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de modifier cela après la création du budget."
+            "value": "Tu ne peux pas changer le type de Période après la création."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de modifier ça après la création du budget."
+            "value": "Tu ne peux pas modifier le type de Période une fois ton Budget créé."
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "આ બજેટ બનાવ્યા પછી બદલી શકાતું નથી."
+            "value": "તમારો બજેટ બનાવ્યા પછી સમયગાળો પ્રકાર બદલી શકાતો નથી."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "לא ניתן לשנות זאת לאחר יצירת התקציב."
+            "value": "לא ניתן לשנות את סוג התקופה לאחר יצירת התקציב שלך."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "बजट बनाने के बाद यह नहीं बदला जा सकता।"
+            "value": "बजट बनाने के बाद अवधि का प्रकार बदला नहीं जा सकता।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ovo se ne može promijeniti nakon stvaranja proračuna."
+            "value": "Vrstu razdoblja nije moguće promijeniti nakon kreiranja proračuna."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ez a költségvetés létrehozása után nem módosítható."
+            "value": "Az Időszak típusa nem módosítható a Költségkeret létrehozása után."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ini tidak dapat diubah setelah anggaran dibuat."
+            "value": "Jenis periode tidak dapat diubah setelah membuat anggaran."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non può essere modificato dopo aver creato il budget."
+            "value": "Il tipo di Periodo non può essere cambiato dopo aver creato il tuo Budget."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "予算を作成した後は変更できません。"
+            "value": "期間の種類は予算を作成した後は変更できません。"
           }
         },
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ನಿಮ್ಮ ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಇದನ್ನು ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
+            "value": "ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಅವಧಿ ಪ್ರಕಾರವನ್ನು ಬದಲಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "예산을 만든 후에는 변경할 수 없어요."
+            "value": "예산을 만든 후에는 기간 유형을 바꿀 수 없어요."
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ബജറ്റ് സൃഷ്ടിച്ച ശേഷം ഇത് മാറ്റാൻ കഴിയില്ല."
+            "value": "നിങ്ങളുടെ ബജറ്റ് സൃഷ്ടിച്ചതിനുശേഷം കാലയളവ് തരം മാറ്റാൻ കഴിയില്ല."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Budget तयार केल्यानंतर हे बदलता येत नाही."
+            "value": "तुमच्या budget तयार केल्यानंतर कालावधी प्रकार बदलला जाऊ शकत नाही."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ini tidak boleh diubah selepas membuat belanjawan anda."
+            "value": "Jenis tempoh tidak boleh diubah setelah membuat bajet anda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dette kan ikke endres etter at budsjettet er opprettet."
+            "value": "Periodetype kan ikke endres etter at du har opprettet budsjett."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dit kan niet worden gewijzigd nadat je budget is aangemaakt."
+            "value": "Je periodesoort kan niet meer worden gewijzigd nadat je je budget hebt aangemaakt."
           }
         },
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ବଜେଟ୍ ତୈରି ହେବାପରେ ଏଟା ବଦଳାଯାଇ ପାରିବ ନାହିଁ।"
+            "value": "ଅବଧି ପ୍ରକାର ଆପଣଙ୍କ ବଜେଟ୍ ତୈରି ହେବାପରେ ପରିବର୍ତ୍ତନ କରାଯାଇ ପାରିବ ନାହିଁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਇਹ ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਨਹੀਂ ਬਦਲਿਆ ਜਾ ਸਕਦਾ।"
+            "value": "ਆਪਣਾ ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਮਿਆਦ ਦੀ ਕਿਸਮ ਨੂੰ ਨਹੀਂ ਬਦਲਿਆ ਜਾ ਸਕਦਾ।"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tego nie można zmienić po utworzeniu budżetu."
+            "value": "Typ okresu nie może być zmieniony po utworzeniu budżetu."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Isso não pode ser alterado após a criação do orçamento."
+            "value": "O tipo de Período não pode ser alterado após criar seu orçamento."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não pode ser alterado após criar o orçamento."
+            "value": "O tipo de Período não pode ser alterado após criar o teu orçamento."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aceasta nu poate fi modificată după crearea bugetului."
+            "value": "Tipul de perioadă nu poate fi schimbat după crearea bugetului."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Это нельзя изменить после создания бюджета."
+            "value": "Тип периода нельзя изменить после создания бюджета."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toto nemožno zmeniť po vytvorení rozpočtu."
+            "value": "Typ obdobia sa nedá zmeniť po vytvorení rozpočtu."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "To ne moreš spremeniti po ustvarjanju proračuna."
+            "value": "Vrste obdobja ne moreš spremeniti po ustvarjanju proračuna."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Det här kan inte ändras efter att din budget har skapats."
+            "value": "Periodtypen kan inte ändras efter att du skapat budgeten."
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "உங்கள் பட்ஜெட்டை உருவாக்கியபின் இதை மாற்ற முடியாது."
+            "value": "பட்ஜெட்டை உருவாக்கியதற்குப் பிறகு காலம் வகை மாற்ற முடியாது."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "బడ్జెట్‌ను సృష్టించిన తర్వాత దీన్ని మార్చలేము."
+            "value": "మీ బడ్జెట్‌ను సృష్టించిన తర్వాత వ్యవధి రకం మార్చలేరు."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไม่สามารถเปลี่ยนแปลงได้หลังจากสร้างงบประมาณแล้ว"
+            "value": "ไม่สามารถเปลี่ยนประเภทรอบหลังจากสร้างงบประมาณแล้ว"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bütçeni oluşturduktan sonra bu değiştirilemez."
+            "value": "Bütçeni oluşturduktan sonra dönem türünü değiştiremezsin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Це неможливо змінити після створення бюджету."
+            "value": "Тип періоду не можна змінити після створення бюджету."
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "بجٹ بنانے کے بعد یہ تبدیل نہیں کیا جا سکتا۔"
+            "value": "آپ کے بجٹ کو بنانے کے بعد مدت کی قسم تبدیل نہیں کی جا سکتی۔"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không thể thay đổi sau khi tạo ngân sách."
+            "value": "Loại kỳ không thể thay đổi sau khi tạo ngân sách."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "预算创建后无法更改此项。"
+            "value": "创建预算后无法更改周期类型。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "預算建立後無法更改此設定。"
+            "value": "建立預算後無法變更週期類型。"
           }
         }
       }

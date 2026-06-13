@@ -383,6 +383,99 @@ final class UserJourneyTests: XCTestCase {
     )
   }
 
+  /// Selecting Biweekly reveals the explanatory note under the chips AND
+  /// auto-expands the Schedule disclosure so the start-date chip (the cycle
+  /// anchor) is immediately visible.
+  func testBiweeklyPeriodShowsNoteAndExpandsSchedule() {
+    let app = makeApp()
+    app.launch()
+
+    BudgetsScreen(app: app).tapAddBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    form.selectPeriod("Biweekly")
+
+    XCTAssertTrue(
+      form.biweeklyNote.waitForExistence(timeout: 2),
+      "Biweekly explanatory note should appear under the period chips"
+    )
+    XCTAssertTrue(
+      form.startDateChip.waitForExistence(timeout: 2),
+      "Schedule should auto-expand on biweekly selection, revealing the start-date chip without an extra tap"
+    )
+  }
+
+  /// Opening Edit on an existing biweekly budget auto-expands the Schedule
+  /// disclosure so the start date (the cycle anchor) is visible on open —
+  /// without the user tapping the disclosure row. (Seeding only makes monthly
+  /// budgets, so this creates a biweekly one via the Add path first.)
+  func testEditBiweeklyBudgetOpensScheduleExpanded() {
+    let app = makeApp()
+    app.launch()
+
+    let budgets = BudgetsScreen(app: app)
+    budgets.tapAddBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    form.fillName("Rent")
+    form.selectPeriod("Biweekly")
+    form.fillAllocation("1200")
+    form.tapSave()
+
+    XCTAssertTrue(
+      budgets.addExpenseButton(for: "Rent").waitForExistence(timeout: 5),
+      "Biweekly budget should appear in the list after saving"
+    )
+
+    budgets.tapBudget(named: "Rent")
+    let detail = BudgetDetailScreen(app: app, budgetName: "Rent")
+    XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
+    detail.tapEditBudget()
+
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    XCTAssertTrue(
+      form.startDateChip.waitForExistence(timeout: 2),
+      "Editing a biweekly budget should open with the Schedule disclosure already expanded (start-date chip visible)"
+    )
+  }
+
+  /// The Edit-mode period-lock caption names the period type specifically
+  /// ("Period type can't be changed…"), since dates remain editable.
+  func testEditBudgetPeriodLockCaptionNamesPeriodType() {
+    let app = makeApp(seedBudgets: ["Groceries"])
+    app.launch()
+
+    BudgetsScreen(app: app).tapBudget(named: "Groceries")
+
+    let detail = BudgetDetailScreen(app: app, budgetName: "Groceries")
+    XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
+    detail.tapEditBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    XCTAssertTrue(
+      form.periodLockCaption.waitForExistence(timeout: 2),
+      "Edit-mode period-lock caption should read 'Period type can't be changed after creating your budget.'"
+    )
+  }
+
+  // MARK: - Save-time biweekly re-anchor confirmation (manual carve-out)
+
+  //
+  // Triggering the "Change Start Date?" alert requires *changing* a biweekly
+  // budget's start date, which means driving the `.graphical` DatePicker inside
+  // the Schedule disclosure's DateColumn sheet. This suite deliberately exercises
+  // graphical-DatePicker interaction manually (see `testAddBudgetSpecificDatesPeriod`,
+  // which validates UI state only and notes that saving a date range is manual).
+  // The alert's gate is fully unit-tested — see `isBiweeklyStartDateEdited*` in
+  // `AddEditBudgetViewModelScheduleTests` — and the gate→alert binding is a trivial
+  // SwiftUI `.alert(isPresented:)`. `AddBudgetScreen.reanchorAlert` is provided for
+  // that manual pass / future automation. Manual steps: edit a biweekly budget →
+  // change Start Date → Save → expect the alert → Cancel preserves the draft →
+  // Save → Change commits.
+
   /// In edit mode, the period chips are locked — they render as static text,
   /// not as interactive buttons. Attempting to tap should have no effect.
   func testEditBudgetPeriodChipsLocked() {

@@ -350,4 +350,115 @@ struct AddEditBudgetViewModelScheduleTests {
     vm.startDate = newStart
     #expect(vm.endDate == nil)
   }
+
+  // MARK: - isBiweeklyStartDateEdited gate (Save-time re-anchor confirmation)
+
+  /// A saved biweekly budget with a fixed `startDate` and one allocation row.
+  private func makeBiweeklyBudget(start: Date, context: ModelContext) -> Budget {
+    let budget = Budget(name: "Household", currencyCode: "USD", period: .biweekly, isCarryOverEnabled: true)
+    budget.startDate = start
+    let change = AllocationChange(effectiveFrom: start, amount: 100)
+    change.budget = budget
+    budget.allocationChangesStorage = [change]
+    context.insert(budget)
+    return budget
+  }
+
+  @Test func isBiweeklyStartDateEdited_trueForBiweeklyEditWithChangedStart() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 13)))
+    let budget = makeBiweeklyBudget(start: start, context: context)
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.startDate = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 20)))
+    #expect(vm.isBiweeklyStartDateEdited)
+  }
+
+  @Test func isBiweeklyStartDateEdited_falseInAddMode() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.period = .biweekly
+    // Add mode has no bound budget, so the gate stays inert even after a date move.
+    vm.startDate = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -3, to: Date())
+    #expect(!vm.isBiweeklyStartDateEdited)
+  }
+
+  @Test func isBiweeklyStartDateEdited_falseForNonBiweeklyPeriods() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 13)))
+    let moved = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 20)))
+    for period in [BudgetPeriod.daily, .weekly, .monthly] {
+      let budget = Budget(name: "B", currencyCode: "USD", period: period, isCarryOverEnabled: true)
+      budget.startDate = start
+      let change = AllocationChange(effectiveFrom: start, amount: 50)
+      change.budget = budget
+      budget.allocationChangesStorage = [change]
+      context.insert(budget)
+      let vm = AddEditBudgetViewModel(editing: budget)
+      vm.startDate = moved
+      #expect(!vm.isBiweeklyStartDateEdited, "period \(period) must not gate the biweekly re-anchor alert")
+    }
+  }
+
+  @Test func isBiweeklyStartDateEdited_falseForSpecificDates() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 8)))
+    let end = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 25)))
+    let budget = Budget(name: "Trip", currencyCode: "EUR", period: .specificDates, isCarryOverEnabled: false)
+    budget.startDate = start
+    budget.endDate = end
+    let change = AllocationChange(effectiveFrom: start, amount: 1500)
+    change.budget = budget
+    budget.allocationChangesStorage = [change]
+    context.insert(budget)
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.startDate = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 9)))
+    #expect(!vm.isBiweeklyStartDateEdited)
+  }
+
+  @Test func isBiweeklyStartDateEdited_falseWhenStartUnchanged() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 13)))
+    let budget = makeBiweeklyBudget(start: start, context: context)
+    let vm = AddEditBudgetViewModel(editing: budget)
+    // No date edit at all.
+    #expect(!vm.isBiweeklyStartDateEdited)
+  }
+
+  @Test func isBiweeklyStartDateEdited_falseWhenOnlyIntraDayTimeDiffers() throws {
+    // The gate normalizes via startOfDay, so a draft differing only by time-of-day
+    // within the same calendar day must NOT trip it.
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 13)))
+    let budget = makeBiweeklyBudget(start: start, context: context)
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.startDate = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 13, hour: 14, minute: 30)))
+    #expect(!vm.isBiweeklyStartDateEdited)
+  }
+
+  @Test func biweeklyEdit_movingStartPastExpenses_setsBothGateInputs() throws {
+    // Combined Save-gate inputs: a biweekly start-date edit that also strands
+    // expenses trips both the re-anchor gate and the orphan count — the state
+    // in which the re-anchor alert folds in the orphan sentence.
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let start = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 1)))
+    let budget = makeBiweeklyBudget(start: start, context: context)
+    let e1 = try ExpenseItem(amount: 10, name: "A", date: #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 3))))
+    let e2 = try ExpenseItem(amount: 12, name: "B", date: #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 5))))
+    budget.expenseItems = [e1, e2]
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.startDate = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 10)))
+    #expect(vm.isBiweeklyStartDateEdited)
+    #expect(vm.orphanedExpenseCount == 2)
+  }
 }

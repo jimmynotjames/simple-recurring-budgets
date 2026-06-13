@@ -1221,6 +1221,1230 @@
         }
       }
     },
+    "addEditBudget.biweeklyReanchor.cancel": {
+      "comment": "Cancel button on the biweekly re-anchor alert; returns the user to the Edit Budget form with draft state preserved.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إلغاء"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "বাতিল করুন"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel·la"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrušit"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuller"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Άκυρο"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peruuta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        },
+        "gu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "રદ કરો"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ביטול"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रद्द करें"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odustani"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mégse"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Batal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulla"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャンセル"
+          }
+        },
+        "kn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ರದ್ದುಮಾಡಿ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        },
+        "ml": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "റദ്ദാക്കുക"
+          }
+        },
+        "mr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रद्द करा"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Batal"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avbryt"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuleer"
+          }
+        },
+        "or": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ବାତିଲ୍ କରନ୍ତୁ"
+          }
+        },
+        "pa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ਰੱਦ ਕਰੋ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anuluj"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anulează"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отмена"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrušiť"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prekliči"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avbryt"
+          }
+        },
+        "ta": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ரத்துசெய்"
+          }
+        },
+        "te": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "రద్దు చేయండి"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยกเลิก"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İptal"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скасувати"
+          }
+        },
+        "ur": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "منسوخ کریں"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hủy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "addEditBudget.biweeklyReanchor.confirm": {
+      "comment": "Confirm button on the biweekly re-anchor alert; commits the Save and dismisses the Edit Budget sheet.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تغيير"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "পরিবর্তন করুন"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canvia"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Změnit"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skift"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändern"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αλλαγή"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihda"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier"
+          }
+        },
+        "gu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "બદલો"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "שינוי"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बदलें"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promijeni"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Módosítás"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubah"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更"
+          }
+        },
+        "kn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ಬದಲಾಯಿಸಿ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "변경"
+          }
+        },
+        "ml": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "മാറ്റുക"
+          }
+        },
+        "mr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बदला"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tukar"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endre"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wijzig"
+          }
+        },
+        "or": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ବଦଳାନ୍ତୁ"
+          }
+        },
+        "pa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ਬਦਲੋ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmień"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifică"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmeniť"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremeni"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändra"
+          }
+        },
+        "ta": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "மாற்று"
+          }
+        },
+        "te": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "మార్చండి"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปลี่ยน"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değiştir"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змінити"
+          }
+        },
+        "ur": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تبدیل کریں"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thay đổi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "變更"
+          }
+        }
+      }
+    },
+    "addEditBudget.biweeklyReanchor.message": {
+      "comment": "Body of the biweekly re-anchor alert on the Edit Budget Save confirmation. Warns that changing the start date re-aligns the 14-day cycles and recalculates past periods (and carry-over).",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سيتم إعادة محاذاة دورات أسبوعين الحالية والمستقبلية وإعادة حساب الفترات السابقة."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "এটি বর্তমান এবং ভবিষ্যতের দুই সপ্তাহের চক্র পুনরায় সংযুক্ত করবে এবং পূর্ববর্তী সময়কাল পুনরায় গণনা করবে।"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Això realinearà els cicles de dues setmanes actuals i futurs i recalcularà els períodes anteriors."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nové zarovnání současných a budoucích čtrnáctidenních cyklů a přepočet minulých období."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette justerer nuværende og kommende to-ugers perioder og genberegner tidligere perioder."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dies passt die aktuellen und zukünftigen Zwei-Wochen-Zyklen an und neuberechnet frühere Zeiträume."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Θα γίνει επανευθυγράμμιση των τρέχουσων και μελλοντικών διδυμοϊκών περιόδων και επανυπολογισμός των προηγούμενων περιόδων."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will re-align current and future two-week cycles and recalculate past periods."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will re-align current and future two-week cycles and recalculate past periods."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will re-align current and future two-week cycles and recalculate past periods."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will re-align current and future two-week cycles and recalculate past periods."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto realineará los ciclos actuales y futuros de dos semanas y recalculará periodos anteriores."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto realineará los ciclos actuales y futuros de dos semanas y recalculará los periodos anteriores."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä tasaa nykyisen ja tulevat kahden viikon jaksot uudelleen ja laskee aiemmat jaksot uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela réalignera les cycles bihebdomadaires actuels et futurs et recalculera les périodes passées."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela réalignera les cycles de deux semaines actuels et futurs et recalculera les périodes passées."
+          }
+        },
+        "gu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "આ બંધ હાલ અને ભવિષ્યના બે-સપ્તાહના ચક્રને ફરીથી સંરેખિત કરશે અને ગયા સમયગાળાને ફરીથી ગણતરી કરશે."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "פעולה זו תייעל מחדש את מחזורי שתי השבועות הנוכחיים והעתידיים ותחשב מחדש תקופות קודמות."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह वर्तमान और आने वाली दो-सप्ताह की अवधियों को पुनः संरेखित करेगा और पिछली अवधियों की पुनः गणना करेगा।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prilagoditi će se trenutni i budući ciklusi od 14 dana te će se ponovno izračunati prošla razdoblja."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ez az aktuális és a jövőbeli kéthetente ismétlődő ciklusokat újra igazítja, valamint az előző időszakokat újraszámítja."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini akan menyelaraskan siklus dua minggu saat ini dan masa depan serta menghitung ulang periode sebelumnya."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo riallineerà i cicli attuali e futuri di due settimane e ricalcolerà i periodi passati."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在と今後の2週間の期間が揃い、過去の期間が再計算されます。"
+          }
+        },
+        "kn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ಇದು ಪ್ರಸ್ತುತ ಮತ್ತು ಭವಿಷ್ಯದ ಎರಡು ವಾರದ ಚಕ್ರಗಳನ್ನು ಮರು-ಜೋಡಿಸುತ್ತದೆ ಮತ್ತು ಹಿಂದಿನ ಅವಧಿಗಳನ್ನು ಮರುಗಣನೆ ಮಾಡುತ್ತದೆ."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "현재와 앞으로의 2주 주기를 다시 정렬하고 지난 기간을 다시 계산해요."
+          }
+        },
+        "ml": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ഇത് നിലവിലെ കാലയളവ്, ഭാവിയിലെ രണ്ടാഴ്ച കാലയളവ് പുനരിരിപ്പിക്കും, കഴിഞ്ഞ കാലയളവുകൾ പുനഃകണക്കാക്കും."
+          }
+        },
+        "mr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हे सद्य आणि भविष्यातील दोन-आठवड्यांचे चक्र पुन्हा संरेखित करेल आणि मागील कालावधी पुन्हा मोजले जातील."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini akan menyelaraskan semula kitaran dua minggu semasa dan masa depan serta mengira semula tempoh lalu."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette vil justere gjeldende og fremtidige to-ukers perioder på nytt og omberegne tidligere perioder."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit heroriënteert de huidige en toekomstige twee-weekcycli en herberekent eerdere periodes."
+          }
+        },
+        "or": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ଏହା ବର୍ତ୍ତମାନ ଓ ଭବିଷ୍ୟତର ଦୁଇ ସପ୍ତାହର ଚକ୍ର ପୁନଃ ଜୋର ଦେବ ଓ ବିଗତ ଅବଧିକୁ ପୁନଃ ହିସାବ କରିବ"
+          }
+        },
+        "pa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ਇਹ ਮੌਜੂਦਾ ਅਤੇ ਭਵਿਸ਼ਯਤ ਦੀਆਂ ਦੋ-ਹਫ਼ਤਾ ਮਿਆਦਾਂ ਨੂੰ ਦੁਬਾਰਾ ਅਨੁਕੂਲ ਕਰੇਗਾ ਅਤੇ ਪਿਛਲੀਆਂ ਮਿਆਦਾਂ ਦਾ ਦੁਬਾਰਾ ਗਣਨਾ ਕਰੇਗਾ।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spowoduje to wyrównanie bieżących i przyszłych cykli dwutygodniowych oraz przeliczenie minionych okresów."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isso irá realinhar os ciclos atuais e futuros de duas semanas e recalcular períodos anteriores."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isto vai realinhar os ciclos atuais e futuros de duas semanas e recalcular períodos anteriores."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceasta va realinia ciclurile de două săptămâni curente și viitoare și va recalcula perioadele anterioare."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это переровняет текущие и будущие двухнедельные циклы и пересчитает прошлые периоды."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toto preusporiadá súčasné a budúce dvojtýždňové cykly a prepočíta minulé obdobia."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To bo ponovno poravnalo trenutne in prihodnje dvotedenike in ponovno izračunalo pretekla obdobja."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det här justerar tvåveckorsperioderna framåt och omberäknar tidigare perioder."
+          }
+        },
+        "ta": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "இது தற்போதைய மற்றும் எதிர்கால இரண்டு வாரக் காலங்களை மீண்டும் சீரமைக்கும் மற்றும் கடந்த காலங்களை மீண்டும் கணக்கிடும்."
+          }
+        },
+        "te": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ఇది ప్రస్తుత మరియు భవిష్యత్ రెండు-వారాల చక్రాలను తిరిగి సమలేఖనం చేస్తుంది మరియు గత వ్యవధులను పునర్లెక్కించుకుంటుంది."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "นี่จะปรับแต่งรอบสองสัปดาห์ปัจจุบันและอนาคต และคำนวณรอบที่ผ่านมาใหม่"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu işlem, mevcut ve gelecek iki haftalık dönemleri yeniden hizalayacak ve geçmiş dönemleri yeniden hesaplayacak."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це перерівняє поточні та майбутні двотижневі цикли й перерахує минулі періоди."
+          }
+        },
+        "ur": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "یہ موجودہ اور مستقبل کے دو ہفتوں کے مدت کو دوبارہ درست کرے گا اور گزشتہ مدتیں دوبارہ شمار کرے گا۔"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Điều này sẽ sắp xếp lại các chu kỳ hai tuần hiện tại và tương lai, cũng như tính toán lại các kỳ trước."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这将重新对齐当前和未来的两周周期，并重新计算过往周期。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這會重新對齊當前和未來的兩週週期，並重新計算過往週期。"
+          }
+        }
+      }
+    },
+    "addEditBudget.biweeklyReanchor.title": {
+      "comment": "Title of the confirmation alert shown when the user taps Save on Edit Budget after changing a biweekly budget's start date. Changing it re-anchors the 14-day cycle grid.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تغيير تاريخ البدء؟"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "শুরুর তারিখ পরিবর্তন করবেন?"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canviar la data d'inici?"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Změnit datum začátku?"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skift startdato?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startdatum ändern?"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αλλαγή ημερομηνίας έναρξης;"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Start Date?"
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Start Date?"
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Start Date?"
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Start Date?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cambiar fecha de inicio?"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cambiar fecha de inicio?"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muuta alkamispäivää?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier la date de début ?"
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier la date de début?"
+          }
+        },
+        "gu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "શરૂઆતની તારીખ બદલો?"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "שינוי תאריך התחלה?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आरंभ तारीख बदलें?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promijeni datum početka?"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Módosítsd a kezdődátumot?"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubah Tanggal Mulai?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modificare la data di inizio?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開始日を変更しますか？"
+          }
+        },
+        "kn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ಆರಂಭ ದಿನಾಂಕವನ್ನು ಬದಲಾಯಿಸುವುದೇ?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시작일을 변경할까요?"
+          }
+        },
+        "ml": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ആരംഭ തീയതി മാറ്റുന്നുണ്ടോ?"
+          }
+        },
+        "mr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सुरुवात तारीख बदला?"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tukar Tarikh Mula?"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endre startdato?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startdatum wijzigen?"
+          }
+        },
+        "or": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ଆରମ୍ଭ ତାରିଖ ବଦଳାଇବେ?"
+          }
+        },
+        "pa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ਼ ਬਦਲੋ?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmienić datę początkową?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar data de início?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar data de início?"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifică data de început?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить дату начала?"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmeniť dátum začiatku?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremeni datum začetka?"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändra startdatum?"
+          }
+        },
+        "ta": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "தொடக்கத் தேதி மாற்றுவது?"
+          }
+        },
+        "te": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ప్రారంభ తేదీని మార్చాలా?"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปลี่ยนวันที่เริ่มต้น?"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başlangıç Tarihi Değiştirilsin mi?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змінити дату початку?"
+          }
+        },
+        "ur": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آغاز کی تاریخ تبدیل کریں؟"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thay đổi ngày bắt đầu?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改开始日期？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "變更開始日期？"
+          }
+        }
+      }
+    },
     "addEditBudget.chip.period.accessibilityLabel": {
       "comment": "VoiceOver label for a period selection chip; argument is the period name (Daily, Weekly, etc.)",
       "localizations": {
@@ -1532,301 +2756,301 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مقفل. لا يمكن تغيير الفترة بعد إنشاء ميزانيتك."
+            "value": "مقفولة. لا يمكن تغيير نوع الفترة بعد إنشاء ميزانيتك."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "লক করা হয়েছে। বাজেট তৈরির পর সময়কাল পরিবর্তন করা যায় না।"
+            "value": "লক করা। আপনার বাজেট তৈরির পরে সময়কাল ধরন পরিবর্তন করা যায় না।"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloquejat. El període no es pot canviar un cop creat el pressupost."
+            "value": "Bloquejat. El tipus de Període no pot canviar després de crear el teu pressupost."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zamčeno. Období nelze po vytvoření rozpočtu změnit."
+            "value": "Uzamčeno. Typ období nelze po vytvoření rozpočtu změnit."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Låst. Perioden kan ikke ændres, efter du har oprettet dit budget."
+            "value": "Låst. Periodetypen kan ikke ændres efter oprettelsen af dit budget."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gesperrt. Der Zeitraum kann nach dem Erstellen deines Budgets nicht mehr geändert werden."
+            "value": "Gesperrt. Der Zeitraumtyp kann nach dem Erstellen deines Budgets nicht geändert werden."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κλειδωμένο. Η περίοδος δεν μπορεί να αλλαχθεί μετά τη δημιουργία του προϋπολογισμού."
+            "value": "Κλειδωμένη. Ο τύπος περιόδου δεν μπορεί να αλλάξει."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked. Period can't be changed after creating your budget."
+            "value": "Locked. Period type can't be changed after creating your budget."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. El periodo no se puede cambiar una vez creado el presupuesto."
+            "value": "Bloqueado. El tipo de periodo no se puede cambiar después de crear tu presupuesto."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. El período no puede cambiarse después de crear tu presupuesto."
+            "value": "Bloqueado. El tipo de periodo no puede cambiar después de crear tu presupuesto."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lukittu. Kautta ei voi muuttaa budjetin luomisen jälkeen."
+            "value": "Lukittu. Jakson tyyppiä ei voi muuttaa budjetin luomisen jälkeen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouillé. La période ne peut pas être modifiée après la création du budget."
+            "value": "Verrouillée. Tu ne peux pas changer le type de Période après la création de ton Budget."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouillé. La période ne peut pas être modifiée après la création du budget."
+            "value": "Verrouillé. Tu ne peux pas modifier le type de Période une fois ton Budget créé."
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "લૉક કર્યું. બજેટ બનાવ્યા પછી સમયગાળો બદલી શકાતો નથી."
+            "value": "બંધ. તમારો બજેટ બનાવ્યા પછી સમયગાળો પ્રકાર બદલી શકાતો નથી."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "נעול. לא ניתן לשנות את התקופה לאחר יצירת התקציב."
+            "value": "נעול. לא ניתן לשנות את סוג התקופה לאחר יצירת התקציב שלך."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "लॉक है। बजट बनाने के बाद अवधि बदली नहीं जा सकती।"
+            "value": "अवधि लॉक है। बजट बनाने के बाद अवधि का प्रकार बदला नहीं जा सकता।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaključano. Razdoblje se ne može promijeniti nakon stvaranja proračuna."
+            "value": "Zaključano. Vrstu razdoblja nije moguće promijeniti nakon kreiranja proračuna."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zárolt. Az időszak a költségvetés létrehozása után nem módosítható."
+            "value": "Zárolva. Az Időszak típusa nem módosítható a Költségkeret létrehozása után."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terkunci. Periode tidak dapat diubah setelah anggaran dibuat."
+            "value": "Terkunci. Jenis periode tidak dapat diubah setelah membuat anggaran Anda."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloccato. Il periodo non può essere modificato dopo aver creato il budget."
+            "value": "Bloccato. Il tipo di Periodo non può essere cambiato dopo aver creato il tuo Budget."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ロック済み。予算を作成した後は期間を変更できません。"
+            "value": "ロック済み。期間の種類は予算を作成した後は変更できません。"
           }
         },
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ಲಾಕ್ ಮಾಡಿದೆ. ನಿಮ್ಮ ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಅವಧಿ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
+            "value": "ಲಾಕ್ ಆಗಿದೆ. ನಿಮ್ಮ ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಅವಧಿ ಪ್ರಕಾರವನ್ನು ಬದಲಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "잠김. 예산 생성 후에는 기간을 변경할 수 없습니다."
+            "value": "잠금됨. 예산을 만든 후에는 기간 유형을 바꿀 수 없어요."
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ലോക്ക് ചെയ്തിരിക്കുന്നു. ബജറ്റ് സൃഷ്ടിച്ച ശേഷം കാലയളവ് മാറ്റാൻ കഴിയില്ല."
+            "value": "പൂരിപ്പിച്ചത്. നിങ്ങളുടെ ബജറ്റ് സൃഷ്ടിച്ചതിനുശേഷം കാലയളവ് തരം മാറ്റാൻ കഴിയില്ല."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "लॉक केलेले. Budget तयार केल्यानंतर कालावधी बदलता येत नाही."
+            "value": "लॉक केलेले. तुमच्या budget तयार केल्यानंतर कालावधी प्रकार बदलला जाऊ शकत नाही."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dikunci. Tempoh tidak boleh diubah selepas bajet dibuat."
+            "value": "Terkunci. Jenis tempoh tidak boleh diubah setelah membuat bajet anda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Låst. Perioden kan ikke endres etter at budsjettet er opprettet."
+            "value": "Låst. Periodetype kan ikke endres etter at du har opprettet budsjett."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vergrendeld. Periode kan niet worden gewijzigd na het aanmaken van je budget."
+            "value": "Vergrendeld. Je periodesoort kan niet meer worden gewijzigd nadat je je budget hebt aangemaakt."
           }
         },
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ବନ୍ଦ। ବଜେଟ୍ ତୈରି ହେବାପରେ ଅବଧି ପରିବର୍ତ୍ତନ କରାଯାଇ ପାରିବ ନାହିଁ।"
+            "value": "ଲକ୍‌ ହୋଇଛି। ଆପଣଙ୍କ ବଜେଟ୍ ତୈରି ହେବାପରେ ଅବଧି ପ୍ରକାର ପରିବର୍ତ୍ତନ କରାଯାଇ ପାରିବ ନାହିଁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਲੱਕ ਕੀਤਾ ਹੋਇਆ। ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਮਿਆਦ ਨਹੀਂ ਬਦਲੀ ਜਾ ਸਕਦੀ।"
+            "value": "ਲੌਕ ਹੈ। ਆਪਣਾ ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਮਿਆਦ ਦੀ ਕਿਸਮ ਨੂੰ ਨਹੀਂ ਬਦਲਿਆ ਜਾ ਸਕਦਾ।"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zablokowane. Okresu nie można zmienić po utworzeniu budżetu."
+            "value": "Zablokowano. Typ okresu nie może być zmieniony po utworzeniu budżetu."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. O período não pode ser alterado após a criação do orçamento."
+            "value": "Bloqueado. O tipo de Período não pode ser alterado após criar seu orçamento."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado. O período não pode ser alterado após criar o orçamento."
+            "value": "Bloqueado. O tipo de Período não pode ser alterado após criar o teu orçamento."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Blocat. Perioada nu poate fi modificată după crearea bugetului."
+            "value": "Perioadă blocată. Tipul de perioadă nu poate fi schimbat după crearea bugetului."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Заблокировано. Период нельзя изменить после создания бюджета."
+            "value": "Заблокирован. Тип периода нельзя изменить после создания бюджета."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zamknuté. Obdobie nemožno po vytvorení rozpočtu zmeniť."
+            "value": "Uzamknuté. Typ obdobia sa nedá zmeniť po vytvorení rozpočtu."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaklenjeno. Obdobja ne moreš spremeniti po ustvarjanju proračuna."
+            "value": "Zaklenjeno. Vrste obdobja ne moreš spremeniti po ustvarjanju proračuna."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Låst. Perioden kan inte ändras efter att din budget har skapats."
+            "value": "Låst. Periodtypen kan inte ändras efter att du skapat budgeten."
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "பூட்டப்பட்டது. உங்கள் பட்ஜெட்டை உருவாக்கியபின் காலத்தை மாற்ற முடியாது."
+            "value": "பூட்டப்பட்டுள்ளது. பட்ஜெட்டை உருவாக்கியதற்குப் பிறகு காலம் வகை மாற்ற முடியாது."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "లాక్ చేయబడింది. బడ్జెట్‌ను సృష్టించిన తర్వాత వ్యవధిని మార్చలేము."
+            "value": "లాక్‌ చేయబడింది. మీ బడ్జెట్‌ను సృష్టించిన తర్వాత వ్యవధి రకం మార్చలేరు."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ล็อกอยู่ ไม่สามารถเปลี่ยนรอบเวลาได้หลังจากสร้างงบประมาณแล้ว"
+            "value": "ล็อก ไม่สามารถเปลี่ยนประเภทรอบหลังจากสร้างงบประมาณแล้ว"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kilitli. Bütçeni oluşturduktan sonra dönem değiştirilemez."
+            "value": "Kilitli. Bütçeni oluşturduktan sonra dönem türünü değiştiremezsin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Заблоковано. Після створення бюджету змінити період неможливо."
+            "value": "Заблоковано. Тип періоду не можна змінити після створення бюджету."
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "بند ہے۔ بجٹ بنانے کے بعد مدت تبدیل نہیں کی جا سکتی۔"
+            "value": "مقفل ہے۔ آپ کے بجٹ کو بنانے کے بعد مدت کی قسم تبدیل نہیں کی جا سکتی۔"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đã khóa. Kỳ không thể thay đổi sau khi tạo ngân sách."
+            "value": "Bị khóa. Loại kỳ không thể thay đổi sau khi tạo ngân sách của bạn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已锁定。预算创建后无法更改周期。"
+            "value": "已锁定。创建预算后无法更改周期类型。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已鎖定。預算建立後無法更改週期。"
+            "value": "已鎖定。建立預算後無法變更週期類型。"
           }
         }
       }
@@ -10688,6 +11912,312 @@
         }
       }
     },
+    "addEditBudget.note.biweekly": {
+      "comment": "Caption below the period chip grid when Biweekly is selected. Explains the 14-day cycle is anchored to the budget's start date, so the start date sets which day each cycle begins on.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فترة متكررة مدتها 14 يوم. اختر تاريخ البدء أدناه لتحديد اليوم الذي تبدأ فيه كل دورة."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "১৪ দিনের পুনরাবৃত্ত সময়কাল। নীচে আপনার শুরুর তারিখ নির্বাচন করুন যাতে প্রতিটি চক্র কোন দিনে শুরু হয় তা নির্ধারণ করতে পারেন।"
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Període de 14 dies que es repeteix. Trieu la vostra data d'inici a continuació per triar quin dia comença cada cicle."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opakující se čtrnáctidenní období. Zvolte datum začátku níže, abyste určili, kterým dnem se každý cyklus začíná."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gentager sig hver 14. dag. Vælg din startdato nedenfor for at bestemme, hvilken dag hver periode begynder."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederholter 14-Tage-Zeitraum. Wähle dein Startdatum unten, um festzulegen, an welchem Tag jeder Zyklus beginnt."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Περίοδος 14 ημερών που επαναλαμβάνεται. Επιλέξτε την ημερομηνία έναρξης παρακάτω για να ορίσετε σε ποια ημέρα αρχίζει κάθε κύκλος."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeating 14-day period. Choose your start date below to choose which day each cycle begins on."
+          }
+        },
+        "en-AU": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeating 14-day period. Choose your start date below to choose which day each cycle begins on."
+          }
+        },
+        "en-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeating 14-day period. Choose your start date below to choose which day each cycle begins on."
+          }
+        },
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeating 14-day period. Choose your start date below to choose which day each cycle begins on."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Periodo de 14 días que se repite. Elige tu fecha de inicio abajo para elegir en qué día comienza cada ciclo."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Periodo que se repite cada 14 días. Elige tu fecha de inicio abajo para seleccionar en qué día comienza cada ciclo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toistuvaa 14 päivän jakso. Valitse alkamispäivä alla, jotta voit valita, mihin päivään kukin jakso alkaa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Période de 14 jours renouvelée. Choisis ta date de début ci-dessous pour déterminer le jour où chaque cycle commence."
+          }
+        },
+        "fr-CA": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Période de 14 jours qui se répète. Choisis ta date de début ci-dessous pour déterminer quel jour commence chaque cycle."
+          }
+        },
+        "gu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14-દિવસનો આવર્તક સમયગાળો. નીચે તમારી શરૂઆતની તારીખ પસંદ કરો કે દરેક ચક્ર કયા દિવસે શરૂ થાય."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "תקופה חוזרת כל 14 ימים. בחר את תאריך ההתחלה שלך להלן כדי לבחור באיזה יום מתחילה כל תקופה."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 दिन की दोहराई जाने वाली अवधि। नीचे अपनी आरंभ तारीख चुनें और तय करें कि प्रत्येक चक्र किस दिन शुरू होगा।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Razdoblje od 14 dana koje se ponavlja. Odaberite datum početka kako biste odabrali dan na koji se svaki ciklus počinje."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 naponta ismétlődő időszak. Az alábbi kezdődátum megválasztásával azt határozod meg, hogy az egyes ciklusok melyik napon kezdődnek."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Periode berulang 14 hari. Pilih tanggal mulai di bawah untuk memilih hari mana setiap siklus dimulai."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Periodo ricorrente di 14 giorni. Scegli la tua data di inizio di seguito per scegliere il giorno in cui inizia ogni ciclo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14日ごと繰り返される期間です。開始日を選択して、各期間の開始日を決めてください。"
+          }
+        },
+        "kn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14-ದಿನದ ಅವಧಿ ಪುನರಾವರ್ತಿತವಾಗುತ್ತಿದೆ. ಪ್ರತಿ ಚಕ್ರ ಯಾವ ದಿನದಿಂದ ಶುರುವಾಗುತ್ತದೆ ಎಂಬುದನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಕೆಳಗೆ ಆರಂಭ ದಿನಾಂಕವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14일마다 반복되는 기간이에요. 아래에서 시작일을 선택하면 각 주기가 어느 요일부터 시작되는지 정할 수 있어요."
+          }
+        },
+        "ml": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 ദിവസത്തെ ആവർത്തിച്ചുള്ള കാലയളവ്. താഴെ ആരംഭ തീയതി തിരഞ്ഞെടുത്ത് ഓരോ സൈക്കിൾ എത്ര ദിവസത്ത് ആരംഭിക്കണം എന്ന് നിര്ണയിക്കുക."
+          }
+        },
+        "mr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 दिवसांचा पुनरावृत्ती कालावधी. प्रत्येक चक्र कोणत्या दिवसाला सुरू होते हे निवडण्यासाठी खाली तुमची सुरुवात तारीख निवडा."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempoh 14 hari berulang. Pilih tarikh mula anda di bawah untuk memilih hari mana setiap kitaran bermula."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gjentakende 14-dagers periode. Velg startdato under for å bestemme hvilken dag hver periode begynner på."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herhalende 14-daagse periode. Kies je startdatum hieronder om te bepalen op welke dag elke cyclus begint."
+          }
+        },
+        "or": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ପୁନରାବୃତ୍ତି 14-ଦିନର ଅବଧି। ଆପଣର ଆରମ୍ଭ ତାରିଖ ବାଛନ୍ତୁ ଯାହା ପ୍ରତିଟି ଚକ୍ର କେଉଁ ଦିନରେ ଆରମ୍ଭ ହୋଇବ ତାହା ଚୟନ କରିବାକୁ"
+          }
+        },
+        "pa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 ਦਿਨਾਂ ਦੀ ਦੁਹਰਾਈ ਜਾਣ ਵਾਲੀ ਮਿਆਦ। ਹੇਠਾਂ ਆਪਣੀ ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ਼ ਚੁਣੋ ਤਾ ਜੋ ਹਰੇਕ ਚੱਕਰ ਕਿਹੜੇ ਦਿਨ ਸ਼ੁਰੂ ਹੋਵੇ।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powtarzający się okres 14-dniowy. Poniżej wybierz datę początkową, aby wybrać, w którym dniu każdy cykl się zacznie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Período de repetição de 14 dias. Escolha sua data de início abaixo para determinar em qual dia cada ciclo começa."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Período repetido de 14 dias. Escolhe a tua data de início abaixo para definir em que dia cada ciclo começa."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perioadă repetată de 14 zile. Alege data de început mai jos pentru a alege care zi va începe fiecare ciclu."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14-дневный период, повторяющийся каждый цикл. Выбери дату начала ниже, чтобы определить, в какой день начинается каждый цикл."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opakujúce sa 14-denné obdobie. Zvoľte si dátum začiatku nižšie, aby ste zvolili, ktorý deň sa každý cyklus začína."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponavljajoče se 14-dnevno obdobje. Izberite datum začetka spodaj, da izberete, v kateri dan se vsak cikel začne."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upprepad 14-dagarsperiod. Välj ditt startdatum nedan för att välja vilken dag varje cykel börjar."
+          }
+        },
+        "ta": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 நாட்களின் புரிய வரும் காலம். கீழே உங்களின் தொடக்கத் தேதியைத் தேர்ந்தெடுத்து ஒவ்வொரு சுழற்சி எந்த நாளில் தொடங்குகிறது என்பதைத் தேர்ந்தெடுக்கவும்."
+          }
+        },
+        "te": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14-రోజుల వ్యవధి పునరావృతమవుతుంది. ప్రతి చక్రం ఎంటి నాడు ప్రారంభం అవాలో నిర్ణయించడానికి మీ ప్రారంభ తేదీను ఎంచుకోండి."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รอบที่ซ้ำทุก 14 วัน เลือกวันที่เริ่มต้นด้านล่างเพื่อเลือกว่ารอบแต่ละรอบจะเริ่มต้นในวันไหน"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 günlük dönem. Aşağıdan başlangıç tarihinizi seç, her dönemin hangi günden başlayacağını belirle."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Період повторюється кожні 14 днів. Виберіть дату початку нижче, щоб визначити, у який день починатиметься кожен цикл."
+          }
+        },
+        "ur": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 دن کی دہرائی مدت۔ اپنی آغاز کی تاریخ منتخب کریں تاکہ ہر مدت کس دن شروع ہو۔"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chu kỳ 14 ngày lặp lại. Chọn ngày bắt đầu dưới đây để chọn ngày bắt đầu mỗi chu kỳ."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重复的14天周期。下方选择开始日期以确定每个周期的开始日。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重複的 14 天週期。在下方選擇開始日期，即可選擇每個週期的開始日期。"
+          }
+        }
+      }
+    },
     "addEditBudget.note.carryOver": {
       "comment": "Caption below the carry-over toggle explaining what carry-over does",
       "localizations": {
@@ -11304,301 +12834,301 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لا يمكن تغيير هذا بعد إنشاء ميزانيتك."
+            "value": "لا يمكن تغيير نوع الفترة بعد إنشاء ميزانيتك."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "বাজেট তৈরির পর এটি পরিবর্তন করা যায় না।"
+            "value": "আপনার বাজেট তৈরির পরে সময়কাল ধরন পরিবর্তন করা যায় না।"
           }
         },
         "ca": {
           "stringUnit": {
             "state": "translated",
-            "value": "Això no es pot canviar un cop creat el pressupost."
+            "value": "El tipus de Període no pot canviar després de crear el teu pressupost."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toto nelze po vytvoření rozpočtu změnit."
+            "value": "Typ období nelze po vytvoření rozpočtu změnit."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dette kan ikke ændres, efter du har oprettet dit budget."
+            "value": "Periodetypen kan ikke ændres efter oprettelsen af dit budget."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dies kann nach dem Erstellen deines Budgets nicht mehr geändert werden."
+            "value": "Der Zeitraumtyp kann nach dem Erstellen deines Budgets nicht geändert werden."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Δεν μπορεί να αλλαχθεί μετά τη δημιουργία του προϋπολογισμού."
+            "value": "Ο τύπος περιόδου δεν μπορεί να αλλάξει μετά τη δημιουργία του προϋπολογισμού σας."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "en-AU": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "en-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "en-GB": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can't be changed after creating your budget."
+            "value": "Period type can't be changed after creating your budget."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esto no se puede cambiar una vez creado el presupuesto."
+            "value": "El tipo de periodo no se puede cambiar después de crear tu presupuesto."
           }
         },
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esto no puede cambiarse después de crear tu presupuesto."
+            "value": "El tipo de periodo no puede cambiar después de crear tu presupuesto."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tätä ei voi muuttaa budjetin luomisen jälkeen."
+            "value": "Jakson tyyppiä ei voi muuttaa budjetin luomisen jälkeen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de modifier cela après la création du budget."
+            "value": "Tu ne peux pas changer le type de Période après la création."
           }
         },
         "fr-CA": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de modifier ça après la création du budget."
+            "value": "Tu ne peux pas modifier le type de Période une fois ton Budget créé."
           }
         },
         "gu": {
           "stringUnit": {
             "state": "translated",
-            "value": "આ બજેટ બનાવ્યા પછી બદલી શકાતું નથી."
+            "value": "તમારો બજેટ બનાવ્યા પછી સમયગાળો પ્રકાર બદલી શકાતો નથી."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "לא ניתן לשנות זאת לאחר יצירת התקציב."
+            "value": "לא ניתן לשנות את סוג התקופה לאחר יצירת התקציב שלך."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "बजट बनाने के बाद यह नहीं बदला जा सकता।"
+            "value": "बजट बनाने के बाद अवधि का प्रकार बदला नहीं जा सकता।"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ovo se ne može promijeniti nakon stvaranja proračuna."
+            "value": "Vrstu razdoblja nije moguće promijeniti nakon kreiranja proračuna."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ez a költségvetés létrehozása után nem módosítható."
+            "value": "Az Időszak típusa nem módosítható a Költségkeret létrehozása után."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ini tidak dapat diubah setelah anggaran dibuat."
+            "value": "Jenis periode tidak dapat diubah setelah membuat anggaran."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non può essere modificato dopo aver creato il budget."
+            "value": "Il tipo di Periodo non può essere cambiato dopo aver creato il tuo Budget."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "予算を作成した後は変更できません。"
+            "value": "期間の種類は予算を作成した後は変更できません。"
           }
         },
         "kn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ನಿಮ್ಮ ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಇದನ್ನು ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
+            "value": "ಬಜೆಟ್ ರಚಿಸಿದ ನಂತರ ಅವಧಿ ಪ್ರಕಾರವನ್ನು ಬದಲಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "예산을 만든 후에는 변경할 수 없어요."
+            "value": "예산을 만든 후에는 기간 유형을 바꿀 수 없어요."
           }
         },
         "ml": {
           "stringUnit": {
             "state": "translated",
-            "value": "ബജറ്റ് സൃഷ്ടിച്ച ശേഷം ഇത് മാറ്റാൻ കഴിയില്ല."
+            "value": "നിങ്ങളുടെ ബജറ്റ് സൃഷ്ടിച്ചതിനുശേഷം കാലയളവ് തരം മാറ്റാൻ കഴിയില്ല."
           }
         },
         "mr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Budget तयार केल्यानंतर हे बदलता येत नाही."
+            "value": "तुमच्या budget तयार केल्यानंतर कालावधी प्रकार बदलला जाऊ शकत नाही."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ini tidak boleh diubah selepas membuat belanjawan anda."
+            "value": "Jenis tempoh tidak boleh diubah setelah membuat bajet anda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dette kan ikke endres etter at budsjettet er opprettet."
+            "value": "Periodetype kan ikke endres etter at du har opprettet budsjett."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dit kan niet worden gewijzigd nadat je budget is aangemaakt."
+            "value": "Je periodesoort kan niet meer worden gewijzigd nadat je je budget hebt aangemaakt."
           }
         },
         "or": {
           "stringUnit": {
             "state": "translated",
-            "value": "ବଜେଟ୍ ତୈରି ହେବାପରେ ଏଟା ବଦଳାଯାଇ ପାରିବ ନାହିଁ।"
+            "value": "ଅବଧି ପ୍ରକାର ଆପଣଙ୍କ ବଜେଟ୍ ତୈରି ହେବାପରେ ପରିବର୍ତ୍ତନ କରାଯାଇ ପାରିବ ନାହିଁ।"
           }
         },
         "pa": {
           "stringUnit": {
             "state": "translated",
-            "value": "ਇਹ ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਨਹੀਂ ਬਦਲਿਆ ਜਾ ਸਕਦਾ।"
+            "value": "ਆਪਣਾ ਬਜਟ ਬਣਾਉਣ ਤੋਂ ਬਾਅਦ ਮਿਆਦ ਦੀ ਕਿਸਮ ਨੂੰ ਨਹੀਂ ਬਦਲਿਆ ਜਾ ਸਕਦਾ।"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tego nie można zmienić po utworzeniu budżetu."
+            "value": "Typ okresu nie może być zmieniony po utworzeniu budżetu."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Isso não pode ser alterado após a criação do orçamento."
+            "value": "O tipo de Período não pode ser alterado após criar seu orçamento."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não pode ser alterado após criar o orçamento."
+            "value": "O tipo de Período não pode ser alterado após criar o teu orçamento."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aceasta nu poate fi modificată după crearea bugetului."
+            "value": "Tipul de perioadă nu poate fi schimbat după crearea bugetului."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Это нельзя изменить после создания бюджета."
+            "value": "Тип периода нельзя изменить после создания бюджета."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toto nemožno zmeniť po vytvorení rozpočtu."
+            "value": "Typ obdobia sa nedá zmeniť po vytvorení rozpočtu."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "To ne moreš spremeniti po ustvarjanju proračuna."
+            "value": "Vrste obdobja ne moreš spremeniti po ustvarjanju proračuna."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Det här kan inte ändras efter att din budget har skapats."
+            "value": "Periodtypen kan inte ändras efter att du skapat budgeten."
           }
         },
         "ta": {
           "stringUnit": {
             "state": "translated",
-            "value": "உங்கள் பட்ஜெட்டை உருவாக்கியபின் இதை மாற்ற முடியாது."
+            "value": "பட்ஜெட்டை உருவாக்கியதற்குப் பிறகு காலம் வகை மாற்ற முடியாது."
           }
         },
         "te": {
           "stringUnit": {
             "state": "translated",
-            "value": "బడ్జెట్‌ను సృష్టించిన తర్వాత దీన్ని మార్చలేము."
+            "value": "మీ బడ్జెట్‌ను సృష్టించిన తర్వాత వ్యవధి రకం మార్చలేరు."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไม่สามารถเปลี่ยนแปลงได้หลังจากสร้างงบประมาณแล้ว"
+            "value": "ไม่สามารถเปลี่ยนประเภทรอบหลังจากสร้างงบประมาณแล้ว"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bütçeni oluşturduktan sonra bu değiştirilemez."
+            "value": "Bütçeni oluşturduktan sonra dönem türünü değiştiremezsin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Це неможливо змінити після створення бюджету."
+            "value": "Тип періоду не можна змінити після створення бюджету."
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "بجٹ بنانے کے بعد یہ تبدیل نہیں کیا جا سکتا۔"
+            "value": "آپ کے بجٹ کو بنانے کے بعد مدت کی قسم تبدیل نہیں کی جا سکتی۔"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không thể thay đổi sau khi tạo ngân sách."
+            "value": "Loại kỳ không thể thay đổi sau khi tạo ngân sách."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "预算创建后无法更改此项。"
+            "value": "创建预算后无法更改周期类型。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "預算建立後無法更改此設定。"
+            "value": "建立預算後無法變更週期類型。"
           }
         }
       }

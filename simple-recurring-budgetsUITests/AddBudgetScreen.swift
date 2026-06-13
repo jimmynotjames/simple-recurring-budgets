@@ -25,6 +25,34 @@ struct AddBudgetScreen {
     app.buttons["Delete Budget"]
   }
 
+  /// The biweekly explanatory caption under the Period chips. Matched on a stable
+  /// prefix so wording polish doesn't break the query.
+  var biweeklyNote: XCUIElement {
+    app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Repeating 14-day period'")).firstMatch
+  }
+
+  /// The Edit-mode period-lock caption. Matched on a prefix that avoids the
+  /// apostrophe in "can't".
+  var periodLockCaption: XCUIElement {
+    app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Period type can'")).firstMatch
+  }
+
+  /// The expanded Schedule disclosure's start-date chip. Only present when the
+  /// disclosure is expanded (a collapsed disclosure does not render it), so its
+  /// existence doubles as proof of auto-expand.
+  var startDateChip: XCUIElement {
+    app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Start date'")).firstMatch
+  }
+
+  /// The Save-time biweekly re-anchor confirmation alert.
+  var reanchorAlert: XCUIElement {
+    app.alerts["Change Start Date?"]
+  }
+
+  func selectPeriod(_ label: String) {
+    app.buttons["\(label) period"].tap()
+  }
+
   func fillName(_ name: String) {
     nameField.tap()
     nameField.typeText(name)

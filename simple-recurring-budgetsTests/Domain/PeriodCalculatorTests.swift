@@ -187,6 +187,48 @@ struct PeriodCalculatorPeriodStartTests {
     #expect(result == utcDate(2026, 3, 29)) // not Mar 15 — no double subtraction
   }
 
+  /// Re-anchor regression (biweekly start-date edit): for a FIXED reference date,
+  /// shifting the biweekly anchor by N days (N < 14) shifts the computed period
+  /// start by the same N days — i.e. editing a biweekly budget's startDate
+  /// re-slices its cycles, exactly as the Save-time re-anchor confirmation warns.
+  @Test func periodStart_biweekly_anchorShift_shiftsCycleBoundariesBySameDelta() {
+    let reference = utcDate(2026, 4, 20)
+    let anchorA = utcDate(2026, 4, 1) // ref is 19 days out → cycle start anchor + 14
+    let anchorB = utcDate(2026, 4, 4) // anchor moved +3 days
+    let startA = PeriodCalculator.periodStart(
+      containing: reference, period: .biweekly, weekStart: .sunday,
+      biweeklyAnchor: anchorA, calendar: utcCalendar
+    )
+    let startB = PeriodCalculator.periodStart(
+      containing: reference, period: .biweekly, weekStart: .sunday,
+      biweeklyAnchor: anchorB, calendar: utcCalendar
+    )
+    #expect(startA == utcDate(2026, 4, 15))
+    #expect(startB == utcDate(2026, 4, 18)) // phase moved with the anchor
+    let deltaDays = utcCalendar.dateComponents([.day], from: startA, to: startB).day
+    #expect(deltaDays == 3)
+  }
+
+  /// Invariant the re-anchor UX relies on: biweekly is the ONLY period whose grid
+  /// depends on the anchor. For daily/weekly/monthly, shifting `biweeklyAnchor`
+  /// leaves the computed period start unchanged (they ignore the anchor).
+  @Test func periodStart_nonBiweekly_ignoresAnchorDelta() {
+    let reference = utcDate(2026, 4, 20)
+    let anchorA = utcDate(2026, 4, 1)
+    let anchorB = utcDate(2026, 4, 4)
+    for period in [RecurringBudgetPeriod.daily, .weekly, .monthly] {
+      let startA = PeriodCalculator.periodStart(
+        containing: reference, period: period, weekStart: .sunday,
+        biweeklyAnchor: anchorA, calendar: utcCalendar
+      )
+      let startB = PeriodCalculator.periodStart(
+        containing: reference, period: period, weekStart: .sunday,
+        biweeklyAnchor: anchorB, calendar: utcCalendar
+      )
+      #expect(startA == startB, "period \(period) must ignore the biweekly anchor")
+    }
+  }
+
   /// Saturday week-start across a year boundary: Fri 2027-01-01 belongs to the
   /// week that began Sat 2026-12-26.
   @Test func periodStart_weekly_saturdayWeekStart_acrossYearBoundary() {

@@ -74,6 +74,9 @@ itself.
   transliterated, or glossed. (This is enforced by the prompt and validated by
   `validate.py`; do not "remind" subagents in the dispatch message — fix
   `PROMPT_TEMPLATE.md` if a rule needs strengthening.)
+- **RTL storefronts (ar, he, ur):** never start a line with a Latin brand token (`Wren`,
+  `iCloud`). In RTL rendering a Latin-initial string pops to the visual end of the line.
+  Lead with a native word; the brand may follow mid-sentence.
 - **All commands run from the repo root.**
 - **Register notes are intentionally duplicated — keep them in sync, don't DRY them.**
   The per-storefront formality guidance in `CULTURAL_NOTES` (`scripts/translate_metadata/dispatch_prompts.py`)

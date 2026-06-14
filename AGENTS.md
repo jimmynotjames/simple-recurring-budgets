@@ -481,9 +481,23 @@ nohup bash -c 'fastlane screenshots > tmp/capture.log 2>&1' &
 
 This pattern is hard-blocked by the `guard_bash_hygiene.sh` hook (rule 6).
 
+### 10. Never use `printf`/`echo` redirects to write file content — use the Write tool
+
+`printf '%s\n' '...' > tmp/commit-msg.txt` and `echo '...' > tmp/file` create compound Bash commands whose leading token isn't in any allowlist entry, so they prompt even though `tmp/` writes and `git commit -F`/`gh pr create --body-file` are all individually allowed. The Write tool sidesteps this entirely: it has its own `Write(./**)` permission, runs as a first-class tool call (not a Bash invocation), and leaves the subsequent git/gh command as a clean standalone string that matches its allowlist entry.
+
+```
+# ✓ Write tool creates the file; Bash runs only the git/gh command (both already allowed)
+Write(tmp/commit-msg.txt)   →   git commit -F tmp/commit-msg.txt
+Write(tmp/pr-body.md)       →   gh pr create --title "…" --body-file tmp/pr-body.md
+
+# ✗ compound command — printf leading token has no allowlist entry, prompts every time
+printf '%s\n' 'Commit message' > tmp/commit-msg.txt && git commit -F tmp/commit-msg.txt
+echo 'body' > tmp/pr-body.md && gh pr create --title "…" --body-file tmp/pr-body.md
+```
+
 ### Pre-flight check
 
-Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one-off `python3 -c` / `python3 /tmp/...` heredoc, `${PIPESTATUS}`, `rc=$?`, or a `||`/`;`-chained fallback `echo`, a leading `cd <path> &&`, or a `nohup` prefix — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
+Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one-off `python3 -c` / `python3 /tmp/...` heredoc, `${PIPESTATUS}`, `rc=$?`, or a `||`/`;`-chained fallback `echo`, a leading `cd <path> &&`, a `nohup` prefix, or a `printf`/`echo` redirect (`> file`) — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
 
 ## Commit and PR style
 
@@ -549,7 +563,7 @@ git fetch --prune                                                               
 
 ### PR description
 
-**Always pass the body via `--body-file`, never inline `--body`.** Write the description to `tmp/pr-body.md` (gitignored, `Write(./tmp/**)` is allowlisted) and run `gh pr create --title "…" --body-file tmp/pr-body.md`. PR bodies contain backticks (command-substitution syntax) and newlines; passing them inline forces a permission prompt even though `gh pr *` is allowlisted, because the matcher won't auto-approve a command containing command substitution. The same applies to long or backtick-laden commit messages — use `git commit -F tmp/commit-msg.txt` rather than a multi-line `-m`.
+**Always pass the body via `--body-file`, never inline `--body`.** Use the **Write tool** to create `tmp/pr-body.md`, then run `gh pr create --title "…" --body-file tmp/pr-body.md` as a standalone Bash call. Similarly, use the **Write tool** for `tmp/commit-msg.txt` and run `git commit -F tmp/commit-msg.txt`. Never use `printf ... > file` or `echo ... > file` to produce these files — that creates a compound Bash command whose leading token (`printf`/`echo`) has no allowlist entry and will prompt (see hygiene rule 10). PR bodies and commit messages that contain backticks, newlines, or `$` characters also can't safely be inlined via `--body` or `-m`.
 
 ```markdown
 Closes #N

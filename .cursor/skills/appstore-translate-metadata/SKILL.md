@@ -38,9 +38,15 @@ audit + remediation loop (Step 5), and the gate are all routine and pre-approved
 in `.claude/settings.json`. Do **not** ask "shall I proceed?" between steps, and do
 not ask permission to retry a failed locale or to auto-fix audit findings.
 
-There is exactly **one** thing worth bringing to the human: **genuine content
-questions about the marketing copy itself** that the subagents flag (Step 4a).
-Surface those in a single batch; everything else you decide and execute yourself.
+There are exactly **two** deliberate human checkpoints; everything else you decide
+and execute yourself:
+
+1. **Up front, before any pipeline step** — confirm the English source copy is
+   final and ready to transcreate (the **source-ready confirmation** below). This
+   is the only gate that blocks the run from starting.
+2. **Mid-run** — **genuine content questions about the marketing copy itself** that
+   the subagents flag (Step 4a). Surface those in a single batch and keep going;
+   they refine specific strings, they don't block the run.
 
 ### Model roles — orchestrator vs. workers
 
@@ -76,13 +82,35 @@ itself.
   (e.g. de-DE "du"→"Sie") here, mirror it in `REGIONAL_NOTES`; wording may differ, the formality
   call must not. Don't try to merge the two maps.
 
-## Prerequisite: English source copy must exist
+## Source-ready confirmation (human checkpoint — do this first)
 
-The pipeline transcreates whatever non-empty translatable fields exist in
-`fastlane/metadata/en-US/`. Before translating, confirm these are authored:
-`name.txt`, `subtitle.txt`, `description.txt`, `keywords.txt`,
-`promotional_text.txt`, `release_notes.txt`. If a field is intentionally blank
-(e.g. no promotional text this release), the pipeline simply skips it.
+The pipeline transcreates whatever non-empty translatable fields exist in the
+English source into **all 49 storefronts**, so a typo or an accidentally-blank
+field here propagates everywhere and costs a full re-run to undo. Before any
+pipeline step, confirm the source with the human — this is the one gate that
+blocks the run from starting.
+
+**Source location — the only files you edit by hand:**
+
+- **Folder:** `fastlane/metadata/en-US/`
+- **Translatable fields:** `name.txt`, `subtitle.txt`, `description.txt`,
+  `keywords.txt`, `promotional_text.txt`, `release_notes.txt`
+- The `*_url.txt` files (`marketing_url`, `privacy_url`, `support_url`) are copied
+  verbatim to every locale, not translated — leave them out of the confirmation.
+
+Read those six files and present, in a **single** message: the folder path, each
+field's current **authored / blank** state, and a short preview of the authored
+values. A blank field is simply skipped (not an error) — surfacing the state lets
+the human catch a field that's empty *by mistake*. Then ask them to confirm the
+copy is final and ready to transcreate:
+
+- **Claude Code:** `AskUserQuestion`.
+- **Cursor:** a short markdown block (mirror the orchestrator-model preflight).
+
+Wait for confirmation before Step 0. If the human wants to edit copy first, let
+them, then re-read and re-confirm. This upfront prompt is a **deliberate exception**
+to "run translation work without prompting" — it is specific to this metadata
+skill, where the blast radius of a bad source string is all 49 storefronts.
 
 ## Recipe
 

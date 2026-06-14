@@ -24,6 +24,16 @@ This skill does two long-running things back to back:
 Both phases run **in the background** with 20-minute progress ticks, so the whole
 skill runs unattended apart from (at most) the single choice in step 3.
 
+## Preflight — orchestrator model (before anything else)
+
+Before any other step, run the **orchestrator-model preflight** (canonical:
+`AGENTS.md` → "Orchestrator-model preflight"). This skill is tuned to orchestrate on
+**Sonnet**; if the current session model is **not** Sonnet, **stop and confirm**
+(`AskUserQuestion` on Claude Code, a markdown block on Cursor) before running
+anything. This skill has no subagents — it's pure capture/upload mechanics — so the
+only concern is that a model weaker than Sonnet may handle the tick-loop and
+success-verification steps unreliably; Opus works but is pricier for no gain.
+
 ## Arguments — how to run fully unattended
 
 The invocation may carry one optional argument that **pre-answers the step-3
@@ -54,6 +64,7 @@ lane fails to build) — surface the log tail and stop.
 Print this checklist unchecked at the start, then re-print it (compact, one line
 per step) with `- [x]` as each step completes:
 
+0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding)
 1. **Precondition** — seed catalog complete (`check_content.py` exits 0)
 2. **Capture status** — is capture already done? (`capture_progress.py`)
 3. **Choice** — Option A (pause) or B (upload now), or pre-answered by argument

@@ -248,6 +248,33 @@ scripts and agents are allowlisted in `.claude/settings.json`. Cursor: `~/.curso
 already permits everything via coarse `Shell(python3:*)` / `Shell(bash:scripts/*)` / `Read(**)` /
 `Write(**)` rules. The skills are mirrored verbatim into both `.claude/skills/` and `.cursor/skills/`.
 
+### Orchestrator-model preflight (Sonnet-tuned skills)
+
+A few skills are written so the **orchestrator** (the session model running the skill) can be
+**Sonnet** — orchestration is mechanical (script calls, parallel fan-outs, deterministic
+threshold branches) while the pinned-Opus subagents do the language work. Claude Code exposes
+**no session-model env var** (so a hook or script can't detect it), and skill frontmatter can't
+pin the session model — so these skills self-check at **Step 0** instead. The check is advisory
+(it relies on the model reading its own identity line), not an enforced gate.
+
+1. **Read** your current session model from your environment context (the line "You are powered
+   by the model named …").
+2. **If it is not Sonnet, stop and confirm before running any step.**
+   - **Claude Code:** `AskUserQuestion` — *"This skill is tuned to orchestrate on Sonnet; this
+     session is `<model>`. Proceed on `<model>`, or stop and switch first?"* Spell out the
+     trade-off in the options: Opus works but is pricier with no quality gain; a model **weaker
+     than Sonnet** (e.g. Haiku) may make the loop/threshold judgments unreliable. Options:
+     *Proceed on `<model>`* / *Stop — I'll switch to Sonnet*.
+   - **Cursor** (no AskUserQuestion): print the same as a short markdown block and wait for a reply.
+   - Do **not** run any later step until the user answers.
+3. On *proceed*, continue normally. On *stop*, tell them to re-invoke after `/model sonnet`, then
+   end. The Opus subagents stay Opus regardless of the session model (pinned in their
+   `.claude/agents/*.md` definitions), so switching the session to Sonnet never weakens the
+   language work.
+
+Skills that run this preflight: `appstore-generate-screenshot-seeding`,
+`appstore-generate-push-screenshots`, `appstore-translate-metadata`.
+
 ## Platform compatibility workarounds
 
 When a workaround exists solely because of a known platform bug, framework limitation, or SDK false positive — not because of app logic — tag it with a structured comment so it can be found and reassessed without reading every file.

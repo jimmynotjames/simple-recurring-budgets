@@ -47,6 +47,17 @@ a 500-shot re-inspection, and a re-upload.
 - **Full overwrite-regeneration of all locales is exceptional**: only on an
   explicit, unambiguous user request for fresh content everywhere.
 
+## Preflight — orchestrator model (before anything else)
+
+Before any other step, run the **orchestrator-model preflight** (canonical:
+`AGENTS.md` → "Orchestrator-model preflight"). This skill is tuned to orchestrate on
+**Sonnet**; if the current session model is **not** Sonnet, **stop and confirm**
+(`AskUserQuestion` on Claude Code, a markdown block on Cursor) before running
+anything — Opus works but is pricier for no quality gain, and a model weaker than
+Sonnet may make the validate/retry judgments unreliable. The `screenshot-content-locale`
+workers stay Opus regardless (pinned in their agent definition), so switching the
+session to Sonnet never weakens the generated content.
+
 ## Autonomy
 
 Run end to end **autonomously, without pausing on mechanical steps** — extract,
@@ -62,6 +73,7 @@ Surface those in a single consolidated batch; everything else you decide yoursel
 Autonomous ≠ silent. Narrate the run as a fixed checklist of steps so the user can
 see at a glance where the job is. The canonical steps (matching the Recipe below):
 
+0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding)
 1. **Pre-flight** — clear stale `tmp/screenshot-content-*` outputs
 2. **Extract** — stage source, compute the work manifest
 3. **Prompts** — compose per-storefront prompt files

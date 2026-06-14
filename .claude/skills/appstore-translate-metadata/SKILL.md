@@ -18,6 +18,18 @@ This is the **metadata** pipeline (App Store listing). For in-app UI strings in
 different locale code systems (storefront vs runtime); `metadata_locales.py` owns
 the mapping.
 
+## Preflight — orchestrator model (before anything else)
+
+Before any other step, run the **orchestrator-model preflight** (canonical:
+`AGENTS.md` → "Orchestrator-model preflight"). This skill is tuned to orchestrate on
+**Sonnet**; if the current session model is **not** Sonnet, **stop and confirm**
+(`AskUserQuestion` on Claude Code, a markdown block on Cursor) before running
+anything — Opus works but is pricier for no quality gain, and a model weaker than
+Sonnet may make the Step-5 threshold/loop judgments unreliable. The `metadata-locale`
+and `metadata-audit-locale` workers stay Opus regardless (pinned in their agent
+definitions), so switching the session to Sonnet never weakens the translation or
+audit.
+
 ## Autonomy
 
 Run this whole pipeline **autonomously, end to end, without pausing for approval

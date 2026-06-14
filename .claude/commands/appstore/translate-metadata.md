@@ -15,5 +15,5 @@ its recipe end to end.
 **Definition of done:** `python3 scripts/translate_metadata/check_metadata.py`
 exits 0.
 
-This is the **text-metadata** sibling of `/appstore:screenshot-content` (screenshot
+This is the **text-metadata** sibling of `/appstore:generate-screenshot-seeding` (screenshot
 demo data) and `translate-new-strings` (in-app UI strings).

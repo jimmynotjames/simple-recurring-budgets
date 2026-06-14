@@ -71,8 +71,8 @@ listings in ASC before submitting.
 
 A three-step flow: generate per-locale demo content → capture → upload.
 
-1. **Generate demo content.** Run the **`appstore-screenshot-content`** skill
-   (`/appstore:screenshot-content`), which drives `scripts/screenshot_content/` to
+1. **Generate demo content.** Run the **`appstore-generate-screenshot-seeding`** skill
+   (`/appstore:generate-screenshot-seeding`), which drives `scripts/screenshot_content/` to
    produce a culturally-tuned, locally-realistic per-locale catalog (≤3 budgets each)
    under `simple-recurring-budgetsUITests/ScreenshotSeeds/<lang>.json`. Gate:
    `python3 scripts/screenshot_content/check_content.py` (exit 0 = ready). The catalog
@@ -92,7 +92,12 @@ A three-step flow: generate per-locale demo content → capture → upload.
    `fastlane/screenshots/<storefront>/` before uploading. (`Snapfile` `only_testing`
    scopes capture to this one test; the accessibility capture + journey suite don't run.)
 
-3. **Upload (touches App Store Connect).**
+3. **Upload (touches App Store Connect).** Prefer the
+   **`/appstore:generate-push-screenshots`** skill, which captures (if needed) and then
+   drives the self-healing controller `scripts/screenshot_content/upload_with_retry.sh`.
+   The bare lane below hangs indefinitely when ASC returns HTTP 500s during
+   finalization, so the controller wraps it with hang-detection + bounded retries +
+   a per-storefront subset fallback. The raw lane:
    ```bash
    fastlane push_screenshots
    ```
@@ -100,9 +105,12 @@ A three-step flow: generate per-locale demo content → capture → upload.
    "Prepare for Submission" version — **nothing goes live** until you submit in App Store
    Connect.
 
-   To re-capture only a few locales while iterating, pass them through `snapshot`:
-   `fastlane snapshot --languages ja,de,ar --devices "iPhone 16 Pro Max"` (then re-run the
-   rename script), or use the per-locale skill args, e.g. `/appstore:screenshot-content ja de-DE ar-SA`.
+   To re-capture only a few locales while iterating, pass them through `snapshot`
+   **with `--clear_previous_screenshots false`** (the `Snapfile` sets it `true` for
+   full runs, so omitting the override wipes every other locale first):
+   `fastlane snapshot --languages ja,de,ar --devices "iPhone 16 Pro Max" --clear_previous_screenshots false`
+   (then re-run the rename script), or use the per-locale skill args, e.g.
+   `/appstore:generate-screenshot-seeding ja de-DE ar-SA`.
 
 ## Build numbers (auto-incremented)
 

@@ -37,6 +37,11 @@ METADATA_DIR = REPO_ROOT / "fastlane" / "metadata"
 PROMPTS_DIR = REPO_ROOT / "tmp" / "metadata-audit-prompts"
 OUTPUTS_DIR = REPO_ROOT / "tmp" / "metadata-audit-outputs"
 TEMPLATE_PATH = SCRIPT_DIR / "AUDIT_PROMPT_TEMPLATE.md"
+# --write-manifest target: the same files extract.py writes, so the existing
+# dispatch_prompts.py → metadata-locale → validate → merge path can remediate.
+INPUTS_DIR = REPO_ROOT / "tmp" / "metadata-inputs"
+MANIFEST_PATH = INPUTS_DIR / "manifest.json"
+SOURCE_OUT_PATH = INPUTS_DIR / "source.json"
 
 sys.path.insert(0, str(SCRIPT_DIR))
 # Import the *metadata* dispatch_prompts first, while SCRIPT_DIR is path[0] — the module name
@@ -178,11 +183,83 @@ def cmd_report(storefronts: list[str], min_severity: str, as_json: bool) -> int:
     return 1
 
 
+# --------------------------------------------------------------- remediate
+
+def _english_source() -> dict[str, dict]:
+    """en-US authored translatable fields, in extract.py's source.json shape."""
+    return {f: {"value": read_field(SOURCE_LOCALE, f), "charLimit": FIELD_LIMITS.get(f)}
+            for f in TRANSLATABLE_FIELDS if read_field(SOURCE_LOCALE, f)}
+
+
+def cmd_write_manifest(storefronts: list[str], min_severity: str) -> int:
+    """Turn audit findings at/above `min_severity` into a re-transcreation manifest.
+
+    Writes tmp/metadata-inputs/{manifest,source}.json in the exact shape
+    `extract.py --missing` produces, scoped to the flagged (storefront, field)
+    pairs — so the standard `dispatch_prompts.py` → metadata-locale → validate →
+    merge path can fix exactly what the auditors flagged, with no ad-hoc plumbing.
+    The per-field issues/suggestions stay in tmp/metadata-audit-outputs/{sf}.json
+    for the remediation dispatch to feed each translator.
+    """
+    targets = storefronts or [s for s in STOREFRONT_LOCALES if s != SOURCE_LOCALE]
+    threshold = SEVERITY_RANK[min_severity]
+    source = _english_source()
+    manifest: dict[str, list[str]] = {}
+    missing: list[str] = []
+
+    for sf in targets:
+        path = OUTPUTS_DIR / f"{sf}.json"
+        if not path.exists():
+            missing.append(sf)
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            print(f"  ⚠ {sf}.json invalid JSON — skipping", file=sys.stderr)
+            continue
+        fields: set[str] = set()
+        for f in data.get("findings", []) if isinstance(data, dict) else []:
+            if not isinstance(f, dict):
+                continue
+            field = f.get("field")
+            sev = f.get("severity", "medium")
+            if sev not in SEVERITY_RANK:
+                sev = "medium"
+            # Only fields we can actually re-transcreate (authored in en-US source).
+            if field in source and SEVERITY_RANK[sev] >= threshold:
+                fields.add(field)
+        if fields:
+            manifest[sf] = sorted(fields)
+
+    INPUTS_DIR.mkdir(parents=True, exist_ok=True)
+    (REPO_ROOT / "tmp" / "metadata-outputs").mkdir(parents=True, exist_ok=True)
+    with SOURCE_OUT_PATH.open("w", encoding="utf-8") as fh:
+        json.dump(source, fh, ensure_ascii=False, indent=2, sort_keys=True)
+        fh.write("\n")
+    with MANIFEST_PATH.open("w", encoding="utf-8") as fh:
+        json.dump(manifest, fh, ensure_ascii=False, indent=2, sort_keys=True)
+        fh.write("\n")
+
+    pairs = sum(len(v) for v in manifest.values())
+    print(f"Remediation manifest: {len(manifest)} storefront(s), {pairs} field(s) "
+          f"at/above '{min_severity}' → {MANIFEST_PATH}")
+    if missing:
+        print(f"  ({len(missing)} storefront(s) had no audit output — run --dispatch "
+              "and the auditors first.)")
+    if not manifest:
+        print("  Nothing to remediate at this severity — the listing passed the "
+              "semantic audit. ✓")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     g = parser.add_mutually_exclusive_group(required=True)
     g.add_argument("--dispatch", action="store_true", help="Compose per-storefront semantic audit prompts.")
     g.add_argument("--report", action="store_true", help="Aggregate auditor findings into a report.")
+    g.add_argument("--write-manifest", action="store_true",
+                   help="Write a re-transcreation manifest for findings at/above --min-severity "
+                        "(extract.py shape) so dispatch_prompts.py can remediate them.")
     parser.add_argument("--min-severity", choices=["high", "medium", "low"], default="low")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("storefronts", nargs="*", help="Storefronts (default: all targets).")
@@ -194,6 +271,8 @@ def main(argv: list[str]) -> int:
         return 2
     if args.dispatch:
         return cmd_dispatch(args.storefronts)
+    if args.write_manifest:
+        return cmd_write_manifest(args.storefronts, args.min_severity)
     return cmd_report(args.storefronts, args.min_severity, args.json)
 
 

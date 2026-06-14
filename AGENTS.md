@@ -466,9 +466,24 @@ until s=$(gh run view 27157096793 --json status,conclusion --jq '...'); \
 
 The hand-written loop splits into segments (`until s=$(…)`, `do sleep 30`, `done`) that match no allow entry, and the harness now blocks foreground `sleep` outright — so it can't run at all. `wait_ci.sh` is the only clean way to wait on CI.
 
+### 9. Never use `nohup` — use `run_in_background: true` instead
+
+`nohup` shifts the leading command token to `nohup`, breaking allowlist matching for the actual command. Even `nohup fastlane screenshots` does **not** match `Bash(fastlane screenshots *)`. The Bash tool's `run_in_background: true` parameter is the correct way to background long-running commands — it doesn't alter the command string, so existing allowlist entries still apply.
+
+```bash
+# ✓ Bash tool call with run_in_background: true
+fastlane screenshots > tmp/capture.log 2>&1
+
+# ✗ both prompt and are hard-blocked by the PreToolUse hook (rule 6)
+nohup fastlane screenshots > tmp/capture.log 2>&1 &
+nohup bash -c 'fastlane screenshots > tmp/capture.log 2>&1' &
+```
+
+This pattern is hard-blocked by the `guard_bash_hygiene.sh` hook (rule 6).
+
 ### Pre-flight check
 
-Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one-off `python3 -c` / `python3 /tmp/...` heredoc, `${PIPESTATUS}`, `rc=$?`, or a `||`/`;`-chained fallback `echo`, or a leading `cd <path> &&` — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
+Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one-off `python3 -c` / `python3 /tmp/...` heredoc, `${PIPESTATUS}`, `rc=$?`, or a `||`/`;`-chained fallback `echo`, a leading `cd <path> &&`, or a `nohup` prefix — **stop and rewrite it** using the rules above. The prompts are not a permission-config bug; they are the harness telling you to use a different approach.
 
 ## Commit and PR style
 

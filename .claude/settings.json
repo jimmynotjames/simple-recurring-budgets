@@ -228,6 +228,7 @@
       "Bash(fastlane snapshot *)",
       "Bash(fastlane screenshots)",
       "Bash(fastlane screenshots *)",
+      "Bash(fastlane ios *)",
       "Skill(openspec-sync-specs)",
       "Skill(openspec-apply-change)",
       "Skill(openspec-archive-change)",

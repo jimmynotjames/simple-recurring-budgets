@@ -100,9 +100,19 @@ blocks the run from starting.
 
 Read those six files and present, in a **single** message: the folder path, each
 field's current **authored / blank** state, and a short preview of the authored
-values. A blank field is simply skipped (not an error) — surfacing the state lets
-the human catch a field that's empty *by mistake*. Then ask them to confirm the
-copy is final and ready to transcreate:
+values.
+
+**WARNING — blank fields clear all translations.** When a translatable field is
+left blank in `en-US`, `merge.py` **erases the content of every existing translated
+`.txt` for that field across all storefronts** (it reads the blank state straight
+from the `en-US` folder), and `check_metadata.py` enforces that those files stay
+empty. This is intentional: blank in English = blank everywhere. But it is
+destructive if the field is blank *by accident*.
+
+For any blank field in the summary, display a prominent notice:
+> **[BLANK — will erase all existing translated copies of this field]**
+
+Then ask them to confirm the copy is final and ready to transcreate:
 
 - **Claude Code:** `AskUserQuestion`.
 - **Cursor:** a short markdown block (mirror the orchestrator-model preflight).
@@ -138,9 +148,13 @@ Writes:
 - `tmp/metadata-inputs/manifest.json` — `{storefront: [fields...]}` listing the
   gaps to fill.
 
-If the manifest is empty, nothing needs transcreating — skip Steps 2–5 (including
-the refine pass; there's nothing new to refine) and go to the gate (Step 6) to
-confirm.
+If the manifest is empty, nothing needs transcreating — skip Steps 2, 3, 4
+(validate), 4a, and 5 (including the refine pass; there's nothing new to refine).
+**But still run `merge.py` (the merge command from Step 4) before the gate.** With
+no new translation outputs it merges nothing, but it still scans the `en-US` source
+for blank fields and clears any existing translated copies of them. Skipping merge
+here would leave stale translations in place and cause `check_metadata.py` to fail
+with NOTEMPTY errors in a loop. After merge, go to the gate (Step 6).
 
 ### 2. Compose per-storefront prompts
 
@@ -229,9 +243,12 @@ python3 scripts/translate_metadata/merge.py
 ```
 
 Writes each field to `fastlane/metadata/{storefront}/{field}.txt` and copies the
-URL files verbatim from en-US. Refuses to clobber a non-empty file with an empty
-value. The `_questions` arrays (if any) live only in the `tmp/metadata-outputs/`
-JSON — `merge.py` strips `_`-prefixed keys, so they never reach the metadata tree.
+URL files verbatim from en-US. Refuses to overwrite an existing non-empty `.txt`
+with an empty *translated* value, but always clears any field that is blank in the
+`en-US` source (read directly from the source folder, the same signal the gate
+enforces) across all storefronts. The `_questions` array lives only in the
+`tmp/metadata-outputs/` JSON — `merge.py` strips `_`-prefixed keys, so it never
+reaches the metadata tree.
 
 ### 4a. Collect and surface content questions (the one human checkpoint)
 

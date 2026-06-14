@@ -92,8 +92,8 @@ scripts/translate_metadata/
   dispatch_prompts.py   # source + manifest + PROMPT_TEMPLATE.md → tmp/metadata-prompts/{storefront}.md
   validate.py           # --subset; PASS/PENDING/FAIL; char limits, brand prefix, keyword hygiene; --json
   audit.py              # inspect outputs: field/char table, OVER flags, consolidated _questions; --questions/--json/--full
-  merge.py              # tmp/metadata-outputs/{storefront}.json → fastlane/metadata/{storefront}/*.txt + URL passthrough
-  check_metadata.py     # authoritative gate over fastlane/metadata/
+  merge.py              # tmp/metadata-outputs/{storefront}.json → fastlane/metadata/{storefront}/*.txt + URL passthrough; clears fields blank in en-US
+  check_metadata.py     # authoritative gate over fastlane/metadata/ (authored fields populated+within limits; blank-source fields stay empty)
   PROMPT_TEMPLATE.md    # transcreation prompt template
   README.md             # this file
 

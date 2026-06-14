@@ -118,7 +118,7 @@ copy gives you a choice of what to stress, prefer stressing what the screenshots
 *can't* convey (the feel, the privacy stance, the carry-over payoff, the
 anti-positioning) over narrating what they already do. This is about *which
 existing copy to emphasize* — it is **not** license to add new bullets, lines, or
-claims the English source doesn't contain (see rule 8 on structure fidelity).
+claims the English source doesn't contain (see rule 10 on structure fidelity).
 
 The screenshots, in order:
 
@@ -248,10 +248,30 @@ where each key is the field name and each value is the transcreated string.
    equivalent (the in-app glossary translates it per locale); match that term so
    the listing and the app agree.
 
-7. **Numbers, currency, and dates** should follow local convention where they
+7. **"Biweekly" means every two weeks (fortnightly) — NOT twice a week.** In the
+   source, *biweekly* always names a budget period that resets once **every two
+   weeks**. English "biweekly" is notoriously ambiguous, and several languages
+   have a false-cognate trap — e.g. French *bimensuel* actually means twice a
+   *month*, and a literal "bi-weekly" calque can read as *twice a week*. Pick the
+   **unambiguous** local term for *every two weeks / fortnightly*, and match the
+   in-app glossary's rendering so the listing and the app agree.
+
+8. **Adapt parenthetical examples to the local market — don't translate them
+   literally.** Where the source illustrates a point with a list of examples — e.g.
+   everyday spending categories like *"(food, coffee/tea, nightlife, clothes,
+   etc.)"* — treat them as *illustrations*, not fixed copy. Swap in things a local
+   reader actually spends money on: if an example isn't culturally salient in this
+   market (e.g. "nightlife" where it's uncommon), replace it with a comparable
+   everyday, money-costing habit; collapse "coffee/tea" to whichever the culture
+   clearly prefers (or another routine treat if neither fits); and you need **not**
+   keep the exact count — if only three examples ring true for this market, use
+   three. Keep them concrete, recurring, everyday spends that fit Wren's calm tone,
+   and keep the surrounding sentence natural.
+
+9. **Numbers, currency, and dates** should follow local convention where they
    appear in prose, but do not invent specifics that aren't in the source.
 
-8. **Preserve structure — and only the structure — in long fields**
+10. **Preserve structure — and only the structure — in long fields**
    (`description`, `release_notes`): keep the paragraph breaks, the bulleted
    feature list, and the closing line.
    - **Match the source's bullet list exactly: same number of bullets, same
@@ -269,7 +289,7 @@ where each key is the field name and each value is the transcreated string.
    - Emphasis the brief calls for (e.g. the privacy stance) belongs in the
      surrounding *prose*, never as an invented bullet or an extra line.
 
-9. **Output only the JSON object.** No markdown fences. No text before or after.
+11. **Output only the JSON object.** No markdown fences. No text before or after.
 
 ## Source fields
 

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "builtAt": "2026-06-05T21:38:38.582831+00:00",
+    "builtAt": "2026-06-14T16:34:46.318765+00:00",
     "model": "opus",
     "note": "Canonical per-locale translations for recurring app terms. Built and grown by glossary_build.py / glossary_sync.py; consulted by dispatch_prompts.py (translation) and audit_dispatch.py (audit). Protected nouns (Wren, iCloud) map to themselves via the '*' wildcard locale. Do not hand-edit translations — re-run the glossary pipeline.",
     "version": 1
@@ -432,7 +432,7 @@
       }
     },
     "Biweekly": {
-      "context": "Budget period name (resets every two weeks). Title-case list label with a lowercase inline form. Part of the period-name set.",
+      "context": "Budget period name: a budget that resets once EVERY TWO WEEKS (fortnightly / every 14 days). CRITICAL DISAMBIGUATION: this means every two weeks — NOT 'twice a week' and NOT 'twice a month'. Beware false cognates: French 'bimensuel' actually means twice a MONTH, and a literal 'bi-weekly' calque (e.g. in some Indic/Hebrew scripts) can read as 'twice a week'. Choose the UNAMBIGUOUS local term for 'every two weeks / fortnightly'. Title-case list label, with a lowercase inline adjective form used in a sentence like 'remaining this <biweekly> period'. Part of the period-name set (Daily / Weekly / Biweekly / Monthly).",
       "en": "Biweekly",
       "partOfSpeech": "adjective",
       "sourceKeys": [
@@ -453,7 +453,7 @@
         "es": "Quincenal",
         "es-MX": "Quincenal",
         "fi": "Kahden viikon välein",
-        "fr": "Bimensuel",
+        "fr": "Toutes les deux semaines",
         "fr-CA": "Aux deux semaines",
         "gu": "પખવાડિક",
         "he": "דו-שבועי",

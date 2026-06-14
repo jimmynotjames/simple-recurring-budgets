@@ -1,15 +1,19 @@
 Vedi, koliko lahko porabiš, še preden zapraviš.
 
-Wren poskrbi, da so vsakodnevne odločitve o porabi hitre in preproste. Če svoje cilje porabe lahko razdeliš na dnevne, tedenske, štirinajstdnevne ali mesečne meje, je ta aplikacija zate.
+Wren poskrbi, da so vsakdanje odločitve o porabi hitre in preproste. Nastavi si meje porabe in jih spremljaj.
 
-Kaj zna:
+Funkcije:
 • Preprosta nastavitev
 • Hitro beleženje stroškov
-• Dnevni, tedenski, štirinajstdnevni in mesečni proračuni
-• Prenos neporabljenega naprej, tako da se prihranek od danes prelije v jutri
-• Sinhronizacija prek iClouda med napravami
-• Podatki ostanejo na napravi in v iCloudu
+• Dnevni, tedenski, dvotedenski in mesečni proračuni
+• Prenos neporabljenega naprej, tako da se to, kar danes prihraniš, prenese v jutri
+• Enkratni proračuni za določena obdobja (na primer dopust ali vikend oddih)
+• Podatki so varno shranjeni na napravi in v storitvi iCloud
+• Sinhronizacija prek storitve iCloud med vsemi tvojimi napravami
+• Internetna povezava ni potrebna, razen za sinhronizacijo prek iCloud
 
-To ni orodje za poslovne stroške, davčne račune ali veliko načrtovanje financ. Ne povezujem tvojih bančnih računov in ti ne ponujam zapletenih grafov. Tvoje finance so tvoja stvar, zato ti ne vsiljujem svojega sistema.
+To ni sledilnik poslovnih stroškov, beležnica davčnih računov ali zapleten sistem za proračun. Ne povezujem tvojih bančnih računov in ne ponujam zapletenih grafov. Želim ponuditi preprosto orodje, ki se osredotoča na nekaj navad, ne na celotno tvoje finančno življenje.
 
-Prenesi Wren in naj bo vsak dan malo lažji.
+Za učinkovito uporabo aplikacije moraš pomisliti le na eno ali dve redni navadi pri porabi, ki ju želiš izboljšati (hrana, kava, druženje, obleke ipd.). Nato premisli, koliko največ želiš porabiti vsak dan, teden, vsaka dva tedna ali vsak mesec. Ko te proračune dodaš v aplikacijo in začneš beležiti stroške, boš o porabi lahko odločal pametneje, sproti.
+
+Prenesi Wren in si polepšaj vsak dan.

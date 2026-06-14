@@ -1,15 +1,19 @@
 Vedz, koľko môžeš minúť, ešte predtým, než to minieš.
 
-Wren mení každodenné rozhodovanie o peniazoch na rýchlu a jednoduchú vec. Ak si vieš svoje výdavky rozdeliť na denné, týždenné, dvojtýždňové či mesačné limity, táto appka je pre teba.
+S Wren sú každodenné rozhodnutia o míňaní rýchle a jednoduché. Nastav si limity a sleduj, ako na ne míňaš.
 
-Čo ponúka:
+Čo Wren ponúka:
 • Jednoduché nastavenie
 • Rýchle zapisovanie výdavkov
-• Denné, týždenné, dvojtýždňové aj mesačné rozpočty
-• Nevyčerpané peniaze sa prenášajú ďalej, takže to, čo dnes ušetríš, máš zajtra navyše
-• Synchronizácia cez iCloud medzi zariadeniami
-• Dáta zostávajú v zariadení a v iCloude
+• Denné, týždenné, dvojtýždňové a mesačné rozpočty
+• Prenos neminutých peňazí – čo dnes ušetríš, prejde do ďalšieho obdobia
+• Jednorazové rozpočty pre konkrétne obdobie (napríklad dovolenka či víkendový výlet)
+• Dáta sú v bezpečí v zariadení a na iCloude
+• Synchronizácia cez iCloud medzi tvojimi zariadeniami
+• Bez pripojenia na internet, pokiaľ nepoužívaš synchronizáciu cez iCloud
 
-Toto nie je nástroj na firemné výdavky, evidenciu daňových účteniek ani veľký rozpočtový systém. Nepripájam ti bankové účty a neukazujem nablýskané grafy. Tvoje financie sú tvoja vec, takže ti nevnucujem žiadny systém na vedenie peňazí.
+Toto nie je nástroj na firemné výdavky, evidenciu daňových dokladov ani zložitý rozpočtový systém. Neprepájam tvoje bankové účty ani ti neukazujem efektné grafy. Chcem ponúknuť jednoduchý nástroj, ktorý sa sústredí na pár návykov, nie na celý tvoj finančný život.
+
+Na to, aby ti appka naozaj pomohla, stačí, keď si premyslíš jeden či dva pravidelné výdavky, na ktorých chceš zapracovať (jedlo, káva, reštaurácie, oblečenie a podobne). Potom si urči, koľko najviac chceš minúť za deň, týždeň, dva týždne alebo mesiac. Keď si tieto rozpočty pridáš a začneš sledovať výdavky, budeš sa vedieť rozhodovať múdrejšie priamo v danej chvíli.
 
 Stiahni si Wren a maj každý deň o čosi ľahší.

@@ -1,1 +1,1 @@
-perbelanjaan,wang,kewangan,duit,simpanan,jimat,dompet,mingguan,bulanan,tabung,kira
+wang,kewangan,duit,simpanan,jimat,dompet,tabung,belanjawan,pengurus,bulanan,mingguan,akaun

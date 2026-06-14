@@ -1,15 +1,19 @@
-Sabe cuánto puedes gastar, antes de gastarlo.
+Date cuenta de cuánto puedes gastar antes de gastarlo.
 
-Wren hace que tus decisiones de gasto diario sean rápidas y sencillas. Si puedes organizar tus metas de gasto en límites diarios, semanales, quincenales o mensuales, esta app es para ti.
+Wren hace que las decisiones de gasto del día a día sean rápidas y sencillas. Pon límites de gasto y lleva el control frente a ellos.
 
-Lo que incluye:
-• Configuración sencilla
-• Registro de gastos en segundos
+Características:
+• Configuración fácil
+• Registro de gastos al instante
 • Presupuestos diarios, semanales, quincenales y mensuales
-• El dinero que no gastas se acumula: lo que ahorras hoy pasa a mañana
-• Sincronización con iCloud en todos tus dispositivos
-• Tus datos se guardan en tu dispositivo y en iCloud
+• Pasa el dinero que no gastaste al siguiente periodo, así lo que ahorras hoy se suma a mañana
+• Presupuestos únicos para fechas específicas (como unas vacaciones o una escapada de fin de semana)
+• Tus datos se guardan seguros en el dispositivo y en iCloud
+• Sincronización con iCloud entre tus dispositivos
+• No necesitas conexión a internet, salvo que uses la sincronización con iCloud
 
-No es un control de gastos de empresa, ni un registro de comprobantes fiscales, ni una herramienta de presupuesto avanzado. No intento conectar tus cuentas bancarias ni llenarte de gráficas complicadas. Tus finanzas son tuyas, así que no te impongo ningún sistema financiero.
+No es una app para gastos de empresa, ni para registrar recibos de impuestos, ni un sistema de presupuesto complicado. No conecto tus cuentas bancarias ni te lleno la pantalla de gráficas. Mi idea es darte una herramienta simple, enfocada en unos cuantos hábitos, no en toda tu vida financiera.
 
-Descarga Wren y dale más calma a tu día.
+Para sacarle provecho solo tienes que pensar en uno o dos hábitos de gasto que quieras mejorar (comida, café, salidas, ropa, etc.). Luego define cuánto quieres gastar como máximo cada día, semana, dos semanas o mes. Cuando agregues estos presupuestos a la app y empieces a registrar tus gastos, vas a tomar mejores decisiones de gasto en el momento.
+
+Descarga Wren y haz cada día más ligero.

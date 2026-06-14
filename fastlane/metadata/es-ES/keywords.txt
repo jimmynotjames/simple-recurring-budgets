@@ -1,1 +1,1 @@
-controlar,ahorro,dinero,finanzas,personal,cuentas,billetera,cartera,semanal,mensual,app
+ahorro,dinero,finanzas,personales,control,cuentas,cartera,semanal,mensual,economía,billetera

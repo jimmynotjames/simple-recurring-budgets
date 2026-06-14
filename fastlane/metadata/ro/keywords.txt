@@ -1,1 +1,1 @@
-bani,economii,finanțe,personal,portofel,venituri,lunar,saptamanal,plati,salariu,tracker
+cheltuieli,bani,buget,economii,finante,portofel,lunar,saptamanal,plati,urmarire,tracker

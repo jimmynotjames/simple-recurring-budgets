@@ -1,1 +1,1 @@
-potrošnja,novac,financije,osobni,ušteda,izdaci,upravljanje,tjedni,mjesečni,novčanik,planer
+budžet,proračun,potrošnja,novac,financije,ušteda,izdaci,trošak,tjedni,mjesečni,novčanik,planer

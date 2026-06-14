@@ -1,1 +1,1 @@
-pressupost,diners,finances,personal,estalvi,gastar,cartera,setmanal,mensual,economia
+pressupost,despeses,diners,finances,estalvi,gastar,cartera,setmanal,mensual,economia

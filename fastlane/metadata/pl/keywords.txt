@@ -1,1 +1,1 @@
-finanse,oszczędności,pieniądze,kasa,portfel,koszty,rachunki,limit,gotówka,tygodniowy,miesięczny
+budżet,wydatki,oszczędności,finanse,pieniądze,koszty,limit,portfel,kasa,planowanie,gotówka

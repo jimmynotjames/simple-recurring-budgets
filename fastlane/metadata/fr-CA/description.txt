@@ -1,15 +1,19 @@
 Sache ce que tu peux dépenser, avant de le dépenser.
 
-Wren rend les décisions de dépenses du quotidien rapides et simples. Si tu peux répartir tes objectifs en limites quotidiennes, hebdomadaires, aux deux semaines ou mensuelles, cette app est pour toi.
+Wren rend tes décisions de dépenses quotidiennes rapides et simples. Fixe des limites et suis-les facilement.
 
 Fonctions :
 • Configuration facile
 • Saisie rapide des dépenses
 • Budgets quotidiens, hebdomadaires, aux deux semaines et mensuels
-• Report des sommes non dépensées : ce que tu économises aujourd’hui passe à demain
-• Synchronisation iCloud sur tes appareils
-• Tes données restent sur l’appareil et dans iCloud
+• Report des montants non dépensés : ce que tu économises aujourd'hui passe à demain
+• Budgets ponctuels pour des dates précises (un voyage ou une escapade de fin de semaine)
+• Tes données restent en sécurité sur ton appareil et dans iCloud
+• Synchronisation iCloud entre tous tes appareils
+• Aucune connexion Internet requise, sauf pour la synchronisation iCloud
 
-Ce n’est pas un outil de dépenses d’entreprise, un registre de reçus d’impôt ni un grand logiciel de budget. Je ne cherche pas à relier tes comptes bancaires ni à te montrer des graphiques compliqués. Tes finances sont personnelles, alors je ne t’impose aucun système.
+Ce n'est ni un outil de dépenses d'affaires, ni un registre de reçus pour les impôts, ni un système de budget compliqué. Je ne relie pas tes comptes bancaires et je ne te sers pas de graphiques sophistiqués. Je veux t'offrir un outil simple, centré sur quelques habitudes plutôt que sur toute ta vie financière.
 
-Télécharge Wren et allège un peu chaque journée.
+Pour bien utiliser l'appli, pense simplement à une ou deux habitudes de dépenses que tu veux améliorer (épicerie, café, sorties, vêtements, etc.). Détermine ensuite le maximum que tu veux dépenser chaque jour, semaine, deux semaines ou mois. Une fois ces budgets ajoutés et tes dépenses suivies, tu prendras de meilleures décisions en temps réel.
+
+Télécharge Wren et rends chaque journée plus légère.

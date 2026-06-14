@@ -1,15 +1,19 @@
 Sache ce que tu peux dépenser, avant de le dépenser.
 
-Wren simplifie tes décisions de dépenses au quotidien. Si tu peux répartir tes objectifs en limites par jour, semaine, quinzaine ou mois, cette app est faite pour toi.
+Wren rend tes décisions de dépenses du quotidien rapides et simples. Fixe des limites et suis-les au fil des jours.
 
 Fonctionnalités :
-• Une mise en route rapide
-• Des dépenses notées en un instant
-• Des budgets par jour, semaine, quinzaine ou mois
-• Le report des sommes non dépensées : ce que tu mets de côté aujourd'hui passe à demain
-• La synchronisation iCloud sur tous tes appareils
-• Tes données restent sur l'appareil et dans iCloud
+• Mise en route facile
+• Ajout de dépenses en un instant
+• Budgets quotidiens, hebdomadaires, toutes les deux semaines et mensuels
+• Report du solde non dépensé : ce que tu mets de côté aujourd'hui revient demain
+• Budgets ponctuels sur une période précise (vacances ou week-end, par exemple)
+• Tes données restent sur ton appareil et dans iCloud, à l'abri
+• Synchronisation via iCloud entre tous tes appareils
+• Aucune connexion Internet nécessaire, sauf pour la synchronisation iCloud
 
-Ce n'est ni un outil de notes de frais, ni un classeur de reçus, ni un logiciel de gestion budgétaire complet. Je ne cherche pas à relier tes comptes bancaires ni à te noyer sous les graphiques. Tes finances t'appartiennent : je ne t'impose aucun système.
+Ce n'est ni un outil de notes de frais, ni un gestionnaire de reçus, ni un système de budget compliqué. Je ne relie pas tes comptes bancaires et je ne te noie pas sous les graphiques. Je voulais un outil simple, centré sur quelques habitudes, pas sur toute ta vie financière.
 
-Télécharge Wren et allège un peu chacune de tes journées.
+Pour bien t'en servir, pense à une ou deux habitudes de dépenses que tu aimerais mieux maîtriser (café, courses, restaurant, vêtements, etc.). Choisis ensuite le maximum que tu veux dépenser chaque jour, chaque semaine, toutes les deux semaines ou chaque mois. Une fois ces budgets ajoutés et tes dépenses suivies, tu prendras de meilleures décisions, en temps réel.
+
+Télécharge Wren et allège ton quotidien.

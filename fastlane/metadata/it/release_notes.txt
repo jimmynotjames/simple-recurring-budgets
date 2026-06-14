@@ -1,1 +1,1 @@
-Primo rilascio. Benvenuto!
+Prima versione. Grazie per aver scelto Wren.

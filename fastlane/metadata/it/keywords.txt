@@ -1,1 +1,1 @@
-soldi,risparmio,finanze,conti,uscite,portafoglio,gestione,settimanale,mensile,contabilita
+spese,soldi,risparmio,uscite,finanze,portafoglio,tracker,contabilita,personali,gestione,denaro

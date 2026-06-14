@@ -1,1 +1,1 @@
-geld,finanzen,sparen,haushaltsbuch,kosten,konto,monatlich,wochen,kassensturz,sparplan
+ausgaben,budget,finanzen,sparen,haushaltsbuch,kosten,täglich,wöchentlich,monatlich,kassensturz

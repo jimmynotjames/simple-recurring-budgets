@@ -1,1 +1,1 @@
-despesas,dinheiro,financas,economia,carteira,planejamento,conta,salario,mensal,semanal
+gastos,controle,orçamento,finanças,pessoais,despesas,economizar,dinheiro,planejamento,contas

@@ -1,15 +1,19 @@
 Wiedz, ile możesz wydać, zanim wydasz.
 
-Wren sprawia, że codzienne decyzje o wydatkach są szybkie i proste. Jeśli umiesz rozłożyć swoje cele na limity dzienne, tygodniowe, dwutygodniowe albo miesięczne, ta aplikacja jest dla Ciebie.
+Wren sprawia, że codzienne decyzje o wydatkach są szybkie i proste. Ustaw limity wydatków i pilnuj ich na bieżąco.
 
-Możliwości:
+Funkcje:
 • Łatwa konfiguracja
-• Błyskawiczne dodawanie wydatków
+• Błyskawiczne zapisywanie wydatków
 • Budżety dzienne, tygodniowe, dwutygodniowe i miesięczne
-• Przenoszenie niewydanych środków – to, co odłożysz dziś, zostaje na jutro
-• Synchronizacja przez iCloud na wszystkich urządzeniach
-• Dane zostają na urządzeniu i w iCloud
+• Przenoszenie niewydanych środków, więc to, co dziś oszczędzisz, zostaje na jutro
+• Jednorazowe budżety na konkretny okres (np. wakacje albo weekendowy wypad)
+• Dane bezpiecznie przechowywane na urządzeniu i w iCloud
+• Synchronizacja przez iCloud między Twoimi urządzeniami
+• Połączenie z internetem niepotrzebne, chyba że korzystasz z synchronizacji iCloud
 
-To nie jest narzędzie do wydatków firmowych, ewidencji paragonów ani rozbudowany system budżetowy. Nie podłączam Twoich kont bankowych i nie zasypuję Cię wykresami. Twoje finanse to Twoja sprawa, więc nie narzucam Ci żadnego systemu.
+To nie jest aplikacja do rozliczania wydatków firmowych, zbierania paragonów ani skomplikowany system budżetowania. Nie podłączam Twoich kont bankowych ani nie zarzucam Cię wymyślnymi wykresami. Chcę dać Ci proste narzędzie, które skupia się na kilku nawykach, a nie na całym Twoim życiu finansowym.
 
-Pobierz Wren i niech każdy dzień będzie odrobinę lżejszy.
+Żeby dobrze korzystać z aplikacji, wystarczy pomyśleć o jednym czy dwóch stałych nawykach wydawania, które chcesz ogarnąć (jedzenie, kawa, wyjścia ze znajomymi, ubrania itp.). Potem określ, ile maksymalnie chcesz wydawać dziennie, tygodniowo, co dwa tygodnie albo miesięcznie. Gdy dodasz te budżety do aplikacji i zaczniesz śledzić wydatki, podejmiesz mądrzejsze decyzje w czasie rzeczywistym.
+
+Pobierz Wren i niech każdy dzień będzie lżejszy.

@@ -1,15 +1,19 @@
-Tiedä, mihin sinulla on varaa – jo ennen kuin maksat.
+Tiedä, mihin sinulla on varaa – ennen kuin käytät rahaa.
 
-Wren tekee arjen rahapäätöksistä nopeita ja yksinkertaisia. Jos osaat jakaa tavoitteesi päivä-, viikko-, kahden viikon tai kuukauden rajoihin, tämä sovellus on sinua varten.
+Wren tekee arjen rahapäätöksistä nopeita ja yksinkertaisia. Aseta menorajat ja seuraa, miten ne pitävät.
 
 Ominaisuudet:
 • Helppo käyttöönotto
 • Nopea menojen kirjaus
-• Päivä-, viikko-, kahden viikon ja kuukausibudjetit
-• Käyttämättä jäänyt raha siirtyy seuraavalle jaksolle – tänään säästetty kertyy huomiseen
-• iCloud-synkronointi laitteiden välillä
-• Tiedot pysyvät laitteellasi ja iCloudissa
+• Päivä-, viikko-, kahden viikon ja kuukauden budjetit
+• Käyttämättä jäänyt raha siirtyy eteenpäin – tämän päivän säästöt rullaavat huomiseen
+• Kertabudjetit tietylle ajanjaksolle (vaikka lomalle tai viikonloppureissulle)
+• Tiedot pysyvät turvassa laitteellasi ja iCloudissa
+• iCloud-synkronointi laitteidesi välillä
+• Ei vaadi nettiyhteyttä, ellet käytä iCloud-synkronointia
 
-Tämä ei ole yrityskulujen seuranta, kuittiarkisto verottajaa varten tai koko elämän budjetointityökalu. En yritä yhdistää pankkitilejäsi enkä piirtää hienoja kaavioita. Raha-asiat ovat henkilökohtaisia, joten en pakota sinua mihinkään valmiiseen järjestelmään.
+Tämä ei ole yrityskulujen seuranta, kuittiarkisto verottajaa varten eikä monimutkainen budjetointijärjestelmä. En yhdistä pankkitilejäsi enkä piirrä hienoja kaavioita. Halusin tehdä yksinkertaisen työkalun, joka keskittyy muutamaan tapaan – ei koko talouteesi.
+
+Käyttö on helppoa: mieti yksi tai kaksi säännöllistä menotapaa, jota haluat hioa (ruoka, kahvi, ravintolaillat, vaatteet ja niin edelleen). Päätä sitten, paljonko haluat enintään käyttää päivässä, viikossa, kahdessa viikossa tai kuukaudessa. Kun lisäät nämä budjetit appiin ja alat seurata menojasi, teet viisaampia rahapäätöksiä heti tilanteessa.
 
 Lataa Wren ja tee arjesta kevyempää.

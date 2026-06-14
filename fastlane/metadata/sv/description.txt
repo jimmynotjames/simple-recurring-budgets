@@ -1,15 +1,19 @@
-Vet vad du har råd med – innan du köper.
+Vet vad du har kvar att spendera – innan du gör det.
 
-Wren gör vardagens köpbeslut snabba och enkla. Kan du dela upp det du vill lägga på olika saker i dagliga, veckovisa, varannan vecka eller månadsvisa gränser? Då är appen för dig.
+Med Wren går vardagens köpbeslut snabbt och enkelt. Sätt en gräns och håll koll på hur mycket som är kvar.
 
-Det här ingår:
+Funktioner:
 • Enkelt att komma igång
 • Logga utgifter på nolltid
 • Budgetar per dag, vecka, varannan vecka och månad
-• Det du inte gör av med rullar vidare – det du sparar idag följer med till imorgon
-• Synkning via iCloud mellan dina enheter
-• Allt sparas på enheten och i iCloud
+• Spara vidare det du inte gör av med – det du inte spenderar i dag flyttas över till i morgon
+• Engångsbudgetar för bestämda perioder (som en semester eller en weekend bort)
+• Allt sparas tryggt på enheten och i iCloud
+• iCloud-synk mellan dina enheter
+• Ingen internetuppkoppling krävs, förutom för iCloud-synk
 
-Det här är ingen reseräknare, kvittohanterare eller avancerad budgetsvit. Jag kopplar inte dina bankkonton och bjuder inte på flashiga diagram. Din ekonomi är personlig, så jag tvingar inte på dig något färdigt system.
+Det här är ingen reseräkningsapp, kvittohanterare eller krånglig budgetmetod. Jag kopplar inte ihop dina bankkonton och kastar inte fina diagram på dig. Jag ville göra ett enkelt verktyg som hjälper dig med ett par vanor – inte hela din ekonomi.
+
+Du behöver bara komma på en eller två återkommande utgifter du vill få bättre koll på (mat, fika, träning, kläder och så vidare). Bestäm sedan hur mycket du som mest vill lägga per dag, vecka, varannan vecka eller månad. När budgetarna finns i appen och du börjar logga dina utgifter kan du fatta klokare köpbeslut i stunden.
 
 Ladda ner Wren och gör vardagen lite lättare.

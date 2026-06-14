@@ -1,15 +1,19 @@
 Tudd, mennyit költhetsz, mielőtt elköltöd.
 
-A Wrennel a hétköznapi pénzügyi döntések gyorsak és egyszerűek. Ha a kiadási céljaidat napi, heti, kéthetes vagy havi keretekre tudod bontani, ez az alkalmazás neked való.
+A Wren gyorssá és egyszerűvé teszi a mindennapi költési döntéseket. Állíts be kereteket, és kövesd, hogy állsz hozzájuk képest.
 
 Funkciók:
 • Egyszerű beállítás
-• Villámgyors rögzítés
-• Napi, heti, kéthetes és havi keretek
-• A megmaradt keret átgördül, így a mai megtakarításod a holnapi napra száll át
+• Gyors költésrögzítés
+• Napi, heti, kéthetente megújuló és havi keretek
+• Vidd át az el nem költött összeget, így amit ma megspórolsz, átgördül a következő időszakra
+• Egyszeri keretek adott időszakokra (például nyaralásra vagy egy hétvégi kiruccanásra)
+• Az adataid biztonságban maradnak az eszközön és az iCloudban
 • iCloud-szinkron az eszközeid között
-• Az adatok az eszközön és az iCloudban maradnak
+• Nincs szükség internetkapcsolatra, hacsak nem használod az iCloud-szinkront
 
-Ez nem céges kiadáskövető, nem adóbizonylat-napló és nem nagyszabású költségvetési eszköz. Nem kötöm össze a bankszámláidat, és nem terhellek látványos grafikonokkal. A pénzügyeid személyesek, ezért nem erőltetek rád semmilyen rendszert.
+Ez nem céges költségkövető, nem adóügyi blokk-nyilvántartó és nem bonyolult költségvetési rendszer. Nem kötöm össze a bankszámláidat, és nem zúdítok rád látványos grafikonokat. Egy egyszerű eszközt szeretnék adni, amely néhány szokásra koncentrál, nem az egész pénzügyi életedre.
 
-Töltsd le a Wrent, és tedd a mindennapjaidat könnyedebbé.
+Az appot úgy használhatod a legjobban, ha kiválasztasz egy-két rendszeres költési szokást, amin javítani szeretnél (étel, kávé, mozi, ruha stb.). Aztán végiggondolod, mennyit szeretnél maximum elkölteni naponta, hetente, kéthetente vagy havonta. Miután felvetted ezeket a kereteket az appba, és elkezded rögzíteni a költéseidet, valós időben tudsz majd okosabb döntéseket hozni.
+
+Töltsd le a Wrent, és tedd könnyebbé a mindennapjaidat.

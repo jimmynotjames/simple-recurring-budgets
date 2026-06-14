@@ -34,6 +34,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 METADATA_DIR = REPO_ROOT / "fastlane" / "metadata"
@@ -89,6 +90,15 @@ def find_missing(source: dict[str, dict]) -> dict[str, list[str]]:
     return missing
 
 
+def force_fields(source: dict[str, dict], fields: Sequence[str]) -> dict[str, list[str]]:
+    """Return {storefront: [fields...]} forcing every valid authored field in *fields* for all storefronts."""
+    invalid = [f for f in fields if f not in source]
+    if invalid:
+        print(f"ERROR: field(s) not in en-US source (blank or unknown): {invalid}", file=sys.stderr)
+        sys.exit(1)
+    return {storefront: list(fields) for storefront in STOREFRONT_LOCALES}
+
+
 def write_source(source: dict[str, dict]) -> None:
     INPUTS_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -114,6 +124,18 @@ def main(argv: list[str]) -> int:
         action="store_true",
         help="Also write manifest.json of (storefront, field) gaps to fill.",
     )
+    parser.add_argument(
+        "--fields",
+        nargs="+",
+        metavar="FIELD",
+        help=(
+            "Force these field(s) into the manifest for every storefront, "
+            "regardless of whether they already have translations. "
+            "Useful for re-translating specific fields after source edits. "
+            "Implies writing manifest.json (like --missing). "
+            "Field must be non-blank in en-US source."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not METADATA_DIR.exists():
@@ -135,7 +157,10 @@ def main(argv: list[str]) -> int:
             f"  Blank en-US field(s), cleared across all storefronts by merge.py: {blank_fields}"
         )
 
-    if args.missing:
+    if args.fields:
+        manifest = force_fields(source, args.fields)
+        write_manifest(manifest)
+    elif args.missing:
         manifest = find_missing(source)
         write_manifest(manifest)
         if not manifest:

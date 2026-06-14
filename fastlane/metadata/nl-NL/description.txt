@@ -1,15 +1,19 @@
 Weet wat je kunt uitgeven, voordat je het uitgeeft.
 
-Met Wren maak je dagelijkse uitgavenbeslissingen snel en simpel. Kun je je uitgavendoelen opdelen in dagelijkse, wekelijkse, tweewekelijkse of maandelijkse limieten? Dan is deze app iets voor jou.
+Met Wren maak je dagelijkse uitgavenbeslissingen snel en simpel. Stel limieten in en houd er grip op.
 
 Functies:
 • Snel ingesteld
 • Uitgaven in een tel toegevoegd
-• Dagelijkse, wekelijkse, tweewekelijkse en maandelijkse budgetten
-• Niet besteed geld schuift door, zodat wat je vandaag overhoudt meegaat naar morgen
-• iCloud-synchronisatie tussen je apparaten
-• Je gegevens blijven op je apparaat en in iCloud
+• Budgetten per dag, week, twee weken en maand
+• Restbudget schuift door, zodat wat je vandaag overhoudt meetelt voor morgen
+• Eenmalige budgetten voor een vaste periode (zoals een vakantie of een weekendje weg)
+• Je gegevens blijven veilig op je toestel en in iCloud
+• iCloud-synchronisatie tussen al je apparaten
+• Geen internetverbinding nodig, tenzij je iCloud-synchronisatie gebruikt
 
-Dit is geen app voor zakelijke onkosten, geen bonnetjesregistratie en geen alomvattend budgetsysteem. Ik koppel je bankrekeningen niet en bestook je niet met ingewikkelde grafieken. Je financiën zijn persoonlijk, dus ik leg je geen vast systeem op.
+Dit is geen tool voor zakelijke onkosten, geen bonnenboekhouding en geen ingewikkeld budgetsysteem. Ik koppel je bankrekeningen niet en bedolf je niet onder de grafieken. Ik wil je een simpele tool geven die zich richt op een paar gewoontes, niet op je hele financiële leven.
 
-Download Wren en maak elke dag een beetje lichter.
+Om deze app goed te gebruiken, bedenk je gewoon één of twee vaste uitgavengewoontes die je wilt verbeteren (boodschappen, koffie, uit eten, kleding, enzovoort). Bedenk vervolgens hoeveel je per dag, week, twee weken of maand maximaal wilt uitgeven. Zodra je deze budgetten toevoegt en je uitgaven begint bij te houden, maak je slimmere keuzes op het moment zelf.
+
+Download Wren en maak elke dag wat lichter.

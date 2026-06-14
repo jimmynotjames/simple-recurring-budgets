@@ -1,15 +1,19 @@
 Sàpigues què pots gastar abans de gastar-ho.
 
-Wren fa que decidir les teves despeses del dia a dia sigui ràpid i senzill. Si pots repartir els teus objectius de despesa en límits diaris, setmanals, quinzenals o mensuals, aquesta app és per a tu.
+Wren fa que les decisions de despesa del dia a dia siguin ràpides i senzilles. Posa límits de despesa i fes-ne el seguiment.
 
 Funcions:
 • Configuració senzilla
-• Registre ràpid de despeses
+• Registre de despeses ràpid
 • Pressupostos diaris, setmanals, quinzenals i mensuals
-• Trasllada el que no gastes, perquè el que estalvies avui passa a demà
-• Sincronització amb iCloud entre dispositius
-• Les dades es guarden al dispositiu i a iCloud
+• Trasllada els diners que no gastes, així el que estalvies avui passa a demà
+• Pressupostos puntuals per a dates concretes (com unes vacances o una escapada de cap de setmana)
+• Les dades es guarden segures al dispositiu i a l'iCloud
+• Sincronització amb l'iCloud entre tots els teus dispositius
+• No cal connexió a internet, tret que facis servir la sincronització amb l'iCloud
 
-No és una eina per a despeses d'empresa, ni per a rebuts d'impostos, ni un gestor de pressupostos complet. No connecto els teus comptes bancaris ni et donen gràfics complicats. Les teves finances són teves, així que no t'imposo cap sistema de finances personals.
+Això no és un control de despeses d'empresa, un registre de tiquets per a impostos ni un sistema de pressupostos complicat. No connecto els teus comptes bancaris ni et mostro gràfics sofisticats. Vull oferir-te una eina senzilla, centrada en uns quants hàbits i no en tota la teva vida financera.
 
-Descarrega Wren i fes que cada dia sigui més lleuger.
+Per treure'n profit, només has de pensar en un o dos hàbits de despesa habituals que vulguis millorar (menjar, cafè, sortir a sopar, roba, etc.). Després pensa quant vols gastar com a màxim cada dia, setmana, dues setmanes o mes. Quan afegeixis aquests pressupostos a l'app i comencis a registrar les despeses, podràs prendre decisions més encertades al moment.
+
+Descarrega Wren i fes-te el dia més fàcil.

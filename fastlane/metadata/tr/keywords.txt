@@ -1,1 +1,1 @@
-gider,para,finans,kişisel,birikim,tasarruf,maaş,cüzdan,aylık,haftalık,hesap,limit
+masraf,gider,bütçe,para,finans,harcama,birikim,kişisel,cüzdan,aylık,haftalık,hesap,limit

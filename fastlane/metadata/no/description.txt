@@ -1,15 +1,19 @@
 Vit hva du kan bruke, før du bruker det.
 
-Wren gjør hverdagens pengevalg raske og enkle. Klarer du å dele opp forbruket ditt i daglige, ukentlige, fjortendaglige eller månedlige grenser, er denne appen for deg.
+Wren gjør de daglige pengevalgene raske og enkle. Sett grenser for forbruket ditt, og følg med på dem underveis.
 
 Funksjoner:
-• Enkel oppsett
-• Lynrask registrering av utgifter
-• Daglige, ukentlige, fjortendaglige og månedlige budsjetter
-• Overfør det som er igjen, så det du sparer i dag følger med til i morgen
+• Enkelt å komme i gang
+• Rask føring av utgifter
+• Daglige, ukentlige, hver-fjortende-dags og månedlige budsjetter
+• Overfør det du ikke brukte, så det du sparer i dag følger med til i morgen
+• Engangsbudsjetter for bestemte datoer (som en ferie eller en helgetur)
+• Dataene dine ligger trygt på enheten og i iCloud
 • iCloud-synk på tvers av enhetene dine
-• Dataene blir liggende på enheten og i iCloud
+• Ingen nettforbindelse nødvendig, med mindre du bruker iCloud-synk
 
-Dette er ingen app for firmautgifter, kvitteringer til skatten eller storstilt budsjettstyring. Jeg prøver ikke å koble til bankkontoene dine eller fylle skjermen med fancy grafer. Økonomien din er din egen, så jeg tvinger ikke et helt system ned over deg.
+Dette er ikke en app for jobbutgifter, kvitteringer til skatten eller et innfløkt budsjettsystem. Jeg kobler ikke til bankkontoene dine og gir deg ingen avanserte grafer. Jeg vil heller gi deg et enkelt verktøy som tar for seg noen få vaner – ikke hele økonomien din.
+
+For å få mest ut av appen trenger du bare å tenke på én eller to faste forbruksvaner du har lyst til å forbedre (mat, kaffe, trening, klær og lignende). Så bestemmer du hvor mye du maks vil bruke per dag, uke, fjorten dager eller måned. Når du har lagt inn budsjettene og begynt å føre utgiftene, tar du klokere valg der og da.
 
 Last ned Wren, og gjør hverdagen litt lettere.

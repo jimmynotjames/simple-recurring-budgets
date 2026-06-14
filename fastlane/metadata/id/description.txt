@@ -1,15 +1,19 @@
-Tahu berapa yang bisa kamu pakai, sebelum kamu pakai.
+Tahu berapa yang bisa kamu belanjakan, sebelum kamu belanjakan.
 
-Wren bikin keputusan pengeluaran sehari-hari jadi cepat dan simpel. Kalau kamu bisa membagi target pengeluaran ke dalam batas harian, mingguan, dua mingguan, atau bulanan, aplikasi ini cocok buat kamu.
+Wren bikin keputusan belanja harian jadi cepat dan simpel. Tentukan batas pengeluaran dan pantau langsung dari situ.
 
 Fitur:
-• Pengaturan yang gampang
-• Pencatatan pengeluaran yang cepat
+• Pengaturan gampang
+• Catat pengeluaran cepat
 • Anggaran harian, mingguan, dua mingguan, dan bulanan
-• Sisa dana ikut berpindah, jadi yang kamu hemat hari ini terbawa ke besok
-• Sinkronisasi iCloud di semua perangkat
-• Data tersimpan di perangkat dan di iCloud
+• Sisa dana otomatis dipindah ke periode berikutnya, jadi yang kamu hemat hari ini terbawa ke besok
+• Anggaran sekali pakai untuk rentang tanggal tertentu (misalnya liburan atau jalan-jalan akhir pekan)
+• Data tersimpan aman di perangkat dan di iCloud
+• Sinkronisasi iCloud di semua perangkatmu
+• Tanpa koneksi internet, kecuali kalau pakai sinkronisasi iCloud
 
-Ini bukan pelacak pengeluaran bisnis, pencatat struk pajak, atau alat penganggaran serba ada. Aku nggak menautkan rekening bankmu atau memberi grafik yang rumit. Keuanganmu itu pribadi, jadi aku nggak memaksakan sistem keuangan tertentu padamu.
+Ini bukan pelacak pengeluaran bisnis, pencatat struk pajak, atau sistem anggaran yang ribet. Saya tidak menautkan rekening bankmu atau menyuguhkan grafik yang ruwet. Saya cuma ingin menawarkan alat sederhana yang fokus ke beberapa kebiasaan, bukan seluruh keuangan hidupmu.
 
-Unduh Wren dan jalani hari dengan lebih ringan.
+Biar app ini efektif, kamu tinggal pikirkan satu atau dua kebiasaan belanja rutin yang ingin kamu perbaiki (makan, kopi, nongkrong, baju, dan lain-lain). Lalu tentukan batas maksimal yang ingin kamu belanjakan tiap hari, minggu, dua minggu, atau bulan. Setelah anggaran ini kamu tambahkan dan mulai mencatat pengeluaran, kamu bisa mengambil keputusan belanja yang lebih bijak secara langsung.
+
+Unduh Wren dan bikin setiap hari terasa lebih ringan.

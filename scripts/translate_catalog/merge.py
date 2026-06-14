@@ -32,6 +32,7 @@ OUTPUTS_DIR = REPO_ROOT / "tmp" / "translate-outputs"
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALES  # noqa: E402
 from extract import CLDR_CATEGORIES  # noqa: E402
+from xcstrings_io import write_xcstrings  # noqa: E402
 
 
 def load_translations(locale: str) -> Optional[dict]:
@@ -136,9 +137,7 @@ def main(argv: list[str]) -> int:
         print(f"  Merged {locale_merged} keys for {locale}")
         merged_count += locale_merged
 
-    with CATALOG_PATH.open("w", encoding="utf-8") as f:
-        json.dump(catalog, f, ensure_ascii=False, indent=2, sort_keys=True)
-        f.write("\n")
+    write_xcstrings(catalog, CATALOG_PATH)
 
     print(f"\nMerge complete: {merged_count} total key-locale pairs written to catalog.")
     if en_finalized:

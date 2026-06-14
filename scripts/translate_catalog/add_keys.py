@@ -35,6 +35,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 
+sys.path.insert(0, str(Path(__file__).parent))
+from xcstrings_io import write_xcstrings  # noqa: E402
+
 
 def make_entry(comment: str, value: str) -> dict:
     return {
@@ -94,9 +97,7 @@ def main() -> int:
         strings[key] = make_entry(comment, value)
         added.append(key)
 
-    with CATALOG_PATH.open("w", encoding="utf-8") as f:
-        json.dump(catalog, f, ensure_ascii=False, indent=2, sort_keys=True)
-        f.write("\n")
+    write_xcstrings(catalog, CATALOG_PATH)
 
     print(f"Added {len(added)} key(s): {added}")
     if skipped:

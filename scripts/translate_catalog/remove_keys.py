@@ -34,6 +34,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 
+sys.path.insert(0, str(Path(__file__).parent))
+from xcstrings_io import write_xcstrings  # noqa: E402
+
 
 def parse_keys(arg: str | None, path: Path | None, literal_json: Path | None) -> set[str]:
     keys: list[str] = []
@@ -97,9 +100,7 @@ def main(argv: list[str]) -> int:
         print(f"\nDry run: would remove {len(present)} key(s). Catalog unchanged.")
         return 0
 
-    with CATALOG_PATH.open("w", encoding="utf-8") as f:
-        json.dump(catalog, f, ensure_ascii=False, indent=2, sort_keys=True)
-        f.write("\n")
+    write_xcstrings(catalog, CATALOG_PATH)
 
     print(f"\nRemoved {len(present)} key(s). Catalog now has {len(strings)} keys.")
     return 0

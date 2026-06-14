@@ -43,6 +43,7 @@ CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizab
 
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALES  # noqa: E402
+from xcstrings_io import write_xcstrings  # noqa: E402
 
 
 def main() -> int:
@@ -115,9 +116,7 @@ def main() -> int:
         print(f"  {key!r}: en updated, {invalidated} locale(s) marked needs_review")
         updated.append(key)
 
-    with CATALOG_PATH.open("w", encoding="utf-8") as f:
-        json.dump(catalog, f, ensure_ascii=False, indent=2, sort_keys=True)
-        f.write("\n")
+    write_xcstrings(catalog, CATALOG_PATH)
 
     print(f"\nDone: {len(updated)} key(s) updated, {len(skipped)} skipped.")
     if updated:

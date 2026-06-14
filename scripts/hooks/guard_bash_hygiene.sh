@@ -9,6 +9,10 @@
 #   rule 5 - no machine-wide simulator destruction (kills other repos'/Xcode's
 #            sims); only the global `all`/`unavailable` forms are blocked, scoped
 #            `simctl <verb> <udid>` stays allowed. See AGENTS.md "What NOT to do".
+#   rule 6 - no `nohup` prefix — it shifts the leading command token away from
+#            the real command, breaking allowlist matching even for already-allowed
+#            commands like `fastlane screenshots`. Use the Bash tool's
+#            run_in_background:true parameter instead.
 #
 # Input: PreToolUse hook JSON on stdin -> .tool_input.command
 # Output: on match, a JSON deny decision + exit 0 (the deny is authoritative).
@@ -31,6 +35,8 @@ elif printf '%s' "$cmd" | grep -Eq '(^|[^[:alnum:]_/])(pkill|killall)\b[^|&;]*\b
   reason='Blocked (hygiene rule 5): do not `pkill`/`killall Simulator` — it kills every simulator on the machine, including other repo clones'\'' and Xcode'\''s. Use `make sim-shutdown` (this repo'\''s device only). See AGENTS.md §"What NOT to do".'
 elif printf '%s' "$cmd" | grep -Eq 'simctl\s+((shutdown|erase|delete)\s+all|delete\s+unavailable)\b'; then
   reason='Blocked (hygiene rule 5): `simctl shutdown/erase/delete all` and `simctl delete unavailable` affect every simulator on the machine, including other repo clones'\'' and Xcode'\''s. Use the scoped form (`simctl <verb> <udid>`), `make sim-shutdown`, or `make sim-clean` (this repo'\''s slug only). See AGENTS.md §"What NOT to do".'
+elif printf '%s' "$cmd" | grep -Eq '(^|;|\|&)[[:space:]]*nohup[[:space:]]'; then
+  reason='Blocked (hygiene rule 6): do not use `nohup` — it shifts the leading command token, breaking allowlist matching even for already-allowed commands (e.g. `nohup fastlane screenshots` does not match `Bash(fastlane screenshots *)`). Use the Bash tool'\''s run_in_background:true parameter instead.'
 fi
 
 if [ -n "$reason" ]; then

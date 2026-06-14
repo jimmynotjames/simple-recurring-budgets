@@ -72,6 +72,11 @@ Write a **single JSON object** (no markdown fences, no prose) to `{TERMS_OUT_PAT
 
 - `context` must be specific enough that a translator picks the right sense (e.g. "Cancel" = dismiss
   a sheet, not cancel a subscription). Pull meaning from the `comment` fields and surrounding keys.
+- For **time-period, frequency, or otherwise ambiguous terms**, spell out the exact meaning and call
+  out false-cognate traps, so the disambiguation survives into translation. E.g. **"Biweekly"** must
+  state that it means *every two weeks (fortnightly) — NOT twice a week, and NOT twice a month*;
+  several languages have a cognate that means the wrong thing (French *bimensuel* = twice a month, and
+  a literal "bi-weekly" calque can read as twice a week). Choose the unambiguous local term for each.
 - `sourceKeys` should list the keys where the term appears (copy from the candidate data; for a
   sub-word term like "Add", list a few representative keys).
 - Output **only** the JSON object, written to the path above.

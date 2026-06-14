@@ -72,6 +72,12 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--keys", help="Comma-separated list of keys to invalidate.")
     parser.add_argument("--keys-file", type=Path, help="Path to a file with one key per line.")
     parser.add_argument(
+        "--locales",
+        help="Comma-separated locales to invalidate (default: all non-en locales). "
+        "Use to re-translate a key in only some locales — e.g. when a glossary term "
+        "was corrected for one market and the rest are already right.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print what would be invalidated; do not write the catalog.",
@@ -81,6 +87,14 @@ def main(argv: list[str]) -> int:
     keys = parse_keys(args.keys, args.keys_file)
     if not keys:
         parser.error("must pass --keys or --keys-file with at least one key")
+
+    if args.locales:
+        target_locales = [loc.strip() for loc in args.locales.split(",") if loc.strip()]
+        unknown = [loc for loc in target_locales if loc not in LOCALES]
+        if unknown:
+            parser.error(f"not target locales: {unknown}")
+    else:
+        target_locales = LOCALES
 
     if not CATALOG_PATH.exists():
         print(f"ERROR: catalog not found at {CATALOG_PATH}", file=sys.stderr)
@@ -101,7 +115,7 @@ def main(argv: list[str]) -> int:
     for key in sorted(keys):
         localizations = strings[key].get("localizations", {})
         invalidated = 0
-        for locale in LOCALES:
+        for locale in target_locales:
             loc_entry = localizations.get(locale)
             if loc_entry is None:
                 continue

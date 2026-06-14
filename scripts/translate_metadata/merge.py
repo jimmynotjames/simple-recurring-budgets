@@ -7,13 +7,22 @@ writes each field to fastlane/metadata/{storefront}/{field}.txt. Also copies the
 PASSTHROUGH_FIELDS (URLs) verbatim from en-US into each storefront folder, since
 `deliver` expects every metadata key to exist per-locale.
 
+After merging translated content, scans the en-US source folder for translatable
+fields left blank. Any existing translated copy of such a field is cleared (emptied)
+in every target storefront — blank in the source means blank in every translation.
+This is derived straight from the source folder (the same signal check_metadata.py
+enforces), not from tmp/metadata-inputs/source.json, so merge and the gate can never
+disagree. Pass --skip-clear-blank to suppress this behaviour.
+
 Idempotent: re-running with identical inputs produces identical files.
-Refuses to overwrite an existing non-empty .txt with an empty value.
+Refuses to overwrite an existing non-empty .txt with an empty translated value,
+but always clears fields that are blank in the en-US source.
 
 Usage:
   python3 scripts/translate_metadata/merge.py [storefront ...]
   # No storefronts given -> merge all target storefronts.
   # --skip-urls: do not copy the passthrough URL files.
+  # --skip-clear-blank: do not clear fields that are blank in en-US source.
 """
 
 from __future__ import annotations
@@ -32,6 +41,7 @@ from metadata_locales import (  # noqa: E402
     PASSTHROUGH_FIELDS,
     SOURCE_LOCALE,
     STOREFRONT_LOCALES,
+    TRANSLATABLE_FIELDS,
 )
 
 
@@ -46,6 +56,48 @@ def write_field(storefront: str, field: str, value: str) -> bool:
             return False
     path.write_text(value.rstrip() + "\n", encoding="utf-8")
     return True
+
+
+def clear_field(storefront: str, field: str) -> bool:
+    """If <storefront>/<field>.txt exists and has content, overwrite it with an empty file.
+    Returns True if content was cleared. Does nothing if the file is absent or already empty.
+    """
+    path = METADATA_DIR / storefront / f"{field}.txt"
+    if not path.exists():
+        return False
+    if not path.read_text(encoding="utf-8").strip():
+        return False
+    path.write_text("\n", encoding="utf-8")
+    return True
+
+
+def blank_source_fields() -> list[str]:
+    """Translatable fields that are empty (or absent) in the en-US source folder.
+
+    Derived straight from the source folder — the same canonical signal
+    check_metadata.py enforces — so merge and the gate never disagree about which
+    fields must be blank. Deliberately NOT read from tmp/metadata-inputs/source.json:
+    that file is an authored-fields-only map consumed by validate.py and
+    dispatch_prompts.py, and the refine pass rewrites it scoped to a subset.
+    """
+    blanks: list[str] = []
+    for field in TRANSLATABLE_FIELDS:
+        src = METADATA_DIR / SOURCE_LOCALE / f"{field}.txt"
+        value = src.read_text(encoding="utf-8").strip() if src.exists() else ""
+        if not value:
+            blanks.append(field)
+    return blanks
+
+
+def clear_blank_source_fields(storefronts: list[str]) -> int:
+    """Clear (empty out) every existing translated copy of a field blank in en-US."""
+    cleared = 0
+    for field in blank_source_fields():
+        for storefront in storefronts:
+            if clear_field(storefront, field):
+                print(f"  CLEARED [{storefront}] {field}: source is blank → translation cleared")
+                cleared += 1
+    return cleared
 
 
 def copy_passthrough(storefront: str) -> int:
@@ -66,6 +118,8 @@ def copy_passthrough(storefront: str) -> int:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--skip-urls", action="store_true", help="Do not copy passthrough URL files from en-US.")
+    parser.add_argument("--skip-clear-blank", action="store_true",
+                        help="Do not clear fields that are blank in the en-US source.")
     parser.add_argument("storefronts", nargs="*", help="Storefronts to merge (default: all targets).")
     args = parser.parse_args(argv)
 
@@ -113,6 +167,12 @@ def main(argv: list[str]) -> int:
         print(f"Copied {urls_copied} passthrough URL file(s) from {SOURCE_LOCALE}.")
     if skipped:
         print(f"Skipped (no output file): {skipped}")
+
+    if not args.skip_clear_blank:
+        cleared = clear_blank_source_fields(storefronts)
+        if cleared:
+            print(f"\nCleared {cleared} field(s) across {len(storefronts)} storefront(s) (blank in en-US source).")
+
     return 0
 
 

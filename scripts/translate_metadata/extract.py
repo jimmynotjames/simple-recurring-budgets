@@ -5,7 +5,7 @@ emit a JSON file suitable for use as transcreation input.
 
 Default output: tmp/metadata-inputs/source.json
 
-Each entry has the shape:
+Each authored (non-empty) field has the shape:
   {
     "<field>": {
       "value": "<English source text>",
@@ -14,8 +14,12 @@ Each entry has the shape:
     ...
   }
 
-Only TRANSLATABLE_FIELDS that are non-empty in en-US are included — there is
-nothing to transcreate for a field the source hasn't authored yet.
+Fields left blank in en-US are NOT written to source.json — it stays an
+authored-fields-only map ({field: {value, charLimit}}) that validate.py and
+dispatch_prompts.py consume. Blank fields are reported to the console for
+visibility; merge.py and check_metadata.py independently re-derive blank-field
+handling straight from the en-US source folder (blank in the source means blank in
+every translation), so no consumer has to know about a special key.
 
 Modes:
   (default)   emit source.json for every non-empty translatable en-US field.
@@ -55,14 +59,24 @@ def read_field(locale: str, field: str) -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
-def read_source() -> dict[str, dict]:
-    """Source = every translatable field that en-US has actually authored."""
+def read_source() -> tuple[dict[str, dict], list[str]]:
+    """Return (source, blank_fields).
+
+    source: every translatable field with non-empty en-US content, in the
+        {field: {value, charLimit}} shape every downstream script expects.
+    blank_fields: TRANSLATABLE_FIELDS that are empty in en-US. Reported for
+        visibility only and NOT written to source.json — merge.py and
+        check_metadata.py re-derive blank handling from the en-US source folder.
+    """
     source: dict[str, dict] = {}
+    blank_fields: list[str] = []
     for field in TRANSLATABLE_FIELDS:
         value = read_field(SOURCE_LOCALE, field)
         if value:
             source[field] = {"value": value, "charLimit": FIELD_LIMITS[field]}
-    return source
+        else:
+            blank_fields.append(field)
+    return source, blank_fields
 
 
 def find_missing(source: dict[str, dict]) -> dict[str, list[str]]:
@@ -106,7 +120,7 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: metadata dir not found at {METADATA_DIR}", file=sys.stderr)
         return 1
 
-    source = read_source()
+    source, blank_fields = read_source()
     if not source:
         print(
             f"ERROR: no non-empty translatable fields in {METADATA_DIR / SOURCE_LOCALE}. "
@@ -116,6 +130,10 @@ def main(argv: list[str]) -> int:
         return 1
 
     write_source(source)
+    if blank_fields:
+        print(
+            f"  Blank en-US field(s), cleared across all storefronts by merge.py: {blank_fields}"
+        )
 
     if args.missing:
         manifest = find_missing(source)

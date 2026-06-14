@@ -3,14 +3,18 @@
 Authoritative pre-submit gate for App Store metadata translations.
 
 Walks the fastlane/metadata/ tree directly (not the tmp/ intermediates) and
-verifies that, for every translatable field the en-US source has authored, every
-target storefront has:
-  * a non-empty .txt file, and
-  * a value within the App Store Connect character limit.
+verifies two invariants:
+
+  1. For every translatable field the en-US source has authored (non-empty), every
+     target storefront has a non-empty .txt file within the character limit.
+
+  2. For every translatable field that is blank in en-US, every target storefront
+     also has an empty (or absent) .txt file. A non-empty translation for a blank
+     source field means merge.py's clear step did not run; fix with `merge.py`.
 
 Also verifies the passthrough URL files exist per storefront when en-US has them.
 
-Exits 0 if the metadata tree is fully populated and within limits; 1 otherwise.
+Exits 0 if the metadata tree satisfies both invariants; 1 otherwise.
 This is the metadata analogue of scripts/check_translations.py.
 
 Usage:
@@ -48,6 +52,7 @@ def main() -> int:
         return 1
 
     source_fields = [f for f in TRANSLATABLE_FIELDS if read_field(SOURCE_LOCALE, f)]
+    blank_source_fields = [f for f in TRANSLATABLE_FIELDS if not read_field(SOURCE_LOCALE, f)]
     if not source_fields:
         print(f"ERROR: no authored en-US fields under {METADATA_DIR / SOURCE_LOCALE}.", file=sys.stderr)
         return 1
@@ -64,6 +69,12 @@ def main() -> int:
             limit = FIELD_LIMITS.get(field)
             if limit is not None and len(value) > limit:
                 issues.append(f"  TOOLONG  [{storefront}] {field}: {len(value)} > {limit}")
+        for field in blank_source_fields:
+            if read_field(storefront, field):
+                issues.append(
+                    f"  NOTEMPTY [{storefront}] {field}: source is blank but translation has content"
+                    " — run merge.py to clear"
+                )
         for field in source_urls:
             if not read_field(storefront, field):
                 issues.append(f"  MISSING  [{storefront}] {field} (URL)")
@@ -78,9 +89,10 @@ def main() -> int:
         )
         return 1
 
+    blank_note = f", {len(blank_source_fields)} blank" if blank_source_fields else ""
     print(
-        f"check_metadata: all {len(source_fields)} field(s) populated and within limits "
-        f"across {len(STOREFRONT_LOCALES)} target storefront(s) (+ {SOURCE_LOCALE} source)."
+        f"check_metadata: {len(source_fields)} authored field(s) populated and within limits"
+        f"{blank_note} across {len(STOREFRONT_LOCALES)} target storefront(s) (+ {SOURCE_LOCALE} source)."
     )
     return 0
 

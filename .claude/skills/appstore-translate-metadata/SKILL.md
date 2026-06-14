@@ -102,6 +102,23 @@ Read those six files and present, in a **single** message: the folder path, each
 field's current **authored / blank** state, and a short preview of the authored
 values.
 
+**Run the source-voice pre-check first** (deterministic — don't eyeball it):
+
+```bash
+python3 scripts/translate_metadata/check_source_voice.py
+```
+
+It scans the authored en-US fields for brand-voice slips that would otherwise
+propagate to all 49 storefronts and get re-flagged by every semantic auditor:
+exclamation marks, ALL-CAPS shouting, and salesy superlatives ("the best",
+"amazing", "revolutionary"). **Exit 0** = clean, continue. **Exit 1** = it found
+something: these are warnings, not hard errors, but you must **halt and surface
+every finding to the human** as part of the source-ready prompt below — include
+the field, the matched token, and the voice rule it breaks, and let them choose to
+fix the en-US source first or proceed anyway. Do not silently proceed past a
+non-zero exit, and do not auto-edit the source to "fix" it — the wording is the
+human's call.
+
 **WARNING — blank fields clear all translations.** When a translatable field is
 left blank in `en-US`, `merge.py` **erases the content of every existing translated
 `.txt` for that field across all storefronts** (it reads the blank state straight
@@ -147,6 +164,21 @@ Writes:
   and character limit.
 - `tmp/metadata-inputs/manifest.json` — `{storefront: [fields...]}` listing the
   gaps to fill.
+
+**`--missing` only finds *absent* fields, not *stale* ones.** If you **edited an
+existing en-US field** (e.g. rewrote `description.txt`) rather than added a new
+locale, every storefront already has *some* content for it, so `--missing`
+reports an empty manifest and nothing re-translates. To force a re-transcreation
+of edited field(s) across all 49 storefronts, name them explicitly:
+
+```bash
+python3 scripts/translate_metadata/extract.py --fields description   # or: --fields description keywords
+```
+
+`--fields` writes the same `manifest.json` shape (all storefronts × the named
+fields) and refuses any field that is blank/unknown in the en-US source. Use
+`--missing` when filling new locales; use `--fields` after editing source copy.
+The rest of the recipe (Steps 2–6) is identical either way.
 
 If the manifest is empty, nothing needs transcreating — skip Steps 2, 3, 4
 (validate), 4a, and 5 (including the refine pass; there's nothing new to refine).
@@ -350,6 +382,13 @@ Round protocol:
    > resolves each finding while obeying every rule in the prompt. Write only the
    > JSON object to `/abs/.../tmp/metadata-outputs/de-DE.json`.
 
+   The findings file may include findings for fields **not** in your prompt's
+   `## Source fields` block (the auditor grades the whole listing; this remediation
+   slice is narrower). **Act only on findings whose `field` is in your source
+   JSON; silently ignore the rest** — they're handled by their own slice or were
+   below the remediation threshold. Do not add a field the source JSON doesn't
+   contain, and don't spend output explaining the skipped findings.
+
 7. **Validate + merge** the fixes:
    ```bash
    python3 scripts/translate_metadata/validate.py --subset
@@ -386,6 +425,14 @@ fastlane push_metadata
 
 `push_metadata` / `release` touch App Store Connect — only run them when you
 actually intend to upload. See `fastlane/SETUP.md`.
+
+**Expected on the first app version:** deliver loads every `release_notes.txt`
+but then prints `Skipping 'release_notes'... this is the first version of the
+app` and does not upload it — App Store Connect has no "What's New" field until
+v1.1. This is normal, not an error; the files upload on the next release. To keep
+the source consistent with what's actually live, `release_notes.txt` is left
+blank for the first version (blank en-US source ⇒ blank everywhere, per the gate
+rule). Author release notes only from the second version onward.
 
 ### 8. Cleanup — offer to clear tmp working files
 

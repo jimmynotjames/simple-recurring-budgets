@@ -1,15 +1,19 @@
-Saiba quanto você pode gastar antes de gastar.
+Saiba quanto você pode gastar, antes de gastar.
 
-O Wren deixa as decisões do dia a dia rápidas e simples. Se você consegue dividir suas metas de gastos em limites diários, semanais, quinzenais ou mensais, este app é pra você.
+O Wren deixa as decisões de gasto do dia a dia rápidas e simples. Defina limites e acompanhe seus gastos em relação a eles.
 
 Recursos:
 • Configuração fácil
-• Registro rápido de despesas
+• Registro de gastos em segundos
 • Orçamentos diários, semanais, quinzenais e mensais
-• O que sobra é transferido, então o que você economiza hoje vale amanhã
-• Sincronização via iCloud entre dispositivos
-• Seus dados ficam no aparelho e no iCloud
+• Saldo que sobra passa para o próximo período, então o que você economiza hoje vale amanhã
+• Orçamentos pontuais para períodos específicos (como uma viagem ou um fim de semana fora)
+• Seus dados ficam seguros no aparelho e no iCloud
+• Sincronização via iCloud entre seus dispositivos
+• Não precisa de internet, a não ser para sincronizar pelo iCloud
 
-Isto não é um controle de despesas corporativas, registro de notas fiscais nem uma ferramenta de orçamento completa. Eu não tento conectar suas contas bancárias nem te encher de gráficos. Suas finanças são suas, então eu não imponho nenhum sistema financeiro a você.
+O Wren não é controle de despesas corporativas, registro de notas para imposto nem um sistema de orçamento complicado. Não conecto suas contas bancárias nem encho a tela de gráficos. Quero oferecer uma ferramenta simples, focada em alguns hábitos, e não na sua vida financeira inteira.
 
-Baixe o Wren e deixe cada dia mais leve.
+Para usar o app de verdade, é só pensar em um ou dois hábitos de consumo que você quer melhorar (comida, café, delivery, roupas, etc.). Depois, defina quanto quer gastar no máximo por dia, semana, quinzena ou mês. Com esses orçamentos no app e os gastos registrados, você passa a tomar decisões mais conscientes na hora.
+
+Baixe o Wren e deixe os seus dias mais leves.

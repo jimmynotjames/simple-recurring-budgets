@@ -1,15 +1,19 @@
-Sabe lo que puedes gastar antes de gastarlo.
+Ten claro lo que puedes gastar antes de gastarlo.
 
-Con Wren, decidir tus gastos del día a día es rápido y sencillo. Si puedes organizar tus objetivos de gasto en límites diarios, semanales, quincenales o mensuales, esta app es para ti.
+Wren hace que las decisiones de gasto del día a día sean rápidas y sencillas. Pon tus límites y controla tus gastos frente a ellos.
 
 Funciones:
-• Configuración sencilla
-• Registro de gastos en un momento
+• Configuración fácil
+• Registro de gastos en segundos
 • Presupuestos diarios, semanales, quincenales y mensuales
-• Acumula lo que no gastas: lo que ahorras hoy pasa a mañana
+• Traspaso del dinero no gastado, para que lo que ahorras hoy pase a mañana
+• Presupuestos puntuales para fechas concretas (unas vacaciones o una escapada de fin de semana)
+• Tus datos se guardan a salvo en el dispositivo y en iCloud
 • Sincronización con iCloud entre tus dispositivos
-• Tus datos se quedan en el dispositivo y en iCloud
+• No necesitas conexión a internet, salvo para sincronizar con iCloud
 
-No es una app para gastos de empresa, ni para guardar tickets del IRPF, ni una herramienta de contabilidad avanzada. No conecto tus cuentas del banco ni te lleno la pantalla de gráficas. Tus finanzas son tuyas, así que no te impongo ningún sistema.
+No es una app de gastos de empresa, ni un registro de tiques para Hacienda, ni un sistema de presupuestos complicado. No conecto tus cuentas bancarias ni te lleno la pantalla de gráficas. Quiero darte una herramienta sencilla, centrada en unos pocos hábitos, no en toda tu vida financiera.
 
-Descarga Wren y haz que cada día pese un poco menos.
+Para sacarle partido, solo tienes que pensar en uno o dos hábitos de gasto que quieras mejorar (comida, café, cañas con amigos, ropa, etc.). Luego decide cuánto quieres gastar como máximo cada día, semana, dos semanas o mes. En cuanto añadas esos presupuestos y empieces a registrar tus gastos, podrás tomar mejores decisiones sobre la marcha.
+
+Descarga Wren y haz que el día a día sea más fácil.

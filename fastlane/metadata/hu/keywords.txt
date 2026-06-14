@@ -1,1 +1,1 @@
-kiadás,pénzügy,megtakarítás,zsebpénz,kassza,pénz,havi,heti,kezelő,személyes,napló,spórolás
+büdzsé,kiadáskövető,pénzkövető,költségfigyelő,kiadás,pénzügy,pénztárca,kassza,pénz,havi,heti

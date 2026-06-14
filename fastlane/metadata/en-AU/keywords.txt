@@ -1,1 +1,1 @@
-spending,budget,money,finance,personal,savings,expenses,cash,manager,weekly,monthly,wallet
+spending,money,finance,savings,fortnightly,weekly,monthly,planner,spend,limit,bills,rollover

@@ -1,15 +1,19 @@
-Biết mình còn được tiêu bao nhiêu, trước khi rút ví.
+Biết mình còn được tiêu bao nhiêu, trước khi tiêu.
 
-Wren giúp bạn quyết định chi tiêu mỗi ngày thật nhanh và gọn. Nếu bạn muốn chia mục tiêu chi tiêu theo hạn mức ngày, tuần, hai tuần hay tháng, thì app này dành cho bạn.
+Wren giúp bạn ra quyết định chi tiêu hằng ngày nhanh và đơn giản. Đặt hạn mức chi tiêu rồi theo dõi ngay.
 
 Tính năng:
-• Cài đặt dễ dàng
-• Ghi chi tiêu trong vài giây
+• Thiết lập dễ dàng
+• Ghi chi tiêu nhanh gọn
 • Ngân sách theo ngày, tuần, hai tuần và tháng
-• Dồn phần chưa tiêu sang kỳ sau, để hôm nay tiết kiệm được bao nhiêu thì mai có thêm bấy nhiêu
-• Đồng bộ qua iCloud trên mọi thiết bị
-• Dữ liệu chỉ nằm trên máy bạn và trong iCloud
+• Số tiền chưa tiêu được chuyển sang kỳ sau, nên phần tiết kiệm hôm nay dồn cho ngày mai
+• Ngân sách một lần cho khoảng thời gian cụ thể (như một chuyến du lịch hay kỳ nghỉ cuối tuần)
+• Dữ liệu được giữ an toàn trên thiết bị và trong iCloud
+• Đồng bộ qua iCloud giữa các thiết bị của bạn
+• Không cần kết nối internet, trừ khi dùng đồng bộ iCloud
 
-Đây không phải app theo dõi chi phí công ty, lưu hóa đơn thuế hay công cụ lập ngân sách toàn diện. Mình không liên kết tài khoản ngân hàng hay vẽ ra mấy biểu đồ cầu kỳ. Chuyện tiền bạc là chuyện riêng, nên mình không áp đặt cho bạn một hệ thống tài chính nào cả.
+Đây không phải công cụ theo dõi chi phí công tác, sổ ghi hóa đơn thuế hay một hệ thống ngân sách phức tạp. Mình không liên kết tài khoản ngân hàng và cũng không vẽ ra mấy biểu đồ cầu kỳ. Mình chỉ muốn mang đến một công cụ đơn giản, tập trung vào một vài thói quen, chứ không phải toàn bộ đời sống tài chính của bạn.
 
-Tải Wren và để mỗi ngày trôi qua nhẹ nhàng hơn.
+Để dùng app hiệu quả, bạn chỉ cần nghĩ ra một hai thói quen chi tiêu thường ngày mà mình muốn cải thiện (ăn uống, cà phê, trà sữa, mua sắm quần áo, v.v.). Rồi xác định mức tối đa bạn muốn tiêu mỗi ngày, mỗi tuần, mỗi hai tuần hay mỗi tháng. Sau khi thêm những ngân sách này vào app và bắt đầu theo dõi chi tiêu, bạn sẽ ra quyết định chi tiêu khôn ngoan hơn ngay trong từng khoảnh khắc.
+
+Tải Wren và để mỗi ngày trôi nhẹ nhàng hơn.

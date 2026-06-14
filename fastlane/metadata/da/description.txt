@@ -1,15 +1,19 @@
-Få overblik over, hvad du kan bruge – før du bruger det.
+Find ud af, hvad du kan bruge – før du bruger det.
 
-Wren gør de daglige beslutninger om dit forbrug hurtige og enkle. Hvis du kan dele dine forbrugsmål op i grænser pr. dag, uge, hver anden uge eller måned, er appen noget for dig.
+Wren gør dine daglige pengevalg hurtige og enkle. Sæt et beløb, du må bruge, og hold øje med, hvor langt du er.
 
 Funktioner:
 • Hurtig opsætning
-• Lynhurtig registrering af udgifter
-• Budgetter pr. dag, uge, hver anden uge og måned
-• Overfør ubrugte penge, så det du sparer i dag, ruller videre til i morgen
-• iCloud-synkronisering på tværs af enheder
-• Dine data bliver på enheden og i iCloud
+• Registrér en udgift på et øjeblik
+• Budgetter for dagen, ugen, hver anden uge og måneden
+• Overfør det, du ikke brugte – det, du sparer i dag, ruller med over i morgen
+• Engangsbudgetter for bestemte perioder (fx en ferie eller en weekendtur)
+• Dine data ligger sikkert på enheden og i iCloud
+• iCloud synkroniserer på tværs af dine enheder
+• Ingen netforbindelse nødvendig, medmindre du bruger iCloud-synkronisering
 
-Det her er ikke en app til erhvervsudgifter, kvitteringer til skat eller storstilet budgetlægning. Jeg forsøger ikke at koble dine bankkonti på eller fylde dig med smarte grafer. Din økonomi er privat, så jeg påtvinger dig ikke et helt system til privatøkonomi.
+Det her er ikke et værktøj til firmaudgifter, en kvitteringslog til skat eller et indviklet budgetsystem. Jeg kobler ikke dine bankkonti på og giver dig ikke smarte grafer. Jeg vil bare give dig et enkelt redskab, der holder styr på et par vaner – ikke hele dit økonomiske liv.
 
-Hent Wren, og gør hverdagen en smule lettere.
+For at få mest ud af appen skal du bare tænke på en eller to faste forbrugsvaner, du gerne vil have bedre styr på (mad, kaffe, takeaway, tøj osv.). Beslut så, hvor meget du højst vil bruge om dagen, om ugen, hver anden uge eller om måneden. Når du har lagt budgetterne ind og begynder at registrere dine udgifter, kan du træffe klogere valg, mens du står midt i dem.
+
+Hent Wren, og gør hverdagen lidt lettere.

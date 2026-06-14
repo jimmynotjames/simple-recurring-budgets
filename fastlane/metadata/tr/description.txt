@@ -1,15 +1,19 @@
-Daha harcamadan, ne kadar harcayabileceğini bil.
+Harcamadan önce ne kadar harcayabileceğini bil.
 
-Wren günlük harcama kararlarını hızlı ve sade hâle getirir. Harcama hedeflerini günlük, haftalık, iki haftalık ya da aylık limitlere bölebiliyorsan bu uygulama tam sana göre.
+Wren, günlük harcama kararlarını hızlı ve basit hale getirir. Harcama limitleri belirle, ne kadar kaldığını anında gör.
 
 Özellikler:
 • Kolay kurulum
-• Hızlı harcama kaydı
+• Saniyeler içinde harcama ekleme
 • Günlük, haftalık, iki haftalık ve aylık bütçeler
-• Harcamadığın parayı devret; bugün biriktirdiğin yarına kalsın
-• Cihazların arasında iCloud eşitlemesi
-• Veriler yalnızca cihazında ve iCloud'da tutulur
+• Harcamadığın para devreder, bugün kalan yarına eklenir
+• Belirli tarihler için tek seferlik bütçeler (tatil ya da hafta sonu kaçamağı gibi)
+• Verilerin cihazında ve iCloud'da güvende tutulur
+• Cihazların arasında iCloud senkronizasyonu
+• iCloud senkronizasyonu dışında internet bağlantısı gerekmez
 
-Bu bir kurumsal gider takipçisi, fiş arşivleyici ya da kapsamlı bütçe yönetim aracı değil. Banka hesaplarını bağlamaya ya da sana süslü grafikler sunmaya çalışmıyorum. Paran sana özel; o yüzden sana hazır bir finans sistemi dayatmıyorum.
+Bu bir kurumsal harcama takibi, vergi fişi kaydı ya da karmaşık bir bütçe sistemi değil. Banka hesaplarını bağlamıyorum, süslü grafikler de sunmuyorum. Tüm finansal hayatını değil, birkaç alışkanlığı düzene sokan sade bir araç sunmak istiyorum.
 
-Wren'i indir, günlerin biraz daha hafiflesin.
+Uygulamayı verimli kullanmak için iyileştirmek istediğin bir iki düzenli harcama alışkanlığını düşün (market, kahve, dışarıda yemek, kıyafet gibi). Sonra her gün, hafta, iki hafta ya da ay için harcamak istediğin üst sınırı belirle. Bu bütçeleri ekleyip harcamalarını takip etmeye başladığında, kararlarını anında ve daha bilinçli verebilirsin.
+
+Wren'i indir, her güne biraz daha rahat başla.

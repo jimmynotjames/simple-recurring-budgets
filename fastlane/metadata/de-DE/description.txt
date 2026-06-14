@@ -1,15 +1,19 @@
-Wisse, was du ausgeben kannst – bevor du es ausgibst.
+Wisse, was du ausgeben kannst, bevor du es ausgibst.
 
-Mit Wren triffst du deine täglichen Geld-Entscheidungen schnell und einfach. Wenn du deine Ausgaben in tägliche, wöchentliche, zweiwöchentliche oder monatliche Limits aufteilen kannst, ist diese App genau richtig für dich.
+Wren macht alltägliche Ausgaben-Entscheidungen schnell und unkompliziert. Leg dir Limits fest und behalte sie im Blick.
 
 Funktionen:
 • Schnell eingerichtet
 • Ausgaben in Sekunden erfasst
-• Tägliche, wöchentliche, zweiwöchentliche und monatliche Budgets
-• Übertrag: Was übrig bleibt, wandert in den nächsten Zeitraum – was du heute sparst, hast du morgen mehr
-• iCloud-Sync auf all deinen Geräten
-• Deine Daten bleiben auf dem Gerät und in iCloud
+• Tages-, Wochen-, Zwei-Wochen- und Monatsbudgets
+• Übertrag: Was übrig bleibt, wandert in den nächsten Zeitraum
+• Einmal-Budgets für feste Zeiträume (etwa Urlaub oder ein Wochenendtrip)
+• Deine Daten bleiben sicher auf dem Gerät und in iCloud
+• iCloud-Sync über all deine Geräte hinweg
+• Keine Internetverbindung nötig, außer für den iCloud-Sync
 
-Das hier ist kein Tool für Geschäftsausgaben, keine Belegverwaltung fürs Finanzamt und kein großes Budget-System. Ich verbinde keine Bankkonten und überschütte dich nicht mit Diagrammen. Deine Finanzen sind deine Sache – darum stülpe ich dir kein fertiges Finanzsystem über.
+Wren ist kein Tool für Geschäftsausgaben, kein Belegscanner fürs Finanzamt und kein kompliziertes Budgetsystem. Ich verknüpfe keine Bankkonten und überschütte dich nicht mit Diagrammen. Ich will dir ein schlichtes Werkzeug geben, das ein paar Gewohnheiten im Blick behält – nicht dein ganzes Finanzleben.
 
-Lade Wren und mach dir deinen Alltag ein Stück leichter.
+Damit du wirklich was davon hast, überleg dir einfach ein oder zwei regelmäßige Ausgaben, die du besser im Griff haben willst (Essen, Kaffee, Klamotten und so weiter). Dann leg fest, wie viel du höchstens pro Tag, Woche, zwei Wochen oder Monat ausgeben möchtest. Sobald du diese Budgets angelegt hast und deine Ausgaben erfasst, triffst du in Echtzeit klügere Entscheidungen.
+
+Lad dir Wren und mach dir den Alltag leichter.

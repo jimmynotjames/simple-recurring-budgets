@@ -1,15 +1,19 @@
-Sai quanto puoi spendere, prima ancora di spenderlo.
+Sai quanto puoi spendere, prima ancora di farlo.
 
-Wren rende rapide e semplici le decisioni di spesa di tutti i giorni. Se riesci a suddividere i tuoi obiettivi di spesa in limiti giornalieri, settimanali, quindicinali o mensili, questa è l'app che fa per te.
+Wren rende le decisioni di spesa di tutti i giorni veloci e semplici. Imposta i tuoi limiti e tieni traccia di quanto resta.
 
 Funzioni:
-• Configurazione immediata
-• Registri le spese in un attimo
-• Budget giornalieri, settimanali, quindicinali e mensili
-• Riporti al periodo dopo quello che non spendi: ciò che risparmi oggi passa a domani
-• Sincronizzazione tra dispositivi con iCloud
-• I dati restano sul dispositivo e su iCloud
+• Configurazione facile
+• Registrazione rapida delle spese
+• Budget giornalieri, settimanali, ogni due settimane e mensili
+• Riporto del non speso: quello che risparmi oggi passa a domani
+• Budget una tantum per periodi specifici (una vacanza o un weekend fuori)
+• I tuoi dati restano al sicuro sul dispositivo e su iCloud
+• Sincronizzazione tra i tuoi dispositivi con iCloud
+• Nessuna connessione a internet necessaria, salvo per la sincronizzazione iCloud
 
-Non è uno strumento per le spese aziendali, un archivio di scontrini fiscali o un software di budget complesso. Non provo a collegare i tuoi conti bancari né a riempirti di grafici elaborati. Le tue finanze sono una cosa personale, quindi non ti impongo nessun sistema di gestione del denaro.
+Non è un gestionale per spese aziendali, un raccoglitore di scontrini fiscali o un sistema di budget complicato. Non collego i tuoi conti bancari e non ti riempio di grafici elaborati. Voglio darti uno strumento semplice, concentrato su poche abitudini, non sull'intera tua vita finanziaria.
 
-Scarica Wren e rendi ogni giornata un po' più leggera.
+Per sfruttarlo al meglio ti basta pensare a una o due abitudini di spesa che vuoi migliorare (spesa, caffè, aperitivi, vestiti e così via). Poi decidi quanto vuoi spendere al massimo ogni giorno, settimana, due settimane o mese. Una volta aggiunti questi budget e iniziato a registrare le spese, potrai fare scelte più consapevoli in tempo reale.
+
+Scarica Wren e rendi più leggera ogni giornata.

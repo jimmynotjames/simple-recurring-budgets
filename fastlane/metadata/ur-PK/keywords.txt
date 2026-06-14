@@ -1,1 +1,1 @@
-budget,expense,money,paisa,kharcha,bachat,savings,بجٹ,اخراجات,wallet,hisab,ماہانہ
+expense,budget,بجٹ,money,paisa,kharcha,bachat,اخراجات,wallet,hisab,tracker,khata,rozana

@@ -1,15 +1,19 @@
-Znaj koliko možeš potrošiti prije nego potrošiš.
+Znaj koliko možeš potrošiti, prije nego što potrošiš.
 
-Wren čini svakodnevne odluke o trošenju brzima i jednostavnima. Ako svoje ciljeve trošenja možeš podijeliti na dnevne, tjedne, dvotjedne ili mjesečne limite, ova je aplikacija za tebe.
+Wren čini svakodnevne odluke o trošenju brzima i jednostavnima. Postavi limite potrošnje i prati ih.
 
 Značajke:
 • Jednostavno postavljanje
 • Brzo bilježenje troškova
 • Dnevni, tjedni, dvotjedni i mjesečni proračuni
-• Prenesi neutrošeno dalje, pa ono što danas uštediš prelazi u sutra
-• iCloud sinkronizacija među uređajima
-• Podaci ostaju na uređaju i u iCloudu
+• Prijenos neutrošenog novca, pa ono što danas uštediš prelazi u sutra
+• Jednokratni proračuni za određena razdoblja (npr. godišnji odmor ili vikend-izlet)
+• Podaci ostaju sigurni na uređaju i u iCloudu
+• iCloud sinkronizacija među tvojim uređajima
+• Internetska veza nije potrebna, osim za iCloud sinkronizaciju
 
-Ovo nije alat za poslovne troškove, evidenciju poreznih računa ni opsežno planiranje proračuna. Ne pokušavam povezati tvoje bankovne račune niti te zatrpati grafikonima. Tvoje su financije osobne, pa ti ne namećem nikakav sustav osobnih financija.
+Ovo nije alat za poslovne troškove, evidenciju poreznih računa ni složeni sustav za proračune. Ne povezujem tvoje bankovne račune niti nudim komplicirane grafikone. Želim ponuditi jednostavan alat koji se usredotočuje na nekoliko navika, a ne na cijeli tvoj financijski život.
 
-Preuzmi Wren i učini svaki dan laganijim.
+Da bi ovu aplikaciju koristio uspješno, dovoljno je da se sjetiš jedne ili dviju redovitih navika trošenja koje želiš poboljšati (hrana, kava, izlasci, odjeća i sl.). Zatim odredi koliko najviše želiš potrošiti svaki dan, tjedan, dva tjedna ili mjesec. Kad te proračune dodaš u aplikaciju i počneš pratiti troškove, moći ćeš donositi pametnije odluke o trošenju u stvarnom vremenu.
+
+Preuzmi Wren i učini svaki dan lakšim.

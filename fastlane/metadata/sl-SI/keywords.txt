@@ -1,1 +1,1 @@
-proračun,poraba,denar,finance,varčevanje,stroški,izdatki,upravljanje,tedenski,mesečni,denarnica
+budget,proračun,stroški,poraba,denar,finance,varčevanje,osebne,sledilnik,dnevni,mesečni,izdatki

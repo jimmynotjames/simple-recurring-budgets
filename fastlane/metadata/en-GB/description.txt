@@ -1,15 +1,19 @@
 Know what you can spend, before you spend it.
 
-Wren makes everyday spending decisions fast and simple. If you can organise your spending goals into daily, weekly, fortnightly or monthly limits, this app is for you.
+Wren makes everyday spending decisions fast and simple. Set spending limits and track against them.
 
 Features:
-• Easy set-up
+• Easy setup
 • Fast expense logging
-• Daily, weekly, fortnightly and monthly budgets
-• Carry over unspent funds, so what you save today rolls into tomorrow
-• iCloud sync across devices
-• Data is kept on-device and in iCloud
+• Daily, weekly, fortnightly, and monthly budgets
+• Carry unspent money forward, so what you save today rolls into tomorrow
+• One-off budgets for specific date ranges (like a holiday or weekend away)
+• Your data stays safe on-device and in iCloud
+• iCloud syncing across your devices
+• No internet connection required unless you're using iCloud syncing
 
-This isn't a business expense tracker, tax receipt logger or master budgeting tool. I don't try to link your bank accounts or hand you fancy graphs. Your finances are personal, so I don't impose a personal finance system on you.
+This isn't a business expense tracker, a tax receipt logger, or a complicated budgeting system. I don't link your bank accounts or hand you fancy graphs. I want to offer a simple tool that focuses on a few habits, not your whole financial life.
 
-Download Wren and make every day feel a little lighter.
+To get the most from the app, just think of one or two regular spending habits you'd like to improve (food, coffee, the pub, clothes, and so on). Then decide the most you want to spend each day, week, fortnight, or month. Once you've added these budgets and started tracking your expenses, you'll be able to make wiser spending decisions in real time.
+
+Download Wren and make every day that bit easier.

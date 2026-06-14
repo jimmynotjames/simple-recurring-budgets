@@ -1,15 +1,19 @@
-Tahu berapa yang boleh dibelanja, sebelum anda belanja.
+Tahu berapa yang boleh dibelanja, sebelum anda membelanjakannya.
 
-Wren menjadikan keputusan belanja harian cepat dan ringkas. Jika matlamat perbelanjaan anda boleh dipecahkan kepada had harian, mingguan, dua mingguan atau bulanan, aplikasi ini memang untuk anda.
+Wren menjadikan keputusan perbelanjaan harian pantas dan ringkas. Tetapkan had perbelanjaan dan pantau perbelanjaan anda mengikut had itu.
 
 Ciri-ciri:
-• Sedia digunakan dengan mudah
-• Catat perbelanjaan dengan pantas
+• Mudah disediakan
+• Catatan perbelanjaan yang pantas
 • Bajet harian, mingguan, dua mingguan dan bulanan
-• Baki yang tidak digunakan dibawa ke hadapan, jadi apa yang anda jimat hari ini dipindahkan ke esok
-• Penyegerakan iCloud merentas peranti
-• Data disimpan pada peranti dan dalam iCloud
+• Baki belanjawan dibawa ke hadapan, jadi apa yang anda jimat hari ini diteruskan ke esok
+• Bajet sekali sahaja untuk julat tarikh tertentu (seperti percutian atau hujung minggu di luar)
+• Data disimpan selamat dalam peranti dan dalam iCloud
+• Penyegerakan iCloud merentas semua peranti anda
+• Tiada sambungan internet diperlukan kecuali jika menggunakan penyegerakan iCloud
 
-Ini bukan penjejak perbelanjaan perniagaan, alat rekod resit cukai, atau aplikasi belanjawan menyeluruh. Saya tidak cuba menghubungkan akaun bank anda atau menyajikan graf yang rumit. Kewangan anda hal peribadi, jadi saya tidak memaksa sebarang sistem kewangan ke atas anda.
+Ini bukan penjejak perbelanjaan perniagaan, perekod resit cukai, atau sistem belanjawan yang rumit. Saya tidak menghubungkan akaun bank anda atau memberi anda graf yang mewah. Saya mahu menawarkan alat ringkas yang menumpukan pada beberapa tabiat sahaja, bukan keseluruhan kehidupan kewangan anda.
 
-Muat turun Wren dan jadikan setiap hari terasa lebih lapang.
+Untuk menggunakan aplikasi ini dengan berkesan, anda cuma perlu fikirkan satu atau dua tabiat perbelanjaan yang ingin anda perbaiki (makanan, kopi, bayar langganan, pakaian dan sebagainya). Kemudian fikirkan jumlah maksimum yang anda mahu belanjakan setiap hari, minggu, dua minggu atau bulan. Selepas anda menambah bajet ini ke dalam aplikasi dan mula menjejak perbelanjaan, anda boleh membuat keputusan perbelanjaan yang lebih bijak secara langsung.
+
+Muat turun Wren dan buat setiap hari lebih mudah.

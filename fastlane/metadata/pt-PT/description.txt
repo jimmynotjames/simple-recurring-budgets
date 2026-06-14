@@ -1,15 +1,19 @@
-Sabe o que podes gastar, antes de gastares.
+Sabe quanto podes gastar, antes de gastares.
 
-O Wren torna as decisões do dia a dia rápidas e simples. Se consegues dividir os teus objetivos de gastos em limites diários, semanais, quinzenais ou mensais, esta app é para ti.
+A Wren torna as decisões de gastos do dia a dia rápidas e simples. Define limites de gastos e acompanha-os.
 
 Funcionalidades:
-• Configuração simples
-• Registo de despesas em segundos
+• Configuração fácil
+• Registo rápido de despesas
 • Orçamentos diários, semanais, quinzenais e mensais
-• O saldo que não gastas transita para o dia seguinte: o que poupas hoje fica para amanhã
-• Sincronização via iCloud entre dispositivos
-• Os dados ficam no dispositivo e no iCloud
+• Transição de saldo: o que poupas hoje passa para amanhã
+• Orçamentos pontuais para intervalos de datas específicos (como férias ou um fim de semana fora)
+• Os dados ficam seguros no dispositivo e no iCloud
+• Sincronização via iCloud entre os teus dispositivos
+• Não é precisa ligação à internet, exceto para sincronizar com o iCloud
 
-Não é um controlo de despesas profissionais, um registo de recibos para impostos nem uma ferramenta de orçamentação completa. Não ligo as tuas contas bancárias nem te encho de gráficos elaborados. As tuas finanças são pessoais, por isso não te imponho nenhum sistema financeiro.
+Isto não é um registo de despesas profissionais, um arquivo de recibos para impostos nem um sistema de orçamento complicado. Não ligo as tuas contas bancárias nem te encho de gráficos elaborados. Quero oferecer-te uma ferramenta simples, focada em alguns hábitos, e não em toda a tua vida financeira.
 
-Descarrega o Wren e deixa os teus dias mais leves.
+Para aproveitar a app, basta pensares num ou dois hábitos de gastos que queiras melhorar (comida, café, jantares fora, roupa, etc.). Depois pensa no máximo que queres gastar por dia, por semana, de duas em duas semanas ou por mês. Quando adicionares esses orçamentos e começares a registar as despesas, vais tomar decisões mais conscientes em tempo real.
+
+Descarrega a Wren e torna cada dia mais leve.

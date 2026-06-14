@@ -39,6 +39,7 @@ CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizab
 
 sys.path.insert(0, str(Path(__file__).parent))
 from extract import CLDR_CATEGORIES  # noqa: E402
+from xcstrings_io import write_xcstrings  # noqa: E402
 
 
 def load_updates(arg: str) -> dict:
@@ -91,9 +92,7 @@ def main(argv: list[str]) -> int:
         changed += 1
 
     if not args.dry_run and changed:
-        with CATALOG_PATH.open("w", encoding="utf-8") as f:
-            json.dump(catalog, f, ensure_ascii=False, indent=2, sort_keys=True)
-            f.write("\n")
+        write_xcstrings(catalog, CATALOG_PATH)
     print(f"\n{'Would convert' if args.dry_run else 'Converted'} {changed} key(s). "
           "Next: extract.py --missing → dispatch → translate → validate → merge.")
     return 0

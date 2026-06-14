@@ -40,6 +40,7 @@ CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizab
 
 sys.path.insert(0, str(Path(__file__).parent))
 from locales import LOCALES  # noqa: E402
+from xcstrings_io import write_xcstrings  # noqa: E402
 
 
 def parse_keys(arg: str | None, path: Path | None) -> set[str]:
@@ -128,9 +129,7 @@ def main(argv: list[str]) -> int:
         print(f"\nDry run: would invalidate {len(keys)} key(s) ({total_locales} locale entries). Catalog unchanged.")
         return 0
 
-    with CATALOG_PATH.open("w", encoding="utf-8") as f:
-        json.dump(catalog, f, ensure_ascii=False, indent=2, sort_keys=True)
-        f.write("\n")
+    write_xcstrings(catalog, CATALOG_PATH)
 
     print(f"\nInvalidated {len(keys)} key(s), {total_locales} locale entries marked needs_review.")
     print("Next: python3 scripts/translate_catalog/extract.py --missing")

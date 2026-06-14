@@ -88,13 +88,16 @@ python3 scripts/translate_metadata/check_metadata.py
 ```
 scripts/translate_metadata/
   metadata_locales.py   # storefront list, runtime→storefront map, field limits, brand, names
-  extract.py            # en-US/*.txt → tmp/metadata-inputs/source.json (+ --missing → manifest.json)
+  check_source_voice.py # pre-flight: warn on exclamation marks / ALL-CAPS / superlatives in en-US source (--json)
+  extract.py            # en-US/*.txt → tmp/metadata-inputs/source.json (--missing → absent-field manifest; --fields F… → force-re-translate edited field(s))
   dispatch_prompts.py   # source + manifest + PROMPT_TEMPLATE.md → tmp/metadata-prompts/{storefront}.md
   validate.py           # --subset; PASS/PENDING/FAIL; char limits, brand prefix, keyword hygiene; --json
   audit.py              # inspect outputs: field/char table, OVER flags, consolidated _questions; --questions/--json/--full
+  audit_semantic.py     # semantic quality audit: --dispatch / --report / --write-manifest; --min-severity; one Opus auditor per storefront
   merge.py              # tmp/metadata-outputs/{storefront}.json → fastlane/metadata/{storefront}/*.txt + URL passthrough; clears fields blank in en-US
   check_metadata.py     # authoritative gate over fastlane/metadata/ (authored fields populated+within limits; blank-source fields stay empty)
   PROMPT_TEMPLATE.md    # transcreation prompt template
+  AUDIT_PROMPT_TEMPLATE.md # semantic-audit prompt template
   README.md             # this file
 
 .claude/agents/

@@ -102,6 +102,23 @@ Read those six files and present, in a **single** message: the folder path, each
 field's current **authored / blank** state, and a short preview of the authored
 values.
 
+**Run the source-voice pre-check first** (deterministic — don't eyeball it):
+
+```bash
+python3 scripts/translate_metadata/check_source_voice.py
+```
+
+It scans the authored en-US fields for brand-voice slips that would otherwise
+propagate to all 49 storefronts and get re-flagged by every semantic auditor:
+exclamation marks, ALL-CAPS shouting, and salesy superlatives ("the best",
+"amazing", "revolutionary"). **Exit 0** = clean, continue. **Exit 1** = it found
+something: these are warnings, not hard errors, but you must **halt and surface
+every finding to the human** as part of the source-ready prompt below — include
+the field, the matched token, and the voice rule it breaks, and let them choose to
+fix the en-US source first or proceed anyway. Do not silently proceed past a
+non-zero exit, and do not auto-edit the source to "fix" it — the wording is the
+human's call.
+
 **WARNING — blank fields clear all translations.** When a translatable field is
 left blank in `en-US`, `merge.py` **erases the content of every existing translated
 `.txt` for that field across all storefronts** (it reads the blank state straight

@@ -1,6 +1,6 @@
 ---
 name: appstore-generate-push-screenshots
-description: Capture localized App Store screenshots with fastlane (Simulator) and upload them to App Store Connect via the self-healing retry controller. Runs the full capture → review → upload phase; skips capture if it is already done. Asks one choice (pause for inspection vs upload immediately) unless pre-authorized by an argument. Precondition: check_content.py exits 0. Use after /appstore:generate-screenshot-seeding. Invoked via /appstore:generate-push-screenshots.
+description: Capture localized App Store screenshots with fastlane (Simulator) and upload them to App Store Connect via the self-healing retry controller. Runs the full capture → review → upload phase; if capture is already done, asks whether to re-capture (overwrite) or reuse the existing shots. Asks one choice (pause for inspection vs upload immediately) unless pre-authorized by an argument. Precondition: check_content.py exits 0. Use after /appstore:generate-screenshot-seeding. Invoked via /appstore:generate-push-screenshots.
 ---
 
 # Capture and push App Store screenshots
@@ -22,7 +22,9 @@ This skill does two long-running things back to back:
    version.
 
 Both phases run **in the background** with 20-minute progress ticks, so the whole
-skill runs unattended apart from (at most) the single choice in step 3.
+skill runs unattended apart from (at most) two choices: whether to re-capture when
+shots already exist (step 2, only asked if capture is already complete) and the
+pause-vs-upload choice (step 3). Both are skippable via arguments.
 
 ## Preflight — orchestrator model (before anything else)
 
@@ -36,28 +38,45 @@ success-verification steps unreliably; Opus works but is pricier for no gain.
 
 ## Arguments — how to run fully unattended
 
-The invocation may carry one optional argument that **pre-answers the step-3
-choice**, so there is *zero* prompting:
+The invocation may carry optional arguments that **pre-answer the prompts**, so
+there is *zero* prompting. Arguments are space-separated and order-independent;
+they fall on two independent axes.
+
+**Capture axis (pre-answers the step-2 re-capture prompt, only relevant when shots
+already exist):**
+
+- **`recapture`** (also accepts `fresh`, `overwrite`) → clear the existing shots
+  and re-capture from scratch (the ~2 h job), even if capture is already complete.
+- **`keep`** (also accepts `reuse`, `skip-capture`) → reuse the existing shots and
+  skip capture.
+- **no capture argument** → if capture is already complete, ask the step-2 prompt
+  once (the safe default; recapture is a ~2 h job that overwrites already-inspected
+  shots). If capture is missing or partial, capture runs regardless — no prompt.
+
+**Upload axis (pre-answers the step-3 choice):**
 
 - **`upload-now`** (also accepts `b`, `no-pause`, `auto`) → Option **B**: capture,
   then upload immediately; review page opens for post-upload review.
 - **`pause`** (also accepts `a`, `inspect`) → Option **A**: capture, open the
   review page, and pause for an explicit "proceed" before uploading.
-- **no argument** → ask the step-3 choice once (the safe default; uploading to ASC
-  is outward-facing, so absent explicit authorization, confirm first).
+- **no upload argument** → ask the step-3 choice once (the safe default; uploading
+  to ASC is outward-facing, so absent explicit authorization, confirm first).
 
-If the user's surrounding message already authorizes unattended upload (e.g. "push
-them without stopping", "upload as autonomously as possible"), treat that as
-`upload-now` and do **not** prompt.
+If the user's surrounding message already authorizes the action (e.g. "re-capture
+everything" → `recapture`; "keep the existing shots" → `keep`; "push them without
+stopping" / "upload as autonomously as possible" → `upload-now`), treat that as the
+matching argument and do **not** prompt for that axis.
 
 ## Autonomy
 
-Apart from the step-3 choice (skippable via the argument above), run **end to end
-without pausing**: do not ask "shall I proceed?" between steps, do not ask before
-re-capturing failed locales, and do not ask before retrying a failed upload
-subset — all of that is routine and pre-approved in `.claude/settings.json`. The
-only other time you stop is a hard failure you cannot self-heal (e.g. the capture
-lane fails to build) — surface the log tail and stop.
+Apart from the step-2 re-capture prompt (only asked when shots already exist, and
+skippable via the capture-axis argument above) and the step-3 choice (skippable via
+the upload-axis argument), run **end to end without pausing**: do not ask "shall I
+proceed?" between steps, do not ask before re-capturing failed locales, and do not
+ask before retrying a failed upload subset — all of that is routine and pre-approved
+in `.claude/settings.json`. The only other time you stop is a hard failure you
+cannot self-heal (e.g. the capture lane fails to build) — surface the log tail and
+stop.
 
 ## Progress checklist
 
@@ -66,7 +85,8 @@ per step) with `- [x]` as each step completes:
 
 0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding)
 1. **Precondition** — seed catalog complete (`check_content.py` exits 0)
-2. **Capture status** — is capture already done? (`capture_progress.py`)
+2. **Capture status** — is capture already done? (`capture_progress.py`); if done,
+   ask re-capture vs reuse (unless pre-answered by argument)
 3. **Choice** — Option A (pause) or B (upload now), or pre-answered by argument
 4. **Capture** — `fastlane screenshots` (skipped if step 2 says done)
 5. **Review page** — open `fastlane/screenshots/screenshots.html`
@@ -75,7 +95,7 @@ per step) with `- [x]` as each step completes:
 8. **Done** — verify all storefronts confirmed; [B] remind review page is open
 
 Omit steps that provably won't run (e.g. skip step 4 when capture is already
-complete) and say why.
+complete and you chose to keep the existing shots) and say why.
 
 ## Recipe
 
@@ -101,12 +121,33 @@ Reports `N/M locales done` and exits 0 only when **every** locale has its full
 and storefront-code folders (post-rename), so it reads correctly whether capture
 just finished or never ran.
 
-- **Exit 0:** capture is already complete — **skip step 4** (recapture is a ~2 h
-  job and would overwrite already-inspected shots). Note this in the checklist.
-  *If the user explicitly wants a fresh capture, first clear the old shots
-  (`rm -rf fastlane/screenshots/*`) so this no longer reports "done", then
-  proceed — otherwise capture is skipped.*
-- **Exit non-zero:** capture is needed (or partial). Step 4 runs it.
+- **Exit non-zero:** capture is needed (or partial). Step 4 runs it — no re-capture
+  prompt (there is nothing to overwrite).
+- **Exit 0:** capture is already complete. **Do not silently skip — ask whether to
+  re-capture or reuse**, unless the capture-axis argument (or the surrounding
+  message) already pre-answered it (see **Arguments**). Ask once with
+  `AskUserQuestion`:
+
+  **Question:** "Screenshots are already captured (N/M locales, 2 devices each).
+  Re-capture and overwrite them, or keep the existing ones?"
+
+  - **Keep existing** (recommended): skip capture (step 4) and go straight to the
+    review/upload steps. Recapture is a ~2 h job that would overwrite the
+    already-captured (possibly already-inspected) shots.
+  - **Re-capture (overwrite)**: clear the old shots and run the full capture.
+
+  > **Cursor / no-AskUserQuestion:** present the choice as a markdown block and
+  > wait for the reply (unless pre-authorized).
+
+  Then branch:
+  - **Keep / `keep`:** **skip step 4.** Note this in the checklist.
+  - **Re-capture / `recapture`:** clear the existing shots so `capture_progress.py`
+    no longer reports "done", then run step 4:
+    ```bash
+    rm -rf fastlane/screenshots/*
+    ```
+    (This is the only path that wipes `fastlane/screenshots/`. It is gated behind
+    the explicit re-capture choice — never clear shots on the "keep" path.)
 
 ### 3. Choice — the one human input (skip if pre-authorized)
 
@@ -128,7 +169,9 @@ Record the answer (A or B) — it determines step 6.
 
 ### 4. Capture — `fastlane screenshots`
 
-**Skip entirely if step 2 exited 0.** Otherwise run in the background
+**Skip entirely if step 2 was already complete and you chose "keep".** Run it when
+capture was missing/partial, or when you chose "re-capture" in step 2 (the old
+shots are already cleared at that point). Run in the background
 (`run_in_background: true`):
 
 ```bash
@@ -250,6 +293,7 @@ deliverables) in place unless the user asks to remove them.
 ```bash
 python3 scripts/screenshot_content/check_content.py          # seed catalog gate
 python3 scripts/screenshot_content/capture_progress.py       # capture done vs pending (authoritative)
+rm -rf fastlane/screenshots/*                                 # clear shots before a chosen full re-capture (overwrite path only)
 fastlane screenshots                                          # capture (~2 h) + auto-rename
 fastlane snapshot --languages ja,de,ar --clear_previous_screenshots false  # re-capture a few runtime codes WITHOUT wiping the rest
 python3 scripts/screenshot_content/rename_for_deliver.py     # rename runtime→storefront after a snapshot recapture

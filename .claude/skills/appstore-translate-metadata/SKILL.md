@@ -1,6 +1,6 @@
 ---
 name: appstore-translate-metadata
-description: Transcreate the App Store listing (name, subtitle, keywords, promotional text, description, release notes) from English into all 49 App Store storefront locales under fastlane/metadata/. Invoked via /appstore:translate-metadata. Use after editing any fastlane/metadata/en-US/*.txt, or when check_metadata.py reports gaps. Drives the scripts/translate_metadata/ pipeline in subset mode with parallel per-storefront Opus subagents. This is the App-Store-metadata sibling of translate-new-strings (in-app strings) and appstore-generate-screenshot-seeding (screenshot demo data).
+description: Transcreate the App Store listing (name, subtitle, keywords, promotional text, description, release notes) from English into all 49 App Store storefront locales under fastlane/metadata/. Invoked via /appstore:translate-metadata. Use after editing any fastlane/metadata/en-US/*.txt, or when check_metadata.py reports gaps. Drives the scripts/translate_metadata/ pipeline in subset mode with parallel per-storefront Opus subagents, then runs an autonomous Opus semantic-audit + remediation refine pass before the gate. Orchestration is model-light enough to run on Sonnet; the Opus subagents do the translation and audit. This is the App-Store-metadata sibling of translate-new-strings (in-app strings) and appstore-generate-screenshot-seeding (screenshot demo data).
 ---
 
 # Translate App Store metadata
@@ -21,13 +21,27 @@ the mapping.
 ## Autonomy
 
 Run this whole pipeline **autonomously, end to end, without pausing for approval
-on mechanical steps** — extract, dispatch, fan-out, validate, merge, and the gate
-are all routine and pre-approved in `.claude/settings.json`. Do **not** ask "shall
-I proceed?" between steps, and do not ask permission to retry a failed locale.
+on mechanical steps** — extract, dispatch, fan-out, validate, merge, the semantic
+audit + remediation loop (Step 5), and the gate are all routine and pre-approved
+in `.claude/settings.json`. Do **not** ask "shall I proceed?" between steps, and do
+not ask permission to retry a failed locale or to auto-fix audit findings.
 
 There is exactly **one** thing worth bringing to the human: **genuine content
 questions about the marketing copy itself** that the subagents flag (Step 4a).
 Surface those in a single batch; everything else you decide and execute yourself.
+
+### Model roles — orchestrator vs. workers
+
+This skill is built so the **orchestrator** (the agent running these steps) can be
+**Sonnet**: every step is a script call, a parallel fan-out, or a deterministic
+branch on a PASS/FAIL/severity threshold — there are no orchestrator-level
+linguistic judgments. All the language quality lives in the **Opus** worker
+subagents: `metadata-locale` (transcreation) and `metadata-audit-locale` (quality
+audit) are both pinned to `model: opus` in their agent definitions and must stay
+that way — they out-class the copy they produce/grade. So: **Sonnet orchestrates,
+Opus translates and audits.** Keep the thresholds and round caps in Step 5 fixed
+rather than "deciding" per run, so the Sonnet orchestrator never has to judge copy
+itself.
 
 ## Hard rules
 
@@ -84,7 +98,9 @@ Writes:
 - `tmp/metadata-inputs/manifest.json` — `{storefront: [fields...]}` listing the
   gaps to fill.
 
-If the manifest is empty, skip to step 5 to confirm.
+If the manifest is empty, nothing needs transcreating — skip Steps 2–5 (including
+the refine pass; there's nothing new to refine) and go to the gate (Step 6) to
+confirm.
 
 ### 2. Compose per-storefront prompts
 
@@ -210,7 +226,89 @@ If the human overrides a default, apply the change by editing the relevant
 `fastlane/metadata/<storefront>/<field>.txt` directly (or re-dispatching that one
 locale with the added guidance), then re-run `validate.py` + `check_metadata.py`.
 
-### 5. Authoritative gate
+### 5. Semantic quality audit + autonomous remediation (the refine pass)
+
+Merging produces *valid* copy (within limits, brand-correct); it does not mean the
+copy is *good*. This step grades the transcreations with an Opus auditor and
+auto-fixes what it flags — the quality counterpart to the structural `audit.py`.
+Run it **autonomously**: no prompts, fixed thresholds, bounded rounds.
+
+**Scope.** Audit the storefronts you transcreated this run — the keys of the
+initial `tmp/metadata-inputs/manifest.json` from Step 1. (On a full re-translation
+that's all 49; on an incremental run it's just the touched ones.) If Step 1's
+manifest was empty (nothing transcreated), **skip this step** — there is nothing
+new to refine — and go to the gate.
+
+**Fixed policy (do not vary per run):** auto-remediate every finding at severity
+**medium or high**; `low` findings are advisory only. Cap at **2 remediation
+rounds**; residual medium+ findings after round 2 are surfaced, not looped on.
+
+Round protocol:
+
+1. **Dispatch audit prompts** for the in-scope storefronts:
+   ```bash
+   python3 scripts/translate_metadata/audit_semantic.py --dispatch <storefronts>
+   ```
+   Writes `tmp/metadata-audit-prompts/{sf}.md` (en source + current localized
+   fields + cultural note + limits) and clears their stale audit outputs.
+
+2. **Fan out one `metadata-audit-locale` (Opus) subagent per prompt.** For each
+   `tmp/metadata-audit-prompts/{sf}.md`, dispatch `subagent_type:
+   metadata-audit-locale` telling it to read that file and write findings JSON to
+   `tmp/metadata-audit-outputs/{sf}.json`. Batch ~8–12 per message; **never mix
+   `Agent` and `Bash` calls in one message** (a single tool error cancels the
+   whole batch and kills in-flight subagents).
+
+3. **Triage:**
+   ```bash
+   python3 scripts/translate_metadata/audit_semantic.py --report --min-severity medium <storefronts>
+   ```
+   **Exit 0** → no medium+ findings: the audit is clean, go to the gate (Step 6).
+   **Exit 1** → there are findings to fix; continue.
+
+4. **Build the remediation manifest** from the findings:
+   ```bash
+   python3 scripts/translate_metadata/audit_semantic.py --write-manifest --min-severity medium <storefronts>
+   ```
+   Writes `tmp/metadata-inputs/{manifest,source}.json` scoped to exactly the
+   flagged (storefront, field) pairs — the same shape Step 1 produces.
+
+5. **Regenerate prompts** for the flagged set:
+   ```bash
+   python3 scripts/translate_metadata/dispatch_prompts.py
+   ```
+   It reads the remediation manifest and slices each prompt to that storefront's
+   flagged fields only.
+
+6. **Re-transcreate with the auditor's feedback.** Fan out one `metadata-locale`
+   (Opus) subagent per flagged storefront. In each dispatch message, point the
+   agent at **both** files: its task prompt `tmp/metadata-prompts/{sf}.md` **and**
+   the auditor's findings `tmp/metadata-audit-outputs/{sf}.json`. Instruct it to
+   fix each flagged field per the finding's `issue`/`suggestion`, stay within char
+   limits and all prompt rules, and write the corrected JSON (flagged fields only)
+   to `tmp/metadata-outputs/{sf}.json`. Example:
+   > Read `/abs/.../tmp/metadata-prompts/de-DE.md` (your transcreation task) and
+   > `/abs/.../tmp/metadata-audit-outputs/de-DE.json` (a prior Opus auditor's
+   > findings on the current shipping copy). Produce a corrected transcreation that
+   > resolves each finding while obeying every rule in the prompt. Write only the
+   > JSON object to `/abs/.../tmp/metadata-outputs/de-DE.json`.
+
+7. **Validate + merge** the fixes:
+   ```bash
+   python3 scripts/translate_metadata/validate.py --subset
+   python3 scripts/translate_metadata/merge.py
+   ```
+   Re-dispatch any PENDING/FAIL storefront (Step 4 of the main recipe) before
+   merging.
+
+8. **Re-audit only the remediated storefronts** (back to round step 1 with just
+   those). If `--report --min-severity medium <remediated>` exits 0, the refine
+   pass is done. If findings remain **and** you have done fewer than 2 rounds,
+   loop. After 2 rounds, **stop**: print a short residual summary (the remaining
+   medium+ findings, grouped) for owner review and continue to the gate — do not
+   loop indefinitely.
+
+### 6. Authoritative gate
 
 ```bash
 python3 scripts/translate_metadata/check_metadata.py
@@ -220,7 +318,7 @@ This walks `fastlane/metadata/` directly (not the tmp/ intermediates), so it
 catches anything that didn't merge. If it reports gaps, loop back to step 1
 (`extract.py --missing` will re-flag exactly what's left).
 
-### 6. Ship (when ready)
+### 7. Ship (when ready)
 
 Upload metadata only (no binary), or include in a full release:
 
@@ -232,10 +330,11 @@ fastlane push_metadata
 `push_metadata` / `release` touch App Store Connect — only run them when you
 actually intend to upload. See `fastlane/SETUP.md`.
 
-### 7. Cleanup — offer to clear tmp working files
+### 8. Cleanup — offer to clear tmp working files
 
 After the gate is green (and you've shipped or decided not to), offer to clear this
-pipeline's gitignored tmp files. Ask first; on a yes:
+pipeline's gitignored tmp files (this clears both the transcreation and the
+`metadata-audit-*` working dirs). Ask first; on a yes:
 
 ```bash
 python3 scripts/pipeline_tmp.py clean metadata
@@ -244,5 +343,7 @@ python3 scripts/pipeline_tmp.py clean metadata
 ## When NOT to use this skill
 
 - Editing in-app UI strings → use `translate-new-strings`.
-- Capturing localized screenshots → out of scope (separate `fastlane screenshots`
-  flow, not built yet).
+- Generating App Store **screenshot** seed content → use
+  `/appstore:generate-screenshot-seeding`.
+- Capturing + uploading App Store screenshots → use
+  `/appstore:generate-push-screenshots`.

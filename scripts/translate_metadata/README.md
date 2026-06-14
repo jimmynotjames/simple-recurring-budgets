@@ -68,7 +68,16 @@ python3 scripts/translate_metadata/audit.py             # field/char table + sta
 python3 scripts/translate_metadata/audit.py --questions # only the _questions batch
 python3 scripts/translate_metadata/merge.py
 
-# 5. Authoritative gate — walks fastlane/metadata/ directly.
+# 5. Semantic audit + remediation (the refine pass) — Opus auditor per storefront,
+#    then re-transcreate what it flags at/above medium severity. See
+#    "Auditing metadata quality" below. The skill drives this loop autonomously.
+python3 scripts/translate_metadata/audit_semantic.py --dispatch
+#    fan out metadata-audit-locale (Opus) → tmp/metadata-audit-outputs/{sf}.json
+python3 scripts/translate_metadata/audit_semantic.py --report --min-severity medium
+python3 scripts/translate_metadata/audit_semantic.py --write-manifest --min-severity medium
+#    then dispatch_prompts.py → metadata-locale (with findings) → validate → merge → re-audit
+
+# 6. Authoritative gate — walks fastlane/metadata/ directly.
 python3 scripts/translate_metadata/check_metadata.py
 ```
 
@@ -135,3 +144,20 @@ Two complementary audits:
 
   It only audits storefronts that actually have localized metadata (reports "nothing to audit"
   otherwise). Run it after a transcreation round to catch quality issues a length check can't.
+
+  **Remediation (`--write-manifest`).** To act on the findings instead of just reading them,
+  turn them into a re-transcreation manifest and re-run the standard transcreation path:
+
+  ```bash
+  python3 scripts/translate_metadata/audit_semantic.py --write-manifest --min-severity medium
+  # → tmp/metadata-inputs/{manifest,source}.json scoped to the flagged (storefront, field) pairs
+  python3 scripts/translate_metadata/dispatch_prompts.py     # regenerate prompts for just those
+  # fan out metadata-locale (Opus), each told to read BOTH its prompt AND
+  #   tmp/metadata-audit-outputs/{sf}.json (the findings), then fix the flagged fields
+  python3 scripts/translate_metadata/validate.py --subset && python3 scripts/translate_metadata/merge.py
+  # then re-audit the remediated storefronts; loop (cap 2 rounds)
+  ```
+
+  This is the `appstore-translate-metadata` skill's Step 5 (it runs the whole loop autonomously:
+  auto-remediate medium+ findings, cap 2 rounds, surface any residual for owner review). It mirrors
+  the in-app `scripts/translate_audit/audit_report.py --write-manifest` flow.

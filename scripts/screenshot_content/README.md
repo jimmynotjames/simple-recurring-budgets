@@ -8,8 +8,9 @@ It is the screenshot sibling of the in-app (`translate_catalog/`) and metadata
 (`translate_metadata/`) pipelines and follows the same shape:
 **extract → dispatch → fan-out subagents → validate → merge → gate.**
 
-The driver is the **`/appstore:screenshot-content`** command (skill
-`appstore-screenshot-content`); this directory holds the scripts it runs.
+The driver is the **`/appstore:generate-screenshot-seeding`** command (skill
+`appstore-generate-screenshot-seeding`); this directory holds the scripts it runs.
+Capture and upload are driven by the **`/appstore:generate-push-screenshots`** skill.
 
 ## What it produces
 

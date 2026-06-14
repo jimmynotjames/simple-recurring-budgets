@@ -12,10 +12,12 @@ locale set are both discovered, not hard-coded:
 * expected locales  = the ``ScreenshotSeeds/*.json`` catalog (what gets seeded),
 * device count      = the ``devices([...])`` list in ``fastlane/Snapfile``.
 
-Folders are compared by their on-disk name. During capture these are runtime
-codes (``de``, ``nb``, ``ar``) matching the seed catalog; after the
-``screenshots`` lane renames them to storefront codes this script will show
-everything pending (expected — run it before the rename).
+Folders are matched by their on-disk name. During capture these are runtime
+codes (``de``, ``nb``, ``ar``) matching the seed catalog; the ``screenshots``
+lane then renames them to App Store storefront codes (``de-DE``, ``no``,
+``ar-SA``) via ``rename_for_deliver.py``. This script accepts **either** name
+per locale, so it reports correctly both mid-capture and after the rename
+(``RUNTIME_TO_STOREFRONT`` owns the map).
 
 Exit status: 0 when all locales are done, 1 otherwise — so it doubles as a
 condition in a wait loop. ``--quiet`` prints only the one-line summary.
@@ -32,6 +34,11 @@ SEEDS_DIR = ROOT / "simple-recurring-budgetsUITests" / "ScreenshotSeeds"
 SHOTS_DIR = ROOT / "fastlane" / "screenshots"
 SNAPFILE = ROOT / "fastlane" / "Snapfile"
 FINAL_SHOT = "05_settings"  # last shot in the marketing story → locale complete
+
+# Runtime → storefront map so a locale counts as done whether its folder still
+# carries the runtime code (mid-capture) or the storefront code (post-rename).
+sys.path.insert(0, str(Path(__file__).parent))
+from content_locales import RUNTIME_TO_STOREFRONT  # noqa: E402
 
 
 def device_count() -> int:
@@ -61,8 +68,17 @@ def main() -> int:
     ndev = device_count()
     done, pending = [], []
     for loc in locales:
-        folder = SHOTS_DIR / loc
-        finals = len(list(folder.glob(f"*-{FINAL_SHOT}.png"))) if folder.is_dir() else 0
+        # Accept the runtime-code folder (mid-capture) or its renamed
+        # storefront-code folder (post `rename_for_deliver.py`).
+        names = [loc]
+        sf = RUNTIME_TO_STOREFRONT.get(loc)
+        if sf and sf != loc:
+            names.append(sf)
+        finals = 0
+        for name in names:
+            folder = SHOTS_DIR / name
+            if folder.is_dir():
+                finals = max(finals, len(list(folder.glob(f"*-{FINAL_SHOT}.png"))))
         (done if finals >= ndev else pending).append(loc)
 
     print(

@@ -1,6 +1,6 @@
 ---
-name: appstore-screenshot-content
-description: Generate the culturally-tuned, per-locale demo content that the Wren app is seeded with when capturing App Store screenshots (≤3 budgets per locale with locally realistic names, emoji, currency, and amounts). Drives the scripts/screenshot_content/ pipeline with parallel per-storefront Opus subagents and writes the runtime-keyed catalog under simple-recurring-budgetsUITests/ScreenshotSeeds/. Invoked via /appstore:screenshot-content. Use before capturing localized screenshots, or after editing SOURCE.json.
+name: appstore-generate-screenshot-seeding
+description: Generate the culturally-tuned, per-locale demo content (the "seeding" data) the Wren app is seeded with when capturing App Store screenshots (≤3 budgets per locale with locally realistic names, emoji, currency, and amounts). Drives the scripts/screenshot_content/ pipeline with parallel per-storefront Opus subagents and writes the runtime-keyed catalog under simple-recurring-budgetsUITests/ScreenshotSeeds/. Invoked via /appstore:generate-screenshot-seeding. Use before capturing localized screenshots, or after editing SOURCE.json. This generates seed content only; capture + upload is the sibling /appstore:generate-push-screenshots.
 ---
 
 # Generate App Store screenshot demo-content
@@ -208,67 +208,12 @@ python3 scripts/screenshot_content/check_content.py
 Walks the catalog directly. If it reports gaps, loop back to step 2
 (`extract.py --missing` re-flags exactly what's left).
 
-### Capture screenshots (separate flow — not a job step)
+### Capture and upload screenshots (separate skill)
 
-The catalog feeds the `AppStoreScreenshots` UI test, driven by `fastlane
-screenshots`. That is a **separate** flow (see `fastlane/SETUP.md`) and touches the
-simulator, not App Store Connect. Uploading is a further step (`fastlane
-push_screenshots`).
-
-**Capture is long** (50 locales × 2 devices). Run it as a background task so its
-completion notifies you; do not block on it. To report progress without tailing
-the noisy xcodebuild log, use the read-only progress script:
-
-```bash
-python3 scripts/screenshot_content/capture_progress.py   # lists done vs pending locales
-```
-
-It discovers the expected locale set (from `ScreenshotSeeds/*.json`) and device
-count (from `Snapfile`); a locale is "done" once its final `05_settings` shot
-exists for every device. Exit 0 only when all locales are done, so it also works
-as a wait-loop condition.
-
-**Periodic progress, no prompts.** When asked to report capture progress on an
-interval, drive it on a **20-minute** cadence with a non-prompting background
-timer — launch `sleep 1200` as a background Bash task; on its completion
-notification, run `capture_progress.py`, report the diff, and re-arm the next
-`sleep 1200` tick yourself. Stop re-arming once the capture's own background task
-completes (then proceed to rename + `push_screenshots`). Do **not** use the
-Monitor tool for this — it prompts on each re-arm. `capture_progress.py` and
-`sleep *` are allowlisted in `.claude/settings.json`, so the whole loop runs
-unattended. See memory `feedback_no_prompt_periodic_progress`.
-
-#### Uploading (self-healing) and checking job status without prompting
-
-App Store Connect intermittently returns HTTP 500s during deliver's
-finalization; a bare `fastlane push_screenshots` then retries forever instead of
-exiting (it hangs). Don't run the bare lane for a real upload — use the
-controller, which adds hang-detection, bounded retries with backoff, and a
-subset fallback:
-
-```bash
-bash scripts/screenshot_content/upload_with_retry.sh           # full, then auto-subset of stragglers
-SUBSET_ONLY="kn-IN ru" bash scripts/screenshot_content/upload_with_retry.sh   # re-push only these storefronts
-```
-
-A clean exit 0 from a subset run also *verifies* those storefronts (ASC accepted
-all their shots). Run it as a background task; nothing goes live
-(`submit_for_review:false`).
-
-**To check on the job, run the status script — never ad-hoc piped shell.**
-
-```bash
-bash scripts/screenshot_content/screenshot_status.sh
-```
-
-It reports local capture progress, any running capture/upload processes, the
-controller's recent log, and per-storefront upload confirmation. Because it's a
-single `bash scripts/…` command (allowlisted), the `ps`/pipes/`sed`/`$(…)`
-*inside* it are never permission-checked, so it never prompts — unlike ad-hoc
-`ps aux | grep …` or `find … | wc -l` one-liners, whose `ps`/compound segments
-trigger prompts. Prefer this script (or the Read tool on log files) over inline
-verification, and don't run non-essential checks once a background task's exit 0
-already confirms success. See memory `feedback_no_prompt_periodic_progress`.
+This skill stops once the seed catalog is green. **Capturing** the screenshots
+(`fastlane screenshots`) and **uploading** them to App Store Connect are handled
+by the sibling skill `/appstore:generate-push-screenshots` — that's the next step
+after this gate passes. Do not run `fastlane screenshots` from here.
 
 ### 9. Cleanup — offer to clear tmp working files
 
@@ -283,4 +228,4 @@ python3 scripts/pipeline_tmp.py clean screenshot-content
 
 - App Store **text** metadata → `/appstore:translate-metadata`.
 - In-app UI strings → `translate-new-strings`.
-- Capturing or uploading screenshots → `fastlane` (`screenshots` / `push_screenshots`).
+- Capturing and uploading screenshots → `/appstore:generate-push-screenshots`.

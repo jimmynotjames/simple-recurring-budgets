@@ -136,8 +136,6 @@ Skim and respect:
 - `docs/product-features-planning.md` — feature IDs (F-x.xx) and acceptance criteria.
 - `docs/tech-design-doc.md` — architecture, persistence/sync, data model, i18n/a11y/testing expectations.
 
-**App name: "Wren"** (formerly "Budgets"). Treat any stray "Budgets" brand references in code, copy, or file names as stale — the app-wide rename is in progress.
-
 ## Swift / iOS conventions
 
 The full rules live in [`.cursor/rules/swift-ios.mdc`](.cursor/rules/swift-ios.mdc); non-Cursor agents (Claude Code, Codex, OpenSpec) should treat that file as canonical for this section. Quick rules:

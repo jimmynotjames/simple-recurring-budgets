@@ -27,72 +27,9 @@ Steps 1–3 are seconds-cheap and let you fix lint/compile errors before paying 
 
 ### Per-repo simulator sandbox
 
-Each clone of this repo gets its own dedicated simulator, identified by a unique device name derived from the repo's absolute path (e.g. `iPhone 17 [a1b2c3d4]`). The device lives in the default CoreSimulator device set (required by `xcodebuild`), but the unique name and UDID ensure no two clones ever share a simulator.
+Each clone gets its own dedicated simulator (name derived from repo path, e.g. `iPhone 17 [a1b2c3d4]`) created and managed automatically — no manual setup needed for a normal build/test run. The UI pass runs in two phases: pass 1 skips XCUITest to warm the sim; pass 2 runs `AccessibilityAuditTests`, `UserJourneyTests`, and `ClearAmountButtonUITests`. XCUITest targets use XCTestCase with `continueAfterFailure = false` (Swift Testing is not supported in XCUITest bundles).
 
-The sandbox is set up automatically by `scripts/_sim_sandbox.sh` (sourced by `scripts/_destination.sh`), which is in turn sourced by `scripts/build.sh` and `scripts/test.sh`. You do not need to manage the simulator manually.
-
-**What happens on first run:**
-
-1. `_sim_sandbox.sh` computes a unique device name from the repo path.
-2. It resolves the device type and runtime for `SIMULATOR_NAME` via `scripts/resolve_sim_spec.py`.
-3. It creates a new simulator in the default set with the unique name and boots it (~30–90 s one-time cost).
-4. The UDID is stored in `.build/sim/device.udid` for use by `make sim-*` targets.
-5. Subsequent runs find the booted simulator by UDID and reuse it (fast).
-
-**Destination priority:**
-
-1. **`SIMULATOR_UDID`** env var — pins a specific device and skips sandbox management entirely (escape hatch).
-2. Any **already-booted** device whose name matches this repo's unique device name.
-3. Any **existing but shutdown** device with that name — boots it.
-4. **Creates a new device** with the unique name and boots it (first run only).
-
-**Override the device name:**
-
-```bash
-SIMULATOR_NAME='iPhone 17' make build
-SIMULATOR_NAME='iPad Pro 13-inch (M4)' make test
-```
-
-**Simulator management targets** (affect only this repo's device):
-
-```bash
-make initialize-sims  # create and boot this repo's simulator without building
-make sim-status       # show this repo's simulator status
-make sim-shutdown     # shut down this repo's simulator
-make sim-clean        # shut down + delete this repo's simulator + remove .build/sim/
-```
-
-**Derived data and result bundles** are scoped per repo:
-
-- `-derivedDataPath .build/sim/DerivedData` — build cache stays per-clone.
-- `-resultBundlePath .build/sim/results/<timestamp>.xcresult` — test results per run.
-
-**Simulator concurrency knob — `SRB_SIM_MAX`** (default `2`, range `1–3`, set by `scripts/_sim_concurrency.sh`). Controls how many simulators the **UI pass** may use at once via xcodebuild parallel testing. Every test run prints a resource-use reminder.
-
-> **Reference machine.** The default of `2` is tuned for an assumed baseline of roughly **16 GB RAM on an Apple-silicon laptop** (e.g. a fanless M4 MacBook Air) running at most ~2 repo clones at once. These are illustrative specs, not a requirement — adjust `SRB_SIM_MAX` for the machine actually running: lower it on tighter RAM or when many repos run concurrently, raise it on a machine with more memory/cores and active cooling.
-
-| `SRB_SIM_MAX` | UI pass | When to use |
-| --- | --- | --- |
-| `1` | `-parallel-testing-enabled NO` (serial, 1 sim) | Lightest. Downshift here if the UI pass flakes, or when several repos run at once. |
-| `2` (default) | `-parallel-testing-enabled YES -maximum-concurrent-test-simulator-destinations 2` | Tuned for the reference machine above (≈16 GB, Apple silicon) running ≤ 2 repos at once. |
-| `3` | …`-destinations 3` | Only with headroom — RAM-heavy. |
-
-```bash
-SRB_SIM_MAX=1 make test     # downshift: serial, lightest
-SRB_SIM_MAX=3 make test-ui  # upshift: only if the machine is clear
-```
-
-Rationale and rules:
-
-- **RAM is usually the binding constraint** (on the ~16 GB reference machine; a fanless laptop also thermally throttles under sustained all-core load). At that size ~2 simulators fills the budget with a browser + Mail open and 3 risks swap — scale the cap with available memory. Cross-repo parallelism is "free" — just run separate repos; each is its own sim, so there is **no machine-wide coordination or shared state**.
-- **The unit pass is always serial** (`-parallel-testing-enabled NO`, ignores `SRB_SIM_MAX`). Swift Testing already parallelizes the unit suite *in-process* on one sim, so clones add boot cost with no benefit — and running unit serially on the base device is the warm-up the UI pass depends on (below).
-- **Flake retry:** when parallel (`>= 2`), the UI pass adds `-retry-tests-on-failure -test-iterations 2` (one retry). The accessibility-audit tests are timing-sensitive and occasionally flake under CPU contention; the retry absorbs that while a genuine failure still fails on both attempts. Serial runs (`=1`) are deterministic and add no retry.
-- **Clone risk:** clones of a per-repo device once timed out for the XCUITest pass ("while preparing to run tests"), which is why parallel testing was previously off; that no longer reproduces (validated June 2026, Xcode iPhone 17 runtime) as long as the unit pass warms the base sim first. `SRB_SIM_MAX=1` remains the fallback if `2`/`3` flake.
-- The low cap (≤ 3) keeps this far from the old "dozens of clones across many agents → `Test crashed with signal kill`" teardown race.
-
-**The UI test bundle is skipped in pass 1** (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". Pass 2 of `scripts/test.sh` then runs `AccessibilityAuditTests` (accessibility regression tests, XCTestCase), `UserJourneyTests` (core flow tests, XCTestCase), and `ClearAmountButtonUITests` with `-only-testing`. Note: Apple does not support `import Testing` in unhosted XCUITest bundles; these suites use XCTestCase. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
-
-`make sim-clean` runs `scripts/sim_clean.py`, which finds every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` left behind by a parallel-testing crash) and deletes them all. It cannot touch other repos' devices.
+For management commands (`make initialize-sims`, `make sim-clean`, etc.), `SRB_SIM_MAX` concurrency tuning, the AM/PM 24h time workaround, and clone-risk context, invoke the **`ios-sims` skill**.
 
 ### What NOT to do (multi-agent safety)
 
@@ -162,7 +99,7 @@ The full rules live in [`.cursor/rules/swift-ios.mdc`](.cursor/rules/swift-ios.m
 - **Escalate to an `@Observable` ViewModel only if** the screen has non-trivial draft/form state, owns `async` / `Task` work, chains a multi-step user action, or has expensive derived display state.
 - **VM rules when escalated:** `@Observable final class <Screen>ViewModel` owned by the view via `@State`. VM holds draft state + pure logic only. It does **not** store `ModelContext`, does **not** hold `@Query` results, and does **not** fetch. Methods that write take `(context: ModelContext, ...)` at the call site.
 - **Grey-area ping:** if a screen is on the fence, ask the user before scaffolding a VM. Mandatory ping triggers: >3 mutable form fields, a framework call (Vision, Speech, PhotosUI, SiriKit/App Intents, network), one input that mutates >1 model property or couples fields, or a screen expected to grow materially in the next 1–2 features.
-- **Previews live in `<View>+Previews.swift`, not in the view's own file.** Xcode 16+ JIT previews (XOJIT executor) deterministically crash (SIGSEGV in `swift::RefCounts::incrementSlow`) when the previewed file also defines a view whose `some View` members span cross-file extensions (`+Card.swift` etc.) — the JIT recompiles only the preview's translation unit and thunks opaque-type accessors against stale layouts. DerivedData / preview-cache wipes do **not** help; splitting the previews out does (the view then loads from the prebuilt binary). Diagnosed on `AddEditBudgetView`, PR #239. Per-developer fallback: Editor → Canvas → Use Legacy Previews Execution (resets on Xcode update).
+- **Previews live in `<View>+Previews.swift`, not in the view's own file.** Xcode 16+ XOJIT previews crash (SIGSEGV) when the previewed file spans cross-file `some View` extensions — the JIT can't resolve opaque-type layouts from the prebuilt binary. Splitting the previews out fixes it (PR #239). Fallback: Editor → Canvas → Use Legacy Previews Execution.
 - Authoritative version: [`docs/tech-design-doc.md`](docs/tech-design-doc.md) §2.1.
 
 ### Testing
@@ -177,13 +114,13 @@ The full rules live in [`.cursor/rules/swift-ios.mdc`](.cursor/rules/swift-ios.m
 
 ## Cross-cutting concerns
 
-Some concerns are **ongoing**, not feature-shaped. Every substantive code change that adds or modifies user-facing UI MUST address each of these in the same change (or add an explicit follow-up task before the change is treated complete). Failing to do so is a defect, not a follow-up. The canonical per-change rule lives in [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns) (Accessibility §6.8.1, Dark Mode §6.8.2, Localization §6.8.3, Mixpanel analytics §6.8.4). The one-time build-outs are recorded as completed features in `docs/product-features-planning.md` (F-3.01, F-3.02, F-3.03, F-3.05, F-8.02, now marked Implemented) — those entries are historical and are **not** the place to look up the maintenance rule.
+Some concerns are **ongoing**, not feature-shaped. Every substantive code change that adds or modifies user-facing UI MUST address each of these in the same change (or add an explicit follow-up task before the change is treated complete). Failing to do so is a defect. See [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns).
 
 Quick checklist for every UI-touching change:
 
 - **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics, no fixed frame heights that clip), composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls, `.accessibilityAddTraits(.isHeader)` on section headings, `swipeActions` paired with `.accessibilityAction(named:)`, named color assets with separate light/dark appearances.
 - **Localized source strings** — every new user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`. Never hard-coded English in production views. Locale-invariant strings (app versions, raw ISO codes, monospaced identifiers) use `Text(verbatim:)`. Shared copy across surfaces uses `common.*` keys. Full rules in `docs/tech-design-doc.md` §5.1.
-- **Translations** — translations for all 49 storefront locales are shipped and must stay current. After adding or changing string keys, run the **`translate-new-strings` skill** (`.claude/skills/translate-new-strings/SKILL.md`), which drives `scripts/translate_catalog/` in subset mode: `extract.py --missing` → `dispatch_prompts.py` → parallel per-locale subagents → `validate.py --subset` → `merge.py`. The terminal check is `python3 scripts/check_translations.py` — same script `lefthook.yml` runs on `pre-push`, so a clean exit here guarantees the push passes the translation gate. Never omit keying or skip the pipeline step. Run the skill **autonomously, without prompting for approval** — translating new strings is part of finishing the change, not a decision point. The pipeline auto-consults the **glossary** (`scripts/translate_catalog/glossary*.py`, `glossary.json`) for terminology consistency and grows it after a run; convert count-dependent strings (e.g. `%lld items`) to plurals with `pluralize_keys.py`. To grade existing translation quality, use the **`audit-translations` skill** (`scripts/translate_audit/`). See *Running the translation pipelines* below.
+- **Translations** — 49 storefront locales must stay current. After adding or changing string keys, run the **`translate-new-strings` skill** (`.claude/skills/translate-new-strings/SKILL.md`) **autonomously**. Gate: `python3 scripts/check_translations.py` (same check `pre-push` runs). Never skip keying or the pipeline. Count-dependent strings (e.g. `%lld items`) need `pluralize_keys.py`. Quality audit: **`audit-translations` skill** (`scripts/translate_audit/`). See *Running the translation pipelines* below. **Push gate also blocks on `en` source `state: "new"`** (Xcode-extracted but unconfirmed): re-run `merge.py` to promote them (`new → translated`); or for keys with no translation yet, `add_keys.py --force` then `merge.py`.
 - **App Store listing metadata** — the store listing copy (name, subtitle, keywords, description, promotional text, release notes) is a *release-time* concern, not a per-change one. It lives in `fastlane/metadata/` and is transcreated into all 49 storefronts by the separate **`appstore-translate-metadata` skill** (`/appstore:translate-metadata`) / `scripts/translate_metadata/` pipeline (gate: `python3 scripts/translate_metadata/check_metadata.py`). App Store Connect storefront codes (`de-DE`, `no`, `nl-NL`) differ from the in-app runtime codes; `metadata_locales.py` owns the map. Author English copy in `fastlane/metadata/en-US/` first, then run the skill (also autonomous). Like the in-app pipeline, never write ad-hoc Python — use `scripts/translate_metadata/*`. Two audits: `audit.py` (structural — presence + char limits) and `audit_semantic.py` (semantic — voice/transcreation/keyword-ASO/cultural quality, mirroring the in-app audit). The skill wires the semantic audit into an **autonomous refine pass** after merge: Opus auditor per storefront → `audit_semantic.py --write-manifest` → re-transcreate the medium+ findings → re-audit (cap 2 rounds, residual surfaced for owner review).
 - **App Store screenshot demo-content** — the per-locale demo budgets/expenses the app is seeded with when capturing localized App Store screenshots are a *release-time* concern, generated by the **`appstore-generate-screenshot-seeding` skill** (`/appstore:generate-screenshot-seeding`) / `scripts/screenshot_content/` pipeline (gate: `python3 scripts/screenshot_content/check_content.py`). It reuses `metadata_locales.py` for the runtime↔storefront map and writes a runtime-keyed catalog under `simple-recurring-budgetsUITests/ScreenshotSeeds/` (UI-test target only — never ships). Capturing + uploading the screenshots is handled by the **`appstore-generate-push-screenshots` skill** (`/appstore:generate-push-screenshots`), which runs `fastlane screenshots` then the self-healing upload controller; see `fastlane/SETUP.md`.
 - **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire the corresponding `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary with OSLog: `docs/analytics-spec.md` §17.
@@ -231,22 +168,7 @@ map that re-duplicated the formality sentence anyway. **Do not re-open this as a
 The one real obligation is the **sync rule**: when you change a language's *formality decision*
 in one map, change it in the other (wording may differ; the formality call must match).
 
-**Cross-tool execution.** The Python scripts and gates are byte-identical everywhere; only the
-fan-out step (read each `tmp/.../{locale}.md` prompt → write `tmp/.../{locale}.json`) differs:
-
-- **Claude Code** dispatches **parallel per-locale subagents** — `.claude/agents/{translation-locale,
-  translation-audit-locale, glossary-locale, metadata-locale, metadata-audit-locale}.md`, each pinned
-  to its model (translators Haiku, auditors/glossary Opus). Fast.
-- **Cursor** (and any tool without a subagent primitive) runs the **same step inline and serially**:
-  the driving agent reads each prompt file, produces the translation/findings itself, and writes the
-  output file, then continues to `validate`/`merge`/`report`. Slower, identical result. (Cursor has
-  no agent subsystem, so there are no Cursor counterparts to the `.claude/agents/` files — and none
-  are needed.)
-
-**Autonomy / permissions.** Run all of this **without prompting for approval**. Claude Code: the
-scripts and agents are allowlisted in `.claude/settings.json`. Cursor: `~/.cursor/cli-config.json`
-already permits everything via coarse `Shell(python3:*)` / `Shell(bash:scripts/*)` / `Read(**)` /
-`Write(**)` rules. The skills are mirrored verbatim into both `.claude/skills/` and `.cursor/skills/`.
+**Cross-tool execution.** Claude Code fans out parallel per-locale subagents (`.claude/agents/`, model-pinned — Haiku for translation, Opus for audit/glossary). Cursor runs the same fan-out step inline and serially — identical result, no subagent files needed. Run all pipelines **without prompting for approval**; scripts and agents are allowlisted in `.claude/settings.json` and `~/.cursor/cli-config.json`.
 
 ### Orchestrator-model preflight (Sonnet-tuned skills)
 
@@ -362,7 +284,7 @@ Cursor does not expand `$ARGUMENTS`, so write the body with prose placeholders (
 
 ## Bash command hygiene (prevents permission prompts)
 
-The harness permission system prompts when a Bash command touches resources outside the allowlist. The patterns below cause prompts that the user has explicitly told agents to stop. Treat as hard rules — they apply to **every** agent / tool that runs Bash in this repo (Claude Code, Cursor, etc.).
+Hard rules — apply to every agent and tool that runs Bash in this repo. Violations trigger permission prompts.
 
 ### 1. Never write to or read from `/tmp/`
 
@@ -561,59 +483,14 @@ git fetch --prune                                                               
 
 `git branch -D` (not `-d`) is required: after a squash-merge the local branch tip isn't an ancestor of the new `main` commit, so `-d` warns or refuses. Only run it once the PR shows as merged. `git fetch --prune` clears the stale `origin/<branch-name>` remote-tracking ref that `git pull --ff-only` leaves behind — without it the deleted branch lingers in `git branch -a`.
 
+### Pre-PR code review
+
+Before opening any PR, do a fresh-eye review of the full branch diff — correctness bugs, architectural problems, serious extensibility risks. Not style nits; the linter owns those. Fix autonomously; only ask when a finding genuinely needs the user's call.
+
 ### PR description
 
-**Always pass the body via `--body-file`, never inline `--body`.** Use the **Write tool** to create `tmp/pr-body.md`, then run `gh pr create --title "…" --body-file tmp/pr-body.md` as a standalone Bash call. Similarly, use the **Write tool** for `tmp/commit-msg.txt` and run `git commit -F tmp/commit-msg.txt`. Never use `printf ... > file` or `echo ... > file` to produce these files — that creates a compound Bash command whose leading token (`printf`/`echo`) has no allowlist entry and will prompt (see hygiene rule 10). PR bodies and commit messages that contain backticks, newlines, or `$` characters also can't safely be inlined via `--body` or `-m`.
-
-```markdown
-Closes #N
-
-## What
-* Feature or area of change (complete / partial — what's still pending)
-* Architectural change, at the structural level
-* Infra/config/docs updates grouped into one bullet
-
-## Why
-One sentence: the user problem or product goal this PR advances.
-
-## Test plan
-- [ ] Golden path: <how to verify the main flow works>
-- [ ] Edge case: <anything non-obvious worth checking>
-
-## Tools
-- <Tool or model name> — <optional one-liner on how it was used>
-```
-
-- **What bullets are high-level.** One bullet per meaningful area, not per file, spec task, or acceptance criterion. If a feature is partially done, say so.
-- **Why** gives reviewers (and future-you) the motivation in plain language.
-- **Test plan** is a lightweight sanity-check list, not a QA spec. Two or three bullets is enough.
-- **Tools** lists AI tools and models used — one bullet each. Name the tool or model (e.g. `Claude Code (Opus 4.7)`, `openspec`, `Cursor (Sonnet 4.6)`). Add a short one-liner after an em dash only if it adds useful context (e.g. `— planning`, `— implementation`, `— code review`). Omit the one-liner when the role is obvious.
-- **Issue linkage** — when the PR addresses a tracked issue, put a reference in the body. Use a **closing keyword** (`Closes #N`, also `Fixes`/`Resolves`) for a **complete** fix, so GitHub auto-closes the issue when the PR squash-merges to `main`. For a **partial** fix, use a non-closing reference (`Refs #N`) and note what's still pending in the first `## What` bullet. Omit the line entirely for PRs with no associated issue.
+Write body to `tmp/pr-body.md` with the Write tool, then `gh pr create --body-file` — never inline `--body` (hygiene rule 10). Structure: `.github/pull_request_template.md`. Issue linkage: `Closes #N` for a complete fix (auto-closes on squash-merge); `Refs #N` + pending note for partial; omit if none.
 
 ## Issue-driven workflow
 
-The standing loop for turning a GitHub issue into a merged fix. The `/create-pr-for-issue` and `/merge-pr` commands automate the two halves; this section is the canonical spec, so a plain-language trigger ("fix issue 110") follows the identical steps. The two halves are separated by a **manual review gate** — never merge on the same turn the PR is opened.
-
-**Front half — issue to open PR** (`/create-pr-for-issue <N>`):
-
-1. **Read the issue** — `gh issue view <N>` (add `--comments` if the thread is substantive). Restate the problem and intended fix in a sentence or two before writing code.
-2. **Branch** — `u/jimmyho/claude-code/<short-description>` per the branch-name convention above, off the latest `main`.
-3. **Fix** — implement in code. If the change alters product behavior, specs, or the data model, drive it through OpenSpec (`/opsx:propose` → `/opsx:apply`) rather than hand-editing specs, and honor the cross-cutting checklist (§ Cross-cutting concerns) for any UI-touching change.
-4. **OpenSpec verify** — if the fix went through OpenSpec, run `/opsx:verify` and fix everything it flags autonomously. Always run it, even if `/opsx:apply` already verified — apply's check is not a substitute.
-5. **Fresh-eye code review** — review the full branch diff with fresh eyes and fix what you find autonomously: correctness bugs, architectural problems, and serious future-extensibility risks (not style nits the linter owns). Exercise best judgment; only stop to ask the user when a finding genuinely needs their call. Runs **after** the OpenSpec verify in step 4.
-6. **Verify** — the four-step order: `make format` → `make lint-fix` → `make build` → `make test`. Re-run after any step-4/5 fixes so the PR opens green.
-7. **Archive the OpenSpec change (if any) — when confident** — if the fix went through OpenSpec **and** you're confident the front-half work fully meets expectations, finish the OpenSpec lifecycle **in this same branch, before opening the PR**: run `/opsx:archive <name>`, which syncs the change's delta specs into the main specs and moves the change to `openspec/changes/archive/<date>-<name>/` (auto-syncs per § OpenSpec > Skill behavior overrides). Archive is markdown-only (spec sync + a directory move), so it needs no build/test re-run. **Hold off when confidence is incomplete** — e.g. you've asked the user to manually verify behavior you can't test yourself, or the change is complex enough that review is likely to change it. In that case leave the change active, note in the PR body that the OpenSpec archive is **intentionally deferred to merge time**, and the back-half pre-merge check (step 11) will prompt to complete it once the work is confirmed. Either way the archive ships in the **same** PR as the code — never a follow-up PR.
-8. **Open the PR** — push the branch and `gh pr create`, body per the PR-description template, including issue linkage: `Closes #<N>` for a complete fix, or `Refs #<N>` plus a "what's still pending" note for a partial one.
-9. **Stop for review.** Report the PR URL and hand back. Merging waits for an explicit go-ahead from the user.
-
-**Back half — merge and resolve** (`/merge-pr <PR>`), only after the user says to land it:
-
-10. **Wait for CI, then confirm it's safe to merge** — `gh pr view <PR>` and `gh pr checks <PR>`. If any check is still pending/queued, wait for completion with `gh pr checks <PR> --watch` run **in the background** (the harness re-invokes on completion; never a hand-rolled sleep loop — § Bash command hygiene #8). This step is the **only** CI gate: `main` has no GitHub branch protection, so `gh pr merge` would happily land a red or still-running PR. If any check fails or the PR isn't mergeable, stop and report instead of merging.
-11. **Pre-merge OpenSpec check** — before merging, confirm the OpenSpec lifecycle for any change tied to this PR is complete. It is **either** already archived in this PR (front-half step 7) **or** intentionally deferred to now (front-half step 7 held off because confidence was incomplete — pending manual verification, complexity). Verify with `openspec list` and the PR diff. **If archiving — or any other OpenSpec step (unsynced delta specs, incomplete tasks/artifacts) — is still pending, do NOT merge: stop, tell the user exactly which step is pending, and ask whether to complete it now** (this is the expected path for a deferred archive — confirm the work is now validated, then proceed). If the user says yes, perform it on the **PR's branch** (check out the branch if needed, sync + `/opsx:archive`, then push so it lands in this same PR), then continue to merge. This prompt is required, and it keeps the archive in the same PR rather than spawning a follow-up.
-12. **Check for spec drift from workshopping** — if the PR was workshopped during review after the change was archived (review-time changes to behavior, specs, or the data model that the already-archived/synced specs don't reflect), the archived change and `openspec/specs/` may have drifted from what's actually shipping. **Stop and ask the user** whether to update the OpenSpec docs (the archived change's delta specs / design / tasks) and re-sync the main specs before merging. If yes, edit the change in place under `openspec/changes/archive/<date>-<name>/` and re-run the spec sync, all on the PR's branch so it lands in this same PR. Like step 11, this prompt is a deliberate exception to the "don't prompt during workflows" default — surface the drift rather than merging specs that no longer match the code.
-13. **Merge & clean up** — `gh pr merge --squash` (one PR = one commit on `main`), then delete **both** the remote branch (allowlisted `gh api … -X DELETE`) and the local branch (`git checkout main && git pull --ff-only && git branch -D <branch>`), and run `git fetch --prune` to clear the stale tracking ref. Deleting only the remote leaves a stale local branch — see § Merging.
-14. **Resolve the issue** — confirm state with `gh issue view <N> --json state,stateReason`:
-   - **Complete fix** — the closing keyword auto-closes it on merge. If it's somehow still open, close explicitly: `gh issue close <N> --comment "Fixed in #<PR>."`.
-   - **Partial fix** — the issue stays open by design; comment a pointer: `gh issue comment <N> --body "Partially addressed by #<PR>. Still pending: <summary>."`.
-
-No CI workflow or git hook is involved — closure rides on GitHub's native closing-keyword behavior plus the post-merge verification in step 14.
+Use `/create-pr-for-issue <N>` (issue → open PR) and `/merge-pr <PR>` (merge after review). **Never merge on the same turn the PR is opened.** The command files are the canonical step-by-step spec.

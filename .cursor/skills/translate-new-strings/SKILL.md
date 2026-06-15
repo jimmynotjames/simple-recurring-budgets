@@ -368,7 +368,8 @@ Subagents are told to:
 2. Use the `comment` field for context.
 3. Match Apple's first-party iOS app voice for the target locale.
 4. Leave `Wren`, `iCloud`, and other Apple-untranslated proper nouns in English.
-5. Output only the JSON object — no markdown fences, no prose.
+5. **RTL locales (ar, he, ur):** never start a sentence or UI string with a Latin brand token (`Wren`, `iCloud`). In RTL rendering a Latin-initial string pops to the visual end of the line. Lead with a native word; the brand can follow mid-sentence.
+6. Output only the JSON object — no markdown fences, no prose.
 
 If you find yourself wanting to "remind" the subagent of one of these rules in the
 dispatch message, instead **fix `PROMPT_TEMPLATE.md`** so the rule survives across runs.

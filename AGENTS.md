@@ -423,78 +423,24 @@ Before sending any Bash command that contains `/tmp/`, `sed -i`, `sed -n`, a one
 
 ## Commit and PR style
 
-### Never push directly to `main`
-
-All changes go through a PR. **Never push commits directly to `main`**, even for small fixes or config tweaks. The `pre-push` lefthook enforces this and will block the push.
-
-GitHub Actions CI (`.github/workflows/ci.yml`, see `docs/tech-design-doc.md` §8.5) re-runs the lint/secret/translation/build/unit-test gates on every PR — server-side, so they hold even when a hook is bypassed. The full UI suite is opt-in per PR via a `/test-full` comment. When you change the local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts the CI mirrors, update `ci.yml` in the same change to keep them in lockstep. *(⏸️ Temporarily, June 2026: the macOS jobs — `build`, `unit-tests`, and the `/test-full` trigger — are disabled for Actions-budget reasons; only the ubuntu lint/secrets/i18n gates run server-side. The local four-step gate is the sole compile/test verification until issue #228 re-enables them, ~2026-07-01.)*
-
-The correct flow: create a feature branch → commit → push the branch → open a PR → squash-merge.
-
-**Create the branch before the first `git add`.** Run `git checkout -b u/jimmyho/claude-code/<description>` as the very first step, before staging or committing anything. Committing on `main` and then trying to move the commit to a branch requires a force-push to reset `main`, which is destructive and requires user intervention.
-
-### Branch names
-
-Format: `u/jimmyho/<tool>/<short-description>`
-
-- **`u/jimmyho/`** — always the prefix.
-- **Tool segment** — documents what tool authored the work. Use `+` to combine tools (e.g. `cursor+claude`). Common values: `claude-code` (Claude Code CLI), `claude`, `cursor`, `cursor+claude`, `xcode+claude+cursor`. Omit the tool segment for personal/manual branches.
-- **Description** — kebab-case, all lowercase, short feature or fix name (e.g. `fix-delete-budget-nav-stack`, `rewrite-budget-calculator`). No underscores.
-- For branches created by Claude Code: `u/jimmyho/claude-code/<short-description>`.
-
-### Commit subject line
-
-Format: `<Past-tense verb> <short description>. (#N)`
-
-- **Past-tense verb** — `Updated`, `Fixed`, `Added`, `Created`, `Implemented`, `Removed`, `Refactored`, `Rewrote`. Match the weight of the verb to the change (don't say "Updated" for a complete feature build; say "Implemented").
-- **Sentence case.** No conventional-commit prefix (`feat:`, `fix:`, `chore:`).
-- Ends with a **period**, then the PR number `(#N)` at the very end.
-- **≤72 characters.** GitHub and `git log --oneline` truncate beyond this. If the subject wants to be longer, move the extra detail into the body.
-
-### Commit body
-
-Optional for tiny one-liner changes; required when a PR contains more than one meaningful area of work.
-
-```
-* High-level area of change (feature name, architectural move, etc.)
-* Another area of change
-
-Why: one sentence — the product goal or problem this solves.
-
-Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
-```
-
-- Bullets describe **areas of change**, not files or acceptance criteria. Name a feature (and whether it's partial or complete), name a structural refactor — but don't list every task or spec detail. The diff covers that.
-- The **`Why:` line** is the one thing the diff can't show. Always include it for feature work and architectural changes.
-- Always include the **`Co-Authored-By:` footer** on Claude-generated commits.
-
-### Merging
-
-Always use **Squash and merge**. One PR = one commit on `main`, with the PR number appended by GitHub.
-
-After merging, **clean up both the remote and the local branch** — deleting only the remote leaves a stale local branch behind:
-
-```bash
-gh api repos/jimmynotjames/simple-recurring-budgets/git/refs/heads/<branch-name> -X DELETE   # remote
-git checkout main && git pull --ff-only                                                       # sync main
-git branch -D <branch-name>                                                                   # local
-git fetch --prune                                                                             # stale tracking ref
-```
-
-`git branch -D` (not `-d`) is required: after a squash-merge the local branch tip isn't an ancestor of the new `main` commit, so `-d` warns or refuses. Only run it once the PR shows as merged. `git fetch --prune` clears the stale `origin/<branch-name>` remote-tracking ref that `git pull --ff-only` leaves behind — without it the deleted branch lingers in `git branch -a`.
-
-### Pre-PR code review
-
-Before opening any PR, do a fresh-eye review of the full branch diff — correctness bugs, architectural problems, serious extensibility risks. Not style nits; the linter owns those. Fix autonomously; only ask when a finding genuinely needs the user's call.
-
-### PR description
-
-Write body to `tmp/pr-body.md` with the Write tool, then `gh pr create --body-file` — never inline `--body` (hygiene rule 10). Structure: `.github/pull_request_template.md`. Issue linkage: `Closes #N` for a complete fix (auto-closes on squash-merge); `Refs #N` + pending note for partial; omit if none.
-
-## PR workflows
+**Route every branch/commit/PR/merge through the skills — don't hand-roll the pipeline.** The skills are the canonical step-by-step spec (review, gate, PR body, branch cleanup, issue linkage):
 
 - **Issue → PR → merge:** `/create-pr-for-issue <N>` then `/merge-pr <PR>`.
-- **Code already written, no issue:** `/create-pr` (fresh-eye review + gate + open PR) then `/merge-pr <PR>`.
+- **Code already written, no issue:** `/create-pr` then `/merge-pr <PR>`.
 - **TestFlight build:** `/appstore:push-testflight-build` (branch → build → upload → PR → CI → merge, fully automated).
 
-**Never merge on the same turn the PR is opened.** The skill files are the canonical step-by-step spec.
+**Never merge on the same turn the PR is opened.**
+
+### Conventions
+
+These govern *every* commit — including ad-hoc ones not run through a skill — and the skills cite them rather than restating:
+
+- **Never push to `main`.** Branch first: `git checkout -b u/jimmyho/<tool>/<kebab-description>` **before the first `git add`** (moving a commit off `main` later needs a destructive force-push). `<tool>` documents authorship — `claude-code` for Claude Code, `+` to combine (`cursor+claude`); omit for manual branches. Description is lowercase kebab-case, no underscores. The `pre-push` lefthook enforces the no-`main` rule.
+- **Commit/PR subject:** `<Past-tense verb> <description>.` — sentence case, ends with a period, **≤72 chars**, no conventional-commit prefix (`feat:`/`fix:`/`chore:`). Match the verb's weight to the change (`Implemented` a feature, not `Updated`). The PR number `(#N)` goes at the end of the commit subject.
+- **Commit body** (optional for one-liners; required when a PR spans more than one area): `*` bullets naming **areas of change** (feature/refactor, not files), a one-sentence `Why:` line the diff can't show, and the `Co-Authored-By:` footer on Claude commits.
+- **PR body:** write to `tmp/pr-body.md` (Write tool) then `gh pr create --body-file` — never inline `--body` (hygiene rule 10). Structure per `.github/pull_request_template.md`. Linkage: `Closes #N` (complete fix, auto-closes on squash-merge), `Refs #N` + pending note (partial), or omit.
+- **Squash-merge only** — one PR = one commit on `main`.
+
+### CI lockstep
+
+GitHub Actions CI (`.github/workflows/ci.yml`, see `docs/tech-design-doc.md` §8.5) re-runs the lint/secret/translation/build/unit-test gates server-side on every PR, so they hold even when a hook is bypassed; the full UI suite is opt-in via a `/test-full` comment. When you bump local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts CI mirrors, update `ci.yml` in the same change. *(⏸️ June 2026: the macOS jobs — `build`, `unit-tests`, `/test-full` — are disabled for Actions-budget reasons; only the ubuntu lint/secrets/i18n gates run server-side, so the local four-step gate is the sole compile/test verification until #228 re-enables them, ~2026-07-01.)*

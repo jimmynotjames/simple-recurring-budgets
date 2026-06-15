@@ -55,20 +55,8 @@ git status --short   # identify the changed files
 git add <specific-files>
 ```
 
-Write the commit message to `tmp/commit-msg.txt` using the **Write tool** (never inline heredoc — memory `feedback_commit_message_file`). Follow AGENTS.md §"Commit subject line" and §"Commit body":
+Write the commit message to `tmp/commit-msg.txt` using the **Write tool** (never inline heredoc — memory `feedback_commit_message_file`), following the commit subject/body conventions in AGENTS.md §"Commit and PR style". Then commit:
 
-```
-<Past-tense verb> <short description, ≤72 chars>.
-
-* <Area of change — feature or structural, not a filename>
-* <Another area if present>
-
-Why: <one sentence — the product goal or problem this solves>
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-```
-
-Commit:
 ```bash
 git commit -F tmp/commit-msg.txt
 ```
@@ -157,39 +145,11 @@ git push -u origin <branch-name>
 
 ### 8. Open the PR
 
-**Read** `.github/pull_request_template.md` first. Write the PR body to `tmp/pr-body.md` using the **Write tool**:
+Write the PR body to `tmp/pr-body.md` using the **Write tool**, following the structure in `.github/pull_request_template.md` (What / Why / Test plan / Tools, then the cross-cutting-concerns checklist marked done-or-N/A from step 4). End with the `Co-Authored-By:` footer.
 
-```
-## What
-* <Bullet: area of change — feature or structural, not a filename>
-* <Bullet: another area if applicable>
-
-## Why
-<One sentence — the product goal or constraint being addressed>
-
-## Test plan
-- [ ] <Concrete, checkable item — not just "it compiles">
-- [ ] <Another item if applicable; note if make test-ui should be run before merge>
-
-## Tools
-- Claude Code
-
----
-
-## Cross-cutting concerns (PRD §6.8)
-
-- [x/] Accessibility (Dynamic Type + VoiceOver) — <done / N/A + one-liner>
-- [x/] Dark Mode (named color assets) — <done / N/A>
-- [x/] Localization — source strings keyed + 49 locales translated — <done / N/A>
-- [x/] Mixpanel user-action analytics — <done / N/A>
-- [x/] UI test screen objects updated — <done / N/A; note if make test-ui needed>
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-```
-
-Guidelines:
+Guidelines (per AGENTS.md §"Commit and PR style"):
 - **No `Closes #N`** unless there is a directly related issue — use `Refs #N` for related issues, omit entirely if none.
-- PR title follows AGENTS.md: past-tense verb, sentence case, ≤72 chars, no `feat:`/`fix:`/`chore:` prefix. Examples: `"Fixed carry-over spillover to honor lastResetDate"`, `"Added biweekly start-date anchoring to Add Budget screen"`.
+- PR title follows the subject convention: past-tense verb, sentence case, ≤72 chars, no `feat:`/`fix:`/`chore:` prefix. Examples: `"Fixed carry-over spillover to honor lastResetDate"`, `"Added biweekly start-date anchoring to Add Budget screen"`.
 
 Create the PR:
 ```bash

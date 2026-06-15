@@ -483,6 +483,10 @@ git fetch --prune                                                               
 
 `git branch -D` (not `-d`) is required: after a squash-merge the local branch tip isn't an ancestor of the new `main` commit, so `-d` warns or refuses. Only run it once the PR shows as merged. `git fetch --prune` clears the stale `origin/<branch-name>` remote-tracking ref that `git pull --ff-only` leaves behind — without it the deleted branch lingers in `git branch -a`.
 
+### Pre-PR code review
+
+Before opening any PR, do a fresh-eye review of the full branch diff — correctness bugs, architectural problems, serious extensibility risks. Not style nits; the linter owns those. Fix autonomously; only ask when a finding genuinely needs the user's call.
+
 ### PR description
 
 Write body to `tmp/pr-body.md` with the Write tool, then `gh pr create --body-file` — never inline `--body` (hygiene rule 10). Structure: `.github/pull_request_template.md`. Issue linkage: `Closes #N` for a complete fix (auto-closes on squash-merge); `Refs #N` + pending note for partial; omit if none.

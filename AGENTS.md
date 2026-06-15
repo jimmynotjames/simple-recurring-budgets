@@ -27,66 +27,9 @@ Steps 1–3 are seconds-cheap and let you fix lint/compile errors before paying 
 
 ### Per-repo simulator sandbox
 
-Each clone of this repo gets its own dedicated simulator, identified by a unique device name derived from the repo's absolute path (e.g. `iPhone 17 [a1b2c3d4]`). The device lives in the default CoreSimulator device set (required by `xcodebuild`), but the unique name and UDID ensure no two clones ever share a simulator.
+Each clone gets its own dedicated simulator (name derived from repo path, e.g. `iPhone 17 [a1b2c3d4]`) created and managed automatically — no manual setup needed for a normal build/test run. The UI pass runs in two phases: pass 1 skips XCUITest to warm the sim; pass 2 runs `AccessibilityAuditTests`, `UserJourneyTests`, and `ClearAmountButtonUITests`. XCUITest targets use XCTestCase with `continueAfterFailure = false` (Swift Testing is not supported in XCUITest bundles).
 
-The sandbox is set up automatically by `scripts/_sim_sandbox.sh` (sourced by `scripts/_destination.sh`), which is in turn sourced by `scripts/build.sh` and `scripts/test.sh`. You do not need to manage the simulator manually.
-
-**What happens on first run:**
-
-1. `_sim_sandbox.sh` computes a unique device name from the repo path.
-2. It resolves the device type and runtime for `SIMULATOR_NAME` via `scripts/resolve_sim_spec.py`.
-3. It creates a new simulator in the default set with the unique name and boots it (~30–90 s one-time cost).
-4. The UDID is stored in `.build/sim/device.udid` for use by `make sim-*` targets.
-5. Subsequent runs find the booted simulator by UDID and reuse it (fast).
-
-**Destination priority:**
-
-1. **`SIMULATOR_UDID`** env var — pins a specific device and skips sandbox management entirely (escape hatch).
-2. Any **already-booted** device whose name matches this repo's unique device name.
-3. Any **existing but shutdown** device with that name — boots it.
-4. **Creates a new device** with the unique name and boots it (first run only).
-
-**Override the device name:**
-
-```bash
-SIMULATOR_NAME='iPhone 17' make build
-SIMULATOR_NAME='iPad Pro 13-inch (M4)' make test
-```
-
-**Simulator management targets** (affect only this repo's device):
-
-```bash
-make initialize-sims  # create and boot this repo's simulator without building
-make sim-status       # show this repo's simulator status
-make sim-shutdown     # shut down this repo's simulator
-make sim-clean        # shut down + delete this repo's simulator + remove .build/sim/
-```
-
-**Derived data and result bundles** are scoped per repo:
-
-- `-derivedDataPath .build/sim/DerivedData` — build cache stays per-clone.
-- `-resultBundlePath .build/sim/results/<timestamp>.xcresult` — test results per run.
-
-**Simulator concurrency knob — `SRB_SIM_MAX`** (default `2`, range `1–3`, set by `scripts/_sim_concurrency.sh`). Controls how many simulators the **UI pass** may use at once. Every test run prints a resource-use reminder. Scale down on tight RAM or when multiple repos run at once; the unit pass is always serial and ignores this knob.
-
-| `SRB_SIM_MAX` | UI pass | When to use |
-| --- | --- | --- |
-| `1` | `-parallel-testing-enabled NO` (serial, 1 sim) | Lightest. Downshift here if the UI pass flakes, or when several repos run at once. |
-| `2` (default) | `-parallel-testing-enabled YES -maximum-concurrent-test-simulator-destinations 2` | Balanced default (≈16 GB Apple silicon, ≤ 2 repos at once). |
-| `3` | …`-destinations 3` | Only with headroom — RAM-heavy. |
-
-```bash
-SRB_SIM_MAX=1 make test     # downshift: serial, lightest
-SRB_SIM_MAX=3 make test-ui  # upshift: only if the machine is clear
-```
-
-> **24-hour time:** Sandbox simulators force 24h time globally. UI tests that assert AM/PM strings must add `-AppleICUForce24HourTime NO -AppleICUForce12HourTimeFormat YES` to `app.launchArguments` to get 12-hour output.
-
-See `docs/simulator-setup.md` for RAM guidance, flake-retry behavior, and clone-risk history.
-
-**The UI test bundle is skipped in pass 1** (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest requires the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable. A freshly-created per-repo sim hasn't had this, so the UI runner times out "while preparing to run tests". Pass 2 of `scripts/test.sh` then runs `AccessibilityAuditTests` (accessibility regression tests, XCTestCase), `UserJourneyTests` (core flow tests, XCTestCase), and `ClearAmountButtonUITests` with `-only-testing`. Note: Apple does not support `import Testing` in unhosted XCUITest bundles; these suites use XCTestCase with `continueAfterFailure = false`. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
-
-`make sim-clean` runs `scripts/sim_clean.py`, which finds every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` left behind by a parallel-testing crash) and deletes them all. It cannot touch other repos' devices.
+For management commands (`make initialize-sims`, `make sim-clean`, etc.), `SRB_SIM_MAX` concurrency tuning, the AM/PM 24h time workaround, and clone-risk context, invoke the **`ios-sims` skill**.
 
 ### What NOT to do (multi-agent safety)
 

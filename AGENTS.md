@@ -491,6 +491,10 @@ Before opening any PR, do a fresh-eye review of the full branch diff — correct
 
 Write body to `tmp/pr-body.md` with the Write tool, then `gh pr create --body-file` — never inline `--body` (hygiene rule 10). Structure: `.github/pull_request_template.md`. Issue linkage: `Closes #N` for a complete fix (auto-closes on squash-merge); `Refs #N` + pending note for partial; omit if none.
 
-## Issue-driven workflow
+## PR workflows
 
-Use `/create-pr-for-issue <N>` (issue → open PR) and `/merge-pr <PR>` (merge after review). **Never merge on the same turn the PR is opened.** The command files are the canonical step-by-step spec.
+- **Issue → PR → merge:** `/create-pr-for-issue <N>` then `/merge-pr <PR>`.
+- **Code already written, no issue:** `/create-pr` (fresh-eye review + gate + open PR) then `/merge-pr <PR>`.
+- **TestFlight build:** `/appstore:push-testflight-build` (branch → build → upload → PR → CI → merge, fully automated).
+
+**Never merge on the same turn the PR is opened.** The skill files are the canonical step-by-step spec.

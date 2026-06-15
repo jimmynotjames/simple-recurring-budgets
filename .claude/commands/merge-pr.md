@@ -3,7 +3,7 @@ description: After review, squash-merge a PR, delete its branch, and close or an
 argument-hint: <pr-number>
 ---
 
-The PR #$1 has been reviewed and approved to land. Execute the **Issue-driven workflow** back half from `AGENTS.md`:
+The PR #$1 has been reviewed and approved to land.
 
 1. Wait for CI, then confirm it's safe to merge: `gh pr view $1` and `gh pr checks $1`. If any check is still pending/queued, wait for completion with `gh pr checks $1 --watch` run **in the background** (the harness re-invokes you when it finishes; never a hand-rolled sleep loop). This is the **only** CI gate — `main` has no GitHub branch protection, so `gh pr merge` would happily land a red or still-running PR. If checks are failing or it isn't approved/mergeable, stop and report instead of merging.
 2. Identify the linked issue from the PR body's `Closes #N` / `Refs #N` reference, and note whether it's a complete fix (`Closes`) or partial (`Refs`).

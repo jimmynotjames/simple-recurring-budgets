@@ -5,7 +5,7 @@ category: Workflow
 description: After review, squash-merge a PR, delete its branch, and close or annotate the linked issue (back half of the issue-driven workflow).
 ---
 
-PR `#<PR>` (the PR number you pass to this command) has been reviewed and approved to land. Execute the **Issue-driven workflow** back half from `AGENTS.md`:
+PR `#<PR>` (the PR number you pass to this command) has been reviewed and approved to land.
 
 1. Wait for CI, then confirm it's safe to merge: `gh pr view <PR>` and `gh pr checks <PR>`. If any check is still pending/queued, wait for completion with `gh pr checks <PR> --watch` run **in the background** (so the agent is re-invoked when it finishes; never a hand-rolled sleep loop). This is the **only** CI gate — `main` has no GitHub branch protection, so `gh pr merge` would happily land a red or still-running PR. If checks are failing or it isn't approved/mergeable, stop and report instead of merging.
 2. Identify the linked issue from the PR body's `Closes #N` / `Refs #N` reference, and note whether it's a complete fix (`Closes`) or partial (`Refs`).

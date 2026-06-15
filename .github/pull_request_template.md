@@ -1,8 +1,18 @@
-<!-- Brief summary of what this PR changes and why. -->
+Closes #N
 
-## Summary
+## What
+*
 
+## Why
+
+
+## Test plan
+- [ ]
+
+## Tools
 -
+
+---
 
 ## Cross-cutting concerns (PRD §6.8)
 

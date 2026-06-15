@@ -84,5 +84,10 @@ AuthKey_*.p8
 .claude/scheduled_tasks.lock
 CLAUDE.local.md
 
+# skills CLI working/source tree — regenerable from skills-lock.json via
+# `npx skills experimental_install`. Consumed copies are committed under
+# .claude/skills/ (Claude Code) and .cursor/skills/ (Cursor).
+.agents/
+
 # Translation pipeline — generated outputs (keep .gitkeep to preserve dirs)
 tmp/

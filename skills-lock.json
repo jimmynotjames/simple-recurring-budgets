@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "skills": {
+    "app-intents": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/app-intents/SKILL.md",
+      "computedHash": "ba47bd4e28b2fe93d6b98f64373217932b303bfe2bfb2b188da1e0927af63760"
+    },
+    "app-store-review": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/app-store-review/SKILL.md",
+      "computedHash": "f153d3d2851501cf5b13e2c398723ccf42b0799b1936a895aa06baed3bffbfc3"
+    },
+    "cloudkit": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloudkit/SKILL.md",
+      "computedHash": "a1305dd30b71931e943dcd6884ece12889e2eef191ceecb3069c4accd1e8ab7c"
+    },
+    "ios-accessibility": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ios-accessibility/SKILL.md",
+      "computedHash": "4308d6edf99a9fac7fbb0389da4977d0a7e05f7986c46618e1d6ef285839a7c4"
+    },
+    "ios-localization": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ios-localization/SKILL.md",
+      "computedHash": "b14d2111112f4d95c816c5e74448f14b7564a25eb0a002b3ad47ae9f0f4e193e"
+    },
+    "natural-language": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/natural-language/SKILL.md",
+      "computedHash": "9c8d2dee17feacfa9f6d861db9d06740d8feb6733b339e84f11cbfaf15c40dcb"
+    },
+    "photokit": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/photokit/SKILL.md",
+      "computedHash": "e468521d2655870357ad0225355ec47992b83ade3163dc7574d51c6ba95ca8f3"
+    },
+    "speech-recognition": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/speech-recognition/SKILL.md",
+      "computedHash": "f08292501f86dcd7ae2b05f19e4e35af93af32cdd52b6ad8b732c91a5edb787c"
+    },
+    "swift-concurrency": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swift-concurrency/SKILL.md",
+      "computedHash": "1dac92565303c6239d86db03e282599382cfb8d91a7d54fee0fe4f0161211c8b"
+    },
+    "swift-testing": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swift-testing/SKILL.md",
+      "computedHash": "cdd912d1286ce23795b7da07493c4a454927103264685ac1ac9161748d095a6c"
+    },
+    "swiftdata": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swiftdata/SKILL.md",
+      "computedHash": "c32bef90bfa05179473b908a1a79a282cacb510ffb922c74dc110fdedfddcc55"
+    },
+    "swiftui-layout-components": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swiftui-layout-components/SKILL.md",
+      "computedHash": "8362c98daaaea149658abe94222c38a5cfe8e987b6f17b69e8efb37b1ef388b8"
+    },
+    "swiftui-navigation": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swiftui-navigation/SKILL.md",
+      "computedHash": "b0edefabc289dccfa48d6f1a22aac4d149ee8f55c03b54a26af6fbce96698174"
+    },
+    "swiftui-patterns": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swiftui-patterns/SKILL.md",
+      "computedHash": "ad91e48814fd954e9416776bf799b47497bdcefe414089ab8c71ba22b33607c3"
+    },
+    "swiftui-uikit-interop": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swiftui-uikit-interop/SKILL.md",
+      "computedHash": "642fc233fbadd082eacea1fa9f3659445f8208f3ac87da4ea1dbebcf28d5db14"
+    },
+    "vision-framework": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vision-framework/SKILL.md",
+      "computedHash": "75ef3dc71e6b65a5c3df0b817b225e4403ffe3a29396f7b42f1f3115f24e3b43"
+    }
+  }
+}

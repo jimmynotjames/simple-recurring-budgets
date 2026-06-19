@@ -37,6 +37,22 @@ struct AddBudgetScreen {
     app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Period type can'")).firstMatch
   }
 
+  /// The weekly explanatory caption under the Period chips. Matched on a stable
+  /// prefix so the interpolated weekday name and wording polish don't break it.
+  var weeklyNote: XCUIElement {
+    app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'All weekly budgets start on'")).firstMatch
+  }
+
+  /// The "Change start of week" link below the weekly note (pushes the Start of
+  /// Week screen). Matched by accessibility identifier to survive copy changes.
+  var changeStartOfWeekLink: XCUIElement {
+    app.buttons["addEditBudget.changeStartOfWeek"]
+  }
+
+  func tapChangeStartOfWeek() {
+    changeStartOfWeekLink.tap()
+  }
+
   /// The expanded Schedule disclosure's start-date chip. Only present when the
   /// disclosure is expanded (a collapsed disclosure does not render it), so its
   /// existence doubles as proof of auto-expand.

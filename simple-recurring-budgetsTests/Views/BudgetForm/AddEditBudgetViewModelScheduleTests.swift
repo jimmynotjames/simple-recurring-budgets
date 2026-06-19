@@ -144,6 +144,52 @@ struct AddEditBudgetViewModelScheduleTests {
     #expect(vm.endDate == nil)
   }
 
+  // MARK: - realignWeeklyStartDate (global week-start change re-anchors the draft)
+
+  @Test func realignWeeklyStartDate_addWeekly_reanchorsToNewWeekStart() {
+    let store = MockKeyValueStore()
+    store.set(Int64(Weekday.sunday.rawValue), forKey: AppSettings.weekStartDayKey)
+    let settings = AppSettings(store: store)
+    let vm = AddEditBudgetViewModel(settings: settings)
+    vm.period = .weekly
+
+    // Simulate the user changing the global week-start (Sunday -> Monday) on the
+    // pushed picker; the form calls realignWeeklyStartDate with the new value.
+    vm.realignWeeklyStartDate(to: .monday)
+
+    let cal = Calendar.autoupdatingCurrent
+    let dayStart = cal.startOfDay(for: Date())
+    let weekday = cal.component(.weekday, from: dayStart)
+    let daysBack = (weekday - Weekday.monday.rawValue + 7) % 7
+    let expected = cal.date(byAdding: .day, value: -daysBack, to: dayStart)
+    #expect(vm.startDate == expected)
+  }
+
+  @Test func realignWeeklyStartDate_inEditMode_isNoOp() throws {
+    let container = try TestModelContainer.make()
+    let context = ModelContext(container)
+    let cal = Calendar.autoupdatingCurrent
+    let originalStart = try #require(cal.date(from: DateComponents(year: 2026, month: 1, day: 12)))
+    let budget = Budget(name: "Coffee", currencyCode: "USD", period: .weekly, isCarryOverEnabled: true)
+    budget.startDate = originalStart
+    let change = AllocationChange(effectiveFrom: originalStart, amount: 7)
+    change.budget = budget
+    budget.allocationChangesStorage = [change]
+    context.insert(budget)
+
+    let vm = AddEditBudgetViewModel(editing: budget)
+    vm.realignWeeklyStartDate(to: .friday)
+    #expect(vm.startDate == originalStart)
+  }
+
+  @Test func realignWeeklyStartDate_nonWeeklyPeriod_isNoOp() {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    // Default Add-mode period is .daily; capture the pre-filled start of today.
+    let before = vm.startDate
+    vm.realignWeeklyStartDate(to: .monday)
+    #expect(vm.startDate == before)
+  }
+
   // MARK: - saveNew honours user-overridden startDate (task 3.3)
 
   @Test func saveNew_recurring_honoursUserOverriddenStartDate() throws {

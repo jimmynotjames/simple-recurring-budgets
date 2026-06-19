@@ -77,6 +77,12 @@ struct AddEditBudgetView: View {
           isScheduleExpanded = true
         }
       }
+      // When the global week-start changes, re-anchor the Add-mode weekly draft's
+      // startDate to match the new grid (no-op in Edit mode / non-weekly — see
+      // realignWeeklyStartDate).
+      .onChange(of: settings.weekStartDay) { _, newValue in
+        viewModel.realignWeeklyStartDate(to: newValue)
+      }
       .navigationTitle(
         viewModel.isEditing
           ? String(
@@ -387,6 +393,10 @@ struct AddEditBudgetView: View {
           .foregroundStyle(.readableSecondary)
           .padding(.top, 4)
           .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+
+        if viewModel.period == .weekly {
+          weeklyNote
         }
 
         if viewModel.isEditing {

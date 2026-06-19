@@ -55,6 +55,15 @@ import SwiftUI
       .environment(Router())
   }
 
+  #Preview("Add — Weekly (note + link)") {
+    let vm = AddEditBudgetViewModel(settings: AppSettings())
+    vm.period = .weekly
+    return AddEditBudgetView(viewModel: vm)
+      .modelContainer(PreviewContainer.make())
+      .environment(AppSettings())
+      .environment(Router())
+  }
+
   #Preview("Edit — Biweekly (note + schedule)") {
     // Biweekly edit: the explanatory note shows under the period chips and the
     // Schedule disclosure auto-expands so the start date (the cycle anchor) is visible.

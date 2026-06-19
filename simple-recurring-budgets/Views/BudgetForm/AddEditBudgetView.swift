@@ -77,6 +77,12 @@ struct AddEditBudgetView: View {
           isScheduleExpanded = true
         }
       }
+      // When the global week-start changes, re-anchor the Add-mode weekly draft's
+      // startDate to match the new grid (no-op in Edit mode / non-weekly — see
+      // realignWeeklyStartDate).
+      .onChange(of: settings.weekStartDay) { _, newValue in
+        viewModel.realignWeeklyStartDate(to: newValue)
+      }
       .navigationTitle(
         viewModel.isEditing
           ? String(
@@ -353,6 +359,13 @@ struct AddEditBudgetView: View {
     }
   }
 
+  /// Localized name of the global week-start day (e.g. "Sunday"), shown in the weekly note.
+  /// Mirrors `SettingsView.weekdayName(_:)`; `Weekday` is 1-based (sunday = 1), the symbols
+  /// array is 0-based, hence `rawValue - 1`.
+  private var weekStartDayName: String {
+    Calendar.current.standaloneWeekdaySymbols[settings.weekStartDay.rawValue - 1]
+  }
+
   private var periodCard: some View {
     GroupBox {
       let columns = [GridItem(.flexible()), GridItem(.flexible())]
@@ -385,6 +398,44 @@ struct AddEditBudgetView: View {
           ))
           .font(.caption)
           .foregroundStyle(.readableSecondary)
+          .padding(.top, 4)
+          .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+
+        if viewModel.period == .weekly {
+          VStack(alignment: .leading, spacing: 4) {
+            Text(String(
+              localized: "addEditBudget.note.weekly",
+              defaultValue: "All weekly budgets start on \(weekStartDayName).",
+              comment: """
+              Caption below the period chip grid when Weekly is selected. States the \
+              global week-start day that all weekly budgets share. The interpolated value \
+              is the localized weekday name, e.g. Sunday.
+              """
+            ))
+            .font(.caption)
+            .foregroundStyle(.readableSecondary)
+
+            // Push the week-start picker onto the form's own NavigationStack so the
+            // in-progress draft stays alive underneath and the user returns here on Back.
+            // The destination writes the global AppSettings.weekStartDay (with the shared
+            // cascade confirmation); on return the note above re-reads it live and updates.
+            NavigationLink {
+              WeekStartPickerScreen()
+            } label: {
+              Text(String(
+                localized: "addEditBudget.note.weekly.changeLink",
+                defaultValue: "Change start of week",
+                comment: """
+                Quiet inline link below the weekly note that opens the screen where the \
+                global week-start day can be changed.
+                """
+              ))
+              .font(.caption)
+              .foregroundStyle(Color.accentColor)
+            }
+            .buttonStyle(.plain)
+          }
           .padding(.top, 4)
           .transition(.opacity.combined(with: .move(edge: .top)))
         }

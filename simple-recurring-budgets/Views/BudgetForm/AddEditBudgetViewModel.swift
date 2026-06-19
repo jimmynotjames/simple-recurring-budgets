@@ -391,6 +391,22 @@ final class AddEditBudgetViewModel {
     }
   }
 
+  /// Re-anchors the Add-mode weekly draft `startDate` to the most recent occurrence of
+  /// `weekStart` at or before today. Called from the form when the global week-start day
+  /// changes, so the auto-populated start date keeps matching the (now changed) weekly
+  /// grid — the same alignment `onPeriodChange` applies when the user first taps Weekly.
+  ///
+  /// No-op in Edit mode (an existing budget's `startDate` is real user data we must not
+  /// silently move) and for any non-weekly period.
+  func realignWeeklyStartDate(to weekStart: Weekday) {
+    guard !isEditing, period == .weekly else { return }
+    let calendar = Calendar.autoupdatingCurrent
+    let dayStart = calendar.startOfDay(for: Date())
+    let weekday = calendar.component(.weekday, from: dayStart)
+    let daysBack = (weekday - weekStart.rawValue + 7) % 7
+    startDate = calendar.date(byAdding: .day, value: -daysBack, to: dayStart)
+  }
+
   /// Applies Edit-mode `startDate` / `endDate` diffs for any period type.
   ///
   /// Both drafts are normalized with `calendar.startOfDay(for:)` before comparison.

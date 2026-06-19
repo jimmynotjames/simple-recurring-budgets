@@ -49,20 +49,7 @@ struct WeekStartPickerScreen: View {
 
       Section {
         ForEach(Weekday.allCases) { day in
-          Button {
-            confirmation.select(day, current: settings.weekStartDay)
-          } label: {
-            HStack {
-              Text(weekdayName(day))
-                .foregroundStyle(.primary)
-              Spacer()
-              if day == settings.weekStartDay {
-                Image(systemName: "checkmark")
-                  .foregroundStyle(Color.accentColor)
-              }
-            }
-          }
-          .listRowBackground(Color("CellBackground"))
+          weekdayRow(day)
         }
       } header: {
         Text(String(
@@ -127,6 +114,30 @@ struct WeekStartPickerScreen: View {
     }
   }
 
+  @ViewBuilder
+  private func weekdayRow(_ day: Weekday) -> some View {
+    let isSelected = day == settings.weekStartDay
+    Button {
+      confirmation.select(day, current: settings.weekStartDay)
+    } label: {
+      HStack {
+        Text(weekdayName(day))
+          .foregroundStyle(.primary)
+        Spacer()
+        if isSelected {
+          // Selected state is conveyed to VoiceOver via the .isSelected trait below,
+          // so the checkmark glyph itself is decorative.
+          Image(systemName: "checkmark")
+            .foregroundStyle(Color.accentColor)
+            .accessibilityHidden(true)
+        }
+      }
+    }
+    .accessibilityIdentifier("weekStart.day.\(day.rawValue)")
+    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    .listRowBackground(Color("CellBackground"))
+  }
+
   private func weekdayName(_ weekday: Weekday) -> String {
     Calendar.current.standaloneWeekdaySymbols[weekday.rawValue - 1]
   }
@@ -138,5 +149,13 @@ struct WeekStartPickerScreen: View {
       WeekStartPickerScreen()
         .environment(AppSettings())
     }
+  }
+
+  #Preview("Week Start Picker — xxxLarge") {
+    NavigationStack {
+      WeekStartPickerScreen()
+        .environment(AppSettings())
+    }
+    .dynamicTypeSize(.xxxLarge)
   }
 #endif

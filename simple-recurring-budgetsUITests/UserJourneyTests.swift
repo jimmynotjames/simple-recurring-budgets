@@ -406,6 +406,45 @@ final class UserJourneyTests: XCTestCase {
     )
   }
 
+  /// Selecting Weekly reveals the explanatory note under the chips, and its
+  /// "Change start of week" link pushes the focused Start of Week screen (with its
+  /// app-wide scope banner) onto the form's own navigation stack. Tapping Back
+  /// returns to the form with the draft intact. (The cascade-confirmation gating
+  /// itself is covered by the WeekStartConfirmation unit tests, so this journey
+  /// does not mutate the global week-start setting.)
+  func testWeeklyPeriodNoteOpensStartOfWeekPicker() {
+    let app = makeApp()
+    app.launch()
+
+    BudgetsScreen(app: app).tapAddBudget()
+
+    let form = AddBudgetScreen(app: app)
+    XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
+    form.selectPeriod("Weekly")
+
+    XCTAssertTrue(
+      form.weeklyNote.waitForExistence(timeout: 2),
+      "Weekly explanatory note should appear under the period chips"
+    )
+
+    form.tapChangeStartOfWeek()
+
+    let weekStart = WeekStartScreen(app: app)
+    XCTAssertTrue(
+      weekStart.scopeBanner.waitForExistence(timeout: 2),
+      "Start of Week screen should show the app-wide scope banner"
+    )
+    XCTAssertTrue(weekStart.dayRow(1).exists, "Sunday row should be present")
+    XCTAssertTrue(weekStart.dayRow(7).exists, "Saturday row should be present")
+
+    // Return to the form; the weekly note is still present (draft preserved).
+    app.navigationBars.buttons.firstMatch.tap()
+    XCTAssertTrue(
+      form.weeklyNote.waitForExistence(timeout: 2),
+      "Returning from the Start of Week screen should land back on the budget form with the draft intact"
+    )
+  }
+
   /// Opening Edit on an existing biweekly budget auto-expands the Schedule
   /// disclosure so the start date (the cycle anchor) is visible on open —
   /// without the user tapping the disclosure row. (Seeding only makes monthly

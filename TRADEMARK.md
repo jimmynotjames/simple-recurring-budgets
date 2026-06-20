@@ -42,6 +42,14 @@ These uses do not employ "Wren" as the **distributed app's name or store title**
 
 ---
 
+## A note on look and feel
+
+Hi! I'm glad you're here. Feel free to fork the code, learn from it, reuse what helps. As stated above, the name, icon, and store copy are what I reserve legally.
+
+While it's hard for me to legally protect my color palette, layout, and general look and feel, if you ship **your own app**, I would prefer that you're not a jerk about this. In addition to swapping out the icon and name, please put your personal mark on the colors, UI, screen architecture, etc. Perhaps add some nifty new product features or UX enhancements.
+
+---
+
 ## Tier A (Simulator-only development)
 
 **Compiling and running on a local Simulator is permitted and encouraged**, even if Wren branding is visible on screen. Local development is not redistribution.

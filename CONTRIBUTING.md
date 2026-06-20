@@ -1,5 +1,9 @@
 # Contributing to Wren
 
+> Note from maintainer: I generated this file using AI and have not had a chance to test this end-to-end. If you try to reproduce this repo and run into issues, please post an Issue or post a PR to update this file with better instructions. Thanks!
+
+---
+
 > **Branding notice (read before you distribute):** The code is Apache 2.0–licensed, but the **Wren name, app icon, and App Store marketing assets are not**. See [§ Branding & trademarks](#branding--trademarks) and `[TRADEMARK.md](TRADEMARK.md)` for what forks must replace before distributing.
 
 ---

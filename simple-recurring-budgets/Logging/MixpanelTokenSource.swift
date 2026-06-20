@@ -1,18 +1,42 @@
-/// Exposes the Mixpanel project token literals for testability.
+/// Exposes the Mixpanel project token for the active build configuration,
+/// read from Info.plist (injected via `config/Secrets.xcconfig`).
 ///
-/// Both build configurations use `MixpanelAnalyticsClient` (§8 analytics-spec.md).
-/// Physical separation of dev/prod data is enforced by the token, not by swapping
-/// client classes. This helper lets test contract §18.1 #10 verify that the two
-/// literals are distinct and non-empty without modifying the app entry.
+/// `isConfigured` guards SDK initialization: when tokens are still the
+/// committed placeholder sentinels (fresh clone without a local secrets
+/// file), the app falls back to `ConsoleAnalyticsClient` — no Mixpanel
+/// traffic, no crash. See `simple_recurring_budgetsApp.init()`.
+///
+/// Token source moved from hardcoded literals to xcconfig/Info.plist in the
+/// `public-repo-secrets-and-license` change; `// gitleaks:allow` tags and
+/// `.gitleaksignore` fingerprints are retained to keep the full-history CI
+/// scan green (those commits are not rewritten).
 enum MixpanelTokenSource {
-  static let devToken = "d75149bc04193d5313f130cd688a54c9" // gitleaks:allow
-  static let prodToken = "6d8492115467535089006f9ad413cb94" // gitleaks:allow
+  // MARK: - Public
 
+  /// `true` when both dev and prod tokens are real (non-placeholder) values,
+  /// indicating `config/Secrets.local.xcconfig` is present and filled.
+  ///
+  /// Exposed as a testable pure function via `isConfigured(dev:prod:)`.
+  static var isConfigured: Bool {
+    isConfigured(dev: AppConfig.mixpanelDevToken, prod: AppConfig.mixpanelProdToken)
+  }
+
+  /// Pure-function form of `isConfigured` — takes injected strings so tests
+  /// don't touch `Bundle.main` and remain environment-independent.
+  static func isConfigured(dev: String, prod: String) -> Bool {
+    !dev.isEmpty
+      && !prod.isEmpty
+      && dev != AppConfig.Placeholder.mixpanelDevToken
+      && prod != AppConfig.Placeholder.mixpanelProdToken
+  }
+
+  /// Token for the active build configuration.
+  /// Debug builds use the dev token; Release builds use the prod token.
   static var activeToken: String {
     #if DEBUG
-      devToken
+      AppConfig.mixpanelDevToken
     #else
-      prodToken
+      AppConfig.mixpanelProdToken
     #endif
   }
 }

@@ -8,15 +8,20 @@ App Store Connect **API key** (no Apple ID / 2FA).
 
 ## One-time setup
 
+See [`CONTRIBUTING.md § B`](../CONTRIBUTING.md#b--configure-secrets-ship-or-fork-for-distribution) for the full ship / fork setup, including app secrets (`config/Secrets.local.xcconfig`) and the release ship guard (`scripts/verify_release_secrets.sh`).
+
 1. **Install** (done, via Homebrew at user level): `brew install fastlane`
 2. **Locale** — in `~/.bash_profile` (Fastlane requires UTF-8):
    ```bash
    export LC_ALL=en_US.UTF-8
    export LANG=en_US.UTF-8
    ```
-3. **API key** — `cp fastlane/.env.template fastlane/.env`, then fill in the
+3. **App secrets** — `cp config/Secrets.local.xcconfig.template config/Secrets.local.xcconfig` and fill in Mixpanel tokens, feedback email, and privacy URL. This file is gitignored. See CONTRIBUTING.md § B.
+4. **API key** — `cp fastlane/.env.template fastlane/.env`, then fill in the
    three values. Keep the `.p8` **outside this repo** (`~/.appstoreconnect/`).
    `fastlane/.env` is gitignored; `.env.template` is committed.
+
+**Release ship guard:** `fastlane beta` and `fastlane release` automatically run `scripts/verify_release_secrets.sh` at the start, blocking builds with placeholder secrets before spending time on archive/sign/upload. Configure `config/Secrets.local.xcconfig` first.
 
 ## Lanes
 

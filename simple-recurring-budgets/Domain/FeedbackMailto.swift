@@ -14,7 +14,9 @@ import Foundation
 /// subject suffix stay in English so the maintainer's inbox is consistent
 /// across locales.
 enum FeedbackMailto {
-  static let recipient = "jimmyho.appfeedback@gmail.com"
+  static var recipient: String {
+    AppConfig.feedbackEmail
+  }
 
   /// Localized subject for the plain Settings → Send Feedback link.
   static var defaultSubject: String {

@@ -2,12 +2,27 @@
 # Format: one fingerprint per line (commit:file:rule:startline).
 # Read automatically by `gitleaks detect` (CI `secrets` job + pre-commit).
 #
-# These 4 are the Mixpanel PROJECT token, hardcoded in the 2026-05-02 "Mixpanel
-# base scaffolding" commits and later refactored out (HEAD reads it via
-# MixpanelTokenSource.activeToken). A Mixpanel project token is a CLIENT-SIDE
-# identifier shipped inside the app binary — extractable from any installed copy,
-# so it is not a server secret. Reviewed 2026-06-07, accepted as non-secret; not
-# rotated, history not rewritten. See PR #207.
+# --- RETAINED: pre-externalization history (do NOT remove these entries) ---
+#
+# These 4 fingerprints cover commits that hardcoded the Mixpanel project tokens
+# before the `public-repo-secrets-and-license` change moved them to
+# Config/Secrets.xcconfig (with placeholder defaults) and
+# Config/Secrets.local.xcconfig (gitignored, maintainer-only real values).
+#
+# The CI `secrets` job runs `gitleaks detect` over FULL git history, so those
+# older commits are still scanned on every PR. Removing these fingerprints
+# would cause the scan to fail even though HEAD no longer hardcodes the tokens.
+# History was NOT rewritten; tokens remain in those commits.
+#
+# Mixpanel project tokens are CLIENT-SIDE identifiers shipped inside the app
+# binary — extractable from any installed copy, so they are not server secrets.
+# Reviewed 2026-06-07, accepted as non-secret. See PR #207.
+#
+# New commits only carry placeholder values, so `gitleaks protect --staged`
+# (pre-commit) remains clean with no additional entries required.
+#
+# Previous file: simple-recurring-budgets/App/simple_recurring_budgetsApp.swift
+# New location:  Config/Secrets.local.xcconfig (gitignored)
 9e4399928f7dcb75201cc9d94ce3821b6975f5ba:simple-recurring-budgets/App/simple_recurring_budgetsApp.swift:generic-api-key:16
 9e4399928f7dcb75201cc9d94ce3821b6975f5ba:simple-recurring-budgets/App/simple_recurring_budgetsApp.swift:generic-api-key:19
 59ae5bda8a4bc823b55a420a25a995532ad5f187:simple-recurring-budgets/App/simple_recurring_budgetsApp.swift:generic-api-key:15

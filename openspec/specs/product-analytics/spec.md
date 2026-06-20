@@ -206,39 +206,53 @@ The initialization SHALL be guarded by a thread-safe one-shot mechanism (`os_unf
 
 ### Requirement: Build-configuration token branch
 
-The token passed to `MixpanelAnalyticsClient` SHALL be selected by a `#if DEBUG` literal branch in [`simple-recurring-budgets/App/simple_recurring_budgetsApp.swift`](../../../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift):
+> **Updated by `public-repo-secrets-and-license`:** Tokens are no longer source-code literals. They are externalized to `config/Secrets.xcconfig` (committed placeholders) and `config/Secrets.local.xcconfig` (gitignored, maintainer-only), injected into the bundle via `Info.plist` variable substitution, and read by `AppConfig` at runtime. `MixpanelTokenSource` wraps `AppConfig` and provides the `#if DEBUG` branch via `activeToken` and the `isConfigured` guard. See [`docs/analytics-spec.md` §16](../../../docs/analytics-spec.md#16-build-hygiene) for the updated rationale.
 
-- `#if DEBUG` — the dev project token literal.
-- `#else` — the prod project token literal.
+The token passed to `MixpanelAnalyticsClient` SHALL be selected by `MixpanelTokenSource.activeToken`, which applies a `#if DEBUG` branch internally:
 
-Both literals SHALL be non-empty and SHALL NOT be equal. Tokens SHALL remain in source per [`docs/analytics-spec.md` §16](../../../docs/analytics-spec.md#16-build-hygiene); they SHALL NOT be moved to `xcconfig`, `Info.plist`, or any other build-input mechanism in this scope.
+- `#if DEBUG` — `AppConfig.mixpanelDevToken` (from `Info.plist` key `MixpanelDevToken`).
+- `#else` — `AppConfig.mixpanelProdToken` (from `Info.plist` key `MixpanelProdToken`).
 
-DEBUG and Release builds SHALL both use `MixpanelAnalyticsClient`. Physical separation of dev-vs-prod data SHALL be enforced by the token branch alone (two separate Mixpanel projects), not by swapping client types. `ConsoleAnalyticsClient` SHALL remain as the SwiftUI `@Entry` default in `AnalyticsEnvironment.swift` for previews and unit tests that don't run through the app entry.
+When tokens carry the placeholder sentinel values (`MixpanelTokenSource.isConfigured == false`), `simple_recurring_budgetsApp.init()` SHALL substitute `ConsoleAnalyticsClient` instead of `MixpanelAnalyticsClient`. Both placeholder sentinels SHALL be non-empty strings that are distinct from each other and from any valid Mixpanel project token.
 
-#### Scenario: Tokens are non-empty and distinct
+DEBUG and Release builds SHALL use `MixpanelAnalyticsClient` when tokens are configured. Physical separation of dev-vs-prod data SHALL be enforced by the token branch alone (two separate Mixpanel projects), not by swapping client types. `ConsoleAnalyticsClient` SHALL remain as the SwiftUI `@Entry` default in `AnalyticsEnvironment.swift` for previews and unit tests that don't run through the app entry.
 
-- **WHEN** the source literals for the dev and prod tokens are inspected
-- **THEN** both literals SHALL be non-empty strings and SHALL NOT be equal
+#### Scenario: Configured tokens are non-empty and distinct
 
-#### Scenario: DEBUG build uses dev token
+- **WHEN** `MixpanelTokenSource.isConfigured(dev:prod:)` is called with two non-placeholder, non-empty strings
+- **THEN** it SHALL return `true` and the two token arguments SHALL NOT be equal to each other or to a placeholder sentinel
 
-- **WHEN** the app is built with the DEBUG configuration and `simple_recurring_budgetsApp.init()` constructs `MixpanelAnalyticsClient`
-- **THEN** the constructor SHALL be invoked with the dev project token literal
+#### Scenario: Placeholder tokens yield isConfigured == false
 
-#### Scenario: Release build uses prod token
+- **WHEN** `MixpanelTokenSource.isConfigured(dev:prod:)` is called with either sentinel string
+- **THEN** it SHALL return `false`
 
-- **WHEN** the app is built with the Release configuration and `simple_recurring_budgetsApp.init()` constructs `MixpanelAnalyticsClient`
-- **THEN** the constructor SHALL be invoked with the prod project token literal
+#### Scenario: DEBUG build uses dev token when configured
+
+- **WHEN** the app is built with the DEBUG configuration and tokens are configured
+- **THEN** `simple_recurring_budgetsApp.init()` SHALL construct `MixpanelAnalyticsClient` with `MixpanelTokenSource.activeToken` (resolves to dev token via `#if DEBUG`)
+
+#### Scenario: Release build uses prod token when configured
+
+- **WHEN** the app is built with the Release configuration and tokens are configured
+- **THEN** `simple_recurring_budgetsApp.init()` SHALL construct `MixpanelAnalyticsClient` with `MixpanelTokenSource.activeToken` (resolves to prod token via `#else`)
+
+#### Scenario: Unconfigured build uses ConsoleAnalyticsClient
+
+- **WHEN** `MixpanelTokenSource.isConfigured` is `false` (placeholder sentinels present)
+- **THEN** `simple_recurring_budgetsApp.init()` SHALL construct `ConsoleAnalyticsClient` and SHALL NOT call `Mixpanel.initialize(token:trackAutomaticEvents:)`
 
 ---
 
 ### Requirement: App-entry wiring of opt-in and distinct id
 
-[`simple-recurring-budgets/App/simple_recurring_budgetsApp.swift`](../../../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift) `init()` SHALL construct `MixpanelAnalyticsClient` with:
+[`simple-recurring-budgets/App/simple_recurring_budgetsApp.swift`](../../../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift) `init()` SHALL check `MixpanelTokenSource.isConfigured` first. When tokens are configured, it SHALL construct `MixpanelAnalyticsClient` with:
 
-- `token:` — resolved by the `#if DEBUG` literal branch above.
+- `token:` — `MixpanelTokenSource.activeToken` (branches on `#if DEBUG` internally via `AppConfig`).
 - `isOptedIn:` — a `@Sendable` closure that reads `settings.analyticsOptIn` from the app's shared `AppSettings` instance. The closure SHALL NOT capture a snapshot Boolean; it SHALL re-read the current value each invocation so toggle changes take effect on the next event.
 - `distinctIdProvider:` — a `@Sendable` closure that returns `settings.analyticsDistinctId` from the same shared `AppSettings` instance. The closure SHALL NOT capture a snapshot value.
+
+When `MixpanelTokenSource.isConfigured` is `false`, `init()` SHALL construct `ConsoleAnalyticsClient` instead.
 
 The `analytics` property SHALL be assigned to the constructed client, and the SwiftUI environment injection (`.environment(\.analytics, analytics)`) SHALL remain in place.
 

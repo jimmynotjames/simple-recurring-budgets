@@ -364,9 +364,9 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  \"${SRCROOT}/scripts/verify_release_secrets.sh\"\nfi\n";
+			shellScript = "\"${SRCROOT}/scripts/verify_release_secrets.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

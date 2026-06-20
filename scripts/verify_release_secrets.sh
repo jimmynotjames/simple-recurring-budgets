@@ -13,7 +13,7 @@
 #   0  — all checks pass; proceed with archive / upload.
 #   1  — one or more placeholder sentinels detected; ship blocked.
 #
-# Sentinels must stay in sync with Config/Secrets.xcconfig defaults and
+# Sentinels must stay in sync with config/Secrets.xcconfig defaults and
 # AppConfig.Placeholder in Swift.
 
 set -euo pipefail
@@ -86,7 +86,7 @@ if echo "$PRIVACY" | grep -q "example.com/privacy"; then
 fi
 
 if [[ ! -f "$LOCAL_XCCONFIG" ]]; then
-  ERRORS="${ERRORS}  - Config/Secrets.local.xcconfig is missing\n"
+  ERRORS="${ERRORS}  - config/Secrets.local.xcconfig is missing\n"
 fi
 
 # ---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ if [[ -n "$ERRORS" ]]; then
   echo "error: Release ship check failed — placeholder secrets still active."
   printf "%b" "$ERRORS"
   echo ""
-  echo "Copy Config/Secrets.local.xcconfig.template → Config/Secrets.local.xcconfig"
+  echo "Copy config/Secrets.local.xcconfig.template → config/Secrets.local.xcconfig"
   echo "and fill in real values before shipping."
   echo "See CONTRIBUTING.md § Shipping to TestFlight / App Store."
   echo ""

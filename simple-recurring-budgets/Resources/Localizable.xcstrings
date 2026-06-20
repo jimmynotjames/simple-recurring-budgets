@@ -26980,7 +26980,6 @@
     },
     "addEditExpense.field.name.clearButton.accessibilityLabel" : {
       "comment" : "VoiceOver label for the trailing clear button in the expense description field",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -29426,7 +29425,6 @@
     },
     "addEditExpense.recents.tile.accessibilityAction.fullReplace" : {
       "comment" : "VoiceOver custom action name on an F-7.04 Recents tile; mirrors the sighted double-tap that overwrites both fields even when the user already typed an amount.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

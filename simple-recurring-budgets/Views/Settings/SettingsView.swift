@@ -6,7 +6,9 @@ import SwiftUI
 // MARK: - AppInfo
 
 private enum AppInfo {
-  static let privacyPolicyURL = "https://www.termsfeed.com/live/9bf5a2a7-b34d-416e-86df-bbd5097410cc"
+  static var privacyPolicyURL: String {
+    AppConfig.privacyPolicyURL
+  }
 }
 
 // MARK: - SettingsView

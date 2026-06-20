@@ -39,4 +39,11 @@ struct FeedbackMailtoContainerFailureTests {
     let url = FeedbackMailto.containerFailureURL(errorDomain: "X", errorCode: 0)
     #expect(url.absoluteString.contains("mailto:\(FeedbackMailto.recipient)"))
   }
+
+  @Test("FeedbackMailto.recipient equals AppConfig.feedbackEmail (single source of truth)")
+  func recipientEqualsAppConfigSource() {
+    // FeedbackMailto.recipient delegates to AppConfig.feedbackEmail — this test
+    // guards against future accidental divergence (e.g. re-introducing a hardcoded literal).
+    #expect(FeedbackMailto.recipient == AppConfig.feedbackEmail)
+  }
 }

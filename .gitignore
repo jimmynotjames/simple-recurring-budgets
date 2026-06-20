@@ -76,6 +76,10 @@ AuthKey_*.p8
 .env
 .env.local
 
+# App secrets — local overrides (real tokens/email/URL); never commit.
+# Committed Config/Secrets.xcconfig holds safe placeholders.
+config/Secrets.local.xcconfig
+
 # Claude Code
 .claude/worktrees/
 

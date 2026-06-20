@@ -42,6 +42,15 @@ def set_project_build_number(number)
   File.write(path, updated)
 end
 
+# Run the release ship guard before archiving.
+# Exits immediately (exit 1 + instructions) if placeholder secrets remain,
+# before spending time on archive/sign/upload.
+# Lanes that must not call this: verify_auth, screenshots, push_metadata,
+# push_screenshots — they don't ship a Release binary.
+def verify_ship_secrets!
+  sh("../scripts/verify_release_secrets.sh")
+end
+
 platform :ios do
   # Authenticate every lane with the App Store Connect API key.
   # Values come from fastlane/.env (KEY_ID / ISSUER_ID / KEY_FILEPATH).
@@ -73,6 +82,7 @@ platform :ios do
   # ---------------------------------------------------------------------------
   desc "Build and upload a build to TestFlight"
   lane :beta do
+    verify_ship_secrets!
     build_number = next_build_number
     UI.message("Auto-incrementing build number to #{build_number} (TestFlight latest + 1)")
     # Write the number into project.pbxproj so the archive — and future local
@@ -105,6 +115,7 @@ platform :ios do
   # ---------------------------------------------------------------------------
   desc "Build and submit a release to the App Store (metadata/screenshots skipped for now)"
   lane :release do
+    verify_ship_secrets!
     # Screenshots are intentionally NOT uploaded by this lane (see skip_screenshots
     # below). They are managed separately via `fastlane screenshots` +
     # `fastlane push_screenshots`. Remind the operator to decide before building —

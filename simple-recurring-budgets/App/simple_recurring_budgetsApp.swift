@@ -13,8 +13,6 @@ struct simple_recurring_budgetsApp: App {
   private let analytics: any AnalyticsClient
 
   init() {
-    let mixpanelToken = MixpanelTokenSource.activeToken
-
     // Attempt container creation via AppStartup. On failure, the app body
     // presents ContainerFailureView (Retry / Send Feedback) instead of
     // crashing — see `container-creation-recovery` capability.
@@ -43,13 +41,14 @@ struct simple_recurring_budgetsApp: App {
       }
     #endif
 
-    // Narrow test-host escape hatch: when the app runs under any test type
-    // (IS_TESTING=1 in the environment), the full @main App still launches
-    // and `.task { analytics.track(.appOpened) }` fires. Substituting
-    // ConsoleAnalyticsClient prevents those events from reaching Mixpanel.
-    // This guard applies only to this @main constructor — all other call
-    // sites use @Environment(\.analytics) injection with SpyAnalyticsClient.
-    if Self.isRunningTests {
+    // Use ConsoleAnalyticsClient (no-op / log-only) when:
+    //   • running under any test type (IS_TESTING=1) — prevents test-run events
+    //     from reaching Mixpanel. This guard applies only to this @main
+    //     constructor; all other call sites inject SpyAnalyticsClient directly.
+    //   • Mixpanel tokens are still the committed placeholders (fresh clone
+    //     without config/Secrets.local.xcconfig) — graceful no-op, no crash,
+    //     no Mixpanel SDK init, no network traffic to Mixpanel.
+    if Self.isRunningTests || !MixpanelTokenSource.isConfigured {
       analytics = ConsoleAnalyticsClient()
     } else {
       // Closures capture @MainActor-isolated properties (AppSettings, SyncStatus,
@@ -57,7 +56,7 @@ struct simple_recurring_budgetsApp: App {
       // delegated to the @unchecked Sendable declaration on MixpanelAnalyticsClient,
       // which is safe because all call sites (track, identify) run on the main actor.
       analytics = MixpanelAnalyticsClient(
-        token: mixpanelToken,
+        token: MixpanelTokenSource.activeToken,
         isOptedIn: { [initialSettings] in initialSettings.analyticsOptIn },
         distinctIdProvider: { [initialSettings] in initialSettings.analyticsDistinctId },
         weekStartDayProvider: { [initialSettings] in initialSettings.weekStartDay.analyticsValue },

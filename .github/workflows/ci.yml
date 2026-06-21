@@ -41,7 +41,7 @@ jobs:
       SWIFTLINT_VERSION: "0.63.2"
       SWIFTFORMAT_VERSION: "0.61.1"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install pinned SwiftFormat (Linux release binary)
         run: |
@@ -73,7 +73,7 @@ jobs:
     env:
       GITLEAKS_VERSION: "8.30.1"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history so `detect` can scan the whole tree
       - name: Install pinned gitleaks
@@ -92,7 +92,7 @@ jobs:
   i18n-gates:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -112,7 +112,7 @@ jobs:
     if: false # ⏸️ TEMP(#228): macOS minutes paused for June 2026 — delete this line to re-enable.
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Select Xcode 26.5
         uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -133,7 +133,7 @@ jobs:
     if: false # ⏸️ TEMP(#228): macOS minutes paused for June 2026 — delete this line to re-enable.
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Select Xcode 26.5
         uses: maxim-lobanov/setup-xcode@v1
         with:

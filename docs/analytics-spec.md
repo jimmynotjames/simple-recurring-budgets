@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.19       |
+| **Version**        | 0.20       |
 | **Last Updated**   | 2026-06-21 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -429,11 +429,11 @@ Boards are for human consumption. When creating or editing them:
 
 ### 11.3 Planned dashboards and status
 
-"Answers" is the §3 question the board serves; "Status" is where it's currently built.
+"Answers" is the §3 question the board serves; "Status" tracks the **production** project (Wren App - Prod) only — the canonical analytics surface, fed by App Store / TestFlight builds. The **Dev** project (§11.1) is a scratchpad for experiments and is intentionally not tracked here.
 
 | Dashboard                            | Contents                                                                                                  | Answers | Status                |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- | --------------------- |
-| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user; **hour-of-day** and **day-of-week** breakdown of `expense_logged` and `app_opened` (Mixpanel derives local hour from auto-attached `$timezone`). | §3.1    | Built — Dev (partial) |
+| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user; **hour-of-day** and **day-of-week** breakdown of `expense_logged` and `app_opened` (Mixpanel derives local hour from auto-attached `$timezone`). | §3.1    | Planned               |
 | Activation funnel                    | Funnels — `app_opened → budget_created → expense_logged`, with funnel time-to-convert per step.            | §3.2    | Planned               |
 | Time-to-first-budget / first-expense | Insights — `time_since_first_app_open_bucket` (on `budget_created` where `is_first_budget = true`) and `time_since_budget_created_bucket` distributions. | §3.2    | Planned               |
 | Per-Budget composition               | Insights — breakdowns on `period`, `currency_code`, `carry_over_enabled` from `budget_created` / `budget_edited`. Answers per-Budget shares. | §3.3    | Planned               |
@@ -444,7 +444,7 @@ Boards are for human consumption. When creating or editing them:
 | Destructive actions                  | Insights — totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted` per user; relative mix of the three destructive flows. | §3.5    | Planned               |
 | Consent                              | Insights — opt-in rate in `required` jurisdictions and opt-out rate in `auto_optin` jurisdictions, broken down by `consent_jurisdiction` and `region`; cumulative opt-out trend over time. | §3.6    | Planned               |
 
-The **Reach** board is built in the **Dev** project (titled "Reach") with three reports: DAU / WAU / MAU, daily active users (30d), and daily expenses logged (30d). The sessions-per-user and hour-of-day / day-of-week breakdowns in its Contents row are not yet added — hence "partial".
+No dashboards are built in **Wren App - Prod** yet, so every row above is *Planned*. (A "Reach" board exists in the Dev project as an experiment — DAU/WAU/MAU, sessions-per-user, and daily open/expense trends; hour-of-day / day-of-week were intentionally left off — but per §11.1 the Dev project is not tracked here.)
 
 ---
 
@@ -647,6 +647,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.20    | 2026-06-21 | Jimmy Ho | §11.3 status now tracks the **Prod** project only (the canonical analytics surface); the Dev project is an untracked experiment scratchpad. All rows are *Planned* (nothing built in Prod yet); Reach reverted from "Built — Dev (partial)" to *Planned*. Replaced the Dev-board note accordingly. |
 | 0.19    | 2026-06-21 | Jimmy Ho | Redefined `app_opened` (§9): fires on cold launch and on each real `.background → .active` return, ignoring transient `.inactive` interruptions; removed the prior client-side session-gap dedup (a hardcoded 30-min constant that duplicated Mixpanel's server-side session setting). Mixpanel owns sessionization. §3.4 retention reworked: retention is configured per Mixpanel report (born + returning event); `expense_logged` retention is the value-loop signal, `app_opened` retention is check-in engagement (glanceable budget-checking above the fold is meaningful on its own). Code: `AppOpenTracker` now a scenePhase-transition gate; tests updated. |
 | 0.18    | 2026-06-21 | Jimmy Ho | Implementation-audit reconciliation: the code emits two enum values the spec omitted. Added `specific_dates` to the §10.1 `period` values (the `BudgetPeriod.specificDates` fixed-window type; always pairs with `carry_over_enabled = false`) and to the §3.3 period-breakdown list, and added `checking` to the §10.2 `icloud_state` values. No code change. |
 | 0.17    | 2026-06-21 | Jimmy Ho | Restructured §11 (Dashboards). Added §11.1 (the two Mixpanel projects — Prod ← App Store/TestFlight, Dev ← debug/Simulator — that Dev need not mirror Prod, and the connected Mixpanel MCP server), §11.2 (board conventions: human-readable, brief, no housekeeping/phase labels in board names), and §11.3 (a Status column tracking which boards are built and in which project). Noted that Mixpanel is the source of truth and this doc may drift. Reach board built (partial) in Dev. |

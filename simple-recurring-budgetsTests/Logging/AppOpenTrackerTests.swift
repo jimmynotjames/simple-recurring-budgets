@@ -1,44 +1,40 @@
-import Foundation
 @testable import simple_recurring_budgets
+import SwiftUI
 import Testing
 
-/// Covers the `app_opened` session gate (analytics-spec.md §9). The gate exists
-/// so warm resumes from background re-fire `app_opened` (fixing the DAU/WAU/MAU
-/// undercount) without double-counting rapid re-activations within one session.
-@Suite("AppOpenTracker — app_opened session gate (§9)")
+/// Covers when `app_opened` fires (analytics-spec.md §9): on cold launch and on
+/// a real return from background, but not on transient `.inactive` interruptions
+/// (notification shade, Face ID, app switcher) and not on non-active phases.
+@Suite("AppOpenTracker — app_opened on foreground (§9)")
 @MainActor
 struct AppOpenTrackerTests {
-  private let t0 = Date(timeIntervalSinceReferenceDate: 0)
-
-  @Test("first foreground always fires")
-  func firstForegroundFires() {
+  @Test("cold launch (first .active) fires")
+  func coldLaunchFires() {
     let tracker = AppOpenTracker()
-    #expect(tracker.registerForeground(now: t0) == true)
+    #expect(tracker.shouldFire(for: .active) == true)
   }
 
-  @Test("re-activation within the session gap does not re-fire")
-  func withinSessionGapSuppressed() {
+  @Test("return from background to active fires")
+  func backgroundToActiveFires() {
     let tracker = AppOpenTracker()
-    #expect(tracker.registerForeground(now: t0) == true)
-    // 29 minutes later — still the same session.
-    #expect(tracker.registerForeground(now: t0.addingTimeInterval(29 * 60)) == false)
+    _ = tracker.shouldFire(for: .active) // cold launch
+    #expect(tracker.shouldFire(for: .background) == false)
+    #expect(tracker.shouldFire(for: .active) == true)
   }
 
-  @Test("foreground at/after the session gap fires again")
-  func afterSessionGapFires() {
+  @Test("inactive flicker (active → inactive → active) does not fire")
+  func inactiveFlickerSuppressed() {
     let tracker = AppOpenTracker()
-    #expect(tracker.registerForeground(now: t0) == true)
-    // Exactly the gap later counts as a new session.
-    #expect(tracker.registerForeground(now: t0.addingTimeInterval(AppOpenTracker.sessionGap)) == true)
+    _ = tracker.shouldFire(for: .active) // cold launch
+    #expect(tracker.shouldFire(for: .inactive) == false)
+    // Returned from .inactive (not background) — a flicker, not a real open.
+    #expect(tracker.shouldFire(for: .active) == false)
   }
 
-  @Test("the window is measured from the last fire, not the last attempt")
-  func gapMeasuredFromLastFire() {
+  @Test("non-active phases never fire")
+  func nonActiveNeverFires() {
     let tracker = AppOpenTracker()
-    #expect(tracker.registerForeground(now: t0) == true)
-    // A suppressed peek at +20m must NOT advance the window.
-    #expect(tracker.registerForeground(now: t0.addingTimeInterval(20 * 60)) == false)
-    // 45m after the original fire: still > gap from that fire, so it fires.
-    #expect(tracker.registerForeground(now: t0.addingTimeInterval(45 * 60)) == true)
+    #expect(tracker.shouldFire(for: .background) == false)
+    #expect(tracker.shouldFire(for: .inactive) == false)
   }
 }

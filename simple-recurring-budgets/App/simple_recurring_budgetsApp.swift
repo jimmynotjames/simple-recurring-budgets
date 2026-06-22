@@ -13,8 +13,8 @@ struct simple_recurring_budgetsApp: App {
   private let analytics: any AnalyticsClient
 
   @Environment(\.scenePhase) private var scenePhase
-  /// Gates `app_opened` so warm resumes from background re-fire it (DAU fix),
-  /// while rapid re-activations inside one session window don't. See §9.
+  /// Fires `app_opened` on cold launch and on each return to the foreground from
+  /// background, ignoring transient `.inactive` interruptions. See §9.
   @State private var appOpenTracker = AppOpenTracker()
 
   init() {
@@ -124,15 +124,16 @@ struct simple_recurring_budgetsApp: App {
           .task {
             // Cold-launch open. The tracker dedups against the scenePhase
             // handler below so a launch never double-fires.
-            if appOpenTracker.registerForeground() {
+            if appOpenTracker.shouldFire(for: .active) {
               analytics.track(AnalyticsEvent.appOpened)
             }
           }
           .onChange(of: scenePhase) { _, newPhase in
-            // Warm resume: fire app_opened again on foreground, unless this
-            // re-activation falls within one Mixpanel session of the last fire.
-            guard newPhase == .active, appOpenTracker.registerForeground() else { return }
-            analytics.track(AnalyticsEvent.appOpened)
+            // Return from background to the foreground counts as a new open;
+            // transient .inactive interruptions do not (handled by the tracker).
+            if appOpenTracker.shouldFire(for: newPhase) {
+              analytics.track(AnalyticsEvent.appOpened)
+            }
           }
       } else if let error = startup.error {
         // Recovery surface — see `container-creation-recovery` capability.

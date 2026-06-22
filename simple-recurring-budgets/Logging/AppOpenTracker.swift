@@ -1,33 +1,33 @@
-import Foundation
+import SwiftUI
 
-/// Decides whether a foreground transition should count as a new `app_opened`
-/// event, approximating Mixpanel's "first foreground per session" semantics
+/// Decides whether a `scenePhase` transition should fire `app_opened`
 /// (analytics-spec.md §9).
 ///
-/// `app_opened` previously fired only from the root view's `.task`, i.e. once
-/// per cold launch. A warm resume from background never re-fired it, which
-/// undercounts DAU/WAU/MAU on the §3.1 Reach board. This gate lets the app fire
-/// `app_opened` on every foreground transition while collapsing rapid
-/// re-activations (control-center peeks, app-switcher glances, permission
-/// prompts) that fall within a single Mixpanel session window.
+/// `app_opened` marks the user bringing the app to the foreground — a cold
+/// launch or a return from background. Both are meaningful even with no further
+/// action: the Budgets list shows remaining amounts above the fold, so a bare
+/// foreground is often the user checking their numbers (glanceable
+/// budget-checking). Transient interruptions that only drop the app to
+/// `.inactive` — the notification shade, Face ID, the app switcher, a
+/// permission dialog — are not opens and must not fire.
+///
+/// No session/time constant: sessionization is Mixpanel's job (server-side,
+/// from the event stream), not something the client should replicate.
 @MainActor
 final class AppOpenTracker {
-  /// Inactivity gap after which a foreground counts as a new session. Matches
-  /// Mixpanel's default 30-minute session timeout so the app's notion of a new
-  /// "open" lines up with Mixpanel's server-side sessionization.
-  static let sessionGap: TimeInterval = 30 * 60
+  private var lastPhase: ScenePhase?
 
-  private var lastOpenedAt: Date?
-
-  /// Records a foreground transition and reports whether it should fire
-  /// `app_opened`. Returns `true` (and stamps `now`) on the first call and on
-  /// any call at least `sessionGap` after the previous fire; returns `false`
-  /// for re-activations inside that window.
-  func registerForeground(now: Date = Date()) -> Bool {
-    if let last = lastOpenedAt, now.timeIntervalSince(last) < Self.sessionGap {
+  /// Records `phase` and reports whether it should fire `app_opened`: `true` on
+  /// the first observed `.active` (cold launch) and on any `.background → .active`
+  /// return; `false` for `.inactive → .active` flicker and non-active phases.
+  func shouldFire(for phase: ScenePhase) -> Bool {
+    defer { lastPhase = phase }
+    guard phase == .active else { return false }
+    switch lastPhase {
+    case .none, .some(.background):
+      return true
+    default:
       return false
     }
-    lastOpenedAt = now
-    return true
   }
 }

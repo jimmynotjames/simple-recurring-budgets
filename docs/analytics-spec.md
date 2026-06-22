@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.18       |
+| **Version**        | 0.19       |
 | **Last Updated**   | 2026-06-21 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -81,8 +81,10 @@ Phase 1 is the smallest viable instrumentation that lets us answer the questions
 
 ### 3.4 Retention
 
-- 1-day, 7-day, and 30-day retention anchored on `expense_logged` (the core value loop).
-- 1-day, 7-day, and 30-day retention anchored on `app_opened` (engagement floor).
+Retention is configured per Mixpanel Retention report by choosing a "born" event and a "returning" event (a specific event, or "Any Event") — it is not hardwired to one event. Phase 1 builds two views:
+
+- 1/7/30-day retention with returning-event = `expense_logged` — the core value loop. A return that doesn't log an expense does not count; this is the retention signal to act on.
+- 1/7/30-day retention with returning-event = `app_opened` — check-in engagement. The user reopened the app, which is meaningful on its own: the Budgets list surfaces remaining amounts above the fold, so a bare foreground is often glanceable budget-checking, even with no further action.
 
 ### 3.5 Settings and destructive actions
 
@@ -316,7 +318,7 @@ Canonical event names live as constants in `AnalyticsEvent` (in [simple-recurrin
 
 | Event                       | Fired when                                                                                                                              | Answers                                  |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `app_opened`                | First foreground per session. Supersedes `app.launched` for the product channel; the `bootstrap` event remains on OSLog.                | §3.1, §3.4                               |
+| `app_opened`                | Cold launch, and each return to the foreground from background (a true `.background → .active` transition; transient `.inactive` interruptions like the notification shade or Face ID do not fire). Not client-side deduplicated by a session window — a bare foreground counts as an open, since the user is often just checking budget amounts above the fold (§3.4). Mixpanel owns sessionization server-side. Supersedes `app.launched` for the product channel; the `bootstrap` event remains on OSLog. | §3.1, §3.4                               |
 | `budget_created`            | New Budget saved successfully.                                                                                                          | §3.2, §3.3                               |
 | `budget_edited`             | Existing Budget edited and saved.                                                                                                       | §3.5                                     |
 | `budget_deleted`            | Budget deleted from the Add/Edit Budget sheet.                                                                                          | §3.5                                     |
@@ -645,6 +647,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.19    | 2026-06-21 | Jimmy Ho | Redefined `app_opened` (§9): fires on cold launch and on each real `.background → .active` return, ignoring transient `.inactive` interruptions; removed the prior client-side session-gap dedup (a hardcoded 30-min constant that duplicated Mixpanel's server-side session setting). Mixpanel owns sessionization. §3.4 retention reworked: retention is configured per Mixpanel report (born + returning event); `expense_logged` retention is the value-loop signal, `app_opened` retention is check-in engagement (glanceable budget-checking above the fold is meaningful on its own). Code: `AppOpenTracker` now a scenePhase-transition gate; tests updated. |
 | 0.18    | 2026-06-21 | Jimmy Ho | Implementation-audit reconciliation: the code emits two enum values the spec omitted. Added `specific_dates` to the §10.1 `period` values (the `BudgetPeriod.specificDates` fixed-window type; always pairs with `carry_over_enabled = false`) and to the §3.3 period-breakdown list, and added `checking` to the §10.2 `icloud_state` values. No code change. |
 | 0.17    | 2026-06-21 | Jimmy Ho | Restructured §11 (Dashboards). Added §11.1 (the two Mixpanel projects — Prod ← App Store/TestFlight, Dev ← debug/Simulator — that Dev need not mirror Prod, and the connected Mixpanel MCP server), §11.2 (board conventions: human-readable, brief, no housekeeping/phase labels in board names), and §11.3 (a Status column tracking which boards are built and in which project). Noted that Mixpanel is the source of truth and this doc may drift. Reach board built (partial) in Dev. |
 | 0.16    | 2026-06-21 | Jimmy Ho | Retired the `bundle_id` fork-pollution filter. Mixpanel project tokens were **rotated and are now kept secret** (out of source control), so a public-repo fork can no longer obtain a working token and cannot pollute the maintainer's projects. Removed the `bundle_id` super-property row from §10.2 and the "Universal project filter" paragraph from §11, and reframed the §16 token-secrecy note accordingly. Code updated to match: dropped the `bundle_id` entry from `MixpanelAnalyticsClient.registerSuperProperties(on:)`, removed the `AnalyticsProperty.bundleId` constant, and updated the two affected tests. |

@@ -2,8 +2,8 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.20       |
-| **Last Updated**   | 2026-06-21 |
+| **Version**        | 0.21       |
+| **Last Updated**   | 2026-06-22 |
 | **Author / Owner** | Jimmy Ho   |
 
 > Companion design + instrumentation spec for **F-8.02** (Mixpanel Phase 1) and **F-8.03** (Mixpanel Phase 2) in [product-features-planning.md](product-features-planning.md). The features doc carries the high-level constraints and the product questions the work must answer; this doc captures the detailed instrumentation, identity, consent, and architectural decisions that produce those answers. Phase 1 establishes the measurement foundation and answers first-tier product questions; Phase 2 reacts to Phase 1 evidence and adds an experimentation seam.
@@ -60,7 +60,6 @@ Phase 1 is the smallest viable instrumentation that lets us answer the questions
 
 - Are people opening the app at all? DAU, WAU, MAU on `app_opened`.
 - Sessions per active user.
-- Hour-of-day distribution of `expense_logged` so we know when users actually use the app.
 
 ### 3.2 Activation
 
@@ -419,13 +418,14 @@ The **Dev** project does not have to mirror Prod; use it to try out experimental
 
 The **Mixpanel MCP server is connected**, so an agent — or a human in an MCP-enabled client — can create and edit boards, run queries, and read project schema directly. See [docs.mixpanel.com/docs/mcp](https://docs.mixpanel.com/docs/mcp).
 
-### 11.2 Board conventions
+### 11.2 Building boards via the Mixpanel MCP
 
-Boards are for human consumption. When creating or editing them:
+Boards are for humans. When an agent (or anyone) creates or edits a board through the Mixpanel MCP:
 
-- Keep names and descriptions short and plain — they should help a reader understand the **user behavior**, not the build process.
-- Do **not** put internal or housekeeping labels in board names/descriptions (no "Phase 1", phase numbers, ticket IDs, "built via MCP", filter mechanics, etc.).
-- Don't over-explain. One short line of context is enough; a doc-section reference (e.g. "§3.1") is fine for traceability.
+- **Write for a human reader.** Names and descriptions are short, plain, and about the **user behavior** the board shows — not the build process. No phase numbers, ticket IDs, "built via MCP", filter mechanics, or other housekeeping in names/descriptions. One short doc reference (e.g. "§3.1") for traceability is the only meta detail worth including.
+- **Be concise.** At most a one-line framing card per board; don't over-explain.
+- **Don't force what the MCP can't do.** The MCP query API can't express everything the Mixpanel UI can. If a board aspect can't be configured straightforwardly through the MCP and it's minor, **drop it from this spec** — just remove it, rather than forcing an awkward proxy or documenting the gap. We're constrained by Mixpanel and this is a small app; we don't push hard for any particular analytics shape.
+- **Hand worth-keeping UI-only aspects back to the human.** If an aspect can't be done via the MCP but a person can set it up in the Mixpanel UI and it's worth keeping, add a one- or two-line self-service note as a text card on the board telling them how (e.g. "Hour-of-day view: open this report in Insights → group by Hour of Day → add back to this board").
 
 ### 11.3 Planned dashboards and status
 
@@ -433,7 +433,7 @@ Boards are for human consumption. When creating or editing them:
 
 | Dashboard                            | Contents                                                                                                  | Answers | Status                |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- | --------------------- |
-| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user; **hour-of-day** and **day-of-week** breakdown of `expense_logged` and `app_opened` (Mixpanel derives local hour from auto-attached `$timezone`). | §3.1    | Planned               |
+| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user.                                                        | §3.1    | Planned               |
 | Activation funnel                    | Funnels — `app_opened → budget_created → expense_logged`, with funnel time-to-convert per step.            | §3.2    | Planned               |
 | Time-to-first-budget / first-expense | Insights — `time_since_first_app_open_bucket` (on `budget_created` where `is_first_budget = true`) and `time_since_budget_created_bucket` distributions. | §3.2    | Planned               |
 | Per-Budget composition               | Insights — breakdowns on `period`, `currency_code`, `carry_over_enabled` from `budget_created` / `budget_edited`. Answers per-Budget shares. | §3.3    | Planned               |
@@ -444,7 +444,7 @@ Boards are for human consumption. When creating or editing them:
 | Destructive actions                  | Insights — totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted` per user; relative mix of the three destructive flows. | §3.5    | Planned               |
 | Consent                              | Insights — opt-in rate in `required` jurisdictions and opt-out rate in `auto_optin` jurisdictions, broken down by `consent_jurisdiction` and `region`; cumulative opt-out trend over time. | §3.6    | Planned               |
 
-No dashboards are built in **Wren App - Prod** yet, so every row above is *Planned*. (A "Reach" board exists in the Dev project as an experiment — DAU/WAU/MAU, sessions-per-user, and daily open/expense trends; hour-of-day / day-of-week were intentionally left off — but per §11.1 the Dev project is not tracked here.)
+No dashboards are built in **Wren App - Prod** yet, so every row above is *Planned*. (A "Reach" board exists in the Dev project as an experiment — DAU/WAU/MAU, sessions-per-user, and daily open/expense trends — but per §11.1 the Dev project is not tracked here.)
 
 ---
 
@@ -647,6 +647,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.21    | 2026-06-22 | Jimmy Ho | Reworked §11.2 into an agent guide for building boards via the Mixpanel MCP: human-readable/concise naming, and a "don't push hard" rule — minor aspects the MCP can't configure are dropped from the spec (no gap-documenting); worth-keeping UI-only aspects get a short self-service note on the board. Applied it by removing the hour-of-day / day-of-week breakdowns. |
 | 0.20    | 2026-06-21 | Jimmy Ho | §11.3 status now tracks the **Prod** project only (the canonical analytics surface); the Dev project is an untracked experiment scratchpad. All rows are *Planned* (nothing built in Prod yet); Reach reverted from "Built — Dev (partial)" to *Planned*. Replaced the Dev-board note accordingly. |
 | 0.19    | 2026-06-21 | Jimmy Ho | Redefined `app_opened` (§9): fires on cold launch and on each real `.background → .active` return, ignoring transient `.inactive` interruptions; removed the prior client-side session-gap dedup (a hardcoded 30-min constant that duplicated Mixpanel's server-side session setting). Mixpanel owns sessionization. §3.4 retention reworked: retention is configured per Mixpanel report (born + returning event); `expense_logged` retention is the value-loop signal, `app_opened` retention is check-in engagement (glanceable budget-checking above the fold is meaningful on its own). Code: `AppOpenTracker` now a scenePhase-transition gate; tests updated. |
 | 0.18    | 2026-06-21 | Jimmy Ho | Implementation-audit reconciliation: the code emits two enum values the spec omitted. Added `specific_dates` to the §10.1 `period` values (the `BudgetPeriod.specificDates` fixed-window type; always pairs with `carry_over_enabled = false`) and to the §3.3 period-breakdown list, and added `checking` to the §10.2 `icloud_state` values. No code change. |

@@ -276,9 +276,6 @@ DEBUG and Release use the same client class; physical separation of dev-vs-prod 
 
 The Mixpanel SDK is instantiated **lazily** so an opted-out launch incurs no `MixpanelInstance` creation and no network activity. In auto-opt-in jurisdictions the default opted-in state means the SDK is initialized on first launch unless the user has explicitly opted out. In DEBUG this means launching the app on a developer machine — once opt-in is observed `true` — sends events to the dev Mixpanel project, which is the desired end-to-end-validation behavior.
 
-> [!IMPORTANT]
-> **Current implementation gap — lazy init not yet in place.** As of this spec version, the shipped [`MixpanelAnalyticsClient`](../simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift) calls `Mixpanel.initialize(token:trackAutomaticEvents:)` synchronously inside its `init`, which means **every launch — including opted-out launches in strict-opt-in jurisdictions — currently creates a `MixpanelInstance` and opens a flush channel**, in violation of [§2.1.8](#21-constraints-applying-to-all-mixpanel-work-f-802-and-f-803) (constraint #8) and the lazy-init contract above. F-8.02 MUST refactor `MixpanelAnalyticsClient` so SDK init is deferred to the first opted-in `track` / `identify`. Detailed refactor scope and the file-level checklist are in [§16.1](#161-implementation-starting-state-codebase-snapshot). The lazy-init invariant is one of the [§18.1](#181-concrete-unit-test-contracts-phase-1) test contracts (#4) — adding the test should fail today and pass after the refactor.
-
 TestFlight builds use the same Release codepath and the **prod** token. The default opt-in state follows the same locale-aware rule as production; there is no override. Internal validation in a strict-opt-in locale is done by an internal tester explicitly opting in.
 
 ### 8.1 Launch and consent-transition ordering (canonical sequence)

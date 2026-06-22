@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.16       |
+| **Version**        | 0.17       |
 | **Last Updated**   | 2026-06-21 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -405,20 +405,47 @@ No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry
 
 ## 11. Phase 1 Dashboards
 
-Built in Mixpanel and linked from this doc once provisioned.
+Dashboards are built in Mixpanel. **Mixpanel is the source of truth** — the table below is a planning record and may drift from what's actually in Mixpanel, since boards are edited there directly by humans. On any mismatch, Mixpanel wins; update this doc to match.
 
-| Dashboard                                  | Primary report type                                                                                       | Answers |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- |
-| Reach                                      | Insights — DAU / WAU / MAU on `app_opened`; sessions-per-user; **hour-of-day** and **day-of-week** breakdown of `expense_logged` and `app_opened` (Mixpanel derives local hour from auto-attached `$timezone`). | §3.1    |
-| Activation funnel                          | Funnels — `app_opened → budget_created → expense_logged`, with funnel time-to-convert per step.            | §3.2    |
-| Time-to-first-budget / first-expense       | Insights — `time_since_first_app_open_bucket` (on `budget_created` where `is_first_budget = true`) and `time_since_budget_created_bucket` distributions. | §3.2    |
-| Per-Budget composition                     | Insights — breakdowns on `period`, `currency_code`, `carry_over_enabled` from `budget_created` / `budget_edited`. Answers per-Budget shares. | §3.3    |
-| Per-user composition                       | Insights — distribution of `dominant_period`, `default_currency_code`, `uses_carry_over`, `has_disabled_carry_over`, `budgets_count_bucket`, `budgets_with_carry_over_on_count_bucket`, `device_class`, `locale`, `region` people / super properties. Answers per-user shares including iPhone-vs-iPad mix. | §3.3    |
-| Allocation distribution                    | Insights — distribution / median of `budget_allocation_amount` segmented by `period`, `currency_code`, and `region`. | §3.3    |
-| Retention                                  | Retention — anchored on `app_opened` and `expense_logged`; 1d / 7d / 30d.                                 | §3.4    |
-| Settings — opens & changes                 | Insights — `settings_opened` per active user, plus `setting_changed` totals broken down by `setting_name` and `new_value`. | §3.5    |
-| Destructive actions                        | Insights — totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted` per user; relative mix of the three destructive flows. | §3.5    |
-| Consent                                    | Insights — opt-in rate in `required` jurisdictions and opt-out rate in `auto_optin` jurisdictions, broken down by `consent_jurisdiction` and `region`; cumulative opt-out trend over time. | §3.6    |
+### 11.1 Mixpanel projects and tooling
+
+Two Mixpanel projects are provisioned (see §8 for the token wiring that routes events to each):
+
+| Project              | Receives events from                                              |
+| -------------------- | ---------------------------------------------------------------- |
+| **Wren App - Prod**  | Production builds — App Store and TestFlight.                     |
+| **Wren App - Dev**   | Debug builds — e.g. the iOS Simulator and developer devices.     |
+
+The **Dev** project does not have to mirror Prod; use it to try out experimental dashboards before (or instead of) building them in Prod.
+
+The **Mixpanel MCP server is connected**, so an agent — or a human in an MCP-enabled client — can create and edit boards, run queries, and read project schema directly. See [docs.mixpanel.com/docs/mcp](https://docs.mixpanel.com/docs/mcp).
+
+### 11.2 Board conventions
+
+Boards are for human consumption. When creating or editing them:
+
+- Keep names and descriptions short and plain — they should help a reader understand the **user behavior**, not the build process.
+- Do **not** put internal or housekeeping labels in board names/descriptions (no "Phase 1", phase numbers, ticket IDs, "built via MCP", filter mechanics, etc.).
+- Don't over-explain. One short line of context is enough; a doc-section reference (e.g. "§3.1") is fine for traceability.
+
+### 11.3 Planned dashboards and status
+
+"Answers" is the §3 question the board serves; "Status" is where it's currently built.
+
+| Dashboard                            | Contents                                                                                                  | Answers | Status                |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- | --------------------- |
+| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user; **hour-of-day** and **day-of-week** breakdown of `expense_logged` and `app_opened` (Mixpanel derives local hour from auto-attached `$timezone`). | §3.1    | Built — Dev (partial) |
+| Activation funnel                    | Funnels — `app_opened → budget_created → expense_logged`, with funnel time-to-convert per step.            | §3.2    | Planned               |
+| Time-to-first-budget / first-expense | Insights — `time_since_first_app_open_bucket` (on `budget_created` where `is_first_budget = true`) and `time_since_budget_created_bucket` distributions. | §3.2    | Planned               |
+| Per-Budget composition               | Insights — breakdowns on `period`, `currency_code`, `carry_over_enabled` from `budget_created` / `budget_edited`. Answers per-Budget shares. | §3.3    | Planned               |
+| Per-user composition                 | Insights — distribution of `dominant_period`, `default_currency_code`, `uses_carry_over`, `has_disabled_carry_over`, `budgets_count_bucket`, `budgets_with_carry_over_on_count_bucket`, `device_class`, `locale`, `region` people / super properties. Answers per-user shares including iPhone-vs-iPad mix. | §3.3    | Planned               |
+| Allocation distribution              | Insights — distribution / median of `budget_allocation_amount` segmented by `period`, `currency_code`, and `region`. | §3.3    | Planned               |
+| Retention                            | Retention — anchored on `app_opened` and `expense_logged`; 1d / 7d / 30d.                                 | §3.4    | Planned               |
+| Settings — opens & changes           | Insights — `settings_opened` per active user, plus `setting_changed` totals broken down by `setting_name` and `new_value`. | §3.5    | Planned               |
+| Destructive actions                  | Insights — totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted` per user; relative mix of the three destructive flows. | §3.5    | Planned               |
+| Consent                              | Insights — opt-in rate in `required` jurisdictions and opt-out rate in `auto_optin` jurisdictions, broken down by `consent_jurisdiction` and `region`; cumulative opt-out trend over time. | §3.6    | Planned               |
+
+The **Reach** board is built in the **Dev** project (titled "Reach") with three reports: DAU / WAU / MAU, daily active users (30d), and daily expenses logged (30d). The sessions-per-user and hour-of-day / day-of-week breakdowns in its Contents row are not yet added — hence "partial".
 
 ---
 
@@ -621,6 +648,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.17    | 2026-06-21 | Jimmy Ho | Restructured §11 (Dashboards). Added §11.1 (the two Mixpanel projects — Prod ← App Store/TestFlight, Dev ← debug/Simulator — that Dev need not mirror Prod, and the connected Mixpanel MCP server), §11.2 (board conventions: human-readable, brief, no housekeeping/phase labels in board names), and §11.3 (a Status column tracking which boards are built and in which project). Noted that Mixpanel is the source of truth and this doc may drift. Reach board built (partial) in Dev. |
 | 0.16    | 2026-06-21 | Jimmy Ho | Retired the `bundle_id` fork-pollution filter. Mixpanel project tokens were **rotated and are now kept secret** (out of source control), so a public-repo fork can no longer obtain a working token and cannot pollute the maintainer's projects. Removed the `bundle_id` super-property row from §10.2 and the "Universal project filter" paragraph from §11, and reframed the §16 token-secrecy note accordingly. Code updated to match: dropped the `bundle_id` entry from `MixpanelAnalyticsClient.registerSuperProperties(on:)`, removed the `AnalyticsProperty.bundleId` constant, and updated the two affected tests. |
 | 0.15    | 2026-06-02 | Jimmy Ho | F-6.03 implemented by change `rating-prompt`. The two rating-prompt events (`rating_prompt_eligible`, `rating_prompt_requested`) and their `rating_prompt_first_eligible_at` / `rating_prompt_last_requested_at` people properties are **pulled forward from Phase 2 (F-8.03)** and ship with F-6.03; §12, §13.2 annotated accordingly. No PII-contract change. |
 | 0.14    | 2026-06-02 | Jimmy Ho | F-6.03 rating-prompt analytics reconciled with Apple's native `requestReview` API, which reports neither whether the dialog was shown nor the user's choice. Replaced the unobservable `rating_prompt_shown` / `rating_prompt_resolved` events (and their `outcome` / `time_to_resolution_bucket` properties and `rating_prompt_last_outcome` people property) with a single observable `rating_prompt_requested` event (+ `time_since_first_eligible_bucket` property, `rating_prompt_last_requested_at` people property). `rating_prompt_eligible` retained. §4.4, §12, §13.1, §13.2, §14 updated; §4.4 records that no custom pre-prompt will be added to manufacture an outcome signal. |

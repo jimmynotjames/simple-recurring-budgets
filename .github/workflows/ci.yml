@@ -132,6 +132,8 @@ jobs:
           xcode-version: "26.5"
       - name: xcodebuild test (unit only)
         run: |
+          # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
+          # CODE_SIGNING_ALLOWED=NO strips them and breaks NSUbiquitousKeyValueStore tests.
           xcodebuild test \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
@@ -139,4 +141,5 @@ jobs:
             -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
             -skip-testing:simple-recurring-budgetsUITests \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=-

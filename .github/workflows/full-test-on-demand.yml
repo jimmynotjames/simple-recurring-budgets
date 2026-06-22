@@ -67,7 +67,8 @@ jobs:
             -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
             -skip-testing:simple-recurring-budgetsUITests \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=-
 
       - name: Pass 2 — accessibility + user-journey UI tests
         run: |
@@ -81,7 +82,8 @@ jobs:
             -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
             -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests \
             -only-testing:simple-recurring-budgetsUITests/AllocationFirstTapUITests \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=-
 
       - name: Report result back to the PR
         if: always()

@@ -37,6 +37,9 @@ protocol AnalyticsClient: AnyObject, Sendable {
   /// current Budget collection. Call after `budget_created` / `budget_edited` /
   /// `budget_deleted` so the people profile stays in sync.
   func refreshCohortPeopleProperties(budgets: [BudgetCohortInfo])
+  /// Sets the §10.3 `analytics_opt_in_at` people property. Call on the opt-in
+  /// transition, after the first opted-in `track` has lazily initialised the SDK.
+  func setAnalyticsOptInAt()
   /// Sets the F-6.03 `rating_prompt_first_eligible_at` people property (set-once).
   func setRatingPromptFirstEligible(_ date: Date)
   /// Refreshes the F-6.03 `rating_prompt_last_requested_at` people property.
@@ -51,6 +54,7 @@ extension AnalyticsClient {
   // Default no-ops: only backends with a people/super-property concept override these.
   func refreshSuperProperties() {}
   func refreshCohortPeopleProperties(budgets _: [BudgetCohortInfo]) {}
+  func setAnalyticsOptInAt() {}
   func setRatingPromptFirstEligible(_: Date) {}
   func setRatingPromptLastRequested(_: Date) {}
 }

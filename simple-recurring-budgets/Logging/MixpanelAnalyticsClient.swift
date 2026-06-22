@@ -195,7 +195,10 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
     instance.people.set(properties: [AnalyticsProperty.lastAppOpenAt: now])
   }
 
-  func setAnalyticsOptInAt(on instance: MixpanelInstance) {
+  /// Sets the §10.3 `analytics_opt_in_at` people property on opt-in.
+  /// No-op if the SDK has not yet been lazily initialised (opted-out).
+  func setAnalyticsOptInAt() {
+    guard let instance = currentInstance() else { return }
     instance.people.set(properties: [AnalyticsProperty.analyticsOptInAt: Date()])
   }
 

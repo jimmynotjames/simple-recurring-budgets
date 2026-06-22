@@ -12,6 +12,11 @@ struct simple_recurring_budgetsApp: App {
   @State private var ratingPrompt: RatingPromptCoordinator
   private let analytics: any AnalyticsClient
 
+  @Environment(\.scenePhase) private var scenePhase
+  /// Gates `app_opened` so warm resumes from background re-fire it (DAU fix),
+  /// while rapid re-activations inside one session window don't. See §9.
+  @State private var appOpenTracker = AppOpenTracker()
+
   init() {
     // Attempt container creation via AppStartup. On failure, the app body
     // presents ContainerFailureView (Retry / Send Feedback) instead of
@@ -117,6 +122,16 @@ struct simple_recurring_budgetsApp: App {
           .modifier(TestDynamicTypeOverride())
         #endif
           .task {
+            // Cold-launch open. The tracker dedups against the scenePhase
+            // handler below so a launch never double-fires.
+            if appOpenTracker.registerForeground() {
+              analytics.track(AnalyticsEvent.appOpened)
+            }
+          }
+          .onChange(of: scenePhase) { _, newPhase in
+            // Warm resume: fire app_opened again on foreground, unless this
+            // re-activation falls within one Mixpanel session of the last fire.
+            guard newPhase == .active, appOpenTracker.registerForeground() else { return }
             analytics.track(AnalyticsEvent.appOpened)
           }
       } else if let error = startup.error {

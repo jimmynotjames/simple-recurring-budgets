@@ -25,10 +25,7 @@ jobs:
   full-test:
     # Only on PR comments, only the trigger phrase, only from someone with write
     # access (so a drive-by commenter can't burn macOS minutes).
-    # ⏸️ TEMP(#228): leading `false &&` pauses macOS minutes for June 2026 —
-    # delete that line to re-enable.
     if: >
-      false &&
       github.event.issue.pull_request &&
       startsWith(github.event.comment.body, '/test-full') &&
       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)

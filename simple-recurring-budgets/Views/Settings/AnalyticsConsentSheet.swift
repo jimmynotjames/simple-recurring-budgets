@@ -113,6 +113,8 @@ struct AnalyticsConsentSheet: View {
       AnalyticsEvent.analyticsConsentChanged,
       properties: [AnalyticsProperty.newValue: true]
     )
+    // §10.3: stamp the opt-in timestamp (after track lazily inits the SDK).
+    analytics.setAnalyticsOptInAt()
     dismiss()
   }
 

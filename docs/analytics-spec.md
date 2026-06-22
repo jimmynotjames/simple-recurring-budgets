@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.16       |
+| **Version**        | 0.19       |
 | **Last Updated**   | 2026-06-21 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -71,7 +71,7 @@ Phase 1 is the smallest viable instrumentation that lets us answer the questions
 ### 3.3 Composition of usage
 
 - Average and distribution of Budgets per user (via `budgets_count_bucket` super property; see §10.2).
-- Breakdown of Budget Period (`daily` / `weekly` / `biweekly` / `monthly`) two ways:
+- Breakdown of Budget Period (`daily` / `weekly` / `biweekly` / `monthly` / `specific_dates`) two ways:
   - Share of users whose dominant period is X.
   - Share of all Budgets that are X.
 - Currency-code breakdown across users and across Budgets.
@@ -81,8 +81,10 @@ Phase 1 is the smallest viable instrumentation that lets us answer the questions
 
 ### 3.4 Retention
 
-- 1-day, 7-day, and 30-day retention anchored on `expense_logged` (the core value loop).
-- 1-day, 7-day, and 30-day retention anchored on `app_opened` (engagement floor).
+Retention is configured per Mixpanel Retention report by choosing a "born" event and a "returning" event (a specific event, or "Any Event") — it is not hardwired to one event. Phase 1 builds two views:
+
+- 1/7/30-day retention with returning-event = `expense_logged` — the core value loop. A return that doesn't log an expense does not count; this is the retention signal to act on.
+- 1/7/30-day retention with returning-event = `app_opened` — check-in engagement. The user reopened the app, which is meaningful on its own: the Budgets list surfaces remaining amounts above the fold, so a bare foreground is often glanceable budget-checking, even with no further action.
 
 ### 3.5 Settings and destructive actions
 
@@ -276,9 +278,6 @@ DEBUG and Release use the same client class; physical separation of dev-vs-prod 
 
 The Mixpanel SDK is instantiated **lazily** so an opted-out launch incurs no `MixpanelInstance` creation and no network activity. In auto-opt-in jurisdictions the default opted-in state means the SDK is initialized on first launch unless the user has explicitly opted out. In DEBUG this means launching the app on a developer machine — once opt-in is observed `true` — sends events to the dev Mixpanel project, which is the desired end-to-end-validation behavior.
 
-> [!IMPORTANT]
-> **Current implementation gap — lazy init not yet in place.** As of this spec version, the shipped [`MixpanelAnalyticsClient`](../simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift) calls `Mixpanel.initialize(token:trackAutomaticEvents:)` synchronously inside its `init`, which means **every launch — including opted-out launches in strict-opt-in jurisdictions — currently creates a `MixpanelInstance` and opens a flush channel**, in violation of [§2.1.8](#21-constraints-applying-to-all-mixpanel-work-f-802-and-f-803) (constraint #8) and the lazy-init contract above. F-8.02 MUST refactor `MixpanelAnalyticsClient` so SDK init is deferred to the first opted-in `track` / `identify`. Detailed refactor scope and the file-level checklist are in [§16.1](#161-implementation-starting-state-codebase-snapshot). The lazy-init invariant is one of the [§18.1](#181-concrete-unit-test-contracts-phase-1) test contracts (#4) — adding the test should fail today and pass after the refactor.
-
 TestFlight builds use the same Release codepath and the **prod** token. The default opt-in state follows the same locale-aware rule as production; there is no override. Internal validation in a strict-opt-in locale is done by an internal tester explicitly opting in.
 
 ### 8.1 Launch and consent-transition ordering (canonical sequence)
@@ -319,7 +318,7 @@ Canonical event names live as constants in `AnalyticsEvent` (in [simple-recurrin
 
 | Event                       | Fired when                                                                                                                              | Answers                                  |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `app_opened`                | First foreground per session. Supersedes `app.launched` for the product channel; the `bootstrap` event remains on OSLog.                | §3.1, §3.4                               |
+| `app_opened`                | Cold launch, and each return to the foreground from background (a true `.background → .active` transition; transient `.inactive` interruptions like the notification shade or Face ID do not fire). Not client-side deduplicated by a session window — a bare foreground counts as an open, since the user is often just checking budget amounts above the fold (§3.4). Mixpanel owns sessionization server-side. Supersedes `app.launched` for the product channel; the `bootstrap` event remains on OSLog. | §3.1, §3.4                               |
 | `budget_created`            | New Budget saved successfully.                                                                                                          | §3.2, §3.3                               |
 | `budget_edited`             | Existing Budget edited and saved.                                                                                                       | §3.5                                     |
 | `budget_deleted`            | Budget deleted from the Add/Edit Budget sheet.                                                                                          | §3.5                                     |
@@ -344,7 +343,7 @@ Canonical event names live as constants in `AnalyticsEvent` (in [simple-recurrin
 
 | Event(s)         | Property                            | Values                                       | Notes                                                                  |
 | ---------------- | ----------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
-| `budget_*`       | `period`                            | `daily` / `weekly` / `biweekly` / `monthly`  | Categorical.                                                           |
+| `budget_*`       | `period`                            | `daily` / `weekly` / `biweekly` / `monthly` / `specific_dates`  | Categorical. `specific_dates` is the fixed-window Budget type (`BudgetPeriod.specificDates`); it always pairs with `carry_over_enabled = false`. |
 | `budget_*`       | `carry_over_enabled`                | Bool                                         |                                                                        |
 | `budget_*`       | `currency_code`                     | ISO 4217                                     |                                                                        |
 | `budget_created` | `is_first_budget`                   | Bool                                         | True if this was the user's first-ever Budget.                         |
@@ -382,7 +381,7 @@ No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry
 | `locale`, `region`            | `Locale.current`.                                                                   |
 | `week_start_day`              | `AppSettings.weekStartDay`.                                                         |
 | `currency_display_preference` | `AppSettings.currencyDisplay`.                                                      |
-| `icloud_state`                | `SyncStatus.rowState` (`available` / `paused` / `unavailable`).                     |
+| `icloud_state`                | `SyncStatus.rowState` (`checking` / `available` / `paused` / `unavailable`).        |
 | `budgets_count_bucket`        | `0` / `1` / `2-3` / `4-7` / `8+`, derived from current `Budget` count.              |
 | `carry_over_default_enabled`  | `AppSettings.defaultCarryOverEnabled`.                                              |
 | `consent_jurisdiction`        | `required` / `auto_optin`, from `ConsentJurisdiction` (see §7.2).                   |
@@ -405,20 +404,47 @@ No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry
 
 ## 11. Phase 1 Dashboards
 
-Built in Mixpanel and linked from this doc once provisioned.
+Dashboards are built in Mixpanel. **Mixpanel is the source of truth** — the table below is a planning record and may drift from what's actually in Mixpanel, since boards are edited there directly by humans. On any mismatch, Mixpanel wins; update this doc to match.
 
-| Dashboard                                  | Primary report type                                                                                       | Answers |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- |
-| Reach                                      | Insights — DAU / WAU / MAU on `app_opened`; sessions-per-user; **hour-of-day** and **day-of-week** breakdown of `expense_logged` and `app_opened` (Mixpanel derives local hour from auto-attached `$timezone`). | §3.1    |
-| Activation funnel                          | Funnels — `app_opened → budget_created → expense_logged`, with funnel time-to-convert per step.            | §3.2    |
-| Time-to-first-budget / first-expense       | Insights — `time_since_first_app_open_bucket` (on `budget_created` where `is_first_budget = true`) and `time_since_budget_created_bucket` distributions. | §3.2    |
-| Per-Budget composition                     | Insights — breakdowns on `period`, `currency_code`, `carry_over_enabled` from `budget_created` / `budget_edited`. Answers per-Budget shares. | §3.3    |
-| Per-user composition                       | Insights — distribution of `dominant_period`, `default_currency_code`, `uses_carry_over`, `has_disabled_carry_over`, `budgets_count_bucket`, `budgets_with_carry_over_on_count_bucket`, `device_class`, `locale`, `region` people / super properties. Answers per-user shares including iPhone-vs-iPad mix. | §3.3    |
-| Allocation distribution                    | Insights — distribution / median of `budget_allocation_amount` segmented by `period`, `currency_code`, and `region`. | §3.3    |
-| Retention                                  | Retention — anchored on `app_opened` and `expense_logged`; 1d / 7d / 30d.                                 | §3.4    |
-| Settings — opens & changes                 | Insights — `settings_opened` per active user, plus `setting_changed` totals broken down by `setting_name` and `new_value`. | §3.5    |
-| Destructive actions                        | Insights — totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted` per user; relative mix of the three destructive flows. | §3.5    |
-| Consent                                    | Insights — opt-in rate in `required` jurisdictions and opt-out rate in `auto_optin` jurisdictions, broken down by `consent_jurisdiction` and `region`; cumulative opt-out trend over time. | §3.6    |
+### 11.1 Mixpanel projects and tooling
+
+Two Mixpanel projects are provisioned (see §8 for the token wiring that routes events to each):
+
+| Project              | Receives events from                                              |
+| -------------------- | ---------------------------------------------------------------- |
+| **Wren App - Prod**  | Production builds — App Store and TestFlight.                     |
+| **Wren App - Dev**   | Debug builds — e.g. the iOS Simulator and developer devices.     |
+
+The **Dev** project does not have to mirror Prod; use it to try out experimental dashboards before (or instead of) building them in Prod.
+
+The **Mixpanel MCP server is connected**, so an agent — or a human in an MCP-enabled client — can create and edit boards, run queries, and read project schema directly. See [docs.mixpanel.com/docs/mcp](https://docs.mixpanel.com/docs/mcp).
+
+### 11.2 Board conventions
+
+Boards are for human consumption. When creating or editing them:
+
+- Keep names and descriptions short and plain — they should help a reader understand the **user behavior**, not the build process.
+- Do **not** put internal or housekeeping labels in board names/descriptions (no "Phase 1", phase numbers, ticket IDs, "built via MCP", filter mechanics, etc.).
+- Don't over-explain. One short line of context is enough; a doc-section reference (e.g. "§3.1") is fine for traceability.
+
+### 11.3 Planned dashboards and status
+
+"Answers" is the §3 question the board serves; "Status" is where it's currently built.
+
+| Dashboard                            | Contents                                                                                                  | Answers | Status                |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- | --------------------- |
+| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user; **hour-of-day** and **day-of-week** breakdown of `expense_logged` and `app_opened` (Mixpanel derives local hour from auto-attached `$timezone`). | §3.1    | Built — Dev (partial) |
+| Activation funnel                    | Funnels — `app_opened → budget_created → expense_logged`, with funnel time-to-convert per step.            | §3.2    | Planned               |
+| Time-to-first-budget / first-expense | Insights — `time_since_first_app_open_bucket` (on `budget_created` where `is_first_budget = true`) and `time_since_budget_created_bucket` distributions. | §3.2    | Planned               |
+| Per-Budget composition               | Insights — breakdowns on `period`, `currency_code`, `carry_over_enabled` from `budget_created` / `budget_edited`. Answers per-Budget shares. | §3.3    | Planned               |
+| Per-user composition                 | Insights — distribution of `dominant_period`, `default_currency_code`, `uses_carry_over`, `has_disabled_carry_over`, `budgets_count_bucket`, `budgets_with_carry_over_on_count_bucket`, `device_class`, `locale`, `region` people / super properties. Answers per-user shares including iPhone-vs-iPad mix. | §3.3    | Planned               |
+| Allocation distribution              | Insights — distribution / median of `budget_allocation_amount` segmented by `period`, `currency_code`, and `region`. | §3.3    | Planned               |
+| Retention                            | Retention — anchored on `app_opened` and `expense_logged`; 1d / 7d / 30d.                                 | §3.4    | Planned               |
+| Settings — opens & changes           | Insights — `settings_opened` per active user, plus `setting_changed` totals broken down by `setting_name` and `new_value`. | §3.5    | Planned               |
+| Destructive actions                  | Insights — totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted` per user; relative mix of the three destructive flows. | §3.5    | Planned               |
+| Consent                              | Insights — opt-in rate in `required` jurisdictions and opt-out rate in `auto_optin` jurisdictions, broken down by `consent_jurisdiction` and `region`; cumulative opt-out trend over time. | §3.6    | Planned               |
+
+The **Reach** board is built in the **Dev** project (titled "Reach") with three reports: DAU / WAU / MAU, daily active users (30d), and daily expenses logged (30d). The sessions-per-user and hour-of-day / day-of-week breakdowns in its Contents row are not yet added — hence "partial".
 
 ---
 
@@ -621,6 +647,9 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.19    | 2026-06-21 | Jimmy Ho | Redefined `app_opened` (§9): fires on cold launch and on each real `.background → .active` return, ignoring transient `.inactive` interruptions; removed the prior client-side session-gap dedup (a hardcoded 30-min constant that duplicated Mixpanel's server-side session setting). Mixpanel owns sessionization. §3.4 retention reworked: retention is configured per Mixpanel report (born + returning event); `expense_logged` retention is the value-loop signal, `app_opened` retention is check-in engagement (glanceable budget-checking above the fold is meaningful on its own). Code: `AppOpenTracker` now a scenePhase-transition gate; tests updated. |
+| 0.18    | 2026-06-21 | Jimmy Ho | Implementation-audit reconciliation: the code emits two enum values the spec omitted. Added `specific_dates` to the §10.1 `period` values (the `BudgetPeriod.specificDates` fixed-window type; always pairs with `carry_over_enabled = false`) and to the §3.3 period-breakdown list, and added `checking` to the §10.2 `icloud_state` values. No code change. |
+| 0.17    | 2026-06-21 | Jimmy Ho | Restructured §11 (Dashboards). Added §11.1 (the two Mixpanel projects — Prod ← App Store/TestFlight, Dev ← debug/Simulator — that Dev need not mirror Prod, and the connected Mixpanel MCP server), §11.2 (board conventions: human-readable, brief, no housekeeping/phase labels in board names), and §11.3 (a Status column tracking which boards are built and in which project). Noted that Mixpanel is the source of truth and this doc may drift. Reach board built (partial) in Dev. |
 | 0.16    | 2026-06-21 | Jimmy Ho | Retired the `bundle_id` fork-pollution filter. Mixpanel project tokens were **rotated and are now kept secret** (out of source control), so a public-repo fork can no longer obtain a working token and cannot pollute the maintainer's projects. Removed the `bundle_id` super-property row from §10.2 and the "Universal project filter" paragraph from §11, and reframed the §16 token-secrecy note accordingly. Code updated to match: dropped the `bundle_id` entry from `MixpanelAnalyticsClient.registerSuperProperties(on:)`, removed the `AnalyticsProperty.bundleId` constant, and updated the two affected tests. |
 | 0.15    | 2026-06-02 | Jimmy Ho | F-6.03 implemented by change `rating-prompt`. The two rating-prompt events (`rating_prompt_eligible`, `rating_prompt_requested`) and their `rating_prompt_first_eligible_at` / `rating_prompt_last_requested_at` people properties are **pulled forward from Phase 2 (F-8.03)** and ship with F-6.03; §12, §13.2 annotated accordingly. No PII-contract change. |
 | 0.14    | 2026-06-02 | Jimmy Ho | F-6.03 rating-prompt analytics reconciled with Apple's native `requestReview` API, which reports neither whether the dialog was shown nor the user's choice. Replaced the unobservable `rating_prompt_shown` / `rating_prompt_resolved` events (and their `outcome` / `time_to_resolution_bucket` properties and `rating_prompt_last_outcome` people property) with a single observable `rating_prompt_requested` event (+ `time_since_first_eligible_bucket` property, `rating_prompt_last_requested_at` people property). `rating_prompt_eligible` retained. §4.4, §12, §13.1, §13.2, §14 updated; §4.4 records that no custom pre-prompt will be added to manufacture an outcome signal. |

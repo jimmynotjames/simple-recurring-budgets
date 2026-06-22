@@ -12,6 +12,11 @@ struct simple_recurring_budgetsApp: App {
   @State private var ratingPrompt: RatingPromptCoordinator
   private let analytics: any AnalyticsClient
 
+  @Environment(\.scenePhase) private var scenePhase
+  /// Fires `app_opened` on cold launch and on each return to the foreground from
+  /// background, ignoring transient `.inactive` interruptions. See §9.
+  @State private var appOpenTracker = AppOpenTracker()
+
   init() {
     // Attempt container creation via AppStartup. On failure, the app body
     // presents ContainerFailureView (Retry / Send Feedback) instead of
@@ -117,7 +122,18 @@ struct simple_recurring_budgetsApp: App {
           .modifier(TestDynamicTypeOverride())
         #endif
           .task {
-            analytics.track(AnalyticsEvent.appOpened)
+            // Cold-launch open. The tracker dedups against the scenePhase
+            // handler below so a launch never double-fires.
+            if appOpenTracker.shouldFire(for: .active) {
+              analytics.track(AnalyticsEvent.appOpened)
+            }
+          }
+          .onChange(of: scenePhase) { _, newPhase in
+            // Return from background to the foreground counts as a new open;
+            // transient .inactive interruptions do not (handled by the tracker).
+            if appOpenTracker.shouldFire(for: newPhase) {
+              analytics.track(AnalyticsEvent.appOpened)
+            }
           }
       } else if let error = startup.error {
         // Recovery surface — see `container-creation-recovery` capability.

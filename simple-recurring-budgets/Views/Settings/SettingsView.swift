@@ -303,6 +303,8 @@ struct SettingsView: View {
                 AnalyticsProperty.oldValue: false,
               ]
             )
+            // §10.3: stamp the opt-in timestamp (after track lazily inits the SDK).
+            analytics.setAnalyticsOptInAt()
           } else {
             // Toggle-off ordering per §7.3 analytics-spec.md:
             // 1. Fire consent_changed FIRST while still opted in.

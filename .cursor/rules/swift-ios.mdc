@@ -30,7 +30,7 @@ alwaysApply: false
 
 ## Analytics
 
-- New user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent gate. See `docs/tech-design-doc.md` §7 for the implementation boundary.
+- New user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent gate. See `docs/tech-design-doc.md` §7 for the implementation boundary. Also keep the spec in sync: any change to *what* is emitted — a new/changed event, a new/removed event property, **a new value in a categorical property's enum** (e.g. a new `BudgetPeriod`/`period` value, or a new `icloud_state`), changed bucket boundaries, or a new super/people property — must update `docs/analytics-spec.md` §9–§10 in the same change.
 
 ## Platform compatibility workarounds
 

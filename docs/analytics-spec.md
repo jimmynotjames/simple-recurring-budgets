@@ -2,8 +2,8 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.15       |
-| **Last Updated**   | 2026-06-02 |
+| **Version**        | 0.16       |
+| **Last Updated**   | 2026-06-21 |
 | **Author / Owner** | Jimmy Ho   |
 
 > Companion design + instrumentation spec for **F-8.02** (Mixpanel Phase 1) and **F-8.03** (Mixpanel Phase 2) in [product-features-planning.md](product-features-planning.md). The features doc carries the high-level constraints and the product questions the work must answer; this doc captures the detailed instrumentation, identity, consent, and architectural decisions that produce those answers. Phase 1 establishes the measurement foundation and answers first-tier product questions; Phase 2 reacts to Phase 1 evidence and adds an experimentation seam.
@@ -386,7 +386,6 @@ No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry
 | `budgets_count_bucket`        | `0` / `1` / `2-3` / `4-7` / `8+`, derived from current `Budget` count.              |
 | `carry_over_default_enabled`  | `AppSettings.defaultCarryOverEnabled`.                                              |
 | `consent_jurisdiction`        | `required` / `auto_optin`, from `ConsentJurisdiction` (see §7.2).                   |
-| `bundle_id`                   | `Bundle.main.bundleIdentifier`. **Registered explicitly** via `registerSuperProperties` — do not rely on the SDK auto-attaching it. This is the canonical fork-pollution filter: any event whose `bundle_id` differs from the app's own identifier (e.g. a developer who forked the repo and didn't configure their own Mixpanel token) can be excluded in every Mixpanel report via the project-level filter in §11. See §16 for the token-externalization model and fork Mixpanel guidance in `CONTRIBUTING.md`. |
 
 ### 10.3 People properties (set on `identify`, refreshed on relevant changes)
 
@@ -407,9 +406,6 @@ No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry
 ## 11. Phase 1 Dashboards
 
 Built in Mixpanel and linked from this doc once provisioned.
-
-**Universal project filter — apply before building any dashboard or report:**
-Every dashboard and saved report in this Mixpanel project MUST set `bundle_id = <the app's bundle identifier>` as a project-level filter (Mixpanel: *Project Settings → Data → Filters*) or as an always-on filter on every report. This ensures that events from forked builds — where a developer forked the public repo and configured their own Mixpanel token but kept the same bundle ID — are automatically excluded. Since tokens are now externalized (§16), a fresh-clone fork with unconfigured secrets will use `ConsoleAnalyticsClient` and send no events at all, which is the preferred baseline; the `bundle_id` filter remains as a belt-and-suspenders backstop for forks that do configure tokens. See §10.2 (`bundle_id` super property) and §16 for the full rationale.
 
 | Dashboard                                  | Primary report type                                                                                       | Answers |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- |
@@ -505,7 +501,7 @@ Two implementations:
 
 - **Mixpanel project tokens are externalized to xcconfig** — no longer hardcoded in source. Token values live in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) and are injected into the app bundle at build time via `config/Secrets.xcconfig` + `Info.plist` variable substitution. The committed `config/Secrets.xcconfig` contains safe placeholder sentinels (`PLACEHOLDER_MIXPANEL_DEV_TOKEN` / `PLACEHOLDER_MIXPANEL_PROD_TOKEN`). Two Mixpanel projects remain provisioned — bound to the dev and prod tokens, respectively.
 
-  **Open-source trigger fulfilled:** The original §16 noted "Revisit if the repo is open-sourced." That trigger was met by the `public-repo-secrets-and-license` change. Tokens are now externalized for fork hygiene (so forks get placeholder defaults and don't accidentally pollute the maintainer's Mixpanel projects); this is **not** for secrecy (tokens remain in git history and in every shipped binary). See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for fork Mixpanel setup.
+  **Open-source trigger fulfilled:** The original §16 noted "Revisit if the repo is open-sourced." That trigger was met by the `public-repo-secrets-and-license` change, which externalized tokens so a fresh-clone fork gets placeholder defaults and sends no events. The Mixpanel tokens have since been **rotated and are now treated as secret**: the previously-committed tokens are revoked, and the live dev/prod tokens exist only in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) — they are no longer committed to source control. Because a public-repo fork therefore cannot obtain a working token, the former fork-pollution risk no longer applies and the `bundle_id` event filter has been retired (see Revision History). See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for fork Mixpanel setup.
 
 - **Unconfigured (fresh-clone) behavior:** when tokens are still the committed placeholder sentinels — `MixpanelTokenSource.isConfigured` returns `false` — the app entry (`simple_recurring_budgetsApp.init()`) substitutes `ConsoleAnalyticsClient` instead of `MixpanelAnalyticsClient`. No Mixpanel SDK init, no network traffic. The app launches and runs normally on a Simulator with no secrets file.
 
@@ -625,6 +621,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.16    | 2026-06-21 | Jimmy Ho | Retired the `bundle_id` fork-pollution filter. Mixpanel project tokens were **rotated and are now kept secret** (out of source control), so a public-repo fork can no longer obtain a working token and cannot pollute the maintainer's projects. Removed the `bundle_id` super-property row from §10.2 and the "Universal project filter" paragraph from §11, and reframed the §16 token-secrecy note accordingly. Code updated to match: dropped the `bundle_id` entry from `MixpanelAnalyticsClient.registerSuperProperties(on:)`, removed the `AnalyticsProperty.bundleId` constant, and updated the two affected tests. |
 | 0.15    | 2026-06-02 | Jimmy Ho | F-6.03 implemented by change `rating-prompt`. The two rating-prompt events (`rating_prompt_eligible`, `rating_prompt_requested`) and their `rating_prompt_first_eligible_at` / `rating_prompt_last_requested_at` people properties are **pulled forward from Phase 2 (F-8.03)** and ship with F-6.03; §12, §13.2 annotated accordingly. No PII-contract change. |
 | 0.14    | 2026-06-02 | Jimmy Ho | F-6.03 rating-prompt analytics reconciled with Apple's native `requestReview` API, which reports neither whether the dialog was shown nor the user's choice. Replaced the unobservable `rating_prompt_shown` / `rating_prompt_resolved` events (and their `outcome` / `time_to_resolution_bucket` properties and `rating_prompt_last_outcome` people property) with a single observable `rating_prompt_requested` event (+ `time_since_first_eligible_bucket` property, `rating_prompt_last_requested_at` people property). `rating_prompt_eligible` retained. §4.4, §12, §13.1, §13.2, §14 updated; §4.4 records that no custom pre-prompt will be added to manufacture an outcome signal. |
 | 0.13    | 2026-05-03 | Jimmy Ho | F-8.02 implemented by change `mixpanel-phase-1-foundation`. §16.1 rewritten as historical record. §17 — formalized co-location (sibling-call) pattern at four destructive-action funnels. §19 — all F-8.02 rows marked done. |

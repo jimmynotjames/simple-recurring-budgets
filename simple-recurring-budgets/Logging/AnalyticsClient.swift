@@ -205,7 +205,6 @@ enum AnalyticsProperty {
   nonisolated static let budgetsCountBucket = "budgets_count_bucket"
   nonisolated static let carryOverDefaultEnabled = "carry_over_default_enabled"
   nonisolated static let consentJurisdiction = "consent_jurisdiction"
-  nonisolated static let bundleId = "bundle_id"
 
   // MARK: People properties (analytics-spec.md §10.3)
 

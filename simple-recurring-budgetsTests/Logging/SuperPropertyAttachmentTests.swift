@@ -36,12 +36,11 @@ struct SuperPropertyAttachmentTests {
       AnalyticsProperty.budgetsCountBucket,
       AnalyticsProperty.carryOverDefaultEnabled,
       AnalyticsProperty.consentJurisdiction,
-      AnalyticsProperty.bundleId,
     ]
     for key in requiredKeys {
       #expect(!key.isEmpty, "Super property key must be non-empty: \(key)")
     }
-    #expect(requiredKeys.count == 12)
+    #expect(requiredKeys.count == 11)
   }
 
   // MARK: - Cohort people-property computation

@@ -9,12 +9,6 @@
 # Cost note: the three ubuntu jobs are ~free; the two macOS jobs bill at 10x.
 # The full UI suite is intentionally NOT here — invoke it per-PR with a
 # `/test-full` comment (see .github/workflows/full-test-on-demand.yml).
-#
-# ⏸️ TEMP (June 2026, issue #228): the two macOS jobs (build, unit-tests) are
-# disabled with `if: false` guards — the month's Actions budget is exhausted and
-# macOS bills at 10x. Re-enable around 2026-07-01 by deleting the guards (#228
-# has the full checklist). Until then, compile/test verification is local-only
-# (four-step gate + lefthook pre-push).
 name: CI
 
 on:
@@ -109,7 +103,6 @@ jobs:
   # Direct xcodebuild (chosen over the make/sandbox path for ephemeral runners).
   # Mirrors scripts/build.sh — keep the scheme/project in sync with that file.
   build:
-    if: false # ⏸️ TEMP(#228): macOS minutes paused for June 2026 — delete this line to re-enable.
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v7
@@ -130,7 +123,6 @@ jobs:
   # Mirrors scripts/test-unit.sh: skips the UITests target, serial. The full UI
   # suite is on-demand via `/test-full` (full-test-on-demand.yml).
   unit-tests:
-    if: false # ⏸️ TEMP(#228): macOS minutes paused for June 2026 — delete this line to re-enable.
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v7
@@ -140,6 +132,8 @@ jobs:
           xcode-version: "26.5"
       - name: xcodebuild test (unit only)
         run: |
+          # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
+          # CODE_SIGNING_ALLOWED=NO strips them and breaks NSUbiquitousKeyValueStore tests.
           xcodebuild test \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
@@ -147,4 +141,5 @@ jobs:
             -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
             -skip-testing:simple-recurring-budgetsUITests \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=-

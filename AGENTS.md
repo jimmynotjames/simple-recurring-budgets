@@ -275,6 +275,8 @@ These overrides apply whenever the corresponding OpenSpec skill or `/opsx-*` com
 
 Hand-authored slash commands live in **both** `.claude/commands/*.md` and `.cursor/commands/*.md`. When you create or edit one, update both copies. This does **not** apply to the OpenSpec-generated `opsx-*` / `openspec-*` command files (those are regenerated and must not be hand-edited — see § OpenSpec above).
 
+**Skills-only PR workflows** — `/create-pr` and `/create-pr-for-issue` have **no command files**. Canonical specs live in **both** `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md`; keep those copies in sync when editing either. Invoke via the skill (attach or `/create-pr`, `/create-pr-for-issue <N>`).
+
 Cursor frontmatter differs from Claude's — use this shape:
 
 ```markdown
@@ -288,7 +290,7 @@ description: One-line description.
 
 Cursor does not expand `$ARGUMENTS`, so write the body with prose placeholders (`<N>`, `<PR>`) rather than `$1`-style tokens.
 
-`AGENTS.md` is the canonical spec for what each command does. Update it first, then keep both `.claude/commands/` and `.cursor/commands/` in sync with it.
+`AGENTS.md` is the canonical spec for what each command or skill does. Update it first, then keep both `.claude/commands/` and `.cursor/commands/` in sync with it (or both skill copies for skills-only workflows).
 
 ## Bash command hygiene (prevents permission prompts)
 

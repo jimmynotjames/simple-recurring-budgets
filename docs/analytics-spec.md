@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.17       |
+| **Version**        | 0.18       |
 | **Last Updated**   | 2026-06-21 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -71,7 +71,7 @@ Phase 1 is the smallest viable instrumentation that lets us answer the questions
 ### 3.3 Composition of usage
 
 - Average and distribution of Budgets per user (via `budgets_count_bucket` super property; see §10.2).
-- Breakdown of Budget Period (`daily` / `weekly` / `biweekly` / `monthly`) two ways:
+- Breakdown of Budget Period (`daily` / `weekly` / `biweekly` / `monthly` / `specific_dates`) two ways:
   - Share of users whose dominant period is X.
   - Share of all Budgets that are X.
 - Currency-code breakdown across users and across Budgets.
@@ -341,7 +341,7 @@ Canonical event names live as constants in `AnalyticsEvent` (in [simple-recurrin
 
 | Event(s)         | Property                            | Values                                       | Notes                                                                  |
 | ---------------- | ----------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
-| `budget_*`       | `period`                            | `daily` / `weekly` / `biweekly` / `monthly`  | Categorical.                                                           |
+| `budget_*`       | `period`                            | `daily` / `weekly` / `biweekly` / `monthly` / `specific_dates`  | Categorical. `specific_dates` is the fixed-window Budget type (`BudgetPeriod.specificDates`); it always pairs with `carry_over_enabled = false`. |
 | `budget_*`       | `carry_over_enabled`                | Bool                                         |                                                                        |
 | `budget_*`       | `currency_code`                     | ISO 4217                                     |                                                                        |
 | `budget_created` | `is_first_budget`                   | Bool                                         | True if this was the user's first-ever Budget.                         |
@@ -379,7 +379,7 @@ No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry
 | `locale`, `region`            | `Locale.current`.                                                                   |
 | `week_start_day`              | `AppSettings.weekStartDay`.                                                         |
 | `currency_display_preference` | `AppSettings.currencyDisplay`.                                                      |
-| `icloud_state`                | `SyncStatus.rowState` (`available` / `paused` / `unavailable`).                     |
+| `icloud_state`                | `SyncStatus.rowState` (`checking` / `available` / `paused` / `unavailable`).        |
 | `budgets_count_bucket`        | `0` / `1` / `2-3` / `4-7` / `8+`, derived from current `Budget` count.              |
 | `carry_over_default_enabled`  | `AppSettings.defaultCarryOverEnabled`.                                              |
 | `consent_jurisdiction`        | `required` / `auto_optin`, from `ConsentJurisdiction` (see §7.2).                   |
@@ -645,6 +645,7 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.18    | 2026-06-21 | Jimmy Ho | Implementation-audit reconciliation: the code emits two enum values the spec omitted. Added `specific_dates` to the §10.1 `period` values (the `BudgetPeriod.specificDates` fixed-window type; always pairs with `carry_over_enabled = false`) and to the §3.3 period-breakdown list, and added `checking` to the §10.2 `icloud_state` values. No code change. |
 | 0.17    | 2026-06-21 | Jimmy Ho | Restructured §11 (Dashboards). Added §11.1 (the two Mixpanel projects — Prod ← App Store/TestFlight, Dev ← debug/Simulator — that Dev need not mirror Prod, and the connected Mixpanel MCP server), §11.2 (board conventions: human-readable, brief, no housekeeping/phase labels in board names), and §11.3 (a Status column tracking which boards are built and in which project). Noted that Mixpanel is the source of truth and this doc may drift. Reach board built (partial) in Dev. |
 | 0.16    | 2026-06-21 | Jimmy Ho | Retired the `bundle_id` fork-pollution filter. Mixpanel project tokens were **rotated and are now kept secret** (out of source control), so a public-repo fork can no longer obtain a working token and cannot pollute the maintainer's projects. Removed the `bundle_id` super-property row from §10.2 and the "Universal project filter" paragraph from §11, and reframed the §16 token-secrecy note accordingly. Code updated to match: dropped the `bundle_id` entry from `MixpanelAnalyticsClient.registerSuperProperties(on:)`, removed the `AnalyticsProperty.bundleId` constant, and updated the two affected tests. |
 | 0.15    | 2026-06-02 | Jimmy Ho | F-6.03 implemented by change `rating-prompt`. The two rating-prompt events (`rating_prompt_eligible`, `rating_prompt_requested`) and their `rating_prompt_first_eligible_at` / `rating_prompt_last_requested_at` people properties are **pulled forward from Phase 2 (F-8.03)** and ship with F-6.03; §12, §13.2 annotated accordingly. No PII-contract change. |

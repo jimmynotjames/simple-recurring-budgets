@@ -165,7 +165,6 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
   private func registerSuperProperties(on instance: MixpanelInstance) {
     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
     let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
-    let bundleId = Bundle.main.bundleIdentifier ?? ""
     let localeId = Locale.current.identifier
     let regionId = Locale.current.region?.identifier ?? ""
     let jurisdiction: String =
@@ -179,7 +178,6 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
       AnalyticsProperty.locale: localeId,
       AnalyticsProperty.region: regionId,
       AnalyticsProperty.consentJurisdiction: jurisdiction,
-      AnalyticsProperty.bundleId: bundleId,
       AnalyticsProperty.weekStartDay: weekStartDayProvider(),
       AnalyticsProperty.currencyDisplayPreference: currencyDisplayProvider(),
       AnalyticsProperty.carryOverDefaultEnabled: carryOverDefaultProvider(),

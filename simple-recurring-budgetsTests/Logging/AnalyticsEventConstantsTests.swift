@@ -49,7 +49,6 @@ struct AnalyticsEventConstantsTests {
       AnalyticsProperty.budgetsCountBucket,
       AnalyticsProperty.carryOverDefaultEnabled,
       AnalyticsProperty.consentJurisdiction,
-      AnalyticsProperty.bundleId,
       AnalyticsProperty.firstSeenAt,
       AnalyticsProperty.analyticsOptInAt,
       AnalyticsProperty.lastAppOpenAt,

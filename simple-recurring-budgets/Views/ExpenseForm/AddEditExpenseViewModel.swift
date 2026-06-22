@@ -43,7 +43,25 @@ final class AddEditExpenseViewModel {
   /// classify the tile seed as user typing. Internal for the same cross-file reason.
   @ObservationIgnored var isSeedingAmountFromSuggestion = false
 
-  var name: String
+  var name: String {
+    didSet {
+      // Set the Edit-mode reveal latch whenever the Description becomes blank mid-session
+      // (one-way: never reset to false). Drives shouldShowRecentsSection in Edit mode.
+      // Guard is a fast-path; the latch write is a no-op once true.
+      if !recentsRevealedInEdit,
+         name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        recentsRevealedInEdit = true
+      }
+    }
+  }
+
+  /// F-7.04 Edit-mode reveal latch. `true` once the Description draft has ever been blank
+  /// (trimmed empty) during this sheet's lifetime — either because the expense opened with
+  /// a nil/whitespace name, or because the user cleared it mid-session. One-way: never
+  /// reverts to `false`. When `true`, `shouldShowRecentsSection` shows Recents in Edit mode
+  /// identically to Add mode (same corpus, filter, tiles, and tap semantics).
+  private(set) var recentsRevealedInEdit = false
+
   var date: Date
   let currencyCode: String
 
@@ -267,7 +285,14 @@ final class AddEditExpenseViewModel {
 
   init(editing expense: ExpenseItem, weekStart: Weekday) {
     amount = expense.displayAmount
+    // Classify the seeded amount as user-typed so a single Recents tile tap fills the
+    // Description only and leaves the existing amount untouched. (The init-phase assignment
+    // above skips `didSet`, defaulting provenance to `.empty`; we correct that here.)
+    amountProvenance = .userTyped
     name = expense.name ?? ""
+    // Seed the reveal latch: if the stored description was blank, show Recents immediately.
+    // Init-phase `name` assignment skips the `didSet`, so we set the latch explicitly.
+    recentsRevealedInEdit = (expense.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     date = expense.date
     currencyCode = expense.budget?.currencyCode ?? (Locale.current.currency?.identifier ?? "USD")
     mode = .edit(expense)

@@ -172,7 +172,8 @@ struct AddEditExpenseViewModelRecentsTests {
     #expect(vm.shouldShowRecentsSection == false)
   }
 
-  @Test func shouldShowRecentsSection_falseInEditModeEvenWithSources() throws {
+  @Test func shouldShowRecentsSection_falseInEditModeWithNonBlankDescription() throws {
+    // Edit mode with a non-blank description: latch is not set, so section is hidden.
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
       ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
@@ -180,7 +181,134 @@ struct AddEditExpenseViewModelRecentsTests {
     let firstExpense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
     let vm = AddEditExpenseViewModel(editing: firstExpense, weekStart: .sunday)
     #expect(vm.hasRecentSources == true) // candidates were computed
-    #expect(vm.shouldShowRecentsSection == false) // but section is gated off in Edit
+    #expect(vm.recentsRevealedInEdit == false) // latch not set: name is "Coffee"
+    #expect(vm.shouldShowRecentsSection == false) // section hidden until latch fires
+  }
+
+  // MARK: - recentsRevealedInEdit latch
+
+  @Test func recentsRevealedInEdit_trueOnOpenWhenDescriptionIsBlank() throws {
+    // A nil-name expense opens with the reveal latch set immediately.
+    // Uses the same container as the budget so the relationship is valid.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 2),
+      ExpenseSpec(name: nil, amount: 3.00, hoursAgo: 1), // blank-named expense under test
+    ])
+    let blankExpense = try #require(budget.expenseItems.first { $0.name == nil })
+    let vm = AddEditExpenseViewModel(editing: blankExpense, weekStart: .sunday)
+    #expect(vm.recentsRevealedInEdit == true)
+    #expect(vm.shouldShowRecentsSection == true) // hasRecentSources true ("Coffee" qualifies)
+  }
+
+  @Test func recentsRevealedInEdit_falseOnOpenWhenDescriptionIsNonBlank() throws {
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    #expect(vm.recentsRevealedInEdit == false)
+    #expect(vm.shouldShowRecentsSection == false)
+  }
+
+  @Test func recentsRevealedInEdit_flipsWhenDescriptionClearedMidSession() throws {
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    #expect(vm.recentsRevealedInEdit == false)
+    vm.name = "" // user clears the field
+    #expect(vm.recentsRevealedInEdit == true)
+    #expect(vm.shouldShowRecentsSection == true)
+  }
+
+  @Test func recentsRevealedInEdit_persistsAfterReTypingDescription() throws {
+    // Latch is one-way: once set by clearing, it stays set even after re-typing.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    vm.name = "" // clear → latch fires
+    vm.name = "Retype" // re-type non-empty
+    #expect(vm.recentsRevealedInEdit == true) // still latched
+    #expect(vm.shouldShowRecentsSection == true)
+  }
+
+  @Test func recentsRevealedInEdit_persistsAfterTileTap() throws {
+    // A tile tap fills the description (now non-empty) but the latch must remain set.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    vm.name = "" // reveal
+    let pick = try #require(vm.filteredRecentSuggestions.first)
+    vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
+    // name is now "Coffee" (non-empty), but latch stays true.
+    #expect(vm.recentsRevealedInEdit == true)
+    #expect(vm.shouldShowRecentsSection == true)
+  }
+
+  @Test func recentsRevealedInEdit_doesNotAffectAddMode() throws {
+    // In Add mode shouldShowRecentsSection depends only on hasRecentSources,
+    // not on the latch (which is only meaningful in Edit mode).
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
+    #expect(vm.recentsRevealedInEdit == false) // latch is irrelevant in Add
+    #expect(vm.shouldShowRecentsSection == true) // shown because !isEditing && hasRecentSources
+  }
+
+  // MARK: - Edit-mode amount provenance (single tap protects the existing amount)
+
+  @Test func editMode_singleTap_fillsDescriptionOnly_leavesExistingAmount() throws {
+    // The edit-seeded amount is classified .userTyped, so a single tap fills the
+    // description but leaves the amount untouched.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+      ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    #expect(vm.amount == 5.50) // seeded from expense
+    // Reveal the section then tap the Lunch tile.
+    vm.name = ""
+    let lunchTile = try #require(vm.filteredRecentSuggestions.first { $0.name == "Lunch" })
+    vm.applyRecent(lunchTile, visibleCount: 2, tapPosition: 1, analytics: SpyAnalyticsClient())
+    #expect(vm.name == "Lunch")
+    #expect(vm.amount == 5.50) // existing amount preserved (edit-seeded = userTyped)
+  }
+
+  @Test func editMode_doubleTap_overridesBothDescriptionAndAmount() throws {
+    // Double-tap full replace still works: unconditionally writes name + amount.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+      ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    vm.name = ""
+    let lunchTile = try #require(vm.filteredRecentSuggestions.first { $0.name == "Lunch" })
+    vm.applyRecentFullReplace(lunchTile)
+    #expect(vm.name == "Lunch")
+    #expect(vm.amount == 14.25)
+  }
+
+  @Test func editMode_clearingAmountReArmsFill() throws {
+    // After clearing the amount in Edit mode, a single tap re-arms and fills it.
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+      ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    vm.amount = nil // clear via ✕
+    vm.name = ""
+    let lunchTile = try #require(vm.filteredRecentSuggestions.first { $0.name == "Lunch" })
+    vm.applyRecent(lunchTile, visibleCount: 2, tapPosition: 1, analytics: SpyAnalyticsClient())
+    #expect(vm.amount == 14.25) // re-armed after clear
   }
 
   // MARK: - applyRecent
@@ -349,6 +477,35 @@ struct AddEditExpenseViewModelRecentsTests {
     #expect(props[AnalyticsProperty.recentsVisibleCount] == "1")
     // query "co" length 2 → bucket "1-2"
     #expect(props[AnalyticsProperty.nameQueryLength] == "1-2")
+    // Add mode → "add_sheet"
+    #expect(props[AnalyticsProperty.fromScreen] == "add_sheet")
+  }
+
+  @Test func applyRecent_fromScreen_isAddSheetInAddMode() throws {
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+    ])
+    let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
+    let spy = SpyAnalyticsClient()
+    let pick = try #require(vm.filteredRecentSuggestions.first)
+    vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: spy)
+    let props = spy.trackCalls.first?.properties ?? [:]
+    #expect(props[AnalyticsProperty.fromScreen] == "add_sheet")
+  }
+
+  @Test func applyRecent_fromScreen_isBudgetDetailInEditMode() throws {
+    let budget = try makeBudgetWithExpenses([
+      ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
+      ExpenseSpec(name: "Lunch", amount: 14.25, hoursAgo: 2),
+    ])
+    let expense = try #require(budget.expenseItems.first { $0.name == "Coffee" })
+    let vm = AddEditExpenseViewModel(editing: expense, weekStart: .sunday)
+    vm.name = "" // reveal Recents
+    let spy = SpyAnalyticsClient()
+    let lunchTile = try #require(vm.filteredRecentSuggestions.first { $0.name == "Lunch" })
+    vm.applyRecent(lunchTile, visibleCount: 1, tapPosition: 0, analytics: spy)
+    let props = spy.trackCalls.first?.properties ?? [:]
+    #expect(props[AnalyticsProperty.fromScreen] == "budget_detail")
   }
 
   @Test func applyRecent_eventHasNoPII() throws {
@@ -372,6 +529,7 @@ struct AddEditExpenseViewModelRecentsTests {
       AnalyticsProperty.recentsVisibleCount,
       AnalyticsProperty.recentsTapPosition,
       AnalyticsProperty.nameQueryLength,
+      AnalyticsProperty.fromScreen,
     ]
     #expect(Set(props.keys).isSubset(of: allowedKeys))
   }

@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.21       |
+| **Version**        | 0.23       |
 | **Last Updated**   | 2026-06-22 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -420,6 +420,8 @@ The **Mixpanel MCP server is connected**, so an agent — or a human in an MCP-e
 
 ### 11.2 Building boards via the Mixpanel MCP
 
+> **Agents:** the *how* of building or editing these boards — the MCP call sequence, the Wren project ids, and the Free-vs-Growth cap handling — lives in the **`mixpanel-build-boards`** skill (invoke `/mixpanel-build-boards`). This section stays canonical for board *conventions*; §11.3 / §11.4 for *which* boards; §9 / §10 / §5 for events, properties, and the PII contract. The skill defers back to this spec, so keep the two in sync.
+
 Boards are for humans. When an agent (or anyone) creates or edits a board through the Mixpanel MCP:
 
 - **Write for a human reader.** Names and descriptions are short, plain, and about the **user behavior** the board shows — not the build process. No phase numbers, ticket IDs, "built via MCP", filter mechanics, or other housekeeping in names/descriptions. One short doc reference (e.g. "§3.1") for traceability is the only meta detail worth including.
@@ -427,24 +429,49 @@ Boards are for humans. When an agent (or anyone) creates or edits a board throug
 - **Don't force what the MCP can't do.** The MCP query API can't express everything the Mixpanel UI can. If a board aspect can't be configured straightforwardly through the MCP and it's minor, **drop it from this spec** — just remove it, rather than forcing an awkward proxy or documenting the gap. We're constrained by Mixpanel and this is a small app; we don't push hard for any particular analytics shape.
 - **Hand worth-keeping UI-only aspects back to the human.** If an aspect can't be done via the MCP but a person can set it up in the Mixpanel UI and it's worth keeping, add a one- or two-line self-service note as a text card on the board telling them how (e.g. "Hour-of-day view: open this report in Insights → group by Hour of Day → add back to this board").
 
-### 11.3 Planned dashboards and status
+**Plan & the saved-report cap (read before adding or removing boards).** Wren App - Prod is on Mixpanel's **Growth** plan, which allows **unlimited saved reports** and costs **$0/month while under the 1M-events/month free allotment** (then $0.28 per 1K events; volume discounts apply). That upgrade is what makes the full §11.3 set possible — at Wren's expected volume it is effectively free. Mixpanel's **Free** plan instead caps saved reports at **5 per project, per user** (every chart tile = one saved report; boards and text cards are free). Source: [docs.mixpanel.com/docs/pricing](https://docs.mixpanel.com/docs/pricing) and [mixpanel.com/pricing](https://mixpanel.com/pricing/) (the docs word the Free cap as "5 per user account," but it was confirmed empirically on 2026-06-22 to bind **per project**: Jimmy held 4 reports in Prod **and** 4 in Dev at the same time, and a 6th in Prod was rejected with `User has reached their limit of saved reports for this project`).
 
-"Answers" is the §3 question the board serves; "Status" tracks the **production** project (Wren App - Prod) only — the canonical analytics surface, fed by App Store / TestFlight builds. The **Dev** project (§11.1) is a scratchpad for experiments and is intentionally not tracked here.
+**If the project is ever downgraded back to Free**, the 5-report-per-project cap returns and all but five report tiles must be deleted — keep the five "survivors" listed in [§11.4](#114-free-tier-fallback--the-five-reports-to-keep-if-you-downgrade) and drop the rest. Notes that hold on any plan:
 
-| Dashboard                            | Contents                                                                                                  | Answers | Status                |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------- | ------- | --------------------- |
-| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user.                                                        | §3.1    | Planned               |
-| Activation funnel                    | Funnels — `app_opened → budget_created → expense_logged`, with funnel time-to-convert per step.            | §3.2    | Planned               |
-| Time-to-first-budget / first-expense | Insights — `time_since_first_app_open_bucket` (on `budget_created` where `is_first_budget = true`) and `time_since_budget_created_bucket` distributions. | §3.2    | Planned               |
-| Per-Budget composition               | Insights — breakdowns on `period`, `currency_code`, `carry_over_enabled` from `budget_created` / `budget_edited`. Answers per-Budget shares. | §3.3    | Planned               |
-| Per-user composition                 | Insights — distribution of `dominant_period`, `default_currency_code`, `uses_carry_over`, `has_disabled_carry_over`, `budgets_count_bucket`, `budgets_with_carry_over_on_count_bucket`, `device_class`, `locale`, `region` people / super properties. Answers per-user shares including iPhone-vs-iPad mix. | §3.3    | Planned               |
-| Allocation distribution              | Insights — distribution / median of `budget_allocation_amount` segmented by `period`, `currency_code`, and `region`. | §3.3    | Planned               |
-| Retention                            | Retention — anchored on `app_opened` and `expense_logged`; 1d / 7d / 30d.                                 | §3.4    | Planned               |
-| Settings — opens & changes           | Insights — `settings_opened` per active user, plus `setting_changed` totals broken down by `setting_name` and `new_value`. | §3.5    | Planned               |
-| Destructive actions                  | Insights — totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted` per user; relative mix of the three destructive flows. | §3.5    | Planned               |
-| Consent                              | Insights — opt-in rate in `required` jurisdictions and opt-out rate in `auto_optin` jurisdictions, broken down by `consent_jurisdiction` and `region`; cumulative opt-out trend over time. | §3.6    | Planned               |
+- Auto-generated "🌱 Starter Board" reports are owned by the **Mixpanel** system user and do **not** count against the Free quota.
+- `Run-Query` drafts that are never attached to a board do not persist as saved reports (they don't show in `Search-Entities`).
+- The Free cap is **per project**, so deleting reports/boards in other projects (Dev, deprecated) frees nothing in Prod. There is **no** standalone delete-report MCP tool — free a slot with `Update-Dashboard` (cell `delete`), or delete the whole board with `Delete-Dashboard`.
+- The Mixpanel MCP endpoint occasionally returns transient `502`s under burst load; space out report-creation calls and retry (drafts and attached reports survive a brief outage).
 
-No dashboards are built in **Wren App - Prod** yet, so every row above is *Planned*. (A "Reach" board exists in the Dev project as an experiment — DAU/WAU/MAU, sessions-per-user, and daily open/expense trends — but per §11.1 the Dev project is not tracked here.)
+### 11.3 Built dashboards
+
+All ten Phase 1 boards are **built** in Wren App - Prod (30 report tiles in total), made possible by the Growth plan (§11.2). "Answers" is the §3 question the board serves; "Status" tracks the **production** project only. **"Keep on Free"** marks the single report to retain on each board if the project is ever downgraded to Free — the five prioritized survivors (see §11.4).
+
+| Dashboard                            | Contents (as shipped)                                                                                                                                                                                 | Answers | Status    | Keep on Free          |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------- | --------------------- |
+| Reach                                | DAU / WAU / MAU on `app_opened`; sessions-per-user.                                                                                                                                                  | §3.1    | **Built** | ✅ DAU / WAU / MAU      |
+| Activation funnel                    | `app_opened → budget_created → expense_logged` steps + time-to-convert.                                                                                                                              | §3.2    | **Built** | ✅ funnel steps         |
+| Time to first budget & first expense | `time_since_first_app_open_bucket` (first budget) and `time_since_budget_created_bucket` distributions.                                                                                              | §3.2    | **Built** | —                     |
+| Budget composition                   | Share of `budget_created` by `period`, by `currency_code`, by `carry_over_enabled`.                                                                                                                  | §3.3    | **Built** | ✅ by `period`          |
+| User composition                     | Active users by `dominant_period`, `default_currency_code`, `uses_carry_over`, `has_disabled_carry_over`, `budgets_count_bucket`, `budgets_with_carry_over_on_count_bucket`, `device_class`, `region`, `locale`. | §3.3    | **Built** | —                     |
+| Budget allocations                   | Median `budget_allocation_amount` by `currency_code`, by `period`, by `region`.                                                                                                                      | §3.3    | **Built** | —                     |
+| Retention                            | Born `app_opened`; returning `expense_logged` (value loop) **and** `app_opened` (check-in); 1d / 7d / 30d.                                                                                           | §3.4    | **Built** | ✅ `expense_logged` view |
+| Settings: opens & changes            | `settings_opened` per active user; `setting_changed` by `setting_name` × `new_value`.                                                                                                                | §3.5    | **Built** | —                     |
+| Destructive actions                  | Totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted`; mix of the three destructive flows.                                                             | §3.5    | **Built** | —                     |
+| Consent                              | `analytics_consent_changed` by `consent_jurisdiction` × direction; by `region` × direction; opt-outs over time.                                                                                      | §3.6    | **Built** | ✅ jurisdiction × direction |
+
+Each board carries a one-line framing text card per §11.2. Boards show no data yet for events not yet flowing to Prod (e.g. `budget_*`, the destructive actions, `setting_changed`) — the definitions are correct and will populate as data arrives. Currency-mixed views (allocation by `period` / `region`) are rough-shape only, since allocation is always paired with its `currency_code`.
+
+### 11.4 Free-tier fallback — the five reports to keep if you downgrade
+
+The Growth plan (§11.2) is what makes the full §11.3 set possible. **If Wren App - Prod is ever moved back to the Free plan, the 5-saved-reports-per-project cap returns** and all but five report tiles must be deleted. Keep exactly these five — the prioritized survivors that cover the most decision-useful §3 questions — and delete every other tile:
+
+| Keep (the top 5)                                          | Board              | Answers |
+| --------------------------------------------------------- | ------------------ | ------- |
+| DAU / WAU / MAU                                            | Reach              | §3.1    |
+| Activation funnel — `open → budget → expense` steps       | Activation funnel  | §3.2    |
+| Retention — `app_opened → expense_logged` (value loop)    | Retention          | §3.4    |
+| Budgets by `period`                                       | Budget composition | §3.3    |
+| Consent — `consent_jurisdiction` × direction              | Consent            | §3.6    |
+
+Everything else in §11.3 — the other five boards plus the richer per-board views (sessions-per-user, time-to-convert, the `app_opened` check-in retention, currency/carry-over composition, allocations, per-user composition, settings, destructive actions, the region/opt-out-trend consent views) — is **nice-to-have**: remove it first when reclaiming slots. Free a slot with `Update-Dashboard` cell `delete`, or delete the whole board with `Delete-Dashboard`. (If still on Growth, there is no need to delete anything — the full set stays.)
+
+(A "Reach" board previously existed in the **Dev** project as an experiment; it was deleted on 2026-06-22 while diagnosing the cap. Per §11.1 the Dev project is not tracked here.)
 
 ---
 
@@ -647,6 +674,8 @@ Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-des
 
 | Version | Date       | Author   | Changes                                                                                          |
 | ------- | ---------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 0.23    | 2026-06-22 | Jimmy Ho | Upgraded Wren App - Prod to the **Growth** plan (unlimited saved reports; $0/month under the 1M-events free allotment), lifting the 5-report Free cap that 0.22 worked around. Built out the **full Phase 1 set — all 10 boards, 30 report tiles** — restoring the views 0.22 had trimmed (sessions-per-user, time-to-convert, `app_opened` check-in retention, currency/carry-over composition, per-user composition, allocations, settings, destructive actions, region/opt-out-trend consent). Reframed §11.2 (plan + cap, now Growth-aware, with the [pricing](https://mixpanel.com/pricing/) link), §11.3 (all 10 Built, with a "Keep on Free" survivor column), and §11.4 (now a **Free-tier fallback** listing the 5 reports to keep if ever downgraded). |
+| 0.22    | 2026-06-22 | Jimmy Ho | Built Phase 1 boards in **Wren App - Prod** via the Mixpanel MCP and reconciled §11 to reality. Discovered the **Free plan caps saved reports at 5 per project** (confirmed empirically; [docs.mixpanel.com/docs/pricing](https://docs.mixpanel.com/docs/pricing)) — documented as a hard constraint in §11.2 with rules for future agents (free a slot before adding; per-project scope; starter/draft reports don't count). Split §11.3 into the **five shipped boards** (Reach, Activation funnel, Retention, Budget composition, Consent — one report each, marked Built) and a new §11.4 **deferred/nice-to-have** catalogue (the other five boards + the trimmed-off richer views) that agents must not build without sacrificing a shipped report. Deleted the auto-generated Prod/Dev "🌱 Starter Board"s and the experimental Dev Reach board during diagnosis. |
 | 0.21    | 2026-06-22 | Jimmy Ho | Reworked §11.2 into an agent guide for building boards via the Mixpanel MCP: human-readable/concise naming, and a "don't push hard" rule — minor aspects the MCP can't configure are dropped from the spec (no gap-documenting); worth-keeping UI-only aspects get a short self-service note on the board. Applied it by removing the hour-of-day / day-of-week breakdowns. |
 | 0.20    | 2026-06-21 | Jimmy Ho | §11.3 status now tracks the **Prod** project only (the canonical analytics surface); the Dev project is an untracked experiment scratchpad. All rows are *Planned* (nothing built in Prod yet); Reach reverted from "Built — Dev (partial)" to *Planned*. Replaced the Dev-board note accordingly. |
 | 0.19    | 2026-06-21 | Jimmy Ho | Redefined `app_opened` (§9): fires on cold launch and on each real `.background → .active` return, ignoring transient `.inactive` interruptions; removed the prior client-side session-gap dedup (a hardcoded 30-min constant that duplicated Mixpanel's server-side session setting). Mixpanel owns sessionization. §3.4 retention reworked: retention is configured per Mixpanel report (born + returning event); `expense_logged` retention is the value-loop signal, `app_opened` retention is check-in engagement (glanceable budget-checking above the fold is meaningful on its own). Code: `AppOpenTracker` now a scenePhase-transition gate; tests updated. |

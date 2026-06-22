@@ -162,10 +162,15 @@ extension AddEditExpenseViewModel {
     )
   }
 
-  /// True only when the Recents section should appear: Add mode with at least one
-  /// candidate. Edit mode never shows Recents (F-7.04 is an Add-only affordance).
+  /// True when the Recents section should appear:
+  /// - **Add mode:** whenever the budget has at least one candidate (unchanged).
+  /// - **Edit/View mode:** once the `recentsRevealedInEdit` latch has been set — i.e. after
+  ///   the Description was blank at sheet-open or the user cleared it mid-session. Once
+  ///   revealed the section persists for the sheet's lifetime regardless of whether the
+  ///   Description becomes non-empty again (e.g. after a tile tap or re-type). This is
+  ///   the blank-Description-gated reveal from F-7.04 (changed from Add-only).
   var shouldShowRecentsSection: Bool {
-    !isEditing && hasRecentSources
+    hasRecentSources && (!isEditing || recentsRevealedInEdit)
   }
 
   /// F-7.04: apply a tapped Recents suggestion to the draft. Always writes `name` and
@@ -220,6 +225,7 @@ extension AddEditExpenseViewModel {
         AnalyticsProperty.recentsVisibleCount: recentsVisibleCountBucket(visibleCount),
         AnalyticsProperty.recentsTapPosition: recentsTapPositionBucket(tapPosition),
         AnalyticsProperty.nameQueryLength: nameQueryLengthBucket(queryLengthAtTap),
+        AnalyticsProperty.fromScreen: isEditing ? "budget_detail" : "add_sheet",
       ]
     )
   }
@@ -252,11 +258,17 @@ extension AddEditExpenseViewModel {
 // MARK: - View entry point
 
 extension AddEditExpenseView {
-  /// F-7.04 Recents section. Renders below the Description card in Add mode when the
-  /// budget has prior expense candidates; hidden entirely otherwise. Placement is
-  /// deliberate: the Description field doubles as the tiles' filter query, so the
-  /// suggestions sit directly beneath their input (standard autocomplete idiom), while
-  /// the Amount card keeps the top slot for the amount-first quick-log flow.
+  /// F-7.04 Recents section. Renders below the Description card when the budget has prior
+  /// expense candidates and the section should be visible per `shouldShowRecentsSection`.
+  ///
+  /// **Add mode:** always visible when candidates exist.
+  /// **Edit/View mode:** revealed once the Description has been blank (on open or cleared
+  /// mid-session), then persists for the sheet's lifetime. The latch and the tap semantics
+  /// are described in `shouldShowRecentsSection` and `applyRecent` respectively.
+  ///
+  /// Placement is deliberate: the Description field doubles as the tiles' filter query, so
+  /// the suggestions sit directly beneath their input (autocomplete idiom), while the Amount
+  /// card keeps the top slot for the amount-first quick-log flow.
   ///
   /// **Empty-state policy (two cases):**
   /// - *True-empty* (`hasRecentSources == false`) — the whole section is gone so the
@@ -540,10 +552,23 @@ private struct RecentsSectionView: View {
     .environment(AppSettings())
   }
 
-  #Preview("Recents — Edit mode (no section)") {
+  #Preview("Recents — Edit mode, non-blank (no section)") {
+    // Non-blank description: latch not set, section stays hidden.
     let budget = DebugData.dailyDefault()
     return NavigationStack {
       AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: budget.expenseItems[0], weekStart: .sunday))
+    }
+    .modelContainer(PreviewContainer.make())
+    .environment(AppSettings())
+  }
+
+  #Preview("Recents — Edit mode, blank description (section revealed)") {
+    // Nil-name expense: latch fires at init, Recents shows immediately.
+    let budget = DebugData.dailyDefault()
+    let blankExpense = ExpenseItem(amount: 8.00, name: nil, date: Date())
+    blankExpense.budget = budget
+    return NavigationStack {
+      AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: blankExpense, weekStart: .sunday))
     }
     .modelContainer(PreviewContainer.make())
     .environment(AppSettings())

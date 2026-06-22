@@ -289,7 +289,13 @@
       "Skill(merge-pr)",
       "Skill(create-pr)",
       "Skill(create-pr-for-issue)",
-      "mcp__ccd_session__mark_chapter"
+      "mcp__ccd_session__mark_chapter",
+      "mcp__mixpanel__Run-Query",
+      "mcp__mixpanel__Search-Entities",
+      "mcp__mixpanel__Get-Business-Context",
+      "mcp__mixpanel__Get-Query-Schema",
+      "mcp__mixpanel__List-Dashboards",
+      "mcp__mixpanel__Get-Dashboard"
     ]
   }
 }

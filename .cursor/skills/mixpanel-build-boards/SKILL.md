@@ -82,6 +82,31 @@ hardcode it here.
 - Detect the cap empirically: `Create-Dashboard` / `Update-Dashboard` rejects with
   `User has reached their limit of saved reports for this project` when you'd exceed 5.
 
+## MCP tool permissions (what runs unattended vs. prompts)
+
+The Mixpanel MCP tools are allowlisted in `.claude/settings.json` by **blast radius**, so
+this skill's read path and routine board authoring run without permission prompts, while
+destructive or project-wide writes still stop for confirmation:
+
+- **Allowlisted — run unattended:**
+  - *All read-only tools* — every `Get-*`, `List-*`, `Search-*`, `Display-Query`,
+    `Find-Duplicate-Event-Groups`, `Explain-*`, and `*-Guidance` helper (covers the entire
+    recipe's read path).
+  - *Board/metric authoring* (single-entity, reversible): `Create-Dashboard`,
+    `Update-Dashboard`, `Duplicate-Dashboard`, `Create-Metric`, `Update-Metric`.
+- **Not allowlisted — always prompts (deliberate confirmation points):**
+  - *Destructive:* `Delete-Dashboard`, `Delete-Tag`. A delete-based slot swap on the Free cap
+    (above) therefore prompts — which is the intended maintainer-confirm gate for dropping a
+    survivor tile.
+  - *Project-wide taxonomy rewrites:* `Edit-Event`, `Edit-Property`, `Bulk-Edit-Events`,
+    `Bulk-Edit-Properties`, `Merge-Event-Group`.
+  - *Global / out-of-scope:* `Update-Business-Context`, and all experiment / feature-flag
+    writes (not used by this workflow).
+
+When adding new Mixpanel tools to the allowlist, keep this boundary: read-only always;
+single-entity board/metric writes yes; deletes, taxonomy rewrites, business-context, and
+experiment/flag writes stay prompting.
+
 ## Gotchas
 
 - **First MCP call must be `Get-Business-Context`** — the server requires it.

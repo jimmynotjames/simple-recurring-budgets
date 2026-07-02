@@ -24,7 +24,7 @@ struct RemainingBar: View {
         Capsule()
           .fill(Color.secondary.opacity(0.12))
         Capsule()
-          .fill(dimmed ? Color.secondary : (isOverBudget ? Color.moneyDeficit : Color("AccentColor")))
+          .fill(dimmed ? Color.secondary : (isOverBudget ? Color.moneyDeficit : Color.accentColor))
           .frame(width: dimmed || isOverBudget ? geo.size.width : geo.size.width * remainingFraction)
       }
     }

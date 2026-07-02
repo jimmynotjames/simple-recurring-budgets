@@ -42,7 +42,6 @@ struct BudgetsView: View {
             systemImage: "gearshape"
           )
         }
-        .tint(Color("AccentColor"))
         .accessibilityHint(String(
           localized: "toolbar.settings.accessibilityHint",
           defaultValue: "Opens app settings",
@@ -55,7 +54,6 @@ struct BudgetsView: View {
         // Only show the Edit button when there are rows to reorder.
         if !budgets.isEmpty {
           EditButton()
-            .tint(Color("AccentColor"))
         }
       }
       ToolbarItem(placement: .topBarTrailing) {
@@ -78,7 +76,6 @@ struct BudgetsView: View {
             }
           }
         }
-        .tint(Color("AccentColor"))
         .accessibilityLabel(String(
           localized: "toolbar.addBudget.accessibilityLabel",
           defaultValue: "Add budget",
@@ -150,7 +147,6 @@ struct BudgetsView: View {
       ForEach(budgets) { budget in
         BudgetRowView(budget: budget)
           .listRowBackground(Color("CellBackground"))
-          .tint(Color("AccentColor"))
       }
       .onMove(perform: move)
     }

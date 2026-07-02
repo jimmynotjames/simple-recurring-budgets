@@ -81,15 +81,15 @@ None
 
 ## 5. User Personas
 
-### 5.1 Juliette
+### Persona 1 — Juliette
 
 Juliette, woman, 26 years old, is living a typical, frantic New York life. She has a stable white collar job that easily pays the rent for her shoebox of an apartment but her expenses are a mess. She has no financial tracking system whatsoever. Wrangling her finances is too overwhelming but she thinks she can at least break down the problem into daily and weekly spending. She wants to spend no more than $25/day on food and groceries, $7/day on coffee, and no more than $100/week on beauty supplies and cute clothes. She won't stick with any app that feels like a chore to open and log into.
 
-### 5.2 Colin
+### Persona 2 — Colin
 
 Colin, man, 34 years old, is working to support his wife and two kids as a construction foreman in Kansas City. He has a good grasp on his high-level finances, which are on spreadsheets that he and his wife put together. However, day-to-day financial decisions are still a pain point. It's annoying to consult a big spreadsheet on his phone with monthly numbers just to understand if he should splurge on ice cream sundaes for the kids. He can break down his spending allocations into smaller chunks, divided by category and temporal rhythm (daily, weekly), but he doesn't have an easy way to track it. Whatever tool he uses has to be quick to log into on the go — he's not going to tap through a bunch of screens while wrangling the kids.
 
-### 5.3 Paige
+### Persona 3 — Paige
 
 Paige, woman, 42, is a project manager living in Fort Collins, CO, with her husband and daughter. She is very organized and knows her finances well. She wants to carve out a budget for herself for those little luxuries and fun expenses, but wants to keep it disciplined. She thinks that setting a daily or weekly spending amount would work, but needs an easy way to track the budget. Current apps are too heavyweight. She enjoys working with tools that are not only useful but fun and cute to use. Finally, she wants logging a purchase to take just seconds so tracking stays a habit, not a burden.
 
@@ -346,7 +346,7 @@ None
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
-| 1.5     | 2026-06-23 | Jimmy Ho | Numbering/structure cleanup: relocated App Store Details from the top of the doc to new §8.4 under Design Foundations (fixed its broken "User Stories" reference to §5 and repointed the §8.2 / §10.1 cross-refs to the §8.4 anchor); reordered §6 so Data and Storage (§6.6) and Carry-over behavior (§6.7) precede Cross-cutting ongoing concerns (§6.8) to match their numbering; numbered the User Personas §5.1–§5.3. No §6.6/§6.7/§6.8 heading text changed, so all external anchors stay valid. |
+| 1.5     | 2026-06-23 | Jimmy Ho | Numbering/structure cleanup: relocated App Store Details from the top of the doc to new §8.4 under Design Foundations (fixed its broken "User Stories" reference to §5 and repointed the §8.2 / §10.1 cross-refs to the §8.4 anchor); reordered §6 so Data and Storage (§6.6) and Carry-over behavior (§6.7) precede Cross-cutting ongoing concerns (§6.8) to match their numbering. No §6.6/§6.7/§6.8 heading text changed, so all external anchors stay valid. Personas kept as "Persona 1/2/3 — Name" (not renumbered under §5). |
 | 1.4     | 2026-06-11 | Jimmy Ho | Docs-vs-code audit fixes: §6.8.5 UserJourneyTests corrected to 15 tests on `XCTestCase` (`continueAfterFailure = false`; Swift Testing is not supported in XCUITest targets — the previous "Swift Testing, serialized" claim was wrong) and flow list updated (reorder budgets, period-chip flows). |
 | 1.3     | 2026-06-02 | Jimmy Ho | Rebrand doc sync: title → Wren Product Requirements Document; §8.2 branding expanded; §10.1 Wren glossary entry. |
 | 1.2     | 2026-05-31 | Jimmy Ho | §7.2 expanded data model (Specific Dates, LifecycleEvent, icon, add-funds); §8.3 analytics consent sheet note; §10.1 glossary entries for Specific Dates and Paused budget. |

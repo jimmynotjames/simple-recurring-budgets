@@ -3,8 +3,8 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.4        |
-| **Last Updated**   | 2026-06-11 |
+| **Version**        | 1.5        |
+| **Last Updated**   | 2026-06-23 |
 | **Author / Owner** | Jimmy Ho   |
 
 
@@ -14,25 +14,13 @@
 
 This app has not been released to production and is not in the App Store. It is currently "greenfield."
 
-## App Store Details
-
-App Name (<=30 chars): *Wren – Daily Expense Tracker* 
-App Icon Name: *Wren*
-Subtitle (<=30 chars): *Easy, fast budgeting on the go*
-
-Factors to consider:
-- App Icon Name should fit under app icon okay, preferably in all languages. 
-- Future Siri integration prefers a name that is more easily recognized by voice recognition. For example, perhaps avoid one-syllable names. That said, info.plist allows alternate names to be recognized by Siri, but increases education overhead for user slightly.
-- Resonates with customers. See User Stories section and the [ux-design-brief.md](ux-design-brief.md).
-- Try to stand out amongst many, many budgeting, expense tracking apps. 
-- Try to indicate quickly how this app is different from other budgeting apps. For example, this app is NOT a business travel expense tracker, NOT a master budgeting tool for a user's total personal finance, does NOT integrate with banking, etc. etc.
-- Be able to translate well into foreign languages, though this is less of an issue if we keep things culturally aware during the translations process.
+See [RELEASES.md](../RELEASES.md) for per-version release history, shipped features, and cross-cutting-concerns confirmation.
 
 ---
 
 ## 1. Vision and North Star
 
-An app that gives users more discipline in their personal spending when it comes to regular, repeating expenses. Examples include daily food expenses or weekly groceries and so on.
+**Wren** is an app that gives users more discipline in their personal spending when it comes to regular, repeating expenses. Examples include daily food expenses or weekly groceries and so on.
 
 ---
 
@@ -93,15 +81,15 @@ None
 
 ## 5. User Personas
 
-### Persona 1 — Juliette
+### 5.1 Juliette
 
 Juliette, woman, 26 years old, is living a typical, frantic New York life. She has a stable white collar job that easily pays the rent for her shoebox of an apartment but her expenses are a mess. She has no financial tracking system whatsoever. Wrangling her finances is too overwhelming but she thinks she can at least break down the problem into daily and weekly spending. She wants to spend no more than $25/day on food and groceries, $7/day on coffee, and no more than $100/week on beauty supplies and cute clothes. She won't stick with any app that feels like a chore to open and log into.
 
-### Persona 2 — Colin
+### 5.2 Colin
 
 Colin, man, 34 years old, is working to support his wife and two kids as a construction foreman in Kansas City. He has a good grasp on his high-level finances, which are on spreadsheets that he and his wife put together. However, day-to-day financial decisions are still a pain point. It's annoying to consult a big spreadsheet on his phone with monthly numbers just to understand if he should splurge on ice cream sundaes for the kids. He can break down his spending allocations into smaller chunks, divided by category and temporal rhythm (daily, weekly), but he doesn't have an easy way to track it. Whatever tool he uses has to be quick to log into on the go — he's not going to tap through a bunch of screens while wrangling the kids.
 
-### Persona 3 — Paige
+### 5.3 Paige
 
 Paige, woman, 42, is a project manager living in Fort Collins, CO, with her husband and daughter. She is very organized and knows her finances well. She wants to carve out a budget for herself for those little luxuries and fun expenses, but wants to keep it disciplined. She thinks that setting a daily or weekly spending amount would work, but needs an easy way to track the budget. Current apps are too heavyweight. She enjoys working with tools that are not only useful but fun and cute to use. Finally, she wants logging a purchase to take just seconds so tracking stays a habit, not a burden.
 
@@ -140,6 +128,61 @@ See §6.8 for the ongoing-concern rule that applies to every code change.
 - Includes supporting all currency symbols, but not currency exchange conversions.
 
 See §6.8 for the ongoing-concern rule that applies to every code change.
+
+### 6.6 Data and Storage
+
+- Persist data with **SwiftData** and sync across the user’s devices with **CloudKit**.
+
+### 6.7 Carry-over behavior
+
+These rules apply to every Budget. When carry-over is turned off for a budget (see product features), the carry-over amount is still computed and kept current internally but is **not displayed** in the UI for that budget. This ensures that toggling carry-over back on at any time produces an immediately correct, up-to-date figure without retroactive computation. Rules are **per budget**; there is no aggregation across budgets.
+
+**Display (two separate numbers)**
+
+The two numbers are computed and displayed independently — they are never merged into a single combined "available to spend" cap. Influence flows one direction only: the current period's *committed* overflow (overspend or add-funds excess) feeds into Carry-over (see "How carry-over moves" below). Carry-over never affects Remaining.
+
+- **Remaining for the current Budget Period** — How much of *this period's* allocation is left. Live as expenses are added, edited, or deleted within the current period. May go negative (overspend) or above the allocation (add-funds excess via [F-6.01](product-features-planning.md)). Example: with a $20/day allocation, the primary "left to spend" for today shows amounts derived only from today's $20 and today's expenses, not mixed into a single combined cap.
+- **Carry-over** — A separate, signed cumulative total that reflects how far ahead or behind the user is relative to their recurring allocation. Sum of completed prior active periods, plus the *committed* portion of the current period's overflow (see asymmetric live coupling below). Carried across Budget Periods until it is reset. Copy and formatting should read cleanly for both directions (e.g. surplus vs deficit); exact strings are a design choice.
+
+**How carry-over moves**
+
+Carry-over has two components, both contributing to the displayed value:
+
+1. **Sum across completed prior active periods.** At each **Budget Period** boundary (e.g. each new day for a daily budget), the outcome of the period that just ended folds in: `(allocation for that period − total expenses counted against that period)` is added to the running carry-over. Example: carry-over was a $5 deficit; allocation for the day was $20; the user spent $18. The $2 unspent vs that allocation reduces the deficit, so carry-over becomes a $3 deficit before the new period's expenses apply.
+
+2. **Asymmetric live coupling with the current period.** While a period is in progress, the current period's contribution flows into Carry-over **only when it has crossed out of `[0, allocation]`** — i.e., only when the user has *committed* an overshoot in either direction. This is the asymmetric live coupling rule:
+
+   - **Overspend (Remaining < 0).** The deficit is immediately reflected in Carry-over. Example: daily $20 budget, +$5 carry-over from prior days, $10 already spent today. User logs an $11 expense → Remaining becomes −$1, Carry-over becomes +$4 instantly. Deleting that expense snaps Carry-over back to +$5.
+   - **Add-funds excess (Remaining > allocation, see [F-6.01](product-features-planning.md)).** The excess above allocation is immediately reflected in Carry-over. Example: daily $20 budget, user adds $30 of funds → Remaining becomes $50, Carry-over absorbs the +$30 excess.
+   - **Ordinary mid-period slack (0 ≤ Remaining ≤ allocation).** Carry-over does **not** change. The slack remains *provisional* — the user might still spend more before the period closes — and only flows into Carry-over when the period actually completes (per rule 1 above).
+
+   **Rationale.** Committed actions (overspend, deliberate add-funds) reflect real user decisions and belong in the cumulative position immediately. Provisional slack waits for the period to close so the user does not over-rely on a mid-day "ahead" reading they might still spend down. Loss-aversion: bad news lands live; good news waits for the period close.
+
+   **Post-end (`now > endDate`) collapses to symmetric.** When the budget has ended, there is no future period close, so the full final-period contribution (positive or negative) folds into Carry-over immediately. This is what makes the chip "frozen at final tally."
+
+   **Paused periods contribute 0.** A paused period's allocation is not credited and its expenses are not debited. The asymmetric rule does not apply while the current period is paused — Carry-over is whatever it was at the most-recent pause moment (modulo retroactive edits to prior active periods).
+
+- **Positive and negative** carry-over amounts both carry forward according to these rules until reset.
+
+**Resetting carry-over**
+
+- **Manual** — The Budget detail screen provides a control to reset carry-over to zero (with confirmation). Per-budget only. This is a "carry-over only" reset: no expenses are deleted.
+
+**Distinct destructive operations on a Budget**
+
+Three operations exist with different blast radii — do not conflate them:
+
+
+| Operation            | Trigger                                                    | Effect                                                                                                                   |
+| -------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Reset Carry-Over** | Budget detail screen → toolbar overflow Menu → "Reset Carry-Over…" | Sets `lastResetDate = now` on the budget, bumps `lastModified`. The live walker treats all periods whose end is at or before `lastResetDate` as excluded, and the current period's spillover is likewise recomputed from post-reset expenses only (zero when the budget had already ended), producing a carry-over of zero from that moment forward — including when the current period is in deficit. No `ExpenseItem`s are deleted.              |
+| **Reset Budget**     | Budget detail screen → toolbar Menu → "Reset Budget…"      | Deletes every `ExpenseItem` for this budget AND sets `lastResetDate = now`, bumps `lastModified`. If the budget is currently paused, the same atomic write also inserts a `.resume` `LifecycleEvent` so the post-reset state is active. The `Budget` entity itself remains. See F-2.02. |
+| **Delete Budget**    | Add/Edit Budget sheet (Edit mode) → "Delete Budget" button | Removes the `Budget` entity and cascade-deletes all its `ExpenseItem`s and child `AllocationChange` / `LifecycleEvent` rows. See F-2.03.                                      |
+
+
+All three require a confirmation dialog. "Reset Budget" and "Delete Budget" are **irreversible**.
+
+- **Carry-over optional** — A budget may have carry-over turned off (see product features); when off, the carry-over amount is maintained internally but not shown for that budget. Toggling carry-over back on surfaces the current, already-computed figure.
 
 ### 6.8 Cross-cutting ongoing concerns
 
@@ -200,63 +243,6 @@ Implementation rules for all five concerns live in `docs/tech-design-doc.md` §�
 
 ---
 
-### 6.6 Data and Storage
-
-- Persist data with **SwiftData** and sync across the user’s devices with **CloudKit**.
-
-### 6.7 Carry-over behavior
-
-These rules apply to every Budget. When carry-over is turned off for a budget (see product features), the carry-over amount is still computed and kept current internally but is **not displayed** in the UI for that budget. This ensures that toggling carry-over back on at any time produces an immediately correct, up-to-date figure without retroactive computation. Rules are **per budget**; there is no aggregation across budgets.
-
-**Display (two separate numbers)**
-
-The two numbers are computed and displayed independently — they are never merged into a single combined "available to spend" cap. Influence flows one direction only: the current period's *committed* overflow (overspend or add-funds excess) feeds into Carry-over (see "How carry-over moves" below). Carry-over never affects Remaining.
-
-- **Remaining for the current Budget Period** — How much of *this period's* allocation is left. Live as expenses are added, edited, or deleted within the current period. May go negative (overspend) or above the allocation (add-funds excess via [F-6.01](product-features-planning.md)). Example: with a $20/day allocation, the primary "left to spend" for today shows amounts derived only from today's $20 and today's expenses, not mixed into a single combined cap.
-- **Carry-over** — A separate, signed cumulative total that reflects how far ahead or behind the user is relative to their recurring allocation. Sum of completed prior active periods, plus the *committed* portion of the current period's overflow (see asymmetric live coupling below). Carried across Budget Periods until it is reset. Copy and formatting should read cleanly for both directions (e.g. surplus vs deficit); exact strings are a design choice.
-
-**How carry-over moves**
-
-Carry-over has two components, both contributing to the displayed value:
-
-1. **Sum across completed prior active periods.** At each **Budget Period** boundary (e.g. each new day for a daily budget), the outcome of the period that just ended folds in: `(allocation for that period − total expenses counted against that period)` is added to the running carry-over. Example: carry-over was a $5 deficit; allocation for the day was $20; the user spent $18. The $2 unspent vs that allocation reduces the deficit, so carry-over becomes a $3 deficit before the new period's expenses apply.
-
-2. **Asymmetric live coupling with the current period.** While a period is in progress, the current period's contribution flows into Carry-over **only when it has crossed out of `[0, allocation]`** — i.e., only when the user has *committed* an overshoot in either direction. This is the asymmetric live coupling rule:
-
-   - **Overspend (Remaining < 0).** The deficit is immediately reflected in Carry-over. Example: daily $20 budget, +$5 carry-over from prior days, $10 already spent today. User logs an $11 expense → Remaining becomes −$1, Carry-over becomes +$4 instantly. Deleting that expense snaps Carry-over back to +$5.
-   - **Add-funds excess (Remaining > allocation, see [F-6.01](product-features-planning.md)).** The excess above allocation is immediately reflected in Carry-over. Example: daily $20 budget, user adds $30 of funds → Remaining becomes $50, Carry-over absorbs the +$30 excess.
-   - **Ordinary mid-period slack (0 ≤ Remaining ≤ allocation).** Carry-over does **not** change. The slack remains *provisional* — the user might still spend more before the period closes — and only flows into Carry-over when the period actually completes (per rule 1 above).
-
-   **Rationale.** Committed actions (overspend, deliberate add-funds) reflect real user decisions and belong in the cumulative position immediately. Provisional slack waits for the period to close so the user does not over-rely on a mid-day "ahead" reading they might still spend down. Loss-aversion: bad news lands live; good news waits for the period close.
-
-   **Post-end (`now > endDate`) collapses to symmetric.** When the budget has ended, there is no future period close, so the full final-period contribution (positive or negative) folds into Carry-over immediately. This is what makes the chip "frozen at final tally."
-
-   **Paused periods contribute 0.** A paused period's allocation is not credited and its expenses are not debited. The asymmetric rule does not apply while the current period is paused — Carry-over is whatever it was at the most-recent pause moment (modulo retroactive edits to prior active periods).
-
-- **Positive and negative** carry-over amounts both carry forward according to these rules until reset.
-
-**Resetting carry-over**
-
-- **Manual** — The Budget detail screen provides a control to reset carry-over to zero (with confirmation). Per-budget only. This is a "carry-over only" reset: no expenses are deleted.
-
-**Distinct destructive operations on a Budget**
-
-Three operations exist with different blast radii — do not conflate them:
-
-
-| Operation            | Trigger                                                    | Effect                                                                                                                   |
-| -------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **Reset Carry-Over** | Budget detail screen → toolbar overflow Menu → "Reset Carry-Over…" | Sets `lastResetDate = now` on the budget, bumps `lastModified`. The live walker treats all periods whose end is at or before `lastResetDate` as excluded, and the current period's spillover is likewise recomputed from post-reset expenses only (zero when the budget had already ended), producing a carry-over of zero from that moment forward — including when the current period is in deficit. No `ExpenseItem`s are deleted.              |
-| **Reset Budget**     | Budget detail screen → toolbar Menu → "Reset Budget…"      | Deletes every `ExpenseItem` for this budget AND sets `lastResetDate = now`, bumps `lastModified`. If the budget is currently paused, the same atomic write also inserts a `.resume` `LifecycleEvent` so the post-reset state is active. The `Budget` entity itself remains. See F-2.02. |
-| **Delete Budget**    | Add/Edit Budget sheet (Edit mode) → "Delete Budget" button | Removes the `Budget` entity and cascade-deletes all its `ExpenseItem`s and child `AllocationChange` / `LifecycleEvent` rows. See F-2.03.                                      |
-
-
-All three require a confirmation dialog. "Reset Budget" and "Delete Budget" are **irreversible**.
-
-- **Carry-over optional** — A budget may have carry-over turned off (see product features); when off, the carry-over amount is maintained internally but not shown for that budget. Toggling carry-over back on surfaces the current, already-computed figure.
-
----
-
 ## 7. Technical Foundations
 
 *High-level technical decisions that constrain all downstream work. More specifics wil be worked out during feature development.*
@@ -299,7 +285,7 @@ High-level entities include:
 
 ### 8.2 Branding
 
-- **Product name:** **Wren** is the in-doc product brand and home-screen icon name. App Store listing name and subtitle are defined in [§App Store Details](#app-store-details) (*Wren – Daily Expense Tracker* / *Easy, fast budgeting on the go*). Do not use the legacy working title "Simple Recurring Budgets" in product-facing copy.
+- **Product name:** **Wren** is the in-doc product brand and home-screen icon name. App Store listing name and subtitle are defined in [§8.4 App Store Details](#84-app-store-details) (*Wren – Daily Expense Tracker* / *Easy, fast budgeting on the go*). Do not use the legacy working title "Simple Recurring Budgets" in product-facing copy.
 - **Vibes:** Simple, elegant, and cute.
 
 ### 8.3 Information Architecture
@@ -314,6 +300,21 @@ Screens:
 
 In strict-opt-in analytics jurisdictions, a first-run consent sheet may appear before the user creates their first budget; ongoing opt-in/out lives in Settings (see [analytics-spec.md](analytics-spec.md) and F-8.02).
 
+### 8.4 App Store Details
+
+App Name (<=30 chars): *Wren – Daily Expense Tracker*
+App Icon Name: *Wren*
+Subtitle (<=30 chars): *Easy, fast budgeting on the go*
+
+Factors to consider:
+
+- App Icon Name should fit under app icon okay, preferably in all languages.
+- Future Siri integration prefers a name that is more easily recognized by voice recognition. For example, perhaps avoid one-syllable names. That said, info.plist allows alternate names to be recognized by Siri, but increases education overhead for user slightly.
+- Resonates with customers. See the User Personas section (§5) and the [ux-design-brief.md](ux-design-brief.md).
+- Try to stand out amongst many, many budgeting, expense tracking apps.
+- Try to indicate quickly how this app is different from other budgeting apps. For example, this app is NOT a business travel expense tracker, NOT a master budgeting tool for a user's total personal finance, does NOT integrate with banking, etc. etc.
+- Be able to translate well into foreign languages, though this is less of an issue if we keep things culturally aware during the translations process.
+
 ---
 
 ## 9. Open Questions
@@ -326,7 +327,7 @@ In strict-opt-in analytics jurisdictions, a first-run consent sheet may appear b
 
 ### 10.1 Glossary
 
-- **Wren** — The product brand and home-screen icon name. App Store listing name: *Wren – Daily Expense Tracker* (see [§App Store Details](#app-store-details)). Distinct from a **Budget** (entity).
+- **Wren** — The product brand and home-screen icon name. App Store listing name: *Wren – Daily Expense Tracker* (see [§8.4 App Store Details](#84-app-store-details)). Distinct from a **Budget** (entity).
 - Recurring Budget (AKA Budget) - An allocation of available spending that repeats the allocation at regular time intervals, or — for **Specific Dates** budgets — a single fixed window with one allocation. The supported period values are defined in app code (see `BudgetPeriod` or equivalent).
 - Expense Item (AKA Expense or Transaction) - A specific expense.
 - **Specific Dates budget** — A one-window trip-style budget: required start and end dates, one allocation for the whole window, no recurrence, no carry-over chip. Distinct from a recurring budget whose start/end dates bound its lifetime.
@@ -345,6 +346,7 @@ None
 
 | Version | Date       | Author   | Changes          |
 | ------- | ---------- | -------- | ---------------- |
+| 1.5     | 2026-06-23 | Jimmy Ho | Numbering/structure cleanup: relocated App Store Details from the top of the doc to new §8.4 under Design Foundations (fixed its broken "User Stories" reference to §5 and repointed the §8.2 / §10.1 cross-refs to the §8.4 anchor); reordered §6 so Data and Storage (§6.6) and Carry-over behavior (§6.7) precede Cross-cutting ongoing concerns (§6.8) to match their numbering; numbered the User Personas §5.1–§5.3. No §6.6/§6.7/§6.8 heading text changed, so all external anchors stay valid. |
 | 1.4     | 2026-06-11 | Jimmy Ho | Docs-vs-code audit fixes: §6.8.5 UserJourneyTests corrected to 15 tests on `XCTestCase` (`continueAfterFailure = false`; Swift Testing is not supported in XCUITest targets — the previous "Swift Testing, serialized" claim was wrong) and flow list updated (reorder budgets, period-chip flows). |
 | 1.3     | 2026-06-02 | Jimmy Ho | Rebrand doc sync: title → Wren Product Requirements Document; §8.2 branding expanded; §10.1 Wren glossary entry. |
 | 1.2     | 2026-05-31 | Jimmy Ho | §7.2 expanded data model (Specific Dates, LifecycleEvent, icon, add-funds); §8.3 analytics consent sheet note; §10.1 glossary entries for Specific Dates and Paused budget. |

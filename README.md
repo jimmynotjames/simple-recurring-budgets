@@ -9,13 +9,16 @@
 
 > A native iOS / iPadOS app for staying on top of small, recurring everyday spending — built with SwiftUI, SwiftData, and CloudKit sync.
 
-<!-- Badge template — swap the placeholders once the repo is public / shipping. -->
-![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20iPadOS-blue)
-![Swift](https://img.shields.io/badge/Swift-6.0-orange)
-![Min iOS](https://img.shields.io/badge/iOS-26.5%2B-lightgrey)
-![License](https://img.shields.io/badge/license-Apache%202.0-green)
-[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF)](.github/workflows/ci.yml)
-![Built with AI](https://img.shields.io/badge/code-~100%25%20AI--written-blueviolet)
+<!-- Badge template — swap the placeholders once the repo is public / shipping.
+     HTML <img> tags (not ![]() Markdown) so SVG badges render in all previewers. -->
+<p>
+  <img alt="Platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20iPadOS-blue">
+  <img alt="Swift" src="https://img.shields.io/badge/Swift-6.0-orange">
+  <img alt="Min iOS" src="https://img.shields.io/badge/iOS-26.5%2B-lightgrey">
+  <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-green">
+  <a href=".github/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/badge/CI-GitHub%20Actions-2088FF"></a>
+  <img alt="Built with AI" src="https://img.shields.io/badge/code-~100%25%20AI--written-blueviolet">
+</p>
 <!-- Optional once live: App Store badge, TestFlight badge, build-status badge wired to Actions. -->
 
 ---
@@ -38,7 +41,11 @@
 
 ## Screenshots
 
-> ✍️ **ADD THIS.** 3–5 screenshots (or a short GIF) of the core screens: Budgets list, Budget detail with the carry-over chip, Add Expense, Settings. A single hero shot up top + a row of thumbnails reads well. The App Store screenshots under `fastlane/` are a good source.
+<!-- Source: App Store screenshots under fastlane/screenshots/en-US/ (iPhone 17 Pro Max set). -->
+
+| Budgets | Add Expense | Budget Detail | Add Budget | Settings |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-01_budgets.png" alt="Budgets list" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-02_add_expense.png" alt="Add expense" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-03_detail.png" alt="Budget detail with carry-over" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-04_add_budget.png" alt="Add budget" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-05_settings.png" alt="Settings" width="160"> |
 
 ---
 
@@ -101,23 +108,22 @@
 | Layer | Choice |
 |---|---|
 | **Language** | Swift 6.0 — strict concurrency, default `@MainActor` isolation |
-| **UI** | SwiftUI (`NavigationStack` value-based routing, `@Observable` state) |
-| **Persistence** | SwiftData (`@Model`, `@Query`, in-memory containers for tests) |
-| **Sync** | CloudKit (`cloudKitDatabase: .automatic`) + `NSUbiquitousKeyValueStore` for preferences |
-| **Money** | `Decimal` end-to-end (never floating point); per-budget currency |
-| **Min OS** | iOS / iPadOS **26.5** (latest-major-only policy) |
-| **Targets** | iPhone + iPad (`TARGETED_DEVICE_FAMILY = 1,2`); macOS is a longer-term goal |
-| **Analytics** | Mixpanel (lazy-init, consent-gated) + Apple unified logging (`OSLog`) for diagnostics |
+| **UI** | 100% SwiftUI |
+| **Persistence** | SwiftData |
+| **Sync** | CloudKit database app settings syncing |
+| **Min OS** | iOS / iPadOS 26.5+ |
+| **Targets** | iPhone + iPad; eventaully macOS |
+| **Analytics** | Mixpanel + `OSLog` |
 | **Unit tests** | Swift Testing (`@Test` / `#expect`) |
 | **UI tests** | XCTest / XCUITest + `performAccessibilityAudit()` |
-| **i18n** | Xcode String Catalogs (`.xcstrings`) + a custom AI translation pipeline |
+| **i18n** | Xcode String Catalogs (`.xcstrings`) + a custom culturally-sensitive AI translation pipeline |
 | **Local gates** | Lefthook · SwiftLint · SwiftFormat · gitleaks |
-| **CI/CD** | GitHub Actions + Fastlane (App Store Connect API) |
-| **Release automation** | Fastlane lanes for TestFlight, App Store, metadata, screenshots |
-| **Spec workflow** | OpenSpec (spec-driven change tracking) |
-| **AI dev workflow** | Claude Code / Cursor agents, `AGENTS.md`, custom repo skills |
-
-**At a glance:** ~102 app Swift files · 4 SwiftData entities · ~82 unit-test files · 16 UI-test files (30 accessibility-audit + 15 user-journey tests) · 49 Python pipeline scripts · 49 localized storefronts · 1 direct third-party runtime dependency.
+| **CI/CD** | GitHub Actions |
+| **Release automation** | Fastlane for TestFlight, App Store metadata, screenshots, etc. |
+| **Spec-Driven Development** | OpenSpec for product-level changes |
+| **Non-coding workflows** | Bash scripts · Python · Makefile |
+| **AI Agents for Coding** | Claude Code, Cursor, Xcode |
+| **AI Agents for Visual Design** | Claude Code, Cursor, Xcode, Figma AI, Claude Design (Research Preview) |
 
 ---
 
@@ -266,10 +272,3 @@ Full setup — including the two-tier flow (Simulator-only vs. shipping/forking 
 - **Trademarks.** The **Wren** name and app icon are trademarks of Jimmy Ho and are **not** covered by the code license. Forks that distribute an app must replace the name, icon, and App Store marketing assets before shipping — see [`TRADEMARK.md`](TRADEMARK.md).
 - **Contributing.** See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-<!--
-  GitHub Topics (set these in repo Settings → About → Topics; they don't render in the README):
-  swift · swift6 · ios · ios-app · ios-development · ipados · swiftui · swiftdata · cloudkit
-  swift-testing · xcuitest · fastlane-ios · localized · internationalization · accessibility
-  expense-tracker · budgeting · personal-finance · mixpanel · openspec
-  agentic-ai · agentic-ai-development
--->

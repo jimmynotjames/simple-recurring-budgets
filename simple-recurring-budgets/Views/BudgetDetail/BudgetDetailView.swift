@@ -290,6 +290,15 @@ struct BudgetDetailView: View {
             // (label-colored icons, red destructive).
             .foregroundStyle(Color.accentColor)
         }
+        // Clear the NavigationStack-level tint (RootView, #297) for the menu
+        // subtree: the hosted menu items must keep standard rendering
+        // (label-colored icons, red destructive), which any inherited tint
+        // overrides (#296). The label keeps its accent via the explicit
+        // .foregroundStyle above, which reads the accent, not the tint.
+        // The confirmationDialog chained below is NOT affected: presented
+        // content inherits environment from modifiers OUTER to the
+        // presentation modifier, and this .tint(nil) sits inner to it.
+        .tint(nil)
         .accessibilityLabel(String(
           localized: "budgetDetail.menu.accessibilityLabel",
           defaultValue: "Budget options",

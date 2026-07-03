@@ -36,6 +36,16 @@ struct RootView: View {
           }
         }
     }
+    // Explicit brand tint for the whole stack. NOTE (#297): this does NOT
+    // color the system back chevron — iOS 26 Liquid Glass renders it in
+    // monochrome label color by design and no supported API (global accent,
+    // UINavigationBar appearance, environment tint) changes it; see the #297
+    // investigation notes before attempting again. The concrete asset color
+    // (not the dynamic `.accentColor`) is deliberate: UIKit-hosted surfaces
+    // resolve the dynamic accent to system blue (#296). The known bleed into
+    // the budget-options menu is neutralized at the Menu itself
+    // (BudgetDetailView) rather than by scoping the tint per screen.
+    .tint(Color("AccentColor"))
     .sheet(item: $router.sheet) { route in
       Group {
         switch route {
@@ -63,13 +73,17 @@ struct RootView: View {
           AnalyticsConsentSheet()
         }
       }
+      // Sheet content does NOT inherit the NavigationStack-level tint above
+      // (same environment isolation as TestDynamicTypeOverride below), so
+      // re-apply it to keep sheet and stack environments consistent (#297).
+      .tint(Color("AccentColor"))
       // Test-only Dynamic Type override (DEBUG-only — compiled out of Release; inert unless
       // IS_TESTING + FORCE_DYNAMIC_TYPE are set). Sheet content does NOT inherit the root-level
       // override applied in the App body, so the ad-hoc localized-layout screenshot check
       // (scripts/translation-accessibility-size-check/) re-applies it here to reach Settings /
       // Add Expense / Add Budget at the forced size too.
       #if DEBUG
-      .modifier(TestDynamicTypeOverride())
+        .modifier(TestDynamicTypeOverride())
       #endif
     }
   }

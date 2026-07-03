@@ -37,6 +37,7 @@ struct CurrencyPickerView: View {
           )) {
             dismiss()
           }
+          .tint(.accentColor)
         }
       }
       .appBackground()

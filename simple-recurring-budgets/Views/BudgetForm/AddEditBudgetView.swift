@@ -107,6 +107,7 @@ struct AddEditBudgetView: View {
           )) {
             dismiss()
           }
+          .tint(.accentColor)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(String(

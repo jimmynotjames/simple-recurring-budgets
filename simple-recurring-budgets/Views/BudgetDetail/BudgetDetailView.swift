@@ -285,6 +285,10 @@ struct BudgetDetailView: View {
           ))
         } label: {
           Image(systemName: "ellipsis.circle")
+            // Tint the label only — tinting the Menu itself bleeds into the
+            // UIKit-hosted menu items and overrides their standard rendering
+            // (label-colored icons, red destructive).
+            .foregroundStyle(Color.accentColor)
         }
         .accessibilityLabel(String(
           localized: "budgetDetail.menu.accessibilityLabel",

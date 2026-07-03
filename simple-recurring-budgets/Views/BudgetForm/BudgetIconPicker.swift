@@ -92,7 +92,7 @@ struct BudgetIconPicker: View {
             defaultValue: "Cancel",
             comment: "Button that dismisses the budget icon picker without changing the selection"
           )) { dismiss() }
-            .foregroundStyle(.primary)
+            .tint(.accentColor)
         }
         if selection != nil {
           ToolbarItem(placement: .topBarTrailing) {
@@ -104,6 +104,7 @@ struct BudgetIconPicker: View {
               selection = nil
               dismiss()
             }
+            .tint(.accentColor)
           }
         }
       }

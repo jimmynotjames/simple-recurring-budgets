@@ -42,6 +42,10 @@ struct BudgetsView: View {
             systemImage: "gearshape"
           )
         }
+        // iOS 26 draws bar buttons monochrome by default and ignores the
+        // asset-catalog global accent; explicit tint restores the brand accent
+        // (WCAG AA per #218's darkened AccentColor). Same on all bar buttons.
+        .tint(.accentColor)
         .accessibilityHint(String(
           localized: "toolbar.settings.accessibilityHint",
           defaultValue: "Opens app settings",
@@ -54,6 +58,7 @@ struct BudgetsView: View {
         // Only show the Edit button when there are rows to reorder.
         if !budgets.isEmpty {
           EditButton()
+            .tint(.accentColor)
         }
       }
       ToolbarItem(placement: .topBarTrailing) {
@@ -76,6 +81,7 @@ struct BudgetsView: View {
             }
           }
         }
+        .tint(.accentColor)
         .accessibilityLabel(String(
           localized: "toolbar.addBudget.accessibilityLabel",
           defaultValue: "Add budget",

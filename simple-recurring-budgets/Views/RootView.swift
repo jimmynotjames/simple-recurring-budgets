@@ -36,10 +36,6 @@ struct RootView: View {
           }
         }
     }
-    // iOS 26 renders toolbar/nav-bar items monochrome (label color) by default —
-    // they no longer pick up the asset-catalog global accent. Explicit env tint
-    // restores accent-colored bar buttons app-wide (deliberate brand choice).
-    .tint(Color.accentColor)
     .sheet(item: $router.sheet) { route in
       Group {
         switch route {
@@ -75,9 +71,6 @@ struct RootView: View {
       #if DEBUG
       .modifier(TestDynamicTypeOverride())
       #endif
-      // Sheet content does not inherit the NavigationStack-level tint above
-      // (same isolation as TestDynamicTypeOverride) — re-apply for sheet toolbars.
-      .tint(Color.accentColor)
     }
   }
 

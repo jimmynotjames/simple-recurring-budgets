@@ -107,7 +107,7 @@ struct AddEditBudgetView: View {
           )) {
             dismiss()
           }
-          .foregroundStyle(.primary)
+          .tint(.accentColor)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(String(

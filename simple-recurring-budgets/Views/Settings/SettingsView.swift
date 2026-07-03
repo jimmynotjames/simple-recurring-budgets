@@ -92,6 +92,7 @@ struct SettingsView: View {
           )) {
             dismiss()
           }
+          .tint(.accentColor)
         }
       }
       .alert(

@@ -152,6 +152,7 @@ struct DateColumn: View {
             defaultValue: "Cancel",
             comment: "Cancel button in the Specific Dates date picker sheet on the Add/Edit Budget screen"
           )) { isPickerShown = false }
+            .tint(.accentColor)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(String(
@@ -163,6 +164,7 @@ struct DateColumn: View {
             isPickerShown = false
           }
           .fontWeight(.semibold)
+          .tint(.accentColor)
         }
       }
       .presentationDetents([.medium, .large])

@@ -47,7 +47,7 @@ struct AddEditExpenseView: View {
           )) {
             dismiss()
           }
-          .foregroundStyle(.primary)
+          .tint(.accentColor)
         }
       }
       ToolbarItem(placement: .confirmationAction) {

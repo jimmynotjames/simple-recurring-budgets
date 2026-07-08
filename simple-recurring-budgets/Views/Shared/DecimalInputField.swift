@@ -41,6 +41,11 @@ struct DecimalInputField: UIViewRepresentable {
   var locale: Locale = .autoupdatingCurrent
   /// Become first responder once when the field first appears (used for the expense Amount field in Add mode).
   var autoFocus: Bool = false
+  /// Monotonic counter; each increment makes the field first responder on the next update.
+  /// `CurrencyAmountField` bumps it when its clear (✕) is tapped so the cursor lands in this
+  /// field after clearing — matching `UITextField`'s built-in clear-button behavior — instead
+  /// of staying wherever it was (e.g. the Description field after a Recents-driven fill).
+  var focusRequest: Int = 0
   /// Text colour; the expense Amount field tints green while Add Funds is on.
   var textColor: Color = .primary
   /// VoiceOver label (the field itself; the adjacent currency affix is decorative/hidden).
@@ -94,10 +99,23 @@ struct DecimalInputField: UIViewRepresentable {
       context.coordinator.didAutoFocus = true
       Task { field.becomeFirstResponder() }
     }
+    if context.coordinator.lastFocusRequest != focusRequest {
+      context.coordinator.lastFocusRequest = focusRequest
+      // Deferred like autoFocus above: becoming first responder synchronously inside a
+      // SwiftUI update pass is the pattern that crashed on iOS 26 (see file header).
+      if !field.isFirstResponder {
+        Task { field.becomeFirstResponder() }
+      }
+    }
   }
 
   func makeCoordinator() -> Coordinator {
-    Coordinator(text: $text, maxFractionDigits: maxFractionDigits, separators: separators)
+    Coordinator(
+      text: $text,
+      maxFractionDigits: maxFractionDigits,
+      separators: separators,
+      lastFocusRequest: focusRequest
+    )
   }
 
   private func apply(to field: UITextField, context: Context) {
@@ -142,12 +160,21 @@ struct DecimalInputField: UIViewRepresentable {
     var maxFractionDigits: Int
     var separators: Set<Character>
     var didAutoFocus = false
+    /// Last `focusRequest` value acted on; seeded from the initial value so the field
+    /// doesn't grab focus on first update.
+    var lastFocusRequest: Int
     var onBeginEditing: (() -> Void)?
 
-    init(text: Binding<String>, maxFractionDigits: Int, separators: Set<Character>) {
+    init(
+      text: Binding<String>,
+      maxFractionDigits: Int,
+      separators: Set<Character>,
+      lastFocusRequest: Int
+    ) {
       _text = text
       self.maxFractionDigits = maxFractionDigits
       self.separators = separators
+      self.lastFocusRequest = lastFocusRequest
     }
 
     func textFieldDidBeginEditing(_: UITextField) {

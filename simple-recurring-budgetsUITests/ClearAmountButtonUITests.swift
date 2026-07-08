@@ -118,7 +118,101 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
   }
 
+  /// Regression (focus jump): with the cursor in the Amount field, tapping the
+  /// Amount clear (✕) after a Recents tile fill must leave focus in the Amount
+  /// field — it must NOT hand first responder to the Description field. The bug
+  /// moved the cursor to the end of the Description after clearing the amount.
+  @MainActor
+  func testClearAmountAfterRecentsTapKeepsFocusInAmountField() {
+    let app = makeApp()
+    app.launch()
+    createBudget(named: "Test", in: app)
+    addNamedExpense(amount: "12", name: "Lunch", to: "Test", in: app)
+
+    app.buttons["Add expense for Test"].tap()
+    XCTAssertTrue(app.navigationBars["Add Expense"].waitForExistence(timeout: 3))
+
+    // Put the cursor in the Amount field explicitly (iOS-COMPAT: double-tap forces
+    // UIViewRepresentable focus to register in XCUITest; autoFocus alone is flaky here).
+    let amountField = expenseAmountField(in: app)
+    XCTAssertTrue(amountField.waitForExistence(timeout: 2))
+    amountField.tap()
+    amountField.tap()
+
+    let recentsTile = app.buttons.matching(
+      NSPredicate(format: "label BEGINSWITH 'Lunch'")
+    ).firstMatch
+    XCTAssertTrue(recentsTile.waitForExistence(timeout: 2), "Recents tile should be visible")
+    recentsTile.tap()
+
+    let clearButton = app.buttons["Clear amount"]
+    XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
+    clearButton.tap()
+
+    // Let any (buggy) first-responder reassignment land before asserting.
+    Thread.sleep(forTimeInterval: 1)
+
+    let descriptionField = app.textFields["Expense description"]
+    XCTAssertFalse(
+      hasKeyboardFocus(descriptionField),
+      "Focus must not jump to the Description field after clearing the Amount"
+    )
+    XCTAssertTrue(
+      hasKeyboardFocus(amountField),
+      "Focus should stay in the Amount field after clearing it"
+    )
+  }
+
+  /// Regression for the reported bug: the Description field is focused (typing
+  /// there is what filters the Recents row), a Recents tile fills both fields,
+  /// and the user taps the Amount clear (✕). Before the fix the cursor stayed at
+  /// the end of the Description field; the ✕ must move it into the Amount field
+  /// (matching `UITextField`'s built-in clear-button behavior).
+  @MainActor
+  func testClearAmountWhileDescriptionFocused() {
+    let app = makeApp()
+    app.launch()
+    createBudget(named: "Test", in: app)
+    addNamedExpense(amount: "12", name: "Lunch", to: "Test", in: app)
+
+    app.buttons["Add expense for Test"].tap()
+    XCTAssertTrue(app.navigationBars["Add Expense"].waitForExistence(timeout: 3))
+
+    let descriptionField = app.textFields["Expense description"]
+    XCTAssertTrue(descriptionField.waitForExistence(timeout: 2))
+    descriptionField.tap()
+    descriptionField.typeText("Lu")
+
+    let recentsTile = app.buttons.matching(
+      NSPredicate(format: "label BEGINSWITH 'Lunch'")
+    ).firstMatch
+    XCTAssertTrue(recentsTile.waitForExistence(timeout: 2))
+    recentsTile.tap()
+
+    let clearButton = app.buttons["Clear amount"]
+    XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
+    clearButton.tap()
+
+    Thread.sleep(forTimeInterval: 1)
+
+    XCTAssertFalse(
+      hasKeyboardFocus(descriptionField),
+      "Focus must not sit in the Description field after clearing the Amount (description-focused variant)"
+    )
+    XCTAssertTrue(
+      hasKeyboardFocus(expenseAmountField(in: app)),
+      "The clear button must hand focus to the Amount field"
+    )
+  }
+
   // MARK: - Helpers
+
+  /// XCUITest exposes first-responder state through the element snapshot's
+  /// `hasKeyboardFocus` attribute (no public Swift property on iOS).
+  @MainActor
+  private func hasKeyboardFocus(_ element: XCUIElement) -> Bool {
+    (element.value(forKey: "hasKeyboardFocus") as? Bool) ?? false
+  }
 
   @MainActor
   private func makeApp() -> XCUIApplication {

@@ -143,23 +143,20 @@ final class ClearAmountButtonUITests: XCTestCase {
       NSPredicate(format: "label BEGINSWITH 'Lunch'")
     ).firstMatch
     XCTAssertTrue(recentsTile.waitForExistence(timeout: 2), "Recents tile should be visible")
+    // The decimal pad is up; on a smaller device or larger type size it could cover
+    // the tile row. Fail diagnosably here rather than tapping the keyboard.
+    XCTAssertTrue(recentsTile.isHittable, "Recents tile must not be covered by the keyboard")
     recentsTile.tap()
 
     let clearButton = app.buttons["Clear amount"]
     XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
     clearButton.tap()
 
-    // Let any (buggy) first-responder reassignment land before asserting.
-    Thread.sleep(forTimeInterval: 1)
-
+    waitForKeyboardFocus(on: amountField, message: "Focus should stay in the Amount field after clearing it")
     let descriptionField = app.textFields["Expense description"]
     XCTAssertFalse(
       hasKeyboardFocus(descriptionField),
       "Focus must not jump to the Description field after clearing the Amount"
-    )
-    XCTAssertTrue(
-      hasKeyboardFocus(amountField),
-      "Focus should stay in the Amount field after clearing it"
     )
   }
 
@@ -193,15 +190,13 @@ final class ClearAmountButtonUITests: XCTestCase {
     XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
     clearButton.tap()
 
-    Thread.sleep(forTimeInterval: 1)
-
+    waitForKeyboardFocus(
+      on: expenseAmountField(in: app),
+      message: "The clear button must hand focus to the Amount field"
+    )
     XCTAssertFalse(
       hasKeyboardFocus(descriptionField),
       "Focus must not sit in the Description field after clearing the Amount (description-focused variant)"
-    )
-    XCTAssertTrue(
-      hasKeyboardFocus(expenseAmountField(in: app)),
-      "The clear button must hand focus to the Amount field"
     )
   }
 
@@ -212,6 +207,19 @@ final class ClearAmountButtonUITests: XCTestCase {
   @MainActor
   private func hasKeyboardFocus(_ element: XCUIElement) -> Bool {
     (element.value(forKey: "hasKeyboardFocus") as? Bool) ?? false
+  }
+
+  /// Deadline-based wait for keyboard focus (the refocus is a Task hop plus a keyboard
+  /// presentation, so a fixed sleep either wastes time or flakes on loaded CI sims).
+  /// The NSPredicate reads the same KVC `hasKeyboardFocus` attribute as the helper above.
+  @MainActor
+  private func waitForKeyboardFocus(on element: XCUIElement, message: String) {
+    let focused = expectation(
+      for: NSPredicate(format: "hasKeyboardFocus == true"),
+      evaluatedWith: element
+    )
+    let result = XCTWaiter.wait(for: [focused], timeout: 5)
+    XCTAssertEqual(result, .completed, message)
   }
 
   @MainActor

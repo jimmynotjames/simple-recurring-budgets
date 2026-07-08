@@ -101,8 +101,10 @@ struct DecimalInputField: UIViewRepresentable {
     }
     if context.coordinator.lastFocusRequest != focusRequest {
       context.coordinator.lastFocusRequest = focusRequest
-      // Deferred like autoFocus above: becoming first responder synchronously inside a
-      // SwiftUI update pass is the pattern that crashed on iOS 26 (see file header).
+      // Deferred like autoFocus above. First-responder setup mid-update is the fragile
+      // spot in the iOS 26 crash worked around in `CurrencyAmountField` (its `onClear`
+      // doc / PR #164 — adding an outer container crashed during autoFocus setup), so
+      // this conservatively never calls becomeFirstResponder inside the update pass.
       if !field.isFirstResponder {
         Task { field.becomeFirstResponder() }
       }

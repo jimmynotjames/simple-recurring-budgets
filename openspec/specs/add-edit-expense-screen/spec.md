@@ -115,7 +115,7 @@ The Add/Edit/View Expense screen SHALL collect exactly three user-editable field
 
 The fields are:
 
-- **Amount** (`Decimal?` in `AddEditExpenseViewModel`) — entered via a **`DecimalInputField`** — a `UITextField`-backed `UIViewRepresentable` — rather than SwiftUI's `TextField(value:format:)` (which rejects keystrokes whenever parsing throws, breaking RTL / non-Western-digit entry) or `TextField(text:)` + `.onChange` (which on iOS 17+ fails to render typed text until the field resigns first responder). The field is **seeded** from the draft `Decimal?` via `OptionalDecimalFormatStyle.editableText(_:)` at the expense currency's minor-unit precision (e.g. 0 for JPY, 2 for USD, 3 for BHD/KWD; no grouping separators), and an empty field maps to `nil` (blank default in Add mode). Each edit is parsed back to `Decimal?` via the style's **locale-aware `parseStrategy`**, which accepts whatever numbering system the locale's keyboard emits (Western, Arabic-Indic, Devanagari, …). Entry is **capped live** to the currency's minor-unit count by the field's delegate: 0-decimal currencies (JPY, KRW, …) reject the decimal separator entirely (no fractional entry), and other currencies accept at most that many fraction digits. Placeholder `"0"` (key `addEditExpense.field.amount.placeholder`). Keyboard type SHALL be `.decimalPad`. A currency symbol/code SHALL be displayed adjacent to the field in the same `HStack`, on the **locale-correct side** (leading or trailing); the decoration is derived from `settings.currencyDisplay.affixes(for: viewModel.currencyCode)` — which returns `(leading, trailing)` strings whose placement and spacing follow the same currency `FormatStyle` used by `Decimal.formatted(currencyCode:display:locale:)` (e.g. leading `"$"` for USD in en_US, trailing `" €"` for EUR in fr_FR), mirroring correctly in RTL — and SHALL update reactively whenever `settings.currencyDisplay` changes. The decoration `Text`(s) SHALL be `accessibilityHidden`. Accessibility label `"Expense amount"` (key `addEditExpense.field.amount.accessibilityLabel`). The view SHALL read `AppSettings` via `@Environment(AppSettings.self)`; the VM SHALL NOT store `AppSettings`.
+- **Amount** (`Decimal?` in `AddEditExpenseViewModel`) — entered via a **`DecimalInputField`** — a `UITextField`-backed `UIViewRepresentable` — rather than SwiftUI's `TextField(value:format:)` (which rejects keystrokes whenever parsing throws, breaking RTL / non-Western-digit entry) or `TextField(text:)` + `.onChange` (which on iOS 17+ fails to render typed text until the field resigns first responder). The field is **seeded** from the draft `Decimal?` via `OptionalDecimalFormatStyle.editableText(_:)` at the expense currency's minor-unit precision (e.g. 0 for JPY, 2 for USD, 3 for BHD/KWD; no grouping separators), and an empty field maps to `nil` (blank default in Add mode). Each edit is parsed back to `Decimal?` via the style's **locale-aware `parseStrategy`**, which accepts whatever numbering system the locale's keyboard emits (Western, Arabic-Indic, Devanagari, …). Entry is **capped live** to the currency's minor-unit count by the field's delegate: 0-decimal currencies (JPY, KRW, …) reject the decimal separator entirely (no fractional entry), and other currencies accept at most that many fraction digits. Placeholder `"0"` (key `addEditExpense.field.amount.placeholder`). Keyboard type SHALL be `.decimalPad`. A currency symbol/code SHALL be displayed adjacent to the field in the same `HStack`, on the **locale-correct side** (leading or trailing); the decoration is derived from `settings.currencyDisplay.affixes(for: viewModel.currencyCode)` — which returns `(leading, trailing)` strings whose placement and spacing follow the same currency `FormatStyle` used by `Decimal.formatted(currencyCode:display:locale:)` (e.g. leading `"$"` for USD in en_US, trailing `" €"` for EUR in fr_FR), mirroring correctly in RTL — and SHALL update reactively whenever `settings.currencyDisplay` changes. The decoration `Text`(s) SHALL be `accessibilityHidden`. Accessibility label `"Expense amount"` (key `addEditExpense.field.amount.accessibilityLabel`). When the draft amount is non-`nil`, a trailing clear button (`xmark.circle.fill`, accessibility label `"Clear amount"`, key `currencyAmountField.clearButton.accessibilityLabel`) SHALL render inside the field's `HStack`; tapping it SHALL clear the amount to `nil` **and hand keyboard focus to the Amount field** (a deferred `becomeFirstResponder` via `DecimalInputField`'s `focusRequest` trigger — matching `UITextField`'s built-in clear-button convention; without the handoff the cursor stayed wherever it was, e.g. at the end of the Description field after a Recents-driven fill). The view SHALL read `AppSettings` via `@Environment(AppSettings.self)`; the VM SHALL NOT store `AppSettings`.
 - **Description** (`String` in the VM, persisted as `String?`) — bound to a single-line `TextField` in the Description card. Placeholder `"e.g. Coffee"` (key `addEditExpense.field.name.placeholder`). Section label `"Description (optional)"` (key `addEditExpense.section.name`). Accessibility label `"Expense description"` (key `addEditExpense.field.name.accessibilityLabel`). Per F-2.04 AC, the description is optional — Save SHALL NOT be gated on it being non-empty. When the field is non-empty, a trailing clear button (`xmark.circle.fill`, mirroring `CurrencyAmountField`'s pattern) SHALL render inside the card and clear the field on tap; its accessibility label is "Clear description" (key `addEditExpense.field.name.clearButton.accessibilityLabel`). Clearing also restores the unfiltered Recents row (the Description doubles as the Recents filter query per F-7.04).
 - **When** (`Date`) — bound to a `DatePicker` with `displayedComponents: [.date, .hourAndMinute]` and `.datePickerStyle(.compact)`. Section label `"When"` (key `addEditExpense.section.when`). The picker's own label is hidden (`.labelsHidden()`) and provided via the section header.
 
@@ -199,6 +199,17 @@ The currency code SHALL be stored on the VM as a `let` (immutable for the lifeti
 - **WHEN** the Description field is empty
 - **THEN** no clear button renders
 
+#### Scenario: Amount clear button clears the field and takes keyboard focus
+
+- **WHEN** the draft amount is non-`nil`
+- **THEN** a trailing clear button is visible inside the Amount card
+
+- **WHEN** the user taps the clear button (regardless of which field, if any, was focused — e.g. the Description field after a Recents tile fill)
+- **THEN** the draft `amount` becomes `nil`, Save disables (in Add mode), and keyboard focus lands in the Amount field with the decimal pad presented
+
+- **WHEN** the draft amount is `nil`
+- **THEN** no clear button renders
+
 #### Scenario: When field defaults to current date and time in Add mode
 
 - **WHEN** the sheet opens in Add mode
@@ -211,16 +222,16 @@ The currency code SHALL be stored on the VM as a `let` (immutable for the lifeti
 
 ### Requirement: Add mode auto-focuses the Amount field; Edit/View mode does not
 
-In Add mode, the Amount `TextField` SHALL receive keyboard focus automatically when the sheet appears (via `@FocusState` plus `.onAppear`), so the software keyboard appears immediately and the user can begin typing without an extra tap. In Edit/View mode, no field SHALL receive automatic focus; the user must tap to begin editing.
+In Add mode, the Amount field SHALL receive keyboard focus automatically when the sheet appears, so the software keyboard appears immediately and the user can begin typing without an extra tap. In Edit/View mode, no field SHALL receive automatic focus; the user must tap to begin editing.
 
-This SHALL be enforced by gating the focus assignment on `viewModel.isEditing == false`:
+Because the Amount field is a `UITextField`-backed `UIViewRepresentable` (outside SwiftUI's `@FocusState` system), this is implemented via `DecimalInputField`'s `autoFocus` parameter — a one-shot, coordinator-deduped `becomeFirstResponder` deferred via `Task` (synchronous first-responder setup during a SwiftUI update pass is the fragile spot in the iOS 26 crash PR #164 worked around). The Add/Edit gate lives at the call site:
 
 ```swift
-.onAppear {
-  if !viewModel.isEditing {
-    isAmountFocused = true
-  }
-}
+CurrencyAmountField(
+  …,
+  autoFocus: !viewModel.isEditing,
+  …
+)
 ```
 
 #### Scenario: Add mode auto-focuses the Amount field

@@ -200,6 +200,64 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
   }
 
+  /// Pins the full repeat cycle of the monotonic `focusRequest` trigger:
+  /// clear (✕) → retype an amount → move focus to the Description and type
+  /// (each keystroke re-renders the sheet; the Amount field must NOT steal
+  /// focus back — the coordinator's equality check is what prevents it) →
+  /// clear again (a fresh counter delta must hand focus to Amount again).
+  @MainActor
+  func testRepeatedClearCyclesKeepHandingFocusToAmountField() {
+    let app = makeApp()
+    app.launch()
+    createBudget(named: "Test", in: app)
+    addNamedExpense(amount: "12", name: "Lunch", to: "Test", in: app)
+
+    app.buttons["Add expense for Test"].tap()
+    XCTAssertTrue(app.navigationBars["Add Expense"].waitForExistence(timeout: 3))
+
+    // First cycle: type an amount, clear it, focus must land in Amount.
+    let amountField = expenseAmountField(in: app)
+    XCTAssertTrue(amountField.waitForExistence(timeout: 2))
+    amountField.tap()
+    amountField.tap()
+    amountField.typeText("25")
+
+    let clearButton = app.buttons["Clear amount"]
+    XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
+    clearButton.tap()
+    waitForKeyboardFocus(on: amountField, message: "First clear must hand focus to the Amount field")
+
+    // Retype: the field is focused from the clear, so keystrokes land directly.
+    amountField.typeText("42")
+
+    // Move to the Description (dismiss the decimal pad via the section label first,
+    // matching addNamedExpense's pattern) and type — filtering re-renders the sheet
+    // on every keystroke, and the Amount field must not steal focus back.
+    let descriptionLabel = app.staticTexts["Description (optional)"]
+    XCTAssertTrue(descriptionLabel.waitForExistence(timeout: 2))
+    descriptionLabel.tap()
+
+    let descriptionField = app.textFields["Expense description"]
+    XCTAssertTrue(descriptionField.waitForExistence(timeout: 2))
+    descriptionField.tap()
+    descriptionField.typeText("Lu")
+
+    XCTAssertTrue(
+      hasKeyboardFocus(descriptionField),
+      "Typing in the Description must keep focus there — the Amount field must not steal it back"
+    )
+    XCTAssertFalse(hasKeyboardFocus(amountField))
+
+    // Second cycle: clearing again is a fresh counter delta and must hand focus back.
+    XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
+    clearButton.tap()
+    waitForKeyboardFocus(on: amountField, message: "Second clear must hand focus to the Amount field again")
+    XCTAssertFalse(
+      hasKeyboardFocus(descriptionField),
+      "Focus must not remain in the Description field after the second clear"
+    )
+  }
+
   // MARK: - Helpers
 
   /// XCUITest exposes first-responder state through the element snapshot's

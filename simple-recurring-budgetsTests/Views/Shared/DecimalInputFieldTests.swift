@@ -63,7 +63,9 @@ struct DecimalInputFieldFractionTests {
 @MainActor
 struct DecimalInputFieldBeginEditingTests {
   private func makeCoordinator() -> DecimalInputField.Coordinator {
-    DecimalInputField.Coordinator(text: .constant(""), maxFractionDigits: 2, separators: ["."])
+    DecimalInputField.Coordinator(
+      text: .constant(""), maxFractionDigits: 2, separators: ["."], lastFocusRequest: 0
+    )
   }
 
   /// The begin-editing hook lets the budget screen clear the Name field's `@FocusState` so the

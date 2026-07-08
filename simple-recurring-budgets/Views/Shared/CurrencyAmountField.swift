@@ -39,6 +39,10 @@ struct CurrencyAmountField: View {
   var onClear: (() -> Void)?
 
   @State private var text: String = ""
+  /// Bumped when the clear (✕) is tapped so `DecimalInputField` (re)takes first responder —
+  /// the cursor must land in this field after clearing, not stay wherever it was (the bug
+  /// left it at the end of the Description field after a Recents-driven fill).
+  @State private var focusRequest = 0
   /// The last `value` we round-tripped through (seeded on appear; updated on every text→value parse).
   /// `onChange(of: value)` skips the re-seed when `newValue == lastSyncedValue` — i.e., the change
   /// came from our own parse. External writes (e.g. F-7.04 Recents tap) differ from this sentinel
@@ -61,6 +65,7 @@ struct CurrencyAmountField: View {
         text: $text,
         currencyCode: currencyCode,
         autoFocus: autoFocus,
+        focusRequest: focusRequest,
         textColor: tint ?? .primary,
         accessibilityLabel: accessibilityLabel,
         onBeginEditing: onBeginEditing
@@ -68,7 +73,10 @@ struct CurrencyAmountField: View {
       .frame(maxWidth: .infinity)
       affix(affixes.trailing)
       if let onClear, value != nil {
-        Button(action: onClear) {
+        Button {
+          onClear()
+          focusRequest += 1
+        } label: {
           Image(systemName: "xmark.circle.fill")
             .foregroundStyle(.secondary)
             .font(.body)

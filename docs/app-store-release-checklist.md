@@ -36,19 +36,24 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       investing in anything else.
 - [ ] **P0.4** Auth sanity: `fastlane ios verify_auth` (ASC API key in
       `fastlane/.env`); confirm the Apple Distribution certificate hasn't
-      expired (Xcode → Settings → Accounts, or ASC → Certificates). See
-      `fastlane/SETUP.md` for key setup if anything is broken.
-- [ ] **P0.5** 🖱️ ASC housekeeping: no unaccepted agreements (ASC → Business →
-      Agreements), no pending compliance requests or account warnings.
+      expired (Xcode → Settings → Accounts, or ASC → Certificates). If
+      `fastlane/.env` or the `.p8` key file is missing (new machine), recover
+      per `fastlane/SETUP.md` — the key itself is in ASC → Users and Access →
+      Integrations, and app secrets live in `config/Secrets.local.xcconfig`
+      (`CONTRIBUTING.md § B`).
+- [ ] **P0.5** 🖱️ ASC housekeeping: **Apple Developer Program membership
+      active** (it renews annually — a lapsed membership removes the app from
+      sale); no unaccepted agreements (ASC → Business → Agreements); no pending
+      compliance requests or account warnings.
 - [ ] **P0.6** 🖱️ Decide the new App Store version number — a product decision
       the agent must always **prompt for, never pick silently**.
       `MARKETING_VERSION` in `project.pbxproj` is the **single source of
       truth** for the user-facing version: `Info.plist` maps it to
       `CFBundleShortVersionString`, which is what SettingsView displays and
-      the rating prompt tracks — so the one bump in P4.2 covers the app,
+      the rating prompt tracks — so the one bump in P4.1 covers the app,
       SettingsView, and the binary ASC receives (build numbers are automated —
       `fastlane/SETUP.md` "Build numbers"). Verify it matches the version
-      string ASC expects for this submission. The actual bump happens in P4.2.
+      string ASC expects for this submission. The actual bump happens in P4.1.
 - [ ] **P0.7** Create the snapshot `releases/vX.Y.Z.md` (the skill does this)
       and record version + start date in its header.
 
@@ -86,11 +91,17 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P2.3** (optional) Translation-quality audit: if many strings were added
       since the newest `translation-quality-audit-*` in `docs/audits/`, run
       `/audit-translations` and act on the manifest.
-- [ ] **P2.4** Metadata current: review `fastlane/metadata/en-US/*.txt`
-      (description, keywords, promotional text) against the app as it is now;
-      **write `release_notes.txt` for this version**; then
-      `/appstore:translate-metadata`. Done when
+- [ ] **P2.4** Metadata current **and pushed**: review
+      `fastlane/metadata/en-US/*.txt` (description, keywords, promotional
+      text) against the app as it is now; **write `release_notes.txt` for this
+      version**; then `/appstore:translate-metadata` until
       `python3 scripts/translate_metadata/check_metadata.py` exits 0.
+      Then upload: `fastlane ios push_metadata` — it stages into the editable
+      ("Prepare for Submission") version in ASC, so if none exists yet, create
+      version X.Y.Z in ASC first (that's the start of P5.1 — just do that bit
+      early). Known gotchas are in `fastlane/SETUP.md` (e.g. the v1.0
+      "No data" crash: one-time save of ASC → App Review Information, then
+      re-run).
 - [ ] **P2.5** Screenshots current? Compare `fastlane/screenshots/` against the
       current UI. If any captured screen changed visibly:
       `/appstore:generate-push-screenshots` (re-capture from the existing seed
@@ -119,6 +130,9 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P3.4** 🖱️ Privacy nutrition labels: ASC → App Privacy answers still
       match what the app actually collects (Mixpanel events behind consent) —
       update if the analytics surface changed (`docs/analytics-spec.md`).
+      While there: the **Accessibility Nutrition Label** answers (ASC → App
+      Store → Accessibility) — fill in on first release, re-check if
+      accessibility support changed.
 - [ ] **P3.5** Cross-cutting concerns confirmed per PRD §6.8 — accessibility,
       Dark Mode, localization (record the storefront-locale count), analytics.
       This feeds the `RELEASES.md` entry directly.
@@ -129,6 +143,17 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       intact (SwiftData migration is the risk here).
 - [ ] **P3.8** Mixpanel ready to observe the release: prod boards live, consent
       flow verified, no unshipped event-schema changes.
+- [ ] **P3.9** 🖱️ CloudKit **Production** schema deployed: if the SwiftData
+      model changed since the last release (any file under
+      `simple-recurring-budgets/Models/` — or first release), deploy the
+      schema in the CloudKit Console (icloud.developer.apple.com → container →
+      "Deploy Schema Changes", Development → Production) **before** cutting
+      the release candidate. Dev-signed builds use the Development
+      environment, but **TestFlight and App Store builds use Production** — an
+      undeployed schema means sync silently fails for exactly the builds that
+      matter. Constraints in `docs/tech-design-doc.md` §4.3 (CloudKit cannot
+      delete deployed record fields). The P4.3 iCloud round-trip on the
+      TestFlight build is the verification.
 
 ## Phase 4 — Build & upload
 
@@ -154,22 +179,34 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       - it does **NOT** show the word **"Debug"** — that badge only renders in
         Debug builds (`SettingsView.debugBadge`), so seeing it means you're
         running a local dev build, not the TestFlight release candidate.
-      Then run through onboarding, core budget flows, and anything new in this
-      release. Record the build number tested in the snapshot; it is the one
-      to attach in P5.1.
+      Then run through onboarding, core budget flows, an iCloud sync
+      round-trip (this exercises the **Production** CloudKit environment and
+      verifies P3.9), and anything new in this release. Record the build
+      number tested in the snapshot; it is the one to attach in P5.1.
 
 ## Phase 5 — Submit for review ⭑ MAJOR CHECKPOINT
 
 - [ ] **P5.1** 🖱️ In ASC: create/select version X.Y.Z, attach build N — the
-      exact build tested in P4.3 — and proof
-      the metadata + screenshots preview, answer export compliance (standard
-      HTTPS/OS crypto only — verify this is still true), choose the release
-      option (manual / automatic / **phased** — phased recommended once there
-      is an existing user base).
+      exact build tested in P4.3 — proof the metadata + screenshots preview,
+      and choose the release option (manual / automatic / **phased** — phased
+      recommended once there is an existing user base). Export compliance is
+      pre-answered in code: `Info.plist` sets
+      `ITSAppUsesNonExemptEncryption = false` (exempt HTTPS/OS crypto only),
+      so ASC won't ask per-build — just confirm that claim is still true if
+      networking/crypto usage changed.
+      **First release only** (persistent ASC setup; confirm still sane on
+      later releases):
+      - Pricing & Availability — price tier (free) and territory list.
+      - Age rating questionnaire completed.
+      - Primary category (Finance) + optional secondary.
+      - App Review Information — contact info + reviewer notes (no demo
+        account needed; the app has no login). Saving this section once is
+        also the fix for the `push_metadata` v1.0 "No data" crash (P2.4).
 - [ ] **P5.2** 🖱️ Click **Submit for Review**. (fastlane *can* do this —
       `deliver` with `submit_for_review: true` — but the repo default is the
       manual click; at a years-between-releases cadence the button is more
-      robust than a rusty automation path.)
+      robust than a rusty automation path.) If timing matters, note App Review
+      slows around major holidays (late December especially).
 - [ ] **P5.3** Record in the snapshot: submitted date, build number, and that
       ASC shows **Waiting for Review**. *(Re-invoke the skill when the review
       state changes — Apple emails on transitions.)*
@@ -179,7 +216,9 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P6.1** If rejected: read the Resolution Center message, use the
       `app-store-review` skill to interpret the guideline cited, fix, and
       resubmit (rejections often only need a reply or metadata tweak, not a new
-      build). Log each rejection + resolution in the snapshot.
+      build — but if the fix requires a binary change, loop back to P4.1 for a
+      fresh candidate: new build number, same version). Log each rejection +
+      resolution in the snapshot.
 - [ ] **P6.2** 🖱️ On approval: release per the P5.1 choice; confirm the new
       version is actually live on the App Store.
 - [ ] **P6.3** Record the release date in the snapshot and tag the repo:
@@ -193,7 +232,9 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       the pre-release baseline.
 - [ ] **P7.2** Day 0–1 — stability: crash reports in Xcode → Organizer →
       Crashes (and ASC → Analytics → Metrics). Expect near-zero; any crash
-      cluster on the new version is a drop-everything signal.
+      cluster on the new version is a drop-everything signal. If the release
+      is **phased** (P5.1), a bad signal can be contained: ASC → the version →
+      pause the phased release while you diagnose.
 - [ ] **P7.3** 🖱️ Day ~3 — mid-week check: crash-free rate, App Store ratings &
       reviews (respond if needed), key funnels vs. baseline.
 - [ ] **P7.4** Day 7 — final check of the same three (crashes, reviews,

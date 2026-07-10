@@ -82,6 +82,26 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       explicitly: fix before release, defer (add the `deferred` label + a
       comment), or accept as known for this release — no silent passes. Record
       the disposition list in the snapshot.
+- [ ] **P1.7** Dependency bump review — one last look before freezing the
+      binary. Dependabot only watches GitHub Actions, so **SPM packages are
+      manual**: read the pins in
+      `simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
+      and compare each against its upstream latest (`gh api
+      repos/{owner}/{repo}/releases/latest`). Judgment rule: take patch/minor
+      bumps of SDKs that talk to live services (Mixpanel especially — stale
+      analytics SDKs rot against API changes); **skip major bumps** this close
+      to a release unless something is broken. Any bump must land before the
+      P1.2 gate re-run. Record bump/skip per package.
+- [ ] **P1.8** Apple platform review: check `SWIFT_VERSION` and
+      `IPHONEOS_DEPLOYMENT_TARGET` in `project.pbxproj` against the current
+      Xcode/SDK and decide deliberately whether to move either. Raising the
+      deployment target **drops users on older iOS — a product decision, ask
+      Jimmy**; raising the Swift version is a code decision (gate must stay
+      green). If either moves, audit the tagged version workarounds:
+      `grep -rn "iOS-COMPAT" simple-recurring-budgets/` — each tag names the
+      version it exists for and can be deleted once the target passes it.
+      (P0.3 already covered Apple's *submission-minimum* deadline; this item
+      is about what *we choose* to target.)
 
 ## Phase 2 — Localization & App Store content
 

@@ -1,16 +1,7 @@
-<!--
-  README authoring notes (delete before going public, or keep — your call):
-  • Blocks marked  > ✍️ **WRITE THIS** …  are prose outlines for you to replace with your own words.
-  • Tables and bullet lists outside those blocks are pre-filled from a repo audit — verify, then keep.
-  • GitHub "Topics" are set in repo Settings, not in this file. Suggested topic list is at the very bottom.
--->
-
 # Wren — Daily Expense Tracker
 
 > A native iOS / iPadOS app for staying on top of small, recurring everyday spending — built with SwiftUI, SwiftData, and CloudKit sync.
 
-<!-- Badge template — swap the placeholders once the repo is public / shipping.
-     HTML <img> tags (not ![]() Markdown) so SVG badges render in all previewers. -->
 <p>
   <img alt="Platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20iPadOS-blue">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-6.0-orange">
@@ -19,64 +10,29 @@
   <a href=".github/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/badge/CI-GitHub%20Actions-2088FF"></a>
   <img alt="Built with AI" src="https://img.shields.io/badge/code-~100%25%20AI--written-blueviolet">
 </p>
-<!-- Optional once live: App Store badge, TestFlight badge, build-status badge wired to Actions. -->
 
----
-
-> ✍️ **WRITE THIS — Elevator pitch (2–4 sentences).** This is the first thing an employer or engineer reads.
-> - What Wren is in one line, and who it's for (the "$30/day on coffee, $100/week on clothes" persona).
-> - The wedge: in-the-moment "can I afford this *right now*?" — not a full personal-finance suite, not bank integration.
-> - Why it exists (most budgeting apps are heavyweight; logging an expense should take seconds).
-> - One sentence on what makes the *codebase* interesting (e.g. "built almost entirely through agentic AI development with a spec-driven workflow").
-
-## 🤖 An experiment in agentic AI development
-
-> ✍️ **WRITE THIS — your headline story, above the fold (1–2 tight paragraphs).** This is the lead. Hints for what to hit:
-> - **The thesis in one breath.** Essentially every line of this app was written by AI agents (all but two) — a deliberate experiment in *agentic* development, where the human sets direction and the agents write the code.
-> - **What that actually looked like for you.** Most of the effort went into the *prompt, the plan, and the product/UX specs* — plus reviewing PRs and conversing with the agent — not typing implementation. AI also drove the visual design, app icon, and color palette.
-> - **Why it didn't turn into chaos.** A hand-written PRD + UX brief for governance, OpenSpec to impose discipline on agents, CI gates they can't bypass, and a habit of running regular audits. (Keep this to a sentence here — the long version lives in the retrospective.)
-> - **Land it.** One line on what you took away from it / why it's worth a reader's time.
->
-> 📖 **The full story — build order, what worked, the tooling tug-of-war between Cursor / Claude Code / Xcode, and where AI struggled — is in [`RETROSPECTIVE.md`](RETROSPECTIVE.md).** For the engineering map, see [`ARCHITECTURE.md`](ARCHITECTURE.md).
-
-## Screenshots
-
-<!-- Source: App Store screenshots under fastlane/screenshots/en-US/ (iPhone 17 Pro Max set). -->
-
-| Budgets | Add Expense | Budget Detail | Add Budget | Settings |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-01_budgets.png" alt="Budgets list" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-02_add_expense.png" alt="Add expense" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-03_detail.png" alt="Budget detail with carry-over" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-04_add_budget.png" alt="Add budget" width="160"> | <img src="fastlane/screenshots/en-US/iPhone%2017%20Pro%20Max-05_settings.png" alt="Settings" width="160"> |
-
----
-
-## Table of contents
-
-- [An experiment in agentic AI development](#-an-experiment-in-agentic-ai-development)
-- [About](#about)
-- [Status](#status)
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Architecture](#architecture)
-- [Project structure](#project-structure)
-- [Dependencies](#dependencies)
-- [Localization &amp; accessibility](#localization--accessibility)
-- [Testing](#testing)
-- [Tooling, CI &amp; release](#tooling-ci--release)
-- [Built with agentic AI](#built-with-agentic-ai)
-- [What this project demonstrates](#what-this-project-demonstrates)
-- [Getting started](#getting-started)
-- [Documentation](#documentation)
-- [License, trademarks &amp; contributing](#license-trademarks--contributing)
-
----
 
 ## About
 
-> ✍️ **WRITE THIS — The problem & the approach.** A few short paragraphs. Suggested beats:
-> - **The problem.** Recurring everyday spend (food, coffee, groceries) is hard to discipline; bank-linked apps lag ~2 days and miss tips; existing apps assume *their* mental model of your finances.
-> - **The approach.** Per-category daily/weekly/biweekly/monthly allowances; a live "remaining this period" number plus a separate signed **carry-over** so you always know if you're ahead or behind.
-> - **The constraints that shaped it.** No backend (CloudKit only), Apple-first dependency policy, `Decimal` money everywhere, per-budget currency, privacy-first analytics.
-> - **What you'd want to talk about in an interview** (pull from [Architecture](#architecture) below): the carry-over "live walker" algorithm, SwiftData + CloudKit single-store split-brain prevention, the 49-locale AI translation pipeline.
+This project was my attempt to learn agentic programming. All but two lines of code were produced by agents, along with lots of human judgment and discernment (Me: iOS developer for 15+ years). See retrospective doc below for more details about AI programming. 
+
+**Thoughts on agentic programming: [`RETROSPECTIVE.md`](RETROSPECTIVE.md)** 
+
+**Product and Design thinking: [`docs/main-prd.md,`](docs/main-prd.md) [`docs/ux-design-brief.md`](docs/ux-design-brief.md)** 
+
+**Technical Design:  [`ARCHITECTURE.md`](ARCHITECTURE.md), [`docs/tech-design-doc.md`](docs/tech-design-doc.md)**
+
+**Analytics Design: [`docs/analytics-spec.md`](docs/analytics-spec.md)**
+
+---
+
+## Screenshots
+
+| Budgets | Add Expense | Budget Detail | Add Budget | Settings |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/readme-images/2026-07-11_budgets.png" alt="Budgets list" width="160"> | <img src="docs/readme-images/2026-07-11_add_expense.png" alt="Add expense" width="160"> | <img src="docs/readme-images/2026-07-11_detail.png" alt="Budget detail with carry-over" width="160"> | <img src="docs/readme-images/2026-07-11_add_budget.png" alt="Add budget" width="160"> | <img src="docs/readme-images/2026-07-11_settings.png" alt="Settings" width="160"> |
+
+---
 
 ## Status
 
@@ -88,17 +44,16 @@
 
 ## Features
 
-> ✍️ **WRITE / TRIM THIS.** Keep it benefit-led and short; the full acceptance criteria live in [`docs/product-features-planning.md`](docs/product-features-planning.md). Starter list (verify against current build):
+> Full feature set in the agent-readable doc: [`docs/product-features-planning.md`](docs/product-features-planning.md).
 
 - 💸 **Fast expense logging** — add an expense in as few taps as possible; recents-assisted entry.
 - 📊 **Recurring budgets** — daily, weekly, biweekly, monthly, or a fixed-window "Specific Dates" trip budget.
 - 🔁 **Carry-over** — a per-budget signed surplus/deficit that tells you if you're ahead or behind over time (toggleable).
-- ➕ **Add funds** — top up a period's allocation; overspend and add-funds excess settle into carry-over live.
 - ⏸️ **Pause / resume** budgets, plus distinct **Reset Carry-Over / Reset Budget / Delete Budget** actions.
-- 💱 **Per-budget currency** (ISO 4217) with locale-aware formatting; no FX conversion.
+- 💱 **Per-budget currency** (ISO 4217) with locale-aware formatting; no FX conversion though.
 - ☁️ **CloudKit sync** across the user's devices; settings sync via iCloud key-value store.
 - 🌗 **Dark Mode**, **Dynamic Type**, and **VoiceOver** support throughout.
-- 🌍 **49 App Store storefront locales**.
+- 🌍 **All current 49 App Store storefront locales**.
 - 🔒 **Privacy-first analytics** — consent-gated, no PII, off by default in strict-opt-in jurisdictions.
 
 ---
@@ -127,23 +82,6 @@
 
 ---
 
-## Architecture
-
-> ✍️ **WRITE THIS — narrate the 2–3 decisions you're proudest of.** The facts below are accurate; add the *why* in your own voice. Candidates worth a paragraph each:
-> - **Designed for longevity & minimal maintenance (lead with this — it ties the whole tech philosophy together).** The explicit goal: *I may not touch this app for years, and I don't want future-me fighting it.* So — target the **latest iOS only** (minimal backward-compat surface), lean on **stable, documented Apple APIs** (no undocumented/private behavior that breaks on OS updates), and keep **external dependencies near-zero** (one direct package). Fewer moving parts = fewer things that rot.
-> - **View + Services, ViewModels on demand.** Pure domain services in `Domain/` hold the testable math; thin screens read via `@Query` and only escalate to an `@Observable` ViewModel for real draft/form state. (tech-design-doc §2.1)
-> - **The carry-over "live walker."** Carry-over is never stored — `BudgetCalculator.snapshot(...)` recomputes it from history at read time, with an *asymmetric live coupling* rule (overspend lands immediately; provisional slack waits for the period to close). (PRD §6.7, tech-design-doc §3.2 / §5.4)
-> - **Single-store split-brain prevention.** CloudKit-enabled and local-only `ModelConfiguration`s are pinned to the same on-disk URL so an offline-first launch isn't stranded in a forked store. (tech-design-doc §4.1)
-
-**The non-negotiables (pulled from the docs):**
-
-- **No app-owned backend.** All data is on-device (SwiftData) and syncs through the user's own iCloud (CloudKit). Apple-first dependency policy.
-- **Value-based navigation.** Routes carry a model's stable `UUID`, never a live object — serializable for future deep links / widgets / App Intents.
-- **Domain layer is SwiftUI-free.** `PeriodCalculator`, `BudgetCalculator`, and `BudgetLifecycleService` are pure and unit-tested in isolation.
-- **Container creation never `fatalError`s.** Failures surface a Retry / Send-Feedback screen instead of crashing.
-
-**Start with [`ARCHITECTURE.md`](ARCHITECTURE.md)** for the high-level, human-readable map; [`docs/tech-design-doc.md`](docs/tech-design-doc.md) is the exhaustive reference behind it.
-
 ## Project structure
 
 ```
@@ -171,15 +109,33 @@ docs/                             # PRD, tech design, UX brief, feature planning
 
 Deliberately minimal — Apple-first policy, with Mixpanel as the **only** direct third-party runtime dependency (Swift Package Manager, Xcode-project-managed).
 
-| Package | Version | Why | Notes |
-|---|---|---|---|
-| [`mixpanel-swift`](https://github.com/mixpanel/mixpanel-swift) | 6.3.0 | Product analytics | Direct; lazy-init, consent-gated, no PII |
-| [`mixpanel-swift-common`](https://github.com/mixpanel/mixpanel-swift-common) | 1.0.1 | — | Transitive (via Mixpanel) |
-| [`json-logic-swift`](https://github.com/advantagefse/json-logic-swift) | 1.2.4 | — | Transitive (via Mixpanel) |
+| Package | Why | Notes |
+|---|---|---|
+| [`mixpanel-swift`](https://github.com/mixpanel/mixpanel-swift) | Product analytics | Direct; lazy-init, consent-gated, no PII |
+| [`mixpanel-swift-common`](https://github.com/mixpanel/mixpanel-swift-common) | — | Transitive (via Mixpanel) |
+| [`json-logic-swift`](https://github.com/advantagefse/json-logic-swift) | — | Transitive (via Mixpanel) |
 
 Everything else is **Apple frameworks**: SwiftUI, SwiftData, CloudKit, Foundation, `OSLog`, StoreKit (rating prompt), and the String Catalog toolchain. SPM bumps are manual (no `Package.swift`; Dependabot tracks GitHub Actions only).
 
 ---
+
+## AI Agent Configs
+
+- **Mirrored Cursor / Claude Code setup.** Hand-authored commands and skills are kept in sync as duplicate copies — `.claude/commands/*.md` ↔ `.cursor/commands/*.md`, `.claude/skills/<name>/SKILL.md` ↔ `.cursor/skills/<name>/SKILL.md` — so either tool can drive the same workflow. Some cross-cutting rules (concurrency, build/test procedure, per-repo state locality) are also mirrored into `.cursor/rules/*.mdc` so Cursor gets the same guardrails Claude Code reads from `AGENTS.md`. `AGENTS.md` is the canonical source; the Cursor copies are kept in sync with it, not the other way around.
+- **Custom skills** (project-specific, not generic framework reference):
+  - [`create-pr`](.claude/skills/create-pr/SKILL.md) — review, gate, and open a PR from already-written changes
+  - [`create-pr-for-issue`](.claude/commands/create-pr-for-issue.md) — turn a GitHub issue into a reviewed, gated PR
+  - [`merge-pr`](.claude/commands/merge-pr.md) — squash-merge a reviewed PR and close its linked issue
+  - [`translate-new-strings`](.claude/skills/translate-new-strings/SKILL.md) — translate new/stale in-app string keys to 49 locales
+  - [`audit-translations`](.claude/skills/audit-translations/SKILL.md) — quality-audit existing translations (tone, truncation, accuracy)
+  - [`appstore-translate-metadata`](.claude/skills/appstore-translate-metadata/SKILL.md) — transcreate the App Store listing into 49 storefronts
+  - [`appstore-generate-screenshot-seeding`](.claude/skills/appstore-generate-screenshot-seeding/SKILL.md) — generate culturally-tuned per-locale screenshot demo data
+  - [`appstore-generate-push-screenshots`](.claude/skills/appstore-generate-push-screenshots/SKILL.md) — capture and upload localized App Store screenshots
+  - [`appstore-push-testflight-build`](.claude/skills/appstore-push-testflight-build/SKILL.md) — cut and ship a TestFlight build end-to-end
+  - [`mixpanel-build-boards`](.claude/skills/mixpanel-build-boards/SKILL.md) — build/reconcile Mixpanel dashboards against `docs/analytics-spec.md`
+  - [`ios-sims`](.claude/skills/ios-sims/SKILL.md) — simulator setup, concurrency tuning, two-pass test architecture reference
+  - [`translation-accessibility-size-check`](.claude/skills/translation-accessibility-size-check/SKILL.md) — ad-hoc visual check for truncation/RTL at large Dynamic Type
+- **Other configuration.** `.claude/agents/` pins model-specific subagents for parallel per-locale fan-out (Haiku for translation, Opus for audit/glossary/content generation). `.claude/settings.json` allowlists the deterministic pipeline scripts and gates so agents run the translation/metadata/screenshot pipelines without permission prompts, plus a pre-tool-use hook enforcing Bash hygiene. The `openspec-*` skills/commands are packaged by [OpenSpec](https://github.com/Fission-AI/OpenSpec) itself and regenerate on update — behavioral overrides for that workflow live in `openspec/config.yaml` and `AGENTS.md` instead of the generated files. A further set of generic Apple-platform reference skills (SwiftData, CloudKit, App Intents, accessibility, localization, Swift concurrency/testing, SwiftUI patterns, etc.) round out the toolbox but aren't project-specific.
 
 ## Localization & accessibility
 
@@ -209,32 +165,7 @@ make test-ui    # UI suite only
 - **Release (Fastlane):** lanes for `beta` (TestFlight), `release` (App Store), `push_metadata`, and `screenshots`, all guarded by a pre-build secrets check (`scripts/verify_release_secrets.sh`). App Store Connect API key auth; secrets live outside the repo.
 - **Spec-driven workflow:** [OpenSpec](https://github.com/Fission-AI/OpenSpec) change proposals under `openspec/`.
 
----
 
-## Built with agentic AI
-
-> **Premise:** essentially **100% of this codebase was written by AI agents — every line but two** — as a deliberate showcase of agentic-AI software development. The role here was engineer-as-director: setting requirements, reviewing, and gating, while agents produced the code.
-
-> ✍️ **WRITE THIS — this is the headline differentiator; give it room.** Beats to consider:
-> - **The experiment.** State it plainly: a real, App-Store-bound iOS app where AI wrote all the code save two lines — not a toy or a demo. Mention the timeframe / scale if you want it to land.
-> - **What "agentic AI development" means to you (define the term — don't assume the reader shares your definition).** AI *generates* the code; your time goes into the **prompt, the plan, and the product specs**, plus conversing/iterating with the agent. You **still manually reviewed PRs** (sometimes a skim, but a human gate) — engineer-as-director, not hands-off autopilot.
-> - **Where the hard human work actually went.** The initial drafts of [`docs/main-prd.md`](docs/main-prd.md) and [`docs/ux-design-brief.md`](docs/ux-design-brief.md) were **written by hand** — they're the high-level governance that keeps every agent, feature, and decision aligned. This is the leverage point: invest in the spec, and the agents stay on-rails.
-> - **AI beyond code.** You also used AI for **UI/visual design, the app icon, and the color palette** (the warm earth-tone theme). Worth calling out as evidence of an end-to-end AI-driven product, not just codegen.
-> - **How you kept it rigorous (the real skill on display).** [`AGENTS.md`](AGENTS.md) as canonical agent instructions, a spec-driven **OpenSpec** workflow, enforced cross-cutting-concern checklists (a11y, localization, analytics, UI-test screen objects), and CI gates agents can't bypass — so quality didn't depend on any single generation being right.
-> - **Custom agent tooling you built.** Repo-local skills and parallel multi-agent pipelines — e.g. fanning out one model subagent *per locale* to translate/transcreate 49 storefronts, and to generate culturally-tuned screenshot seed data.
-> - **Agents reach into ops too (TODO — not done yet, write once shipped).** The Mixpanel analytics dashboards are also generated by agents conversing with the **Mixpanel MCP server**, using [`docs/analytics-spec.md`](docs/analytics-spec.md) as the source of truth — so the spec drives both the in-app event code *and* the dashboards that read them.
-> - **The honest version.** What worked, what you had to guard against (drift audits in [`docs/audits/`](docs/audits)), and how you stayed the engineer-in-the-loop — the two hand-written lines are a nice concrete hook for *why* they were the exception.
-
-## What this project demonstrates
-
-> ✍️ **WRITE THIS — the "for employers" section.** A tight bulleted list of skills this repo is evidence of. Pull specifics from the docs so each bullet is concrete. Suggested skeleton:
-> - **Modern Apple platform engineering** — Swift 6 strict concurrency, SwiftUI, SwiftData + CloudKit, no third-party UI frameworks.
-> - **Non-trivial domain modeling** — the carry-over algorithm (asymmetric live coupling, paused-period handling, reset semantics) specified in the PRD and implemented as pure, tested services.
-> - **Production-readiness discipline** — privacy-first analytics, crash-free container recovery, secrets hygiene, branch-protected CI, App Store release automation.
-> - **Engineering for longevity** — deliberate low-maintenance bets (latest-OS-only, documented Apple APIs only, near-zero dependencies) so the app survives years of neglect without rotting.
-> - **Internationalization & accessibility at scale** — 49 locales and a VoiceOver/Dynamic-Type-per-change rule, both gated in CI.
-> - **Process & documentation** — versioned PRD / tech-design / UX docs, OpenSpec change history, and a reproducible agentic-development workflow.
-> - **(Optional) Product thinking** — a clear wedge, defined personas, and deliberate non-goals.
 
 ---
 
@@ -250,12 +181,12 @@ make test      # boots the repo's simulator and runs the full suite
 
 Full setup — including the two-tier flow (Simulator-only vs. shipping/forking for distribution), secrets configuration, and Fastlane — is in **[`CONTRIBUTING.md`](CONTRIBUTING.md)**.
 
-## Documentation
+## Docs Index
 
 | Document | Description |
 |---|---|
-| [`ARCHITECTURE.md`](ARCHITECTURE.md) | High-level, human-readable engineering map |
 | [`RETROSPECTIVE.md`](RETROSPECTIVE.md) | Essay on building this app with agentic AI |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | High-level, human-readable engineering map |
 | [`docs/main-prd.md`](docs/main-prd.md) | Product requirements and global constraints |
 | [`docs/ux-design-brief.md`](docs/ux-design-brief.md) | UX guidelines |
 | [`docs/product-features-planning.md`](docs/product-features-planning.md) | Feature IDs and acceptance criteria |

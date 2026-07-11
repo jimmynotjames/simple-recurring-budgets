@@ -1,6 +1,6 @@
 # Lessons Learned From Adventures in Agentic Coding
 
-> This document covers my efforts from inception to deployment of the first version, v1.0, of this app. April-July, 2026. I manually wrote this with AI helping to review and proofread the doc.
+> This document covers my efforts from inception to deployment of the first version, v1.0, of this app. April-July, 2026. I manually wrote this document with AI helping to review and proofread the doc.
 
 ## Introduction
 

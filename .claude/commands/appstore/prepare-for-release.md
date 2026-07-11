@@ -9,7 +9,7 @@ Drive (or resume) an **App Store release** of Wren, working through
 `docs/app-store-release-checklist.md` collaboratively with the user.
 
 Invoke the **`appstore-prepare-for-release`** skill (via the Skill tool) and follow its
-recipe: locate or create the release snapshot in `releases/vX.Y.Z.md`, resume
+recipe: locate or create the release snapshot in `releases/app-store-release-checklist--vX.Y.Z.md`, resume
 at the first unchecked item, and update the snapshot after every item.
 
 Major checkpoints: **submit for review** (manual ASC click, P5.2) and the

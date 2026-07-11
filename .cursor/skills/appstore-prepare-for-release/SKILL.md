@@ -1,6 +1,6 @@
 ---
 name: appstore-prepare-for-release
-description: Collaboratively drive an App Store release using docs/app-store-release-checklist.md — creates (or resumes) a per-release snapshot in releases/vX.Y.Z.md, walks the checklist with the user across sessions, invokes the sibling appstore/translation skills for the heavy steps, and closes out by filling the RELEASES.md entry after the 7-day post-release monitoring window. Use when starting an App Store release, resuming one mid-flight (e.g. "the app got approved", "let's check on the release"), or closing one out. Invoked via /appstore:prepare-for-release.
+description: Collaboratively drive an App Store release using docs/app-store-release-checklist.md — creates (or resumes) a per-release snapshot in releases/app-store-release-checklist--vX.Y.Z.md, walks the checklist with the user across sessions, invokes the sibling appstore/translation skills for the heavy steps, and closes out by filling the RELEASES.md entry after the 7-day post-release monitoring window. Use when starting an App Store release, resuming one mid-flight (e.g. "the app got approved", "let's check on the release"), or closing one out. Invoked via /appstore:prepare-for-release.
 ---
 
 # App Store release (collaborative, snapshot-driven)
@@ -17,7 +17,7 @@ items get a recommendation + a quick user decision, never a silent skip.
 
 ## Core rules
 
-- **The snapshot is the single source of truth.** `releases/vX.Y.Z.md` holds
+- **The snapshot is the single source of truth.** `releases/app-store-release-checklist--vX.Y.Z.md` holds
   every checkbox, date, and decision. Update it *immediately* after each item —
   assume the session could end at any moment.
 - **One release in flight at a time.** If two snapshots have
@@ -41,7 +41,7 @@ items get a recommendation + a quick user decision, never a silent skip.
 
 ## Snapshot format
 
-`releases/vX.Y.Z.md`:
+`releases/app-store-release-checklist--vX.Y.Z.md`:
 
 ```markdown
 # Release vX.Y.Z — checklist snapshot
@@ -88,7 +88,7 @@ grep -l "Status: in-flight" releases/*.md 2>/dev/null
    user for the new App Store version number** (AskUserQuestion, showing the
    current value and a suggested bump). It's a product decision — never pick
    it silently, and verify it matches what ASC expects (checklist P0.6).
-3. Create `releases/vX.Y.Z.md`: header per the format above (`Master:` sha from
+3. Create `releases/app-store-release-checklist--vX.Y.Z.md`: header per the format above (`Master:` sha from
    `git log -1 --format=%h -- docs/app-store-release-checklist.md`), then the
    verbatim checklist body from Phase 0 onward.
 4. Proceed to step 3 starting at P0.1.

@@ -1,11 +1,11 @@
 # App Store release checklist
 
-The master checklist for shipping a Wren release to the App Store, written for a
-future Jimmy (or agent) who may not have touched this repo in months or years.
+The master checklist for shipping a Wren release to the App Store. Audience: a
+future developer or agent who may not have touched this repo in months or years.
 Work top to bottom — phases are ordered by dependency.
 
 **How this is used:** the `/appstore:prepare-for-release` skill copies the checklist body
-into a per-release snapshot at `releases/vX.Y.Z.md`, then works through it with
+into a per-release snapshot at `releases/app-store-release-checklist--vX.Y.Z.md`, then works through it with
 you across as many sessions as the release takes. The snapshot is the state;
 this file is the template. Related: [`RELEASES.md`](../RELEASES.md) (append-only
 log of what shipped) gets its entry filled in at close-out (P7.5).
@@ -54,7 +54,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       SettingsView, and the binary ASC receives (build numbers are automated —
       `fastlane/SETUP.md` "Build numbers"). Verify it matches the version
       string ASC expects for this submission. The actual bump happens in P4.1.
-- [ ] **P0.7** Create the snapshot `releases/vX.Y.Z.md` (the skill does this)
+- [ ] **P0.7** Create the snapshot `releases/app-store-release-checklist--vX.Y.Z.md` (the skill does this)
       and record version + start date in its header.
 
 ## Phase 1 — Code & docs readiness

@@ -10,7 +10,7 @@ Drive (or resume) an **App Store release** of Wren, working through
 
 Follow the **`appstore-prepare-for-release`** skill recipe
 (`.cursor/skills/appstore-prepare-for-release/SKILL.md`): locate or create the release
-snapshot in `releases/vX.Y.Z.md`, resume at the first unchecked item, and
+snapshot in `releases/app-store-release-checklist--vX.Y.Z.md`, resume at the first unchecked item, and
 update the snapshot after every item.
 
 On Cursor, sibling steps that reference Claude slash commands map to the

@@ -1,18 +1,18 @@
 ---
 name: appstore-prepare-for-release
-description: Collaboratively drive an App Store release using docs/app-store-release-checklist.md — creates (or resumes) a per-release snapshot in releases/app-store-release-checklist--vX.Y.Z.md, walks the checklist with the user across sessions, invokes the sibling appstore/translation skills for the heavy steps, and closes out by filling the RELEASES.md entry after the 7-day post-release monitoring window. Use when starting an App Store release, resuming one mid-flight (e.g. "the app got approved", "let's check on the release"), or closing one out. Invoked via /appstore:prepare-for-release.
+description: Collaboratively drive an App Store release using docs/app-store-release-checklist.md — creates (or resumes) a per-release snapshot in releases/app-store-release-checklist--vX.Y.Z.md, walks the checklist with the user across sessions, invokes the sibling appstore/translation skills for the heavy steps, and closes out by filling the RELEASES.md entry after the ~1-week post-release monitoring window. Use when starting an App Store release, resuming one mid-flight (e.g. "the app got approved", "let's check on the release"), or closing one out. Invoked via /appstore:prepare-for-release.
 ---
 
 # App Store release (collaborative, snapshot-driven)
 
 Drives a release of Wren to the App Store using the master checklist at
 `docs/app-store-release-checklist.md`. A release spans **weeks and multiple
-sessions** (submit → review → release → 7-day monitoring), so all state lives
+sessions** (submit → review → release → ~1 week of monitoring), so all state lives
 in a per-release snapshot file — never in conversation memory.
 
-**Posture: collaborative, not autonomous.** Many items are `🖱️ MANUAL` (ASC
+**Posture: collaborative, not autonomous.** Many items are `🫵 MANUAL` (ASC
 UI, physical device) — for those, tell the user exactly what to do and wait for
-their confirmation. Agent-runnable items you execute directly. `(optional)`
+their confirmation. Agent-runnable items you execute directly. `🤔 (optional)`
 items get a recommendation + a quick user decision, never a silent skip.
 
 ## Core rules
@@ -54,18 +54,19 @@ Started: YYYY-MM-DD · Submitted: — · Released: — · Monitoring ends: —
 <full copied checklist body, Phase 0 → Phase 7>
 ```
 
-Item states: `- [ ]` pending · `- [x]` done · `- [-]` skipped.
-After any item that's done/skipped or produced a decision, append an indented
-note line:
+Checkboxes are binary: `- [ ]` not handled yet · `- [x]` handled (done **or**
+deliberately skipped — the Note says which). Every item in the template carries
+a `> Note:` field; fill it in when you mark the item:
 
 ```markdown
 - [x] **P1.3** Audit recency: ...
-      > 2026-07-10 — translation-quality audit is 5 weeks old, no string churn
-      > since; architecture audit stale but no structural changes. Not re-run.
+      > Note: 2026-07-10 — translation-quality audit is 5 weeks old, no string
+      > churn since; architecture audit stale but no structural changes. Not re-run.
 ```
 
-Dates, build numbers, rejection details, and "why we skipped" notes all go in
-these note lines — they are what makes the snapshot readable years later.
+Dates, build numbers, rejection details, and "Skipped — reason" / "N/A" calls
+all go in the Note — it is what makes the snapshot readable years later. Never
+check a box and leave its Note empty.
 
 ## Recipe
 
@@ -96,14 +97,17 @@ grep -l "Status: in-flight" releases/*.md 2>/dev/null
 ### 3. Working loop
 
 1. Re-read the snapshot. Report a one-paragraph status: current phase, first
-   unchecked item, elapsed time in any wait state (in review / monitoring day N).
+   unchecked item, elapsed time in any wait state (in review / days since
+   release).
 2. For each item in order:
    - **Agent-runnable** (commands, script checks, sibling skills): do it, show
-     the result, mark it.
-   - **`🖱️ MANUAL`**: give the user the precise steps (deep link into ASC where
-     possible), wait for their confirmation, mark it with their answer noted.
-   - **`(optional)`**: state a recommendation and why (e.g. "translation audit
-     was 2 weeks ago, skip"), let the user decide, mark `[x]` or `[-]` + note.
+     the result, mark it and fill its Note.
+   - **`🫵 MANUAL`**: give the user the precise steps (deep link into ASC where
+     possible), wait for their confirmation, mark it with their answer in the
+     Note.
+   - **`🤔 (optional)`**: state a recommendation and why (e.g. "translation
+     audit was 2 weeks ago, skip"), let the user decide, mark `[x]` with the
+     decision in the Note (e.g. `Skipped — audit 2 weeks old, no churn`).
 3. Update the snapshot file after **every** item, not in batches.
 4. Batch mechanical items where sensible (e.g. run P2.1 + P2.2 checks together)
    but never mark an item without evidence it passed.
@@ -154,7 +158,7 @@ version from P0.6 before baking it into the binary). Either way, copy the
 build number into the snapshot header — this one build is both the final
 TestFlight test target (P4.3) and the binary attached in P5.1.
 
-**P4.3 — final manual test.** 🖱️ — give the user the exact build number to
+**P4.3 — final manual test.** 🫵 — give the user the exact build number to
 install via TestFlight and what to verify: the Settings version row shows
 **vX.Y.Z (N)** and **no "Debug" badge** (Debug badge = local dev build, not
 the candidate), then onboarding, core flows, and this release's new features.
@@ -167,11 +171,12 @@ Two points intentionally span days; do not try to poll or babysit them:
 - **After P5.3 (submitted)**: tell the user — "Re-invoke `/appstore:prepare-for-release`
   when Apple emails a status change (approved/rejected), or to check anything
   meanwhile." Persist the snapshot first.
-- **During Phase 7 (monitoring)**: on each invocation compute the monitoring
-  day from the `Released:` date, run the day-appropriate checks (Mixpanel via
-  MCP for P7.1/P7.3/P7.4 event + funnel checks; the user reports crashes from
-  Xcode Organizer and ratings from ASC), note results, and say when to come
-  back next.
+- **During Phase 7 (monitoring)**: on each invocation report how long the
+  release has been out (from the `Released:` date), run whichever Phase 7
+  checks are still open (Mixpanel via MCP for the P7.1/P7.4 event + funnel
+  checks; the user reports crashes from Xcode Organizer and ratings from ASC),
+  record results in each item's Note, and say when to come back next. The
+  window is ~1 week — P7.4 closes it with an explicit verdict.
 
 ### 5. Persistence (chore PRs)
 

@@ -13,7 +13,7 @@ recipe: locate or create the release snapshot in `releases/app-store-release-che
 at the first unchecked item, and update the snapshot after every item.
 
 Major checkpoints: **submit for review** (manual ASC click, P5.2) and the
-**7-day post-release monitoring window** (Phase 7), after which the
+**~1-week post-release monitoring window** (Phase 7), after which the
 `RELEASES.md` entry is filled in and the snapshot closed.
 
 **Definition of done for a session:** the snapshot on disk reflects everything

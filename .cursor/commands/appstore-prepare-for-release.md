@@ -18,7 +18,7 @@ mirrored skills under `.cursor/skills/` (e.g. `appstore-translate-metadata`,
 `appstore-generate-push-screenshots`, `translate-new-strings`).
 
 Major checkpoints: **submit for review** (manual ASC click, P5.2) and the
-**7-day post-release monitoring window** (Phase 7), after which the
+**~1-week post-release monitoring window** (Phase 7), after which the
 `RELEASES.md` entry is filled in and the snapshot closed.
 
 **Definition of done for a session:** the snapshot on disk reflects everything

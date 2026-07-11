@@ -12,7 +12,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 
 **Conventions**
 
-- 🫵 `MANUAL` — only a human can do it (App Store Connect UI, physical device).
+- 🎈 `MANUAL` — only a human can do it (App Store Connect UI, physical device).
 - 🤔 `(optional)` — judgment call; decide explicitly and record the decision in
   the item's Note.
 - Item IDs (`P2.4`) are stable — never renumber; append new items at the end of a phase.
@@ -49,12 +49,12 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       Integrations, and app secrets live in `config/Secrets.local.xcconfig`
       (`CONTRIBUTING.md § B`).
       > Note:
-- [ ] **P0.5** 🫵 ASC housekeeping: **Apple Developer Program membership
+- [ ] **P0.5** 🎈 ASC housekeeping: **Apple Developer Program membership
       active** (it renews annually — a lapsed membership removes the app from
       sale); no unaccepted agreements (ASC → Business → Agreements); no pending
       compliance requests or account warnings.
       > Note:
-- [ ] **P0.6** 🫵 Decide the new App Store version number — a product decision
+- [ ] **P0.6** 🎈 Decide the new App Store version number — a product decision
       the agent must always **prompt for, never pick silently**.
       `MARKETING_VERSION` in `project.pbxproj` is the **single source of
       truth** for the user-facing version: `Info.plist` maps it to
@@ -157,7 +157,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       both appearances; icon still matches current branding; the 1024px
       marketing icon in ASC is consistent with it.
       > Note:
-- [ ] **P2.7** 🫵 URLs alive: the privacy policy URL and support URL configured
+- [ ] **P2.7** 🎈 URLs alive: the privacy policy URL and support URL configured
       in ASC still resolve; copyright string has the current year.
       > Note:
 
@@ -176,7 +176,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       privacy manifest (`PrivacyInfo.xcprivacy`), required-reason APIs, and
       guideline pitfalls for anything new in this release.
       > Note:
-- [ ] **P3.4** 🫵 Privacy nutrition labels: ASC → App Privacy answers still
+- [ ] **P3.4** 🎈 Privacy nutrition labels: ASC → App Privacy answers still
       match what the app actually collects (Mixpanel events behind consent) —
       update if the analytics surface changed (`docs/analytics-spec.md`).
       While there: the **Accessibility Nutrition Label** answers (ASC → App
@@ -187,17 +187,17 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       Dark Mode, localization (record the storefront-locale count), analytics.
       This feeds the `RELEASES.md` entry directly.
       > Note:
-- [ ] **P3.6** 🫵 Fresh-install smoke test on a real device: onboarding, create
+- [ ] **P3.6** 🎈 Fresh-install smoke test on a real device: onboarding, create
       a budget, log spending, iCloud sync round-trip.
       > Note:
-- [ ] **P3.7** 🫵 Upgrade smoke test (skip for v1.0): install the **current App
+- [ ] **P3.7** 🎈 Upgrade smoke test (skip for v1.0): install the **current App
       Store build**, then upgrade to the release candidate — existing data
       intact (SwiftData migration is the risk here).
       > Note:
 - [ ] **P3.8** Mixpanel ready to observe the release: prod boards live, consent
       flow verified, no unshipped event-schema changes.
       > Note:
-- [ ] **P3.9** 🫵 CloudKit **Production** schema deployed: if the SwiftData
+- [ ] **P3.9** 🎈 CloudKit **Production** schema deployed: if the SwiftData
       model changed since the last release (any file under
       `simple-recurring-budgets/Models/` — or first release), deploy the
       schema in the CloudKit Console (icloud.developer.apple.com → container →
@@ -226,10 +226,10 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       simple-recurring-budgets/` is empty), reuse that build instead of
       cutting another.
       > Note:
-- [ ] **P4.2** 🫵 Wait for the build to finish processing (~30 min); check
+- [ ] **P4.2** 🎈 Wait for the build to finish processing (~30 min); check
       email for ITMS post-processing warnings.
       > Note:
-- [ ] **P4.3** 🫵 Final manual test on that exact TestFlight build: install
+- [ ] **P4.3** 🎈 Final manual test on that exact TestFlight build: install
       build N and check the Settings screen version row first —
       - it shows **vX.Y.Z (N)** (the new version and the TestFlight build
         number), and
@@ -244,7 +244,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 
 ## Phase 5 — Submit for review 🚀 MAJOR CHECKPOINT
 
-- [ ] **P5.1** 🫵 In ASC: create/select version X.Y.Z, attach build N — the
+- [ ] **P5.1** 🎈 In ASC: create/select version X.Y.Z, attach build N — the
       exact build tested in P4.3 — proof the metadata + screenshots preview,
       and choose the release option (manual / automatic / **phased** — phased
       recommended once there is an existing user base). Export compliance is
@@ -261,7 +261,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
         account needed; the app has no login). Saving this section once is
         also the fix for the `push_metadata` v1.0 "No data" crash (P2.4).
       > Note:
-- [ ] **P5.2** 🫵 Click **Submit for Review**. (fastlane *can* do this —
+- [ ] **P5.2** 🎈 Click **Submit for Review**. (fastlane *can* do this —
       `deliver` with `submit_for_review: true` — but the repo default is the
       manual click; at a years-between-releases cadence the button is more
       robust than a rusty automation path.) If timing matters, note App Review
@@ -281,7 +281,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       fresh candidate: new build number, same version). Log each rejection +
       resolution in the snapshot.
       > Note:
-- [ ] **P6.2** 🫵 On approval: release per the P5.1 choice; confirm the new
+- [ ] **P6.2** 🎈 On approval: release per the P5.1 choice; confirm the new
       version is actually live on the App Store.
       > Note:
 - [ ] **P6.3** Record the release date in the snapshot and tag the repo:
@@ -302,7 +302,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       (P5.1), a bad signal can be contained: ASC → the version → pause the
       phased release while you diagnose.
       > Note:
-- [ ] **P7.3** 🫵 Ratings & reviews: check App Store ratings and written
+- [ ] **P7.3** 🎈 Ratings & reviews: check App Store ratings and written
       reviews during the monitoring window; respond where a reply would help.
       > Note:
 - [ ] **P7.4** End-of-window verdict: final look at all three (crashes,

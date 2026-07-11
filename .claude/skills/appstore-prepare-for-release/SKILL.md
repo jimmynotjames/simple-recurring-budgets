@@ -10,7 +10,7 @@ Drives a release of Wren to the App Store using the master checklist at
 sessions** (submit → review → release → ~1 week of monitoring), so all state lives
 in a per-release snapshot file — never in conversation memory.
 
-**Posture: collaborative, not autonomous.** Many items are `🫵 MANUAL` (ASC
+**Posture: collaborative, not autonomous.** Many items are `🎈 MANUAL` (ASC
 UI, physical device) — for those, tell the user exactly what to do and wait for
 their confirmation. Agent-runnable items you execute directly. `🤔 (optional)`
 items get a recommendation + a quick user decision, never a silent skip.
@@ -102,7 +102,7 @@ grep -l "Status: in-flight" releases/*.md 2>/dev/null
 2. For each item in order:
    - **Agent-runnable** (commands, script checks, sibling skills): do it, show
      the result, mark it and fill its Note.
-   - **`🫵 MANUAL`**: give the user the precise steps (deep link into ASC where
+   - **`🎈 MANUAL`**: give the user the precise steps (deep link into ASC where
      possible), wait for their confirmation, mark it with their answer in the
      Note.
    - **`🤔 (optional)`**: state a recommendation and why (e.g. "translation
@@ -158,7 +158,7 @@ version from P0.6 before baking it into the binary). Either way, copy the
 build number into the snapshot header — this one build is both the final
 TestFlight test target (P4.3) and the binary attached in P5.1.
 
-**P4.3 — final manual test.** 🫵 — give the user the exact build number to
+**P4.3 — final manual test.** 🎈 — give the user the exact build number to
 install via TestFlight and what to verify: the Settings version row shows
 **vX.Y.Z (N)** and **no "Debug" badge** (Debug badge = local dev build, not
 the candidate), then onboarding, core flows, and this release's new features.

@@ -120,7 +120,14 @@ platform :ios do
     # below). They are managed separately via `fastlane screenshots` +
     # `fastlane push_screenshots`. Remind the operator to decide before building —
     # this only prompts; it never uploads anything.
-    if UI.confirm("Do you need to upload fresh App Store screenshots for this release?")
+    # Agents have no TTY for UI.confirm: after confirming with the operator that
+    # screenshots are current/pushed, they set RELEASE_SCREENSHOTS_HANDLED=1 to
+    # skip the prompt. (The standard release flow no longer uses this lane — it
+    # submits the `beta`-lane TestFlight build; see
+    # docs/app-store-release-checklist.md Phase 4.)
+    if ENV["RELEASE_SCREENSHOTS_HANDLED"] == "1"
+      UI.message("RELEASE_SCREENSHOTS_HANDLED=1 — screenshots decision made upstream; skipping prompt.")
+    elsif UI.confirm("Do you need to upload fresh App Store screenshots for this release?")
       UI.user_error!(
         "Stopping so you can handle screenshots first: run `fastlane screenshots` " \
         "(then inspect) and `fastlane push_screenshots`, then re-run `fastlane release`. " \

@@ -29,7 +29,7 @@ See [`CONTRIBUTING.md § B`](../CONTRIBUTING.md#b--configure-secrets-ship-or-for
 |------|--------|--------------|
 | `fastlane verify_auth` | utility | Read-only API-auth check. Builds nothing. |
 | `fastlane beta` | **LIVE** | Build + upload to TestFlight. **Use this now.** |
-| `fastlane release` | dormant | Build + App Store release. Metadata + screenshots skipped via flags until ready. Prompts first: "need fresh screenshots?" → if yes, it stops so you run `push_screenshots` separately. |
+| `fastlane release` | dormant | Build + App Store release binary via deliver. **Not part of the standard release flow** — the release checklist (`docs/app-store-release-checklist.md` Phase 4) submits the `beta`-lane TestFlight build instead, so one binary serves the final TestFlight test and the submission. Prompts first: "need fresh screenshots?"; agents (no TTY) set `RELEASE_SCREENSHOTS_HANDLED=1` to skip the prompt after confirming with the operator. |
 | `fastlane push_metadata` | dormant | Upload localized metadata only (no binary). |
 | `fastlane screenshots` | ready | Capture localized screenshots (Simulator only), then rename folders to storefront codes. |
 | `fastlane push_screenshots` | ready | Upload localized screenshots only (no binary, no metadata). |

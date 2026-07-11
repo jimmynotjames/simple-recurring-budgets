@@ -36,10 +36,14 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       vLAST..main` (releases are tagged per P6.3; for v1.0 there is no earlier
       tag — skim `docs/product-features-planning.md` statuses instead).
       > Note:
-- [ ] **P0.3** Toolchain sanity: `make build` succeeds on the current Xcode.
-      Apple periodically raises the minimum SDK/Xcode required for submissions —
-      check https://developer.apple.com/news/ for an active deadline before
-      investing in anything else.
+- [ ] **P0.3** Toolchain current: update to the **latest release Xcode**
+      (App Store or https://developer.apple.com/download/applications/ —
+      compare `xcodebuild -version` against the newest at
+      https://developer.apple.com/news/releases/) and let Software Update
+      bring the Command Line Tools along (`softwareupdate --list` should show
+      nothing pending). Then confirm `make build` succeeds on it. Being on
+      the latest Xcode automatically satisfies Apple's minimum-SDK submission
+      requirements.
       > Note:
 - [ ] **P0.4** Auth sanity: `fastlane ios verify_auth` (ASC API key in
       `fastlane/.env`); confirm the Apple Distribution certificate hasn't
@@ -50,9 +54,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       (`CONTRIBUTING.md § B`).
       > Note:
 - [ ] **P0.5** 🎈 ASC housekeeping: **Apple Developer Program membership
-      active** (it renews annually — a lapsed membership removes the app from
-      sale); no unaccepted agreements (ASC → Business → Agreements); no pending
-      compliance requests or account warnings.
+      active and all agreements are accepted**.
       > Note:
 - [ ] **P0.6** 🎈 Decide the new App Store version number — a product decision
       the agent must always **prompt for, never pick silently**.
@@ -64,7 +66,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       `fastlane/SETUP.md` "Build numbers"). Verify it matches the version
       string ASC expects for this submission. The actual bump happens in P4.1.
       > Note:
-- [ ] **P0.7** Create the snapshot `releases/app-store-release-checklist--vX.Y.Z.md` (the skill does this)
+- [ ] **P0.7** Create the checklist snapshot `releases/app-store-release-checklist--vX.Y.Z.md` (the skill does this)
       and record version + start date in its header.
       > Note:
 
@@ -76,15 +78,11 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P1.2** Full gate green: `make format && make lint-fix && make build &&
       make test` (log to `tmp/gate.log`).
       > Note:
-- [ ] **P1.3** Audit & optional-test due-diligence: analyze the repo, don't
-      just eyeball dates. For each audit in `docs/audits/` (date is in the
-      filename) and each optional test with a run log (e.g.
-      `scripts/translation-accessibility-size-check/AUDIT_LOG.md`), measure the
-      git churn in that area since it last ran and recommend re-run / skip per
-      area. Rule of thumb: **>6 months stale AND meaningful churn in that area
-      → re-run**; record the recommendation table and decisions in the
-      snapshot. (The `/appstore:prepare-for-release` skill runs this analysis — see its
-      "Executing P1.3" recipe.)
+- [ ] **P1.3** 🎈 Review recent audits: look through `docs/audits/` (date is
+      in the filename) and the optional-test run logs (e.g.
+      `scripts/translation-accessibility-size-check/AUDIT_LOG.md`) and decide
+      whether any audits are due for another round this release. Record the
+      decision in the Note.
       > Note:
 - [ ] **P1.4** No unarchived OpenSpec changes for work that's shipping:
       `openspec list` — verify/archive anything complete.
@@ -93,11 +91,12 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       `docs/product-features-planning.md` feature statuses,
       `docs/tech-design-doc.md` for any new subsystem.
       > Note:
-- [ ] **P1.6** Open GitHub issues reviewed: `gh issue list --state open` and
-      summarize every issue **not** labeled `deferred`. Decide each one
-      explicitly: fix before release, defer (add the `deferred` label + a
-      comment), or accept as known for this release — no silent passes. Record
-      the disposition list in the snapshot.
+- [ ] **P1.6** 🎈 Open GitHub issues reviewed: the agent runs `gh issue list
+      --state open` and summarizes every issue **not** labeled `deferred`,
+      then **prompts you** to decide each one: fix before release, defer (add
+      the `deferred` label + a comment), or accept as known for this release —
+      no silent passes, the disposition is always your call. Record the
+      disposition list in the Note.
       > Note:
 - [ ] **P1.7** Dependency bump review — one last look before freezing the
       binary. Dependabot only watches GitHub Actions, so **SPM packages are
@@ -114,12 +113,12 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       `IPHONEOS_DEPLOYMENT_TARGET` in `project.pbxproj` against the current
       Xcode/SDK and decide deliberately whether to move either. Raising the
       deployment target **drops users on older iOS — a product decision, ask
-      Jimmy**; raising the Swift version is a code decision (gate must stay
+      Developer**; raising the Swift version is a code decision (gate must stay
       green). If either moves, audit the tagged version workarounds:
       `grep -rn "iOS-COMPAT" simple-recurring-budgets/` — each tag names the
       version it exists for and can be deleted once the target passes it.
-      (P0.3 already covered Apple's *submission-minimum* deadline; this item
-      is about what *we choose* to target.)
+      (P0.3 already put us on the latest Xcode, covering Apple's
+      *submission minimums*; this item is about what *we choose* to target.)
       > Note:
 
 ## Phase 2 — Localization & App Store content
@@ -145,12 +144,13 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       "No data" crash: one-time save of ASC → App Review Information, then
       re-run).
       > Note:
-- [ ] **P2.5** Screenshots current? Compare `fastlane/screenshots/` against the
-      current UI. If any captured screen changed visibly:
-      `/appstore:generate-push-screenshots` (re-capture from the existing seed
-      catalog). Only regenerate seed content
-      (`/appstore:generate-screenshot-seeding`) if locales or demo content
-      themselves changed.
+- [ ] **P2.5** 🎈 Screenshots update? A developer judgment call — the agent
+      **prompts you**: should the App Store screenshots be updated for this
+      release? Compare `fastlane/screenshots/` against the current UI to
+      inform the call. If yes: `/appstore:generate-push-screenshots`
+      (re-capture from the existing seed catalog); only regenerate seed
+      content (`/appstore:generate-screenshot-seeding`) if locales or demo
+      content themselves changed. Record the decision in the Note.
       > Note:
 - [ ] **P2.6** App icon still right? Check `AppIcon` in the asset catalog:
       light / dark / tinted variants all render correctly on a home screen in
@@ -187,17 +187,10 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       Dark Mode, localization (record the storefront-locale count), analytics.
       This feeds the `RELEASES.md` entry directly.
       > Note:
-- [ ] **P3.6** 🎈 Fresh-install smoke test on a real device: onboarding, create
-      a budget, log spending, iCloud sync round-trip.
-      > Note:
-- [ ] **P3.7** 🎈 Upgrade smoke test (skip for v1.0): install the **current App
-      Store build**, then upgrade to the release candidate — existing data
-      intact (SwiftData migration is the risk here).
-      > Note:
-- [ ] **P3.8** Mixpanel ready to observe the release: prod boards live, consent
+- [ ] **P3.6** Mixpanel ready to observe the release: prod boards live, consent
       flow verified, no unshipped event-schema changes.
       > Note:
-- [ ] **P3.9** 🎈 CloudKit **Production** schema deployed: if the SwiftData
+- [ ] **P3.7** 🎈 CloudKit **Production** schema deployed: if the SwiftData
       model changed since the last release (any file under
       `simple-recurring-budgets/Models/` — or first release), deploy the
       schema in the CloudKit Console (icloud.developer.apple.com → container →
@@ -229,17 +222,25 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P4.2** 🎈 Wait for the build to finish processing (~30 min); check
       email for ITMS post-processing warnings.
       > Note:
-- [ ] **P4.3** 🎈 Final manual test on that exact TestFlight build: install
-      build N and check the Settings screen version row first —
+- [ ] **P4.3** 🎈 Final manual test on that exact TestFlight build, on a
+      **physical device** — this is the pre-submission device test: the build
+      you exercise here is the build you submit. Delete any previous install
+      first so this doubles as the fresh-install smoke test. Install build N
+      via TestFlight and check the Settings screen version row first —
       - it shows **vX.Y.Z (N)** (the new version and the TestFlight build
         number), and
       - it does **NOT** show the word **"Debug"** — that badge only renders in
         Debug builds (`SettingsView.debugBadge`), so seeing it means you're
         running a local dev build, not the TestFlight release candidate.
-      Then run through onboarding, core budget flows, an iCloud sync
-      round-trip (this exercises the **Production** CloudKit environment and
-      verifies P3.9), and anything new in this release. Record the build
+      Then run through onboarding, create a budget, log spending, an iCloud
+      sync round-trip (this exercises the **Production** CloudKit environment
+      and verifies P3.7), and anything new in this release. Record the build
       number tested in the snapshot; it is the one to attach in P5.1.
+      > Note:
+- [ ] **P4.4** 🎈 Upgrade smoke test (skip for v1.0): on a device holding real
+      data from the **current App Store build**, update to build N via
+      TestFlight — existing data intact (SwiftData migration is the risk
+      here).
       > Note:
 
 ## Phase 5 — Submit for review 🚀 MAJOR CHECKPOINT

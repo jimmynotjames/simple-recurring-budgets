@@ -59,9 +59,9 @@ deliberately skipped — the Note says which). Every item in the template carrie
 a `> Note:` field; fill it in when you mark the item:
 
 ```markdown
-- [x] **P1.3** Audit recency: ...
-      > Note: 2026-07-10 — translation-quality audit is 5 weeks old, no string
-      > churn since; architecture audit stale but no structural changes. Not re-run.
+- [x] **P1.3** 🎈 Review recent audits: ...
+      > Note: 2026-07-10 — Jimmy reviewed the audit list; translation-quality
+      > audit is recent enough and nothing else warranted a re-run. Skipped.
 ```
 
 Dates, build numbers, rejection details, and "Skipped — reason" / "N/A" calls
@@ -114,32 +114,26 @@ grep -l "Status: in-flight" releases/*.md 2>/dev/null
 
 ### Executing specific items
 
-**P1.3 — audit & optional-test due-diligence.** Analyze, don't just list dates:
+**P1.3 — audit review.** 🎈 The user reviews and decides; you just set the
+table: `ls docs/audits/` (dates are in the filenames) plus the last
+Run-history entry in
+`scripts/translation-accessibility-size-check/AUDIT_LOG.md`, presented as a
+short list. Then let the user decide whether anything is due for another
+round — don't make the call for them. Record their decision in the Note.
 
-1. `ls docs/audits/` — extract each audit area and its newest date from the
-   filenames. Also read the last Run-history entry in
-   `scripts/translation-accessibility-size-check/AUDIT_LOG.md`.
-2. For each area, measure churn since that date in the paths it covers, e.g.:
-   ```bash
-   git log --oneline --since=<audit-date> -- <relevant paths> | wc -l
-   ```
-   (translation quality → `simple-recurring-budgets/**/Localizable.xcstrings`;
-   test coverage / UI testing → test targets; architecture / general code →
-   app source; localization+VoiceOver → views + xcstrings.)
-3. Present a small table — area, last run, churn since, recommendation
-   (re-run / skip + one-line reason) — get the user's call per row, and record
-   the table + decisions in the snapshot.
-
-**P1.6 — open GitHub issues.** Summarize everything not explicitly deferred:
+**P1.6 — open GitHub issues.** 🎈 The user dispositions every issue; you
+summarize. Fetch everything not explicitly deferred:
 
 ```bash
 gh issue list --state open --json number,title,labels \
   --jq '[.[] | select((.labels | map(.name) | index("deferred")) | not)]'
 ```
 
-Present each as *fix now / defer (apply the `deferred` label + comment) /
-accept as known*; record dispositions in the snapshot. Issues already labeled
-`deferred` are skipped (just report the count).
+Summarize each issue for the user, then **prompt them for a decision per
+issue** (AskUserQuestion): *fix now / defer (apply the `deferred` label +
+comment) / accept as known*. Never disposition an issue yourself. Record the
+disposition list in the Note. Issues already labeled `deferred` are skipped
+(just report the count).
 
 **P4.1 — release-candidate build.** Check for a reusable candidate before
 cutting a new one:
@@ -159,10 +153,12 @@ build number into the snapshot header — this one build is both the final
 TestFlight test target (P4.3) and the binary attached in P5.1.
 
 **P4.3 — final manual test.** 🎈 — give the user the exact build number to
-install via TestFlight and what to verify: the Settings version row shows
-**vX.Y.Z (N)** and **no "Debug" badge** (Debug badge = local dev build, not
-the candidate), then onboarding, core flows, and this release's new features.
-Wait for their result and record the tested build number.
+install via TestFlight **on a physical device, after deleting any previous
+install** (it doubles as the fresh-install smoke test) and what to verify:
+the Settings version row shows **vX.Y.Z (N)** and **no "Debug" badge** (Debug
+badge = local dev build, not the candidate), then onboarding, create a
+budget, log spending, an iCloud sync round-trip, and this release's new
+features. Wait for their result and record the tested build number.
 
 ### 4. Wait states — end the session cleanly
 

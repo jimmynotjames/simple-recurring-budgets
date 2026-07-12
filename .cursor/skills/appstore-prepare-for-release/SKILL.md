@@ -148,6 +148,21 @@ grep -l "Status: in-flight" releases/*.md 2>/dev/null
 
 ### Executing specific items
 
+**P0.4 — auth sanity.** Run `fastlane ios verify_auth` — a pass is sufficient
+evidence the ASC API key and Distribution cert chain are usable (a dead key or
+an expired cert would make it fail talking to ASC). Don't script a separate
+cert-expiry probe (e.g. Spaceship/`ConnectAPI::Certificate`, local keychain
+queries) — there's no efficient way to do that check programmatically and it's
+overkill for what `verify_auth` already covers; if you want an extra glance at
+the expiry date itself, it's a 🎈 MANUAL check, not an agent one — tell the
+user:
+1. Xcode → Settings → Accounts → Apple ID → **Manage Certificates...** → find
+   **Apple Distribution** (Xcode flags it if expired/expiring).
+2. Or: App Store Connect → **Certificates, Identifiers & Profiles →
+   Certificates** → Apple Distribution cert → expiry date on its detail page.
+If `verify_auth` ever does fail, that's the actual trigger to dig into
+cert/key recovery per `fastlane/SETUP.md`.
+
 **P1.3 — audit review.** 🎈 The user reviews and decides; you just set the
 table: `ls docs/audits/` (dates are in the filenames) plus the last
 Run-history entry in

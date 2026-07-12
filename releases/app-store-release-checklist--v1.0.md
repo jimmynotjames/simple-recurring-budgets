@@ -43,11 +43,11 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       Integrations, and app secrets live in `config/Secrets.local.xcconfig`
       (`CONTRIBUTING.md § B`).
       > Note: 2026-07-12 — `fastlane ios verify_auth` passed: "Auth OK. Latest
-      > TestFlight build number: 16" (version 0.1). Treating this as
-      > sufficient evidence of a working key + cert chain (an expired cert
-      > would fail this call). Manual cert-expiry glance (Xcode → Manage
-      > Certificates, or ASC → Certificates) deferred to Jimmy — 🎈, not
-      > blocking.
+      > TestFlight build number: 16" (version 0.1) — confirms the ASC API key.
+      > Separately, the Apple Distribution certificate did **not** exist yet
+      > (verify_auth doesn't touch code signing, so it couldn't have caught
+      > this) — Jimmy checked Xcode → Manage Certificates and created it on
+      > the spot. Confirmed present now.
 - [x] **P0.5** 🎈 ASC housekeeping: **Apple Developer Program membership
       active and all agreements are accepted**.
       > Note: 2026-07-12 — Jimmy confirmed: membership active, agreements

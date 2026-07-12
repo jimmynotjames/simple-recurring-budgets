@@ -166,18 +166,20 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ## Phase 2 — Localization & App Store content
 
-- [ ] **P2.1** Source strings clean: `python3 scripts/check_source_strings.py`.
-      > Note:
-- [ ] **P2.2** Translations complete: `python3 scripts/check_translations.py`;
+- [x] **P2.1** Source strings clean: `python3 scripts/check_source_strings.py`.
+      > Note: 2026-07-12 — "check_source_strings: 103 file(s) clean."
+- [x] **P2.2** Translations complete: `python3 scripts/check_translations.py`;
       if new/stale keys exist, run `/translate-new-strings`.
-      > Note:
+      > Note: 2026-07-12 — "check_translations: all 263 strings fully
+      > translated across source (en) + 49 target locales." No stale keys;
+      > `/translate-new-strings` not needed.
 - [x] **P2.3** 🤔 (optional) Translation-quality audit: if many strings were added
       since the newest `translation-quality-audit-*` in `docs/audits/`, run
       `/audit-translations` and act on the manifest. **Intensive** — fans out
       an Opus subagent per locale (49 locales); heavy token/time cost.
       > Note: 2026-07-12 — Jimmy: skip for this release (decided ahead of
       > reaching this item).
-- [ ] **P2.4** Metadata current **and pushed**: review
+- [x] **P2.4** Metadata current **and pushed**: review
       `fastlane/metadata/en-US/*.txt` (description, keywords, promotional
       text) against the app as it is now; **write `release_notes.txt` for this
       version**; then `/appstore:translate-metadata` until
@@ -188,23 +190,48 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       early). Known gotchas are in `fastlane/SETUP.md` (e.g. the v1.0
       "No data" crash: one-time save of ASC → App Review Information, then
       re-run).
+      > Note: 2026-07-12 — Reviewed en-US: `description`/`keywords` already
+      > match shipped features (carry-over, iCloud sync, specific-dates
+      > budgets, etc.), no edits needed. `promotional_text` blank — Jimmy:
+      > leave blank for v1.0. `release_notes.txt` — initially wrote "First
+      > release. Welcome!" per Jimmy, but the `appstore-translate-metadata`
+      > skill documents that ASC has no "What's New" field for a first
+      > version at all (deliver silently skips it) — flagged this and Jimmy
+      > chose to revert to blank, matching the skill's first-version
+      > convention (author release notes starting at v1.1). `check_metadata`
+      > passed clean (0 issues) after the revert, so no translation pipeline
+      > run was needed. Confirmed App Review Information already saved in ASC
+      > (avoids the v1.0 "No data" crash). `fastlane ios push_metadata` ran
+      > successfully — all 50 locales (en-US + 49 storefronts) uploaded.
       > Note:
-- [ ] **P2.5** 🎈 Screenshots update? A developer judgment call — the agent
+- [x] **P2.5** 🎈 Screenshots update? A developer judgment call — the agent
       **prompts you**: should the App Store screenshots be updated for this
       release? Compare `fastlane/screenshots/` against the current UI to
       inform the call. If yes: `/appstore:generate-push-screenshots`
       (re-capture from the existing seed catalog); only regenerate seed
       content (`/appstore:generate-screenshot-seeding`) if locales or demo
       content themselves changed. Record the decision in the Note.
-      > Note:
-- [ ] **P2.6** App icon still right? Check `AppIcon` in the asset catalog:
+      > Note: 2026-07-12 — Screenshots last touched 2026-06-14; UI changes
+      > since include an explicit root accent tint (#299), Recents-visibility
+      > change in Edit mode (#287), and an in-form Start of Week picker
+      > (#269). Flagged to Jimmy — decision: current screenshots are fine, no
+      > re-capture for v1.0.
+- [x] **P2.6** App icon still right? Check `AppIcon` in the asset catalog:
       light / dark / tinted variants all render correctly on a home screen in
       both appearances; icon still matches current branding; the 1024px
       marketing icon in ASC is consistent with it.
-      > Note:
-- [ ] **P2.7** 🎈 URLs alive: the privacy policy URL and support URL configured
+      > Note: 2026-07-12 — Structurally checked: modern Icon Composer format
+      > (`AppIcon.icon`) with separate light/dark layer sets and an
+      > automatic-gradient fill (auto-generates the tinted variant). Jimmy
+      > visually confirmed light/dark/tinted rendering and ASC marketing-icon
+      > consistency — all good.
+- [x] **P2.7** 🎈 URLs alive: the privacy policy URL and support URL configured
       in ASC still resolve; copyright string has the current year.
-      > Note:
+      > Note: 2026-07-12 — Privacy URL (termsfeed.com) resolves, shows a full
+      > privacy policy. Support URL (GitHub Pages) resolves, shows the Wren
+      > landing page (still says "upcoming" — expected, covered by issue #270,
+      > already dispositioned as known post-launch work in P1.6).
+      > `copyright.txt` = "© 2026 Jimmy Ho" — already current year.
 
 ## Phase 3 — Pre-submission verification
 

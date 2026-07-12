@@ -235,45 +235,104 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ## Phase 3 — Pre-submission verification
 
-- [ ] **P3.1** 🤔 (optional, recommended before any submission) Localized-layout
+- [x] **P3.1** 🤔 (optional, recommended before any submission) Localized-layout
       visual check: `/translation-accessibility-size-check` — truncation,
       overflow, RTL mirroring at forced `.xxxLarge`. Resource-heavy and ad-hoc
       by design; it is **not** part of `make test`, so a release is the moment
       to run it.
-      > Note:
-- [ ] **P3.2** 🤔 (optional) VoiceOver + Dynamic Type spot-check of screens that
+      > Note: 2026-07-12 — Skipped. Last checks a few weeks ago are
+      > sufficient.
+- [x] **P3.2** 🤔 (optional) VoiceOver + Dynamic Type spot-check of screens that
       are new or changed in this release (PRD §6.8.1).
-      > Note:
-- [ ] **P3.3** Review-compliance sweep with the `app-store-review` skill:
+      > Note: 2026-07-12 — Skipped. Last checks a few weeks ago are
+      > sufficient.
+- [x] **P3.3** Review-compliance sweep with the `app-store-review` skill:
       privacy manifest (`PrivacyInfo.xcprivacy`), required-reason APIs, and
       guideline pitfalls for anything new in this release.
-      > Note:
-- [ ] **P3.4** 🎈 Privacy nutrition labels: ASC → App Privacy answers still
+      > Note: 2026-07-12 — Clean: ATT correctly absent (no cross-app
+      > tracking); entitlements justified (iCloud/CloudKit +
+      > `aps-environment`, standard CloudKit companion, no push code); no
+      > IAP/StoreKit purchase surface; metadata format compliant (name 28/30,
+      > subtitle 30/30, keywords 90/100, no dupes); screenshots use correct
+      > device classes (iPhone 17 Pro Max = 6.9", iPad Pro 13-inch).
+      > **Finding, fixed:** app target had **no** `PrivacyInfo.xcprivacy` at
+      > all (Mixpanel ships its own SDK-level one, but the app's own analytics
+      > collection — Mixpanel events keyed to a self-generated UUIDv4
+      > `distinct_id`, no PII, per `analytics-spec.md` §5 — was undeclared).
+      > Added `simple-recurring-budgets/Resources/PrivacyInfo.xcprivacy`:
+      > `NSPrivacyTracking=false`, one `NSPrivacyCollectedDataTypes` entry
+      > (ProductInteraction, linked, not-tracking, purpose=Analytics), no
+      > required-reason APIs (none used directly in app code). Project uses
+      > Xcode's synchronized-folder groups, so no pbxproj edit was needed;
+      > confirmed present in the built `.app` bundle after `make build`.
+      > Must match the ASC Privacy nutrition label answers at P3.4.
+- [x] **P3.4** 🎈 Privacy nutrition labels: ASC → App Privacy answers still
       match what the app actually collects (Mixpanel events behind consent) —
       update if the analytics surface changed (`docs/analytics-spec.md`).
       While there: the **Accessibility Nutrition Label** answers (ASC → App
       Store → Accessibility) — fill in on first release, re-check if
       accessibility support changed.
-      > Note:
-- [ ] **P3.5** Cross-cutting concerns confirmed per PRD §6.8 — accessibility,
+      > Note: 2026-07-12 — App Privacy set: Usage Data → Product Interaction,
+      > linked to user, not used for tracking, purpose Analytics (matches the
+      > P3.3 `PrivacyInfo.xcprivacy` declaration). Accessibility Nutrition
+      > Label filled in (VoiceOver, Larger Text, etc., matching F-3.01/F-3.02
+      > shipped support). Both confirmed done by Jimmy.
+- [x] **P3.5** Cross-cutting concerns confirmed per PRD §6.8 — accessibility,
       Dark Mode, localization (record the storefront-locale count), analytics.
       This feeds the `RELEASES.md` entry directly.
-      > Note:
-- [ ] **P3.6** Mixpanel ready to observe the release: prod boards live, consent
+      > Note: 2026-07-12 — **Accessibility:** F-3.01/F-3.02 initial build-outs
+      > Implemented (Dynamic Type, VoiceOver); ASC Accessibility Nutrition
+      > Label filled (P3.4); P3.1/P3.2 spot-checks skipped this release
+      > (recent enough, per Jimmy). **Dark Mode:** F-3.05 Implemented.
+      > **Localization:** 49 storefront locales (in-app strings and metadata
+      > both confirmed at 49 — P2.1/P2.2/P2.4). **Analytics:** Mixpanel Phase
+      > 1 (F-8.02) Implemented, consent flow locale-aware, no PII (P3.6 checks
+      > readiness in detail next).
+- [x] **P3.6** Mixpanel ready to observe the release: prod boards live, consent
       flow verified, no unshipped event-schema changes.
-      > Note:
-- [ ] **P3.7** 🎈 CloudKit **Production** schema deployed: if the SwiftData
+      > Note: 2026-07-12 — Documented: all 10 Phase 1 boards (30 report
+      > tiles) built in Wren App - Prod as of 2026-06-22
+      > (analytics-spec.md rev 0.23). Mixpanel MCP was disconnected this
+      > session so couldn't query live; Jimmy confirmed boards still live,
+      > consent flow working, no unshipped event-schema changes.
+- [x] **P3.7** 🎈 CloudKit **Production** schema deployed: if the SwiftData
       model changed since the last release (any file under
       `simple-recurring-budgets/Models/` — or first release), deploy the
-      schema in the CloudKit Console (icloud.developer.apple.com → container →
-      "Deploy Schema Changes", Development → Production) **before** cutting
-      the release candidate. Dev-signed builds use the Development
-      environment, but **TestFlight and App Store builds use Production** — an
-      undeployed schema means sync silently fails for exactly the builds that
-      matter. Constraints in `docs/tech-design-doc.md` §4.3 (CloudKit cannot
-      delete deployed record fields). The P4.3 iCloud round-trip on the
-      TestFlight build is the verification.
-      > Note:
+      schema to Production **before** cutting the release candidate. Dev-signed
+      builds use the Development environment, but **TestFlight and App Store
+      builds use Production** — an undeployed schema means sync silently fails
+      for exactly the builds that matter. Constraints in
+      `docs/tech-design-doc.md` §4.3 (CloudKit cannot delete deployed record
+      fields). The P4.3 iCloud round-trip on the TestFlight build is the
+      verification. **Use the `/cloudkit-deploy-schema` skill** to drive this
+      (preflight checks, stale-field handling, mandatory confirmation gates
+      before anything destructive) — run it on Opus-tier (see that skill's own
+      Model preference section), not inline on whatever model is orchestrating
+      the rest of the checklist.
+      > Note: 2026-07-12 — **Done.** First-ever/greenfield deploy for this
+      > container (`iCloud.com.jimmyho.simple-recurring-budgets`, team
+      > `EDMB3Z5KAY`) — Production previously had only the system `Users`
+      > type. Drove this via the new `/cloudkit-deploy-schema` skill (created
+      > this session). Development had accumulated stale fields from earlier
+      > iterations (`resetCadence`, `carryOverAmount`,
+      > `carryOverLastProcessedDate`, `carryOverLastResetDate` — all removed
+      > from `Budget` per git history, tied to the deleted Reset Cadences
+      > feature and the carry-over rework); Jimmy ran **Reset Environment**
+      > on Development (safe since Production was confirmed empty) to clear
+      > them. Regenerated a clean Development schema via a throwaway branch
+      > (`throwaway/cloudkit-schema-seed-v1.0`, never merged) with a
+      > temporary `#if DEBUG` seed button wired to `DebugData.seed(into:)` +
+      > an explicit `lastResetDate` stamp (the one field that fixture set
+      > never wrote a non-nil value for). Ran on a physical device signed
+      > into a real iCloud account. Full bidirectional field audit against
+      > the current model source (all 4 `@Model` types: `Budget`,
+      > `ExpenseItem`, `AllocationChange`, `LifecycleEvent`) found every
+      > stored property present with no gaps and no stale cruft. Jimmy
+      > deployed via the CloudKit Console's Deploy Schema Changes button
+      > (confirmed: `cktool import-schema --environment production` is not
+      > actually supported by the API despite accepting the flag value —
+      > documented in the skill). Verified: `export-schema` on both
+      > environments now diffs identical.
 
 ## Phase 4 — Build & upload
 
@@ -313,6 +372,24 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       data from the **current App Store build**, update to build N via
       TestFlight — existing data intact (SwiftData migration is the risk
       here).
+      > Note:
+- [ ] **P4.5** 🎈 (added after snapshot) **Two-device iCloud sync
+      verification.** P4.3's round-trip is single-device and can't rule out a
+      false positive (SwiftData's local cache can make sync look fine even if
+      CloudKit itself is broken). This item is the real test: install build N
+      via TestFlight on **two separate physical devices**, both signed into
+      the **same** iCloud account.
+      - On Device A: create a budget, log an expense. Wait ~30–60s, then
+        confirm it appears on Device B (may need to background/foreground
+        the app, or pull-to-refresh the Budgets list, to trigger a fetch).
+      - On Device B: edit something (e.g. log another expense, or edit the
+        budget's allocation). Confirm the change propagates back to Device A.
+      - If sync doesn't propagate either direction, this is a **hard
+        blocker** — do not proceed to P5.1 — the most likely cause is an
+        undeployed or incomplete Production schema (back to P3.7 /
+        `/cloudkit-deploy-schema`); check both devices' Settings iCloud
+        status row shows "iCloud Sync is Active" first, to rule out an
+        account-level problem before suspecting the schema.
       > Note:
 
 ## Phase 5 — Submit for review 🚀 MAJOR CHECKPOINT

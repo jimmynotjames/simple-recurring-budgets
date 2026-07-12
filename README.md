@@ -134,6 +134,7 @@ Everything else is **Apple frameworks**: SwiftUI, SwiftData, CloudKit, Foundatio
   - [`appstore-push-testflight-build`](.claude/skills/appstore-push-testflight-build/SKILL.md) — cut and ship a TestFlight build end-to-end
   - [`appstore-prepare-for-release`](.claude/skills/appstore-prepare-for-release/SKILL.md) — collaborative, resumable driver for the App Store release checklist
   - [`appstore-push-release-build`](.claude/skills/appstore-push-release-build/SKILL.md) — bump the version and cut the App Store release-candidate build via TestFlight
+  - [`cloudkit-deploy-schema`](.claude/skills/cloudkit-deploy-schema/SKILL.md) — safely deploy the CloudKit schema from Development to Production, with mandatory audit/confirmation gates
   - [`mixpanel-build-boards`](.claude/skills/mixpanel-build-boards/SKILL.md) — build/reconcile Mixpanel dashboards against `docs/analytics-spec.md`
   - [`ios-sims`](.claude/skills/ios-sims/SKILL.md) — simulator setup, concurrency tuning, two-pass test architecture reference
   - [`translation-accessibility-size-check`](.claude/skills/translation-accessibility-size-check/SKILL.md) — ad-hoc visual check for truncation/RTL at large Dynamic Type

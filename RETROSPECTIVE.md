@@ -28,6 +28,7 @@ Along the way, AI agents also:
 * Translated App Store metadata/marketing copy for 49 App Store locales. ([/appstore-translate-metadata](.claude/skills/appstore-translate-metadata/SKILL.md))
 * Generated 500 screenshots in all App Store locales, generating culturally sensitive example data (local currency, currency amounts, budget topics). ([/appstore-generate-screenshot-seeding](.claude/skills/appstore-generate-screenshot-seeding/SKILL.md), [/appstore-generate-push-screenshots](.claude/skills/appstore-generate-push-screenshots/SKILL.md))
 * Generated complex, custom pipelines and jobs, like mentioned above, along with setting up CI/CD, writing iOS simulator sandboxing scripts, App Store deployment scripts, etc. ([/ios-sims](.claude/skills/ios-sims/SKILL.md), [/appstore-push-testflight-build](.claude/skills/appstore-push-testflight-build/SKILL.md))
+* Deployed the CloudKit Production schema for the first time (a practically irreversible operation — fields can be added but never removed once live) via a new, safety-first skill built mid-release, with mandatory audit/confirmation gates and an Opus-tier model requirement given the stakes. ([/cloudkit-deploy-schema](.claude/skills/cloudkit-deploy-schema/SKILL.md))
 * Generated custom agent skills, commands, and configurations to work more autonomously and effectively within the context of this repo and project. ([.claude/skills/](.claude/skills), [.claude/commands/](.claude/commands), [.claude/settings.json](.claude/settings.json))
 
 
@@ -38,7 +39,7 @@ Along the way, AI agents also:
 | Swift | ~27k lines |
 | Python | ~7k lines |
 | Shell scripts | ~1k lines |
-| Custom AI skills/pipelines | 12 |
+| Custom AI skills/pipelines | 14 |
 | GitHub PRs merged | 200+ |
 | Locales supported | 49 (all App Store locales) |
 

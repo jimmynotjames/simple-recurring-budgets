@@ -1,5 +1,4 @@
 {
-  "originHash" : "652a3e5623b2e6c8c6e0e0b946c185247190377f8f46737da6c1d9062f42423e",
   "pins" : [
     {
       "identity" : "json-logic-swift",
@@ -15,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mixpanel/mixpanel-swift",
       "state" : {
-        "revision" : "15261f41bb50fc7b5b183d4bf8a125a5219dbacf",
-        "version" : "6.4.1"
+        "revision" : "3a12d5057c8701d39e3559141aa9f433bea4ff7b",
+        "version" : "6.5.0"
       }
     },
     {

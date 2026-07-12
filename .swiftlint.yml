@@ -21,6 +21,7 @@ opt_in_rules:
 
 excluded:
   - .build
+  - build
   - simple-recurring-budgets.xcodeproj
 
 line_length:

@@ -76,33 +76,54 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ## Phase 1 — Code & docs readiness
 
-- [ ] **P1.1** Everything intended for this release is merged to `main`;
+- [x] **P1.1** Everything intended for this release is merged to `main`;
       working tree clean; `git pull --ff-only` done.
-      > Note:
-- [ ] **P1.2** Full gate green: `make format && make lint-fix && make build &&
+      > Note: 2026-07-12 — Working tree clean; `git pull --ff-only` reported
+      > already up to date (includes the just-merged Phase 0 PR #308).
+- [x] **P1.2** Full gate green: `make format && make lint-fix && make build &&
       make test` (log to `tmp/gate.log`).
-      > Note:
-- [ ] **P1.3** 🎈 Review recent audits: look through `docs/audits/` (date is
+      > Note: 2026-07-12 — First run failed at `make format`/`make lint-fix`:
+      > SwiftFormat/SwiftLint were scanning the gitignored top-level `build/`
+      > dir (stale `ci-repro*` scratch dirs with full SPM checkouts from
+      > 2026-06-22), timing out formatting and finding 375 lint violations in
+      > vendored dependency source. Only `.build` was excluded, not `build`.
+      > Fixed by adding `--exclude build` to `.swiftformat` and `build` to
+      > `.swiftlint.yml`'s `excluded:` list (PR #308, already merged). Re-run
+      > after the fix: exit 0, all steps green (log in `tmp/gate.log`).
+- [x] **P1.3** 🎈 Review recent audits: look through `docs/audits/` (date is
       in the filename) and the optional-test run logs (e.g.
       `scripts/translation-accessibility-size-check/AUDIT_LOG.md`) and decide
       whether any audits are due for another round this release. Record the
       decision in the Note.
-      > Note:
-- [ ] **P1.4** No unarchived OpenSpec changes for work that's shipping:
+      > Note: 2026-07-12 — Presented the list (architecture, code-vs-doc-drift,
+      > general-code, localization+voiceover, test-coverage, ui-testing,
+      > translation-quality — all 6-9 weeks old; accessibility size-check log
+      > last run 2026-06-06). Jimmy: skip all, recent enough.
+- [x] **P1.4** No unarchived OpenSpec changes for work that's shipping:
       `openspec list` — verify/archive anything complete.
-      > Note:
-- [ ] **P1.5** Docs match reality: `docs/main-prd.md` Release Status,
+      > Note: 2026-07-12 — `openspec list` → "No active changes found."
+- [x] **P1.5** Docs match reality: `docs/main-prd.md` Release Status,
       `docs/product-features-planning.md` feature statuses,
       `docs/tech-design-doc.md` for any new subsystem.
-      > Note:
-- [ ] **P1.6** 🎈 Open GitHub issues reviewed: the agent runs `gh issue list
+      > Note: 2026-07-12 — main-prd.md Release Status still correctly says
+      > "not yet released / greenfield" (true pre-submission; update at
+      > close-out P7.5/P7.6). product-features-planning.md statuses match
+      > shipped code (see P0.2). tech-design-doc.md rev 0.22 documents the
+      > newest subsystem (rating-prompt/F-6.03) — current.
+- [x] **P1.6** 🎈 Open GitHub issues reviewed: the agent runs `gh issue list
       --state open` and summarizes every issue **not** labeled `deferred`,
       then **prompts you** to decide each one: fix before release, defer (add
       the `deferred` label + a comment), or accept as known for this release —
       no silent passes, the disposition is always your call. Record the
       disposition list in the Note.
-      > Note:
-- [ ] **P1.7** Dependency bump review — one last look before freezing the
+      > Note: 2026-07-12 — 8 issues already labeled `deferred` (skipped, not
+      > re-litigated). 2 non-deferred open issues, both inherently post-launch
+      > (need the app to actually be live): #304 "Post-launch checklist after
+      > first version publishes" (README App Store link/badges, release
+      > status) — Jimmy: accept as known. #270 "Add App Store download link
+      > to gh-pages support site" (needs real ASC app ID) — Jimmy: accept as
+      > known. Neither blocks this release.
+- [x] **P1.7** Dependency bump review — one last look before freezing the
       binary. Dependabot only watches GitHub Actions, so **SPM packages are
       manual**: read the pins in
       `simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
@@ -112,8 +133,20 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       analytics SDKs rot against API changes); **skip major bumps** this close
       to a release unless something is broken. Any bump must land before the
       P1.2 gate re-run. Record bump/skip per package.
+      > Note: 2026-07-12 — `json-logic-swift` 1.2.4 already latest tag; no
+      > bump. `mixpanel-swift-common` 1.0.1 already latest; no bump.
+      > `mixpanel-swift` 6.4.1 → 6.5.0 (feature-only release, 5 days old,
+      > talks to a live service) — Jimmy approved. Xcode's cached SPM
+      > checkout/DerivedData were stale (didn't have the 6.5.0 tag/pin), so
+      > bumping required: `git fetch --tags` in the cached repo
+      > (`~/Library/Caches/org.swift.swiftpm/repositories/mixpanel-swift-*`),
+      > clearing `DerivedData/*/SourcePackages`, and hand-writing the correct
+      > pin (revision `3a12d5057c8701d39e3559141aa9f433bea4ff7b`, confirmed via
+      > a throwaway `swift package resolve` probe) into `Package.resolved`
+      > since `xcodebuild -resolvePackageDependencies` alone wouldn't advance
+      > past the existing lock. Re-ran the full P1.2 gate afterward: exit 0.
       > Note:
-- [ ] **P1.8** Apple platform review: check `SWIFT_VERSION` and
+- [x] **P1.8** Apple platform review: check `SWIFT_VERSION` and
       `IPHONEOS_DEPLOYMENT_TARGET` in `project.pbxproj` against the current
       Xcode/SDK and decide deliberately whether to move either. Raising the
       deployment target **drops users on older iOS — a product decision, ask
@@ -123,6 +156,12 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       version it exists for and can be deleted once the target passes it.
       (P0.3 already put us on the latest Xcode, covering Apple's
       *submission minimums*; this item is about what *we choose* to target.)
+      > Note: 2026-07-12 — `SWIFT_VERSION` = 6.0 (current for Xcode 26.5,
+      > nothing newer available). `IPHONEOS_DEPLOYMENT_TARGET` = 26.5 (exact
+      > newest iOS), no prior documented rationale in main-prd.md /
+      > tech-design-doc.md. Flagged to Jimmy as a deliberate product decision
+      > for v1.0's first release (excludes users not yet on 26.5) — decision:
+      > **keep 26.5**. Neither value moves, so no iOS-COMPAT audit needed.
       > Note:
 
 ## Phase 2 — Localization & App Store content
@@ -132,10 +171,12 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 - [ ] **P2.2** Translations complete: `python3 scripts/check_translations.py`;
       if new/stale keys exist, run `/translate-new-strings`.
       > Note:
-- [ ] **P2.3** 🤔 (optional) Translation-quality audit: if many strings were added
+- [x] **P2.3** 🤔 (optional) Translation-quality audit: if many strings were added
       since the newest `translation-quality-audit-*` in `docs/audits/`, run
-      `/audit-translations` and act on the manifest.
-      > Note:
+      `/audit-translations` and act on the manifest. **Intensive** — fans out
+      an Opus subagent per locale (49 locales); heavy token/time cost.
+      > Note: 2026-07-12 — Jimmy: skip for this release (decided ahead of
+      > reaching this item).
 - [ ] **P2.4** Metadata current **and pushed**: review
       `fastlane/metadata/en-US/*.txt` (description, keywords, promotional
       text) against the app as it is now; **write `release_notes.txt` for this

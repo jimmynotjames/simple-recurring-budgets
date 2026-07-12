@@ -2,7 +2,7 @@
 
 Master: docs/app-store-release-checklist.md @ 4e583fb
 Status: in-flight
-Version: 1.0 · Build: —
+Version: 1.0 · Build: 17
 Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ---
@@ -303,7 +303,7 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       builds use Production** — an undeployed schema means sync silently fails
       for exactly the builds that matter. Constraints in
       `docs/tech-design-doc.md` §4.3 (CloudKit cannot delete deployed record
-      fields). The P4.3 iCloud round-trip on the TestFlight build is the
+      fields). The P4.5 two-device sync test on the TestFlight build is the
       verification. **Use the `/cloudkit-deploy-schema` skill** to drive this
       (preflight checks, stale-field handling, mandatory confirmation gates
       before anything destructive) — run it on Opus-tier (see that skill's own
@@ -336,7 +336,7 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ## Phase 4 — Build & upload
 
-- [ ] **P4.1** Release-candidate build — **one binary serves both the final
+- [x] **P4.1** Release-candidate build — **one binary serves both the final
       TestFlight test and the App Store submission**.
       `/appstore:push-release-build` confirms checklist prep, prompts for the
       version number (decided in P0.6), bumps `MARKETING_VERSION` on a release
@@ -349,48 +349,66 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       to N` commit (`git log <that-sha>..main --oneline --
       simple-recurring-budgets/` is empty), reuse that build instead of
       cutting another.
-      > Note:
-- [ ] **P4.2** 🎈 Wait for the build to finish processing (~30 min); check
+      > Note: 2026-07-12 — No reusable candidate (MARKETING_VERSION was still
+      > 0.1). Ran `/appstore:push-release-build`: bumped MARKETING_VERSION to
+      > 1.0, `fastlane ios beta` uploaded **build 17** (build 94s, upload
+      > 66s). PR #313 merged. This build is the one to test in P4.3 and
+      > attach in P5.1.
+- [x] **P4.2** 🎈 Wait for the build to finish processing (~30 min); check
       email for ITMS post-processing warnings.
-      > Note:
-- [ ] **P4.3** 🎈 Final manual test on that exact TestFlight build, on a
+      > Note: 2026-07-12 — Build 17 processed on ASC. No warnings reported by
+      > Jimmy.
+- [x] **P4.3** 🎈 Final manual test on that exact TestFlight build, on a
       **physical device** — this is the pre-submission device test: the build
-      you exercise here is the build you submit. Delete any previous install
-      first so this doubles as the fresh-install smoke test. Install build N
-      via TestFlight and check the Settings screen version row first —
+      you exercise here is the build you submit. Default to **updating over
+      your existing install** via TestFlight (the real upgrade path virtually
+      all users take) rather than deleting first — deleting destroys any
+      local data that hasn't yet synced to CloudKit, a real risk on a device
+      with genuine data. (The fresh-install angle is covered by P4.5's
+      Device B.) Install build N via TestFlight and check
+      the Settings screen version row first —
       - it shows **vX.Y.Z (N)** (the new version and the TestFlight build
         number), and
       - it does **NOT** show the word **"Debug"** — that badge only renders in
         Debug builds (`SettingsView.debugBadge`), so seeing it means you're
         running a local dev build, not the TestFlight release candidate.
-      Then run through onboarding, create a budget, log spending, an iCloud
-      sync round-trip (this exercises the **Production** CloudKit environment
-      and verifies P3.7), and anything new in this release. Record the build
+      Then create a budget, log spending, and anything new in this release.
+      Sync itself is verified separately in P4.5 — a single device can't
+      confirm data actually round-tripped through CloudKit. Record the build
       number tested in the snapshot; it is the one to attach in P5.1.
-      > Note:
-- [ ] **P4.4** 🎈 Upgrade smoke test (skip for v1.0): on a device holding real
+      > Note: 2026-07-12 — Jimmy updated over his existing install to build
+      > 17 (1.0), no delete/reinstall. Version row confirmed 1.0 (17), no
+      > Debug badge. Created a budget, logged spending — all fine.
+- [x] **P4.4** 🎈 Upgrade smoke test (skip for v1.0): on a device holding real
       data from the **current App Store build**, update to build N via
       TestFlight — existing data intact (SwiftData migration is the risk
       here).
-      > Note:
-- [ ] **P4.5** 🎈 (added after snapshot) **Two-device iCloud sync
-      verification.** P4.3's round-trip is single-device and can't rule out a
-      false positive (SwiftData's local cache can make sync look fine even if
-      CloudKit itself is broken). This item is the real test: install build N
-      via TestFlight on **two separate physical devices**, both signed into
-      the **same** iCloud account.
-      - On Device A: create a budget, log an expense. Wait ~30–60s, then
-        confirm it appears on Device B (may need to background/foreground
-        the app, or pull-to-refresh the Budgets list, to trigger a fetch).
-      - On Device B: edit something (e.g. log another expense, or edit the
-        budget's allocation). Confirm the change propagates back to Device A.
+      > Note: 2026-07-12 — Skipped, as anticipated for v1.0: no prior App
+      > Store build exists to upgrade from (this is the first release).
+- [x] **P4.5** 🎈 (added after snapshot; redefined mid-release to fold in the
+      fresh-install check — see Note) **Two-device iCloud sync
+      verification** — also doubles as the fresh-install smoke test. A
+      single-device check can't rule out a false positive (SwiftData's local
+      cache can make sync look fine even if CloudKit itself is broken).
+      - Device A: already updated to build N over your existing install (P4.3).
+      - Device B: delete the app completely, then fresh-install build N via
+        TestFlight, signed into the **same** iCloud account as Device A.
+        Confirm it populates with Device A's existing data.
+      - Make a change on either device and confirm it propagates to the other.
       - If sync doesn't propagate either direction, this is a **hard
         blocker** — do not proceed to P5.1 — the most likely cause is an
         undeployed or incomplete Production schema (back to P3.7 /
         `/cloudkit-deploy-schema`); check both devices' Settings iCloud
         status row shows "iCloud Sync is Active" first, to rule out an
         account-level problem before suspecting the schema.
-      > Note:
+      > Note: 2026-07-12 — Passed both directions: Device A → Device B and
+      > Device B → Device A both synced correctly, using two devices that
+      > both already had the app installed (not a fresh-install on B).
+      > Confirms P3.7's Production schema deploy is working end-to-end. The
+      > combined fresh-install variant (P4.6, folded into this item after the
+      > test ran) was judged unnecessary for v1.0 — Jimmy decided the
+      > already-completed test was sufficient; the combined recipe becomes
+      > standard starting next release.
 
 ## Phase 5 — Submit for review 🚀 MAJOR CHECKPOINT
 
@@ -424,12 +442,8 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ## Phase 6 — Review outcome & release
 
-- [ ] **P6.1** If rejected: read the Resolution Center message, use the
-      `app-store-review` skill to interpret the guideline cited, fix, and
-      resubmit (rejections often only need a reply or metadata tweak, not a new
-      build — but if the fix requires a binary change, loop back to P4.1 for a
-      fresh candidate: new build number, same version). Log each rejection +
-      resolution in the snapshot.
+- [ ] **P6.1** Handle any Resolution Center messages (use the
+      `app-store-review` skill), then log the outcome in the snapshot.
       > Note:
 - [ ] **P6.2** 🎈 On approval: release per the P5.1 choice; confirm the new
       version is actually live on the App Store.

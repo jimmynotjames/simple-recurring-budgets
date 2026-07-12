@@ -236,22 +236,29 @@ build number into the snapshot header — this one build is both the final
 TestFlight test target (P4.3) and the binary attached in P5.1.
 
 **P4.3 — final manual test.** 🎈 — give the user the exact build number to
-install via TestFlight **on a physical device, after deleting any previous
-install** (it doubles as the fresh-install smoke test) and what to verify:
+install via TestFlight. Default to **updating over their existing install**,
+not deleting first — deleting would destroy any local data that hasn't yet
+synced to CloudKit, which matters on a device with real data (the
+fresh-install angle lives in P4.5's Device B, not this item). What to verify:
 the Settings version row shows **vX.Y.Z (N)** and **no "Debug" badge** (Debug
-badge = local dev build, not the candidate), then onboarding, create a
-budget, log spending, an iCloud sync round-trip, and this release's new
-features. Wait for their result and record the tested build number.
+badge = local dev build, not the candidate), then create a budget, log
+spending, and this release's new features. Don't ask them to do an "iCloud
+sync round-trip" here — a single device can't confirm data actually reached
+CloudKit; that's P4.5's job. Wait for their result and record the tested
+build number.
 
-**P4.5 — two-device iCloud sync verification.** 🎈 Give the user the checklist
-item's exact steps verbatim (it's fully self-contained) — install build N on
-two physical devices signed into the same iCloud account, create/edit data on
-one, confirm it propagates to the other in both directions. This is the real
-verification of P3.7's Production schema deploy; P4.3's round-trip is
-single-device and can produce a false positive from local caching. Treat a
-failure here as a hard blocker on P5.1 — if sync doesn't propagate, send the
-user back to `/cloudkit-deploy-schema` rather than letting them proceed to
-submission. Record pass/fail and which direction(s) were tested.
+**P4.5 — two-device iCloud sync verification (also the fresh-install
+check).** 🎈 Give the user the checklist item's exact steps verbatim (it's
+fully self-contained) — Device A is already updated (P4.3); Device B gets
+deleted and fresh-installed, signed into the same iCloud account, then should
+populate from Device A's data; then a change on either device should
+propagate to the other. This is the real verification of P3.7's Production
+schema deploy — a single device can't rule out a false positive from local
+caching — and folding the fresh-install in this way means Device B never
+needs to be the user's primary device, so nothing at risk gets deleted.
+Treat a sync failure here as a hard blocker on P5.1 — send the user back to
+`/cloudkit-deploy-schema` rather than letting them proceed to submission.
+Record pass/fail and which direction(s) were tested.
 
 ### 4. Wait states — end the session cleanly
 

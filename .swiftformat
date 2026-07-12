@@ -15,3 +15,7 @@
 # statements, so the two oscillate and swiftlint-fix (run last in pre-commit) wins — leaving
 # code that `swiftformat --lint` then rejects in CI. Disable here so swiftformat defers.
 --disable wrapMultilineStatementBraces
+# Top-level `build/` (gitignored local scratch/artifacts, e.g. ci-repro checkouts) isn't
+# covered by SwiftFormat's default excludes (only `.build` is) — exclude it explicitly so
+# vendored SPM dependency source never gets formatted.
+--exclude build

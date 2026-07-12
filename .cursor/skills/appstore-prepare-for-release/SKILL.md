@@ -142,6 +142,14 @@ grep -l "Status: in-flight" releases/*.md 2>/dev/null
    - **`🤔 (optional)`**: state a recommendation and why (e.g. "translation
      audit was 2 weeks ago, skip"), let the user decide, mark `[x]` with the
      decision in the Note (e.g. `Skipped — audit 2 weeks old, no churn`).
+   - **Every prompt to the user** (whether via `AskUserQuestion` or plain text)
+     must name the item ID and remind them what it's checking — put the ID in
+     the question `header` chip (e.g. `header: "P1.6 issue"`, not just
+     `"Issue #304"`) *and* open the question text with the ID, quoting the
+     item's checklist wording verbatim if it's short or giving a 1-2 sentence
+     summary if it's long. Never prompt with only surrounding context (e.g. an
+     issue title) and no ID — the user shouldn't have to guess which checklist
+     item a question belongs to.
 3. Update the snapshot file after **every** item, not in batches.
 4. Batch mechanical items where sensible (e.g. run P2.1 + P2.2 checks together)
    but never mark an item without evidence it passed.
@@ -189,6 +197,13 @@ issue** (AskUserQuestion): *fix now / defer (apply the `deferred` label +
 comment) / accept as known*. Never disposition an issue yourself. Record the
 disposition list in the Note. Issues already labeled `deferred` are skipped
 (just report the count).
+
+**P2.3 — translation-quality audit.** 🤔 Before stating your recommendation,
+tell the user up front that `/audit-translations` is **intensive**: it fans
+out an Opus subagent per locale (49 locales) and burns significant tokens/time
+— this is part of the prompt itself, not a footnote. Then recommend based on
+how many strings were added since the newest `translation-quality-audit-*` in
+`docs/audits/` (per the item's own criterion), and let the user decide.
 
 **P4.1 — release-candidate build.** Check for a reusable candidate before
 cutting a new one:

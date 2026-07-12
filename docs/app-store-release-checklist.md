@@ -136,7 +136,8 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       > Note:
 - [ ] **P2.3** 🤔 (optional) Translation-quality audit: if many strings were added
       since the newest `translation-quality-audit-*` in `docs/audits/`, run
-      `/audit-translations` and act on the manifest.
+      `/audit-translations` and act on the manifest. **Intensive** — fans out
+      an Opus subagent per locale (49 locales); heavy token/time cost.
       > Note:
 - [ ] **P2.4** Metadata current **and pushed**: review
       `fastlane/metadata/en-US/*.txt` (description, keywords, promotional

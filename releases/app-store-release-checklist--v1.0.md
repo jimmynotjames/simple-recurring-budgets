@@ -35,19 +35,24 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       requirements.
       > Note: 2026-07-12 — `xcodebuild -version` → Xcode 26.5 (17F42);
       > `softwareupdate --list` shows nothing pending. `make build` exit 0.
-- [x] **P0.4** Auth sanity: `fastlane ios verify_auth` (ASC API key in
-      `fastlane/.env`); confirm the Apple Distribution certificate hasn't
-      expired (Xcode → Settings → Accounts, or ASC → Certificates). If
-      `fastlane/.env` or the `.p8` key file is missing (new machine), recover
-      per `fastlane/SETUP.md` — the key itself is in ASC → Users and Access →
-      Integrations, and app secrets live in `config/Secrets.local.xcconfig`
-      (`CONTRIBUTING.md § B`).
-      > Note: 2026-07-12 — `fastlane ios verify_auth` passed: "Auth OK. Latest
-      > TestFlight build number: 16" (version 0.1) — confirms the ASC API key.
-      > Separately, the Apple Distribution certificate did **not** exist yet
-      > (verify_auth doesn't touch code signing, so it couldn't have caught
-      > this) — Jimmy checked Xcode → Manage Certificates and created it on
-      > the spot. Confirmed present now.
+- [x] **P0.4** Auth sanity — two **independent** credentials; a pass on one
+      says nothing about the other, so check both explicitly:
+      1. `fastlane ios verify_auth` (ASC API key in `fastlane/.env`) — only
+         exercises REST auth, never code signing. If `fastlane/.env` or the
+         `.p8` key file is missing (new machine), recover per
+         `fastlane/SETUP.md` — the key itself is in ASC → Users and Access →
+         Integrations, and app secrets live in `config/Secrets.local.xcconfig`
+         (`CONTRIBUTING.md § B`).
+      2. 🎈 Apple Distribution certificate (code-signing identity) exists and
+         hasn't expired: Xcode → Settings → Accounts → Manage Certificates
+         (flags expired/expiring; simply absent from the list if it doesn't
+         exist yet), or ASC → Certificates. If missing, create it there (or
+         let Xcode generate one via automatic signing).
+      > Note: 2026-07-12 — (1) `fastlane ios verify_auth` passed: "Auth OK.
+      > Latest TestFlight build number: 16" (version 0.1) — confirms the ASC
+      > API key. (2) The Apple Distribution certificate did **not** exist yet
+      > — Jimmy checked Xcode → Manage Certificates and created it on the
+      > spot. Confirmed present now.
 - [x] **P0.5** 🎈 ASC housekeeping: **Apple Developer Program membership
       active and all agreements are accepted**.
       > Note: 2026-07-12 — Jimmy confirmed: membership active, agreements

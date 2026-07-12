@@ -45,13 +45,19 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       the latest Xcode automatically satisfies Apple's minimum-SDK submission
       requirements.
       > Note:
-- [ ] **P0.4** Auth sanity: `fastlane ios verify_auth` (ASC API key in
-      `fastlane/.env`); confirm the Apple Distribution certificate hasn't
-      expired (Xcode → Settings → Accounts, or ASC → Certificates). If
-      `fastlane/.env` or the `.p8` key file is missing (new machine), recover
-      per `fastlane/SETUP.md` — the key itself is in ASC → Users and Access →
-      Integrations, and app secrets live in `config/Secrets.local.xcconfig`
-      (`CONTRIBUTING.md § B`).
+- [ ] **P0.4** Auth sanity — two **independent** credentials; a pass on one
+      says nothing about the other, so check both explicitly:
+      1. `fastlane ios verify_auth` (ASC API key in `fastlane/.env`) — only
+         exercises REST auth, never code signing. If `fastlane/.env` or the
+         `.p8` key file is missing (new machine), recover per
+         `fastlane/SETUP.md` — the key itself is in ASC → Users and Access →
+         Integrations, and app secrets live in `config/Secrets.local.xcconfig`
+         (`CONTRIBUTING.md § B`).
+      2. 🎈 Apple Distribution certificate (code-signing identity) exists and
+         hasn't expired: Xcode → Settings → Accounts → Manage Certificates
+         (flags expired/expiring; simply absent from the list if it doesn't
+         exist yet), or ASC → Certificates. If missing, create it there (or
+         let Xcode generate one via automatic signing).
       > Note:
 - [ ] **P0.5** 🎈 ASC housekeeping: **Apple Developer Program membership
       active and all agreements are accepted**.

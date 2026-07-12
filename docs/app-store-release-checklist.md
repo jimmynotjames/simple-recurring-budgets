@@ -200,14 +200,17 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P3.7** 🎈 CloudKit **Production** schema deployed: if the SwiftData
       model changed since the last release (any file under
       `simple-recurring-budgets/Models/` — or first release), deploy the
-      schema in the CloudKit Console (icloud.developer.apple.com → container →
-      "Deploy Schema Changes", Development → Production) **before** cutting
-      the release candidate. Dev-signed builds use the Development
-      environment, but **TestFlight and App Store builds use Production** — an
-      undeployed schema means sync silently fails for exactly the builds that
-      matter. Constraints in `docs/tech-design-doc.md` §4.3 (CloudKit cannot
-      delete deployed record fields). The P4.3 iCloud round-trip on the
-      TestFlight build is the verification.
+      schema to Production **before** cutting the release candidate. Dev-signed
+      builds use the Development environment, but **TestFlight and App Store
+      builds use Production** — an undeployed schema means sync silently fails
+      for exactly the builds that matter. Constraints in
+      `docs/tech-design-doc.md` §4.3 (CloudKit cannot delete deployed record
+      fields). The P4.3 iCloud round-trip on the TestFlight build is the
+      verification. **Use the `/cloudkit-deploy-schema` skill** to drive this
+      (preflight checks, stale-field handling, mandatory confirmation gates
+      before anything destructive) — run it on Opus-tier (see that skill's own
+      Model preference section), not inline on whatever model is orchestrating
+      the rest of the checklist.
       > Note:
 
 ## Phase 4 — Build & upload
@@ -248,6 +251,23 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       data from the **current App Store build**, update to build N via
       TestFlight — existing data intact (SwiftData migration is the risk
       here).
+      > Note:
+- [ ] **P4.5** 🎈 **Two-device iCloud sync verification.** P4.3's round-trip is
+      single-device and can't rule out a false positive (SwiftData's local
+      cache can make sync look fine even if CloudKit itself is broken). This
+      item is the real test: install build N via TestFlight on **two separate
+      physical devices**, both signed into the **same** iCloud account.
+      - On Device A: create a budget, log an expense. Wait ~30–60s, then
+        confirm it appears on Device B (may need to background/foreground
+        the app, or pull-to-refresh the Budgets list, to trigger a fetch).
+      - On Device B: edit something (e.g. log another expense, or edit the
+        budget's allocation). Confirm the change propagates back to Device A.
+      - If sync doesn't propagate either direction, this is a **hard
+        blocker** — do not proceed to P5.1 — the most likely cause is an
+        undeployed or incomplete Production schema (back to P3.7 /
+        `/cloudkit-deploy-schema`); check both devices' Settings iCloud
+        status row shows "iCloud Sync is Active" first, to rule out an
+        account-level problem before suspecting the schema.
       > Note:
 
 ## Phase 5 — Submit for review 🚀 MAJOR CHECKPOINT

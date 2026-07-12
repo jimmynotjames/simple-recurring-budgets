@@ -205,6 +205,19 @@ out an Opus subagent per locale (49 locales) and burns significant tokens/time
 how many strings were added since the newest `translation-quality-audit-*` in
 `docs/audits/` (per the item's own criterion), and let the user decide.
 
+**P3.7 — CloudKit Production schema.** Don't drive this inline — invoke the
+`cloudkit-deploy-schema` skill, which owns the full recipe (preflight checks,
+greenfield-vs-incremental handling, stale-field triage, and the mandatory
+confirmation gates before anything destructive/production-affecting). Run it
+on **Opus-tier**, not whatever model is orchestrating the rest of the
+checklist (spawn an Opus subagent if the session is on Sonnet) — schema
+mutations to Production are practically permanent (fields can't be deleted
+once deployed), which is exactly the judgment-heavy, high-consequence profile
+that gets the Opus escalation elsewhere in this skill (P1.6/P1.7/P1.8/P6.1).
+Record in this item's Note only a summary of what `cloudkit-deploy-schema`
+did (method, fields, verification) — the full recipe lives in that skill, not
+duplicated here.
+
 **P4.1 — release-candidate build.** Check for a reusable candidate before
 cutting a new one:
 
@@ -229,6 +242,16 @@ the Settings version row shows **vX.Y.Z (N)** and **no "Debug" badge** (Debug
 badge = local dev build, not the candidate), then onboarding, create a
 budget, log spending, an iCloud sync round-trip, and this release's new
 features. Wait for their result and record the tested build number.
+
+**P4.5 — two-device iCloud sync verification.** 🎈 Give the user the checklist
+item's exact steps verbatim (it's fully self-contained) — install build N on
+two physical devices signed into the same iCloud account, create/edit data on
+one, confirm it propagates to the other in both directions. This is the real
+verification of P3.7's Production schema deploy; P4.3's round-trip is
+single-device and can produce a false positive from local caching. Treat a
+failure here as a hard blocker on P5.1 — if sync doesn't propagate, send the
+user back to `/cloudkit-deploy-schema` rather than letting them proceed to
+submission. Record pass/fail and which direction(s) were tested.
 
 ### 4. Wait states — end the session cleanly
 

@@ -15,6 +15,40 @@ UI, physical device) — for those, tell the user exactly what to do and wait fo
 their confirmation. Agent-runnable items you execute directly. `🤔 (optional)`
 items get a recommendation + a quick user decision, never a silent skip.
 
+## Model preference
+
+- **This skill should run on the latest Sonnet-tier model (or whatever its
+  contemporary equivalent is by the time you read this).** The orchestration
+  here is deliberately model-light — checklist walking, snapshot edits,
+  invoking sibling skills — and the heavy cognitive work (translation, audits,
+  screenshot content) is already delegated to Opus-tier subagents by those
+  sibling skills.
+- **At the start of each session, check the model AND the effort level.**
+  Model: if the session is not running the latest Sonnet-tier model or
+  equivalent — e.g. a smaller/cheaper model (risky on the judgment items:
+  P0.6, P1.6–P1.8, P6.1) or a premium top-tier model (wasteful for checklist
+  mechanics) — **tell the user and confirm with them before proceeding.**
+  Effort: if the session's effort setting is knowable and isn't the default
+  `high` (or its era's equivalent), flag that in the same confirmation; if it
+  isn't knowable, ask the user to confirm it once at the first session of a
+  release (record the answer in the snapshot's P0.7 Note) — don't re-ask
+  every session. Never silently continue on a mismatched model.
+- **Effort level: the default (`high`) is right for this skill.** Don't drop
+  to low/medium — the judgment items (P0.6, P1.6–P1.8, P6.1) deserve full
+  reasoning depth and the token savings are trivial at release cadence. Don't
+  raise to xhigh/max either — that tier is for long-horizon coding/agentic
+  work, not human-paced checklist driving.
+- **Judgment-heavy items escalate to the latest Opus-tier model (or its
+  contemporary equivalent).** For the analysis behind **P1.6** (open-issue
+  triage), **P1.7** (dependency-bump calls), **P1.8** (Swift/deployment-target
+  tradeoffs), and **P6.1** (interpreting a rejection), spawn a subagent on
+  that model (Agent tool, `model: "opus"` or the current equivalent) to do
+  the analysis and return a recommendation. The Sonnet-tier driver relays the
+  recommendation and the **decision still goes to the user** — these items'
+  prompts-and-dispositions rules are unchanged. Don't escalate the mechanical
+  parts of those items (running `gh issue list`, reading `Package.resolved`);
+  only the judgment itself.
+
 ## Core rules
 
 - **The snapshot is the single source of truth.** `releases/app-store-release-checklist--vX.Y.Z.md` holds

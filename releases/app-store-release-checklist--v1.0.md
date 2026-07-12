@@ -1,42 +1,31 @@
-# App Store release checklist
+# Release v1.0 — checklist snapshot
 
-The master checklist for shipping a Wren release to the App Store. Audience: a
-future developer or agent who may not have touched this repo in months or years.
-Work top to bottom — phases are ordered by dependency.
-
-**How this is used:** the `/appstore:prepare-for-release` skill copies the checklist body
-into a per-release snapshot at `releases/app-store-release-checklist--vX.Y.Z.md`, then works through it with
-you across as many sessions as the release takes. The snapshot is the state;
-this file is the template. Related: [`RELEASES.md`](../RELEASES.md) (append-only
-log of what shipped) gets its entry filled in at close-out (P7.5).
-
-**Conventions**
-
-- 🎈 `MANUAL` — only a human can do it (App Store Connect UI, physical device).
-- 🤔 `(optional)` — judgment call; decide explicitly and record the decision in
-  the item's Note.
-- Item IDs (`P2.4`) are stable — never renumber; append new items at the end of a phase.
-- Checkboxes are binary: `- [ ]` not handled yet, `- [x]` handled. Every item
-  carries a `> Note:` field — record the outcome there ("Done", "Skipped —
-  reason", "N/A", dates, build numbers). A checked box can mean done *or*
-  deliberately skipped; the Note says which.
-- If a release reveals a missing, wrong, or useless step, **edit this file** as
-  part of the close-out PR (P7.6). This checklist only stays trustworthy if each
-  release corrects it.
+Master: docs/app-store-release-checklist.md @ 4e583fb
+Status: in-flight
+Version: 1.0 · Build: —
+Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ---
 
 ## Phase 0 — Re-orientation (start here, especially after a long gap)
 
-- [ ] **P0.1** Read the newest entry in `RELEASES.md` and the newest snapshot in
+- [x] **P0.1** Read the newest entry in `RELEASES.md` and the newest snapshot in
       `releases/` — what shipped last, and whether a previous release was left
       half-finished.
-      > Note:
-- [ ] **P0.2** Skim what changed since the last release: `git log --oneline
+      > Note: 2026-07-12 — RELEASES.md's only entry is the v1.0 stub (nothing
+      > shipped yet — this is the first release). No prior snapshot existed
+      > in `releases/` before this one, so nothing was left half-finished.
+- [x] **P0.2** Skim what changed since the last release: `git log --oneline
       vLAST..main` (releases are tagged per P6.3; for v1.0 there is no earlier
       tag — skim `docs/product-features-planning.md` statuses instead).
-      > Note:
-- [ ] **P0.3** Toolchain current: update to the **latest release Xcode**
+      > Note: 2026-07-12 — First release, no tag to diff against. Skimmed
+      > product-features-planning.md: core features (F-1.x, F-2.x, F-3.x,
+      > F-5.01, F-6.01, F-6.03, F-7.04-07, F-8.01, F-8.02)
+      > are Implemented. Intentionally open/deferred: F-4.01/F-4.02 (color
+      > themes), F-6.02 (expense type editor, schema-only), F-7.01-03
+      > (receipt scan / voice input), F-8.03 (Mixpanel Phase 2). F-4.04
+      > (photo icons) is Canceled/descoped. Nothing here blocks v1.0.
+- [x] **P0.3** Toolchain current: update to the **latest release Xcode**
       (App Store or https://developer.apple.com/download/applications/ —
       compare `xcodebuild -version` against the newest at
       https://developer.apple.com/news/releases/) and let Software Update
@@ -44,8 +33,9 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       nothing pending). Then confirm `make build` succeeds on it. Being on
       the latest Xcode automatically satisfies Apple's minimum-SDK submission
       requirements.
-      > Note:
-- [ ] **P0.4** Auth sanity — two **independent** credentials; a pass on one
+      > Note: 2026-07-12 — `xcodebuild -version` → Xcode 26.5 (17F42);
+      > `softwareupdate --list` shows nothing pending. `make build` exit 0.
+- [x] **P0.4** Auth sanity — two **independent** credentials; a pass on one
       says nothing about the other, so check both explicitly:
       1. `fastlane ios verify_auth` (ASC API key in `fastlane/.env`) — only
          exercises REST auth, never code signing. If `fastlane/.env` or the
@@ -58,11 +48,16 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
          (flags expired/expiring; simply absent from the list if it doesn't
          exist yet), or ASC → Certificates. If missing, create it there (or
          let Xcode generate one via automatic signing).
-      > Note:
-- [ ] **P0.5** 🎈 ASC housekeeping: **Apple Developer Program membership
+      > Note: 2026-07-12 — (1) `fastlane ios verify_auth` passed: "Auth OK.
+      > Latest TestFlight build number: 16" (version 0.1) — confirms the ASC
+      > API key. (2) The Apple Distribution certificate did **not** exist yet
+      > — Jimmy checked Xcode → Manage Certificates and created it on the
+      > spot. Confirmed present now.
+- [x] **P0.5** 🎈 ASC housekeeping: **Apple Developer Program membership
       active and all agreements are accepted**.
-      > Note:
-- [ ] **P0.6** 🎈 Decide the new App Store version number — a product decision
+      > Note: 2026-07-12 — Jimmy confirmed: membership active, agreements
+      > accepted.
+- [x] **P0.6** 🎈 Decide the new App Store version number — a product decision
       the agent must always **prompt for, never pick silently**.
       `MARKETING_VERSION` in `project.pbxproj` is the **single source of
       truth** for the user-facing version: `Info.plist` maps it to
@@ -71,10 +66,13 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       SettingsView, and the binary ASC receives (build numbers are automated —
       `fastlane/SETUP.md` "Build numbers"). Verify it matches the version
       string ASC expects for this submission. The actual bump happens in P4.1.
-      > Note:
-- [ ] **P0.7** Create the checklist snapshot `releases/app-store-release-checklist--vX.Y.Z.md` (the skill does this)
+      > Note: 2026-07-12 — Prompted Jimmy; current MARKETING_VERSION is 0.1,
+      > RELEASES.md has a v1.0 stub. Confirmed: ship as **1.0**.
+- [x] **P0.7** Create the checklist snapshot `releases/app-store-release-checklist--vX.Y.Z.md` (the skill does this)
       and record version + start date in its header.
-      > Note:
+      > Note: 2026-07-12 — Created this snapshot. Model: Sonnet 5 (latest
+      > Sonnet-tier), Effort: high (default) — both confirmed at session
+      > start via /model and /effort, matches skill preference.
 
 ## Phase 1 — Code & docs readiness
 

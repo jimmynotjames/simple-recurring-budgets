@@ -148,6 +148,27 @@ grep -l "Status: in-flight" releases/*.md 2>/dev/null
 
 ### Executing specific items
 
+**P0.4 — auth sanity.** This item has two independent credentials — check both,
+don't let one stand in for the other:
+1. **ASC API key** (REST auth fastlane uses for `deliver`/`pilot`/etc.): run
+   `fastlane ios verify_auth`. A pass only proves the API key works; it never
+   touches code signing, so it says nothing about the cert below.
+2. **Apple Distribution certificate** (code-signing identity used to archive/
+   sign the build): this is **always a 🎈 MANUAL pause** — never infer it from
+   `verify_auth` passing, and don't script a probe for it (no efficient
+   programmatic check; not worth building). Ask the user to confirm it
+   *exists* and *isn't expired*, and wait for their answer:
+   - Xcode → Settings → Accounts → Apple ID → **Manage Certificates...** →
+     find **Apple Distribution** (Xcode flags it if expired/expiring, and it's
+     simply absent from the list if it doesn't exist yet).
+   - Or: App Store Connect → **Certificates, Identifiers & Profiles →
+     Certificates** → Apple Distribution cert → expiry date on its detail page.
+   If it doesn't exist, the user creates it there (Xcode can also generate one
+   automatically via automatic signing) — record in the Note that it had to be
+   created, not just confirmed.
+If `verify_auth` ever fails, that's the trigger to dig into API-key recovery
+per `fastlane/SETUP.md` — a separate path from cert recovery.
+
 **P1.3 — audit review.** 🎈 The user reviews and decides; you just set the
 table: `ls docs/audits/` (dates are in the filenames) plus the last
 Run-history entry in

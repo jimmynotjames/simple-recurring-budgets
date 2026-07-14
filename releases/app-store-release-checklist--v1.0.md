@@ -3,7 +3,7 @@
 Master: docs/app-store-release-checklist.md @ 4e583fb
 Status: in-flight
 Version: 1.0 · Build: 17
-Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
+Started: 2026-07-12 · Submitted: 2026-07-13 · Released: — · Monitoring ends: —
 
 ---
 
@@ -412,7 +412,7 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 
 ## Phase 5 — Submit for review 🚀 MAJOR CHECKPOINT
 
-- [ ] **P5.1** 🎈 In ASC: create/select version X.Y.Z, attach build N — the
+- [x] **P5.1** 🎈 In ASC: create/select version X.Y.Z, attach build N — the
       exact build tested in P4.3 — proof the metadata + screenshots preview,
       and choose the release option (manual / automatic / **phased** — phased
       recommended once there is an existing user base). Export compliance is
@@ -428,17 +428,22 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
       - App Review Information — contact info + reviewer notes (no demo
         account needed; the app has no login). Saving this section once is
         also the fix for the `push_metadata` v1.0 "No data" crash (P2.4).
-      > Note:
-- [ ] **P5.2** 🎈 Click **Submit for Review**. (fastlane *can* do this —
+      > Note: Version 1.0 created in ASC, build 17 attached (matches the
+      > build tested in P4.3/P4.5). Release option: manual. First-release-only
+      > setup (Pricing & Availability, age rating questionnaire, primary
+      > category Finance, App Review Information contact/notes) all
+      > completed.
+- [x] **P5.2** 🎈 Click **Submit for Review**. (fastlane *can* do this —
       `deliver` with `submit_for_review: true` — but the repo default is the
       manual click; at a years-between-releases cadence the button is more
       robust than a rusty automation path.) If timing matters, note App Review
       slows around major holidays (late December especially).
-      > Note:
-- [ ] **P5.3** Record in the snapshot: submitted date, build number, and that
+      > Note: 2026-07-13 — Submitted for review via the manual ASC click.
+- [x] **P5.3** Record in the snapshot: submitted date, build number, and that
       ASC shows **Waiting for Review**. *(Re-invoke the skill when the review
       state changes — Apple emails on transitions.)*
-      > Note:
+      > Note: Submitted 2026-07-13, build 17 (v1.0). ASC status: Waiting for
+      > Review.
 
 ## Phase 6 — Review outcome & release
 
@@ -451,6 +456,16 @@ Started: 2026-07-12 · Submitted: — · Released: — · Monitoring ends: —
 - [ ] **P6.3** Record the release date in the snapshot and tag the repo:
       `git tag vX.Y.Z <release-merge-sha> && git push origin vX.Y.Z`
       (this is what makes P0.2 work next time).
+      > Note:
+- [ ] **P6.4** Bump `MARKETING_VERSION` to the next minor version (e.g.
+      `1.0` → `1.1`, or `1.0.0` → `1.1.0`) — same technique as
+      `/appstore:push-release-build` step 4: update every
+      `MARKETING_VERSION = …;` occurrence in `project.pbxproj`, branch,
+      commit, PR, merge. Keeps any interim TestFlight build pushed before the
+      next release cycle formally starts tagged as a future version rather
+      than reusing the one just released. P4.1's reusable-candidate check
+      already skips re-bumping when `MARKETING_VERSION` matches the intended
+      next version.
       > Note:
 
 ## Phase 7 — Post-release monitoring (~1 week) 🏁 FINAL CHECKPOINT

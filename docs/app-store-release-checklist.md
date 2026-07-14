@@ -315,6 +315,16 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       `git tag vX.Y.Z <release-merge-sha> && git push origin vX.Y.Z`
       (this is what makes P0.2 work next time).
       > Note:
+- [ ] **P6.4** Bump `MARKETING_VERSION` to the next minor version (e.g.
+      `1.0` → `1.1`, or `1.0.0` → `1.1.0`) — same technique as
+      `/appstore:push-release-build` step 4: update every
+      `MARKETING_VERSION = …;` occurrence in `project.pbxproj`, branch,
+      commit, PR, merge. Keeps any interim TestFlight build pushed before the
+      next release cycle formally starts tagged as a future version rather
+      than reusing the one just released. P4.1's reusable-candidate check
+      already skips re-bumping when `MARKETING_VERSION` matches the intended
+      next version.
+      > Note:
 
 ## Phase 7 — Post-release monitoring (~1 week) 🏁 FINAL CHECKPOINT
 

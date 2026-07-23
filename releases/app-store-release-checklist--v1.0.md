@@ -471,7 +471,7 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
       already skips re-bumping when `MARKETING_VERSION` matches the intended
       next version.
       > Note: Bumped `MARKETING_VERSION` 1.0 → 1.1 across all 6 occurrences in
-      > `project.pbxproj` on 2026-07-22, PR TBD.
+      > `project.pbxproj` on 2026-07-22, PR #321.
 
 ## Phase 7 — Post-release monitoring (~1 week) 🏁 FINAL CHECKPOINT
 

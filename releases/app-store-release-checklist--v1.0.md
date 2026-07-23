@@ -3,7 +3,7 @@
 Master: docs/app-store-release-checklist.md @ 4e583fb
 Status: in-flight
 Version: 1.0 · Build: 17
-Started: 2026-07-12 · Submitted: 2026-07-13 · Released: — · Monitoring ends: —
+Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitoring ends: 2026-07-29
 
 ---
 
@@ -447,16 +447,20 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: — · Monitoring ends
 
 ## Phase 6 — Review outcome & release
 
-- [ ] **P6.1** Handle any Resolution Center messages (use the
+- [x] **P6.1** Handle any Resolution Center messages (use the
       `app-store-review` skill), then log the outcome in the snapshot.
-      > Note:
-- [ ] **P6.2** 🎈 On approval: release per the P5.1 choice; confirm the new
+  
+  > Note:x
+- [x] **P6.2** 🎈 On approval: release per the P5.1 choice; confirm the new
       version is actually live on the App Store.
       > Note:
-- [ ] **P6.3** Record the release date in the snapshot and tag the repo:
+- [x] **P6.3** Record the release date in the snapshot and tag the repo:
       `git tag vX.Y.Z <release-merge-sha> && git push origin vX.Y.Z`
       (this is what makes P0.2 work next time).
-      > Note:
+      > Note: Tagged `v1.0.0` at `34bcc57` (PR #313, "v1.0 — bump version and
+      > upload build 17" — the commit that set `MARKETING_VERSION` to 1.0 and
+      > build number to 17, matching the build attached in ASC per P5.1).
+      > Released 2026-07-22. Tag pushed to origin.
 - [ ] **P6.4** Bump `MARKETING_VERSION` to the next minor version (e.g.
       `1.0` → `1.1`, or `1.0.0` → `1.1.0`) — same technique as
       `/appstore:push-release-build` step 4: update every

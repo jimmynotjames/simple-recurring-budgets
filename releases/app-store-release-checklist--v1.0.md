@@ -461,7 +461,7 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
       > upload build 17" — the commit that set `MARKETING_VERSION` to 1.0 and
       > build number to 17, matching the build attached in ASC per P5.1).
       > Released 2026-07-22. Tag pushed to origin.
-- [ ] **P6.4** Bump `MARKETING_VERSION` to the next minor version (e.g.
+- [x] **P6.4** Bump `MARKETING_VERSION` to the next minor version (e.g.
       `1.0` → `1.1`, or `1.0.0` → `1.1.0`) — same technique as
       `/appstore:push-release-build` step 4: update every
       `MARKETING_VERSION = …;` occurrence in `project.pbxproj`, branch,
@@ -470,7 +470,8 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
       than reusing the one just released. P4.1's reusable-candidate check
       already skips re-bumping when `MARKETING_VERSION` matches the intended
       next version.
-      > Note:
+      > Note: Bumped `MARKETING_VERSION` 1.0 → 1.1 across all 6 occurrences in
+      > `project.pbxproj` on 2026-07-22, PR TBD.
 
 ## Phase 7 — Post-release monitoring (~1 week) 🏁 FINAL CHECKPOINT
 

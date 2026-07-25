@@ -2,7 +2,7 @@
 
 All notable App Store releases of **Wren** are logged here, newest first.
 
-This file is distinct from the other product docs: `[docs/product-features-planning.md](docs/product-features-planning.md)` tracks each feature's status across its own lifetime (not release-scoped), and `[docs/main-prd.md](docs/main-prd.md)` is the living source of truth for current product requirements. This file is an append-only, release-scoped record — what shipped in each version, plus confirmation that the [cross-cutting concerns](docs/main-prd.md#68-cross-cutting-ongoing-concerns) held at that point in time.
+This file is distinct from the other product docs: [docs/product-features-planning.md](docs/product-features-planning.md) tracks each feature's status across its own lifetime (not release-scoped), and [docs/main-prd.md](docs/main-prd.md) is the living source of truth for current product requirements. This file is an append-only, release-scoped record — what shipped in each version, plus confirmation that the [cross-cutting concerns](docs/main-prd.md#68-cross-cutting-ongoing-concerns) held at that point in time.
 
 Entries cross-reference feature IDs (`F-x.xx`) rather than re-describing them — see `product-features-planning.md` for full acceptance criteria and implementation history.
 

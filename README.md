@@ -28,7 +28,7 @@ This project was my attempt to learn agentic programming. All but two lines of c
 
 | Budgets | Add Expense | Budget Detail | Add Budget | Settings |
 | ------- | ----------- | ------------- | ---------- | -------- |
-|         |             |               |            |          |
+| <img src="docs/readme-images/2026-07-11_budgets.png" alt="Budgets list" width="160"> | <img src="docs/readme-images/2026-07-11_add_expense.png" alt="Add expense" width="160"> | <img src="docs/readme-images/2026-07-11_detail.png" alt="Budget detail with carry-over" width="160"> | <img src="docs/readme-images/2026-07-11_add_budget.png" alt="Add budget" width="160"> | <img src="docs/readme-images/2026-07-11_settings.png" alt="Settings" width="160"> |
 
 
 ---

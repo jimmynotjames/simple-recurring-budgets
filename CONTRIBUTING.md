@@ -8,6 +8,17 @@
 
 ---
 
+## Contributing Features and Bug Fixes
+
+I'm not working on this repo regularly, so responses may take some time. That said, if you do not meet the requirements below, your issue or pull request will likely be ignored. Sorry if that feels strict. I'm doing my best to manage my time and ensure this stays a quality product. Remember that you can always fork this repo, add your own desired features, and deploy a debug version on your device for your own use.
+
+Requirements:
+
+- You must prove that you understand this product and have a genuine desire to improve it. Explain your product thinking clearly and concisely. I recommend you hand-write this part and have AI review it. Be prepared to have a conversation.
+- For bug fixes, clearly and concisely explain the bug, including detailed reproduction steps. Explain your bug fix and discuss any architectural issue. No "band-aid" fixes will be accepted unless it's a high-severity issue, and it would be a crazy endeavor to refactor appropriately.
+
+Obviously, given that this code is agentically written, I have no issues if you use AI to contribute to this repo. That said, if I sense that you did not put effort into ensuring that your agent was producing quality work, I will likely ignore or reject your pull request or issue.
+
 ## Two-tier setup
 
 The table below shows how much work each goal requires.
@@ -37,6 +48,8 @@ Run on Simulator          ────────▶  fastlane beta / release
 
 ---
 
+
+
 ## A — Compile and run on Simulator (no secrets files)
 
 **Audience:** contributors exploring the code, running unit tests, iterating on UI.
@@ -60,6 +73,8 @@ Run on Simulator          ────────▶  fastlane beta / release
   - **From terminal:** `make test` (boots the repo's dedicated Simulator and runs the full test suite), or
   - **From Xcode:** select an iPhone Simulator → Run (⌘R).
 
+
+
 ### Signing
 
 Simulator builds generally skip code signing and don't enforce entitlements, so `make build` on a fresh clone is expected to succeed **without** changing the team, even though the project references maintainer team ID `EDMB3Z5KAY`.
@@ -75,6 +90,8 @@ Simulator builds generally skip code signing and don't enforce entitlements, so 
 - Privacy Policy opens `https://example.com/privacy` (placeholder).
 
 ---
+
+
 
 ## B — Configure secrets, ship, or fork for distribution
 
@@ -117,6 +134,8 @@ Store your `.p8` key file **outside the repo** (e.g. `~/.appstoreconnect/`) and 
 fastlane verify_auth
 ```
 
+
+
 ### Step 4 — Ship
 
 ```bash
@@ -132,6 +151,8 @@ Both lanes automatically run `scripts/verify_release_secrets.sh` before building
 SKIP_RELEASE_SECRETS_CHECK=1 fastlane beta
 ```
 
+
+
 ### What never gets committed
 
 
@@ -140,6 +161,8 @@ SKIP_RELEASE_SECRETS_CHECK=1 fastlane beta
 | `config/Secrets.local.xcconfig` | Contains your real tokens and email                                                                  |
 | `fastlane/.env`                 | Contains ASC API key ID and issuer ID                                                                |
 | `*.p8`                          | App Store Connect private key. Keep outside the repo entirely. Filepath recorded in `fastlane/.env`. |
+
+
 
 
 ### Branding (required if you distribute)
@@ -158,6 +181,8 @@ See [§ Branding & trademarks](#branding--trademarks) and `[TRADEMARK.md](TRADEM
 Tier A (Simulator-only) builds may show Wren branding locally — that is **development, not distribution**.
 
 ---
+
+
 
 ## Branding & trademarks
 
@@ -180,6 +205,8 @@ See `[TRADEMARK.md](TRADEMARK.md)` for the full policy, permitted uses, and what
 
 ---
 
+
+
 ## Analytics fork hygiene
 
 If you use your own Mixpanel project for analytics:
@@ -188,6 +215,8 @@ If you use your own Mixpanel project for analytics:
 2. In Mixpanel, filter events by the `bundle_id` super-property to separate your fork's traffic from the official app's. The `bundle_id` super-property is set automatically at init (analytics-spec §11) and matches `CFBundleIdentifier`.
 
 ---
+
+
 
 ## What never belongs in the repo
 
@@ -199,6 +228,8 @@ If you use your own Mixpanel project for analytics:
 Pre-commit hooks (`gitleaks protect --staged`) and CI (`gitleaks detect` over full history) enforce this automatically.
 
 ---
+
+
 
 ## Agent / AI tool reminder
 

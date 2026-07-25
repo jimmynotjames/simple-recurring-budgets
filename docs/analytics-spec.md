@@ -2,7 +2,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 0.23       |
+| **Version**        | 1.0        |
 | **Last Updated**   | 2026-06-22 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -273,7 +273,7 @@ Selection is made once at app entry in [simple-recurring-budgets/App/simple_recu
 | Release             | opted-out    | `MixpanelAnalyticsClient` constructed but `isOptedIn` returns `false`; all `.product` events are dropped at the client and no SDK init occurs.    |
 | Release             | opted-in     | `MixpanelAnalyticsClient` pointed at the **prod** Mixpanel project, with lazy SDK init.                                                           |
 
-DEBUG and Release use the same client class; physical separation of dev-vs-prod data is enforced by the **Mixpanel project token**, not by swapping client types. Two separate Mixpanel projects (dev and prod) are provisioned. `ConsoleAnalyticsClient` remains in the codebase as the SwiftUI `@Entry` default in [`Logging/AnalyticsEnvironment.swift`](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift) so SwiftUI Previews and unit tests that don't go through the app entry pick up a no-op-in-Release / console-in-DEBUG fallback.
+DEBUG and Release use the same client class; physical separation of dev-vs-prod data is enforced by the **Mixpanel project token**, not by swapping client types. Two separate Mixpanel projects (dev and prod) are provisioned. `ConsoleAnalyticsClient` remains in the codebase as the SwiftUI `@Entry` default in `[Logging/AnalyticsEnvironment.swift](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift)` so SwiftUI Previews and unit tests that don't go through the app entry pick up a no-op-in-Release / console-in-DEBUG fallback.
 
 The Mixpanel SDK is instantiated **lazily** so an opted-out launch incurs no `MixpanelInstance` creation and no network activity. In auto-opt-in jurisdictions the default opted-in state means the SDK is initialized on first launch unless the user has explicitly opted out. In DEBUG this means launching the app on a developer machine — once opt-in is observed `true` — sends events to the dev Mixpanel project, which is the desired end-to-end-validation behavior.
 
@@ -347,7 +347,7 @@ Canonical event names live as constants in `AnalyticsEvent` (in [simple-recurrin
 | `budget_*`       | `currency_code`                     | ISO 4217                                     |                                                                        |
 | `budget_created` | `is_first_budget`                   | Bool                                         | True if this was the user's first-ever Budget.                         |
 | `budget_created` | `time_since_first_app_open_bucket`  | `<5m` / `<1h` / `<1d` / `<7d` / `≥7d`        | Only attached when `is_first_budget = true`. Answers §3.2 "time from first launch to first Budget" without relying on Mixpanel funnel time-to-convert. |
-| `budget_*`       | `budget_name`                       | String, raw                                  | **Accepted-risk allow-listed** per §5.4. Only sent on `budget_*` events; never on `expense_*` or any other event. |
+| `budget_*`       | `budget_name`                       | String, raw                                  | **Accepted-risk allow-listed** per §5.4. Only sent on `budget_`* events; never on `expense_*` or any other event. |
 | `budget_*`       | `budget_allocation_amount`          | Number, in `currency_code`'s minor units (or decimal as defined by `currency_code`) | **Allow-listed** per §5.4. Always paired with `currency_code`. Per-Budget allocation only — no other money-shaped value is permitted. |
 | `budget_edited`  | `allocation_changed`                | Bool                                         | `true` iff the drafted allocation differed from the stored `Budget.currentAllocation` and was written in this Save. Lets analytics distinguish a name edit from an allocation edit. Emitted only on `budget_edited`; never on `budget_created`. |
 | `budget_edited`  | `start_date_changed`                | Bool                                         | `true` iff the normalised drafted `startDate` differed from `Budget.startDate` and was written in this Save. Covers F-7.05 (per-budget Start Date) edits across both recurring and Specific Dates period types. Emitted only on `budget_edited`. |
@@ -555,7 +555,7 @@ Two implementations:
 
 - **Mixpanel project tokens are externalized to xcconfig** — no longer hardcoded in source. Token values live in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) and are injected into the app bundle at build time via `config/Secrets.xcconfig` + `Info.plist` variable substitution. The committed `config/Secrets.xcconfig` contains safe placeholder sentinels (`PLACEHOLDER_MIXPANEL_DEV_TOKEN` / `PLACEHOLDER_MIXPANEL_PROD_TOKEN`). Two Mixpanel projects remain provisioned — bound to the dev and prod tokens, respectively.
 
-  **Open-source trigger fulfilled:** The original §16 noted "Revisit if the repo is open-sourced." That trigger was met by the `public-repo-secrets-and-license` change, which externalized tokens so a fresh-clone fork gets placeholder defaults and sends no events. The Mixpanel tokens have since been **rotated and are now treated as secret**: the previously-committed tokens are revoked, and the live dev/prod tokens exist only in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) — they are no longer committed to source control. Because a public-repo fork therefore cannot obtain a working token, the former fork-pollution risk no longer applies and the `bundle_id` event filter has been retired (see Revision History). See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for fork Mixpanel setup.
+  **Open-source trigger fulfilled:** The original §16 noted "Revisit if the repo is open-sourced." That trigger was met by the `public-repo-secrets-and-license` change, which externalized tokens so a fresh-clone fork gets placeholder defaults and sends no events. The Mixpanel tokens have since been **rotated and are now treated as secret**: the previously-committed tokens are revoked, and the live dev/prod tokens exist only in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) — they are no longer committed to source control. Because a public-repo fork therefore cannot obtain a working token, the former fork-pollution risk no longer applies and the `bundle_id` event filter has been retired (see Revision History). See `[CONTRIBUTING.md](../CONTRIBUTING.md)` for fork Mixpanel setup.
 
 - **Unconfigured (fresh-clone) behavior:** when tokens are still the committed placeholder sentinels — `MixpanelTokenSource.isConfigured` returns `false` — the app entry (`simple_recurring_budgetsApp.init()`) substitutes `ConsoleAnalyticsClient` instead of `MixpanelAnalyticsClient`. No Mixpanel SDK init, no network traffic. The app launches and runs normally on a Simulator with no secrets file.
 
@@ -577,13 +577,13 @@ This subsection captures what existed in the repo before implementing F-8.02.
 
 | File | Pre-F-8.02 state | Action taken by F-8.02 |
 |---|---|---|
-| [`simple-recurring-budgets/Logging/AnalyticsClient.swift`](../simple-recurring-budgets/Logging/AnalyticsClient.swift) | `AnalyticsClient` protocol + `AnalyticsEvent` enum with `appOpened = "app_opened"`. | Extended with Phase 1 event constants + new `AnalyticsProperty` enum; all constants marked `nonisolated` for Swift 6 `@MainActor` default-isolation compatibility. |
-| [`simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift`](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift) | DEBUG `print` impl. | Unchanged; remains the DEBUG default and test fallback. |
-| [`simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift`](../simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift) | Eagerly called `Mixpanel.initialize` in `init`. | Fully refactored: lazy `NSLock`-guarded init; accepts full set of `@Sendable` closure providers for super/people properties; `refreshSuperProperties()` and `refreshCohortPeopleProperties(budgets:)` added; `@unchecked Sendable`. |
-| [`simple-recurring-budgets/Logging/AnalyticsEnvironment.swift`](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift) | `@Entry var analytics: any AnalyticsClient = ConsoleAnalyticsClient()`. | Unchanged. |
-| [`simple-recurring-budgets/App/simple_recurring_budgetsApp.swift`](../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift) | Hardcoded `{ false }` opt-in closure. | Wired to `AppSettings.analyticsOptIn`; `identify(distinctId)` call added per §6 / §8.1; `MixpanelTokenSource` helper extracts token literals. |
-| [`simple-recurring-budgets/Logging/AppLoggers.swift`](../simple-recurring-budgets/Logging/AppLoggers.swift) | `Logger.bootstrap`, `Logger.cloudKit`, `Logger.ui` constants. | Untouched by F-8.02. |
-| [`simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift`](../simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift) | Existing test double. | Extended with `recordSuperProperties`, `recordPeopleSet`, `recordPeopleSetOnce` helpers for Phase 1 test contracts. |
+| `[simple-recurring-budgets/Logging/AnalyticsClient.swift](../simple-recurring-budgets/Logging/AnalyticsClient.swift)` | `AnalyticsClient` protocol + `AnalyticsEvent` enum with `appOpened = "app_opened"`. | Extended with Phase 1 event constants + new `AnalyticsProperty` enum; all constants marked `nonisolated` for Swift 6 `@MainActor` default-isolation compatibility. |
+| `[simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift)` | DEBUG `print` impl. | Unchanged; remains the DEBUG default and test fallback. |
+| `[simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift](../simple-recurring-budgets/Logging/MixpanelAnalyticsClient.swift)` | Eagerly called `Mixpanel.initialize` in `init`. | Fully refactored: lazy `NSLock`-guarded init; accepts full set of `@Sendable` closure providers for super/people properties; `refreshSuperProperties()` and `refreshCohortPeopleProperties(budgets:)` added; `@unchecked Sendable`. |
+| `[simple-recurring-budgets/Logging/AnalyticsEnvironment.swift](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift)` | `@Entry var analytics: any AnalyticsClient = ConsoleAnalyticsClient()`. | Unchanged. |
+| `[simple-recurring-budgets/App/simple_recurring_budgetsApp.swift](../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift)` | Hardcoded `{ false }` opt-in closure. | Wired to `AppSettings.analyticsOptIn`; `identify(distinctId)` call added per §6 / §8.1; `MixpanelTokenSource` helper extracts token literals. |
+| `[simple-recurring-budgets/Logging/AppLoggers.swift](../simple-recurring-budgets/Logging/AppLoggers.swift)` | `Logger.bootstrap`, `Logger.cloudKit`, `Logger.ui` constants. | Untouched by F-8.02. |
+| `[simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift](../simple-recurring-budgetsTests/Logging/SpyAnalyticsClient.swift)` | Existing test double. | Extended with `recordSuperProperties`, `recordPeopleSet`, `recordPeopleSetOnce` helpers for Phase 1 test contracts. |
 
 **Created by F-8.02:**
 

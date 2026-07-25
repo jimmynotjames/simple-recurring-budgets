@@ -2,7 +2,7 @@
 
 All notable App Store releases of **Wren** are logged here, newest first.
 
-This file is distinct from the other product docs: [`docs/product-features-planning.md`](docs/product-features-planning.md) tracks each feature's status across its own lifetime (not release-scoped), and [`docs/main-prd.md`](docs/main-prd.md) is the living source of truth for current product requirements. This file is an append-only, release-scoped record — what shipped in each version, plus confirmation that the [cross-cutting concerns](docs/main-prd.md#68-cross-cutting-ongoing-concerns) held at that point in time.
+This file is distinct from the other product docs: `[docs/product-features-planning.md](docs/product-features-planning.md)` tracks each feature's status across its own lifetime (not release-scoped), and `[docs/main-prd.md](docs/main-prd.md)` is the living source of truth for current product requirements. This file is an append-only, release-scoped record — what shipped in each version, plus confirmation that the [cross-cutting concerns](docs/main-prd.md#68-cross-cutting-ongoing-concerns) held at that point in time.
 
 Entries cross-reference feature IDs (`F-x.xx`) rather than re-describing them — see `product-features-planning.md` for full acceptance criteria and implementation history.
 
@@ -28,7 +28,9 @@ Each release entry follows this shape:
 
 ---
 
-## v1.0 — 2026-07-22
+
+
+## v1.0 — Released 2026-07-22
 
 **Submitted:** 2026-07-13 · **Build:** 17 · **App Store version:** 1.0
 
@@ -60,9 +62,12 @@ Each release entry follows this shape:
 - F-8.01 — Diagnostic logging via OSLog
 - F-8.02 — Mixpanel Phase 1 — foundation and basic stats
 
+
+
 ### Cross-cutting concerns confirmed
 
 - **Localization:** 49 storefront locales ([PRD §6.8.3](docs/main-prd.md#683-localization--source-strings-and-translations))
 - **Light/Dark Mode:** confirmed on both appearances
 - **Accessibility:** Dynamic Type + VoiceOver initial build-outs complete (F-3.01/F-3.02); ASC Accessibility Nutrition Label filled in
 - **Analytics:** Mixpanel Phase 1 (F-8.02) live; consent flow locale-aware, no PII collected
+

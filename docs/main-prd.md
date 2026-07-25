@@ -12,7 +12,7 @@
 
 ## Release Status
 
-This app has not been released to production and is not in the App Store. It is currently "greenfield."
+This app released to production for the first time on 22 July 2026. 
 
 See [RELEASES.md](../RELEASES.md) for per-version release history, shipped features, and cross-cutting-concerns confirmation.
 

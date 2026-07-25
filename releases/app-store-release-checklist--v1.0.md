@@ -475,20 +475,29 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
 
 ## Phase 7 — Post-release monitoring (~1 week) 🏁 FINAL CHECKPOINT
 
-- [ ] **P7.1** Analytics: Mixpanel shows events arriving from the new app
+- [x] **P7.1** Analytics: Mixpanel shows events arriving from the new app
       version; adoption ramping; no event or funnel obviously broken vs. the
       pre-release baseline. Start soon after release; re-check through the
       monitoring window.
-      > Note:
-- [ ] **P7.2** Stability: crash reports in Xcode → Organizer → Crashes (and
+      > Note: 2026-07-25 — dashboards receiving events and functioning
+      > correctly; volume is still low (expected this early post-release) but
+      > nothing looks broken. Investigated the "First open → first budget"
+      > panel showing no data — confirmed it's a data-availability artifact
+      > (zero real fresh-install first-budget events yet, only pre-release
+      > TestFlight test events with `is_first_budget = false`), not an
+      > instrumentation bug. Will re-check through the rest of the monitoring
+      > window as adoption ramps.
+- [x] **P7.2** Stability: crash reports in Xcode → Organizer → Crashes (and
       ASC → Analytics → Metrics). Expect near-zero; any crash cluster on the
       new version is a drop-everything signal. If the release is **phased**
       (P5.1), a bad signal can be contained: ASC → the version → pause the
       phased release while you diagnose.
-      > Note:
-- [ ] **P7.3** 🎈 Ratings & reviews: check App Store ratings and written
+      > Note: 2026-07-25 — no crashes reported so far. Will keep checking
+      > through the monitoring window (ends 2026-07-29).
+- [x] **P7.3** 🎈 Ratings & reviews: check App Store ratings and written
       reviews during the monitoring window; respond where a reply would help.
-      > Note:
+      > Note: 2026-07-25 — checked ASC; no ratings or reviews yet. Will
+      > re-check through the rest of the monitoring window (ends 2026-07-29).
 - [ ] **P7.4** End-of-window verdict: final look at all three (crashes,
       reviews, funnels); decide explicitly — healthy, or does something
       warrant a patch release?

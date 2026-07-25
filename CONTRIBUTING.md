@@ -4,7 +4,7 @@
 
 ---
 
-> **Branding notice (read before you distribute):** The code is Apache 2.0–licensed, but the **Wren name, app icon, and App Store marketing assets are not**. See [§ Branding & trademarks](#branding--trademarks) and `[TRADEMARK.md](TRADEMARK.md)` for what forks must replace before distributing.
+> **Branding notice (read before you distribute):** The code is Apache 2.0–licensed, but the **Wren name, app icon, and App Store marketing assets are not**. See [§ Branding & trademarks](#branding--trademarks) and [TRADEMARK.md](TRADEMARK.md) for what forks must replace before distributing.
 
 ---
 
@@ -126,7 +126,7 @@ The `DOUBLE_SLASH` syntax is required because xcconfig files treat `//` as a lin
 cp fastlane/.env.template fastlane/.env
 ```
 
-Store your `.p8` key file **outside the repo** (e.g. `~/.appstoreconnect/`) and set the path in `fastlane/.env`. Details in `[fastlane/SETUP.md](fastlane/SETUP.md)`.
+Store your `.p8` key file **outside the repo** (e.g. `~/.appstoreconnect/`) and set the path in `fastlane/.env`. Details in [fastlane/SETUP.md](fastlane/SETUP.md).
 
 ### Step 3 — Verify auth
 
@@ -167,7 +167,7 @@ SKIP_RELEASE_SECRETS_CHECK=1 fastlane beta
 
 ### Branding (required if you distribute)
 
-See [§ Branding & trademarks](#branding--trademarks) and `[TRADEMARK.md](TRADEMARK.md)` for the full policy. Short version: **before you upload to TestFlight, submit to the App Store, or distribute a binary to users**, you must replace:
+See [§ Branding & trademarks](#branding--trademarks) and [TRADEMARK.md](TRADEMARK.md) for the full policy. Short version: **before you upload to TestFlight, submit to the App Store, or distribute a binary to users**, you must replace:
 
 - App icon (`simple-recurring-budgets/Resources/AppIcon.icon/`)
 - App display name (`CFBundleDisplayName = Wren` in `project.pbxproj`)
@@ -186,7 +186,7 @@ Tier A (Simulator-only) builds may show Wren branding locally — that is **deve
 
 ## Branding & trademarks
 
-The source code is licensed under the **Apache License 2.0** (see `[LICENSE](LICENSE)`), which permits modification and redistribution but **explicitly withholds trademark and product-name rights** (Apache §6).
+The source code is licensed under the **Apache License 2.0** (see [LICENSE](LICENSE)), which permits modification and redistribution but **explicitly withholds trademark and product-name rights** (Apache §6).
 
 **The Wren name and the following assets are NOT covered by the code license:**
 
@@ -201,7 +201,7 @@ The source code is licensed under the **Apache License 2.0** (see `[LICENSE](LIC
 
 **Forks that only compile and run on a Simulator locally are fine.** The trademark rules apply when you **distribute** — TestFlight, App Store, or any binary delivered to users.
 
-See `[TRADEMARK.md](TRADEMARK.md)` for the full policy, permitted uses, and what to replace before distributing.
+See [TRADEMARK.md](TRADEMARK.md) for the full policy, permitted uses, and what to replace before distributing.
 
 ---
 

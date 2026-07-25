@@ -515,7 +515,20 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
       > over verbatim from P3.5 (Accessibility, Dark Mode, 49-locale
       > localization, Mixpanel Phase 1 analytics). Snapshot header status set
       > to `complete`.
-- [ ] **P7.6** Retro on this checklist: add/fix/remove steps in
+- [x] **P7.6** Retro on this checklist: add/fix/remove steps in
       `docs/app-store-release-checklist.md` in the same PR, so the next release
       — possibly years away — starts from a corrected map.
-      > Note:
+      > Note: 2026-07-25 — Two genuine gotchas from this release folded back
+      > into the reference docs: (1) P1.7 — the Xcode SPM-cache staleness
+      > issue hit during the `mixpanel-swift` 6.4.1 → 6.5.0 bump (cached
+      > checkout lacked the new tag, requiring a manual `git fetch --tags` +
+      > `DerivedData` clear + hand-written `Package.resolved` pin) is now
+      > documented inline in the master checklist's P1.7. (2) `fastlane/SETUP.md`
+      > gained a third first-release gotcha: ASC has no "What's New" field at
+      > all on a version's very first submission (`release_notes.txt` is
+      > silently skipped, not an error) — matches this release's P2.4
+      > experience. The P4.5 two-device-sync + fresh-install consolidation
+      > (decided mid-release) was already reflected in the master template
+      > before this close-out, so no further edit was needed there. This is
+      > the checklist's first-ever real-world run, so most of the map held up
+      > as written — no steps needed removal.

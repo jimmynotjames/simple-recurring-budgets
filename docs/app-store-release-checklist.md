@@ -114,6 +114,13 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       analytics SDKs rot against API changes); **skip major bumps** this close
       to a release unless something is broken. Any bump must land before the
       P1.2 gate re-run. Record bump/skip per package.
+      **Gotcha:** if the target tag/revision isn't already in Xcode's local
+      SPM cache, `xcodebuild -resolvePackageDependencies` won't advance past
+      the existing lock. Fix: `git fetch --tags` inside the cached checkout
+      (`~/Library/Caches/org.swift.swiftpm/repositories/<package>-*`), clear
+      `DerivedData/*/SourcePackages`, and hand-write the correct pin into
+      `Package.resolved` (confirm the revision with a throwaway `swift
+      package resolve`).
       > Note:
 - [ ] **P1.8** Apple platform review: check `SWIFT_VERSION` and
       `IPHONEOS_DEPLOYMENT_TARGET` in `project.pbxproj` against the current

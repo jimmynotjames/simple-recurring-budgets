@@ -3,7 +3,6 @@
 > A native iOS / iPadOS app for staying on top of small, recurring everyday spending — built with SwiftUI, SwiftData, and CloudKit sync.
 
 [![Download on the App Store](https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83)](https://apps.apple.com/us/app/wren-daily-expense-tracker/id6774680765)
-[![CI](https://github.com/jimmynotjames/simple-recurring-budgets/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jimmynotjames/simple-recurring-budgets/actions/workflows/ci.yml)
 
 
 

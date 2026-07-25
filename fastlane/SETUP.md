@@ -66,6 +66,11 @@ See [`CONTRIBUTING.md § B`](../CONTRIBUTING.md#b--configure-secrets-ship-or-for
    region-qualified codes (`bn-BD`, `gu-IN`, … `ur-PK`); deliver rejects plain
    ones with "Unsupported directory name(s)". `metadata_locales.py` owns the map —
    fix it there, don't assume runtime == storefront.
+3. **No "What's New" field.** ASC has no release-notes field at all for a
+   version's very first submission — `deliver` silently skips
+   `release_notes.txt` rather than erroring. Leave it blank on a first
+   release; start actually authoring release notes at the first update
+   (v1.1+), where the field exists.
 
 **RTL listings.** In `ar-SA` / `he` / `ur-PK`, never let a description line *begin*
 with a Latin token (`Wren` / `iCloud`) — it mis-renders to the line's visual end.

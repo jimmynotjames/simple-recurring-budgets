@@ -28,19 +28,41 @@ Each release entry follows this shape:
 
 ---
 
-## v1.0 — Pending
+## v1.0 — 2026-07-22
 
-*Not yet released — this entry is a stub to fill in at submission time. See [main-prd.md Release Status](docs/main-prd.md#release-status).*
-
-**Submitted:** — · **Build:** — · **App Store version:** —
+**Submitted:** 2026-07-13 · **Build:** 17 · **App Store version:** 1.0
 
 ### Features shipped
 
-- _fill in at release — cross-reference `Implemented` features from [product-features-planning.md](docs/product-features-planning.md)_
+- F-1.01 — App Scaffolding
+- F-1.02 — Data Architecture
+- F-2.01 — Budgets screen
+- F-2.02 — Budget screen
+- F-2.03 — Add/Edit Budget screen
+- F-2.04 — Add/Edit/View Expense Item screen
+- F-2.05 — Settings screen
+- F-2.06 — First-run empty state
+- F-2.07 — Carry-over toggle switch
+- F-2.08 — Specific Dates budget type
+- F-3.01 — Dynamic Type (initial build-out)
+- F-3.02 — VoiceOver (initial build-out)
+- F-3.03 — Internationalization of text (initial build-out)
+- F-3.04 — Internationalization of currency
+- F-3.05 — Dark Mode (initial build-out)
+- F-4.03 — Budget icon (curated emoji set)
+- F-5.01 — Configurable start of week
+- F-6.01 — Manually adding funds
+- F-6.03 — App Store rating prompt
+- F-7.04 — Recently used expenses
+- F-7.05 — Per-budget period start date
+- F-7.06 — Pause and Resume a Budget
+- F-7.07 — Per-budget end date
+- F-8.01 — Diagnostic logging via OSLog
+- F-8.02 — Mixpanel Phase 1 — foundation and basic stats
 
 ### Cross-cutting concerns confirmed
 
-- **Localization:** — storefront locales ([PRD §6.8.3](docs/main-prd.md#683-localization--source-strings-and-translations))
-- **Light/Dark Mode:** —
-- **Accessibility:** —
-- **Analytics:** —
+- **Localization:** 49 storefront locales ([PRD §6.8.3](docs/main-prd.md#683-localization--source-strings-and-translations))
+- **Light/Dark Mode:** confirmed on both appearances
+- **Accessibility:** Dynamic Type + VoiceOver initial build-outs complete (F-3.01/F-3.02); ASC Accessibility Nutrition Label filled in
+- **Analytics:** Mixpanel Phase 1 (F-8.02) live; consent flow locale-aware, no PII collected

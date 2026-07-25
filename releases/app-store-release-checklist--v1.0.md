@@ -1,7 +1,7 @@
 # Release v1.0 — checklist snapshot
 
 Master: docs/app-store-release-checklist.md @ 4e583fb
-Status: in-flight
+Status: complete
 Version: 1.0 · Build: 17
 Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitoring ends: 2026-07-29
 
@@ -475,29 +475,60 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
 
 ## Phase 7 — Post-release monitoring (~1 week) 🏁 FINAL CHECKPOINT
 
-- [ ] **P7.1** Analytics: Mixpanel shows events arriving from the new app
+- [x] **P7.1** Analytics: Mixpanel shows events arriving from the new app
       version; adoption ramping; no event or funnel obviously broken vs. the
       pre-release baseline. Start soon after release; re-check through the
       monitoring window.
-      > Note:
-- [ ] **P7.2** Stability: crash reports in Xcode → Organizer → Crashes (and
+      > Note: 2026-07-25 — dashboards receiving events and functioning
+      > correctly; volume is still low (expected this early post-release) but
+      > nothing looks broken. Investigated the "First open → first budget"
+      > panel showing no data — confirmed it's a data-availability artifact
+      > (zero real fresh-install first-budget events yet, only pre-release
+      > TestFlight test events with `is_first_budget = false`), not an
+      > instrumentation bug. Will re-check through the rest of the monitoring
+      > window as adoption ramps.
+- [x] **P7.2** Stability: crash reports in Xcode → Organizer → Crashes (and
       ASC → Analytics → Metrics). Expect near-zero; any crash cluster on the
       new version is a drop-everything signal. If the release is **phased**
       (P5.1), a bad signal can be contained: ASC → the version → pause the
       phased release while you diagnose.
-      > Note:
-- [ ] **P7.3** 🎈 Ratings & reviews: check App Store ratings and written
+      > Note: 2026-07-25 — no crashes reported so far. Will keep checking
+      > through the monitoring window (ends 2026-07-29).
+- [x] **P7.3** 🎈 Ratings & reviews: check App Store ratings and written
       reviews during the monitoring window; respond where a reply would help.
-      > Note:
-- [ ] **P7.4** End-of-window verdict: final look at all three (crashes,
+      > Note: 2026-07-25 — checked ASC; no ratings or reviews yet. Will
+      > re-check through the rest of the monitoring window (ends 2026-07-29).
+- [x] **P7.4** End-of-window verdict: final look at all three (crashes,
       reviews, funnels); decide explicitly — healthy, or does something
       warrant a patch release?
-      > Note:
-- [ ] **P7.5** Close out: fill in the `RELEASES.md` entry (features shipped +
+      > Note: 2026-07-25 — Verdict: **healthy, no patch release warranted.**
+      > No crashes (P7.2), no reviews yet (P7.3), analytics dashboards
+      > functioning correctly with adoption still ramping (P7.1). Jimmy
+      > closed out monitoring on 2026-07-25, ahead of the original
+      > 2026-07-29 target — explicit call given the clean signal so far.
+- [x] **P7.5** Close out: fill in the `RELEASES.md` entry (features shipped +
       cross-cutting confirmations from P3.5), set the snapshot header to
       `Status: complete`, and PR both together.
-      > Note:
-- [ ] **P7.6** Retro on this checklist: add/fix/remove steps in
+      > Note: 2026-07-25 — Filled in the v1.0 `RELEASES.md` entry: 25
+      > Implemented features cross-referenced from
+      > `product-features-planning.md`, cross-cutting confirmations carried
+      > over verbatim from P3.5 (Accessibility, Dark Mode, 49-locale
+      > localization, Mixpanel Phase 1 analytics). Snapshot header status set
+      > to `complete`.
+- [x] **P7.6** Retro on this checklist: add/fix/remove steps in
       `docs/app-store-release-checklist.md` in the same PR, so the next release
       — possibly years away — starts from a corrected map.
-      > Note:
+      > Note: 2026-07-25 — Two genuine gotchas from this release folded back
+      > into the reference docs: (1) P1.7 — the Xcode SPM-cache staleness
+      > issue hit during the `mixpanel-swift` 6.4.1 → 6.5.0 bump (cached
+      > checkout lacked the new tag, requiring a manual `git fetch --tags` +
+      > `DerivedData` clear + hand-written `Package.resolved` pin) is now
+      > documented inline in the master checklist's P1.7. (2) `fastlane/SETUP.md`
+      > gained a third first-release gotcha: ASC has no "What's New" field at
+      > all on a version's very first submission (`release_notes.txt` is
+      > silently skipped, not an error) — matches this release's P2.4
+      > experience. The P4.5 two-device-sync + fresh-install consolidation
+      > (decided mid-release) was already reflected in the master template
+      > before this close-out, so no further edit was needed there. This is
+      > the checklist's first-ever real-world run, so most of the map held up
+      > as written — no steps needed removal.

@@ -1,7 +1,7 @@
 # Release v1.0 — checklist snapshot
 
 Master: docs/app-store-release-checklist.md @ 4e583fb
-Status: in-flight
+Status: complete
 Version: 1.0 · Build: 17
 Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitoring ends: 2026-07-29
 
@@ -498,14 +498,23 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
       reviews during the monitoring window; respond where a reply would help.
       > Note: 2026-07-25 — checked ASC; no ratings or reviews yet. Will
       > re-check through the rest of the monitoring window (ends 2026-07-29).
-- [ ] **P7.4** End-of-window verdict: final look at all three (crashes,
+- [x] **P7.4** End-of-window verdict: final look at all three (crashes,
       reviews, funnels); decide explicitly — healthy, or does something
       warrant a patch release?
-      > Note:
-- [ ] **P7.5** Close out: fill in the `RELEASES.md` entry (features shipped +
+      > Note: 2026-07-25 — Verdict: **healthy, no patch release warranted.**
+      > No crashes (P7.2), no reviews yet (P7.3), analytics dashboards
+      > functioning correctly with adoption still ramping (P7.1). Jimmy
+      > closed out monitoring on 2026-07-25, ahead of the original
+      > 2026-07-29 target — explicit call given the clean signal so far.
+- [x] **P7.5** Close out: fill in the `RELEASES.md` entry (features shipped +
       cross-cutting confirmations from P3.5), set the snapshot header to
       `Status: complete`, and PR both together.
-      > Note:
+      > Note: 2026-07-25 — Filled in the v1.0 `RELEASES.md` entry: 25
+      > Implemented features cross-referenced from
+      > `product-features-planning.md`, cross-cutting confirmations carried
+      > over verbatim from P3.5 (Accessibility, Dark Mode, 49-locale
+      > localization, Mixpanel Phase 1 analytics). Snapshot header status set
+      > to `complete`.
 - [ ] **P7.6** Retro on this checklist: add/fix/remove steps in
       `docs/app-store-release-checklist.md` in the same PR, so the next release
       — possibly years away — starts from a corrected map.

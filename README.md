@@ -37,7 +37,7 @@ This project was my attempt to learn agentic programming. All but two lines of c
 ## Status
 
 - **The app has released in the Apple App Store.** [Get Wren on the App Store](https://apps.apple.com/us/app/wren-daily-expense-tracker/id6774680765). See [RELEASES.md](RELEASES.md).
-- Schema is `SchemaV1`, evolved in place (no migration stages yet) — see `docs/tech-design-doc.md` §3.3.
+- Schema is `SchemaV1`, the frozen baseline shipped in v1.0 and deployed to CloudKit production. No migration stages exist yet; the first post-launch model change adds `SchemaV2` plus a migration stage and test — see `docs/tech-design-doc.md` §3.3.
 - Versioned product/technical docs and an OpenSpec change history are tracked in-repo.
 
 ---

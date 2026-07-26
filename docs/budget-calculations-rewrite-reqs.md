@@ -10,6 +10,11 @@ Sections are numbered (e.g. §2.4, §5.5) so they can be referenced from elsewhe
 
 ## 1. App status: greenfield, no migrations
 
+> **Superseded.** This described the app in May 2026, before launch. Wren v1.0 shipped
+> 2026-07-22 and `SchemaV1` is now a frozen, deployed baseline — the "change it freely, wipe
+> the simulator" rule below no longer applies to any new work. Current policy:
+> [`docs/tech-design-doc.md`](tech-design-doc.md) §3.3.
+
 This app has not been deployed to the App Store. There are no production users. **Do not add or maintain SwiftData schema versions,** `VersionedSchema` **types,** `SchemaMigrationPlan` **stages, or any migration ceremony for this rewrite.** If the model changes, change it. Wipe the simulator. Move on. Update, but do not delete, the `SchemaV1.swift` and `BudgetMigrationPlan.swift` files in the repo.
 
 ## 2. Desired end state

@@ -3,8 +3,8 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.0        |
-| **Last Updated**   | 2026-07-25 |
+| **Version**        | 1.1        |
+| **Last Updated**   | 2026-07-26 |
 | **Author / Owner** | Jimmy Ho   |
 
 
@@ -145,7 +145,16 @@ Per [PRD §6.7](main-prd.md#67-carry-over-behavior), the algorithm is a **live w
 
 ### 3.3 Migration Strategy
 
-This app has not shipped to the App Store — it is greenfield. Schema changes are made in-place on `SchemaV1`. Do **not** introduce `SchemaV2` or `SchemaMigrationPlan` stages; wipe the simulator when the schema changes. Always test CloudKit compatibility — CloudKit cannot delete fields from deployed record types.
+Wren v1.0 shipped to the App Store on 2026-07-22, and the CloudKit **production** schema was deployed 2026-07-12. Real user data now exists on real devices, so `SchemaV1` is a frozen, deployed baseline — it is no longer safe to edit in place.
+
+Any change to a persisted model MUST:
+
+- Add a new `VersionedSchema` (`SchemaV2`, …) rather than editing `SchemaV1` in place.
+- Add a `MigrationStage` to `BudgetMigrationPlan.stages`.
+- Ship a migration test — copy the pattern in `simple-recurring-budgetsTests/Models/BudgetMigrationPlanTests.swift`, which uses the `MigrationTestSupport` helper (temp-URL fixture writer + reopen-through-plan).
+- Be additive only — CloudKit can never delete a field from a deployed record type, and all new relationships must be optional.
+
+Never wipe or reshape the store as a fix. "Wipe the simulator and move on" was the pre-1.0 convention; it destroys user data now.
 
 ---
 
@@ -553,6 +562,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes                                                                                                                                                                                                                                                                                                                                |
 | ------- | ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.1    | 2026-07-26 | Jimmy Ho | §3.3 Migration Strategy rewritten for post-launch reality: v1.0 shipped 2026-07-22 and the CloudKit production schema deployed 2026-07-12, so `SchemaV1` is a frozen deployed baseline. Any persisted-model change now requires a new `VersionedSchema`, a `MigrationStage`, a migration test (`MigrationTestSupport` pattern), and additive-only fields. Removed the pre-1.0 "greenfield / edit in place / wipe the simulator" guidance. |
 | 1.0    | 2026-06-11 | Jimmy Ho | Updated doc to v1.0 after launching v1.0 of app.   |
 | 0.24    | 2026-06-11 | Jimmy Ho | Docs-vs-code audit fixes: §2.2 route case signatures corrected to UUID payloads (`budgetDetail(UUID)`, `editBudget(UUID)`, `addExpense(UUID)`) and `SheetRoute.analyticsConsent` added to the case list; §5.3 `UserJourneyTests` count 10 → 15 (reorder-budgets + 4 period-chip flows).                                                |
 | 0.23    | 2026-06-02 | Jimmy Ho | Rebrand doc sync: intro and §1 use Wren as product name; §5.1 proper-noun list adds Wren.                                                                                                                                                                                                                                              |

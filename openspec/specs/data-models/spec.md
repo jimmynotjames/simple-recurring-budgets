@@ -97,7 +97,7 @@ All app code SHALL use the computed accessors. The stored optional properties ex
 
 The `Budget` entity SHALL define an optional stored property `icon: String?` (default `nil`) that holds the budget's decorative icon. By convention the value is a single emoji grapheme; the value is supplied by the icon picker (see the `budget-icon` capability) and is not otherwise validated by the model. The property SHALL be stored as `String?` for CloudKit optionality and SHALL persist and sync like other `Budget` attributes. `Budget.init` SHALL accept an `icon: String? = nil` parameter that defaults to `nil`.
 
-This is an additive, optional attribute: it requires no migration plan (the schema is updated in place per the unreleased/greenfield convention) and existing budgets without a value SHALL read as `nil`.
+This attribute was added pre-1.0, under the then-current convention of updating `SchemaV1` in place, and shipped as part of Wren v1.0. Existing budgets without a value SHALL read as `nil`. That in-place convention no longer applies: `SchemaV1` is now a deployed, frozen baseline, and any further model change requires a new `VersionedSchema` plus a `MigrationStage` (see `openspec/specs/schema-versioning/spec.md` and `docs/tech-design-doc.md` §3.3).
 
 #### Scenario: Default icon on Budget creation
 

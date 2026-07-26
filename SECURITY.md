@@ -8,7 +8,7 @@ Please use GitHub's [private vulnerability reporting](../../security/advisories/
 
 ## Scope
 
-In scope: security issues in the app itself (e.g. data handling, sync, authentication-adjacent logic) or in this repo's build/release tooling.
+In scope: security issues in the app itself (e.g. local data handling, iCloud/CloudKit sync) or in this repo's build/release tooling. The app has no app-owned backend or authentication — all sync goes through Apple's CloudKit, gated by the user's iCloud account.
 
 Out of scope: identifiers that are expected to be public for an open-source iOS project (Apple Developer Team ID, bundle identifier, CI configuration) — these aren't secrets and aren't actionable reports on their own.
 

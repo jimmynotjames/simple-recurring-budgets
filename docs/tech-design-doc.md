@@ -3,7 +3,7 @@
 
 | Field              | Value      |
 | ------------------ | ---------- |
-| **Version**        | 1.1        |
+| **Version**        | 1.0        |
 | **Last Updated**   | 2026-07-26 |
 | **Author / Owner** | Jimmy Ho   |
 
@@ -562,8 +562,7 @@ See [main-prd.md §10.1](main-prd.md#101-glossary) for product terms. Technical 
 
 | Version | Date       | Author   | Changes                                                                                                                                                                                                                                                                                                                                |
 | ------- | ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.1    | 2026-07-26 | Jimmy Ho | §3.3 Migration Strategy rewritten for post-launch reality: v1.0 shipped 2026-07-22 and the CloudKit production schema deployed 2026-07-12, so `SchemaV1` is a frozen deployed baseline. Any persisted-model change now requires a new `VersionedSchema`, a `MigrationStage`, a migration test (`MigrationTestSupport` pattern), and additive-only fields. Removed the pre-1.0 "greenfield / edit in place / wipe the simulator" guidance. |
-| 1.0    | 2026-06-11 | Jimmy Ho | Updated doc to v1.0 after launching v1.0 of app.   |
+| 1.0    | 2026-07-26 | Jimmy Ho | Updated doc to v1.0 to coincide with the v1.0 App Store release. §3.3 Migration Strategy rewritten for post-launch reality: v1.0 shipped 2026-07-22 and the CloudKit production schema deployed 2026-07-12, so `SchemaV1` is a frozen deployed baseline. Any persisted-model change now requires a new `VersionedSchema`, a `MigrationStage`, a migration test (`MigrationTestSupport` pattern), and additive-only fields. Removed the pre-1.0 "greenfield / edit in place / wipe the simulator" guidance. |
 | 0.24    | 2026-06-11 | Jimmy Ho | Docs-vs-code audit fixes: §2.2 route case signatures corrected to UUID payloads (`budgetDetail(UUID)`, `editBudget(UUID)`, `addExpense(UUID)`) and `SheetRoute.analyticsConsent` added to the case list; §5.3 `UserJourneyTests` count 10 → 15 (reorder-budgets + 4 period-chip flows).                                                |
 | 0.23    | 2026-06-02 | Jimmy Ho | Rebrand doc sync: intro and §1 use Wren as product name; §5.1 proper-noun list adds Wren.                                                                                                                                                                                                                                              |
 | 0.22    | 2026-06-02 | Jimmy Ho | §4.5 KV-key table: add six `ratingPrompt*` keys (owner `RatingPromptState`, consent-independent) for F-6.03. §9 future table: mark F-6.03 implemented (`rating-prompt`). See `product-features-planning.md` F-6.03 and `analytics-spec.md` §12.                                                                                        |

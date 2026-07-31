@@ -1,16 +1,18 @@
-# On-demand FULL test suite (unit + accessibility + user-journey UI tests).
+# On-demand UI-only test re-run (accessibility + user-journey suites).
 #
-# The UI suite is slow and bills at 10x, so it does NOT run on every PR. Comment
-#   /test-full
-# on a PR to kick it off. (Documented in .github/pull_request_template.md so it
-# shows on every PR.)
+# ci.yml's `test` job already runs the full unit + UI suite automatically on
+# every PR (simulator minutes are free on this public repo), so this workflow
+# is NOT how you get UI coverage — it's a narrower lever: re-run just the UI
+# suite on an already-open PR (e.g. for flaky-test triage) without waiting on
+# a full unit+UI re-run. Comment
+#   /run-ui-tests
+# on a PR to kick it off. (Documented in .github/pull_request_template.md so
+# it shows on every PR.)
 #
 # IMPORTANT: issue_comment workflows always run the copy of THIS file on the
-# default branch — so `/test-full` won't work on the PR that introduces this
-# file; it works on PRs opened after it merges to main.
-#
-# Smoke-tested end-to-end on a real PR in #211 (first run after #207 merged).
-name: Full test (on demand)
+# default branch — so `/run-ui-tests` won't work on the PR that introduces
+# this rename; it works on PRs opened after it merges to main.
+name: Run UI tests (on demand)
 
 on:
   issue_comment:
@@ -22,12 +24,12 @@ permissions:
   issues: write
 
 jobs:
-  full-test:
+  run-ui-tests:
     # Only on PR comments, only the trigger phrase, only from someone with write
     # access (so a drive-by commenter can't burn macOS minutes).
     if: >
       github.event.issue.pull_request &&
-      startsWith(github.event.comment.body, '/test-full') &&
+      startsWith(github.event.comment.body, '/run-ui-tests') &&
       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: macos-26
     env:
@@ -54,23 +56,11 @@ jobs:
         with:
           xcode-version: "26.5"
 
-      # Mirrors scripts/test.sh's two-pass strategy (unit warms the sim, then UI),
-      # but serial — the per-repo sim-clone concurrency (SRB_SIM_MAX) is a local
-      # optimization with no analogue on a single ephemeral runner, and the UI
-      # clones are flaky per test.sh's own note.
-      - name: Pass 1 — unit tests (warms the simulator)
-        run: |
-          xcodebuild test \
-            -project simple-recurring-budgets.xcodeproj \
-            -scheme simple-recurring-budgets \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
-            -derivedDataPath build/DerivedData \
-            -parallel-testing-enabled NO \
-            -skip-testing:simple-recurring-budgetsUITests \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGN_IDENTITY=-
-
-      - name: Pass 2 — accessibility + user-journey UI tests
+      # UI-suite only — ci.yml's `test` job already re-runs the unit pass on
+      # every push, so re-running it here would be pure duplication. Mirrors
+      # scripts/test-ui.sh's suite selection; matches how `make test-ui` runs
+      # this same suite standalone locally (no separate warm-up pass).
+      - name: Accessibility + user-journey UI tests
         run: |
           xcodebuild test \
             -project simple-recurring-budgets.xcodeproj \
@@ -89,8 +79,8 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
-            body="✅ \`/test-full\` passed — [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            body="✅ \`/run-ui-tests\` passed — [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           else
-            body="❌ \`/test-full\` failed — [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            body="❌ \`/run-ui-tests\` failed — [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           fi
           gh pr comment "${{ github.event.issue.number }}" --body "$body"

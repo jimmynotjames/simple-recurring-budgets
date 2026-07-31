@@ -18,8 +18,16 @@ WARNINGS (no exit code change) — likely debug print() calls:
 
 Scans: simple-recurring-budgets/**/*.swift (production target only).
 Skips: *Tests.swift, *UITests.swift, test target directories.
+
+Usage:
+  python3 scripts/check_source_strings.py [--json]
+
+  --json   emit {"errors": [{file, line, message}], "warnings": [...]}
+           instead of the human-readable report
 """
 
+import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -54,21 +62,20 @@ def _collect_swift_files() -> list[Path]:
     ]
 
 
-def check(files: list[Path]) -> tuple[list[str], list[str]]:
-    errors: list[str] = []
-    warnings: list[str] = []
+def check(files: list[Path]) -> tuple[list[dict], list[dict]]:
+    errors: list[dict] = []
+    warnings: list[dict] = []
 
     for path in sorted(files):
-        rel = path.relative_to(REPO_ROOT)
+        rel = str(path.relative_to(REPO_ROOT))
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
         except OSError as exc:
-            errors.append(f"{rel}: could not read file: {exc}")
+            errors.append({"file": rel, "line": 0, "message": f"could not read file: {exc}"})
             continue
 
         for lineno, raw_line in enumerate(lines, start=1):
             line = raw_line.rstrip()
-            location = f"{rel}:{lineno}"
 
             # Skip pure comment lines for both checks.
             if _COMMENT_LINE_RE.match(line):
@@ -80,38 +87,58 @@ def check(files: list[Path]) -> tuple[list[str], list[str]]:
             for m in _NATURAL_LANG_TEXT_RE.finditer(line):
                 s = m.group(1)
                 if _looks_like_natural_language(s) and not suppressed:
-                    errors.append(
-                        f"  HARDCODED  {location}\n"
-                        f"             Text({s!r}) — use Text(String(localized:\"key\","
-                        f" comment:\"...\")) or Text(verbatim:\"...\") for non-translated strings"
-                    )
+                    errors.append({
+                        "file": rel, "line": lineno,
+                        "message": f"Text({s!r}) — use Text(String(localized:\"key\", comment:\"...\")) "
+                                   "or Text(verbatim:\"...\") for non-translated strings",
+                    })
 
             # --- Warning: print() call ---
             if _PRINT_RE.search(line) and not suppressed:
                 snippet = line.strip()[:80]
-                warnings.append(f"  PRINT      {location}  {snippet}")
+                warnings.append({"file": rel, "line": lineno, "message": snippet})
 
     return errors, warnings
 
 
-def main() -> int:
+def _format_error(e: dict) -> str:
+    return f"  HARDCODED  {e['file']}:{e['line']}\n             {e['message']}"
+
+
+def _format_warning(w: dict) -> str:
+    return f"  PRINT      {w['file']}:{w['line']}  {w['message']}"
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--json", action="store_true",
+                         help='Emit {"errors": [...], "warnings": [...]} instead of the human report.')
+    args = parser.parse_args(argv)
+
     files = _collect_swift_files()
     if not files:
-        print(f"check_source_strings: no Swift files found under {SOURCE_DIR}", file=sys.stderr)
+        if args.json:
+            print(json.dumps({"errors": [{"message": f"no Swift files found under {SOURCE_DIR}"}], "warnings": []}))
+        else:
+            print(f"check_source_strings: no Swift files found under {SOURCE_DIR}", file=sys.stderr)
         return 1
 
     errors, warnings = check(files)
 
+    if args.json:
+        print(json.dumps({"errors": errors, "warnings": warnings}, ensure_ascii=False, indent=2))
+        return 1 if errors else 0
+
     if warnings:
         print(f"check_source_strings: {len(warnings)} print() warning(s) — review before shipping:\n")
         for w in warnings:
-            print(w)
+            print(_format_warning(w))
         print()
 
     if errors:
         print(f"check_source_strings: {len(errors)} hard-coded string error(s):\n")
         for e in errors:
-            print(e)
+            print(_format_error(e))
         print(
             "\nFix: replace Text(\"English text\") with Text(String(localized: \"dotted.key\","
             " comment: \"context\")) and run scripts/translate_catalog/ afterward.\n"
@@ -128,4 +155,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

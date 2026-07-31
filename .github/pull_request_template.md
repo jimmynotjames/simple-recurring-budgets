@@ -28,10 +28,11 @@ For any UI-touching change, confirm each applies-or-N/A:
 
 ### 🧪 Running tests
 
-CI auto-runs lint, secret scan, translation gates, a compile check, and the
-**unit tests**. The full **UI suite (accessibility + user-journey)** is *not*
-automatic — to run it on this PR, comment:
+CI auto-runs lint, secret scan, translation/localization gates, a compile
+check, and the **full unit + UI suite (accessibility + user-journey)** on
+every PR. To re-run just the UI suite on this PR (e.g. after a flaky failure),
+without waiting on a full unit+UI re-run, comment:
 
 ```
-/test-full
+/run-ui-tests
 ```

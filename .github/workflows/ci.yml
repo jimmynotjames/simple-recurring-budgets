@@ -3,12 +3,17 @@
 # Defense-in-depth mirror of the local lefthook gates (lefthook.yml): the hooks
 # give fast local feedback but are bypassable (`git push --no-verify`, a hookless
 # clone, a web-UI merge). These jobs re-run the same gates somewhere unbypassable.
-# Branch protection on `main` should REQUIRE: lint, secrets, i18n-gates, build,
-# unit-tests (set in repo Settings → Branches; CI is advisory without it).
+# Branch protection on `main` should REQUIRE: lint, secrets, check-large-files,
+# i18n-gates, build, test (set in repo Settings → Branches; CI is advisory
+# without it).
 #
-# Cost note: the three ubuntu jobs are ~free; the two macOS jobs bill at 10x.
-# The full UI suite is intentionally NOT here — invoke it per-PR with a
-# `/test-full` comment (see .github/workflows/full-test-on-demand.yml).
+# This is a public repo: GitHub-hosted macOS/Simulator runner minutes are free
+# and unbounded, so cost no longer gates what runs on every PR. The `test` job
+# runs the full unit + UI suite automatically (see run-ui-tests-on-demand.yml
+# for a narrower "just re-run the UI suite" lever on an open PR). App Store
+# metadata / screenshot-content checks are deliberately NOT here — those are a
+# release-time concern (there can be 100+ PRs between releases); they run in
+# the fastlane beta/release lanes instead (see fastlane/Fastfile).
 name: CI
 
 on:
@@ -23,9 +28,10 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
-  # --- Tier 1: lint/format parity with pre-commit (ubuntu, ~free) -------------
+  # --- Tier 1: lint/format parity with pre-commit (ubuntu) -------------------
   # Pinned to the EXACT versions installed locally via Homebrew. A version skew
   # would make CI fail on rules your machine doesn't enforce (or vice-versa) —
   # keep these in lockstep with scripts/system-setup.sh / your brew installs.
@@ -37,29 +43,42 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Cache pinned SwiftFormat/SwiftLint binaries
+        uses: actions/cache@v4
+        id: cache-lint-tools
+        with:
+          path: |
+            swiftformat_linux
+            swiftlint_bin
+          key: lint-tools-${{ env.SWIFTFORMAT_VERSION }}-${{ env.SWIFTLINT_VERSION }}
+
       - name: Install pinned SwiftFormat (Linux release binary)
+        if: steps.cache-lint-tools.outputs.cache-hit != 'true'
         run: |
           curl -sSL -o swiftformat_linux.zip \
             "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat_linux.zip"
           unzip -o -q swiftformat_linux.zip
           chmod +x swiftformat_linux
-          ./swiftformat_linux --version
 
       - name: SwiftFormat (check only, no rewrite)
-        run: ./swiftformat_linux --lint .
+        run: |
+          ./swiftformat_linux --version
+          ./swiftformat_linux --lint .
 
       - name: Install pinned SwiftLint (Linux release binary)
+        if: steps.cache-lint-tools.outputs.cache-hit != 'true'
         run: |
           curl -sSL -o swiftlint_linux.zip \
             "https://github.com/realm/SwiftLint/releases/download/${SWIFTLINT_VERSION}/swiftlint_linux_amd64.zip"
           unzip -o -q swiftlint_linux.zip -d swiftlint_bin
           chmod +x swiftlint_bin/swiftlint
-          swiftlint_bin/swiftlint version
 
       - name: SwiftLint (strict)
-        run: swiftlint_bin/swiftlint lint --strict
+        run: |
+          swiftlint_bin/swiftlint version
+          swiftlint_bin/swiftlint lint --strict
 
-  # --- Tier 1: secret scan over the PR (ubuntu, ~free) -----------------------
+  # --- Tier 1: secret scan over the PR (ubuntu) -------------------------------
   # Complements pre-commit `gitleaks protect --staged`. Pinned binary instead of
   # gitleaks-action to avoid that action's org-license requirement.
   secrets:
@@ -70,19 +89,48 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history so `detect` can scan the whole tree
+      - name: Cache pinned gitleaks binary
+        uses: actions/cache@v4
+        id: cache-gitleaks
+        with:
+          path: gitleaks
+          key: gitleaks-${{ env.GITLEAKS_VERSION }}
       - name: Install pinned gitleaks
+        if: steps.cache-gitleaks.outputs.cache-hit != 'true'
         run: |
           curl -sSL -o gitleaks.tar.gz \
             "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
           tar -xzf gitleaks.tar.gz gitleaks
           chmod +x gitleaks
-          ./gitleaks version
       - name: gitleaks detect
-        run: ./gitleaks detect --no-banner --redact
+        run: |
+          ./gitleaks version
+          ./gitleaks detect --no-banner --redact
 
-  # --- #172: translation / localization gates (ubuntu, ~free) ----------------
-  # Same three Python gates as the pre-push hook, plus a non-blocking
-  # consistency report. Closes issue #172 (enforce these server-side).
+  # --- check-large-files: reject oversized files added/changed in the PR -----
+  # Mirrors the pre-commit hook (scripts/check-large-files.sh), which only ever
+  # sees staged files locally — here we diff against the PR base (or the prior
+  # push, on a push-to-main event) since there's no "staged files" concept in CI.
+  check-large-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Diff files vs base
+        id: diff
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          files=$(git diff --name-only --diff-filter=d "$base"...HEAD | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+      - name: check-large-files
+        if: steps.diff.outputs.files != ''
+        run: bash scripts/check-large-files.sh ${{ steps.diff.outputs.files }}
+
+  # --- #172: translation / localization gates (ubuntu) ------------------------
+  # Same gates as the pre-push hook, plus the deterministic plural/untranslated-
+  # copy checks and a non-blocking consistency report. App Store metadata and
+  # screenshot-content checks are release-time-only — see fastlane/Fastfile.
   i18n-gates:
     runs-on: ubuntu-latest
     steps:
@@ -91,25 +139,37 @@ jobs:
         with:
           python-version: "3.12"
       - name: check_translations.py
-        run: python3 scripts/check_translations.py
+        run: python3 scripts/ci/annotate.py --name check_translations -- python3 scripts/check_translations.py
       - name: check_source_strings.py
-        run: python3 scripts/check_source_strings.py
+        run: python3 scripts/ci/annotate.py --name check_source_strings -- python3 scripts/check_source_strings.py
       - name: check_metadata.py
-        run: python3 scripts/translate_metadata/check_metadata.py
+        run: python3 scripts/ci/annotate.py --name check_metadata -- python3 scripts/translate_metadata/check_metadata.py
+      - name: plural_completeness.py
+        run: python3 scripts/ci/annotate.py --name plural_completeness -- python3 scripts/translate_audit/plural_completeness.py
+      - name: untranslated_copies.py
+        run: python3 scripts/ci/annotate.py --name untranslated_copies -- python3 scripts/translate_audit/untranslated_copies.py
       - name: consistency_check (informational, non-blocking)
         run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
 
-  # --- Tier 2: compile check (macOS, 10x) ------------------------------------
+  # --- Tier 2: compile check (macOS) ------------------------------------------
   # Direct xcodebuild (chosen over the make/sandbox path for ephemeral runners).
   # Mirrors scripts/build.sh — keep the scheme/project in sync with that file.
   build:
     runs-on: macos-26
+    needs: [lint, secrets, check-large-files, i18n-gates]
     steps:
       - uses: actions/checkout@v7
       - name: Select Xcode 26.5
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: "26.5"
+      - name: Cache SwiftPM packages
+        uses: actions/cache@v4
+        with:
+          path: build/DerivedData/SourcePackages
+          key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            spm-${{ runner.os }}-xcode26.5-
       - name: xcodebuild build
         run: |
           xcodebuild build \
@@ -119,18 +179,29 @@ jobs:
             -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO
 
-  # --- Tier 3 (auto): unit tests only (macOS, 10x) ---------------------------
-  # Mirrors scripts/test-unit.sh: skips the UITests target, serial. The full UI
-  # suite is on-demand via `/test-full` (full-test-on-demand.yml).
-  unit-tests:
+  # --- Tier 3: unit + UI tests (macOS) -----------------------------------------
+  # Phase 1 mirrors scripts/test-unit.sh: skips the UITests target, serial, and
+  # warms the simulator for Phase 2. Phase 2 mirrors scripts/test-ui.sh's suite
+  # selection — now run automatically on every PR since simulator minutes are
+  # free on this public repo (previously gated behind a /test-full comment; see
+  # run-ui-tests-on-demand.yml for a UI-only re-run lever on an open PR).
+  test:
     runs-on: macos-26
+    needs: [lint, secrets, check-large-files, i18n-gates]
     steps:
       - uses: actions/checkout@v7
       - name: Select Xcode 26.5
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: "26.5"
-      - name: xcodebuild test (unit only)
+      - name: Cache SwiftPM packages
+        uses: actions/cache@v4
+        with:
+          path: build/DerivedData/SourcePackages
+          key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            spm-${{ runner.os }}-xcode26.5-
+      - name: Pass 1 — unit tests (warms the simulator)
         run: |
           # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
           # CODE_SIGNING_ALLOWED=NO strips them and breaks NSUbiquitousKeyValueStore tests.
@@ -143,3 +214,62 @@ jobs:
             -skip-testing:simple-recurring-budgetsUITests \
             CODE_SIGNING_ALLOWED=YES \
             CODE_SIGN_IDENTITY=-
+      - name: Pass 2 — accessibility + user-journey UI tests
+        run: |
+          xcodebuild test \
+            -project simple-recurring-budgets.xcodeproj \
+            -scheme simple-recurring-budgets \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -derivedDataPath build/DerivedData \
+            -parallel-testing-enabled NO \
+            -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
+            -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
+            -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests \
+            -only-testing:simple-recurring-budgetsUITests/AllocationFirstTapUITests \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=-
+
+  # --- pr-summary: one consolidated, self-updating PR comment -----------------
+  # Aggregates pass/fail across every gate into a single comment (edited in
+  # place on re-push, not re-posted) — informational only, do NOT add this as a
+  # required status check.
+  pr-summary:
+    runs-on: ubuntu-latest
+    needs: [lint, secrets, check-large-files, i18n-gates, build, test]
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post/update consolidated gate summary
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const needs = ${{ toJSON(needs) }};
+            const marker = '<!-- ci-gate-summary -->';
+            const rows = Object.entries(needs).map(([job, info]) => {
+              const icon = info.result === 'success' ? '✅' : info.result === 'skipped' ? '⚪' : '❌';
+              return `| ${icon} | \`${job}\` | ${info.result} |`;
+            }).join('\n');
+            const body = `${marker}\n### CI gate summary\n\n| | Job | Result |\n|---|---|---|\n${rows}\n\n` +
+              `See the [full run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for step summaries and details on any failure.`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((c) => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

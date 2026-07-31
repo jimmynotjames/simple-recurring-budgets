@@ -20,9 +20,12 @@ pattern masks this with a hard English fallback, but the gap remains a
 latent risk. Validating en source state here closes the gap.
 
 Usage:
-  python3 scripts/check_translations.py
+  python3 scripts/check_translations.py [--json]
+
+  --json   emit {"issues": [...]} instead of the human-readable report
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -43,9 +46,16 @@ UNTRANSLATED_STATES = {"new", "needs_review", "stale"}
 SOURCE_LANGUAGE = "en"
 
 
-def main() -> int:
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--json", action="store_true", help='Emit {"issues": [...]} instead of the human report.')
+    args = parser.parse_args(argv)
+
     if not CATALOG_PATH.exists():
-        print(f"ERROR: catalog not found at {CATALOG_PATH}", file=sys.stderr)
+        if args.json:
+            print(json.dumps({"issues": [f"ERROR: catalog not found at {CATALOG_PATH}"]}))
+        else:
+            print(f"ERROR: catalog not found at {CATALOG_PATH}", file=sys.stderr)
         return 1
 
     data = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
@@ -92,6 +102,10 @@ def main() -> int:
             if state in UNTRANSLATED_STATES:
                 issues.append(f"  {state.upper():<9}[{locale}] {key!r}")
 
+    if args.json:
+        print(json.dumps({"issues": issues}, ensure_ascii=False, indent=2))
+        return 1 if issues else 0
+
     if issues:
         print(f"check_translations: {len(issues)} issue(s) found in {CATALOG_PATH.name}\n")
         for line in issues:
@@ -122,4 +136,4 @@ def _check_variations(variations: dict, locale: str, key: str, issues: list[str]
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

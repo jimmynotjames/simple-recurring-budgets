@@ -76253,7 +76253,7 @@
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud Sync"
+            "value" : "Sinkronisasi iCloud"
           }
         },
         "it" : {
@@ -76409,7 +76409,7 @@
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud Sync"
+            "value" : "Đồng bộ iCloud"
           }
         },
         "zh-Hans" : {

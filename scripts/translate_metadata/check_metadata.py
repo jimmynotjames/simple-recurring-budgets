@@ -18,11 +18,15 @@ Exits 0 if the metadata tree satisfies both invariants; 1 otherwise.
 This is the metadata analogue of scripts/check_translations.py.
 
 Usage:
-  python3 scripts/translate_metadata/check_metadata.py
+  python3 scripts/translate_metadata/check_metadata.py [--json]
+
+  --json   emit {"issues": [...]} instead of the human-readable report
 """
 
 from __future__ import annotations
 
+import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -46,9 +50,16 @@ def read_field(locale: str, field: str) -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
-def main() -> int:
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--json", action="store_true", help='Emit {"issues": [...]} instead of the human report.')
+    args = parser.parse_args(argv)
+
     if not METADATA_DIR.exists():
-        print(f"ERROR: metadata dir not found at {METADATA_DIR}", file=sys.stderr)
+        if args.json:
+            print(json.dumps({"issues": [f"ERROR: metadata dir not found at {METADATA_DIR}"]}))
+        else:
+            print(f"ERROR: metadata dir not found at {METADATA_DIR}", file=sys.stderr)
         return 1
 
     source_fields = [f for f in TRANSLATABLE_FIELDS if read_field(SOURCE_LOCALE, f)]
@@ -79,6 +90,10 @@ def main() -> int:
             if not read_field(storefront, field):
                 issues.append(f"  MISSING  [{storefront}] {field} (URL)")
 
+    if args.json:
+        print(json.dumps({"issues": issues}, ensure_ascii=False, indent=2))
+        return 1 if issues else 0
+
     if issues:
         print(f"check_metadata: {len(issues)} issue(s) found under {METADATA_DIR.name}/\n")
         for line in issues:
@@ -98,4 +113,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

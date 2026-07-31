@@ -239,7 +239,13 @@ final class UserJourneyTests: XCTestCase {
     XCTAssertTrue(fromCell.waitForExistence(timeout: 2))
     let grabber = fromCell.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5))
     let target = toCell.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.05))
-    grabber.press(forDuration: 1.0, thenDragTo: target)
+    // Default velocity/no post-drag hold produced a single fast jump on the
+    // GitHub-hosted CI simulator: too few intermediate touch samples for
+    // List's reorder gesture recognizer to register a continuous drag, and no
+    // settle time before touch-up for .onMove to commit — the row order was
+    // silently unchanged (reproduced identically across two CI runs). Slower
+    // velocity plus a hold before release fixes both.
+    grabber.press(forDuration: 1.0, thenDragTo: target, withVelocity: .slow, thenHoldForDuration: 0.5)
 
     app.buttons["Done"].tap()
 

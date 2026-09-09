@@ -51,6 +51,24 @@ def verify_ship_secrets!
   sh("../scripts/verify_release_secrets.sh")
 end
 
+# App Store metadata is a release-time concern (not a per-PR one — see
+# ci.yml's header comment), so its completeness/limits gate and the
+# source-voice check run here, right before the actual metadata upload,
+# rather than on every PR.
+def verify_metadata_ready!
+  sh("python3 ../scripts/translate_metadata/check_metadata.py")
+  # Advisory only (calm/understated brand voice) — warn, don't block the lane.
+  sh("python3 ../scripts/translate_metadata/check_source_voice.py") do |status, _result|
+    UI.important("check_source_voice: possible voice issue(s) in the en-US source — review the log above.") unless status.success?
+  end
+end
+
+# Screenshot demo-content is also release-time-only. Gate it right before
+# capture, since a malformed/missing locale entry affects what gets captured.
+def verify_content_ready!
+  sh("python3 ../scripts/screenshot_content/check_content.py")
+end
+
 platform :ios do
   # Authenticate every lane with the App Store Connect API key.
   # Values come from fastlane/.env (KEY_ID / ISSUER_ID / KEY_FILEPATH).
@@ -166,6 +184,7 @@ platform :ios do
   # ---------------------------------------------------------------------------
   desc "Upload localized App Store metadata only (no binary, no screenshots)"
   lane :push_metadata do
+    verify_metadata_ready!
     upload_to_app_store(
       skip_binary_upload: true,
       skip_screenshots: true,
@@ -187,6 +206,7 @@ platform :ios do
   # ---------------------------------------------------------------------------
   desc "Capture localized screenshots in the Simulator, then map folders to storefront codes"
   lane :screenshots do
+    verify_content_ready!
     capture_screenshots
     UI.message("Renaming captured folders from runtime codes to App Store storefront codes…")
     sh("python3", "../scripts/screenshot_content/rename_for_deliver.py")

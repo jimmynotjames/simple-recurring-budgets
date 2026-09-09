@@ -23,6 +23,8 @@ See [`CONTRIBUTING.md § B`](../CONTRIBUTING.md#b--configure-secrets-ship-or-for
 
 **Release ship guard:** `fastlane beta` and `fastlane release` automatically run `scripts/verify_release_secrets.sh` at the start, blocking builds with placeholder secrets before spending time on archive/sign/upload. Configure `config/Secrets.local.xcconfig` first.
 
+**Metadata/screenshot-content gates:** `fastlane push_metadata` automatically runs `scripts/translate_metadata/check_metadata.py` (blocking) and `scripts/translate_metadata/check_source_voice.py` (advisory — warns, doesn't block) before uploading. `fastlane screenshots` automatically runs `scripts/screenshot_content/check_content.py` (blocking) before capturing. These are release-time checks, not per-PR CI gates — see `ci.yml`'s header comment for why.
+
 ## Lanes
 
 | Lane | Status | What it does |
@@ -46,7 +48,9 @@ See [`CONTRIBUTING.md § B`](../CONTRIBUTING.md#b--configure-secrets-ship-or-for
   transcreate all 49 storefronts here.
   `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront
   map, so there's no need to run `fastlane deliver init`. The gate is
-  `python3 scripts/translate_metadata/check_metadata.py` (exit 0 = ready).
+  `python3 scripts/translate_metadata/check_metadata.py` (exit 0 = ready) —
+  `fastlane push_metadata` runs this automatically before uploading, so you
+  can also just run the lane and let it tell you if something's missing.
   Once green, `fastlane push_metadata` uploads metadata only, or flip
   `skip_metadata:false` in the `release` lane.
 
@@ -85,7 +89,8 @@ A three-step flow: generate per-locale demo content → capture → upload.
    (`/appstore:generate-screenshot-seeding`), which drives `scripts/screenshot_content/` to
    produce a culturally-tuned, locally-realistic per-locale catalog (≤3 budgets each)
    under `simple-recurring-budgetsUITests/ScreenshotSeeds/<lang>.json`. Gate:
-   `python3 scripts/screenshot_content/check_content.py` (exit 0 = ready). The catalog
+   `python3 scripts/screenshot_content/check_content.py` (exit 0 = ready) —
+   `fastlane screenshots` runs this automatically before capturing. The catalog
    lives in the UI test target, so the fixtures never ship in the app. Source structure:
    `scripts/screenshot_content/SOURCE.json`.
 

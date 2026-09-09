@@ -241,7 +241,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Post/update consolidated gate summary
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const needs = ${{ toJSON(needs) }};

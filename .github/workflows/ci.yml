@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Cache pinned SwiftFormat/SwiftLint binaries
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-lint-tools
         with:
           path: |
@@ -90,7 +90,7 @@ jobs:
         with:
           fetch-depth: 0 # full history so `detect` can scan the whole tree
       - name: Cache pinned gitleaks binary
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-gitleaks
         with:
           path: gitleaks
@@ -164,7 +164,7 @@ jobs:
         with:
           xcode-version: "26.5"
       - name: Cache SwiftPM packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: build/DerivedData/SourcePackages
           key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
@@ -195,7 +195,7 @@ jobs:
         with:
           xcode-version: "26.5"
       - name: Cache SwiftPM packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: build/DerivedData/SourcePackages
           key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}

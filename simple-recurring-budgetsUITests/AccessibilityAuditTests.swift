@@ -268,20 +268,28 @@ final class AccessibilityAuditTests: XCTestCase {
   private func knownIssueHandler(_ issue: XCUIAccessibilityAuditIssue) throws -> Bool {
     if issue.auditType == .contrast {
       // WCAG 2.1 SC 1.4.3 exempts disabled controls, but the audit doesn't skip them.
-      if issue.element?.isEnabled == false { return true }
+      if issue.element?.isEnabled == false {
+        return true
+      }
       // iOS-COMPAT(26.x): the audit sometimes reports contrast with a nil element (no type,
       // identifier, or label) on Form/NavigationStack containers; untraceable platform artifact.
-      if issue.element == nil { return true }
+      if issue.element == nil {
+        return true
+      }
       // iOS-COMPAT(26.x): GroupBox labels/content and List section headers (tagged
       // srb.sectionLabel) render via Liquid Glass, whose compositor opacity overrides even
       // opaque Color.primary. Visually correct; platform artifact.
-      if issue.element?.identifier == "srb.sectionLabel" { return true }
+      if issue.element?.identifier == "srb.sectionLabel" {
+        return true
+      }
       // iOS-COMPAT(26.x): nav bar Cancel buttons in Liquid Glass toolbars report contrast
       // failures even with .foregroundStyle(.primary). Scope: system buttons (empty
       // identifier) labeled "Cancel".
       if issue.element?.label == "Cancel",
          issue.element?.elementType == .button,
-         (issue.element?.identifier ?? "").isEmpty { return true }
+         (issue.element?.identifier ?? "").isEmpty {
+        return true
+      }
     }
     if issue.auditType == .elementDetection {
       // iOS-COMPAT(26.x): incomplete sheet accessibility isolation lets system elements

@@ -39,7 +39,7 @@ The screen SHALL list all seven `Weekday` cases in `Weekday.allCases` order (Sun
 
 ### Requirement: App-wide scope banner
 
-The screen SHALL display, above the weekday list, a scope banner consisting of an `exclamationmark.triangle.fill` SF Symbol tinted with `Color.accentColor` (overriding the symbol's default multicolor rendering) and the localized text from key `weekStartPicker.scopeNote` (en source: "App-wide setting. Changes here will update all weekly budgets."). The banner communicates that the setting is global, not scoped to the budget the user navigated from. The symbol SHALL match the banner text font so it baseline-aligns with the first line and scales with Dynamic Type.
+The screen SHALL display, above the weekday list, a scope banner consisting of an `exclamationmark.triangle.fill` SF Symbol tinted with `Color.accentColor` (overriding the symbol's default multicolor rendering) and the localized text from key `weekStartPicker.scopeNote` (en source: "App-wide setting. Changes here will update all weekly budgets."). The banner signals the setting is global, not scoped to the originating budget. The symbol SHALL match the banner text font so it baseline-aligns with the first line and scales with Dynamic Type.
 
 #### Scenario: Banner renders above the list with an accent-tinted icon
 
@@ -108,7 +108,7 @@ Every weekday row SHALL expose its localized weekday name to VoiceOver and conve
 
 ### Requirement: Start of Week screen strings are registered in Localizable.xcstrings
 
-The new user-visible keys `weekStartPicker.navTitle` and `weekStartPicker.scopeNote` SHALL be registered in `Localizable.xcstrings` with translator-friendly comments, and SHALL be translated to all 49 storefront locales via the `translate-new-strings` pipeline. The screen SHALL reuse the existing `settings.weekStart.alert.*` keys rather than introducing duplicates.
+The user-visible keys `weekStartPicker.navTitle` and `weekStartPicker.scopeNote` SHALL be registered in `Localizable.xcstrings` with translator-friendly comments, and SHALL be translated to all 49 storefront locales via the `translate-new-strings` pipeline. The screen SHALL reuse the existing `settings.weekStart.alert.*` keys rather than introducing duplicates.
 
 #### Scenario: New keys present with comments
 

@@ -36,8 +36,8 @@ This project was my attempt to learn agentic programming. All but two lines of c
 
 ## Status
 
-- **The app has released in the Apple App Store.** [Get Wren on the App Store](https://apps.apple.com/us/app/wren-daily-expense-tracker/id6774680765). See [RELEASES.md](RELEASES.md).
-- Schema is `SchemaV1`, the frozen baseline shipped in v1.0 and deployed to CloudKit production. No migration stages exist yet; the first post-launch model change adds `SchemaV2` plus a migration stage and test — see `docs/tech-design-doc.md` §3.3.
+- Released on the Apple App Store: [Get Wren on the App Store](https://apps.apple.com/us/app/wren-daily-expense-tracker/id6774680765). See [RELEASES.md](RELEASES.md).
+- Schema is `SchemaV1`, the frozen baseline shipped in v1.0 and deployed to CloudKit production. No migration stages exist yet; the first post-launch model change adds `SchemaV2` plus a migration stage and test (`docs/tech-design-doc.md` §3.3).
 - Versioned product/technical docs and an OpenSpec change history are tracked in-repo.
 
 ---
@@ -117,7 +117,7 @@ docs/                             # PRD, tech design, UX brief, feature planning
 
 ## Dependencies
 
-Deliberately minimal — Apple-first policy, with Mixpanel as the **only** direct third-party runtime dependency (Swift Package Manager, Xcode-project-managed).
+Deliberately minimal (Apple-first policy). Mixpanel is the only direct third-party runtime dependency (Swift Package Manager, Xcode-project-managed).
 
 
 | Package                                                                      | Why               | Notes                                    |
@@ -127,7 +127,7 @@ Deliberately minimal — Apple-first policy, with Mixpanel as the **only** direc
 | [json-logic-swift](https://github.com/advantagefse/json-logic-swift)       | —                 | Transitive (via Mixpanel)                |
 
 
-Everything else is **Apple frameworks**: SwiftUI, SwiftData, CloudKit, Foundation, `OSLog`, StoreKit (rating prompt), and the String Catalog toolchain. SPM bumps are manual (no `Package.swift`; Dependabot tracks GitHub Actions only).
+Everything else is Apple frameworks: SwiftUI, SwiftData, CloudKit, Foundation, `OSLog`, StoreKit (rating prompt), and the String Catalog toolchain. SPM bumps are manual (no `Package.swift`; Dependabot tracks GitHub Actions only).
 
 ---
 
@@ -135,7 +135,7 @@ Everything else is **Apple frameworks**: SwiftUI, SwiftData, CloudKit, Foundatio
 
 ## AI Agent Configs
 
-- **Mirrored Cursor / Claude Code setup.** Hand-authored commands and skills are kept in sync as duplicate copies — `.claude/commands/*.md` ↔ `.cursor/commands/*.md`, `.claude/skills/<name>/SKILL.md` ↔ `.cursor/skills/<name>/SKILL.md` — so either tool can drive the same workflow. Some cross-cutting rules (concurrency, build/test procedure, per-repo state locality) are also mirrored into `.cursor/rules/*.mdc` so Cursor gets the same guardrails Claude Code reads from `AGENTS.md`. `AGENTS.md` is the canonical source; the Cursor copies are kept in sync with it, not the other way around.
+- **Mirrored Cursor / Claude Code setup.** Hand-authored commands and skills are duplicated so either tool can drive the same workflow: `.claude/commands/*.md` ↔ `.cursor/commands/*.md`, `.claude/skills/<name>/SKILL.md` ↔ `.cursor/skills/<name>/SKILL.md`. Some cross-cutting rules (concurrency, build/test procedure, per-repo state locality) are also mirrored into `.cursor/rules/*.mdc`. `AGENTS.md` is canonical; the Cursor copies follow it.
 - **Custom skills** (project-specific, not generic framework reference):
   - [create-pr](.claude/skills/create-pr/SKILL.md) — review, gate, and open a PR from already-written changes
   - [create-pr-for-issue](.claude/commands/create-pr-for-issue.md) — turn a GitHub issue into a reviewed, gated PR
@@ -152,26 +152,26 @@ Everything else is **Apple frameworks**: SwiftUI, SwiftData, CloudKit, Foundatio
   - [mixpanel-build-boards](.claude/skills/mixpanel-build-boards/SKILL.md) — build/reconcile Mixpanel dashboards against `docs/analytics-spec.md`
   - [ios-sims](.claude/skills/ios-sims/SKILL.md) — simulator setup, concurrency tuning, two-pass test architecture reference
   - [translation-accessibility-size-check](.claude/skills/translation-accessibility-size-check/SKILL.md) — ad-hoc visual check for truncation/RTL at large Dynamic Type
-- **Other configuration.** `.claude/agents/` pins model-specific subagents for parallel per-locale fan-out (Haiku for translation, Opus for audit/glossary/content generation). `.claude/settings.json` allowlists the deterministic pipeline scripts and gates so agents run the translation/metadata/screenshot pipelines without permission prompts, plus a pre-tool-use hook enforcing Bash hygiene. The `openspec-`* skills/commands are packaged by [OpenSpec](https://github.com/Fission-AI/OpenSpec) itself and regenerate on update — behavioral overrides for that workflow live in `openspec/config.yaml` and `AGENTS.md` instead of the generated files. A further set of generic Apple-platform reference skills (SwiftData, CloudKit, App Intents, accessibility, localization, Swift concurrency/testing, SwiftUI patterns, etc.) round out the toolbox but aren't project-specific.
+- **Other configuration.** `.claude/agents/` pins model-specific subagents for parallel per-locale fan-out (Haiku for translation, Opus for audit/glossary/content generation). `.claude/settings.json` allowlists the deterministic pipeline scripts and gates so the translation/metadata/screenshot pipelines run without permission prompts, and adds a pre-tool-use hook enforcing Bash hygiene. The `openspec-`* skills/commands are packaged by [OpenSpec](https://github.com/Fission-AI/OpenSpec) and regenerate on update; behavioral overrides live in `openspec/config.yaml` and `AGENTS.md`. Generic Apple-platform reference skills (SwiftData, CloudKit, App Intents, accessibility, localization, Swift concurrency/testing, SwiftUI patterns, etc.) round out the toolbox but aren't project-specific.
 
 
 
 ## Localization & accessibility
 
-- **49 App Store storefront locales**, keyed in `Localizable.xcstrings` with translator comments and locale-aware number/currency/date formatting (`Decimal.FormatStyle.Currency`, CLDR plurals).
-- **Custom AI translation pipeline** (`scripts/translate_catalog/`): `extract → translate → merge → validate`, with parallel per-locale model subagents and a `validate.py` gate (format-specifier parity, missing-key, RTL checks) enforced on pre-push and in CI.
-- A **separate metadata pipeline** (`scripts/translate_metadata/`) transcreates the App Store listing into all 49 storefronts.
-- **Accessibility** is a per-change requirement, not a phase: Dynamic Type (semantic styles, `@ScaledMetric`), VoiceOver (composed labels, header rotor traits, destructive-action hints, `swipeActions` ↔ `accessibilityAction` pairing), and Dark Mode (named asset colors, no literals). Verified by 30 `performAccessibilityAudit()` tests.
+- 49 App Store storefront locales, keyed in `Localizable.xcstrings` with translator comments and locale-aware number/currency/date formatting (`Decimal.FormatStyle.Currency`, CLDR plurals).
+- Custom AI translation pipeline (`scripts/translate_catalog/`): `extract → translate → merge → validate`, with parallel per-locale model subagents and a `validate.py` gate (format-specifier parity, missing-key, RTL checks) enforced on pre-push and in CI.
+- A separate metadata pipeline (`scripts/translate_metadata/`) transcreates the App Store listing into all 49 storefronts.
+- Accessibility is a per-change requirement, not a phase: Dynamic Type (semantic styles, `@ScaledMetric`), VoiceOver (composed labels, header rotor traits, destructive-action hints, `swipeActions` ↔ `accessibilityAction` pairing), and Dark Mode (named asset colors, no literals). Verified by 30 `performAccessibilityAudit()` tests.
 
 
 
 ## Testing
 
-- **Unit:** Swift Testing, in-memory `ModelContainer` for isolation; budget math lives in pure `Domain/` services with no UI dependency.
-- **UI:** two XCUITest suites driven by five screen objects —
+- Unit: Swift Testing, in-memory `ModelContainer` for isolation; budget math lives in pure `Domain/` services with no UI dependency.
+- UI: two XCUITest suites driven by five screen objects —
   - `UserJourneyTests` — 15 end-to-end flows (create/edit/delete budget, add/edit/delete expense, pause/resume, reorder, settings round-trip, period-chip behavior).
   - `AccessibilityAuditTests` — 30 audits across every major screen.
-- **Two-pass runner** (`scripts/test.sh`): unit tests first to warm the simulator, then the UI passes. `make test-ui` runs only the UI pass.
+- Two-pass runner (`scripts/test.sh`): unit tests first to warm the simulator, then the UI passes. `make test-ui` runs only the UI pass.
 
 ```bash
 make test       # full unit + UI suite
@@ -182,11 +182,11 @@ make test-ui    # UI suite only
 
 ## Tooling, CI & release
 
-- **Local gates (Lefthook):** pre-commit runs SwiftFormat, SwiftLint `--fix` + strict, a large-file guard, and gitleaks; pre-push does a bare `xcodebuild build`.
-- **Four-step dev gate:** `make format` → `make lint-fix` → `make build` → `make test`.
-- **CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)):** `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), `build`, and `unit-tests` — version-pinned to match local installs. Full UI suite runs on-demand via `/test-full`.
-- **Release (Fastlane):** lanes for `beta` (TestFlight), `release` (App Store), `push_metadata`, and `screenshots`, all guarded by a pre-build secrets check (`scripts/verify_release_secrets.sh`). App Store Connect API key auth; secrets live outside the repo.
-- **Spec-driven workflow:** [OpenSpec](https://github.com/Fission-AI/OpenSpec) change proposals under `openspec/`.
+- Local gates (Lefthook): pre-commit runs SwiftFormat, SwiftLint `--fix` + strict, a large-file guard, and gitleaks; pre-push does a bare `xcodebuild build`.
+- Four-step dev gate: `make format` → `make lint-fix` → `make build` → `make test`.
+- CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)): `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), `build`, and `unit-tests` — version-pinned to match local installs. Full UI suite runs on-demand via `/test-full`.
+- Release (Fastlane): lanes for `beta` (TestFlight), `release` (App Store), `push_metadata`, and `screenshots`, all guarded by a pre-build secrets check (`scripts/verify_release_secrets.sh`). App Store Connect API key auth; secrets live outside the repo.
+- Spec-driven workflow: [OpenSpec](https://github.com/Fission-AI/OpenSpec) change proposals under `openspec/`.
 
 ---
 
@@ -194,7 +194,7 @@ make test-ui    # UI suite only
 
 ## Getting started
 
-You can build and run on the iOS Simulator with **no secrets and no Apple Developer account**:
+Build and run on the iOS Simulator with no secrets and no Apple Developer account:
 
 ```bash
 make system    # one-time: installs Lefthook, SwiftLint, SwiftFormat, gitleaks; checks Xcode + Python
@@ -202,7 +202,7 @@ make build     # Debug → Simulator build using committed placeholder config
 make test      # boots the repo's simulator and runs the full suite
 ```
 
-Full setup — including the two-tier flow (Simulator-only vs. shipping/forking for distribution), secrets configuration, and Fastlane — is in [CONTRIBUTING.md](CONTRIBUTING.md).
+Full setup (two-tier flow for Simulator-only vs. shipping/forking, secrets configuration, Fastlane): [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Docs Index
 
@@ -226,7 +226,7 @@ Full setup — including the two-tier flow (Simulator-only vs. shipping/forking 
 
 ## License, trademarks & contributing
 
-- **License.** Source code is licensed under the **Apache License 2.0** — see [LICENSE](LICENSE).
-- **Trademarks.** The **Wren** name and app icon are trademarks of Jimmy Ho and are **not** covered by the code license. Forks that distribute an app must replace the name, icon, and App Store marketing assets before shipping — see [TRADEMARK.md](TRADEMARK.md).
-- **Contributing.** See [CONTRIBUTING.md](CONTRIBUTING.md).
+- License: Apache License 2.0; see [LICENSE](LICENSE).
+- Trademarks: the Wren name and app icon are trademarks of Jimmy Ho and are not covered by the code license. Forks that distribute an app must replace the name, icon, and App Store marketing assets before shipping; see [TRADEMARK.md](TRADEMARK.md).
+- Contributing: see [CONTRIBUTING.md](CONTRIBUTING.md).
 

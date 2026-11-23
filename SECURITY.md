@@ -1,10 +1,10 @@
 # Security Policy
 
-Wren is a solo hobby project — there's no security team and no SLA, but reports are taken seriously and will get a best-effort response.
+Wren is a solo hobby project with no security team and no SLA. Reports are taken seriously and get a best-effort response.
 
 ## Reporting a vulnerability
 
-Please use GitHub's [private vulnerability reporting](../../security/advisories/new) for this repository (Security tab → "Report a vulnerability") instead of opening a public issue. This opens a private advisory visible only to the maintainer, so any real exploit isn't disclosed before it can be fixed.
+Use GitHub's [private vulnerability reporting](../../security/advisories/new) for this repository (Security tab → "Report a vulnerability") instead of a public issue. It opens a private advisory visible only to the maintainer, so an exploit isn't disclosed before it can be fixed.
 
 ## Scope
 
@@ -14,4 +14,4 @@ Out of scope: identifiers that are expected to be public for an open-source iOS 
 
 ## Disclosure
 
-Please give a reasonable amount of time to address a confirmed report before any public disclosure.
+Give a reasonable amount of time to address a confirmed report before any public disclosure.

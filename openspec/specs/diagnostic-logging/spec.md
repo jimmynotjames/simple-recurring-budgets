@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Governs all on-device diagnostic logging via Apple's unified logging system (`OSLog`) in the `simple-recurring-budgets` app. Defines canonical `Logger` categories, call-site placement, privacy-annotation rules, and the strict architectural boundary with `AnalyticsClient` (product analytics). See `docs/analytics-spec.md` §17 for the full boundary contract.
+On-device diagnostic logging via Apple's unified logging system (`OSLog`) in the `simple-recurring-budgets` app: canonical `Logger` categories, call-site placement, privacy-annotation rules, and the strict boundary with `AnalyticsClient` (product analytics). Boundary contract: `docs/analytics-spec.md` §17.
 
 ---
 ## Requirements
@@ -15,7 +15,7 @@ The app SHALL expose exactly four `os.Logger` constants in `simple-recurring-bud
 - `Logger.ui` — category `"ui"`. Covers user-initiated UI actions (Phase 1 limited to destructive actions; see the `Destructive UI logging` requirement below).
 - `Logger.persistence` — category `"persistence"`. Covers SwiftData write failures surfaced by the shared save helper (see the `Persistence save-failure logging` requirement below).
 
-These four categories are the canonical set. Adding a new category to `AppLoggers.swift` SHALL be accompanied by a new requirement in this spec in the same change. Removing or renaming a category SHALL be accompanied by a `MODIFIED Requirement` block in the same change.
+These four categories are the canonical set. Adding a category to `AppLoggers.swift` SHALL come with a new requirement in this spec in the same change; removing or renaming one SHALL come with a `MODIFIED Requirement` block.
 
 #### Scenario: All four logger constants are reachable from app code
 
@@ -57,7 +57,7 @@ The app SHALL retain the four existing `Logger.cloudKit` call sites inside `simp
 - `Logger.cloudKit.info("cloudkit.container.backed")` — CloudKit-backed container creation succeeded.
 - `Logger.cloudKit.notice("cloudkit.container.localFallback")` — CloudKit-backed creation failed; falling back to local-only.
 - `Logger.cloudKit.info("cloudkit.container.localSuccess")` — local-only container creation succeeded.
-- `Logger.cloudKit.error("cloudkit.container.failed: \(error.localizedDescription, privacy: .public)")` — both creation paths failed; about to surface the error to `AppStartup` for presentation in `ContainerFailureView` (see the `container-creation-recovery` capability). The process is **not** terminated.
+- `Logger.cloudKit.error("cloudkit.container.failed: \(error.localizedDescription, privacy: .public)")` — both creation paths failed; about to surface the error to `AppStartup` for presentation in `ContainerFailureView` (see the `container-creation-recovery` capability). The process is not terminated.
 
 The error site SHALL interpolate `error.localizedDescription` with `privacy: .public` because Apple framework error descriptions are reviewable diagnostics and contain no user-derived content.
 
@@ -167,9 +167,9 @@ Every `Logger.*` call site under `simple-recurring-budgets/` that interpolates a
 
 No code under `simple-recurring-budgets/` SHALL invoke both `Logger.*` and `AnalyticsClient.track(...)` for the same conceptual event with the intent of cross-routing one to the other. The `AnalyticsClient` API surface SHALL NOT expose any method whose parameter type is `os.Logger`, `OSLogEntry`, `OSLogEntryLog`, `OSLogMessage`, or any other OSLog-shaped type. Conversely, no `Logger.*` call site SHALL invoke `AnalyticsClient.track(_:)` (or its equivalents) as a deterministic side-effect of the log emission.
 
-A single user action MAY independently produce one `Logger.*` line and one `AnalyticsClient` event (e.g., a destructive action that logs a `Logger.ui.debug` entry today and, when F-8.02 ships, also fires a Mixpanel event). The two calls SHALL be at sibling call sites in the imperative method body, not nested or derived from each other.
+A single user action MAY independently produce one `Logger.*` line and one `AnalyticsClient` event (e.g., a destructive action that logs `Logger.ui.debug` and also fires a Mixpanel event per F-8.02). The two calls SHALL be sibling statements in the method body, not nested or derived from each other.
 
-The shared persistence-save helper's failure path is a permitted instance of this allowance: it emits a `Logger.persistence.error` line and fires a `persistence_save_failed` analytics event as sibling statements, each built independently from the operation identifier and the underlying error's domain/code. Neither call consumes the other's return value and no OSLog-shaped type is passed to `AnalyticsClient`.
+The shared persistence-save helper's failure path is a permitted instance: it emits a `Logger.persistence.error` line and fires a `persistence_save_failed` event as sibling statements, each built independently from the operation identifier and the error's domain/code. Neither call consumes the other's return value and no OSLog-shaped type is passed to `AnalyticsClient`.
 
 #### Scenario: AnalyticsClient exposes no OSLog-shaped API
 
@@ -195,7 +195,7 @@ The shared persistence-save helper's failure path is a permitted instance of thi
 
 ### Requirement: Doc alignment for AppLoggers categories
 
-`docs/tech-design-doc.md` §7 SHALL list the same four category strings (`bootstrap`, `cloudkit`, `ui`, `persistence`) as `AppLoggers.swift`. Any change to the category set in `AppLoggers.swift` SHALL update §7 in the same OpenSpec change. Cross-reference to `docs/analytics-spec.md` §17 (the OSLog ↔ `AnalyticsClient` boundary) SHALL be present in §7 so a reader of either doc can find the other.
+`docs/tech-design-doc.md` §7 SHALL list the same four category strings (`bootstrap`, `cloudkit`, `ui`, `persistence`) as `AppLoggers.swift`. Any change to the category set in `AppLoggers.swift` SHALL update §7 in the same OpenSpec change. §7 SHALL cross-reference `docs/analytics-spec.md` §17 (the OSLog ↔ `AnalyticsClient` boundary).
 
 #### Scenario: Tech-design-doc §7 matches AppLoggers.swift
 

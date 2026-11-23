@@ -6,55 +6,55 @@
 | **Last Updated**   | 2026-06-22 |
 | **Author / Owner** | Jimmy Ho   |
 
-> Companion design + instrumentation spec for **F-8.02** (Mixpanel Phase 1) and **F-8.03** (Mixpanel Phase 2) in [product-features-planning.md](product-features-planning.md). The features doc carries the high-level constraints and the product questions the work must answer; this doc captures the detailed instrumentation, identity, consent, and architectural decisions that produce those answers. Phase 1 establishes the measurement foundation and answers first-tier product questions; Phase 2 reacts to Phase 1 evidence and adds an experimentation seam.
+> Instrumentation spec for **F-8.02** (Mixpanel Phase 1) and **F-8.03** (Mixpanel Phase 2) in [product-features-planning.md](product-features-planning.md). The features doc holds the high-level constraints and product questions; this doc holds the detailed instrumentation, identity, consent, and architecture. Phase 1 builds the measurement foundation and answers first-tier questions; Phase 2 reacts to Phase 1 evidence and adds an experimentation seam.
 
 ---
 
 ## 1. Vendor Choice
 
-**Mixpanel** is the chosen product analytics vendor for the app's behavioral data.
+**Mixpanel** is the product analytics vendor for behavioral data.
 
 **Strengths we lean on**
 
 - Event-shaped behavioral data with built-in funnel, retention, cohort, and flow reports.
 - Cross-device user identity unification through `distinct_id`.
-- Mixpanel feature flags / experiments as a controlled A/B testing seam (Phase 2 only).
-- Generous free tier that fits this app's expected scale through public launch.
+- Mixpanel feature flags / experiments as the A/B testing seam (Phase 2 only).
+- Free tier that fits expected scale through public launch.
 
 **Weaknesses we sidestep — routed elsewhere**
 
-- Mixpanel is **not** a crash reporter. Crash and reliability data stays on `OSLog` (F-8.01) and Apple-native frameworks (MetricKit, system Crash Reporter).
-- Mixpanel is **not** a time-series technical telemetry log. Diagnostic and lifecycle events stay on `OSLog`.
-- Mixpanel is **not** a raw-event log store. High-frequency or per-tap events are sampled or dropped before they reach Mixpanel.
-- Mixpanel does not currently offer iOS session replay; we don't try to replicate it.
+- Not a crash reporter: crash and reliability data stays on `OSLog` (F-8.01) and Apple-native frameworks (MetricKit, system Crash Reporter).
+- Not a time-series technical telemetry log: diagnostic and lifecycle events stay on `OSLog`.
+- Not a raw-event log store: high-frequency or per-tap events are sampled or dropped before reaching Mixpanel.
+- No iOS session replay; we don't try to replicate it.
 
 ---
 
 ## 2. Canonical Constraints
 
-This section is the **single source of truth** for the constraints that apply to Mixpanel-touching work — F-8.02 (Phase 1) and F-8.03 (Phase 2) in [product-features-planning.md](product-features-planning.md). The features doc points here rather than restating them. Each constraint links to the section that operationalizes it; if a constraint moves, this index moves with it.
+**Single source of truth** for constraints on Mixpanel work (F-8.02 and F-8.03 in [product-features-planning.md](product-features-planning.md)). The features doc points here. Each constraint links to the section that operationalizes it; if a constraint moves, this index moves with it.
 
 ### 2.1 Constraints applying to all Mixpanel work (F-8.02 and F-8.03)
 
-1. **Locale-aware consent default.** In strict-opt-in jurisdictions (canonical list in [§7.2](#72-strict-opt-in-jurisdictions-and-the-first-run-consent-sheet) — EU/EEA/UK/Switzerland under GDPR/UK GDPR/PECR/revFADP, plus South Korea PIPA, China PIPL, Brazil LGPD, Turkey KVKK, Thailand PDPA, Quebec Law 25), analytics is **default off** and requires an explicit opt-in via the first-run consent sheet and the Settings toggle. In all other locales, analytics is **default on (auto opt-in)** and the user can opt out at any time via the Settings toggle. Mandated by [main-prd.md](main-prd.md) §6.3 and [tech-design-doc.md](tech-design-doc.md) §7. Operationalized in [§5](#5-privacy-contract--pii-and-field-level-rules) and [§7](#7-consent).
-2. **First-run consent sheet only in strict-opt-in jurisdictions.** Outside those jurisdictions no sheet is shown; the Settings toggle (default on) is sufficient surfacing. Operationalized in [§7.2](#72-strict-opt-in-jurisdictions-and-the-first-run-consent-sheet).
-3. **No PII ever transmitted.** The field-level allow/deny list and the two accepted-risk exceptions (`budget_name`, `budget_allocation_amount`) are authoritative in [§5](#5-privacy-contract--pii-and-field-level-rules). Any new event or property must conform to that contract; adding a field that doesn't fit requires updating §5 in the same change.
-4. **No `ExpenseItem` field is ever transmitted by value.** Hard ban — see [§5.3](#53-explicitly-denied-deny-list).
-5. **Diagnostic / OSLog telemetry is never forwarded to Mixpanel.** Bootstrap, `cloudKit`, and `ui` log categories bypass `AnalyticsClient` entirely. Operationalized in [§8](#8-architecture-two-independent-paths) and [§17](#17-boundary-with-f-801-oslog); F-8.01 in the features doc carries the OSLog side.
-6. **All consent and Settings copy is keyed in `Localizable.xcstrings`** per F-3.03. Operationalized in [§7.1](#71-always-on-settings-toggle).
-7. **No engagement-pressure events.** Streaks, "missed days," and push nudges are out of scope per [main-prd.md](main-prd.md) §3 and [ux-design-brief.md](ux-design-brief.md). The instrumentation surface is observational; it never feeds engagement-pressure UX.
-8. **Lazy SDK init.** The Mixpanel SDK is instantiated lazily so an opted-out launch incurs no `MixpanelInstance` creation and no network activity ([§8](#8-architecture-two-independent-paths)).
+1. **Locale-aware consent default.** In strict-opt-in jurisdictions (canonical list in [§7.2](#72-strict-opt-in-jurisdictions-and-the-first-run-consent-sheet): EU/EEA/UK/Switzerland under GDPR/UK GDPR/PECR/revFADP, plus South Korea PIPA, China PIPL, Brazil LGPD, Turkey KVKK, Thailand PDPA, Quebec Law 25), analytics is default off and needs an explicit opt-in via the first-run consent sheet and the Settings toggle. Elsewhere it is default on (auto opt-in) and the user can opt out any time via the Settings toggle. Mandated by [main-prd.md](main-prd.md) §6.3 and [tech-design-doc.md](tech-design-doc.md) §7. Operationalized in [§5](#5-privacy-contract--pii-and-field-level-rules) and [§7](#7-consent).
+2. **First-run consent sheet only in strict-opt-in jurisdictions.** Elsewhere no sheet is shown; the Settings toggle (default on) suffices. See [§7.2](#72-strict-opt-in-jurisdictions-and-the-first-run-consent-sheet).
+3. **No PII ever transmitted.** The field-level allow/deny list and the two accepted-risk exceptions (`budget_name`, `budget_allocation_amount`) are authoritative in [§5](#5-privacy-contract--pii-and-field-level-rules). A new event or property must conform; a field that doesn't fit requires updating §5 in the same change.
+4. **No `ExpenseItem` field is ever transmitted by value.** Hard ban; see [§5.3](#53-explicitly-denied-deny-list).
+5. **Diagnostic / OSLog telemetry is never forwarded to Mixpanel.** Bootstrap, `cloudKit`, and `ui` log categories bypass `AnalyticsClient`. See [§8](#8-architecture-two-independent-paths) and [§17](#17-boundary-with-f-801-oslog); F-8.01 carries the OSLog side.
+6. **All consent and Settings copy is keyed in `Localizable.xcstrings`** per F-3.03 ([§7.1](#71-always-on-settings-toggle)).
+7. **No engagement-pressure events.** Streaks, "missed days," and push nudges are out of scope per [main-prd.md](main-prd.md) §3 and [ux-design-brief.md](ux-design-brief.md). Instrumentation is observational and never feeds engagement-pressure UX.
+8. **Lazy SDK init.** The Mixpanel SDK is instantiated lazily so an opted-out launch creates no `MixpanelInstance` and makes no network calls ([§8](#8-architecture-two-independent-paths)).
 
 ### 2.2 Constraints additionally applying to Phase 2 (F-8.03)
 
-1. **Same opt-in and no-PII guarantees as Phase 1.** Phase 2 may not introduce any field that becomes identifying when combined with Phase 1 properties.
-2. **Mixpanel feature flags are pull-only and cached for offline starts.** No app launch is blocked on a flag fetch. Operationalized in [§15](#15-experimentation-seam-phase-2).
+1. **Same opt-in and no-PII guarantees as Phase 1.** Phase 2 may not add any field that becomes identifying when combined with Phase 1 properties.
+2. **Mixpanel feature flags are pull-only and cached for offline starts.** No app launch blocks on a flag fetch ([§15](#15-experimentation-seam-phase-2)).
 
 ---
 
 ## 3. Product Questions — Phase 1
 
-Phase 1 is the smallest viable instrumentation that lets us answer the questions below. Each subsection links to the events / properties that produce the answer (mapped in §§9–11) and to the dashboard that delivers it (§12).
+Phase 1 is the smallest instrumentation that answers the questions below. Events / properties that produce each answer are in §§9–11; dashboards in §11.
 
 ### 3.1 Reach and engagement
 
@@ -76,33 +76,33 @@ Phase 1 is the smallest viable instrumentation that lets us answer the questions
 - Currency-code breakdown across users and across Budgets.
 - Locale / region breakdown; iOS / device-class breakdown.
 - Share of users with carry-over enabled (default-on retained) versus explicitly turned off.
-- Share of all Budgets that have carry-over enabled versus turned off (per-Budget view, complementing the per-user view above).
+- Share of all Budgets with carry-over enabled versus off (per-Budget view, complementing the per-user view).
 
 ### 3.4 Retention
 
-Retention is configured per Mixpanel Retention report by choosing a "born" event and a "returning" event (a specific event, or "Any Event") — it is not hardwired to one event. Phase 1 builds two views:
+Mixpanel Retention reports pick a "born" event and a "returning" event (a specific event, or "Any Event"); they are not hardwired. Phase 1 builds two views:
 
-- 1/7/30-day retention with returning-event = `expense_logged` — the core value loop. A return that doesn't log an expense does not count; this is the retention signal to act on.
-- 1/7/30-day retention with returning-event = `app_opened` — check-in engagement. The user reopened the app, which is meaningful on its own: the Budgets list surfaces remaining amounts above the fold, so a bare foreground is often glanceable budget-checking, even with no further action.
+- 1/7/30-day retention, returning-event = `expense_logged`: the core value loop. A return that doesn't log an expense doesn't count; this is the signal to act on.
+- 1/7/30-day retention, returning-event = `app_opened`: check-in engagement. A bare foreground is meaningful on its own, since the Budgets list shows remaining amounts above the fold and is often glanced at for budget-checking.
 
 ### 3.5 Settings and destructive actions
 
 - Settings open rate (`settings_opened` per active user).
-- Which settings users actually change, when those changes are observable through dedicated events or super-property transitions (e.g. `analytics_consent_changed`, `carry_over_default_enabled` flipping). Phase 1 does not instrument every Settings field; the spec adds events only where the change has product meaning.
-- Frequency of destructive actions — `budget_reset`, `carry_over_reset`, and `budget_deleted` — to gauge how often users course-correct, and which destructive flow they reach for.
-- Frequency of `expense_edited` and `expense_deleted` to see whether logging is "right first time" or routinely corrected after the fact.
+- Which settings users change, when observable through dedicated events or super-property transitions (e.g. `analytics_consent_changed`, `carry_over_default_enabled` flipping). Phase 1 does not instrument every Settings field; events are added only where the change has product meaning.
+- Frequency of destructive actions (`budget_reset`, `carry_over_reset`, `budget_deleted`) to gauge how often users course-correct and which flow they reach for.
+- Frequency of `expense_edited` and `expense_deleted` to see whether logging is "right first time" or routinely corrected.
 
 ### 3.6 Privacy and consent
 
-- Opt-in rate in strict-opt-in jurisdictions (regions that legally require an explicit consent sheet; `consent_jurisdiction = required`).
-- Opt-out rate in auto-opt-in jurisdictions (`consent_jurisdiction = auto_optin`) — transitions from default `true` to `false` on `analytics_consent_changed`.
+- Opt-in rate in strict-opt-in jurisdictions (regions requiring an explicit consent sheet; `consent_jurisdiction = required`).
+- Opt-out rate in auto-opt-in jurisdictions (`consent_jurisdiction = auto_optin`): transitions from default `true` to `false` on `analytics_consent_changed`.
 - Opt-out rate over time across all jurisdictions.
 
 ---
 
 ## 4. Product Questions — Phase 2
 
-Phase 2 deepens Phase 1's picture and adds the experimentation seam. Phase 2 questions assume Phase 1 dashboards already exist; some Phase 2 properties may be dropped or replaced once Phase 1 evidence shows whether the underlying signal is there.
+Phase 2 deepens Phase 1 and adds the experimentation seam. Its questions assume Phase 1 dashboards exist; some Phase 2 properties may be dropped or replaced once Phase 1 evidence shows whether the signal is there.
 
 ### 4.1 Funnel abandonment
 
@@ -111,7 +111,7 @@ Phase 2 deepens Phase 1's picture and adds the experimentation seam. Phase 2 que
 
 ### 4.2 UX validation
 
-- Does the [ux-design-brief.md](ux-design-brief.md) "Signature Element: Fast expense logging" promise hold up? Median (and p50 / p90) `taps_from_budgets_list` to a successful `expense_logged`.
+- Does the [ux-design-brief.md](ux-design-brief.md) "Signature Element: Fast expense logging" promise hold? Median (and p50 / p90) `taps_from_budgets_list` to a successful `expense_logged`.
 - Cold-start latency to a usable Budgets list (`cold_start_to_budgets_visible_ms` on `app_opened`).
 
 ### 4.3 Cohort retention
@@ -124,8 +124,8 @@ Phase 2 deepens Phase 1's picture and adds the experimentation seam. Phase 2 que
 ### 4.4 Rating prompt (F-6.03)
 
 - When do users meet the "meaningful usage" threshold defined by F-6.03? (`rating_prompt_eligible`.)
-- Of the users who become eligible, for how many do we actually call `requestReview` (`rating_prompt_requested`), and how long after eligibility?
-- **Outcome (shown / dismissed / rated) is intentionally not a question we can answer.** F-6.03 uses Apple's native `requestReview` (`@Environment(\.requestReview)`), which neither reports whether StoreKit decided to present the dialog nor the user's choice. There is no callback. We deliberately do **not** add a custom pre-prompt to manufacture that signal (review-gating hurts ratings and conflicts with the no-engagement-pressure constraint in §2.1.7). The deepest observable point is `rating_prompt_requested`.
+- Of eligible users, for how many do we call `requestReview` (`rating_prompt_requested`), and how long after eligibility?
+- **Outcome (shown / dismissed / rated) cannot be answered.** F-6.03 uses Apple's native `requestReview` (`@Environment(\.requestReview)`), which reports neither whether StoreKit presented the dialog nor the user's choice; there is no callback. We deliberately add no custom pre-prompt to manufacture that signal (review-gating hurts ratings and conflicts with the no-engagement-pressure constraint in §2.1.7). The deepest observable point is `rating_prompt_requested`.
 
 ### 4.5 Experimentation
 
@@ -135,13 +135,13 @@ Phase 2 deepens Phase 1's picture and adds the experimentation seam. Phase 2 que
 
 ## 5. Privacy Contract — PII and Field-Level Rules
 
-Mixpanel consent is **locale-aware** (see §7 for the canonical jurisdiction list and rules). In jurisdictions known to legally require explicit prior consent for product analytics, the default is **off** and an explicit opt-in via a first-run consent sheet and/or Settings toggle is required before any event is sent. In all other jurisdictions the default is **on (auto opt-in)**, and the user may opt out at any time via the Settings toggle. Mandated by [tech-design-doc.md](tech-design-doc.md) §7 and [main-prd.md](main-prd.md) §6.3.
+Mixpanel consent is **locale-aware** (canonical jurisdiction list and rules in §7). Where explicit prior consent is legally required for product analytics, the default is off and an explicit opt-in (first-run consent sheet and/or Settings toggle) is required before any event is sent. Elsewhere the default is on (auto opt-in) and the user may opt out any time via the Settings toggle. Mandated by [tech-design-doc.md](tech-design-doc.md) §7 and [main-prd.md](main-prd.md) §6.3.
 
-The field-level rules below are **global**: they apply identically regardless of jurisdiction or opt-in default. They are the authoritative allow/deny list. The features doc (F-8.02 in [product-features-planning.md](product-features-planning.md)) defers to this section.
+The field-level rules below are **global**: they apply identically regardless of jurisdiction or opt-in default. They are the authoritative allow/deny list; F-8.02 in [product-features-planning.md](product-features-planning.md) defers to this section.
 
 ### 5.1 General principle
 
-The default is **deny**. A field may only be transmitted to Mixpanel if it appears in the explicit allow-list below (§5.2 and §5.3) or in §§10 and 13 (which themselves must conform to this section). If a new event or property is added that doesn't fit, this section must be updated in the same change.
+Default is **deny**. A field may be transmitted only if it is in the allow-list below (§5.2, §5.3) or in §§10 and 13 (which must conform to this section). A new event or property that doesn't fit requires updating this section in the same change.
 
 ### 5.2 Explicitly allowed (allow-list)
 
@@ -167,42 +167,42 @@ The default is **deny**. A field may only be transmitted to Mixpanel if it appea
 
 ### 5.4 Accepted-risk exceptions
 
-Two fields cross the strict "no free-text / no money" line. They are explicitly accepted as product trade-offs and called out here so the trade-off is auditable.
+Two fields cross the strict "no free-text / no money" line. They are accepted product trade-offs, listed here so the trade-off is auditable.
 
 #### Budget name (free-text, allow-listed)
 
-A Budget name (`Budget.name`) is **not PII by definition** — it's a label the user typed for a Budget. It can incidentally contain PII or sensitive context (a name, an address fragment, a health condition). We accept that risk for Phase 1 because:
+`Budget.name` is not PII by definition (a label the user typed), but it can incidentally contain PII or sensitive context (a name, an address fragment, a health condition). Accepted for Phase 1 because:
 
-- Budgets are coarse, persistent, low-cardinality entities (a typical user has 1–8 of them) — qualitatively unlike Expense names which are per-transaction and dense.
-- The product question "what do users name their budgets" (templates, emoji, language patterns) is genuinely useful and has no good bucketed proxy.
+- Budgets are coarse, persistent, low-cardinality entities (a typical user has 1–8), unlike per-transaction, dense Expense names.
+- "What do users name their budgets" (templates, emoji, language patterns) is useful and has no good bucketed proxy.
 - No `Budget.name` value ever appears alongside an Expense field, an amount other than the Budget's own allocation, or any other deny-listed field.
 
-If Phase 1 evidence shows users routinely put obvious PII in budget names (real names, addresses), this exception will be revisited in F-8.03 and either revoked or replaced with a derived signal (length bucket, template-match enum) per the option deferred in this spec's history.
+If Phase 1 evidence shows users routinely put obvious PII in budget names (real names, addresses), F-8.03 revisits this exception and either revokes it or replaces it with a derived signal (length bucket, template-match enum).
 
 #### Budget allocation amount (money-shaped, allow-listed)
 
-`budget_allocation_amount` is **explicitly allow-listed** even though all other money-shaped values are denied. It's a self-set ceiling, not an itemized purchase, and aggregating allocation distributions (median allocation by `period`, by `currency_code`, by `region`) is a core Phase 1 product question that no bucket replicates faithfully without distortion. It is always paired with `currency_code` so dashboards don't mix currencies.
+`budget_allocation_amount` is allow-listed even though all other money-shaped values are denied. It is a self-set ceiling, not an itemized purchase, and allocation distributions (median by `period`, `currency_code`, `region`) are a core Phase 1 question that no bucket replicates without distortion. It is always paired with `currency_code` so dashboards don't mix currencies.
 
-All other currency amounts (Expense amounts, carry-over balances, remaining-for-period, totals) remain on the deny-list.
+All other currency amounts (Expense amounts, carry-over balances, remaining-for-period, totals) stay on the deny-list.
 
 ### 5.5 Enforcement
 
 - `MixpanelAnalyticsClient` carries the §5.2 / §5.3 / §5.4 contract verbatim in its doc comment and is reviewed at every PR that touches it.
-- The `AnalyticsClient` API surface (event names, property keys) is constrained to the constants listed in §§9, 10, 12, 13. Adding a new property key requires updating this section first.
-- Any property whose value is derived from `ExpenseItem` is rejected at the call site by code review; no helper exists for serializing an `ExpenseItem` to analytics properties.
+- The `AnalyticsClient` API surface (event names, property keys) is constrained to the constants listed in §§9, 10, 12, 13. Adding a property key requires updating this section first.
+- Any property derived from `ExpenseItem` is rejected at the call site in code review; no helper serializes an `ExpenseItem` to analytics properties.
 
 ---
 
 ## 6. Identity
 
-A UUIDv4 generated at first launch is persisted in `NSUbiquitousKeyValueStore` under key `"analyticsDistinctId"` and used as Mixpanel's `distinct_id`. Because `NSUbiquitousKeyValueStore` syncs across the user's iCloud-paired devices ([tech-design-doc.md §4.5](tech-design-doc.md)), a single human is unified across their devices without us collecting any Apple-issued identifier.
+A UUIDv4 generated at first launch is persisted in `NSUbiquitousKeyValueStore` under key `"analyticsDistinctId"` and used as Mixpanel's `distinct_id`. Because that store syncs across the user's iCloud-paired devices ([tech-design-doc.md §4.5](tech-design-doc.md)), one human is unified across devices without collecting any Apple-issued identifier.
 
 `identify(_:)` is called once analytics is enabled. `reset()` is called when the user opts out.
 
-**Limitations** — accepted as Phase 1 trade-offs:
+**Limitations** (accepted Phase 1 trade-offs):
 
 - The distinct id is not rotated automatically. If the user signs out of iCloud or wipes the app, a new UUID is generated.
-- `NSUbiquitousKeyValueStore` is eventually consistent. If the same Apple ID opens the app on a second device before the `"analyticsDistinctId"` value has synced, that device generates and writes its own UUID; later events from that device are then attributable to a separate user in Mixpanel until the first device's key wins. Handling this cleanly (e.g., calling `identify(_:)` to alias on later sync) is deferred to Phase 2 if Phase 1 evidence shows the split is meaningful.
+- `NSUbiquitousKeyValueStore` is eventually consistent. If the same Apple ID opens the app on a second device before `"analyticsDistinctId"` has synced, that device generates and writes its own UUID, and its events are attributed to a separate user in Mixpanel until the first device's key wins. Handling this (e.g., `identify(_:)` aliasing on later sync) is deferred to Phase 2 if Phase 1 evidence shows the split is meaningful.
 
 ---
 
@@ -210,24 +210,24 @@ A UUIDv4 generated at first launch is persisted in `NSUbiquitousKeyValueStore` u
 
 ### 7.1 Always-on Settings toggle
 
-`AppSettings.analyticsOptIn: Bool`, persisted in `NSUbiquitousKeyValueStore` under key `"analyticsOptIn"`. The **default value is locale-aware**, resolved on first launch by `ConsentJurisdiction` (see §7.2):
+`AppSettings.analyticsOptIn: Bool`, persisted in `NSUbiquitousKeyValueStore` under key `"analyticsOptIn"`. The **default is locale-aware**, resolved on first launch by `ConsentJurisdiction` (§7.2):
 
-- In **strict-opt-in jurisdictions**: default `false`. The toggle must be flipped on (typically via the first-run consent sheet) before any event fires.
-- In **auto-opt-in jurisdictions**: default `true`. Events fire on first launch; the user can opt out at any time via the toggle.
+- **Strict-opt-in jurisdictions:** default `false`. The toggle must be flipped on (typically via the first-run consent sheet) before any event fires.
+- **Auto-opt-in jurisdictions:** default `true`. Events fire on first launch; the user can opt out any time.
 
-The Settings screen (F-2.05) gains a **Diagnostics & Analytics** section with:
+The Settings screen (F-2.05) has a **Diagnostics & Analytics** section with:
 
 - A single toggle bound to `AppSettings.analyticsOptIn`.
-- A short disclosure of what is and is not sent (mirroring §5), and a one-line note that the initial state was set automatically based on the device locale and can be changed at any time.
+- A short disclosure of what is and isn't sent (mirroring §5), and a one-line note that the initial state was set automatically from the device locale and can be changed any time.
 - All copy keyed in `Localizable.xcstrings` per F-3.03.
 
 ### 7.2 Strict-opt-in jurisdictions and the first-run consent sheet
 
-In strict-opt-in jurisdictions a one-time consent sheet appears immediately after the user creates their first Budget. The user must explicitly accept before `analyticsOptIn` flips to `true`. Declining keeps the default `false` and dismisses the sheet permanently (the Settings toggle remains the recovery path).
+In strict-opt-in jurisdictions a one-time consent sheet appears immediately after the user creates their first Budget. The user must explicitly accept before `analyticsOptIn` flips to `true`. Declining keeps `false` and dismisses the sheet permanently (the Settings toggle remains the recovery path).
 
-**No retroactive event replay.** Events that the app would otherwise have fired before the toggle flipped to `true` (most notably the launch's `app_opened` and any pre-consent `budget_created`) are **not** replayed once consent is granted. Phase 1 accepts this as a measurement trade-off: dashboards in `consent_jurisdiction = required` cohorts are anchored on `analytics_consent_changed` (opt-in transition) rather than on `app_opened`, and `is_first_budget = true` on `budget_created` remains the canonical "first Budget" signal regardless of jurisdiction. The implementing change SHOULD note this in any §3.4 retention dashboard caption.
+**No retroactive event replay.** Events the app would have fired before the toggle flipped to `true` (notably the launch's `app_opened` and any pre-consent `budget_created`) are not replayed after consent. Dashboards in `consent_jurisdiction = required` cohorts are therefore anchored on `analytics_consent_changed` (opt-in transition) rather than `app_opened`, and `is_first_budget = true` on `budget_created` remains the canonical "first Budget" signal in every jurisdiction. The implementing change SHOULD note this in any §3.4 retention dashboard caption.
 
-**Canonical strict-opt-in jurisdiction list** (resolved from `Locale.current.region.identifier` at app launch by a `ConsentJurisdiction` helper, so additions or removals are a one-line edit):
+**Canonical strict-opt-in jurisdiction list** (resolved from `Locale.current.region.identifier` at launch by a `ConsentJurisdiction` helper, so additions or removals are a one-line edit):
 
 | Jurisdiction                    | Region codes                                                                                                                                               | Basis                                |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
@@ -242,17 +242,17 @@ In strict-opt-in jurisdictions a one-time consent sheet appears immediately afte
 | Thailand                        | TH                                                                                                                                                          | PDPA — explicit consent              |
 | Quebec (Canada)                 | CA when the system language/region indicates Quebec (e.g. `fr_CA`); pragmatically apply CA-wide if Quebec sub-region is not reliably surfaced               | Law 25 — express consent             |
 
-> The list is intentionally conservative and based on widely-cited privacy regimes that require **prior, affirmative consent** for non-essential product analytics. It can be tightened or expanded as legal guidance evolves; the spec, not the code, is the source of truth and any change must update this table and `ConsentJurisdiction` together.
+> The list is intentionally conservative, based on widely-cited privacy regimes requiring **prior, affirmative consent** for non-essential product analytics. It can change as legal guidance evolves; the spec, not the code, is the source of truth, and any change must update this table and `ConsentJurisdiction` together.
 
-Locales not in the table above are **auto-opt-in** jurisdictions (e.g. United States, Canada outside Quebec, Japan, Australia, New Zealand, India, most of LATAM and Africa not listed above, etc.). Auto-opt-in does **not** weaken any other guarantee in §5 — no PII, no free text, no money, categorical/bucketed properties only.
+Locales not in the table are **auto-opt-in** (e.g. United States, Canada outside Quebec, Japan, Australia, New Zealand, India, most of LATAM and Africa not listed above). Auto-opt-in does not weaken any other §5 guarantee: no PII, no free text, no money, categorical/bucketed properties only.
 
-`consent_jurisdiction` super property (§10.2) is extended to `required` / `auto_optin` to make the split queryable in dashboards.
+The `consent_jurisdiction` super property (§10.2) takes `required` / `auto_optin` so the split is queryable in dashboards.
 
 ### 7.3 Toggle-off behavior
 
 When the user disables analytics:
 
-1. `analytics_consent_changed` fires **before** disabling so opt-outs are observable.
+1. `analytics_consent_changed` fires before disabling so opt-outs are observable.
 2. `MixpanelAnalyticsClient.reset()` clears the local distinct id state.
 3. All subsequent `.product` events are dropped at the client.
 
@@ -262,10 +262,10 @@ When the user disables analytics:
 
 Diagnostic and product analytics are deliberately separate:
 
-- **Diagnostic logging** — operational events (container bootstrap, CloudKit sync, UI traces) are written directly via `OSLog.Logger` constants defined in [simple-recurring-budgets/Logging/AppLoggers.swift](../simple-recurring-budgets/Logging/AppLoggers.swift). They never pass through `AnalyticsClient`.
-- **Product analytics** — the `AnalyticsClient` protocol in [simple-recurring-budgets/Logging/AnalyticsClient.swift](../simple-recurring-budgets/Logging/AnalyticsClient.swift) is product-only. It has no concept of diagnostic channels or log levels. Phase 1 implements `MixpanelAnalyticsClient: AnalyticsClient` next to [simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift).
+- **Diagnostic logging:** operational events (container bootstrap, CloudKit sync, UI traces) are written via `OSLog.Logger` constants in [simple-recurring-budgets/Logging/AppLoggers.swift](../simple-recurring-budgets/Logging/AppLoggers.swift). They never pass through `AnalyticsClient`.
+- **Product analytics:** the `AnalyticsClient` protocol in [simple-recurring-budgets/Logging/AnalyticsClient.swift](../simple-recurring-budgets/Logging/AnalyticsClient.swift) is product-only, with no concept of diagnostic channels or log levels. `MixpanelAnalyticsClient: AnalyticsClient` sits next to [simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift](../simple-recurring-budgets/Logging/ConsoleAnalyticsClient.swift).
 
-Selection is made once at app entry in [simple-recurring-budgets/App/simple_recurring_budgetsApp.swift](../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift):
+Selection happens once at app entry in [simple-recurring-budgets/App/simple_recurring_budgetsApp.swift](../simple-recurring-budgets/App/simple_recurring_budgetsApp.swift):
 
 | Build configuration | Opt-in state | Client                                                                                                                                            |
 | ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -273,41 +273,41 @@ Selection is made once at app entry in [simple-recurring-budgets/App/simple_recu
 | Release             | opted-out    | `MixpanelAnalyticsClient` constructed but `isOptedIn` returns `false`; all `.product` events are dropped at the client and no SDK init occurs.    |
 | Release             | opted-in     | `MixpanelAnalyticsClient` pointed at the **prod** Mixpanel project, with lazy SDK init.                                                           |
 
-DEBUG and Release use the same client class; physical separation of dev-vs-prod data is enforced by the **Mixpanel project token**, not by swapping client types. Two separate Mixpanel projects (dev and prod) are provisioned. `ConsoleAnalyticsClient` remains in the codebase as the SwiftUI `@Entry` default in `[Logging/AnalyticsEnvironment.swift](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift)` so SwiftUI Previews and unit tests that don't go through the app entry pick up a no-op-in-Release / console-in-DEBUG fallback.
+DEBUG and Release use the same client class; dev-vs-prod data separation is enforced by the **Mixpanel project token**, not by swapping client types. Two Mixpanel projects (dev and prod) exist. `ConsoleAnalyticsClient` remains the SwiftUI `@Entry` default in `[Logging/AnalyticsEnvironment.swift](../simple-recurring-budgets/Logging/AnalyticsEnvironment.swift)` so SwiftUI Previews and unit tests that bypass the app entry get a no-op-in-Release / console-in-DEBUG fallback.
 
-The Mixpanel SDK is instantiated **lazily** so an opted-out launch incurs no `MixpanelInstance` creation and no network activity. In auto-opt-in jurisdictions the default opted-in state means the SDK is initialized on first launch unless the user has explicitly opted out. In DEBUG this means launching the app on a developer machine — once opt-in is observed `true` — sends events to the dev Mixpanel project, which is the desired end-to-end-validation behavior.
+The Mixpanel SDK is instantiated **lazily**: an opted-out launch creates no `MixpanelInstance` and makes no network calls. In auto-opt-in jurisdictions the default opted-in state means the SDK initializes on first launch unless the user has opted out. In DEBUG, launching on a developer machine (once opt-in is observed `true`) sends events to the dev Mixpanel project, which is the intended end-to-end validation path.
 
-TestFlight builds use the same Release codepath and the **prod** token. The default opt-in state follows the same locale-aware rule as production; there is no override. Internal validation in a strict-opt-in locale is done by an internal tester explicitly opting in.
+TestFlight builds use the Release codepath and the **prod** token. The default opt-in state follows the same locale-aware rule as production, with no override; internal validation in a strict-opt-in locale requires the tester to opt in explicitly.
 
 ### 8.1 Launch and consent-transition ordering (canonical sequence)
 
-The contract below is the source of truth for `MixpanelAnalyticsClient` and the app-entry wiring in `simple_recurring_budgetsApp`. All steps are on the main actor unless explicitly offloaded by the SDK.
+Source of truth for `MixpanelAnalyticsClient` and the app-entry wiring in `simple_recurring_budgetsApp`. All steps run on the main actor unless the SDK offloads them.
 
 **Release build, auto-opt-in jurisdiction, first launch, no prior opt-out:**
 
 1. App `init` resolves `ConsentJurisdiction` from `Locale.current.region.identifier` (§7.2).
-2. `AppSettings` reads `analyticsOptIn` from `NSUbiquitousKeyValueStore`; absent → default per jurisdiction (here: `true`).
-3. App entry constructs `MixpanelAnalyticsClient` but does **not** call `Mixpanel.initialize` yet. The client holds the token and an opt-in closure.
-4. First time `analyticsOptIn` is observed `true` and a `track` / `identify` is requested, the client lazy-initializes the SDK (`Mixpanel.initialize(token:trackAutomaticEvents: false)`).
-5. `identify(distinctId)` is called with the value resolved from `AppSettings.analyticsDistinctId` (§6).
+2. `AppSettings` reads `analyticsOptIn` from `NSUbiquitousKeyValueStore`; absent → jurisdiction default (here `true`).
+3. App entry constructs `MixpanelAnalyticsClient` but does **not** call `Mixpanel.initialize`. The client holds the token and an opt-in closure.
+4. The first time `analyticsOptIn` is observed `true` and a `track` / `identify` is requested, the client lazy-initializes the SDK (`Mixpanel.initialize(token:trackAutomaticEvents: false)`).
+5. `identify(distinctId)` is called with the value from `AppSettings.analyticsDistinctId` (§6).
 6. `track(app_opened)` fires.
 
 **Release build, strict-opt-in jurisdiction, first launch, default `false`:**
 
 1–2. Same as above; `analyticsOptIn` resolves to `false`.
 
-3. App entry constructs `ConsoleAnalyticsClient` (or a no-op variant) — **not** `MixpanelAnalyticsClient`. No SDK token is read; no `MixpanelInstance` is created; no `app_opened` is sent.
+3. App entry constructs `ConsoleAnalyticsClient` (or a no-op variant), **not** `MixpanelAnalyticsClient`. No SDK token is read, no `MixpanelInstance` is created, no `app_opened` is sent.
 4. After the user creates their first Budget, the consent sheet is presented per §7.2.
-5. **On accept**: set `analyticsOptIn = true` → swap the environment's `AnalyticsClient` to a freshly-constructed `MixpanelAnalyticsClient` (or flip an internal flag if the same instance is retained — implementation choice, but the SDK MUST not initialize until this transition) → call `identify(distinctId)` → fire `analytics_consent_changed(new_value: true)`. Do **not** retroactively fire `app_opened` or `budget_created` (see §7.2 "No retroactive event replay").
-6. **On decline**: `analyticsOptIn` stays `false`; nothing is sent; the sheet does not re-present in this app install.
+5. **On accept**: set `analyticsOptIn = true` → swap the environment's `AnalyticsClient` to a freshly-constructed `MixpanelAnalyticsClient` (or flip an internal flag if the same instance is retained; the SDK MUST NOT initialize before this transition) → `identify(distinctId)` → fire `analytics_consent_changed(new_value: true)`. Do not retroactively fire `app_opened` or `budget_created` (§7.2 "No retroactive event replay").
+6. **On decline**: `analyticsOptIn` stays `false`; nothing is sent; the sheet does not re-present in this install.
 
 **Toggle-off transition (any jurisdiction, opted-in → opted-out):**
 
-1. Fire `analytics_consent_changed(new_value: false, old_value: true)` **first**, while the client is still opted in, so the opt-out is observable in dashboards.
+1. Fire `analytics_consent_changed(new_value: false, old_value: true)` first, while the client is still opted in, so the opt-out is observable.
 2. Call `MixpanelAnalyticsClient.reset()` to clear the SDK's local distinct-id state.
 3. Set `analyticsOptIn = false`. Subsequent `track(_:)` calls are dropped at the client.
 
-**DEBUG builds:** Same client-selection and ordering rules as Release (`MixpanelAnalyticsClient`, lazy SDK init, identify, `app_opened`, consent gating), but the SDK is initialized against the **dev Mixpanel project token** (`MixpanelTokenSource.activeToken` → `AppConfig.mixpanelDevToken` in `#if DEBUG`, injected from `config/Secrets.local.xcconfig` per §16) so dev-machine events land in a separate Mixpanel project from production. When tokens are not configured (placeholder sentinels), `ConsoleAnalyticsClient` is used instead and no SDK is initialized. The first-run consent sheet still appears in strict-opt-in jurisdictions; suppressing it for dev convenience is not done because doing so would diverge the DEBUG path from the Release path under test.
+**DEBUG builds:** Same client selection and ordering as Release (`MixpanelAnalyticsClient`, lazy SDK init, identify, `app_opened`, consent gating), but the SDK initializes against the **dev Mixpanel project token** (`MixpanelTokenSource.activeToken` → `AppConfig.mixpanelDevToken` in `#if DEBUG`, injected from `config/Secrets.local.xcconfig` per §16), so dev-machine events land in a separate project from production. When tokens are unconfigured (placeholder sentinels), `ConsoleAnalyticsClient` is used and no SDK initializes. The first-run consent sheet still appears in strict-opt-in jurisdictions; suppressing it for dev convenience would diverge DEBUG from the Release path under test.
 
 ---
 
@@ -404,44 +404,44 @@ No `ExpenseItem` field is ever transmitted by value — `expense_*` events carry
 
 ## 11. Phase 1 Dashboards
 
-Dashboards are built in Mixpanel. **Mixpanel is the source of truth** — the table below is a planning record and may drift from what's actually in Mixpanel, since boards are edited there directly by humans. On any mismatch, Mixpanel wins; update this doc to match.
+Dashboards are built in Mixpanel, which is the **source of truth**: boards are edited there directly, so the table below is a planning record that may drift. On any mismatch, Mixpanel wins; update this doc to match.
 
 ### 11.1 Mixpanel projects and tooling
 
-Two Mixpanel projects are provisioned (see §8 for the token wiring that routes events to each):
+Two Mixpanel projects exist (token wiring in §8):
 
 | Project              | Receives events from                                              |
 | -------------------- | ---------------------------------------------------------------- |
 | **Wren App - Prod**  | Production builds — App Store and TestFlight.                     |
 | **Wren App - Dev**   | Debug builds — e.g. the iOS Simulator and developer devices.     |
 
-The **Dev** project does not have to mirror Prod; use it to try out experimental dashboards before (or instead of) building them in Prod.
+**Dev** need not mirror Prod; use it to try experimental dashboards before (or instead of) building them in Prod.
 
-The **Mixpanel MCP server is connected**, so an agent — or a human in an MCP-enabled client — can create and edit boards, run queries, and read project schema directly. See [docs.mixpanel.com/docs/mcp](https://docs.mixpanel.com/docs/mcp).
+The **Mixpanel MCP server is connected**: an agent, or a human in an MCP-enabled client, can create and edit boards, run queries, and read project schema. See [docs.mixpanel.com/docs/mcp](https://docs.mixpanel.com/docs/mcp).
 
 ### 11.2 Building boards via the Mixpanel MCP
 
-> **Agents:** the *how* of building or editing these boards — the MCP call sequence, the Wren project ids, and the Free-vs-Growth cap handling — lives in the **`mixpanel-build-boards`** skill (invoke `/mixpanel-build-boards`). This section stays canonical for board *conventions*; §11.3 / §11.4 for *which* boards; §9 / §10 / §5 for events, properties, and the PII contract. The skill defers back to this spec, so keep the two in sync.
+> **Agents:** the *how* of building or editing boards (MCP call sequence, Wren project ids, Free-vs-Growth cap handling) lives in the **`mixpanel-build-boards`** skill (`/mixpanel-build-boards`). This section is canonical for board *conventions*; §11.3 / §11.4 for *which* boards; §9 / §10 / §5 for events, properties, and the PII contract. The skill defers to this spec; keep the two in sync.
 
-Boards are for humans. When an agent (or anyone) creates or edits a board through the Mixpanel MCP:
+Boards are for humans. When creating or editing a board through the Mixpanel MCP:
 
-- **Write for a human reader.** Names and descriptions are short, plain, and about the **user behavior** the board shows — not the build process. No phase numbers, ticket IDs, "built via MCP", filter mechanics, or other housekeeping in names/descriptions. One short doc reference (e.g. "§3.1") for traceability is the only meta detail worth including.
-- **Be concise.** At most a one-line framing card per board; don't over-explain.
-- **Don't force what the MCP can't do.** The MCP query API can't express everything the Mixpanel UI can. If a board aspect can't be configured straightforwardly through the MCP and it's minor, **drop it from this spec** — just remove it, rather than forcing an awkward proxy or documenting the gap. We're constrained by Mixpanel and this is a small app; we don't push hard for any particular analytics shape.
-- **Hand worth-keeping UI-only aspects back to the human.** If an aspect can't be done via the MCP but a person can set it up in the Mixpanel UI and it's worth keeping, add a one- or two-line self-service note as a text card on the board telling them how (e.g. "Hour-of-day view: open this report in Insights → group by Hour of Day → add back to this board").
+- **Write for a human reader.** Names and descriptions are short, plain, and about the **user behavior** shown, not the build process. No phase numbers, ticket IDs, "built via MCP", filter mechanics, or other housekeeping. One short doc reference (e.g. "§3.1") for traceability is the only meta detail worth including.
+- **Be concise.** At most a one-line framing card per board.
+- **Don't force what the MCP can't do.** The MCP query API can't express everything the Mixpanel UI can. If a minor board aspect can't be configured straightforwardly through the MCP, **drop it from this spec** rather than forcing an awkward proxy or documenting the gap. This is a small app constrained by Mixpanel; we don't push for any particular analytics shape.
+- **Hand worth-keeping UI-only aspects back to the human.** If an aspect can't be done via the MCP but a person can set it up in the Mixpanel UI and it's worth keeping, add a one- or two-line self-service note as a text card on the board (e.g. "Hour-of-day view: open this report in Insights → group by Hour of Day → add back to this board").
 
-**Plan & the saved-report cap (read before adding or removing boards).** Wren App - Prod is on Mixpanel's **Growth** plan, which allows **unlimited saved reports** and costs **$0/month while under the 1M-events/month free allotment** (then $0.28 per 1K events; volume discounts apply). That upgrade is what makes the full §11.3 set possible — at Wren's expected volume it is effectively free. Mixpanel's **Free** plan instead caps saved reports at **5 per project, per user** (every chart tile = one saved report; boards and text cards are free). Source: [docs.mixpanel.com/docs/pricing](https://docs.mixpanel.com/docs/pricing) and [mixpanel.com/pricing](https://mixpanel.com/pricing/) (the docs word the Free cap as "5 per user account," but it was confirmed empirically on 2026-06-22 to bind **per project**: Jimmy held 4 reports in Prod **and** 4 in Dev at the same time, and a 6th in Prod was rejected with `User has reached their limit of saved reports for this project`).
+**Plan and saved-report cap (read before adding or removing boards).** Wren App - Prod is on Mixpanel's **Growth** plan: **unlimited saved reports**, **$0/month under the 1M-events/month free allotment** (then $0.28 per 1K events; volume discounts apply). That is what makes the full §11.3 set possible, and at Wren's expected volume it is effectively free. Mixpanel's **Free** plan caps saved reports at **5 per project, per user** (every chart tile is one saved report; boards and text cards are free). Source: [docs.mixpanel.com/docs/pricing](https://docs.mixpanel.com/docs/pricing) and [mixpanel.com/pricing](https://mixpanel.com/pricing/). The docs word the Free cap as "5 per user account," but it was confirmed empirically on 2026-06-22 to bind **per project**: Jimmy held 4 reports in Prod and 4 in Dev at once, and a 6th in Prod was rejected with `User has reached their limit of saved reports for this project`.
 
-**If the project is ever downgraded back to Free**, the 5-report-per-project cap returns and all but five report tiles must be deleted — keep the five "survivors" listed in [§11.4](#114-free-tier-fallback--the-five-reports-to-keep-if-you-downgrade) and drop the rest. Notes that hold on any plan:
+**If the project is ever downgraded to Free**, the 5-report-per-project cap returns: keep the five "survivors" in [§11.4](#114-free-tier-fallback--the-five-reports-to-keep-if-you-downgrade) and delete every other report tile. Notes that hold on any plan:
 
-- Auto-generated "🌱 Starter Board" reports are owned by the **Mixpanel** system user and do **not** count against the Free quota.
-- `Run-Query` drafts that are never attached to a board do not persist as saved reports (they don't show in `Search-Entities`).
-- The Free cap is **per project**, so deleting reports/boards in other projects (Dev, deprecated) frees nothing in Prod. There is **no** standalone delete-report MCP tool — free a slot with `Update-Dashboard` (cell `delete`), or delete the whole board with `Delete-Dashboard`.
+- Auto-generated "🌱 Starter Board" reports are owned by the **Mixpanel** system user and do not count against the Free quota.
+- `Run-Query` drafts never attached to a board don't persist as saved reports (they don't show in `Search-Entities`).
+- The Free cap is **per project**, so deleting reports/boards in other projects (Dev, deprecated) frees nothing in Prod. There is **no** standalone delete-report MCP tool: free a slot with `Update-Dashboard` (cell `delete`), or delete the whole board with `Delete-Dashboard`.
 - The Mixpanel MCP endpoint occasionally returns transient `502`s under burst load; space out report-creation calls and retry (drafts and attached reports survive a brief outage).
 
 ### 11.3 Built dashboards
 
-All ten Phase 1 boards are **built** in Wren App - Prod (30 report tiles in total), made possible by the Growth plan (§11.2). "Answers" is the §3 question the board serves; "Status" tracks the **production** project only. **"Keep on Free"** marks the single report to retain on each board if the project is ever downgraded to Free — the five prioritized survivors (see §11.4).
+All ten Phase 1 boards are **built** in Wren App - Prod (30 report tiles in total), enabled by the Growth plan (§11.2). "Answers" is the §3 question the board serves; "Status" tracks the **production** project only. **"Keep on Free"** marks the single report to retain on each board if the project is downgraded to Free: the five prioritized survivors (§11.4).
 
 | Dashboard                            | Contents (as shipped)                                                                                                                                                                                 | Answers | Status    | Keep on Free          |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------- | --------------------- |
@@ -456,11 +456,11 @@ All ten Phase 1 boards are **built** in Wren App - Prod (30 report tiles in tota
 | Destructive actions                  | Totals of `budget_reset`, `carry_over_reset`, `budget_deleted`, `expense_edited`, `expense_deleted`; mix of the three destructive flows.                                                             | §3.5    | **Built** | —                     |
 | Consent                              | `analytics_consent_changed` by `consent_jurisdiction` × direction; by `region` × direction; opt-outs over time.                                                                                      | §3.6    | **Built** | ✅ jurisdiction × direction |
 
-Each board carries a one-line framing text card per §11.2. Boards show no data yet for events not yet flowing to Prod (e.g. `budget_*`, the destructive actions, `setting_changed`) — the definitions are correct and will populate as data arrives. Currency-mixed views (allocation by `period` / `region`) are rough-shape only, since allocation is always paired with its `currency_code`.
+Each board has a one-line framing text card per §11.2. Boards show no data yet for events not yet flowing to Prod (e.g. `budget_*`, the destructive actions, `setting_changed`); the definitions are correct and populate as data arrives. Currency-mixed views (allocation by `period` / `region`) are rough-shape only, since allocation is always paired with its `currency_code`.
 
 ### 11.4 Free-tier fallback — the five reports to keep if you downgrade
 
-The Growth plan (§11.2) is what makes the full §11.3 set possible. **If Wren App - Prod is ever moved back to the Free plan, the 5-saved-reports-per-project cap returns** and all but five report tiles must be deleted. Keep exactly these five — the prioritized survivors that cover the most decision-useful §3 questions — and delete every other tile:
+If Wren App - Prod moves back to the Free plan, the 5-saved-reports-per-project cap returns. Keep exactly these five (the survivors covering the most decision-useful §3 questions) and delete every other tile:
 
 | Keep (the top 5)                                          | Board              | Answers |
 | --------------------------------------------------------- | ------------------ | ------- |
@@ -470,15 +470,15 @@ The Growth plan (§11.2) is what makes the full §11.3 set possible. **If Wren A
 | Budgets by `period`                                       | Budget composition | §3.3    |
 | Consent — `consent_jurisdiction` × direction              | Consent            | §3.6    |
 
-Everything else in §11.3 — the other five boards plus the richer per-board views (sessions-per-user, time-to-convert, the `app_opened` check-in retention, currency/carry-over composition, allocations, per-user composition, settings, destructive actions, the region/opt-out-trend consent views) — is **nice-to-have**: remove it first when reclaiming slots. Free a slot with `Update-Dashboard` cell `delete`, or delete the whole board with `Delete-Dashboard`. (If still on Growth, there is no need to delete anything — the full set stays.)
+Everything else in §11.3 (the other five boards and the richer per-board views: sessions-per-user, time-to-convert, the `app_opened` check-in retention, currency/carry-over composition, allocations, per-user composition, settings, destructive actions, the region/opt-out-trend consent views) is **nice-to-have**: remove it first when reclaiming slots. Free a slot with `Update-Dashboard` cell `delete`, or delete the whole board with `Delete-Dashboard`. On Growth, delete nothing; the full set stays.
 
-(A "Reach" board previously existed in the **Dev** project as an experiment; it was deleted on 2026-06-22 while diagnosing the cap. Per §11.1 the Dev project is not tracked here.)
+(A "Reach" board existed in **Dev** as an experiment; it was deleted on 2026-06-22 while diagnosing the cap. Per §11.1, Dev is not tracked here.)
 
 ---
 
 ## 12. Phase 2 Events (planned)
 
-Final scope is re-validated against actual Phase 1 dashboard evidence; this is the working list.
+Final scope is re-validated against Phase 1 dashboard evidence; this is the working list.
 
 | Event                          | Fired when                                                                                                                                                                              | Answers          |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
@@ -506,7 +506,7 @@ Final scope is re-validated against actual Phase 1 dashboard evidence; this is t
 
 ### 13.2 Cohort-driving people properties
 
-(Phase 1 §10.3 already carries `dominant_period`, `uses_carry_over`, `has_disabled_carry_over`, and `budgets_with_carry_over_on_count_bucket` — they were promoted forward to keep the §3.3 questions answerable in Phase 1. The remaining cohort properties are Phase 2.)
+(Phase 1 §10.3 already carries `dominant_period`, `uses_carry_over`, `has_disabled_carry_over`, and `budgets_with_carry_over_on_count_bucket`, promoted forward to keep the §3.3 questions answerable in Phase 1. The remaining cohort properties are Phase 2.)
 
 | Property                          | Definition                                                                                                                                  |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -553,27 +553,25 @@ Two implementations:
 
 ## 16. Build Hygiene
 
-- **Mixpanel project tokens are externalized to xcconfig** — no longer hardcoded in source. Token values live in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) and are injected into the app bundle at build time via `config/Secrets.xcconfig` + `Info.plist` variable substitution. The committed `config/Secrets.xcconfig` contains safe placeholder sentinels (`PLACEHOLDER_MIXPANEL_DEV_TOKEN` / `PLACEHOLDER_MIXPANEL_PROD_TOKEN`). Two Mixpanel projects remain provisioned — bound to the dev and prod tokens, respectively.
+- **Mixpanel project tokens are externalized to xcconfig**, not hardcoded in source. Token values live in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) and are injected into the app bundle at build time via `config/Secrets.xcconfig` + `Info.plist` variable substitution. The committed `config/Secrets.xcconfig` holds safe placeholder sentinels (`PLACEHOLDER_MIXPANEL_DEV_TOKEN` / `PLACEHOLDER_MIXPANEL_PROD_TOKEN`). The two Mixpanel projects are bound to the dev and prod tokens respectively.
 
-  **Open-source trigger fulfilled:** The original §16 noted "Revisit if the repo is open-sourced." That trigger was met by the `public-repo-secrets-and-license` change, which externalized tokens so a fresh-clone fork gets placeholder defaults and sends no events. The Mixpanel tokens have since been **rotated and are now treated as secret**: the previously-committed tokens are revoked, and the live dev/prod tokens exist only in `config/Secrets.local.xcconfig` (gitignored, maintainer-only) — they are no longer committed to source control. Because a public-repo fork therefore cannot obtain a working token, the former fork-pollution risk no longer applies and the `bundle_id` event filter has been retired (see Revision History). See `[CONTRIBUTING.md](../CONTRIBUTING.md)` for fork Mixpanel setup.
+  **Open-source trigger fulfilled.** The original note "Revisit if the repo is open-sourced" was met by the `public-repo-secrets-and-license` change: a fresh-clone fork gets placeholder defaults and sends no events. The Mixpanel tokens were then **rotated and are treated as secret**: the previously-committed tokens are revoked, and the live dev/prod tokens exist only in `config/Secrets.local.xcconfig`. A public-repo fork therefore cannot obtain a working token, so the former fork-pollution risk no longer applies and the `bundle_id` event filter is retired (see Revision History). See `[CONTRIBUTING.md](../CONTRIBUTING.md)` for fork Mixpanel setup.
 
-- **Unconfigured (fresh-clone) behavior:** when tokens are still the committed placeholder sentinels — `MixpanelTokenSource.isConfigured` returns `false` — the app entry (`simple_recurring_budgetsApp.init()`) substitutes `ConsoleAnalyticsClient` instead of `MixpanelAnalyticsClient`. No Mixpanel SDK init, no network traffic. The app launches and runs normally on a Simulator with no secrets file.
+- **Unconfigured (fresh-clone) behavior:** when tokens are still the placeholder sentinels (`MixpanelTokenSource.isConfigured` returns `false`), the app entry (`simple_recurring_budgetsApp.init()`) substitutes `ConsoleAnalyticsClient` for `MixpanelAnalyticsClient`. No SDK init, no network traffic. The app runs normally on a Simulator with no secrets file.
 
-- **Release ship guard:** `scripts/verify_release_secrets.sh` (called by Fastlane `beta`/`release` and the Xcode Release-only Run Script phase) blocks archives that still carry placeholder sentinels before spending time on archive/sign/upload.
+- **Release ship guard:** `scripts/verify_release_secrets.sh` (called by Fastlane `beta`/`release` and the Xcode Release-only Run Script phase) blocks archives that still carry placeholder sentinels before archive/sign/upload.
 
-- DEBUG and Release builds both use `MixpanelAnalyticsClient` when configured. Physical separation of dev-vs-prod data is enforced by the active token (`MixpanelTokenSource.activeToken` branches on `#if DEBUG`), which routes events to the dev project on developer builds and the prod project on App Store / TestFlight builds; see §8 for the full client-selection table. `ConsoleAnalyticsClient` remains the SwiftUI `@Entry` default for previews / tests that don't run through the app entry, AND is used on any build where tokens are unconfigured.
-- The Mixpanel SDK is added via SPM (latest stable `mixpanel-swift`); the package dependency is already present in `simple-recurring-budgets.xcodeproj`. No SPM-add task is needed.
-- The SDK is initialized with `trackAutomaticEvents: false`. We never collect IDFA, do not use Mixpanel's session-replay or autocapture, and do not enable cross-app tracking — therefore App Tracking Transparency (`AppTrackingTransparency.framework` / `NSUserTrackingUsageDescription`) is **out of scope** and the implementing change SHALL NOT add an ATT prompt.
+- DEBUG and Release both use `MixpanelAnalyticsClient` when configured. The active token (`MixpanelTokenSource.activeToken` branches on `#if DEBUG`) routes events to the dev project on developer builds and the prod project on App Store / TestFlight builds; see §8 for the client-selection table. `ConsoleAnalyticsClient` remains the SwiftUI `@Entry` default for previews / tests that bypass the app entry, and is used on any build with unconfigured tokens.
+- The Mixpanel SDK is added via SPM (latest stable `mixpanel-swift`); the package dependency is already in `simple-recurring-budgets.xcodeproj`. No SPM-add task is needed.
+- The SDK is initialized with `trackAutomaticEvents: false`. We never collect IDFA, use Mixpanel session-replay or autocapture, or enable cross-app tracking, so App Tracking Transparency (`AppTrackingTransparency.framework` / `NSUserTrackingUsageDescription`) is **out of scope** and the implementing change SHALL NOT add an ATT prompt.
 - Mixpanel batching is tuned for iOS Low Data Mode (`Mixpanel.flushBatchSize` conservative).
-- All Phase 1 events are user-initiated and low-frequency (no per-tap, per-scroll, or per-frame events). No client-side sampling is required for Phase 1; Phase 2 may revisit this for `screen_viewed` if event volume becomes a concern.
+- All Phase 1 events are user-initiated and low-frequency (no per-tap, per-scroll, or per-frame events), so no client-side sampling is required. Phase 2 may revisit this for `screen_viewed` if volume becomes a concern.
 
 ### 16.1 Implementation starting state (codebase snapshot) — historical record
 
-> **This subsection is now a historical record.** F-8.02 (`mixpanel-phase-1-foundation`) has been implemented. The table below reflects the pre-implementation state for reference; the "Required action" column is now complete.
+> **Historical record.** F-8.02 (`mixpanel-phase-1-foundation`) is implemented. The table shows the pre-implementation state; every action in the "Action taken" column is complete.
 
-This subsection captures what existed in the repo before implementing F-8.02.
-
-**Pre-F-8.02 state — all refactors now complete:**
+**Pre-F-8.02 state — all refactors complete:**
 
 | File | Pre-F-8.02 state | Action taken by F-8.02 |
 |---|---|---|
@@ -587,12 +585,12 @@ This subsection captures what existed in the repo before implementing F-8.02.
 
 **Created by F-8.02:**
 
-- `simple-recurring-budgets/Settings/ConsentJurisdiction.swift` — pure jurisdiction classifier from region identifier.
+- `simple-recurring-budgets/Settings/ConsentJurisdiction.swift`: pure jurisdiction classifier from region identifier.
 - `AppSettings` analytics properties: `analyticsOptIn`, `analyticsDistinctId`, `analyticsFirstOpenAt` (all `NSUbiquitousKeyValueStore`-backed, `@Observable`, locale-aware defaults).
-- `simple-recurring-budgets/Views/Consent/AnalyticsConsentSheet.swift` — first-run consent sheet for strict-opt-in jurisdictions.
-- `simple-recurring-budgets/App/SheetRoute.swift` + `RootView.swift` — `.analyticsConsent` case added.
-- `simple-recurring-budgets/Logging/Analytics+DomainExtensions.swift` — `analyticsValue` helpers for domain types.
-- `simple-recurring-budgets/Logging/MixpanelTokenSource.swift` — `#if DEBUG` token branch abstraction.
+- `simple-recurring-budgets/Views/Consent/AnalyticsConsentSheet.swift`: first-run consent sheet for strict-opt-in jurisdictions.
+- `simple-recurring-budgets/App/SheetRoute.swift` + `RootView.swift`: `.analyticsConsent` case added.
+- `simple-recurring-budgets/Logging/Analytics+DomainExtensions.swift`: `analyticsValue` helpers for domain types.
+- `simple-recurring-budgets/Logging/MixpanelTokenSource.swift`: `#if DEBUG` token branch abstraction.
 - Phase 1 call-site instrumentation in `AddEditBudgetViewModel`, `AddEditExpenseView`, `BudgetDetailView`, `BudgetDetailView+ExpenseSection`, `SettingsView`.
 - 10 Swift Testing suites in `simple-recurring-budgetsTests/Logging/` covering all §18.1 contracts.
 
@@ -607,11 +605,11 @@ This subsection captures what existed in the repo before implementing F-8.02.
 | User-initiated UI actions whose **product behavior** we want to measure            | Mixpanel `.product` channel — F-8.02 / F-8.03.                                         |
 | User-initiated UI actions whose **runtime trace** we want for debugging            | OSLog (`ui` category) — F-8.01.                                                        |
 
-A single user action can produce both — e.g., a successful Add Expense sends `expense_logged` to Mixpanel **and** writes an `ui`-category entry to OSLog. The two paths are independent and never cross.
+A single user action can produce both: a successful Add Expense sends `expense_logged` to Mixpanel and writes a `ui`-category OSLog entry. The two paths are independent and never cross.
 
-**Narrow allow-listed diagnostic event — `persistence_save_failed`.** A SwiftData `context.save()` failure is the one place where a diagnostic concern is also surfaced on the product-analytics channel. The shared persistence-save helper (`ModelContext.saveChanges(operation:analytics:)`) emits **one** `Logger.persistence.error` line **and** fires **one** `persistence_save_failed` event as sibling statements built from the same plain values (the `PersistenceOperation` identifier and the `NSError` domain/code). Rationale: an unreachable `OSLog.error` is invisible in the wild; routing one diagnostic event into the product stream gives the developer dashboard visibility into a failure that otherwise blocks the user. The event is restricted to **only** `operation`, `error_domain`, `error_code` — see §5.2 / §10.1. Because the event is consent-gated like all `AnalyticsClient` traffic, it is a best-effort signal; the on-device `OSLog.persistence` line is the complete record. This is the **only** approved diagnostic event in the product stream and SHALL NOT be generalized into a back-door for other diagnostic data.
+**Narrow allow-listed diagnostic event: `persistence_save_failed`.** A SwiftData `context.save()` failure is the one diagnostic concern also surfaced on the product-analytics channel. The shared persistence-save helper (`ModelContext.saveChanges(operation:analytics:)`) emits **one** `Logger.persistence.error` line **and** fires **one** `persistence_save_failed` event as sibling statements built from the same plain values (the `PersistenceOperation` identifier and the `NSError` domain/code). Rationale: an `OSLog.error` is invisible in the wild, and routing one diagnostic event into the product stream gives dashboard visibility into a failure that otherwise blocks the user. The event carries **only** `operation`, `error_domain`, `error_code` (§5.2 / §10.1). Because it is consent-gated like all `AnalyticsClient` traffic, it is best-effort; the on-device `OSLog.persistence` line is the complete record. This is the **only** approved diagnostic event in the product stream and SHALL NOT become a back-door for other diagnostic data.
 
-**Co-location (sibling-call) pattern — F-8.02 destructive-action funnels.** Four methods in the codebase contain both a `Logger.ui.debug(...)` call (F-8.01) and an `analytics.track(...)` call (F-8.02) in the same method body:
+**Co-location (sibling-call) pattern — F-8.02 destructive-action funnels.** Four methods contain both a `Logger.ui.debug(...)` call (F-8.01) and an `analytics.track(...)` call (F-8.02) in the same body:
 
 | Method | Logger call | Analytics call |
 |--------|-------------|----------------|
@@ -621,36 +619,36 @@ A single user action can produce both — e.g., a successful Add Expense sends `
 | `BudgetDetailView+ExpenseSection.deleteExpense(_:)` | `Logger.ui.debug("ui.action: deleteExpense …")` | `analytics.track(AnalyticsEvent.expenseDeleted, …)` |
 | `ModelContext.saveChanges(operation:analytics:)` (failure path) | `Logger.persistence.error("persistence.save.failed …")` | `analytics.track(AnalyticsEvent.persistenceSaveFailed, …)` |
 
-These are **independent sibling statements** — the Logger call does not feed the analytics call and vice versa. Each carries its own independently assembled arguments. This is the approved pattern for funnels where both diagnostic tracing and product measurement are warranted at the same action point. The "never cross" rule above means: the Logger argument MUST NOT be derived from an analytics property bag, and the analytics property bag MUST NOT be derived from a Logger call.
+These are **independent sibling statements**: the Logger call does not feed the analytics call or vice versa, and each has its own independently assembled arguments. This is the approved pattern where both diagnostic tracing and product measurement are warranted at one action point. "Never cross" means the Logger argument MUST NOT be derived from an analytics property bag, and the analytics property bag MUST NOT be derived from a Logger call.
 
 ---
 
 ## 18. Test Strategy
 
-- The existing `SpyAnalyticsClient` continues to back call-site unit tests.
-- `MixpanelAnalyticsClient` has no diagnostic routing to contract-test; the separation is structural — diagnostic calls never reach `AnalyticsClient` at all.
+- The existing `SpyAnalyticsClient` backs call-site unit tests.
+- `MixpanelAnalyticsClient` has no diagnostic routing to contract-test; the separation is structural, since diagnostic calls never reach `AnalyticsClient`.
 - A single integration smoke test verifies a real `MixpanelInstance` can be initialized and a sample event enqueued. Run manually before Mixpanel-touching releases.
 
 ### 18.1 Concrete unit test contracts (Phase 1)
 
-The implementing change MUST land tests covering at least the following — written with Swift Testing per `docs/tech-design-doc.md` §5.3, using `SpyAnalyticsClient` and `MockKeyValueStore` so no Mixpanel network call occurs:
+The implementing change MUST land tests covering at least the following, written with Swift Testing per `docs/tech-design-doc.md` §5.3, using `SpyAnalyticsClient` and `MockKeyValueStore` so no Mixpanel network call occurs:
 
-1. **`ConsentJurisdiction` resolution** — parameterized test over the §7.2 region table: every listed code resolves to `.required`; a representative sample of unlisted codes (`US`, `CA` non-Quebec, `JP`, `AU`, `IN`, `nil`) resolves to `.auto_optin`.
-2. **`AppSettings.analyticsOptIn` defaults** — fresh store + jurisdiction `required` → `false`; fresh store + jurisdiction `auto_optin` → `true`; persisted explicit value overrides the default.
-3. **`AppSettings.analyticsDistinctId`** — fresh store generates a UUIDv4 once and persists it; subsequent reads return the same value; the setter is not exposed publicly (resolution is internal to `AppSettings`).
-4. **Lazy-init invariant** — using a `MixpanelAnalyticsClient` test seam (with the SDK init step replaced by a `@Sendable` closure spy), assert: `init` does **not** invoke the SDK-init closure; `track(_:)` with `isOptedIn = false` does not invoke it; `track(_:)` with `isOptedIn = true` invokes it exactly once across many calls.
-5. **Toggle-off ordering** — assert that flipping `analyticsOptIn` from `true` to `false` results in `track("analytics_consent_changed", ...)` being delivered to Mixpanel **before** `reset()` is called and **before** subsequent events are dropped.
-6. **Toggle-on (strict-opt-in)** — assert that flipping `analyticsOptIn` from `false` to `true` triggers, in order: SDK lazy-init → `identify(distinctId)` → `track("analytics_consent_changed", new_value: true)` → no retroactive `app_opened`.
-7. **`app_opened` event constant** — `AnalyticsEvent.appOpened == "app_opened"`. (The prior `appLaunched = "app.launched"` constant was renamed in a precursor change; this test guards against regression.)
-8. **PII enforcement (compile-time and call-site)** — call-site tests verify that `expense_logged` / `expense_edited` / `expense_deleted` event invocations carry only the §10.1 allow-listed properties and never include `expense.name`, `expense.amount`, or `expense.date`. (No serializer helper from `ExpenseItem` to properties is exposed; this is a structural test that asserts no such API exists in `AnalyticsClient` extension space.)
-9. **Super-property attachment** — every tracked event in a fixture run carries the §10.2 super-property keys (`app_version`, `device_class`, `consent_jurisdiction`, `budgets_count_bucket`, `carry_over_default_enabled`, etc.); the `budgets_count_bucket` value transitions correctly across the bucket boundaries `0` / `1` / `2-3` / `4-7` / `8+`.
-10. **Token source branch is correct** — confirm `MixpanelTokenSource.activeToken` returns `AppConfig.mixpanelDevToken` in DEBUG and `AppConfig.mixpanelProdToken` in Release (per §16). Verified via pure unit tests against `MixpanelTokenSource.isConfigured(dev:prod:)` with known-good vs placeholder sentinel inputs — no live bundle assertions. Both configurations use `MixpanelAnalyticsClient` when tokens are configured; `ConsoleAnalyticsClient` is substituted when `isConfigured` is `false` (fresh-clone / placeholder scenario). The two placeholder sentinels SHALL NOT equal a valid token (length and content checks suffice).
+1. **`ConsentJurisdiction` resolution**: parameterized over the §7.2 region table; every listed code resolves to `.required`; a sample of unlisted codes (`US`, `CA` non-Quebec, `JP`, `AU`, `IN`, `nil`) resolves to `.auto_optin`.
+2. **`AppSettings.analyticsOptIn` defaults**: fresh store + jurisdiction `required` → `false`; fresh store + `auto_optin` → `true`; a persisted explicit value overrides the default.
+3. **`AppSettings.analyticsDistinctId`**: a fresh store generates a UUIDv4 once and persists it; later reads return the same value; the setter is not public (resolution is internal to `AppSettings`).
+4. **Lazy-init invariant**: using a `MixpanelAnalyticsClient` test seam (SDK init replaced by a `@Sendable` closure spy), assert `init` does **not** invoke the SDK-init closure; `track(_:)` with `isOptedIn = false` does not invoke it; `track(_:)` with `isOptedIn = true` invokes it exactly once across many calls.
+5. **Toggle-off ordering**: flipping `analyticsOptIn` from `true` to `false` delivers `track("analytics_consent_changed", ...)` to Mixpanel **before** `reset()` is called and **before** subsequent events are dropped.
+6. **Toggle-on (strict-opt-in)**: flipping `analyticsOptIn` from `false` to `true` triggers, in order: SDK lazy-init → `identify(distinctId)` → `track("analytics_consent_changed", new_value: true)` → no retroactive `app_opened`.
+7. **`app_opened` event constant**: `AnalyticsEvent.appOpened == "app_opened"` (guards against regression of the earlier `appLaunched = "app.launched"` rename).
+8. **PII enforcement (compile-time and call-site)**: call-site tests verify `expense_logged` / `expense_edited` / `expense_deleted` carry only the §10.1 allow-listed properties and never `expense.name`, `expense.amount`, or `expense.date`. No serializer from `ExpenseItem` to properties exists; a structural test asserts no such API exists in `AnalyticsClient` extension space.
+9. **Super-property attachment**: every tracked event in a fixture run carries the §10.2 super-property keys (`app_version`, `device_class`, `consent_jurisdiction`, `budgets_count_bucket`, `carry_over_default_enabled`, etc.); `budgets_count_bucket` transitions correctly across the boundaries `0` / `1` / `2-3` / `4-7` / `8+`.
+10. **Token source branch**: `MixpanelTokenSource.activeToken` returns `AppConfig.mixpanelDevToken` in DEBUG and `AppConfig.mixpanelProdToken` in Release (§16), verified via pure unit tests against `MixpanelTokenSource.isConfigured(dev:prod:)` with known-good vs placeholder sentinel inputs (no live bundle assertions). Both configurations use `MixpanelAnalyticsClient` when tokens are configured; `ConsoleAnalyticsClient` is substituted when `isConfigured` is `false` (fresh-clone scenario). The two placeholder sentinels SHALL NOT equal a valid token (length and content checks suffice).
 
 ---
 
 ## 19. Doc Updates Required at Implementation Time
 
-Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-design-doc.md) per its standing maintenance protocol:
+Both F-8.02 and F-8.03 must land paired updates in [tech-design-doc.md](tech-design-doc.md) per its maintenance protocol:
 
 | When           | What to update                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------------------- |

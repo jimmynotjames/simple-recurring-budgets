@@ -1,14 +1,14 @@
 # Schema versioning
 
-SwiftData `VersionedSchema` baseline and migration plan. Synced from change `rewrite-budget-calculations` (2026-05-15); migration policy updated post-launch (2026-07-26).
+SwiftData `VersionedSchema` baseline and migration plan.
 
 ## Requirements
 
 ### Requirement: VersionedSchema V1 baseline
 
-The system SHALL define a `SchemaV1` conforming to `VersionedSchema` that contains the `Budget`, `ExpenseItem`, `AllocationChange`, and `LifecycleEvent` model definitions. This establishes the baseline version for all future schema migrations.
+The system SHALL define a `SchemaV1` conforming to `VersionedSchema` that contains the `Budget`, `ExpenseItem`, `AllocationChange`, and `LifecycleEvent` model definitions. It is the baseline for all future migrations.
 
-`SchemaV1` shipped in Wren v1.0 (App Store, 2026-07-22) and its record types are deployed to the CloudKit production environment (2026-07-12). It is therefore a **frozen baseline**: it SHALL NOT be edited in place. Any subsequent change to a persisted model SHALL add a new `VersionedSchema` (`SchemaV2`, …), a corresponding `MigrationStage`, and a migration test. See `docs/tech-design-doc.md` §3.3.
+`SchemaV1` shipped in Wren v1.0 (App Store, 2026-07-22) and its record types are deployed to CloudKit production (2026-07-12). It is a frozen baseline: it SHALL NOT be edited in place. Any later change to a persisted model SHALL add a new `VersionedSchema` (`SchemaV2`, …), a corresponding `MigrationStage`, and a migration test. See `docs/tech-design-doc.md` §3.3.
 
 #### Scenario: V1 schema contains all four models
 
@@ -24,7 +24,7 @@ The system SHALL define a `SchemaV1` conforming to `VersionedSchema` that contai
 
 ### Requirement: SchemaMigrationPlan baseline
 
-The system SHALL define a `BudgetMigrationPlan` conforming to `SchemaMigrationPlan`. As of v1.0 it references `SchemaV1` as its only schema and its `stages` array is empty, because no migration has been needed yet. The plan exists so that the first post-launch schema change has a starting point: that change SHALL append the new schema version to `schemas` and its `MigrationStage` to `stages`.
+The system SHALL define a `BudgetMigrationPlan` conforming to `SchemaMigrationPlan`. As of v1.0 it references `SchemaV1` as its only schema and `stages` is empty (no migration needed yet). The first post-launch schema change SHALL append the new schema version to `schemas` and its `MigrationStage` to `stages`.
 
 #### Scenario: Migration plan with single schema version (v1.0 state)
 

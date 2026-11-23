@@ -5,7 +5,7 @@ TBD - created by archiving change rating-prompt. Update Purpose after archive.
 ## Requirements
 ### Requirement: Eligibility-signal tracking
 
-The system SHALL maintain, in the iCloud key-value store (via the existing `KeyValueStore` abstraction) and **independent of analytics consent**, the signals that drive rating-prompt eligibility: the first-launch timestamp, the lifetime count of successful Add-mode expense logs, the count of distinct calendar days on which an expense was logged, the first-eligible timestamp, and the last app version for which a review was requested. These signals MUST NOT reuse `AppSettings.analyticsFirstOpenAt` or any analytics-gated state.
+The system SHALL maintain, in the iCloud key-value store (via `KeyValueStore`), independent of analytics consent, the eligibility signals: the first-launch timestamp, the lifetime count of successful Add-mode expense logs, the count of distinct calendar days on which an expense was logged, the first-eligible timestamp, and the last app version for which a review was requested. These signals MUST NOT reuse `AppSettings.analyticsFirstOpenAt` or any analytics-gated state.
 
 #### Scenario: First launch stamps the install date once
 
@@ -50,7 +50,7 @@ The system SHALL consider a user eligible for an automatic review request only w
 
 ### Requirement: Once-per-version guard and native request
 
-When a user is eligible AND no review has yet been requested for the current app version (`CFBundleShortVersionString`), the system SHALL request a review using Apple's native `requestReview` (`@Environment(\.requestReview)`) and record the current app version as the last requested version. The system SHALL NOT present a custom rating dialog or pre-prompt. Re-prompt prevention relies on this once-per-version guard layered on Apple's automatic throttling; no logic depends on whether the dialog was shown or on the user's choice.
+When a user is eligible AND no review has yet been requested for the current app version (`CFBundleShortVersionString`), the system SHALL request a review using Apple's native `requestReview` (`@Environment(\.requestReview)`) and record the current app version as the last requested version. The system SHALL NOT present a custom rating dialog or pre-prompt. Re-prompt prevention relies on this once-per-version guard plus Apple's automatic throttling; no logic depends on whether the dialog was shown or on the user's choice.
 
 #### Scenario: Eligible and not yet asked this version
 

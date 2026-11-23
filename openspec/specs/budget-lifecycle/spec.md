@@ -1,6 +1,6 @@
 # Budget lifecycle
 
-Orchestrates the pure-read snapshot entry point, write-path methods, and display-ready remaining/period window for a `Budget`, binding `BudgetCalculator` output to SwiftData via a single service. Synced from change `rewrite-budget-calculations` (2026-05-15). Updated from change `pause-resume-budget` (2026-05-16). Updated from change `specific-dates-period` (2026-05-18).
+Pure-read snapshot entry point, write-path methods, and display-ready remaining/period window for a `Budget`, binding `BudgetCalculator` output to SwiftData via a single service.
 ## Requirements
 ### Requirement: Pure-read result(for:) entry point
 
@@ -8,10 +8,10 @@ The system SHALL provide a `BudgetLifecycleService.result(for:now:calendar:weekS
 
 1. Call `BudgetCalculator.snapshot(budget:expenses:now:calendar:weekStart:)` to compute a `BudgetSnapshot`.
 2. Map the snapshot to a `BudgetLifecycleResult` (see "BudgetLifecycleResult returned for display") and return it.
-3. NOT mutate `Budget`, `ExpenseItem`, `AllocationChange`, or `LifecycleEvent` rows. The walker is live; there are no fields on `Budget` for the read path to persist.
+3. NOT mutate `Budget`, `ExpenseItem`, `AllocationChange`, or `LifecycleEvent` rows. The walker is live; the read path has nothing to persist.
 4. NOT accept a `ModelContext` or call `ModelContext.save()` from the read path.
 
-All time-dependent inputs (`now`, `calendar`) SHALL be parameters with production defaults (`Date()`, `Calendar.autoupdatingCurrent`) so that tests can inject deterministic values. The `weekStart: Weekday` parameter SHALL have **no default value**; production callers SHALL pass `AppSettings.weekStartDay` (read at the call site — the service itself remains settings-free and pure).
+All time-dependent inputs (`now`, `calendar`) SHALL be parameters with production defaults (`Date()`, `Calendar.autoupdatingCurrent`) so tests can inject deterministic values. The `weekStart: Weekday` parameter SHALL have no default value; production callers SHALL pass `AppSettings.weekStartDay`, read at the call site (the service stays settings-free and pure).
 
 The biweekly anchor used for period math SHALL be derived from `Budget.startDate` per the `budget-math` capability; the weekly grid SHALL come from the caller-provided `weekStart`.
 
@@ -30,13 +30,13 @@ The biweekly anchor used for period math SHALL be derived from `Budget.startDate
 The system SHALL return a `BudgetLifecycleResult` value with the following fields, populated from the underlying `BudgetSnapshot`:
 
 - `remaining: Decimal` ← `snapshot.remaining`.
-- `carryOverAmount: Decimal` ← `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that `BudgetCalculator.snapshot` returns for `.specificDates` budgets. Per F-2.08, the carry-over chip is **hidden** for specificDates budgets (chip-hiding work lives in `BudgetDetailView` / `BudgetRowView` and ships with the F-2.08 UI). Until F-2.08 ships, this fallback is unreachable in normal flow. The F-2.08 change MUST either (a) stop calling `result(for:)` for specificDates budgets, or (b) replace `BudgetLifecycleResult` with a sum type that preserves the `nil`.
+- `carryOverAmount: Decimal` ← `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that `BudgetCalculator.snapshot` returns for `.specificDates` budgets. Per F-2.08 the carry-over chip is hidden for specificDates budgets (done in `BudgetDetailView` / `BudgetRowView`, shipping with the F-2.08 UI). Until then the fallback is unreachable in normal flow. The F-2.08 change MUST either (a) stop calling `result(for:)` for specificDates budgets, or (b) replace `BudgetLifecycleResult` with a sum type that preserves the `nil`.
 - `periodStart: Date` ← `snapshot.effectivePeriodStart`.
 - `periodEnd: Date` ← `snapshot.effectivePeriodEnd`.
-- `lifecycleState: BudgetLifecycleState` ← `snapshot.lifecycleState`. Used by view sites to switch between the active, paused, pre-start, and post-end presentations. The `.paused` value flips moment-granular per the `budget-math` "Moment-granular UI pause classification" requirement — i.e., view sites SHALL see `lifecycleState == .paused` as soon as a `.pause` event's `effectiveDate` is at or before `now`, regardless of where `now` falls inside the pause-action period.
+- `lifecycleState: BudgetLifecycleState` ← `snapshot.lifecycleState`. View sites switch on it between active, paused, pre-start, and post-end presentations. `.paused` flips moment-granular per `budget-math` "Moment-granular UI pause classification": view sites SHALL see `lifecycleState == .paused` as soon as a `.pause` event's `effectiveDate` is at or before `now`, wherever `now` falls inside the pause-action period.
 - `pausedSince: Date?` — when `lifecycleState == .paused`, the `effectiveDate` of the most recent `.pause` `LifecycleEvent` for the budget that is not followed by a later `.resume` event. When `lifecycleState != .paused`, `nil`.
 
-`effectiveAllocation` from the snapshot SHALL NOT be exposed through `BudgetLifecycleResult` in this change; it will be plumbed when the start-date / end-date input UI ships (F-7.05 / F-7.07).
+`effectiveAllocation` from the snapshot SHALL NOT be exposed through `BudgetLifecycleResult` until the start-date / end-date input UI ships (F-7.05 / F-7.07).
 
 #### Scenario: Result reflects snapshot state
 
@@ -79,11 +79,11 @@ The system SHALL provide `BudgetLifecycleService.pauseBudget(_ budget: Budget, c
 
 **Eligibility.** The method SHALL return `false` without mutating any row, calling `context.save()`, or otherwise changing observable state when any of the following holds:
 
-1. `BudgetPeriod(rawValue: budget.period) == .specificDates` — Specific Dates budgets are not pausable (`docs/budget-calculations-rewrite-reqs.md` §5.5 / §6.7 case 14).
-2. The budget's current `lifecycleState` (as computed by `BudgetCalculator.snapshot(...).lifecycleState`) is already `.paused` — no redundant write.
-3. The budget's current `lifecycleState` is `.postEnd` — pausing a terminal budget is a no-op.
+1. `BudgetPeriod(rawValue: budget.period) == .specificDates`: Specific Dates budgets are not pausable (`docs/budget-calculations-rewrite-reqs.md` §5.5 / §6.7 case 14).
+2. The budget's current `lifecycleState` (from `BudgetCalculator.snapshot(...).lifecycleState`) is already `.paused` (no redundant write).
+3. The budget's current `lifecycleState` is `.postEnd` (pausing a terminal budget is a no-op).
 
-**Effective date clamp.** When the action is accepted, the method SHALL compute `effectiveDate` as `now` clamped into `[budget.startDate ?? .distantPast, budget.endDate ?? .distantFuture]`. The lower clamp implements `docs/budget-calculations-rewrite-reqs.md` §5.5 "Pause while `startDate` is in the future" — the pause SHALL be recorded as if it occurred on `startDate`. The upper clamp matches the `.postEnd` rejection above and is defensive.
+**Effective date clamp.** When accepted, the method SHALL compute `effectiveDate` as `now` clamped into `[budget.startDate ?? .distantPast, budget.endDate ?? .distantFuture]`. The lower clamp implements `docs/budget-calculations-rewrite-reqs.md` §5.5 "Pause while `startDate` is in the future": the pause SHALL be recorded as if it occurred on `startDate`. The upper clamp is defensive and matches the `.postEnd` rejection.
 
 **Write sequence.** When accepted, the method SHALL, in order:
 
@@ -125,13 +125,13 @@ The system SHALL provide `BudgetLifecycleService.resumeBudget(_ budget: Budget, 
 
 **Eligibility.** The method SHALL return `false` without mutating any row, calling `context.save()`, or otherwise changing observable state when any of the following holds:
 
-1. `BudgetPeriod(rawValue: budget.period) == .specificDates` — Specific Dates budgets are not resumable.
-2. The budget's current `lifecycleState` is `.active` or `.preStart` — no redundant write.
-3. The budget's current `lifecycleState` is `.postEnd` — `endDate` is terminal; resume SHALL be rejected (`docs/product-features-planning.md` F-7.06 and F-7.07; `docs/budget-calculations-rewrite-reqs.md` §6.7 case 12).
+1. `BudgetPeriod(rawValue: budget.period) == .specificDates`: Specific Dates budgets are not resumable.
+2. The budget's current `lifecycleState` is `.active` or `.preStart` (no redundant write).
+3. The budget's current `lifecycleState` is `.postEnd`: `endDate` is terminal; resume SHALL be rejected (`docs/product-features-planning.md` F-7.06 and F-7.07; `docs/budget-calculations-rewrite-reqs.md` §6.7 case 12).
 
 **Write sequence.** When accepted, the method SHALL, in order:
 
-1. Insert a new `LifecycleEvent(budget: budget, kind: .resume, effectiveDate: now)` into the passed `ModelContext`. The effective date for resume is `now` directly; no `startDate` clamping is required because if `now < startDate` the budget is already in the `.preStart` state, which falls under the redundant-write rejection above.
+1. Insert a new `LifecycleEvent(budget: budget, kind: .resume, effectiveDate: now)` into the passed `ModelContext`. The resume effective date is `now`; no `startDate` clamp is needed because `now < startDate` means `.preStart`, already rejected above.
 2. Set `Budget.lastModified = now`.
 3. Call `context.save()` exactly once.
 4. Return `true`.
@@ -162,13 +162,13 @@ The method SHALL NOT mutate `Budget.startDate`, `Budget.endDate`, `AllocationCha
 
 The pause and resume write paths SHALL produce `LifecycleEvent` rows that are consumed by two distinct classifiers inside `BudgetCalculator.snapshot(...)`:
 
-- **Math (period-granular):** `LifecycleClassification.isActive(period:lifecycleEvents:)` continues to govern carry-over walker accrual and the `remaining = 0` short-circuit for fully-paused periods per the period-granular rules already shipped:
-  - The period containing a `.pause` event remains active for math (the snapshot continues to compute carry-over normally for that period).
+- **Math (period-granular):** `LifecycleClassification.isActive(period:lifecycleEvents:)` governs carry-over walker accrual and the `remaining = 0` short-circuit for fully-paused periods:
+  - The period containing a `.pause` event stays active for math (carry-over computes normally for it).
   - Every period strictly after a `.pause` event and strictly before the next `.resume` event is paused for math; paused periods contribute 0 to the carry-over walk.
   - The period containing a `.resume` event is fully active for math (no proration).
-- **UI (moment-granular):** the moment-granular `isPausedAtMoment(now:sortedLifecycleEvents:)` classifier (see `budget-math` "Moment-granular UI pause classification") governs `BudgetSnapshot.lifecycleState` — and therefore `BudgetLifecycleResult.lifecycleState` — flipping to `.paused` immediately when a `.pause` event's `effectiveDate` is at or before `now`.
+- **UI (moment-granular):** `isPausedAtMoment(now:sortedLifecycleEvents:)` (see `budget-math` "Moment-granular UI pause classification") governs `BudgetSnapshot.lifecycleState`, and so `BudgetLifecycleResult.lifecycleState`, flipping to `.paused` as soon as a `.pause` event's `effectiveDate` is at or before `now`.
 
-The pause/resume write paths SHALL NOT introduce any classification logic of their own; their only responsibility is to insert the correct event row. Both classifiers consume the same `LifecycleEvent` source of truth.
+The pause/resume write paths SHALL NOT add classification logic; they only insert the correct event row. Both classifiers read the same `LifecycleEvent` rows.
 
 #### Scenario: Pause-action period is still active for math
 
@@ -197,9 +197,9 @@ The pause/resume write paths SHALL NOT introduce any classification logic of the
 
 ### Requirement: Screen / ViewModel consumption contract
 
-Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `result(for:)` eagerly on budget access — at minimum on screen appearance, on `scenePhase == .active`, via `.onChange(of: budget.lastModified)` so that mid-period writes refresh the chip, and via `.onChange(of: settings.weekStartDay)` so that a week-start change (local or synced from another device) re-grids weekly budgets immediately. Because `result(for:)` is a pure read, no `ModelContext` is required at the call site; the call site reads `AppSettings.weekStartDay` solely to supply the `weekStart` parameter.
+Screens (and any escalated ViewModels per `docs/tech-design-doc.md` §2.1) SHALL call `result(for:)` eagerly on budget access: at minimum on screen appearance, on `scenePhase == .active`, via `.onChange(of: budget.lastModified)` (mid-period writes refresh the chip), and via `.onChange(of: settings.weekStartDay)` (a local or synced week-start change re-grids weekly budgets immediately). `result(for:)` is a pure read, so no `ModelContext` is needed at the call site; the call site reads `AppSettings.weekStartDay` only to supply `weekStart`.
 
-Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the source of truth for current-period display values rather than recomputing them. Neither screens nor ViewModels SHALL call `BudgetCalculator.snapshot(...)` directly for the eager access flow — `BudgetLifecycleService` is the single entry point.
+Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the source of truth for current-period display values rather than recomputing them, and SHALL NOT call `BudgetCalculator.snapshot(...)` directly for the eager access flow; `BudgetLifecycleService` is the single entry point.
 
 #### Scenario: Screen calls result(for:) on screen appearance
 
@@ -223,7 +223,7 @@ Screens and ViewModels SHALL treat the returned `BudgetLifecycleResult` as the s
 
 ### Requirement: Allocation edit write-path
 
-The system SHALL provide `BudgetLifecycleService.applyAllocationEdit(_ budget: Budget, newAmount: Decimal, context: ModelContext, now: Date, calendar: Calendar, weekStart: Weekday)` for view sites that change a budget's allocation in Edit mode. The method SHALL implement the algorithm doc §A.6.2 insert-or-mutate convention — keyed so the write, the live read, and the walker always agree — with a period-type carve-out for `.specificDates`:
+The system SHALL provide `BudgetLifecycleService.applyAllocationEdit(_ budget: Budget, newAmount: Decimal, context: ModelContext, now: Date, calendar: Calendar, weekStart: Weekday)` for view sites that change a budget's allocation in Edit mode. The method SHALL implement the algorithm doc §A.6.2 insert-or-mutate convention, keyed so the write, the live read, and the walker agree, with a carve-out for `.specificDates`:
 
 **For recurring periods (`.daily`, `.weekly`, `.biweekly`, `.monthly`):**
 
@@ -234,18 +234,18 @@ The system SHALL provide `BudgetLifecycleService.applyAllocationEdit(_ budget: B
 5. Bump `Budget.lastModified = now`.
 6. Call `context.save()` exactly once.
 
-For budgets whose `startDate` is aligned to the period grid, `key == currentPeriodStart` and this rule is byte-for-byte the previous insert-or-mutate convention. For budgets whose first period starts mid-grid (a monthly budget created mid-month; a weekly budget whose `startDate` is not on the global week-start day), the rule mutates the initial `startDate` row instead of inserting a shadowed row at the grid boundary — guaranteeing the live read (`allocationInEffect` at `key`) and the walker's closed-period lookup (grid boundary with earliest-row fallback) both observe the edit (fixes #247).
+For budgets whose `startDate` is aligned to the period grid, `key == currentPeriodStart` (plain insert-or-mutate). For budgets whose first period starts mid-grid (a monthly budget created mid-month; a weekly budget whose `startDate` is not on the global week-start day), the rule mutates the initial `startDate` row instead of inserting a shadowed row at the grid boundary, so the live read (`allocationInEffect` at `key`) and the walker's closed-period lookup (grid boundary with earliest-row fallback) both see the edit (fixes #247).
 
-The method SHALL NOT mutate any other `AllocationChange` row for recurring periods. Prior periods continue to consult their historical allocations via `allocationInEffect` (forward-only semantics per F-2.03).
+The method SHALL NOT mutate any other `AllocationChange` row for recurring periods. Prior periods keep consulting their historical allocations via `allocationInEffect` (forward-only per F-2.03).
 
 **For `.specificDates` (latest-wins whole-window overwrite, per F-2.08):**
 
 1. Locate the most-recent `AllocationChange` for the budget by `(effectiveFrom, lastModified)`. For a `.specificDates` budget this is always the initial row inserted at budget creation (with `effectiveFrom == Budget.startDate`).
 2. If that row's `amount != newAmount`, write `amount = newAmount` and `lastModified = now`. If the amount is unchanged, no row mutation occurs and the method SHALL be a no-op.
-3. SHALL NOT insert a new `AllocationChange` row — `.specificDates` has only one period (the entire window) and there is no audit-trail requirement (the prior figure is not retrievable per F-2.08).
+3. SHALL NOT insert a new `AllocationChange` row: `.specificDates` has one period (the entire window) and no audit-trail requirement (the prior figure is not retrievable per F-2.08).
 4. When a write occurred, bump `Budget.lastModified = now` and call `context.save()` exactly once. When the amount was unchanged, do not bump `lastModified` or save.
 
-This `.specificDates` branch is the documented exception to the forward-only allocation-edit rule that applies to recurring periods.
+This `.specificDates` branch is the documented exception to the forward-only rule for recurring periods.
 
 #### Scenario: First allocation edit in the current period inserts a new row (recurring)
 
@@ -295,7 +295,7 @@ The system SHALL provide `BudgetLifecycleService.resetCarryOver(_ budget: Budget
 2. Bump `Budget.lastModified = now`.
 3. Call `context.save()` exactly once.
 
-The walker (in the `budget-math` capability) trims its walk window to periods whose end is strictly after `Budget.lastResetDate`, so writing `lastResetDate` is sufficient — no `carryOverAmount` field exists to zero.
+The walker (`budget-math`) trims its walk window to periods whose end is strictly after `Budget.lastResetDate`, so writing `lastResetDate` is sufficient; no `carryOverAmount` field exists to zero.
 
 #### Scenario: Reset Carry-Over writes lastResetDate
 
@@ -316,7 +316,7 @@ The system SHALL provide `BudgetLifecycleService.resetBudget(_ budget: Budget, c
 3. Bump `Budget.lastModified = now`.
 4. Call `context.save()` exactly once.
 
-The method SHALL NOT mutate `AllocationChange` or `LifecycleEvent` rows — the budget's lifecycle history is preserved.
+The method SHALL NOT mutate `AllocationChange` or `LifecycleEvent` rows; lifecycle history is preserved.
 
 #### Scenario: Reset Budget deletes all expenses and zeros carry-over
 
@@ -330,7 +330,7 @@ The method SHALL NOT mutate `AllocationChange` or `LifecycleEvent` rows — the 
 
 ### Requirement: Lifecycle write-paths surface save failure to the caller
 
-Each `BudgetLifecycleService` write-path (`pauseBudget`, `resumeBudget`, the allocation-edit write-path, the manual-reset-carry-over write-path, and the reset-budget write-path) SHALL route its `context.save()` call through the shared persistence-save helper (operations `lifecycle_pause`, `lifecycle_resume`, `lifecycle_allocation_edit`, `lifecycle_reset_carry_over`, `lifecycle_reset_budget` respectively) rather than `try? context.save()`. Each method SHALL surface a thrown persistence error to its caller (e.g. by being marked `throws`); the existing eligibility-rejection return value (`Bool`) is preserved, so the method signatures become `throws -> Bool`. Eligibility rejection paths SHALL NOT attempt a save and SHALL NOT throw.
+Each `BudgetLifecycleService` write-path (`pauseBudget`, `resumeBudget`, the allocation-edit write-path, the manual-reset-carry-over write-path, and the reset-budget write-path) SHALL route its `context.save()` call through the shared persistence-save helper (operations `lifecycle_pause`, `lifecycle_resume`, `lifecycle_allocation_edit`, `lifecycle_reset_carry_over`, `lifecycle_reset_budget` respectively) rather than `try? context.save()`. Each method SHALL surface a thrown persistence error to its caller (e.g. by being marked `throws`), keeping the eligibility-rejection `Bool` return, so signatures are `throws -> Bool`. Eligibility rejection paths SHALL NOT attempt a save and SHALL NOT throw.
 
 UI callers (Budget detail screen's Pause/Resume actions, Reset Budget, Reset Carry-Over, and any allocation-edit invocation from Add/Edit Budget) SHALL catch a thrown persistence error and present the standard save-error alert (see the `persistence-error-handling` capability) over the presenting screen. The accompanying analytics event for the action (e.g. `budget_paused`, `budget_resumed`, `budget_reset`, `carry_over_reset`) SHALL fire only on a successful save; on a thrown persistence error it SHALL NOT fire.
 

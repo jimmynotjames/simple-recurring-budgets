@@ -1,6 +1,6 @@
 ## Purpose
 
-Specifies the pure budget math service layer (`PeriodCalculator` + `BudgetCalculator`) that computes period boundaries, remaining amounts, carry-over via a live walker, and snapshot output. All computation is stateless and has no SwiftData or SwiftUI dependencies.
+Pure budget math layer (`PeriodCalculator` + `BudgetCalculator`): period boundaries, remaining amounts, carry-over via a live walker, and snapshot output. Stateless; no SwiftData or SwiftUI dependencies.
 
 ## Requirements
 
@@ -10,10 +10,10 @@ The system SHALL compute the start date of the budget period containing a given 
 
 - **Daily**: The start of the calendar day containing the given date.
 - **Weekly**: The most recent occurrence of the caller-provided global week-start day (`weekStart`, sourced from `AppSettings.weekStartDay` by production callers) at or before the given date.
-- **Biweekly**: The most recent biweekly boundary, where boundaries fall every 14 days from the biweekly anchor (the budget's `startDate`). The `weekStart` parameter SHALL NOT influence biweekly boundaries — a weekday cannot determine which of two alternating weeks a 14-day cycle restarts in; the phase comes from the anchor date alone.
+- **Biweekly**: The most recent biweekly boundary, where boundaries fall every 14 days from the biweekly anchor (the budget's `startDate`). The `weekStart` parameter SHALL NOT influence biweekly boundaries (a weekday cannot pick which of two alternating weeks a 14-day cycle restarts in); the phase comes from the anchor date alone.
 - **Monthly**: The first day of the calendar month containing the given date.
 
-The weekly grid SHALL be global: every weekly budget shares the grid implied by `AppSettings.weekStartDay`, exactly as every monthly budget shares the calendar-month grid. `Budget.startDate` SHALL NOT influence the weekly grid; it defines only when the budget's window begins (and serves as the biweekly anchor). Changing `AppSettings.weekStartDay` therefore re-grids every weekly budget — past and future periods — on the next snapshot. (`AppSettings.weekStartDay` also continues to seed the pre-populated `startDate` for new weekly/biweekly budgets at creation time per the data-models capability.)
+The weekly grid SHALL be global: every weekly budget shares the grid implied by `AppSettings.weekStartDay`, as every monthly budget shares the calendar-month grid. `Budget.startDate` SHALL NOT influence the weekly grid; it defines only when the budget's window begins (and is the biweekly anchor). Changing `AppSettings.weekStartDay` therefore re-grids every weekly budget, past and future periods, on the next snapshot. (`AppSettings.weekStartDay` also seeds the pre-populated `startDate` for new weekly/biweekly budgets per the data-models capability.)
 
 All date computations SHALL use the caller-provided `Calendar` instance (no implicit `Calendar.current`).
 
@@ -30,7 +30,7 @@ All date computations SHALL use the caller-provided `Calendar` instance (no impl
 #### Scenario: Weekly budget started mid-week still uses the global grid
 
 - **WHEN** the date is Friday 2026-04-17, the period is weekly, `Budget.startDate` is Wednesday 2026-04-01, and the caller passes `weekStart = .sunday`
-- **THEN** the period start is Sunday 2026-04-12 — the budget's Wednesday `startDate` does not create a private Wed→Tue grid
+- **THEN** the period start is Sunday 2026-04-12; the Wednesday `startDate` does not create a private Wed→Tue grid
 
 #### Scenario: Weekly period start on the week-start day itself
 
@@ -78,7 +78,7 @@ The system SHALL compute the end date (exclusive) of the budget period containin
 
 ### Requirement: Period boundary enumeration
 
-The system SHALL enumerate all period boundary dates between two dates (inclusive of start, exclusive of end). This powers the multi-period catch-up walk for carry-over rolling.
+The system SHALL enumerate all period boundary dates between two dates (start inclusive, end exclusive), powering the multi-period catch-up walk for carry-over.
 
 #### Scenario: Daily boundaries over a 3-day gap
 
@@ -102,7 +102,7 @@ The system SHALL enumerate all period boundary dates between two dates (inclusiv
 
 ### Requirement: Remaining for current budget period
 
-The system SHALL compute the remaining amount for the current budget period as: `effectiveAllocation − sum(expenses in current period)`, where `effectiveAllocation` is the allocation in effect at the start of the current period (per `allocationInEffect`). Only expenses whose date falls within the current period (>= period start, < period end) SHALL be counted. The result MAY be negative (overspending). This value is NOT adjusted by carry-over (per PRD §6.7). For `.specificDates` budgets, "current period" is the entire `[startDate, endDate]` window.
+The system SHALL compute the remaining amount for the current budget period as: `effectiveAllocation − sum(expenses in current period)`, where `effectiveAllocation` is the allocation in effect at the start of the current period (per `allocationInEffect`). Only expenses whose date falls within the current period (>= period start, < period end) SHALL be counted. The result MAY be negative (overspending). It is NOT adjusted by carry-over (PRD §6.7). For `.specificDates` budgets, "current period" is the entire `[startDate, endDate]` window.
 
 #### Scenario: Under budget
 
@@ -140,16 +140,16 @@ The system SHALL provide a single pure read entry point `BudgetCalculator.snapsh
 
 `BudgetSnapshot` SHALL be a value type carrying at minimum:
 
-- `remaining: Decimal` — current-period remaining (per "Remaining for current budget period"). During the pause-action period (a period that contains a `.pause` `LifecycleEvent`), `remaining` SHALL continue to compute as `allocation - in-period-expenses` per the math classifier (`isActive(...)` returns `true` for such periods). The UI presentation of this value is dimmed when `lifecycleState == .paused`, but the numeric value is the live "what would roll into carry-over at period close" amount.
+- `remaining: Decimal` — current-period remaining (per "Remaining for current budget period"). During the pause-action period (a period that contains a `.pause` `LifecycleEvent`), `remaining` SHALL still compute as `allocation - in-period-expenses` (`isActive(...)` returns `true` for such periods). The UI dims it when `lifecycleState == .paused`, but the value is the live amount that would roll into carry-over at period close.
 - `carryOver: Decimal?` — cumulative carry-over from completed prior active periods, plus the current period's spillover when applicable (see "Asymmetric live coupling"). `nil` for `.specificDates` budgets (which hide the carry-over chip per PRD §6.7).
 - `effectivePeriodStart: Date` — start of the current period (inclusive).
 - `effectivePeriodEnd: Date` — start of the next period (exclusive).
 - `effectiveAllocation: Decimal` — the allocation in effect at the current period's start.
-- `lifecycleState` — one of `.preStart`, `.active`, `.paused`, `.postEnd`. The `.preStart` and `.postEnd` values are computed from `now` against `effectiveStartDate` / `effectiveEndExclusive`. The `.paused` value uses the moment-granular `isPausedAtMoment(now:sortedLifecycleEvents:)` classifier (see "Moment-granular UI pause classification") — distinct from the period-granular `isActive(period:lifecycleEvents:)` used by the carry-over walker.
+- `lifecycleState` — one of `.preStart`, `.active`, `.paused`, `.postEnd`. `.preStart` and `.postEnd` are computed from `now` against `effectiveStartDate` / `effectiveEndExclusive`. `.paused` uses the moment-granular `isPausedAtMoment(now:sortedLifecycleEvents:)` classifier (see "Moment-granular UI pause classification"), distinct from the period-granular `isActive(period:lifecycleEvents:)` the carry-over walker uses.
 
 All time-dependent inputs (`now`, `calendar`) SHALL be parameters. Production callers MAY use `Date()` and `Calendar.autoupdatingCurrent`; tests SHALL inject deterministic values.
 
-The `weekStart: Weekday` parameter SHALL have **no default value** — every call site must choose explicitly, and production callers SHALL pass `AppSettings.weekStartDay`. The parameter governs only the weekly grid; daily, monthly, biweekly, and specificDates outputs SHALL be identical for every `weekStart` value. A weekly budget whose `startDate` falls mid-grid SHALL have its first period clipped at `startDate` (`effectivePeriodStart = max(currentPeriodStart, effectiveStartDate)`) with the full allocation awarded and no proration — the same convention as a monthly budget created mid-month.
+The `weekStart: Weekday` parameter SHALL have no default value: every call site chooses explicitly, and production callers SHALL pass `AppSettings.weekStartDay`. The parameter governs only the weekly grid; daily, monthly, biweekly, and specificDates outputs SHALL be identical for every `weekStart` value. A weekly budget whose `startDate` falls mid-grid SHALL have its first period clipped at `startDate` (`effectivePeriodStart = max(currentPeriodStart, effectiveStartDate)`) with the full allocation awarded and no proration, as for a monthly budget created mid-month.
 
 #### Scenario: Snapshot is a pure read
 
@@ -185,11 +185,11 @@ The `weekStart: Weekday` parameter SHALL have **no default value** — every cal
 
 The system SHALL provide derived values `effectiveStartDate`, `effectiveEndInclusive`, and `effectiveEndExclusive` consumed by the snapshot:
 
-- `effectiveStartDate`: `Budget.startDate` if non-nil; otherwise `Budget.createdAt`. This is a safety-net fallback for malformed sync records — UI flows SHALL always populate `startDate` at save time per the data-models capability.
+- `effectiveStartDate`: `Budget.startDate` if non-nil; otherwise `Budget.createdAt`. This is a safety-net for malformed sync records; UI flows SHALL always populate `startDate` at save time (data-models capability).
 - `effectiveEndInclusive`: `Budget.endDate` if non-nil; otherwise nil (recurring budget runs indefinitely).
 - `effectiveEndExclusive`: `effectiveEndInclusive + 1 second` (start-of-day-aligned `endDate` is treated as the inclusive last day, per algorithm doc §A.4.0).
 
-The walker and current-period helpers SHALL never inspect `Budget.startDate` or `Budget.endDate` directly — they MUST go through these derived values so the fallback rule is honored uniformly.
+The walker and current-period helpers SHALL never inspect `Budget.startDate` or `Budget.endDate` directly; they MUST use these derived values so the fallback applies uniformly.
 
 #### Scenario: Nil startDate falls back to createdAt
 
@@ -203,7 +203,7 @@ The walker and current-period helpers SHALL never inspect `Budget.startDate` or 
 
 ### Requirement: allocationInEffect helper
 
-The system SHALL provide `allocationInEffect(at date: Date, history: [AllocationChange]) -> Decimal` that returns the allocation in effect at the given instant. The result SHALL be the `amount` of the latest `AllocationChange` whose `effectiveFrom <= date`, breaking ties by `lastModified` (later wins). If no row satisfies the predicate, the helper SHALL return the earliest `AllocationChange.amount` as a defensive fallback (this fallback is never reached in normal flow because every saved budget has an initial row at `startDate`).
+The system SHALL provide `allocationInEffect(at date: Date, history: [AllocationChange]) -> Decimal` that returns the allocation in effect at the given instant. The result SHALL be the `amount` of the latest `AllocationChange` whose `effectiveFrom <= date`, breaking ties by `lastModified` (later wins). If no row satisfies the predicate, the helper SHALL return the earliest `AllocationChange.amount` as a defensive fallback (unreachable in normal flow: every saved budget has an initial row at `startDate`).
 
 #### Scenario: Latest applicable AllocationChange wins
 
@@ -257,7 +257,7 @@ Backdated expense edits that fall into a prior completed period SHALL be folded 
 
 ### Requirement: Lifecycle classification
 
-The system SHALL provide `isActive(period:lifecycleEvents:) -> Bool` that returns whether a given completed period was active or paused **for carry-over math**. This is the period-granular classifier consumed by `walkCarryOver(...)` and by the `remaining = 0` short-circuit for periods that fall entirely inside a paused interval. Pause and Resume `LifecycleEvent` rows operate at whole-period granularity for the math (algorithm doc §A.5.4):
+The system SHALL provide `isActive(period:lifecycleEvents:) -> Bool` that returns whether a given completed period was active or paused for carry-over math. It is the period-granular classifier used by `walkCarryOver(...)` and by the `remaining = 0` short-circuit for periods entirely inside a paused interval. Pause and Resume `LifecycleEvent` rows work at whole-period granularity for the math (algorithm doc §A.5.4):
 
 - The period containing a Pause event is itself active for math (carry-over is calculated normally for that period).
 - Every period strictly after a Pause and strictly before the next Resume is paused for math (contributes 0 to the walker).
@@ -265,7 +265,7 @@ The system SHALL provide `isActive(period:lifecycleEvents:) -> Bool` that return
 
 A budget with no `LifecycleEvent` rows SHALL be treated as fully active from `startDate` onward.
 
-This requirement governs the math half of the lifecycle algorithm only. The UI half — what `BudgetSnapshot.lifecycleState` returns to view sites — is governed by the separate "Moment-granular UI pause classification" requirement. The two classifiers SHALL coexist inside `BudgetCalculator.snapshot(...)` without affecting each other.
+This requirement covers the math half only. The UI half (`BudgetSnapshot.lifecycleState`) is governed by "Moment-granular UI pause classification". The two classifiers SHALL coexist inside `BudgetCalculator.snapshot(...)` without affecting each other.
 
 #### Scenario: Pause action period is active for math
 
@@ -284,23 +284,23 @@ This requirement governs the math half of the lifecycle algorithm only. The UI h
 
 ### Requirement: Moment-granular UI pause classification
 
-The system SHALL provide a moment-granular pause classifier used to populate `BudgetSnapshot.lifecycleState` for view-layer consumption. The classifier SHALL be distinct from the period-granular `isActive(period:lifecycleEvents:)` used by the carry-over walker — the math half of the algorithm remains period-granular and is NOT changed by this requirement.
+The system SHALL provide a moment-granular pause classifier used to populate `BudgetSnapshot.lifecycleState` for view-layer consumption. The classifier SHALL be distinct from the period-granular `isActive(period:lifecycleEvents:)` used by the carry-over walker; the math stays period-granular.
 
 The classifier SHALL be a pure function with the contract `isPausedAtMoment(now:sortedLifecycleEvents:) -> Bool`:
 
 - It SHALL return `true` iff the most recent `LifecycleEvent` whose `effectiveDate < now` (strict less-than) has `kind == .pause`.
 - It SHALL return `false` when the most recent such event has `kind == .resume`, when no event satisfies `effectiveDate < now`, or when `sortedLifecycleEvents` is empty.
-- It SHALL operate on `sortedLifecycleEvents` pre-sorted ascending by `(effectiveDate, lastModified)` — matching the contract of `isActive(...)` so the snapshot can reuse the same sorted array for both classifiers.
-- The strict less-than boundary means a pause event at the exact moment `now` does NOT yet flip the UI to paused — the transition happens at the next instant. This aligns with the period-granular math classifier (which treats the pause-action period as itself active) and preserves the date-picker upper bound (`pauseEffectiveDate`) as a valid date for new entries. In production, `now` is always strictly greater than any just-recorded `effectiveDate` (snapshot's `Date()` runs strictly after the service's), so the strict boundary is observationally equivalent to `<=`.
+- It SHALL operate on `sortedLifecycleEvents` pre-sorted ascending by `(effectiveDate, lastModified)` — matching `isActive(...)` so the snapshot reuses one sorted array for both classifiers.
+- With strict less-than, a pause event at the exact moment `now` does NOT yet flip the UI to paused; the transition happens at the next instant. This matches the period-granular math classifier (the pause-action period is itself active) and keeps the date-picker upper bound (`pauseEffectiveDate`) a valid date for new entries. In production `now` is always strictly greater than any just-recorded `effectiveDate`, so the strict boundary behaves like `<=`.
 
-`BudgetSnapshot.lifecycleState` SHALL derive from this classifier together with the pre-existing `.preStart` / `.postEnd` rules, in the following precedence:
+`BudgetSnapshot.lifecycleState` SHALL derive from this classifier together with the `.preStart` / `.postEnd` rules, in this precedence:
 
 1. If `now >= effectiveEndExclusive` and `budget.endDate != nil` → `.postEnd`.
 2. Else if `now < effectiveStartDate` → `.preStart`.
 3. Else if `isPausedAtMoment(now:sortedLifecycleEvents:)` returns `true` → `.paused`.
 4. Else → `.active`.
 
-The `.postEnd` and `.preStart` precedence over `.paused` implements F-7.06's "Pause before `startDate`: the pre-start chip presentation is preserved until `startDate`" and F-7.07's terminal-endDate rule.
+`.postEnd` and `.preStart` outrank `.paused` per F-7.06 (pre-start chip presentation is preserved until `startDate`) and F-7.07 (terminal endDate).
 
 #### Scenario: Mid-period pause flips lifecycleState immediately
 
@@ -336,18 +336,18 @@ The `.postEnd` and `.preStart` precedence over `.paused` implements F-7.06's "Pa
 
 The system SHALL implement `currentPeriodSpillover` to absorb the current in-progress period's committed overflow into the carry-over chip in real time (algorithm doc §A.5.6):
 
-- If `remaining` is inside `[0, effectiveAllocation]` (ordinary mid-period state), spillover is 0 — the current period's slack stays in "today's envelope" until the period closes.
-- If `remaining < 0` (overspend), spillover is `remaining` (negative). The carry-over decreases by the overshoot immediately.
-- If `remaining > effectiveAllocation` (the user added negative-amount expenses per F-6.01 so net spend went below 0), spillover is `remaining − effectiveAllocation` (positive). The carry-over increases by the excess immediately.
+- If `remaining` is inside `[0, effectiveAllocation]` (ordinary mid-period state), spillover is 0: slack stays in today's envelope until the period closes.
+- If `remaining < 0` (overspend), spillover is `remaining` (negative); carry-over drops by the overshoot immediately.
+- If `remaining > effectiveAllocation` (negative-amount expenses per F-6.01 pushed net spend below 0), spillover is `remaining − effectiveAllocation` (positive); carry-over rises by the excess immediately.
 
 The snapshot's `carryOver` (for recurring budgets) SHALL equal `walkCarryOver(...) + currentPeriodSpillover`.
 
-In `.postEnd` state the rule collapses to symmetric: the entire final-period remaining (positive or negative) is added to the carry-over, since there is no future period close.
+In `.postEnd` the rule is symmetric: the entire final-period remaining (positive or negative) is added to carry-over, since no further period closes.
 
-**Reset interaction.** The spillover SHALL honor `Budget.lastResetDate`:
+Reset interaction: the spillover SHALL honor `Budget.lastResetDate`:
 
-- The spillover's input SHALL be computed from post-reset expenses only: `spilloverRemaining = effectiveAllocation − Σ expenses in [max(effectivePeriodStart, lastResetDate ?? .distantPast), effectivePeriodEnd)`, with the full allocation awarded (no proration) — mirroring the walker's §A.5.3 convention for the period containing a reset. The spillover input therefore equals the contribution the walker will compute for that period once it closes, so the carry-over does not jump at the period boundary when overflow was already committed (slack still waits for the close, per the asymmetric rule above). The snapshot's `remaining` is NOT affected — it still reflects all current-period expenses (post-reset rebound, §A.6.4).
-- When `lastResetDate >= effectiveEndExclusive` (the reset was performed after the budget ended), spillover SHALL be 0, so a post-end Reset Carry-Over or Reset Budget zeroes the carry-over permanently. (This condition is only reachable in `.postEnd`; reset write-paths stamp `now`, and a live budget has `now < effectiveEndExclusive`.)
+- The spillover's input SHALL be computed from post-reset expenses only: `spilloverRemaining = effectiveAllocation − Σ expenses in [max(effectivePeriodStart, lastResetDate ?? .distantPast), effectivePeriodEnd)`, with the full allocation awarded (no proration) (the walker's §A.5.3 convention for the period containing a reset). The spillover input thus equals the walker's contribution for that period once it closes, so carry-over does not jump at the period boundary when overflow was already committed (slack still waits for the close). The snapshot's `remaining` is NOT affected; it still reflects all current-period expenses (post-reset rebound, §A.6.4).
+- When `lastResetDate >= effectiveEndExclusive` (the reset was performed after the budget ended), spillover SHALL be 0, so a post-end Reset Carry-Over or Reset Budget zeroes the carry-over permanently. (Reachable only in `.postEnd`: reset write-paths stamp `now`, and a live budget has `now < effectiveEndExclusive`.)
 
 #### Scenario: Ordinary slack does not affect carry-over
 
@@ -413,7 +413,7 @@ The system SHALL handle `BudgetPeriod.specificDates` budgets through a dedicated
 - Return `carryOver = nil` so the UI knows to hide the carry-over chip.
 - Freeze the snapshot's `remaining` and `lifecycleState = .postEnd` once `now > endDate`.
 
-The branch SHALL ignore `isCarryOverEnabled` and `LifecycleEvent` rows of any kind. If such rows are encountered (e.g., from a CloudKit divergence or a UI bug), they SHALL be treated as no-ops, not as errors.
+The branch SHALL ignore `isCarryOverEnabled` and `LifecycleEvent` rows of any kind. Such rows (e.g., from CloudKit divergence or a UI bug) SHALL be no-ops, not errors.
 
 #### Scenario: SpecificDates in-progress
 

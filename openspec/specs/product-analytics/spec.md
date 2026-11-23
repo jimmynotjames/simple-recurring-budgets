@@ -15,12 +15,12 @@ The protocol SHALL conform to `AnyObject` and `Sendable` so the client can be pa
 
 The protocol SHALL provide a `track(_ event: String)` convenience extension that forwards to `track(_:properties: nil)`.
 
-The protocol SHALL NOT expose any method whose parameter type is `os.Logger`, `OSLogEntry`, `OSLogEntryLog`, `OSLogMessage`, or any other OSLog-shaped type (this restates the cross-cutting boundary established by the `diagnostic-logging` capability).
+The protocol SHALL NOT expose any method whose parameter type is `os.Logger`, `OSLogEntry`, `OSLogEntryLog`, `OSLogMessage`, or any other OSLog-shaped type (restating the `diagnostic-logging` boundary).
 
 #### Scenario: AnalyticsClient method surface is exactly three calls plus the convenience overload
 
 - **WHEN** a contributor inspects `AnalyticsClient` and its `Sendable` extension space
-- **THEN** the surface contains `track(_:properties:)`, `identify(_:)`, `reset()`, and the `track(_:)` convenience overload — and nothing else
+- **THEN** the surface contains `track(_:properties:)`, `identify(_:)`, `reset()`, and the `track(_:)` convenience overload, and nothing else
 
 #### Scenario: AnalyticsClient exposes no OSLog-shaped API
 
@@ -31,7 +31,7 @@ The protocol SHALL NOT expose any method whose parameter type is `os.Logger`, `O
 
 ### Requirement: AnalyticsEvent canonical name catalog
 
-The system SHALL define an `AnalyticsEvent` enum (or `enum`-shaped namespace) in [`simple-recurring-budgets/Logging/AnalyticsClient.swift`](../../../simple-recurring-budgets/Logging/AnalyticsClient.swift) carrying the canonical Phase 1 event-name string constants. Every constant SHALL be `snake_case`, matching the canonical names in [`docs/analytics-spec.md` §9](../../../docs/analytics-spec.md#9-phase-1-events):
+The system SHALL define an `AnalyticsEvent` enum (or `enum`-shaped namespace) in [`simple-recurring-budgets/Logging/AnalyticsClient.swift`](../../../simple-recurring-budgets/Logging/AnalyticsClient.swift) with the canonical Phase 1 event-name constants. Every constant SHALL be `snake_case`, matching [`docs/analytics-spec.md` §9](../../../docs/analytics-spec.md#9-phase-1-events):
 
 | Constant                       | Raw value                       |
 | ------------------------------ | ------------------------------- |
@@ -48,7 +48,7 @@ The system SHALL define an `AnalyticsEvent` enum (or `enum`-shaped namespace) in
 | `settingChanged`               | `"setting_changed"`             |
 | `analyticsConsentChanged`      | `"analytics_consent_changed"`   |
 
-Adding a new event constant SHALL require a corresponding update to this requirement and to the `Phase 1 event call sites` requirement below in the same change. Removing or renaming a constant SHALL require a `MODIFIED Requirements` block.
+Adding an event constant SHALL update this requirement and `Phase 1 event call sites` in the same change. Removing or renaming one SHALL require a `MODIFIED Requirements` block.
 
 #### Scenario: app_opened raw value
 
@@ -64,7 +64,7 @@ Adding a new event constant SHALL require a corresponding update to this require
 
 ### Requirement: AnalyticsProperty canonical key catalog
 
-The system SHALL define an `AnalyticsProperty` enum (or `enum`-shaped namespace) carrying the canonical Phase 1 property-key string constants from [`docs/analytics-spec.md` §10.1](../../../docs/analytics-spec.md#101-per-event-properties), §10.2, and §10.3. Call sites SHALL assemble property dictionaries using these constants rather than ad-hoc string literals.
+The system SHALL define an `AnalyticsProperty` enum (or `enum`-shaped namespace) with the canonical Phase 1 property-key constants from [`docs/analytics-spec.md` §10.1](../../../docs/analytics-spec.md#101-per-event-properties), §10.2, and §10.3. Call sites SHALL assemble property dictionaries using these constants rather than ad-hoc string literals.
 
 The enum SHALL include at least:
 
@@ -97,7 +97,7 @@ The helper SHALL expose a static function `func kind(for region: Locale.Region?)
 
 `AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IE, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, SE, IS, LI, NO, GB, GG, JE, IM, CH, KR, CN, BR, TR, TH, CA`
 
-> Note on `CA` (Canada): per §7.2 ("pragmatically apply CA-wide if Quebec sub-region is not reliably surfaced"), `CA` is treated as `.required` for Phase 1. If `Locale` later surfaces a reliable Quebec sub-region, this requirement is updated to scope to Quebec only.
+> `CA` (Canada): per §7.2 ("pragmatically apply CA-wide if Quebec sub-region is not reliably surfaced"), `CA` is `.required` for Phase 1. If `Locale` later surfaces a reliable Quebec sub-region, scope this to Quebec only.
 
 For any region identifier not in the table — including `nil`, the empty string, `"US"`, `"JP"`, `"AU"`, `"NZ"`, `"IN"`, `"MX"`, `"ZA"`, and any other unlisted code — the helper SHALL return `.auto_optin`.
 
@@ -206,7 +206,7 @@ The initialization SHALL be guarded by a thread-safe one-shot mechanism (`os_unf
 
 ### Requirement: Build-configuration token branch
 
-> **Updated by `public-repo-secrets-and-license`:** Tokens are no longer source-code literals. They are externalized to `config/Secrets.xcconfig` (committed placeholders) and `config/Secrets.local.xcconfig` (gitignored, maintainer-only), injected into the bundle via `Info.plist` variable substitution, and read by `AppConfig` at runtime. `MixpanelTokenSource` wraps `AppConfig` and provides the `#if DEBUG` branch via `activeToken` and the `isConfigured` guard. See [`docs/analytics-spec.md` §16](../../../docs/analytics-spec.md#16-build-hygiene) for the updated rationale.
+> Tokens are not source-code literals. They live in `config/Secrets.xcconfig` (committed placeholders) and `config/Secrets.local.xcconfig` (gitignored, maintainer-only), are injected via `Info.plist` variable substitution, and are read by `AppConfig` at runtime. `MixpanelTokenSource` wraps `AppConfig` and provides the `#if DEBUG` branch via `activeToken` and the `isConfigured` guard. See [`docs/analytics-spec.md` §16](../../../docs/analytics-spec.md#16-build-hygiene).
 
 The token passed to `MixpanelAnalyticsClient` SHALL be selected by `MixpanelTokenSource.activeToken`, which applies a `#if DEBUG` branch internally:
 
@@ -254,9 +254,7 @@ DEBUG and Release builds SHALL use `MixpanelAnalyticsClient` when tokens are con
 
 When `MixpanelTokenSource.isConfigured` is `false`, `init()` SHALL construct `ConsoleAnalyticsClient` instead.
 
-The `analytics` property SHALL be assigned to the constructed client, and the SwiftUI environment injection (`.environment(\.analytics, analytics)`) SHALL remain in place.
-
-The hard-coded `isOptedIn: { false }` previously present in `init()` SHALL be removed in this change.
+The `analytics` property SHALL be assigned to the constructed client and injected via `.environment(\.analytics, analytics)`. `init()` SHALL NOT contain a hard-coded `isOptedIn: { false }`.
 
 #### Scenario: isOptedIn closure reads the current AppSettings value
 
@@ -311,11 +309,11 @@ The app SHALL fire each of the canonical Phase 1 events at exactly the canonical
 
 Per-event properties SHALL be assembled using `AnalyticsProperty` constants. No `expense_*` event SHALL carry any field on `ExpenseItem` (name, amount, date, notes, attachments, or any other field) by value. The free-text and money-shaped exceptions for `budget_*` events (`budget_name` and `budget_allocation_amount`) are accepted-risk allow-listed exceptions per [`docs/analytics-spec.md` §5.4](../../../docs/analytics-spec.md#54-accepted-risk-exceptions); they SHALL NOT be transmitted on any other event.
 
-`analytics_consent_changed` on a toggle-off transition SHALL be fired BEFORE `MixpanelAnalyticsClient.reset()` is called and BEFORE `AppSettings.analyticsOptIn` is set to `false`, so the opt-out is observable in dashboards.
+`analytics_consent_changed` on a toggle-off transition SHALL fire BEFORE `MixpanelAnalyticsClient.reset()` and BEFORE `AppSettings.analyticsOptIn` is set to `false`, so the opt-out is observable in dashboards.
 
-`expense_deleted` SHALL fire exactly once per logical delete regardless of whether the delete originated from a swipe action or a VoiceOver rotor `accessibilityAction` (mirroring the single-funnel pattern established by `diagnostic-logging`).
+`expense_deleted` SHALL fire exactly once per logical delete, whether it came from a swipe action or a VoiceOver rotor `accessibilityAction` (the single-funnel pattern from `diagnostic-logging`).
 
-A single user action MAY produce both an `analytics.track(...)` call and a sibling `Logger.*` call (the F-8.01 destructive sites continue to log via `Logger.ui.debug`). The two calls SHALL be sibling statements at the same call site; neither SHALL be derived from the other.
+A single user action MAY produce both an `analytics.track(...)` call and a sibling `Logger.*` call (the F-8.01 destructive sites log via `Logger.ui.debug`). The two SHALL be sibling statements at the same call site; neither derived from the other.
 
 #### Scenario: budget_created carries the correct property set
 
@@ -383,7 +381,7 @@ A single user action MAY produce both an `analytics.track(...)` call and a sibli
 | `budgets_count_bucket`            | `0` / `1` / `2-3` / `4-7` / `8+`, derived from current `Budget` count                         | Yes        |
 | `carry_over_default_enabled`      | `AppSettings.defaultCarryOverEnabled` (Bool)                                                  | Yes        |
 
-`bundle_id` SHALL be registered explicitly via `registerSuperProperties` even though Mixpanel's SDK may auto-attach a similarly-named property; the explicit registration is the canonical fork-pollution filter per §11.
+`bundle_id` SHALL be registered explicitly via `registerSuperProperties` even though the Mixpanel SDK may auto-attach a similar property; the explicit registration is the fork-pollution filter per §11.
 
 Mutable super properties SHALL be refreshed (re-registered) when their underlying source value changes:
 
@@ -415,7 +413,7 @@ Mutable super properties SHALL be refreshed (re-registered) when their underlyin
 
 ### Requirement: Phase 1 people properties
 
-`MixpanelAnalyticsClient` SHALL set the §10.3 people properties at the canonical refresh sites. On the first lazy SDK initialization (which calls `Mixpanel.mainInstance().identify(distinctId:)` immediately after registering super properties), the client SHALL set the baseline people properties using a mix of `peopleSet` and `peopleSetOnce` semantics:
+`MixpanelAnalyticsClient` SHALL set the §10.3 people properties at the refresh sites below. On the first lazy SDK initialization (which calls `Mixpanel.mainInstance().identify(distinctId:)` right after registering super properties), the client SHALL set the baseline people properties using `peopleSet` and `peopleSetOnce` as listed:
 
 | Property                                        | Refresh trigger                                                                                    | Semantics       |
 | ----------------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------- |
@@ -429,7 +427,7 @@ Mutable super properties SHALL be refreshed (re-registered) when their underlyin
 | `has_disabled_carry_over`                       | Every `budget_*` event — `true` if the user has at least one Budget with `carry_over_enabled = false` | `set`           |
 | `budgets_with_carry_over_on_count_bucket`       | Every `budget_*` event — `0` / `1` / `2-3` / `4-7` / `8+`                                          | `set`           |
 
-`first_seen_at` SHALL use `setOnce` semantics so that re-installs or re-initializations after `reset()` do not overwrite the original first-seen timestamp on the same `distinct_id`.
+`first_seen_at` SHALL use `setOnce` so re-installs or re-initializations after `reset()` do not overwrite the original timestamp on the same `distinct_id`.
 
 #### Scenario: first_seen_at uses setOnce
 
@@ -458,19 +456,19 @@ Mutable super properties SHALL be refreshed (re-registered) when their underlyin
 The app SHALL present an `AnalyticsConsentSheet` view exactly once per app install, immediately after the user successfully creates their first Budget, when ALL of the following conditions are true:
 
 1. `ConsentJurisdiction.kind(for: Locale.current.region) == .required`.
-2. The user has not previously made an explicit choice — i.e., the backing `NSUbiquitousKeyValueStore` contains no value under the key `"analyticsOptIn"`.
+2. The user has not made an explicit choice: the backing `NSUbiquitousKeyValueStore` has no value under `"analyticsOptIn"`.
 
-The sheet SHALL be presented via the existing `Router.sheet` mechanism (a new `.analyticsConsent` case on the sheet enum, mirroring the `.settings` / `.addBudget` / `.addExpense` cases).
+The sheet SHALL be presented via `Router.sheet` (the `.analyticsConsent` case, like `.settings` / `.addBudget` / `.addExpense`).
 
 The sheet SHALL contain three controls:
 
-- **Accept** — sets `AppSettings.analyticsOptIn = true` (which persists), fires `analytics_consent_changed(new_value: true)`, dismisses the sheet.
-- **Decline** — sets `AppSettings.analyticsOptIn = false` (which persists, so the "no value yet" guard returns `true` going forward), dismisses the sheet permanently for this install.
-- **System dismiss (swipe down)** — equivalent to Decline.
+- Accept: sets `AppSettings.analyticsOptIn = true` (persisted), fires `analytics_consent_changed(new_value: true)`, dismisses the sheet.
+- Decline: sets `AppSettings.analyticsOptIn = false` (persisted, so the "no value yet" guard returns `true` from then on), dismisses the sheet permanently for this install.
+- System dismiss (swipe down): equivalent to Decline.
 
-The sheet SHALL NOT cause retroactive event replay. Any `app_opened` that the app would otherwise have fired before the toggle flipped to `true` SHALL NOT be re-fired after consent is granted; the triggering `budget_created` SHALL NOT be re-fired either. Dashboards in the `consent_jurisdiction = required` cohort SHALL be anchored on `analytics_consent_changed` rather than on `app_opened` or `budget_created` (a documentation contract enforced in `docs/analytics-spec.md` §7.2 and §11).
+The sheet SHALL NOT cause retroactive event replay: an `app_opened` that would have fired before the toggle flipped to `true` SHALL NOT be re-fired after consent, nor the triggering `budget_created`. Dashboards for the `consent_jurisdiction = required` cohort SHALL anchor on `analytics_consent_changed` rather than `app_opened` or `budget_created` (documented in `docs/analytics-spec.md` §7.2 and §11).
 
-In auto-opt-in jurisdictions (`ConsentJurisdiction.kind == .auto_optin`), the sheet SHALL NOT be presented at any time. The Settings toggle is the only opt-out path in those locales.
+In auto-opt-in jurisdictions (`ConsentJurisdiction.kind == .auto_optin`), the sheet SHALL NOT be presented. The Settings toggle is the only opt-out path there.
 
 #### Scenario: Strict-opt-in user creates first Budget
 
@@ -529,9 +527,9 @@ The app SHALL NOT expose any function, method, or extension under `simple-recurr
 
 ### Requirement: Boundary with Logger.* (no cross-routing into AnalyticsClient)
 
-No code under `simple-recurring-budgets/` SHALL invoke both `Logger.*` and `AnalyticsClient.track(...)` for the same conceptual event with the intent of cross-routing one to the other. No `AnalyticsClient` method SHALL accept an OSLog-shaped value as a parameter. No call site SHALL derive its `analytics.track(...)` arguments from a `Logger.*` callback, and no `Logger.*` call site SHALL invoke `AnalyticsClient.track(_:)` (or its equivalents) as a deterministic side-effect of the log emission. This requirement re-asserts, from the product-analytics side, the cross-routing prohibition already established by the `diagnostic-logging` capability so the obligation is discoverable from either spec.
+No code under `simple-recurring-budgets/` SHALL invoke both `Logger.*` and `AnalyticsClient.track(...)` for the same conceptual event with the intent of cross-routing one to the other. No `AnalyticsClient` method SHALL accept an OSLog-shaped value as a parameter. No call site SHALL derive its `analytics.track(...)` arguments from a `Logger.*` callback, and no `Logger.*` call site SHALL invoke `AnalyticsClient.track(_:)` (or its equivalents) as a deterministic side-effect of the log emission. This restates the `diagnostic-logging` cross-routing prohibition so it is discoverable from either spec.
 
-A single user action MAY independently produce one `Logger.*` line and one `AnalyticsClient` event (the Phase 1 destructive-action sites in `Phase 1 event call sites` are exactly this pattern). When both are emitted in the same method body, the two calls SHALL be sibling statements; neither's arguments SHALL be derived from the other's return value or closure capture.
+A single user action MAY independently produce one `Logger.*` line and one `AnalyticsClient` event (the destructive-action sites in `Phase 1 event call sites` do this). When both are emitted in one method body, they SHALL be sibling statements; neither's arguments SHALL derive from the other's return value or closure capture.
 
 #### Scenario: Sibling pattern at destructive sites
 
@@ -547,7 +545,7 @@ A single user action MAY independently produce one `Logger.*` line and one `Anal
 
 ### Requirement: Localization of analytics-related copy
 
-Every user-facing string introduced by this capability SHALL be keyed in `simple-recurring-budgets/Resources/Localizable.xcstrings` with a translator-friendly `comment:`, per F-3.03 / [`docs/analytics-spec.md` §2.1.6](../../../docs/analytics-spec.md#21-constraints-applying-to-all-mixpanel-work-f-802-and-f-803). The required keys are:
+Every user-facing string in this capability SHALL be keyed in `simple-recurring-budgets/Resources/Localizable.xcstrings` with a translator-friendly `comment:`, per F-3.03 / [`docs/analytics-spec.md` §2.1.6](../../../docs/analytics-spec.md#21-constraints-applying-to-all-mixpanel-work-f-802-and-f-803). The required keys are:
 
 | Key                                  | Surface                                                                |
 | ------------------------------------ | ---------------------------------------------------------------------- |
@@ -559,7 +557,7 @@ Every user-facing string introduced by this capability SHALL be keyed in `simple
 | `consent.analytics.sheet.accept`     | Accept button                                                          |
 | `consent.analytics.sheet.decline`    | Decline button                                                         |
 
-No hard-coded English literal SHALL appear in the new Settings section or in `AnalyticsConsentSheet` for any of these surfaces.
+No hard-coded English literal SHALL appear in the Settings section or in `AnalyticsConsentSheet`.
 
 #### Scenario: Settings section uses keyed strings
 
@@ -580,7 +578,6 @@ No hard-coded English literal SHALL appear in the new Settings section or in `An
 [`docs/tech-design-doc.md` §4.5](../../../docs/tech-design-doc.md) — the KV-key table SHALL include rows for `"analyticsOptIn"` (Bool, owned by `AppSettings`) and `"analyticsDistinctId"` (String, owned by `AppSettings`). [`docs/tech-design-doc.md` §7](../../../docs/tech-design-doc.md) SHALL accurately describe the lazy-init refactor and reference `docs/analytics-spec.md` §§2–8. [`docs/tech-design-doc.md` §9](../../../docs/tech-design-doc.md) SHALL refresh or remove any stale "analytics future-work" row and SHALL list F-8.03 as the planned Phase 2 row.
 
 [`docs/product-features-planning.md`](../../../docs/product-features-planning.md) F-8.02 SHALL have its `**Status:**` line flipped from "Open" to "**Implemented.** Implemented by change `mixpanel-phase-1-foundation`."
-
 #### Scenario: tech-design-doc §4.5 lists both new keys
 
 - **WHEN** a reader inspects `docs/tech-design-doc.md` §4.5 KV-key table
@@ -600,10 +597,10 @@ No hard-coded English literal SHALL appear in the new Settings section or in `An
 
 The analytics client SHALL define and the app SHALL emit two consent-gated rating-prompt events, carrying only categorical/bucketed values (no PII, per the §5 privacy contract):
 
-- `rating_prompt_eligible` — fired **once per user**, the first time the eligibility thresholds (excluding the once-per-version guard) are met. Gated by the `rating_prompt_first_eligible_at` people property so it never fires twice.
+- `rating_prompt_eligible` — fired once per user, the first time the eligibility thresholds (excluding the once-per-version guard) are met. Gated by the `rating_prompt_first_eligible_at` people property so it never fires twice.
 - `rating_prompt_requested` — fired when the app calls `requestReview`. De-duplicated per app version (matching the once-per-version guard). Carries `time_since_first_eligible_bucket` (`<1d` / `<7d` / `<30d` / `≥30d`).
 
-The previously-planned `rating_prompt_shown` and `rating_prompt_resolved` events SHALL NOT be emitted — the native `requestReview` API reports neither presentation nor outcome, so no `outcome` value is observable. No custom pre-prompt SHALL be added to manufacture such a signal.
+`rating_prompt_shown` and `rating_prompt_resolved` SHALL NOT be emitted: the native `requestReview` API reports neither presentation nor outcome. No custom pre-prompt SHALL be added to manufacture such a signal.
 
 #### Scenario: Eligible event fires once
 

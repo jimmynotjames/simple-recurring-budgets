@@ -1,6 +1,6 @@
 # Data models
 
-SwiftData entities, enums, and related rules for budgets and expense items. Synced from change `rewrite-budget-calculations` (2026-05-15). Updated from change `specific-dates-period` (2026-05-18). Updated from change `budget-icon-emoji` (2026-05-25).
+SwiftData entities, enums, and related rules for budgets and expense items.
 
 ## Requirements
 
@@ -25,7 +25,7 @@ The system SHALL define a SwiftData `@Model` class `Budget` with the following s
 | `lifecycleEventsStorage`       | `[LifecycleEvent]?`        | `nil`                                | Stored as optional for CloudKit; use computed `lifecycleEvents` |
 | `expenses`                     | `[ExpenseItem]?`           | `nil`                                | Stored as optional for CloudKit; use computed `expenseItems`     |
 
-The following fields SHALL NOT exist on the `Budget` entity: `allocation`, `carryOverAmount`, `carryOverLastProcessedDate`, `resetCadence`. Allocation history is represented by the `AllocationChange` child entity; carry-over is computed live and never persisted; `resetCadence` is permanently removed.
+The following fields SHALL NOT exist on the `Budget` entity: `allocation`, `carryOverAmount`, `carryOverLastProcessedDate`, `resetCadence`. Allocation history lives in the `AllocationChange` child entity; carry-over is computed live and never persisted; `resetCadence` is permanently removed.
 
 All monetary values SHALL use `Decimal`, never floating-point types.
 
@@ -35,12 +35,12 @@ The `Budget` entity SHALL also expose non-optional computed accessors:
 - `allocationChanges: [AllocationChange]` returning `allocationChangesStorage ?? []`
 - `lifecycleEvents: [LifecycleEvent]` returning `lifecycleEventsStorage ?? []`
 
-The `Budget` entity SHALL additionally expose two display-derived computed properties used by `BudgetsView` and `BudgetDetailView`:
+The `Budget` entity SHALL also expose two display-derived computed properties used by `BudgetsView` and `BudgetDetailView`:
 
-- `periodDisplayLabel: String` — For recurring periods (`.daily`, `.weekly`, `.biweekly`, `.monthly`) returns `BudgetPeriod.listLabel`. For `.specificDates`, when both `startDate` and `endDate` are non-`nil`, returns the formatted date range produced by `Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)` applied to `startDate ..< endDate` (locale-aware, RTL-correct, and handles same-year vs year-crossing automatically). When either date is missing (defensive — should not happen for a saved `.specificDates` budget), falls back to `BudgetPeriod.listLabel` ("Specific Dates"). Used as the period label in list rows and screen headers.
-- `periodInlineLabel: String` — For recurring periods returns `BudgetPeriod.inlineLabel` (e.g., "daily", "weekly"). For `.specificDates` returns a dedicated localized string (key `period.specificDates.inline.budgetRow` / `period.specificDates.inline.budgetDetail` as appropriate, English source: "in this window") so VoiceOver sentences read naturally for the non-recurring case. Used in the row/header VoiceOver labels.
+- `periodDisplayLabel: String`: for recurring periods (`.daily`, `.weekly`, `.biweekly`, `.monthly`) returns `BudgetPeriod.listLabel`. For `.specificDates` with both `startDate` and `endDate` non-`nil`, returns the range from `Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)` applied to `startDate ..< endDate` (locale-aware, RTL-correct, handles same-year vs year-crossing). When either date is missing (defensive; should not happen for a saved `.specificDates` budget), falls back to `BudgetPeriod.listLabel` ("Specific Dates"). Used as the period label in list rows and screen headers.
+- `periodInlineLabel: String`: for recurring periods returns `BudgetPeriod.inlineLabel` (e.g., "daily", "weekly"). For `.specificDates` returns a dedicated localized string (key `period.specificDates.inline.budgetRow` / `period.specificDates.inline.budgetDetail` as appropriate, English source: "in this window") so VoiceOver sentences read naturally. Used in row/header VoiceOver labels.
 
-Both computed properties are display concerns and have no effect on persistence, sync, or algorithm behaviour.
+Both are display concerns with no effect on persistence, sync, or algorithm behavior.
 
 All app code SHALL use the computed accessors. The stored optional properties exist solely for CloudKit compatibility and SHALL NOT be accessed directly outside the model definition.
 
@@ -59,7 +59,7 @@ All app code SHALL use the computed accessors. The stored optional properties ex
 #### Scenario: No allocation parameter on init
 
 - **WHEN** code attempts to call `Budget.init(allocation: 20)` (with parameter names from the old API)
-- **THEN** the call SHALL fail to compile because no `allocation` parameter exists; the new code path is to insert an `AllocationChange` row alongside the Budget
+- **THEN** the call SHALL fail to compile because no `allocation` parameter exists; insert an `AllocationChange` row alongside the Budget instead
 
 #### Scenario: periodDisplayLabel for recurring budget
 
@@ -95,9 +95,9 @@ All app code SHALL use the computed accessors. The stored optional properties ex
 
 ### Requirement: Budget icon attribute
 
-The `Budget` entity SHALL define an optional stored property `icon: String?` (default `nil`) that holds the budget's decorative icon. By convention the value is a single emoji grapheme; the value is supplied by the icon picker (see the `budget-icon` capability) and is not otherwise validated by the model. The property SHALL be stored as `String?` for CloudKit optionality and SHALL persist and sync like other `Budget` attributes. `Budget.init` SHALL accept an `icon: String? = nil` parameter that defaults to `nil`.
+The `Budget` entity SHALL define an optional stored property `icon: String?` (default `nil`) that holds the budget's decorative icon. By convention the value is a single emoji grapheme supplied by the icon picker (see `budget-icon`); the model does not validate it. The property SHALL be stored as `String?` for CloudKit optionality and SHALL persist and sync like other `Budget` attributes. `Budget.init` SHALL accept an `icon: String? = nil` parameter that defaults to `nil`.
 
-This attribute was added pre-1.0, under the then-current convention of updating `SchemaV1` in place, and shipped as part of Wren v1.0. Existing budgets without a value SHALL read as `nil`. That in-place convention no longer applies: `SchemaV1` is now a deployed, frozen baseline, and any further model change requires a new `VersionedSchema` plus a `MigrationStage` (see `openspec/specs/schema-versioning/spec.md` and `docs/tech-design-doc.md` §3.3).
+The attribute was added pre-1.0 by updating `SchemaV1` in place and shipped in Wren v1.0. Existing budgets without a value SHALL read as `nil`. In-place edits are no longer allowed: `SchemaV1` is a deployed, frozen baseline, and any further model change requires a new `VersionedSchema` plus a `MigrationStage` (see `openspec/specs/schema-versioning/spec.md` and `docs/tech-design-doc.md` §3.3).
 
 #### Scenario: Default icon on Budget creation
 
@@ -170,7 +170,7 @@ The raw values SHALL be `"daily"`, `"weekly"`, `"biweekly"`, `"monthly"`, `"spec
 
 Ordering SHALL be implemented via a private `sortOrder` integer and a manual `static func <` so that `BudgetPeriod.daily < BudgetPeriod.weekly < BudgetPeriod.biweekly < BudgetPeriod.monthly < BudgetPeriod.specificDates`.
 
-The recurring period-boundary math (in the `budget-math` capability) operates on a `RecurringBudgetPeriod` wrapper that excludes `.specificDates` at compile time. `BudgetPeriod` itself retains the case so the algorithm can dispatch into its dedicated branch (per `budget-math`'s "SpecificDates snapshot branch").
+Recurring period-boundary math (`budget-math`) operates on a `RecurringBudgetPeriod` wrapper that excludes `.specificDates` at compile time. `BudgetPeriod` keeps the case so the algorithm can dispatch into its dedicated branch (`budget-math` "SpecificDates snapshot branch").
 
 `BudgetPeriod` SHALL NOT expose a `defaultResetCadence` property. The Reset Cadences feature is permanently removed.
 
@@ -209,7 +209,7 @@ When a new Budget is created, its `sortOrder` SHALL be assigned the value `max(s
 
 ### Requirement: Carry-over toggle on Budget
 
-Each Budget SHALL have an `isCarryOverEnabled` property (`Bool`, default `true`) that controls whether carry-over is active for that budget. When `false`, carry-over SHALL NOT be computed or displayed for that budget. The default value for new budgets SHALL be sourced from `AppSettings.defaultCarryOverEnabled` at creation time; callers that create a `Budget` SHALL pass the current value explicitly. The `Budget.init` parameter `isCarryOverEnabled` SHALL default to `true` as a safe fallback when `AppSettings` is not available (e.g., in tests or previews).
+Each Budget SHALL have an `isCarryOverEnabled` property (`Bool`, default `true`) that controls whether carry-over is active for that budget. When `false`, carry-over SHALL NOT be computed or displayed for that budget. The default for new budgets SHALL come from `AppSettings.defaultCarryOverEnabled` at creation time; callers SHALL pass the current value explicitly. The `Budget.init` parameter `isCarryOverEnabled` SHALL default to `true` as a fallback when `AppSettings` is unavailable (tests, previews).
 
 #### Scenario: New budget inherits global default (enabled)
 
@@ -317,14 +317,14 @@ The system SHALL ensure that every user-created Budget has at least one `Allocat
 - `lastModified = now`.
 - `budget = the newly-created Budget`.
 
-The `startDate` computed at Add time SHALL be derived per period type (briefing §2.4). For weekly/biweekly budgets the default aligns to the user's `AppSettings.weekStartDay` so a freshly-created budget starts at a natural grid/cycle boundary — for weekly this is a convenience default (the weekly grid itself is global per the `budget-math` capability and a mid-grid `startDate` merely clips the first period); for biweekly the saved `startDate` is the cycle anchor:
+The `startDate` computed at Add time SHALL be derived per period type (briefing §2.4). For weekly/biweekly budgets the default aligns to `AppSettings.weekStartDay` so a new budget starts at a natural boundary. For weekly this is only a convenience (the weekly grid is global per `budget-math`; a mid-grid `startDate` just clips the first period); for biweekly the saved `startDate` is the cycle anchor:
 
 - **Daily**: `calendar.startOfDay(for: createdAt)`.
 - **Weekly / biweekly**: most recent `AppSettings.weekStartDay`-aligned date at or before `calendar.startOfDay(for: createdAt)`.
 - **Monthly**: start of the calendar month containing `createdAt`.
-- **Specific Dates**: N/A in this change (no UI exposes this period type yet); when a future UI ships, `startDate` is user-entered.
+- **Specific Dates**: not computed here; `startDate` is user-entered.
 
-All four computed values are start-of-day-aligned, so the initial row's `effectiveFrom` matches the storage convention used by `allocationInEffect` (algorithm doc §A.6.1) exactly.
+All four computed values are start-of-day-aligned, so the initial row's `effectiveFrom` matches the `allocationInEffect` storage convention (algorithm doc §A.6.1).
 
 #### Scenario: Daily budget initial allocation row
 
@@ -347,12 +347,12 @@ All four computed values are start-of-day-aligned, so the initial row's `effecti
 
 The system SHALL bump `Budget.lastModified = now` in the same `ModelContext.save()` as every user-initiated write that affects budget math. Specifically:
 
-- Every `ExpenseItem` add, edit, or delete SHALL set the owning `Budget.lastModified = now` before save. (Edit was previously unhandled when refresh triggers relied on `expenseItems.count`; this rule closes that gap.)
+- Every `ExpenseItem` add, edit, or delete SHALL set the owning `Budget.lastModified = now` before save, so edits (which `expenseItems.count` cannot detect) also trigger refresh.
 - Every `AllocationChange` insert or mutation SHALL bump the owning `Budget.lastModified = now` (handled inside `BudgetLifecycleService.applyAllocationEdit`).
 - `BudgetLifecycleService.resetCarryOver(...)` and `BudgetLifecycleService.resetBudget(...)` SHALL bump `Budget.lastModified = now`.
 - Future write sites (pause, resume, start/end date edits) SHALL follow the same rule.
 
-This provides a single reliable refresh signal that every chip-observing view can observe via `.onChange(of: budget.lastModified)`.
+This gives every chip-observing view one refresh signal via `.onChange(of: budget.lastModified)`.
 
 #### Scenario: Expense Add bumps lastModified
 
@@ -362,7 +362,7 @@ This provides a single reliable refresh signal that every chip-observing view ca
 #### Scenario: Expense Edit bumps lastModified
 
 - **WHEN** an existing ExpenseItem's `amount` is changed and `context.save()` is called
-- **THEN** the owning `Budget.lastModified` equals `now` at the moment of save (this case was previously unhandled by the count-based refresh trigger)
+- **THEN** the owning `Budget.lastModified` equals `now` at the moment of save
 
 #### Scenario: Expense Delete bumps lastModified
 

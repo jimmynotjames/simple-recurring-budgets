@@ -35,9 +35,9 @@
 
 ### 2.1 Pattern: View + Services, ViewModels on demand
 
-**Default:** Screens are SwiftUI Views that read data with `@Query`, write through `@Environment(\.modelContext)`, and delegate non-trivial logic to pure domain services in `Domain/` (`BudgetLifecycleService`, `BudgetCalculator`, `PeriodCalculator`). No companion ViewModel is introduced by default.
+**Default:** Screens are SwiftUI Views that read data with `@Query`, write through `@Environment(\.modelContext)`, and delegate non-trivial logic to pure domain services in `Domain/` (`BudgetLifecycleService`, `BudgetCalculator`, `PeriodCalculator`). No companion ViewModel by default.
 
-**Why not a VM on every screen.** The `Domain/` layer already carries the testable business logic as pure, SwiftData-free services (see §5.4). Adding a VM to thin list or detail screens mostly relays calls, duplicates state, and introduces lifecycle plumbing (`ModelContext` injection, `bind` timing, preview setup) without a payoff. Keeping reads in the view via `@Query` also preserves SwiftUI's automatic invalidation on SwiftData changes — something a VM-held fetch would have to reimplement.
+**Why not a VM on every screen.** `Domain/` already carries the testable business logic as pure, SwiftData-free services (see §5.4). A VM on a thin list or detail screen relays calls, duplicates state, and adds lifecycle plumbing (`ModelContext` injection, `bind` timing, preview setup) for no payoff. Reads via `@Query` in the view keep SwiftUI's automatic invalidation on SwiftData changes, which a VM-held fetch would have to reimplement.
 
 **Escalate to an** `@Observable` **ViewModel only when at least one of these is true:**
 
@@ -46,21 +46,21 @@
 3. The screen needs **a multi-step user action** chaining validation, multiple writes, and side effects beyond a one-liner.
 4. The screen has **derived display state expensive to recompute** inside `body` that benefits from caching outside it.
 
-**When a VM is escalated, these rules apply:**
+**Rules for an escalated VM:**
 
 - Name and shape: `@Observable final class <Screen>ViewModel`, owned by the view via `@State`.
-- VM holds **draft state and pure logic only**. It does **not** store `ModelContext`, does **not** hold `@Query` results, and does **not** fetch.
-- Methods that need to write take `(context: ModelContext, ...)` at the call site (and `AppSettings` similarly when relevant). This avoids any `init(context:)` / `bind(context:)` lifecycle trap — `@Environment(\.modelContext)` is only readable inside `body`, and passing it per call keeps Sendable/ownership concerns simple.
-- Reads stay in the view via `@Query`. The VM never fetches.
+- The VM holds draft state and pure logic only. It does not store `ModelContext`, hold `@Query` results, or fetch.
+- Methods that write take `(context: ModelContext, ...)` at the call site (and `AppSettings` when relevant). This avoids the `init(context:)` / `bind(context:)` lifecycle trap: `@Environment(\.modelContext)` is only readable inside `body`, and per-call passing keeps Sendable/ownership simple.
+- Reads stay in the view via `@Query`.
 
-**Grey-area protocol — ask before scaffolding a VM.** A VM is harder to remove than to add. If a screen is on the fence, the implementer must ask the user for an explicit judgment call **before** creating a VM file. Explicit grey-area triggers that require a ping:
+**Grey-area protocol: ask before scaffolding a VM.** A VM is harder to remove than to add. If a screen is on the fence, ask the user for an explicit judgment call **before** creating a VM file. Grey-area triggers that require a ping:
 
 - More than 3 mutable form fields.
 - A framework call inside the screen (Vision, Speech, PhotosUI, SiriKit / App Intents, `SFSpeechRecognizer`, network).
 - A single user input that mutates more than one model property or couples fields.
 - The screen is expected to grow materially within the next 1–2 features.
 
-Pure display-only subviews (row cells, badges, amount formatters) remain logic-free regardless of which side of the rule the parent screen falls on.
+Pure display-only subviews (row cells, badges, amount formatters) stay logic-free regardless of the parent screen.
 
 **Implemented View + Services screens:**
 
@@ -76,15 +76,15 @@ Pure display-only subviews (row cells, badges, amount formatters) remain logic-f
 
 ### 2.2 Navigation: `NavigationStack` with value-based routing
 
-The app's information architecture is a simple stack: Budgets list → Budget detail → Expense detail. A `NavigationStack` with a `Hashable` route enum and `navigationDestination(for:)` handles this cleanly — type-safe, state-driven, and deep-linkable. iPad/Mac can use adaptive layout without requiring a full split view.
+The information architecture is a simple stack: Budgets list → Budget detail → Expense detail. A `NavigationStack` with a `Hashable` route enum and `navigationDestination(for:)` is type-safe, state-driven, and deep-linkable. iPad/Mac use adaptive layout without a full split view.
 
-Route enums (`AppRoute`, `SheetRoute`) carry the model's stable `id` (`UUID`), never a live model reference, so routes stay serializable for future deep links, widgets, and App Intents. `RootView` resolves the UUID at the destination via `ModelContext.budget(id:)` / `.expenseItem(id:)` (`Models/ModelContext+Lookup.swift`); an unresolvable ID — the model was deleted (e.g., on another device) after the route was set — silently pops the push or dismisses the sheet.
+Route enums (`AppRoute`, `SheetRoute`) carry the model's stable `id` (`UUID`), never a live model reference, so routes stay serializable for future deep links, widgets, and App Intents. `RootView` resolves the UUID at the destination via `ModelContext.budget(id:)` / `.expenseItem(id:)` (`Models/ModelContext+Lookup.swift`). An unresolvable ID (the model was deleted, e.g. on another device, after the route was set) silently pops the push or dismisses the sheet.
 
-A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned by the app entry point (`simple_recurring_budgetsApp`) as `@State` and injected into the SwiftUI environment via `.environment(router)`. `RootView` and all descendant screens access it via `@Environment(Router.self)` so leaf screens trigger pushes and sheets without holding navigation state themselves.
+A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned by the app entry point (`simple_recurring_budgetsApp`) as `@State` and injected via `.environment(router)`. `RootView` and descendant screens read it via `@Environment(Router.self)`, so leaf screens trigger pushes and sheets without holding navigation state.
 
-`AppRoute` push cases: `budgetDetail(UUID)` (Budgets list → Budget detail), `expenseDetail(UUID)` (Budget detail → Expense edit, F-2.04 edit path). `SheetRoute` sheet cases: `addBudget`, `editBudget(UUID)`, `addExpense(UUID)`, `settings`, `analyticsConsent`. Existing-expense editing is reached via push (`AppRoute.expenseDetail`), not a sheet.
+`AppRoute` push cases: `budgetDetail(UUID)` (Budgets list → Budget detail), `expenseDetail(UUID)` (Budget detail → Expense edit, F-2.04 edit path). `SheetRoute` sheet cases: `addBudget`, `editBudget(UUID)`, `addExpense(UUID)`, `settings`, `analyticsConsent`. Existing-expense editing is a push (`AppRoute.expenseDetail`), not a sheet.
 
-`AddEditExpenseView` does not own a `NavigationStack`; the navigation context is provided by the caller. For the sheet path (`addExpense`), `RootView` wraps it in `NavigationStack { }`. For the push path (`expenseDetail`), the outer `NavigationStack` in `RootView` provides the context directly.
+`AddEditExpenseView` does not own a `NavigationStack`; the caller provides it. For the sheet path (`addExpense`), `RootView` wraps it in `NavigationStack { }`. For the push path (`expenseDetail`), the outer `NavigationStack` in `RootView` provides it.
 
 ---
 
@@ -96,11 +96,11 @@ A small `@Observable Router` (`path: [AppRoute]`, `sheet: SheetRoute?`) is owned
 
 ### 3.1 Approach
 
-Four SwiftData `@Model` entities: **Budget**, **ExpenseItem**, **AllocationChange**, and **LifecycleEvent**, all held in `SchemaV1`. `Budget → ExpenseItem`, `Budget → AllocationChange`, and `Budget → LifecycleEvent` are all cascade-delete one-to-many relationships. Supporting enums (`BudgetPeriod`, `LifecycleEventKind`) are `String`-backed `Codable` types stored on entities as raw `String` columns with typed computed accessors — this keeps the columns visible to `#Predicate` queries (Codable-backed enum storage would be opaque to predicates).
+Four SwiftData `@Model` entities: **Budget**, **ExpenseItem**, **AllocationChange**, and **LifecycleEvent**, all held in `SchemaV1`. `Budget → ExpenseItem`, `Budget → AllocationChange`, and `Budget → LifecycleEvent` are cascade-delete one-to-many relationships. Supporting enums (`BudgetPeriod`, `LifecycleEventKind`) are `String`-backed `Codable` types stored as raw `String` columns with typed computed accessors, which keeps the columns visible to `#Predicate` (Codable-backed enum storage is opaque to predicates).
 
-The user-facing entry point for deleting a `Budget` is the **Delete Budget** button on the Add/Edit Budget sheet (Edit mode only). Confirming the dialog calls `context.delete(budget)` + `context.save()` on `AddEditBudgetViewModel`; the `@Relationship(deleteRule: .cascade)` rules automatically removes the budget's `ExpenseItem`, `AllocationChange`, and `LifecycleEvent` rows in the same save. No schema or CKRecord change is involved.
+Users delete a `Budget` with the **Delete Budget** button on the Add/Edit Budget sheet (Edit mode only). Confirming calls `context.delete(budget)` + `context.save()` on `AddEditBudgetViewModel`; the `@Relationship(deleteRule: .cascade)` rules remove the budget's `ExpenseItem`, `AllocationChange`, and `LifecycleEvent` rows in the same save. No schema or CKRecord change is involved.
 
-**CloudKit optional relationship pattern:** CloudKit requires all relationships to be optional (records may arrive out-of-order during sync). All stored relationship properties (`Budget.expenses`, `Budget.allocationChangesStorage`, `Budget.lifecycleEventsStorage`, `ExpenseItem.budget`, `AllocationChange.budget`, `LifecycleEvent.budget`) are therefore typed optional. Non-optional computed accessors (`expenseItems`, `allocationChanges`, `lifecycleEvents`) returning `?? []` are the canonical accessors for all app code.
+**CloudKit optional relationship pattern:** CloudKit requires all relationships to be optional (records may arrive out of order during sync). All stored relationship properties (`Budget.expenses`, `Budget.allocationChangesStorage`, `Budget.lifecycleEventsStorage`, `ExpenseItem.budget`, `AllocationChange.budget`, `LifecycleEvent.budget`) are typed optional. App code uses the non-optional computed accessors (`expenseItems`, `allocationChanges`, `lifecycleEvents`), which return `?? []`.
 
 **Budget entity fields:**
 
@@ -130,16 +130,16 @@ The user-facing entry point for deleting a `Budget` is the **Delete Budget** but
 
 All monetary values use `Decimal`, never floating-point.
 
-Derived values — **Remaining for current Budget Period** and **Carry-over** — are computed at read-time via `BudgetCalculator.snapshot(...)` and never persisted.
+Derived values (**Remaining for current Budget Period**, **Carry-over**) are computed at read time via `BudgetCalculator.snapshot(...)` and never persisted.
 
 ### 3.2 Carry-Over Bookkeeping
 
 Per [PRD §6.7](main-prd.md#67-carry-over-behavior), the algorithm is a **live walker** (no stored carry-over amount):
 
-- `BudgetCalculator.snapshot(budget:expenses:now:calendar:)` is the single pure read entry point. It is stateless and never mutates the budget.
-- The walker sums `(allocationInEffect(at: periodStart) − expenses)` for every completed active period in the window `[max(startDate, lastResetDate ?? .distantPast), currentPeriodStart)`.
-- The **asymmetric live coupling rule** adds the current period's *committed* overflow — overspend and add-funds excess — to the walker sum in real time. Ordinary mid-period slack waits for the period close.
-- **Manual reset**: `BudgetLifecycleService.resetCarryOver(_:context:)` sets `lastResetDate = now`, trimming the walker window so carry-over reads zero from that moment forward.
+- `BudgetCalculator.snapshot(budget:expenses:now:calendar:)` is the single pure read entry point: stateless, never mutates the budget.
+- The walker sums `(allocationInEffect(at: periodStart) − expenses)` for every completed active period in `[max(startDate, lastResetDate ?? .distantPast), currentPeriodStart)`.
+- The **asymmetric live coupling rule** adds the current period's *committed* overflow (overspend and add-funds excess) to the walker sum in real time. Ordinary mid-period slack waits for the period close.
+- **Manual reset**: `BudgetLifecycleService.resetCarryOver(_:context:)` sets `lastResetDate = now`, trimming the walker window so carry-over reads zero from then on.
 
 
 
@@ -166,9 +166,9 @@ Never wipe or reshape the store as a fix. "Wipe the simulator and move on" was t
 
 ### 4.1 SwiftData + CloudKit
 
-SwiftData persistence with `cloudKitDatabase: .automatic` on `ModelConfiguration` enables CloudKit sync with the default container. This is the simplest integration path for SwiftData-backed CloudKit apps.
+`cloudKitDatabase: .automatic` on `ModelConfiguration` enables CloudKit sync with the default container, the simplest integration for SwiftData-backed CloudKit apps.
 
-**Single-store guarantee (split-brain prevention).** `makeProductionModelContainer` tries a CloudKit-enabled config first and falls back to a local-only (`cloudKitDatabase: .none`) config when iCloud is unavailable (offline / not signed in). Both configs are pinned to one shared on-disk store `url`, obtained from `ModelConfiguration(schema:isStoredInMemoryOnly:false).url` (SwiftData's own default path, so existing installs keep their current store). Pinning the URL guarantees the two configs can never resolve to different files: an offline first launch writes to the store, and a later online launch opens that **same** store and attaches CloudKit mirroring in place — the local data is promoted to the cloud rather than stranded in a forked, empty store. The `PersistentStoreURLTests` lock in the invariant that a config's `url` is independent of its `cloudKitDatabase` setting.
+**Single-store guarantee (split-brain prevention).** `makeProductionModelContainer` tries a CloudKit-enabled config first and falls back to a local-only (`cloudKitDatabase: .none`) config when iCloud is unavailable (offline / not signed in). Both configs are pinned to one shared on-disk store `url`, obtained from `ModelConfiguration(schema:isStoredInMemoryOnly:false).url` (SwiftData's default path, so existing installs keep their store). The two configs therefore never resolve to different files: an offline first launch writes to the store, and a later online launch opens that **same** store and attaches CloudKit mirroring in place, promoting local data to the cloud instead of stranding it in a forked, empty store. `PersistentStoreURLTests` lock in the invariant that a config's `url` is independent of its `cloudKitDatabase` setting.
 
 ### 4.2 CloudKit Setup Requirements
 
@@ -196,15 +196,15 @@ SwiftData + CloudKit uses last-writer-wins at the record level by default. For t
 
 ### 4.5 App Settings (NSUbiquitousKeyValueStore)
 
-Lightweight app-wide preferences (e.g., default carry-over toggle, start-of-week day) use `NSUbiquitousKeyValueStore` instead of `UserDefaults`. This gives automatic iCloud sync across the user's devices signed into the same Apple ID — settings configured on one device appear on all others without requiring SwiftData or a custom sync mechanism. The iCloud key-value store shares the app's existing iCloud container entitlement (same as CloudKit).
+App-wide preferences (e.g., default carry-over toggle, start-of-week day) use `NSUbiquitousKeyValueStore` instead of `UserDefaults`, so settings sync across devices on the same Apple ID without SwiftData or a custom mechanism. The store shares the app's existing iCloud container entitlement.
 
-Key constraints:
+Constraints:
 
-- 1 MB total / 1024 keys maximum — suitable for a small number of preferences.
-- Eventual consistency — changes propagate when connectivity is available; the local value is authoritative until sync arrives.
-- `NSUbiquitousKeyValueStore.didChangeExternallyNotification` must be observed to update in-memory state when another device writes.
-- No `register(defaults:)` equivalent — code must check for key existence and apply hard-coded defaults on first read.
-- Testability via a `KeyValueStore` protocol seam (since `NSUbiquitousKeyValueStore` cannot be instantiated with a custom suite).
+- 1 MB total / 1024 keys maximum.
+- Eventually consistent: the local value is authoritative until sync arrives.
+- Observe `NSUbiquitousKeyValueStore.didChangeExternallyNotification` to update in-memory state when another device writes.
+- No `register(defaults:)` equivalent: check for key existence and apply hard-coded defaults on first read.
+- Testability via a `KeyValueStore` protocol seam (`NSUbiquitousKeyValueStore` cannot be instantiated with a custom suite).
 
 **Keys in use:**
 
@@ -225,37 +225,37 @@ Key constraints:
 | `"ratingPromptLastRequestedVersion"` | `String` (`CFBundleShortVersionString`)                               | `RatingPromptState` | App version a review was last requested for; the once-per-version guard (F-6.03).                                                                                                                                                                                                     |
 
 
-> **Orphaned key:** The string `"seededV1"` was used by a prior first-run seeder (removed in change `remove-first-run-seeder`) and is now a harmless leftover on upgraded installs. It SHALL NOT be reused as a new KV key; the `"V1"` suffix remains reserved per convention so any future one-time-reseed change introduces a distinct key name (e.g., `"seededV2"`).
+> **Orphaned key:** `"seededV1"` was used by a removed first-run seeder (change `remove-first-run-seeder`) and is a harmless leftover on upgraded installs. It SHALL NOT be reused as a KV key; the `"V1"` suffix stays reserved so any future one-time-reseed change uses a distinct name (e.g., `"seededV2"`).
 
-**SyncStatus environment value:** `SyncStatus` is an `@Observable final class` injected into the SwiftUI environment via `.environment(syncStatus)` in `simple_recurring_budgetsApp`. It carries two properties: `containerBacking: ContainerBacking` (`.cloudKit` or `.localFallback`), which is determined once at launch from the outcome of `makeProductionModelContainer` and never mutated; and `accountStatus: AccountStatus` (`.checking`, `.available`, or `.unavailable`), which is updated asynchronously by `SettingsView` via `CKContainer.default().accountStatus()` and live `CKAccountChanged` / `NSUbiquityIdentityDidChange` notification observers. A derived `rowState: RowState` property combines both fields to produce the four-state view-state for the Settings iCloud row (`.checking`, `.available`, `.paused`, `.unavailable`). Screens consume it via `@Environment(SyncStatus.self) private var syncStatus`.
+**SyncStatus environment value:** `SyncStatus` is an `@Observable final class` injected via `.environment(syncStatus)` in `simple_recurring_budgetsApp`. It has two properties: `containerBacking: ContainerBacking` (`.cloudKit` or `.localFallback`), set once at launch from the outcome of `makeProductionModelContainer` and never mutated; and `accountStatus: AccountStatus` (`.checking`, `.available`, or `.unavailable`), updated asynchronously by `SettingsView` via `CKContainer.default().accountStatus()` and live `CKAccountChanged` / `NSUbiquityIdentityDidChange` observers. A derived `rowState: RowState` combines both into the four-state view-state for the Settings iCloud row (`.checking`, `.available`, `.paused`, `.unavailable`). Screens read it via `@Environment(SyncStatus.self) private var syncStatus`.
 
 ### 4.6 Container creation recovery (no `fatalError`)
 
-`makeProductionModelContainer` is a throwing function. When both CloudKit-backed and local-only `ModelContainer` creation fail, the error is surfaced to the `@Observable AppStartup` model (`simple-recurring-budgets/App/AppStartup.swift`) and the `@main` body presents `ContainerFailureView` (Retry + Send Feedback) instead of crashing — see the `container-creation-recovery` capability. The `Logger.cloudKit.error("cloudkit.container.failed: …")` line still fires before the throw per the `diagnostic-logging` capability.
+`makeProductionModelContainer` throws. When both CloudKit-backed and local-only `ModelContainer` creation fail, the error goes to the `@Observable AppStartup` model (`simple-recurring-budgets/App/AppStartup.swift`) and the `@main` body presents `ContainerFailureView` (Retry + Send Feedback) instead of crashing (`container-creation-recovery` capability). `Logger.cloudKit.error("cloudkit.container.failed: …")` fires before the throw per the `diagnostic-logging` capability.
 
 Realistic causes of a both-paths failure in production (community-reported, ordered by likelihood for this app):
 
 1. **Disk full** (`NSFileWriteOutOfSpaceError` / Cocoa 640). SQLite's WAL/journal can't grow. Retry won't help until the user frees space.
-2. **Schema migration failure.** A future `BudgetMigrationPlan` step throwing — bad mapping, version-mismatch, or a failing `MigrationStage`. Retry occasionally succeeds (transient pressure releases). The recovery path of last resort is to wipe the store; we do not do this automatically.
-3. **Migration race condition between the app and any future extension** — see §4.7 below.
-4. **Corrupted SQLite store.** Power-loss mid-WAL-checkpoint, OS-update artifact. Retry rarely helps; Send Feedback is the escape hatch.
-5. **CloudKit account in transit.** User just signed out / switched Apple IDs / mid-mirror recovery. Often self-resolves on the next launch; Retry is a clean win here.
+2. **Schema migration failure.** A future `BudgetMigrationPlan` step throwing (bad mapping, version mismatch, failing `MigrationStage`). Retry occasionally succeeds (transient pressure releases). Wiping the store is the last resort; it is never automatic.
+3. **Migration race between the app and any future extension** (see §4.7).
+4. **Corrupted SQLite store.** Power loss mid-WAL-checkpoint, OS-update artifact. Retry rarely helps; Send Feedback is the escape hatch.
+5. **CloudKit account in transit.** User just signed out / switched Apple IDs / mid-mirror recovery. Often self-resolves on the next launch; Retry works.
 
 
 
 ### 4.7 Multi-process / extension considerations — **read before shipping any extension target**
 
-⚠️ **This app currently has no app extension targets** (no widget, no Live Activity, no Lock Screen widget, no Control Center widget, no App Clip, no Share / Action / Intents / Notification Service extension). The container model assumes a **single-process owner** of the on-disk store.
+⚠️ **This app has no app extension targets** (no widget, Live Activity, Lock Screen widget, Control Center widget, App Clip, or Share / Action / Intents / Notification Service extension). The container model assumes a **single-process owner** of the on-disk store.
 
-**When a future change introduces any of the above, the following SHALL be re-evaluated in the same change** (the agent adding the extension owns this checklist):
+**A change that introduces any of these SHALL re-evaluate the following in the same change** (the agent adding the extension owns this checklist):
 
-1. **App Group + shared store URL.** Decide whether the extension reads or writes the same SwiftData store. If yes, move the store to a shared App Group container (`FileManager.containerURL(forSecurityApplicationGroupIdentifier:)`) and update `makeProductionModelContainer` to anchor `ModelConfiguration.url` there instead of the default app-sandbox path. Treat this as a one-shot migration (copy the existing store file once, gated by a `NSUbiquitousKeyValueStore` flag, then read from the new path) — the per-config `url` invariant tested by `PersistentStoreURLTests` extends to the new path.
-2. **Migration race condition.** SwiftData / CoreData does **not** serialize `ModelContainer` creation across processes. If the host app and an extension both attempt to open the store during a schema migration (e.g. the user updates the app and the system wakes the widget at the same time), one or both `ModelContainer.init` calls can throw with no useful diagnostic. The community-recommended mitigation is a **process-level lockfile** wrapping the `ModelContainer(...)` call (write a sentinel file in the App Group container; second-comer waits on it with a short timeout). Add this in the same change as the extension; do not ship the extension without it.
-3. **Read-only vs read-write split.** If the extension only needs to *read*, prefer giving it a read-only `ModelContainer` (or a snapshot exported to a smaller cache file) so it cannot race with the host's migrations.
-4. **Background-launch + file protection.** If the extension can be launched while the device is locked (most widget refreshes can), the store file's data-protection class matters. Default is `NSFileProtectionCompleteUntilFirstUserAuthentication`, which is usually fine; verify before shipping.
-5. **Retry semantics with extensions.** `ContainerFailureView.Retry` only re-runs the host app's container creation. If the extension is the one that's wedged, the user has no recovery surface in the extension itself — extensions should fail silently (a stale widget) rather than show their own error UI, and rely on the host-app launch to repair the store.
+1. **App Group + shared store URL.** Decide whether the extension reads or writes the same SwiftData store. If yes, move the store to a shared App Group container (`FileManager.containerURL(forSecurityApplicationGroupIdentifier:)`) and update `makeProductionModelContainer` to anchor `ModelConfiguration.url` there instead of the default app-sandbox path. Treat this as a one-shot migration (copy the existing store file once, gated by an `NSUbiquitousKeyValueStore` flag, then read from the new path). The per-config `url` invariant tested by `PersistentStoreURLTests` extends to the new path.
+2. **Migration race condition.** SwiftData / CoreData does **not** serialize `ModelContainer` creation across processes. If the host app and an extension both open the store during a schema migration (e.g. the user updates the app and the system wakes the widget at the same time), one or both `ModelContainer.init` calls can throw with no useful diagnostic. The community-recommended mitigation is a **process-level lockfile** around the `ModelContainer(...)` call (write a sentinel file in the App Group container; the second comer waits on it with a short timeout). Ship it in the same change as the extension.
+3. **Read-only vs read-write split.** If the extension only *reads*, give it a read-only `ModelContainer` (or a snapshot exported to a smaller cache file) so it cannot race with the host's migrations.
+4. **Background launch + file protection.** If the extension can launch while the device is locked (most widget refreshes can), the store file's data-protection class matters. The default, `NSFileProtectionCompleteUntilFirstUserAuthentication`, is usually fine; verify before shipping.
+5. **Retry semantics.** `ContainerFailureView.Retry` only re-runs the host app's container creation. An extension has no recovery surface of its own, so it should fail silently (a stale widget) rather than show error UI, and rely on the host-app launch to repair the store.
 
-If the change you're working on is "add a widget" / "add a Live Activity" / "add an App Clip" / "add an Intents extension" / similar, treat the five points above as required reading. Driggers' "All the ways SwiftData's ModelContainer can Error on Creation" (2025) is the canonical community writeup of the race condition.
+For any "add a widget / Live Activity / App Clip / Intents extension" change, the five points above are required reading. Driggers' "All the ways SwiftData's ModelContainer can Error on Creation" (2025) is the canonical writeup of the race condition.
 
 ---
 
@@ -267,15 +267,15 @@ If the change you're working on is "add a widget" / "add a Live Activity" / "add
 
 ### 5.1 Internationalization
 
-All user-facing text uses Xcode **String Catalogs** and `LocalizedStringKey` — no hard-coded English in production views. Dates and numbers use Foundation format styles that auto-adapt to locale. Each Budget stores its own ISO 4217 currency code; formatting uses `Decimal.FormatStyle.Currency`.
+All user-facing text uses Xcode **String Catalogs** and `LocalizedStringKey`; no hard-coded English in production views. Dates and numbers use Foundation format styles that adapt to locale. Each Budget stores its own ISO 4217 currency code; formatting uses `Decimal.FormatStyle.Currency`.
 
-The canonical catalog lives at `simple-recurring-budgets/Resources/Localizable.xcstrings` and is picked up automatically by the app target's `PBXFileSystemSynchronizedRootGroup`; no `project.pbxproj` changes are needed when adding or renaming strings. Every new user-facing string in a production view must use `Text("key", comment: "translator context")` or `LocalizedStringKey("key")`. The `comment:` argument is required whenever the source string would be ambiguous out of context (short labels, button titles, destructive action names, etc.). Placeholder strings in `Views/RootView.swift` are exempt until the real T-2 screens replace them.
+The canonical catalog is `simple-recurring-budgets/Resources/Localizable.xcstrings`, picked up automatically by the app target's `PBXFileSystemSynchronizedRootGroup`; adding or renaming strings needs no `project.pbxproj` change. Every new user-facing string in a production view uses `Text("key", comment: "translator context")` or `LocalizedStringKey("key")`. `comment:` is required whenever the source string is ambiguous out of context (short labels, button titles, destructive action names, etc.). Placeholder strings in `Views/RootView.swift` are exempt until the real T-2 screens replace them.
 
-**Count-driven plurals** — when copy genuinely varies by count (e.g. "1 item" vs "2 items"), use Xcode String Catalog plural variations (CLDR `one`/`other` per locale) rather than Swift-side word substitution. The Swift call site passes the integer count as an interpolation (`Text("my.key \(count)")`), which resolves to the catalog key `"my.key %lld"`; the catalog encodes locale-specific `one`/`other` (and `few`/`many` where needed) buckets. Prefer rewriting copy to avoid count-driven plurals when a count-free form ("all expenses", "all items") is equally clear — this keeps the catalog simpler and the call site free of runtime arguments.
+**Count-driven plurals.** When copy varies by count (e.g. "1 item" vs "2 items"), use Xcode String Catalog plural variations (CLDR `one`/`other` per locale), not Swift-side word substitution. The call site passes the integer count as an interpolation (`Text("my.key \(count)")`), which resolves to the catalog key `"my.key %lld"`; the catalog encodes locale-specific `one`/`other` (and `few`/`many` where needed) buckets. Prefer a count-free rewrite ("all expenses", "all items") when it is equally clear; it keeps the catalog simpler and the call site free of runtime arguments.
 
-**Inline vs list-label period names** — `BudgetPeriod.inlineLabel` (`period.daily.inline`, `period.weekly.inline`, `period.biweekly.inline`, `period.monthly.inline`) and `BudgetPeriod.listLabel` are backed by **separate** per-locale keys. Inline forms are **never** derived from list-label forms via `.lowercased()`, ensuring translators control case for each usage context independently.
+**Inline vs list-label period names.** `BudgetPeriod.inlineLabel` (`period.daily.inline`, `period.weekly.inline`, `period.biweekly.inline`, `period.monthly.inline`) and `BudgetPeriod.listLabel` use **separate** per-locale keys. Never derive inline forms from list-label forms via `.lowercased()`; translators control case for each context.
 
-**Shared keys for repeated copy** — strings that appear identically across multiple surfaces use a single `common.`* catalog key rather than per-surface duplicates. The current shared keys are:
+**Shared keys for repeated copy.** Strings identical across multiple surfaces use a single `common.`* catalog key. Current shared keys:
 
 
 | Key                    | Used by                                                                                                  |
@@ -283,13 +283,13 @@ The canonical catalog lives at `simple-recurring-budgets/Resources/Localizable.x
 | `common.action.cancel` | Reset Budget confirmation, Reset Carry-Over alert, Currency Picker toolbar, and any future Cancel reuse. |
 
 
-This avoids translation drift (one surface translating "Cancel" differently from another) and keeps the catalog smaller. New shared copy SHOULD be hoisted under `common.*` only when it is genuinely identical in meaning across surfaces; otherwise prefer per-surface keys so translators can choose context-appropriate wording.
+This prevents translation drift (one surface translating "Cancel" differently from another) and keeps the catalog smaller. Hoist new shared copy under `common.*` only when it is identical in meaning across surfaces; otherwise use per-surface keys so translators can pick context-appropriate wording.
 
-**Locale-invariant strings use** `Text(verbatim:)` — content that is purely numeric, code-like, or otherwise not meaningfully translatable (app version + build number, raw ISO currency codes when shown without a localized name, monospaced identifiers, etc.) MUST use `Text(verbatim: "…")` so the literal is **not** auto-extracted into the catalog. Without this, Xcode silently emits opaque catalog keys like `"%@ (%@)"` that translators cannot interpret and that bypass the project's `screen.purpose.detail` naming convention. Where the same row also exposes translatable copy via VoiceOver (e.g. the Settings version row's "Version 1.2.0, build 342" `accessibilityLabel`), localize the **a11y label** with a real catalog key while keeping the visible numerals verbatim.
+**Locale-invariant strings use** `Text(verbatim:)`. Content that is purely numeric, code-like, or otherwise not translatable (app version + build number, raw ISO currency codes shown without a localized name, monospaced identifiers, etc.) MUST use `Text(verbatim: "…")` so the literal is **not** auto-extracted into the catalog. Otherwise Xcode emits opaque catalog keys like `"%@ (%@)"` that translators cannot interpret and that bypass the `screen.purpose.detail` naming convention. Where the same row also exposes translatable copy via VoiceOver (e.g. the Settings version row's "Version 1.2.0, build 342" `accessibilityLabel`), localize the **a11y label** with a real catalog key and keep the visible numerals verbatim.
 
 #### Translation pipeline
 
-Translations for all 49 App Store storefront locales were produced and merged by a four-script pipeline at `scripts/translate_catalog/`:
+Translations for all 49 App Store storefront locales are produced and merged by a four-script pipeline at `scripts/translate_catalog/`:
 
 
 | Script        | Role                                                                                                                                                               |
@@ -300,29 +300,29 @@ Translations for all 49 App Store storefront locales were produced and merged by
 | `validate.py` | Post-merge audit: checks for missing keys, format-specifier multiset equality, non-empty values; exits non-zero on hard errors                                     |
 
 
-**To add a new key:** write the key in the source view with `String(localized:defaultValue:comment:)`, run `extract.py` to refresh `source.json`, then re-run the translation subagents for that key's values only, then re-run `merge.py` and `validate.py`.
+**To add a new key:** write the key in the source view with `String(localized:defaultValue:comment:)`, run `extract.py` to refresh `source.json`, re-run the translation subagents for that key's values only, then re-run `merge.py` and `validate.py`.
 
-**Model used:** Composer 2 (`composer-2-fast`). The `PROMPT_TEMPLATE.md` in the same directory documents model requirements; if Haiku or another model is available in a future run, swap the slug there.
+**Model used:** Composer 2 (`composer-2-fast`). `PROMPT_TEMPLATE.md` in the same directory documents model requirements; swap the slug there to use another model.
 
-**Proper nouns kept in English:** "Wren" (product brand), "iCloud", "Carry-Over" (product concept), and App Store brand terms are intentionally left in English for all locales; `validate.py` issues informational warnings (not hard errors) for identical-to-source values.
+**Proper nouns kept in English:** "Wren" (product brand), "iCloud", "Carry-Over" (product concept), and App Store brand terms stay in English in all locales; `validate.py` issues informational warnings (not hard errors) for identical-to-source values.
 
-**App Store listing metadata** is a separate, parallel pipeline at `scripts/translate_metadata/` (driven by the `appstore-translate-metadata` skill / `/appstore:translate-metadata`, gate: `check_metadata.py`). It transcreates the listing copy (`name`, `subtitle`, `keywords`, `promotional_text`, `description`, `release_notes`) from `fastlane/metadata/en-US/` into all 49 storefronts under `fastlane/metadata/<storefront>/`. It is kept distinct from the in-app pipeline because App Store Connect uses *storefront* codes (`de-DE`, `no`, `nl-NL`, `ar-SA`) rather than the app's *runtime* codes; `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront map. Per-storefront subagents run on Opus (marketing transcreation, not literal translation) and enforce Apple's per-field character limits; the brand "Wren" is a proper noun kept verbatim in every locale (so no localized home-screen icon name is needed). See `scripts/translate_metadata/README.md`.
+**App Store listing metadata** is a separate, parallel pipeline at `scripts/translate_metadata/` (driven by the `appstore-translate-metadata` skill / `/appstore:translate-metadata`, gate: `check_metadata.py`). It transcreates the listing copy (`name`, `subtitle`, `keywords`, `promotional_text`, `description`, `release_notes`) from `fastlane/metadata/en-US/` into all 49 storefronts under `fastlane/metadata/<storefront>/`. It is separate from the in-app pipeline because App Store Connect uses *storefront* codes (`de-DE`, `no`, `nl-NL`, `ar-SA`) rather than the app's *runtime* codes; `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront map. Per-storefront subagents run on Opus (marketing transcreation, not literal translation) and enforce Apple's per-field character limits. "Wren" is kept verbatim in every locale, so no localized home-screen icon name is needed. See `scripts/translate_metadata/README.md`.
 
 ### 5.2 Accessibility
 
 - **Dynamic Type**: System text styles everywhere; no fixed frame heights that clip at larger sizes.
-- **VoiceOver**: Meaningful accessibility labels on all interactive controls; financial amounts include currency context. Custom composite views (carry-over chip, currency picker rows, current-period section header on Budget detail) collapse to a single VoiceOver element via `.accessibilityElement(children: .ignore)` paired with an explicit composed `.accessibilityLabel(...)`. Headings use `.accessibilityAddTraits(.isHeader)` so the VoiceOver headings rotor surfaces them. This applies to `List`/`Section` header `Text` views and semantic content-area headers (e.g. the budget detail status header). It does **not** apply to `GroupBox` card labels — those are visual section labels, not structural heading hierarchy; adding the trait there is noise, not a requirement. Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) carry an `.accessibilityHint(...)` describing the irreversible consequence. `swipeActions` **are not auto-exposed to VoiceOver**; every `swipeActions` block MUST be paired with a matching `.accessibilityAction(named:)` so VO users can invoke the action via the rotor. See [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md) for the per-screen audit baseline.
+- **VoiceOver**: Meaningful accessibility labels on all interactive controls; financial amounts include currency context. Custom composite views (carry-over chip, currency picker rows, current-period section header on Budget detail) collapse to one VoiceOver element via `.accessibilityElement(children: .ignore)` plus an explicit composed `.accessibilityLabel(...)`. Headings use `.accessibilityAddTraits(.isHeader)` so the headings rotor surfaces them: `List`/`Section` header `Text` views and semantic content-area headers (e.g. the budget detail status header). Not `GroupBox` card labels, which are visual section labels, not structural headings. Destructive controls (Reset Budget, Reset Carry-Over, Delete Budget, Delete Expense, swipe-to-delete) carry an `.accessibilityHint(...)` describing the irreversible consequence. `swipeActions` **are not auto-exposed to VoiceOver**; every `swipeActions` block MUST be paired with a matching `.accessibilityAction(named:)` so VO users can invoke it via the rotor. See [docs/audits/localization+voiceover-audit-2026-04-30.md](audits/localization+voiceover-audit-2026-04-30.md) for the per-screen audit baseline.
 - **Dark Mode**: Semantic system colors and Asset Catalog color sets with light/dark variants; no hard-coded color literals.
 
 
 
 ### 5.3 Testing
 
-**Swift Testing** for all new unit tests. XCUITest targets use XCTestCase — Apple does not support `import Testing` in unhosted UI test bundles. In-memory `ModelContainer` for all automated data tests to ensure isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure, testable services with minimal or no SwiftData/UI dependencies.
+**Swift Testing** for all new unit tests. XCUITest targets use XCTestCase (Apple does not support `import Testing` in unhosted UI test bundles). Automated data tests use an in-memory `ModelContainer` for isolation. Business logic (budget math, Over/Under rolls, date boundaries) lives in pure services with minimal or no SwiftData/UI dependencies.
 
-**Test Runs**: One iPhone simulator, latest OS. No need to run multiple device models or OS versions unless a test is device-specific.
+**Test runs**: one iPhone simulator, latest OS. Multiple device models or OS versions only for device-specific tests.
 
-**Two-pass UI test strategy** (`scripts/test.sh`): Unit tests run first (`-skip-testing:simple-recurring-budgetsUITests`) to warm the simulator — XCUITest requires the sim to have hosted at least one app lifecycle before its IPC socket is reliable. Pass 2 then runs the two XCUITest classes with `-only-testing`:
+**Two-pass UI test strategy** (`scripts/test.sh`): Unit tests run first (`-skip-testing:simple-recurring-budgetsUITests`) to warm the simulator, because XCUITest needs the sim to have hosted at least one app lifecycle before its IPC socket is reliable. Pass 2 runs the two XCUITest classes with `-only-testing`:
 
 - `AccessibilityAuditTests` — 30 tests using `XCUIApplication.performAccessibilityAudit()` (Xcode 15+) to verify VoiceOver labels, touch-target sizes, Dynamic Type adoption, and text clipping across every major screen.
 - `UserJourneyTests` — 15 end-to-end flow tests (create budget, navigate to detail, add expense ×2, edit budget, pause/resume, delete/edit expense, reorder budgets, delete budget, settings round-trip, and 4 Add/Edit-Budget period-chip flows). Uses XCTestCase with `continueAfterFailure = false`.
@@ -333,25 +333,25 @@ Five **screen objects** (`BudgetsScreen`, `BudgetDetailScreen`, `AddBudgetScreen
 
 Services in `Domain/` implement all budget math with no SwiftUI dependencies:
 
-- `PeriodCalculator` — Pure date math: computes period start/end dates and enumerates period boundaries. Accepts `RecurringBudgetPeriod` (excludes `.specificDates` at compile time). All methods take an injected `Calendar` and a `weekStart: Weekday` — the **global** week grid from `AppSettings.weekStartDay`, consumed only by the `.weekly` branch (change `weekly-global-week-start`, #240). Biweekly cycles anchor to `Budget.startDate` alone.
-- `BudgetCalculator.snapshot(budget:expenses:now:calendar:weekStart:) -> BudgetSnapshot` — The single pure read entry point. Stateless; never mutates anything. Computes carry-over via `walkCarryOver(...)` (live walker over completed active prior periods), adds the asymmetric `currentPeriodSpillover(...)` for the in-progress period, and looks up allocation history via `allocationInEffect(at:history:)`. A dedicated `specificDatesBranch` handles one-window trip budgets. **Two classifiers split math from UI** (see F-7.06): `isActive(periodStart:periodEnd:sortedLifecycleEvents:)` is period-granular and drives the carry-over walker and the `remaining = 0` short-circuit for fully-paused periods; `isPausedAtMoment(now:sortedLifecycleEvents:)` is moment-granular and drives `BudgetSnapshot.lifecycleState`, flipping `.paused` immediately when a `.pause` event's `effectiveDate` is reached. Returns a `BudgetSnapshot` containing `lifecycleState`, `effectiveAllocation`, `remaining`, `carryOver` (`nil` for `.specificDates`), `effectivePeriodStart`, `effectivePeriodEnd`. Algorithm details: `[docs/budget-calculations-rewrite-algorithm.md](budget-calculations-rewrite-algorithm.md)`.
-- `BudgetLifecycleService` — Compatibility adapter between `BudgetCalculator.snapshot` and the existing view-layer `BudgetLifecycleResult` contract. `result(for:weekStart:)` is a pure read (calls `snapshot`, maps result, takes no `ModelContext`); the `weekStart: Weekday` parameter has **no default** — call sites pass `settings.weekStartDay` explicitly. Five write-path methods mutate state and `context.save()`: `applyAllocationEdit(_:newAmount:context:…weekStart:)` (governing-row mutate-or-insert keyed on `max(currentPeriodStart, effectiveStartDate)` — the same instant the live read uses, so live, walker, and write agree even for mid-grid first periods; #247), `resetCarryOver(_:context:)` (sets `lastResetDate`; no period math, no weekStart), `resetBudget(_:context:…weekStart:)` (deletes all expenses + sets `lastResetDate`), `pauseBudget(_:context:now:…weekStart:) -> Bool` (inserts `LifecycleEvent(.pause)` if eligible; rejects for `.specificDates`, already paused, or past `endDate`), `resumeBudget(_:context:now:…weekStart:) -> Bool` (inserts `LifecycleEvent(.resume)` if eligible; same rejections). All write-path methods bump `Budget.lastModified = now` before saving.
+- `PeriodCalculator` — Pure date math: period start/end dates and period-boundary enumeration. Accepts `RecurringBudgetPeriod` (excludes `.specificDates` at compile time). All methods take an injected `Calendar` and a `weekStart: Weekday`, the **global** week grid from `AppSettings.weekStartDay`, consumed only by the `.weekly` branch (change `weekly-global-week-start`, #240). Biweekly cycles anchor to `Budget.startDate` alone.
+- `BudgetCalculator.snapshot(budget:expenses:now:calendar:weekStart:) -> BudgetSnapshot` — The single pure read entry point; stateless, mutates nothing. Computes carry-over via `walkCarryOver(...)` (live walker over completed active prior periods), adds the asymmetric `currentPeriodSpillover(...)` for the in-progress period, and looks up allocation history via `allocationInEffect(at:history:)`. A dedicated `specificDatesBranch` handles one-window trip budgets. **Two classifiers split math from UI** (see F-7.06): `isActive(periodStart:periodEnd:sortedLifecycleEvents:)` is period-granular and drives the carry-over walker and the `remaining = 0` short-circuit for fully-paused periods; `isPausedAtMoment(now:sortedLifecycleEvents:)` is moment-granular and drives `BudgetSnapshot.lifecycleState`, flipping `.paused` as soon as a `.pause` event's `effectiveDate` is reached. Returns a `BudgetSnapshot` with `lifecycleState`, `effectiveAllocation`, `remaining`, `carryOver` (`nil` for `.specificDates`), `effectivePeriodStart`, `effectivePeriodEnd`. Algorithm details: `[docs/budget-calculations-rewrite-algorithm.md](budget-calculations-rewrite-algorithm.md)`.
+- `BudgetLifecycleService` — Compatibility adapter between `BudgetCalculator.snapshot` and the view-layer `BudgetLifecycleResult` contract. `result(for:weekStart:)` is a pure read (calls `snapshot`, maps the result, takes no `ModelContext`); `weekStart: Weekday` has **no default**, so call sites pass `settings.weekStartDay` explicitly. Five write-path methods mutate state and `context.save()`: `applyAllocationEdit(_:newAmount:context:…weekStart:)` (governing-row mutate-or-insert keyed on `max(currentPeriodStart, effectiveStartDate)` — the same instant the live read uses, so live, walker, and write agree even for mid-grid first periods; #247), `resetCarryOver(_:context:)` (sets `lastResetDate`; no period math, no weekStart), `resetBudget(_:context:…weekStart:)` (deletes all expenses + sets `lastResetDate`), `pauseBudget(_:context:now:…weekStart:) -> Bool` (inserts `LifecycleEvent(.pause)` if eligible; rejects for `.specificDates`, already paused, or past `endDate`), `resumeBudget(_:context:now:…weekStart:) -> Bool` (inserts `LifecycleEvent(.resume)` if eligible; same rejections). All write-path methods bump `Budget.lastModified = now` before saving.
 
-**Refresh trigger:** Every user-initiated write (expense add/edit/delete, allocation edit, pause/resume, manual reset) bumps `Budget.lastModified = now` in the same `context.save()`. Views also observe `budget.recomputeToken` (derived from `lastModified`, expense count, and lifecycle/allocation child timestamps — see `Budget+RecomputeToken.swift`) so chip refresh covers expense edits and CloudKit merges that do not re-bump `lastModified`. Refresh is additionally driven by `.task(id:)`, `onChange(of: scenePhase == .active)`, and `onChange(of: settings.weekStartDay)` (so a Week Starts On change — local or iCloud-synced — re-grids weekly budgets immediately).
+**Refresh trigger:** Every user-initiated write (expense add/edit/delete, allocation edit, pause/resume, manual reset) bumps `Budget.lastModified = now` in the same `context.save()`. Views also observe `budget.recomputeToken` (derived from `lastModified`, expense count, and lifecycle/allocation child timestamps; see `Budget+RecomputeToken.swift`), so chip refresh covers expense edits and CloudKit merges that do not re-bump `lastModified`. Refresh is also driven by `.task(id:)`, `onChange(of: scenePhase == .active)`, and `onChange(of: settings.weekStartDay)` (a Week Starts On change, local or iCloud-synced, re-grids weekly budgets immediately).
 
-**Anchors:** The weekly grid is global — `AppSettings.weekStartDay`, threaded into the calculator as the `weekStart` parameter (#240). The biweekly cycle anchor is `Budget.startDate` (a weekday cannot define a 14-day cycle's phase). `AppSettings.weekStartDay` also seeds the pre-populated start date in the Add Budget form.
+**Anchors:** The weekly grid is global: `AppSettings.weekStartDay`, passed to the calculator as `weekStart` (#240). The biweekly cycle anchor is `Budget.startDate` (a weekday cannot define a 14-day cycle's phase). `AppSettings.weekStartDay` also seeds the pre-populated start date in the Add Budget form.
 
-**Caller consumption:** Screens call `BudgetLifecycleService.result(for:)` eagerly and bind the returned `BudgetLifecycleResult` to the view. Screens do **not** call `BudgetCalculator.snapshot(...)` directly — `BudgetLifecycleService` is the read-path entry point.
+**Caller consumption:** Screens call `BudgetLifecycleService.result(for:)` eagerly and bind the returned `BudgetLifecycleResult`. Screens do **not** call `BudgetCalculator.snapshot(...)` directly; `BudgetLifecycleService` is the read-path entry point.
 
 ### 5.5 Color Palette and Theming
 
-The app uses a warm earth-tone palette defined as named color assets in `Resources/Assets.xcassets`, with separate light and dark appearances. All views must use these named assets — never hard-coded color literals.
+The app uses a warm earth-tone palette of named color assets in `Resources/Assets.xcassets`, with separate light and dark appearances. Views must use these named assets, never hard-coded color literals.
 
-**Exceptions:** Semantic system colors are used for money signals (`Color.moneySurplus` / `Color.moneyDeficit` defined as extensions on `Color` in `Views/Shared/Color+Money.swift`), iCloud sync-status icons (system `.green` / `.orange`), and destructive button tints (`.tint(.red)`). These adapt to light/dark mode via the system palette and do not need custom asset catalog slots. If a future theme change (F-4.01–02) needs per-theme control over these, they can be promoted to named assets at that time.
+**Exceptions:** Semantic system colors are used for money signals (`Color.moneySurplus` / `Color.moneyDeficit`, extensions on `Color` in `Views/Shared/Color+Money.swift`), iCloud sync-status icons (system `.green` / `.orange`), and destructive button tints (`.tint(.red)`). They adapt to light/dark via the system palette and need no asset catalog slots. If F-4.01–02 themes need per-theme control, promote them to named assets then.
 
 #### Color assets
 
-Exact values are defined in `Resources/Assets.xcassets` with separate light and dark appearances. The table below documents semantic intent only.
+Exact values live in `Resources/Assets.xcassets`. The table documents semantic intent only.
 
 
 | Asset name       | Semantic role                                                                                         |
@@ -362,11 +362,11 @@ Exact values are defined in `Resources/Assets.xcassets` with separate light and 
 | `AccentFill`     | Solid accent backgrounds behind white text (period chips, `.borderedProminent` buttons)               |
 
 
-**Generated symbols:** Xcode emits `Color.accentFill` from the `AccentFill` asset (`GeneratedAssetSymbols`). Use `AccentColor` (or `.accentColor`) for tints and foreground accents; use `Color.accentFill` (`.tint(Color.accentFill)`) for filled controls that render white labels on a sage background. WCAG contrast is met by default in the light/dark asset values — not via `contrast: increased` catalog appearances.
+**Generated symbols:** Xcode emits `Color.accentFill` from the `AccentFill` asset (`GeneratedAssetSymbols`). Use `AccentColor` (or `.accentColor`) for tints and foreground accents; use `Color.accentFill` (`.tint(Color.accentFill)`) for filled controls with white labels on a sage background. WCAG contrast is met by the default light/dark asset values, not by `contrast: increased` catalog appearances.
 
 #### Applying to screens
 
-`View+AppBackground.swift` exposes a single `appBackground()` modifier that every screen calls once on its root content view:
+`View+AppBackground.swift` exposes one `appBackground()` modifier; every screen calls it once on its root content view:
 
 ```swift
 Group { ... }
@@ -374,10 +374,10 @@ Group { ... }
     .appBackground()
 ```
 
-This modifier applies:
+It applies:
 
-- `.background(Color("AppBackground").ignoresSafeArea())` — fills the full screen including safe areas; shows through the transparent nav bar while the large title is visible.
-- `.toolbarBackground(Color("AppBackground"), for: .navigationBar)` — sets the compact nav bar colour for when the user scrolls and the large title collapses.
+- `.background(Color("AppBackground").ignoresSafeArea())`: fills the full screen including safe areas; shows through the transparent nav bar while the large title is visible.
+- `.toolbarBackground(Color("AppBackground"), for: .navigationBar)`: sets the compact nav bar color once the large title collapses on scroll.
 
 > **Do not** add `.toolbarBackground(.visible, for: .navigationBar)` — that suppresses large title display by forcing the compact bar permanently.
 
@@ -393,11 +393,11 @@ ForEach(items) { item in
 }
 ```
 
-`.scrollContentBackground(.hidden)` cannot be set globally; it must be applied to each `List`. Cell background is applied per `ForEach` (one line per list).
+`.scrollContentBackground(.hidden)` cannot be set globally; apply it to each `List`. Apply the cell background per `ForEach`.
 
 #### Future theming (F-4.01–02)
 
-When user-selectable colour themes are implemented, the `AppBackground` and `CellBackground` asset slots will be the natural extension point — either by swapping asset catalog appearances or by driving `Color` values from a theme state stored in `NSUbiquitousKeyValueStore`. The `appBackground()` modifier call sites will not need to change.
+User-selectable color themes would extend the `AppBackground` and `CellBackground` slots, by swapping asset catalog appearances or driving `Color` values from theme state in `NSUbiquitousKeyValueStore`. `appBackground()` call sites stay unchanged.
 
 ---
 
@@ -418,11 +418,11 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 
 ## 7. Security and Privacy
 
-- **Encryption at rest**: Apple encrypts app data by default (Data Protection). No additional encryption is needed.
-- **Network surface**: The app has **no app-owned backend**. CloudKit sync is managed by the OS. The only third-party network client is **Mixpanel** (product analytics), gated by user consent — see §7 product-analytics paragraph and `docs/analytics-spec.md`. All other release traffic is Apple framework traffic (CloudKit, iCloud KV).
-- **On-device diagnostics**: Uses Apple's unified logging (`OSLog`) directly via `Logger` constants in `AppLoggers.swift` (categories: `bootstrap`, `cloudkit`, `ui`, `persistence`). These are the canonical four categories; any addition or rename requires a matching update to this section and to the `diagnostic-logging` capability spec. Canonical call-site map: `Logger.bootstrap` — one `info` entry per launch recording the resolved `AppDatabaseLaunchMode`; `Logger.cloudKit` — existing container-backing entries in `makeProductionModelContainer` plus one `notice` entry per iCloud account-status transition in `SettingsView`; `Logger.ui` — one `debug` entry per user-initiated destructive action (`resetBudget`, `resetCarryOver`, `deleteBudget`, `deleteExpense`), recording the entity's `persistentModelID` at `privacy: .private`; `Logger.persistence` — one `error` entry per SwiftData `context.save()` failure surfaced through the shared persistence-save helper (`ModelContext.saveChanges(operation:analytics:)`), interpolating the `PersistenceOperation` identifier and the underlying `NSError`'s `localizedDescription` at `privacy: .public` (both non-user-derived). Every interpolated value at a `Logger.`* call site carries an explicit `privacy:` argument. Diagnostic call sites write to these loggers directly — they never pass through `AnalyticsClient`. The one narrowly-scoped exception (the `persistence_save_failed` sibling event) is codified in `docs/analytics-spec.md` [§17](analytics-spec.md#17-boundary-with-f-801-oslog). Logs stay on device and are not transmitted.
-- **Product analytics**: The `AnalyticsClient` protocol is product-only (no diagnostic routing). The default implementation (`ConsoleAnalyticsClient`) prints events in **Debug builds** only (`#if DEBUG`); release builds are silent no-ops and transmit nothing. `MixpanelAnalyticsClient` is the production implementation, shipped as part of F-8.02 (`mixpanel-phase-1-foundation`). Consent is **locale-aware**: default off (explicit opt-in required) in strict-opt-in jurisdictions (EU/EEA/UK/Switzerland and other regimes such as South Korea, China, Brazil, Turkey, Thailand, and Quebec — canonical list in `docs/analytics-spec.md` §7.2), default on (auto opt-in, user can opt out from Settings) in all other locales. No PII is ever transmitted regardless of jurisdiction (no-PII rule operationalized in `docs/analytics-spec.md` §5). The Mixpanel SDK is initialized **lazily**: `Mixpanel.initialize` is NOT called in `init`; the first opted-in `track`/`identify` call triggers lazy initialization guarded by `NSLock`; an opted-out launch incurs zero `MixpanelInstance` creation and no network activity. The "Diagnostics & Analytics" toggle in Settings drives `AppSettings.analyticsOptIn`; toggle-off fires `analytics_consent_changed` then calls `reset()` to wipe the Mixpanel identity. The canonical client-selection table (DEBUG → Console; Release opted-out → Console; Release opted-in → Mixpanel lazy), launch-time event ordering, and consent-transition ordering are in `docs/analytics-spec.md` §§8 and 8.1. The historical implementation starting state (pre-F-8.02 scaffold) is recorded in `docs/analytics-spec.md` §16.1. Fully specified in `docs/analytics-spec.md` §§2–8.
-- **App Transport Security**: Default configuration is sufficient (no custom domains).
+- **Encryption at rest**: Apple's default Data Protection suffices; no additional encryption.
+- **Network surface**: **No app-owned backend**. The OS manages CloudKit sync. The only third-party network client is **Mixpanel** (product analytics), gated by user consent (see the product-analytics bullet below and `docs/analytics-spec.md`). All other release traffic is Apple framework traffic (CloudKit, iCloud KV).
+- **On-device diagnostics**: Apple's unified logging (`OSLog`) via `Logger` constants in `AppLoggers.swift` (categories: `bootstrap`, `cloudkit`, `ui`, `persistence`). These four are canonical; adding or renaming one requires a matching update to this section and to the `diagnostic-logging` capability spec. Call-site map: `Logger.bootstrap` — one `info` entry per launch recording the resolved `AppDatabaseLaunchMode`; `Logger.cloudKit` — container-backing entries in `makeProductionModelContainer` plus one `notice` entry per iCloud account-status transition in `SettingsView`; `Logger.ui` — one `debug` entry per user-initiated destructive action (`resetBudget`, `resetCarryOver`, `deleteBudget`, `deleteExpense`), recording the entity's `persistentModelID` at `privacy: .private`; `Logger.persistence` — one `error` entry per SwiftData `context.save()` failure surfaced through the shared persistence-save helper (`ModelContext.saveChanges(operation:analytics:)`), interpolating the `PersistenceOperation` identifier and the underlying `NSError`'s `localizedDescription` at `privacy: .public` (both non-user-derived). Every interpolated value at a `Logger.`* call site carries an explicit `privacy:` argument. Diagnostic call sites write to these loggers directly and never pass through `AnalyticsClient`. The one narrow exception (the `persistence_save_failed` sibling event) is in `docs/analytics-spec.md` [§17](analytics-spec.md#17-boundary-with-f-801-oslog). Logs stay on device.
+- **Product analytics**: The `AnalyticsClient` protocol is product-only (no diagnostic routing). The default implementation (`ConsoleAnalyticsClient`) prints events in **Debug builds** only (`#if DEBUG`); release builds are silent no-ops and transmit nothing. `MixpanelAnalyticsClient` is the production implementation (F-8.02, `mixpanel-phase-1-foundation`). Consent is **locale-aware**: default off (explicit opt-in required) in strict-opt-in jurisdictions (EU/EEA/UK/Switzerland and other regimes such as South Korea, China, Brazil, Turkey, Thailand, and Quebec; canonical list in `docs/analytics-spec.md` §7.2), default on (auto opt-in, user can opt out from Settings) elsewhere. No PII is ever transmitted regardless of jurisdiction (`docs/analytics-spec.md` §5). The Mixpanel SDK is initialized **lazily**: `Mixpanel.initialize` is NOT called in `init`; the first opted-in `track`/`identify` call triggers initialization guarded by `NSLock`; an opted-out launch creates no `MixpanelInstance` and makes no network requests. The "Diagnostics & Analytics" toggle in Settings drives `AppSettings.analyticsOptIn`; toggle-off fires `analytics_consent_changed` then calls `reset()` to wipe the Mixpanel identity. The client-selection table (DEBUG → Console; Release opted-out → Console; Release opted-in → Mixpanel lazy), launch-time event ordering, and consent-transition ordering are in `docs/analytics-spec.md` §§8 and 8.1. The pre-F-8.02 scaffold is recorded in `docs/analytics-spec.md` §16.1. Full spec: `docs/analytics-spec.md` §§2–8.
+- **App Transport Security**: Default configuration suffices (no custom domains).
 - **Keychain**: Not needed unless future features require secrets (e.g., API keys for AI features in T-7).
 
 ---
@@ -431,7 +431,7 @@ The PRD specifies no explicit performance constraints, but these practices keep 
 
 ## 8. Developer Tooling
 
-Local quality gates use **Lefthook** ([lefthook.dev](https://lefthook.dev/)) so hooks stay fast and dependency-light (**Lefthook hooks do not require a Python runtime**; they are not the Python `pre-commit` framework). `make test` still invokes `python3` for `[scripts/resolve_booted_sim_udid.py](../scripts/resolve_booted_sim_udid.py)`, so a Python **3.9+** on `PATH` is required for the full test script.
+Local quality gates use **Lefthook** ([lefthook.dev](https://lefthook.dev/)); hooks need no Python runtime (this is not the Python `pre-commit` framework). `make test` still invokes `python3` for `[scripts/resolve_booted_sim_udid.py](../scripts/resolve_booted_sim_udid.py)`, so Python **3.9+** must be on `PATH` for the full test script.
 
 ### 8.1 One-time machine setup
 
@@ -448,9 +448,9 @@ brew install lefthook swiftlint swiftformat gitleaks
 make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 ```
 
-`make system` already runs `lefthook install`; use `make hooks-install` alone if you only need to refresh hooks after pulling hook config changes.
+`make system` already runs `lefthook install`; use `make hooks-install` alone to refresh hooks after pulling hook config changes.
 
-**OpenSpec:** The `openspec` CLI (spec-driven workflow in Cursor/skills) is optional for building and testing the app; install it separately per OpenSpec vendor documentation if you use that workflow.
+**OpenSpec:** The `openspec` CLI (spec-driven workflow in Cursor/skills) is optional for building and testing; install it per OpenSpec vendor documentation if you use that workflow.
 
 ### 8.2 What runs where
 
@@ -461,9 +461,9 @@ make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 | **pre-push**   | `bash scripts/build.sh` — bare compile via `xcodebuild build` for scheme `simple-recurring-budgets` using the shared destination helper `[scripts/_destination.sh](../scripts/_destination.sh)` (same resolution as `[scripts/test.sh](../scripts/test.sh)`: `SIMULATOR_UDID` → booted sim → `name=iPhone 17,OS=latest` fallback)                                                                                                                                                                                                                                        |
 
 
-`gitleaks` is optional for solo work but strongly recommended before any secrets or API keys exist in the tree.
+`gitleaks` is optional for solo work but strongly recommended once any secrets or API keys exist in the tree.
 
-The local hooks are bypassable (`--no-verify`, a hookless clone, a web-UI merge); CI (§8.5) re-runs the same gates server-side so they actually run before code reaches `main`.
+Local hooks are bypassable (`--no-verify`, a hookless clone, a web-UI merge); CI (§8.5) re-runs the same gates server-side before code reaches `main`.
 
 ### 8.3 Manual commands
 
@@ -479,13 +479,13 @@ The local hooks are bypassable (`--no-verify`, a hookless clone, a web-UI merge)
 
 ### 8.4 Pre-push build caveat
 
-The pre-push build needs a resolvable iOS Simulator (booted device or `SIMULATOR_UDID` / `SIMULATOR_NAME` as in `scripts/test.sh`). If destination resolution fails, run tests once with `make test` or boot a simulator, then push again.
+The pre-push build needs a resolvable iOS Simulator (booted device or `SIMULATOR_UDID` / `SIMULATOR_NAME` as in `scripts/test.sh`). If destination resolution fails, run `make test` once or boot a simulator, then push again.
 
 ### 8.5 Continuous Integration (GitHub Actions)
 
-CI lives in `.github/workflows/` (checked in, versioned with the code) and re-runs the local gates server-side, where they cannot be bypassed. Branch protection on `main` should **require** the PR checks below (one-time repo-admin toggle in Settings → Branches; CI is advisory without it).
+CI lives in `.github/workflows/` and re-runs the local gates server-side, where they cannot be bypassed. Branch protection on `main` should **require** the PR checks below (one-time repo-admin toggle in Settings → Branches; CI is advisory without it).
 
-This is a public repo, so GitHub-hosted macOS/Simulator runner minutes are free and unbounded — cost no longer gates what runs per-PR (previously a 10× macOS multiplier kept the UI suite opt-in only). App Store metadata and screenshot-content correctness are release-time concerns (there can be 100+ PRs between releases), so those checks (`check_metadata.py`, `check_source_voice.py`, `check_content.py`) live in the fastlane `push_metadata`/`screenshots` lanes instead (`fastlane/Fastfile`, `fastlane/SETUP.md`), not in `ci.yml`.
+This is a public repo, so GitHub-hosted macOS/Simulator runner minutes are free and unbounded; cost does not gate what runs per PR. App Store metadata and screenshot-content correctness are release-time concerns (there can be 100+ PRs between releases), so those checks (`check_metadata.py`, `check_source_voice.py`, `check_content.py`) live in the fastlane `push_metadata`/`screenshots` lanes (`fastlane/Fastfile`, `fastlane/SETUP.md`), not in `ci.yml`.
 
 `ci.yml` — on every `pull_request` and `push` to `main`:
 
@@ -493,19 +493,19 @@ This is a public repo, so GitHub-hosted macOS/Simulator runner minutes are free 
 | Job                  | Runner | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | -------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `lint`               | ubuntu | SwiftFormat `--lint` + SwiftLint `--strict`, **pinned** to the local Homebrew versions (SwiftLint 0.65.1 / SwiftFormat 0.64.1) to avoid CI-vs-local rule drift. Keep these versions in lockstep with local installs. SwiftFormat is a cached release binary; SwiftLint runs from the official `ghcr.io/realm/swiftlint` image (the release zip needs `libxml2.so.2`, missing on Ubuntu 26.04).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `secrets`            | ubuntu | `gitleaks detect` (pinned 8.30.1) over full history — complements pre-commit `gitleaks protect --staged`. Reviewed-and-accepted findings are allowlisted by fingerprint in `.gitleaksignore`. The four retained fingerprints cover pre-externalization commits that hardcoded the Mixpanel project tokens; HEAD no longer hardcodes them (values now live in `config/Secrets.local.xcconfig`, gitignored, via `config/Secrets.xcconfig` base defaults). The `.gitleaksignore` entries are **kept** because history is not rewritten and the full-history scan still sees those older commits. A release ship guard (`scripts/verify_release_secrets.sh`, called by Fastlane `beta`/`release` lanes and the Xcode Release-only Run Script phase) blocks builds that still carry placeholder sentinels — it is not run in CI, since it checks for a gitignored local secrets file that never exists in a CI checkout. |
+| `secrets`            | ubuntu | `gitleaks detect` (pinned 8.30.1) over full history — complements pre-commit `gitleaks protect --staged`. Reviewed-and-accepted findings are allowlisted by fingerprint in `.gitleaksignore`. The four retained fingerprints cover pre-externalization commits that hardcoded the Mixpanel project tokens; HEAD does not (values live in gitignored `config/Secrets.local.xcconfig`, over `config/Secrets.xcconfig` base defaults). Keep the `.gitleaksignore` entries: history is not rewritten, so the full-history scan still sees those commits. A release ship guard (`scripts/verify_release_secrets.sh`, called by Fastlane `beta`/`release` lanes and the Xcode Release-only Run Script phase) blocks builds that still carry placeholder sentinels — it is not run in CI, since it checks for a gitignored local secrets file that never exists in a CI checkout. |
 | `check-large-files`  | ubuntu | `scripts/check-large-files.sh` against the PR diff (mirrors the pre-commit hook, which only sees staged files locally).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `i18n-gates`         | ubuntu | `check_translations.py`, `check_source_strings.py`, `check_metadata.py` (the pre-push translation gates), plus the deterministic `plural_completeness.py` and `untranslated_copies.py` checks, plus a non-blocking `consistency_check.py --ignore-casing`. Enforces issue #172 server-side. Each mechanical check runs through `scripts/ci/annotate.py`, which turns `--json` findings into GitHub annotations, a step summary, and a job output the `pr-summary` job aggregates.                                                                                                                                                                                                                                                                                                                |
 | `build`              | macOS  | `xcodebuild build` (mirrors `scripts/build.sh`). SwiftPM package cache keyed on `Package.resolved`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `test`               | macOS  | Two-phase `xcodebuild test`: Phase 1 unit tests (skips the UITests target, mirrors `scripts/test-unit.sh`, warms the simulator), Phase 2 the UI suite (`AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, `AllocationFirstTapUITests`, mirrors `scripts/test-ui.sh`) — now run automatically on every PR. Same SwiftPM cache as `build`.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `test`               | macOS  | Two-phase `xcodebuild test`: Phase 1 unit tests (skips the UITests target, mirrors `scripts/test-unit.sh`, warms the simulator), Phase 2 the UI suite (`AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, `AllocationFirstTapUITests`, mirrors `scripts/test-ui.sh`); both run on every PR. Same SwiftPM cache as `build`.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `pr-summary`         | ubuntu | Posts/updates one consolidated PR comment aggregating every gate's pass/fail (edited in place on re-push via a marker comment). Informational only — not a required status check.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 
 The macOS jobs invoke `xcodebuild` directly (not via the Makefile/sim-sandbox), since the per-repo sim sandbox, the `SRB_SIM_MAX` concurrency knob, and the maintainer's machine-wide simulator-slots pool (AGENTS.md § Simulator slots; off on runners, which have no pool master) are local optimizations with no analogue on a single ephemeral runner. Xcode is pinned to 26.5. Keep the scheme/`-skip-testing`/`-only-testing` flags in sync with the mirrored scripts.
 
-`run-ui-tests-on-demand.yml` — since `test` already runs the full unit+UI suite per-PR, this workflow is a narrower lever: comment `/run-ui-tests` on a PR (documented in `.github/pull_request_template.md`) to re-run just the UI suite (e.g. flaky-test triage) without waiting on a full unit+UI re-run. Restricted to write-access commenters. `issue_comment` workflows always run the default-branch copy of the file, so changes to this trigger only take effect after merging to `main`.
+`run-ui-tests-on-demand.yml` — comment `/run-ui-tests` on a PR (documented in `.github/pull_request_template.md`) to re-run just the UI suite (e.g. flaky-test triage) without a full unit+UI re-run. Restricted to write-access commenters. `issue_comment` workflows always run the default-branch copy of the file, so trigger changes take effect only after merging to `main`.
 
-`dependabot.yml` — weekly `github-actions` updates only. The SPM deps (`mixpanel-swift`, `mixpanel-swift-common`, `json-logic-swift`) are **not** Dependabot-trackable because the app has no `Package.swift` (deps are Xcode-project-managed); SPM bumps stay manual.
+`dependabot.yml` — weekly `github-actions` updates only. The SPM deps (`mixpanel-swift`, `mixpanel-swift-common`, `json-logic-swift`) are **not** Dependabot-trackable because the app has no `Package.swift` (deps are Xcode-project-managed); SPM bumps are manual.
 
 ---
 
@@ -513,9 +513,9 @@ The macOS jobs invoke `xcodebuild` directly (not via the Makefile/sim-sandbox), 
 
 ## 9. Future Technical Considerations
 
-Remaining items from the feature backlog that will require technical design when prioritized.
+Backlog items that need technical design when prioritized.
 
-> ⚠️ **Any change that introduces an app extension target** (widget, Live Activity, Lock Screen widget, Control Center widget, App Clip, Share / Action / Intents / Notification Service extension) SHALL first read [§4.7 Multi-process / extension considerations](#47-multi-process--extension-considerations--read-before-shipping-any-extension-target). The store is single-process today; the SwiftData `ModelContainer` migration race across processes is a known production-crash class that must be mitigated in the same change that ships the extension.
+> ⚠️ **Any change that introduces an app extension target** (widget, Live Activity, Lock Screen widget, Control Center widget, App Clip, Share / Action / Intents / Notification Service extension) SHALL first read [§4.7 Multi-process / extension considerations](#47-multi-process--extension-considerations--read-before-shipping-any-extension-target). The store is single-process today; the cross-process SwiftData `ModelContainer` migration race is a known production-crash class and must be mitigated in the same change that ships the extension.
 
 
 | Feature                                                                 | Technical Surface                                                                                                                                                                                                                                                   |

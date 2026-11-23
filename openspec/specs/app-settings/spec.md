@@ -1,6 +1,6 @@
 # App settings
 
-App-wide preferences persisted via `NSUbiquitousKeyValueStore`, with iCloud sync across the user's devices. Synced from change `app-settings` (2026-04-11).
+App-wide preferences persisted via `NSUbiquitousKeyValueStore`, with iCloud sync across the user's devices.
 ## Requirements
 ### Requirement: Weekday enum
 
@@ -32,7 +32,7 @@ The system SHALL define a `Weekday` enum that is `Int`-backed, `CaseIterable`, `
 
 ### Requirement: AppSettings class
 
-The system SHALL define an `@Observable final class AppSettings` that persists app-wide settings to `NSUbiquitousKeyValueStore`, enabling automatic iCloud sync across the user's devices signed into the same Apple ID. The class SHALL accept a backing store via `init(store: KeyValueStore = NSUbiquitousKeyValueStore.default)` where `KeyValueStore` is a protocol abstracting the store's read/write/synchronize interface for testability.
+The system SHALL define an `@Observable final class AppSettings` that persists app-wide settings to `NSUbiquitousKeyValueStore`, syncing via iCloud across devices on the same Apple ID. The class SHALL accept a backing store via `init(store: KeyValueStore = NSUbiquitousKeyValueStore.default)` where `KeyValueStore` is a protocol abstracting the store's read/write/synchronize interface for testability.
 
 #### Scenario: Default initialization
 
@@ -172,8 +172,8 @@ The enum SHALL expose:
 
 - `var id: Self { self }` for `Identifiable` conformance.
 - A localized `var label: String` providing a human-readable name per case ("Symbol", "Code", "Code + Symbol" in en).
-- A `func example(locale: Locale) -> String` that returns a live preview of how a fixed sentinel amount renders under this preference in the supplied locale. The implementation SHALL: (a) resolve the example currency code via `locale.currency?.identifier`, falling back to `"USD"` if `nil` (mirroring `docs/product-features-planning.md` F-3.04 — "Defaults to locale's currency; USD if unable to determine at all"); (b) format `Decimal(25)` against that code and locale through the same `Decimal.formatted(currencyCode:display:locale:)` API the rest of the app uses, with `display` set to the case the method is called on. The example SHALL NOT be a hard-coded mock string. The `Locale` parameter SHOULD be defaulted to `Locale.autoupdatingCurrent` so production callers (the Settings picker) get the user's current locale and tests can supply a deterministic locale.
-- A `func affixes(for currencyCode: String, locale: Locale) -> (leading: String, trailing: String)` that returns the currency symbol/code text to place around an editable amount field — NOT a full amount string. The leading/trailing split SHALL be derived from the same currency `FormatStyle` the display path uses (the `Decimal.formatted(currencyCode:display:locale:)` family), so symbol position and locale spacing match the rest of the app: text rendered before the numeric core is `leading`, text after it is `trailing` (e.g. `("$", "")` for USD in en_US, `("", " €")` for EUR in fr_FR). For `.codeAndSymbol`, the ISO code SHALL be kept leading and prepended to the symbol form. The `Locale` parameter SHOULD default to `Locale.autoupdatingCurrent`. This member replaces the former `prefix(for:)` accessor, which always returned a single leading string and could not represent trailing-symbol locales.
+- A `func example(locale: Locale) -> String` that returns a live preview of how a fixed sentinel amount renders under this preference in the supplied locale. The implementation SHALL: (a) resolve the example currency code via `locale.currency?.identifier`, falling back to `"USD"` if `nil` (`docs/product-features-planning.md` F-3.04: locale's currency, USD if undeterminable); (b) format `Decimal(25)` against that code and locale through `Decimal.formatted(currencyCode:display:locale:)`, the API the rest of the app uses, with `display` set to the case the method is called on. The example SHALL NOT be a hard-coded mock string. The `Locale` parameter SHOULD default to `Locale.autoupdatingCurrent` so production callers (the Settings picker) get the user's locale and tests can supply a deterministic one.
+- A `func affixes(for currencyCode: String, locale: Locale) -> (leading: String, trailing: String)` that returns the currency symbol/code text to place around an editable amount field, NOT a full amount string. The leading/trailing split SHALL come from the same currency `FormatStyle` the display path uses (the `Decimal.formatted(currencyCode:display:locale:)` family), so symbol position and spacing match the rest of the app: text before the numeric core is `leading`, text after is `trailing` (e.g. `("$", "")` for USD in en_US, `("", " €")` for EUR in fr_FR). For `.codeAndSymbol`, the ISO code SHALL stay leading, prepended to the symbol form. The `Locale` parameter SHOULD default to `Locale.autoupdatingCurrent`.
 
 #### Scenario: All cases have correct raw values
 
@@ -203,7 +203,7 @@ The enum SHALL expose:
 #### Scenario: Examples route through the formatter consistently across cases
 
 - **WHEN** `example(locale:)` is called for each `CurrencyDisplayPreference` case with the same locale
-- **THEN** each result SHALL equal `Decimal(25).formatted(currencyCode: code, display: <case>, locale: locale)` where `code` is the resolved currency identifier — i.e., `example` SHALL NOT diverge from the canonical formatter behavior.
+- **THEN** each result SHALL equal `Decimal(25).formatted(currencyCode: code, display: <case>, locale: locale)` where `code` is the resolved currency identifier; `example` SHALL NOT diverge from the canonical formatter.
 
 #### Scenario: Affixes place the symbol on the locale-correct side
 
@@ -222,11 +222,11 @@ The enum SHALL expose:
 
 `AppSettings` SHALL expose a `currencyDisplay` property of type `CurrencyDisplayPreference`. The default value SHALL be `.symbol`. Changes to this property SHALL be persisted to `NSUbiquitousKeyValueStore` under the key `"currencyDisplay"` (stored as the enum's `String` raw value) and SHALL trigger `@Observable` change notifications. The value SHALL sync across the user's iCloud-connected devices.
 
-If the backing store contains a value for `"currencyDisplay"` that is not one of the three recognized raw values (e.g., a future value written by a newer app version), the system SHALL fall back to `.symbol` and SHALL NOT crash. The unrecognized value SHALL remain in the store untouched until a recognized write replaces it, so a newer app version on another paired device retains its preference.
+If the backing store contains a value for `"currencyDisplay"` that is not one of the three recognized raw values (e.g., a future value written by a newer app version), the system SHALL fall back to `.symbol` and SHALL NOT crash. The unrecognized value SHALL stay in the store untouched until a recognized write replaces it, so a newer app version on another paired device keeps its preference.
 
-The `KeyValueStore` protocol SHALL include a `func set(_ value: String, forKey defaultName: String)` method to support persisting the enum's raw value. Both `NSUbiquitousKeyValueStore` (via existing inherited API) and the in-memory `MockKeyValueStore` SHALL conform.
+The `KeyValueStore` protocol SHALL include `func set(_ value: String, forKey defaultName: String)` to persist the enum's raw value. Both `NSUbiquitousKeyValueStore` (via inherited API) and the in-memory `MockKeyValueStore` SHALL conform.
 
-`AppSettings` SHALL also expose a `static let currencyDisplayKey = "currencyDisplay"` constant alongside the existing key constants, mirroring the convention established by `defaultCarryOverEnabledKey` and `weekStartDayKey`.
+`AppSettings` SHALL also expose `static let currencyDisplayKey = "currencyDisplay"` alongside the other key constants.
 
 #### Scenario: Default value on fresh store
 
@@ -270,18 +270,18 @@ The `KeyValueStore` protocol SHALL include a `func set(_ value: String, forKey d
 
 ### Requirement: analyticsOptIn setting
 
-`AppSettings` SHALL expose an `analyticsOptIn` property of type `Bool`. The default value SHALL be **locale-aware**, resolved on first read from `ConsentJurisdiction.kind(for: Locale.current.region)` (see the `product-analytics` capability):
+`AppSettings` SHALL expose an `analyticsOptIn` property of type `Bool`. The default value SHALL be locale-aware, resolved on first read from `ConsentJurisdiction.kind(for: Locale.current.region)` (see the `product-analytics` capability):
 
 - `.required` jurisdiction → default `false`.
 - `.auto_optin` jurisdiction → default `true`.
 
-The resolved default SHALL NOT be persisted to the backing store on first read. Persistence SHALL occur only on the first explicit user action that writes the property — either a Settings toggle change OR a first-run consent sheet decision (accept / decline). This preserves the "first-launch default each device experiences is the correct one for its own locale" invariant when devices in different jurisdictions share the same iCloud account.
+The resolved default SHALL NOT be persisted to the backing store on first read. Persistence SHALL occur only on the first explicit user action that writes the property: a Settings toggle change or a first-run consent sheet decision (accept / decline). This keeps each device's first-launch default correct for its own locale when devices in different jurisdictions share an iCloud account.
 
 When the property is written (toggle or consent decision), the value SHALL be persisted to `NSUbiquitousKeyValueStore` under the key `"analyticsOptIn"` and SHALL trigger `@Observable` change notifications. The value SHALL sync across the user's iCloud-connected devices.
 
-`AppSettings` SHALL also expose a `static let analyticsOptInKey = "analyticsOptIn"` constant alongside the existing key constants.
+`AppSettings` SHALL also expose `static let analyticsOptInKey = "analyticsOptIn"` alongside the other key constants.
 
-`AppSettings` SHALL expose a derived read-only flag (`var analyticsOptInExplicitlySet: Bool` or equivalent) that returns `true` when the backing store contains a value for `"analyticsOptIn"` and `false` otherwise. This flag is consumed by the first-run consent sheet trigger in the `product-analytics` capability.
+`AppSettings` SHALL expose a derived read-only flag (`var analyticsOptInExplicitlySet: Bool` or equivalent) that returns `true` when the backing store contains a value for `"analyticsOptIn"` and `false` otherwise. The first-run consent sheet trigger in `product-analytics` consumes this flag.
 
 #### Scenario: Default value in strict-opt-in jurisdiction (no persisted value)
 
@@ -327,11 +327,11 @@ When the property is written (toggle or consent decision), the value SHALL be pe
 
 ### Requirement: analyticsDistinctId setting
 
-`AppSettings` SHALL expose an `analyticsDistinctId` property of type `String`. The value SHALL be a UUIDv4 string generated on first read if no value is persisted under the key `"analyticsDistinctId"`. The generated value SHALL be written to the backing store immediately (followed by `synchronize()`) so subsequent reads on the same device — and on iCloud-paired devices once the key syncs — return the same value.
+`AppSettings` SHALL expose an `analyticsDistinctId` property of type `String`. The value SHALL be a UUIDv4 string generated on first read if no value is persisted under the key `"analyticsDistinctId"`. The generated value SHALL be written to the backing store immediately (followed by `synchronize()`) so later reads on the same device, and on iCloud-paired devices once the key syncs, return the same value.
 
-The setter SHALL be `internal` or `private(set)`; no caller outside `AppSettings` SHALL overwrite the value. Reads from outside `AppSettings` are allowed.
+The setter SHALL be `internal` or `private(set)`; no caller outside `AppSettings` SHALL overwrite the value. Reads from outside are allowed.
 
-`AppSettings` SHALL also expose a `static let analyticsDistinctIdKey = "analyticsDistinctId"` constant alongside the existing key constants.
+`AppSettings` SHALL also expose `static let analyticsDistinctIdKey = "analyticsDistinctId"` alongside the other key constants.
 
 The property SHALL trigger `@Observable` change notifications when an external write (from another iCloud-paired device) propagates via `didChangeExternallyNotification`.
 

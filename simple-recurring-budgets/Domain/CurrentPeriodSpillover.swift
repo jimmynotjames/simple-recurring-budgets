@@ -24,8 +24,12 @@ func currentPeriodSpillover(
 ) -> Decimal {
   switch lifecycleState {
   case .active:
-    if remaining < 0 { return remaining } // overspend
-    if remaining > effectiveAllocation { return remaining - effectiveAllocation } // add-funds excess
+    if remaining < 0 {
+      return remaining
+    } // overspend
+    if remaining > effectiveAllocation {
+      return remaining - effectiveAllocation
+    } // add-funds excess
     return 0 // ordinary slack
   case .postEnd:
     return remaining // symmetric: entire remaining folds in

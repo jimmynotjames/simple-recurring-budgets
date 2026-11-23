@@ -503,8 +503,12 @@ struct BudgetDetailView: View {
     let container: ModelContainer
 
     init(budget: Budget, icon: String? = nil, name: String? = nil) {
-      if let icon { budget.icon = icon }
-      if let name { budget.name = name }
+      if let icon {
+        budget.icon = icon
+      }
+      if let name {
+        budget.name = name
+      }
       self.budget = budget
       let container = InMemoryModelContainer.makeEmpty()
       DebugData.insertDetail(budget, into: container.mainContext)

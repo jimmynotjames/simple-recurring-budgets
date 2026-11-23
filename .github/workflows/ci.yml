@@ -38,22 +38,20 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     env:
-      SWIFTLINT_VERSION: "0.63.2"
-      SWIFTFORMAT_VERSION: "0.61.1"
+      SWIFTLINT_VERSION: "0.65.1"
+      SWIFTFORMAT_VERSION: "0.64.1"
     steps:
       - uses: actions/checkout@v7
 
-      - name: Cache pinned SwiftFormat/SwiftLint binaries
+      - name: Cache pinned SwiftFormat binary
         uses: actions/cache@v6
-        id: cache-lint-tools
+        id: cache-swiftformat
         with:
-          path: |
-            swiftformat_linux
-            swiftlint_bin
-          key: lint-tools-${{ env.SWIFTFORMAT_VERSION }}-${{ env.SWIFTLINT_VERSION }}
+          path: swiftformat_linux
+          key: swiftformat-${{ env.SWIFTFORMAT_VERSION }}
 
       - name: Install pinned SwiftFormat (Linux release binary)
-        if: steps.cache-lint-tools.outputs.cache-hit != 'true'
+        if: steps.cache-swiftformat.outputs.cache-hit != 'true'
         run: |
           curl -sSL -o swiftformat_linux.zip \
             "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat_linux.zip"
@@ -65,18 +63,14 @@ jobs:
           ./swiftformat_linux --version
           ./swiftformat_linux --lint .
 
-      - name: Install pinned SwiftLint (Linux release binary)
-        if: steps.cache-lint-tools.outputs.cache-hit != 'true'
+      # The official image, not the release zip: that binary needs libxml2.so.2, which
+      # Ubuntu 26.04 (ubuntu-latest) dropped (realm/SwiftLint#6966). The workspace is
+      # mounted at its own path so reported file paths match the checkout.
+      - name: SwiftLint (strict, official Docker image)
         run: |
-          curl -sSL -o swiftlint_linux.zip \
-            "https://github.com/realm/SwiftLint/releases/download/${SWIFTLINT_VERSION}/swiftlint_linux_amd64.zip"
-          unzip -o -q swiftlint_linux.zip -d swiftlint_bin
-          chmod +x swiftlint_bin/swiftlint
-
-      - name: SwiftLint (strict)
-        run: |
-          swiftlint_bin/swiftlint version
-          swiftlint_bin/swiftlint lint --strict
+          image="ghcr.io/realm/swiftlint:${SWIFTLINT_VERSION}"
+          docker run --rm "$image" version
+          docker run --rm -v "$PWD:$PWD" -w "$PWD" "$image" lint --strict
 
   # --- Tier 1: secret scan over the PR (ubuntu) -------------------------------
   # Complements pre-commit `gitleaks protect --staged`. Pinned binary instead of

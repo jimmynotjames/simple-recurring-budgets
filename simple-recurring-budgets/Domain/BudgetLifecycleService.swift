@@ -96,7 +96,9 @@ enum BudgetLifecycleService {
     }
     var latestPauseDate: Date?
     for event in sorted {
-      if event.effectiveDate >= now { break }
+      if event.effectiveDate >= now {
+        break
+      }
       switch event.kind {
       case .pause: latestPauseDate = event.effectiveDate
       case .resume: latestPauseDate = nil
@@ -133,8 +135,7 @@ enum BudgetLifecycleService {
         budget.allocationChanges.count == 1,
         "applyAllocationEdit: specificDates expects exactly 1 AllocationChange row, got \(budget.allocationChanges.count) — see F-2.08"
       )
-      guard let mostRecent = budget.mostRecentAllocationChange else { return }
-      guard mostRecent.amount != newAmount else { return } // no-op when unchanged
+      guard let mostRecent = budget.mostRecentAllocationChange, mostRecent.amount != newAmount else { return } // no-op when unchanged
       mostRecent.amount = newAmount
       mostRecent.lastModified = now
       budget.lastModified = now
@@ -165,7 +166,9 @@ enum BudgetLifecycleService {
     let governingRow = budget.allocationChanges
       .filter { $0.effectiveFrom <= editKey }
       .max { lhs, rhs in
-        if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+        if lhs.effectiveFrom != rhs.effectiveFrom {
+          return lhs.effectiveFrom < rhs.effectiveFrom
+        }
         return lhs.lastModified < rhs.lastModified
       }
     if let governingRow, governingRow.effectiveFrom >= currentPeriodStart {
@@ -318,8 +321,12 @@ enum BudgetLifecycleService {
 
   private static func clamp(_ date: Date, lower: Date?, upper: Date?) -> Date {
     var result = date
-    if let lo = lower, result < lo { result = lo }
-    if let hi = upper, result > hi { result = hi }
+    if let lo = lower, result < lo {
+      result = lo
+    }
+    if let hi = upper, result > hi {
+      result = hi
+    }
     return result
   }
 }

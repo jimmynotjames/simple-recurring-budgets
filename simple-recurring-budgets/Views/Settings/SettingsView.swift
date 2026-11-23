@@ -103,7 +103,11 @@ struct SettingsView: View {
         ),
         isPresented: Binding(
           get: { weekStartConfirmation.isPresenting },
-          set: { if !$0 { weekStartConfirmation.cancel() } }
+          set: {
+            if !$0 {
+              weekStartConfirmation.cancel()
+            }
+          }
         )
       ) {
         Button(String(

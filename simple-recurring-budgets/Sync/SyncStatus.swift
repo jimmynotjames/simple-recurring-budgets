@@ -101,7 +101,9 @@ extension SyncStatus {
     #if DEBUG
       // Screenshot-capture override (see `screenshotForcesAvailableState`). Compiled
       // out of Release; only ever true under the AppStoreScreenshots launch flag.
-      if screenshotForcesAvailableState { return .available }
+      if screenshotForcesAvailableState {
+        return .available
+      }
     #endif
     return switch (containerBacking, accountStatus) {
     case (_, .checking):

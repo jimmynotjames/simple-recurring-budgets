@@ -35,11 +35,15 @@ enum BudgetCalculator {
     // `isActive` require pre-sorted input (see their contracts). This avoids re-sorting
     // inside the walker hot loop.
     let sortedAllocationChanges = budget.allocationChanges.sorted { lhs, rhs in
-      if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+      if lhs.effectiveFrom != rhs.effectiveFrom {
+        return lhs.effectiveFrom < rhs.effectiveFrom
+      }
       return lhs.lastModified < rhs.lastModified
     }
     let sortedLifecycleEvents = budget.lifecycleEvents.sorted { lhs, rhs in
-      if lhs.effectiveDate != rhs.effectiveDate { return lhs.effectiveDate < rhs.effectiveDate }
+      if lhs.effectiveDate != rhs.effectiveDate {
+        return lhs.effectiveDate < rhs.effectiveDate
+      }
       return lhs.lastModified < rhs.lastModified
     }
 
@@ -248,7 +252,9 @@ enum BudgetCalculator {
     effectiveEndExclusive: Date
   ) -> BudgetSnapshot {
     let effectiveAllocation = budget.allocationChanges.max { lhs, rhs in
-      if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+      if lhs.effectiveFrom != rhs.effectiveFrom {
+        return lhs.effectiveFrom < rhs.effectiveFrom
+      }
       return lhs.lastModified < rhs.lastModified
     }?.amount ?? 0
 

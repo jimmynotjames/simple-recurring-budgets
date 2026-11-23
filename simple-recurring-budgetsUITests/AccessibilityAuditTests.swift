@@ -311,26 +311,34 @@ final class AccessibilityAuditTests: XCTestCase {
     if issue.auditType == .contrast {
       // WCAG 2.1 SC 1.4.3 exempts inactive/disabled controls from contrast requirements.
       // The iOS audit does not skip disabled elements, so suppress them here.
-      if issue.element?.isEnabled == false { return true }
+      if issue.element?.isEnabled == false {
+        return true
+      }
       // iOS-COMPAT(26.x): The accessibility audit occasionally reports a contrast issue
       // with a nil XCUIElement (elementType=any, no identifier, no label). This occurs
       // on Form/NavigationStack containers in iOS 26 and cannot be traced to a specific
       // app-owned element. The finding is a platform artifact — suppress it.
-      if issue.element == nil { return true }
+      if issue.element == nil {
+        return true
+      }
       // iOS-COMPAT(26.x): GroupBox label areas, List section headers, and GroupBox
       // content-area elements render via Liquid Glass at the compositor level, applying
       // opacity/material effects that override explicitly-set foreground colors (even
       // fully-opaque Color.primary). These elements are tagged srb.sectionLabel and are
       // visually correct — this is a platform rendering artifact, not an actual contrast
       // failure.
-      if issue.element?.identifier == "srb.sectionLabel" { return true }
+      if issue.element?.identifier == "srb.sectionLabel" {
+        return true
+      }
       // iOS-COMPAT(26.x): Navigation bar Cancel buttons in Liquid Glass toolbars
       // report contrast failures even with .foregroundStyle(.primary). Platform
       // compositor applies glass effects to system nav bar button regions. Scope:
       // system-provided buttons (empty identifier) labeled "Cancel".
       if issue.element?.label == "Cancel",
          issue.element?.elementType == .button,
-         (issue.element?.identifier ?? "").isEmpty { return true }
+         (issue.element?.identifier ?? "").isEmpty {
+        return true
+      }
     }
     if issue.auditType == .elementDetection {
       // iOS-COMPAT(26.x): sheet accessibility isolation is incomplete — system-provided

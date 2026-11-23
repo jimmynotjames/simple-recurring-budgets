@@ -105,7 +105,11 @@ private struct SaveErrorAlertModifier: ViewModifier {
       ),
       isPresented: Binding(
         get: { state != nil },
-        set: { if !$0 { state = nil } }
+        set: {
+          if !$0 {
+            state = nil
+          }
+        }
       ),
       presenting: state
     ) { current in

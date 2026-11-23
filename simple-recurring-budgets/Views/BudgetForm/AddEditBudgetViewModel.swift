@@ -69,7 +69,9 @@ final class AddEditBudgetViewModel {
   // MARK: - Mode introspection
 
   var isEditing: Bool {
-    if case .edit = mode { return true }
+    if case .edit = mode {
+      return true
+    }
     return false
   }
 

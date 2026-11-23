@@ -89,7 +89,9 @@ enum CurrencyDisplayPreference: String, CaseIterable, Identifiable, Codable {
     let runs = Array(attributed.runs)
 
     func isNumericCore(_ run: AttributedString.Runs.Run) -> Bool {
-      if run.numberPart != nil { return true }
+      if run.numberPart != nil {
+        return true
+      }
       switch run.numberSymbol {
       case .decimalSeparator, .groupingSeparator, .sign: return true
       default: return false

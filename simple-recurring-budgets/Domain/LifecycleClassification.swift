@@ -25,8 +25,12 @@ func isActive(
   // - break early once events go past `periodEnd` (the rest can't affect this period).
   var lastPrior: LifecycleEvent?
   for event in sortedLifecycleEvents {
-    if event.effectiveDate >= periodEnd { break }
-    if event.effectiveDate >= periodStart { return true }
+    if event.effectiveDate >= periodEnd {
+      break
+    }
+    if event.effectiveDate >= periodStart {
+      return true
+    }
     lastPrior = event
   }
   return lastPrior.map { $0.kind == .resume } ?? true
@@ -64,7 +68,9 @@ func isPausedAtMoment(
   // Break early once an event's effectiveDate reaches or exceeds now.
   var latestApplicable: LifecycleEvent?
   for event in sortedLifecycleEvents {
-    if event.effectiveDate >= now { break }
+    if event.effectiveDate >= now {
+      break
+    }
     latestApplicable = event
   }
   return latestApplicable?.kind == .pause

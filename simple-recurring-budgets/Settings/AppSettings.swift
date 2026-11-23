@@ -218,8 +218,12 @@ final class AppSettings {
       let regionId = Locale.current.region?.identifier
       return ConsentJurisdiction.kind(for: regionId) == .autoOptin
     }
-    if let b = obj as? Bool { return b }
-    if let n = obj as? NSNumber { return n.boolValue }
+    if let b = obj as? Bool {
+      return b
+    }
+    if let n = obj as? NSNumber {
+      return n.boolValue
+    }
     let regionId = Locale.current.region?.identifier
     return ConsentJurisdiction.kind(for: regionId) == .autoOptin
   }

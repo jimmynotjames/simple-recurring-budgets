@@ -123,7 +123,9 @@ final class Budget {
   /// specificDates branch, and `AddEditBudgetViewModel.applySpecificDatesDateEdits`.
   var mostRecentAllocationChange: AllocationChange? {
     allocationChanges.max { lhs, rhs in
-      if lhs.effectiveFrom != rhs.effectiveFrom { return lhs.effectiveFrom < rhs.effectiveFrom }
+      if lhs.effectiveFrom != rhs.effectiveFrom {
+        return lhs.effectiveFrom < rhs.effectiveFrom
+      }
       return lhs.lastModified < rhs.lastModified
     }
   }

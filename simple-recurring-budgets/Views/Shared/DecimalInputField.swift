@@ -146,10 +146,16 @@ struct DecimalInputField: UIViewRepresentable {
     maxFractionDigits: Int,
     separators: Set<Character>
   ) -> Bool {
-    if prospective.isEmpty { return true }
+    if prospective.isEmpty {
+      return true
+    }
     let separatorCount = prospective.count { separators.contains($0) }
-    if maxFractionDigits == 0 { return separatorCount == 0 }
-    if separatorCount > 1 { return false }
+    if maxFractionDigits == 0 {
+      return separatorCount == 0
+    }
+    if separatorCount > 1 {
+      return false
+    }
     guard let separatorIndex = prospective.firstIndex(where: { separators.contains($0) }) else {
       return true
     }

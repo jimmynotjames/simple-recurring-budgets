@@ -290,7 +290,9 @@ private final class ConsentGatedSpy: AnalyticsClient {
 
   nonisolated func track(_ event: String, properties _: [String: any Sendable]?) {
     MainActor.assumeIsolated {
-      if optedIn { tracked.append(event) }
+      if optedIn {
+        tracked.append(event)
+      }
     }
   }
 

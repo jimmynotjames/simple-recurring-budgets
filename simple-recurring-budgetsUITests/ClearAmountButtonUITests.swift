@@ -335,7 +335,9 @@ final class ClearAmountButtonUITests: XCTestCase {
     // The decimal pad does not have a Done key. Tap the section label above the
     // description field to dismiss the keyboard before refocusing.
     let descriptionLabel = app.staticTexts["Description (optional)"]
-    if descriptionLabel.waitForExistence(timeout: 2) { descriptionLabel.tap() }
+    if descriptionLabel.waitForExistence(timeout: 2) {
+      descriptionLabel.tap()
+    }
 
     let descriptionField = app.textFields["Expense description"]
     XCTAssertTrue(descriptionField.waitForExistence(timeout: 2))

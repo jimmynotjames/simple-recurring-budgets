@@ -75,7 +75,11 @@ struct WeekStartPickerScreen: View {
       ),
       isPresented: Binding(
         get: { confirmation.isPresenting },
-        set: { if !$0 { confirmation.cancel() } }
+        set: {
+          if !$0 {
+            confirmation.cancel()
+          }
+        }
       )
     ) {
       Button(String(

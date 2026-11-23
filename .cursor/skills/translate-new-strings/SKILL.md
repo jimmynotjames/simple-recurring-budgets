@@ -5,45 +5,25 @@ description: Translate newly-added or stale keys in Localizable.xcstrings to all
 
 # Translate new strings
 
-Canonical recipe for getting `Localizable.xcstrings` back to a fully-translated state
-after adding, changing, or invalidating keys. This skill drives the existing
-`scripts/translate_catalog/` pipeline in subset mode.
+Canonical recipe for getting `Localizable.xcstrings` back to a fully translated state after adding, changing, or invalidating keys. Drives the `scripts/translate_catalog/` pipeline in subset mode.
 
-**Definition of done:** `python3 scripts/check_translations.py` exits 0. That is the same
-check `lefthook.yml` runs on `pre-push`, so a clean exit here guarantees the push will
-pass the translation gate.
+Definition of done: `python3 scripts/check_translations.py` exits 0. `lefthook.yml` runs the same check on `pre-push`, so a clean exit guarantees the push passes the translation gate.
 
 ## Hard rules
 
-- **Never write ad-hoc Python** (`python3 -c "..."` heredocs, throwaway `tmp/*.py`)
-  to slice `source.json`, filter outputs, add catalog keys, remove catalog keys, or
-  post-process anything. Every operation in this pipeline has a flag on one of the
-  existing scripts. If you find yourself reaching for `python3 -c`, **stop** — the
-  right move is to extend one of the existing scripts (or add a new primitive to
-  `scripts/translate_catalog/`) so the workflow stays disciplined and the permission
-  surface stays narrow. Treat the urge to write inline Python as a signal that this
-  skill is missing a primitive.
-  - **Adding keys → `add_keys.py`** (see Step 0a)
-  - **Updating English source text → `update_keys.py`** (see Step 0b)
-  - **Renaming keys → `rename_keys.py`** (see Step 0c)
-- **Never skip the pre-push checks** at the end. Treat anything less than `exit 0` from
-  `check_translations.py` as not-done and loop back.
-- **All commands run from repo root.** Paths in this skill are repo-relative.
-- **Register notes are intentionally duplicated — keep them in sync, don't DRY them.**
-  The per-locale formality guidance in `REGIONAL_NOTES` (`scripts/translate_catalog/dispatch_prompts.py`)
-  deliberately overlaps with `CULTURAL_NOTES` in the metadata pipeline only on the *formality
-  decision* per language (issue #173, closed without consolidation). If you change a language's
-  formality decision (e.g. de "du"→"Sie") here, mirror it in `CULTURAL_NOTES`; wording may differ,
-  the formality call must not. Don't try to merge the two maps.
+- Never write ad-hoc Python (`python3 -c "..."` heredocs, throwaway `tmp/*.py`) to slice `source.json`, filter outputs, add or remove catalog keys, or post-process anything. Every operation in this pipeline has a flag on an existing script. If you reach for `python3 -c`, stop: extend an existing script (or add a primitive to `scripts/translate_catalog/`) so the workflow stays disciplined and the permission surface stays narrow. The urge to write inline Python means this skill is missing a primitive.
+  - Adding keys: `add_keys.py` (Step 0a)
+  - Updating English source text: `update_keys.py` (Step 0b)
+  - Renaming keys: `rename_keys.py` (Step 0c)
+- Never skip the pre-push checks at the end. Anything less than `exit 0` from `check_translations.py` is not done; loop back.
+- All commands run from repo root. Paths are repo-relative.
+- Register notes are intentionally duplicated; keep them in sync, don't DRY them. The per-locale formality guidance in `REGIONAL_NOTES` (`scripts/translate_catalog/dispatch_prompts.py`) deliberately overlaps with `CULTURAL_NOTES` in the metadata pipeline only on the formality decision per language (issue #173, closed without consolidation). If you change a language's formality decision (e.g. de "du"→"Sie") here, mirror it in `CULTURAL_NOTES`; wording may differ, the formality call must not. Don't merge the two maps.
 
 ## Recipe
 
 ### Pre-flight — clear stale pipeline outputs
 
-Before anything else, clear any per-locale leftovers from a previous run. `validate.py`
-and `merge.py` read **every** file in `tmp/translate-outputs/` (not just this run's
-manifest), so stale files silently contaminate the run — `dispatch_prompts.py` only
-cleans the manifest's locales, this clears any others too.
+Before anything else, clear per-locale leftovers from a previous run. `validate.py` and `merge.py` read every file in `tmp/translate-outputs/` (not just this run's manifest), so stale files silently contaminate the run. `dispatch_prompts.py` only cleans the manifest's locales; this clears the others too.
 
 ```bash
 python3 scripts/pipeline_tmp.py status translate   # inspect leftovers
@@ -52,22 +32,15 @@ python3 scripts/pipeline_tmp.py clean translate    # clear them (allowlisted; no
 
 ### 0. Catalog maintenance (before translating)
 
-Run whichever of these applies before Step 1. All three scripts are pre-approved in
-`.claude/settings.json` and will not prompt. **Do not use inline Python for any of
-these operations.**
+Run whichever of these applies before Step 1. All three scripts are pre-approved in `.claude/settings.json` and don't prompt. Don't use inline Python for any of these operations.
 
-Both invocation forms shown below work without prompting: the heredoc form (no temp
-file, preferred for small batches) and the temp-file form (useful for large batches).
-For the temp-file form, write JSON to `tmp/<anything>.json` — the `Write(tmp/**)` and
-`Bash(python3 scripts/translate_catalog/<script>:*)` permissions are both pre-approved.
+Both invocation forms work without prompting: the heredoc form (no temp file, preferred for small batches) and the temp-file form (for large batches). For the temp-file form, write JSON to `tmp/<anything>.json`; the `Write(tmp/**)` and `Bash(python3 scripts/translate_catalog/<script>:*)` permissions are both pre-approved.
 
 ---
 
 #### 0a. Add new keys
 
-Use when `String(localized: "key.name")` exists in Swift but the key is not yet in
-`Localizable.xcstrings`. Inserts the key with `en.state: translated`; leaves all other
-locales absent so `extract.py --missing` flags them automatically.
+Use when `String(localized: "key.name")` exists in Swift but the key isn't yet in `Localizable.xcstrings`. Inserts the key with `en.state: translated` and leaves all other locales absent so `extract.py --missing` flags them.
 
 ```bash
 python3 scripts/translate_catalog/add_keys.py - << 'EOF'
@@ -80,16 +53,13 @@ python3 scripts/translate_catalog/add_keys.py - << 'EOF'
 EOF
 ```
 
-Input shape: `{ "key": { "comment": "...", "value": "English string" } }`.
-Existing keys are skipped unless `--force` is passed.
+Input shape: `{ "key": { "comment": "...", "value": "English string" } }`. Existing keys are skipped unless `--force` is passed.
 
 ---
 
 #### 0b. Update English source text
 
-Use when the displayed English text for an existing key changes (copy edit, wording
-change, etc.). Updates the `en` value and marks every existing non-`en` translation
-`needs_review` so the full re-translation round-trip runs automatically via Step 1.
+Use when the displayed English text for an existing key changes (copy edit, wording change). Updates the `en` value and marks every existing non-`en` translation `needs_review`, so Step 1 runs the full re-translation round-trip.
 
 ```bash
 python3 scripts/translate_catalog/update_keys.py - << 'EOF'
@@ -102,18 +72,13 @@ python3 scripts/translate_catalog/update_keys.py - << 'EOF'
 EOF
 ```
 
-Input shape: `{ "key": { "value": "New English string", "comment": "..." } }`.
-`comment` is optional. Keys absent from the catalog are skipped with a warning.
+Input shape: `{ "key": { "value": "New English string", "comment": "..." } }`. `comment` is optional. Keys absent from the catalog are skipped with a warning.
 
 ---
 
 #### 0c. Rename keys
 
-Use when a key identifier changes (e.g. a UI element moved to a different screen or
-section and the key path should reflect that) but the displayed text and all translations
-stay exactly the same. Copies the full entry — comment, `extractionState`, every locale
-translation — from the old key to the new key, then removes the old key. **No
-re-translation is needed after a pure rename.**
+Use when a key identifier changes (e.g. a UI element moved to a different screen or section and the key path should reflect that) but the displayed text and all translations stay the same. Copies the full entry (comment, `extractionState`, every locale translation) from the old key to the new key, then removes the old key. No re-translation is needed after a pure rename.
 
 ```bash
 python3 scripts/translate_catalog/rename_keys.py - << 'EOF'
@@ -123,18 +88,13 @@ python3 scripts/translate_catalog/rename_keys.py - << 'EOF'
 EOF
 ```
 
-Input shape: `{ "old.key": "new.key" }`. Supports `--dry-run` to preview changes
-and `--force` to overwrite an existing new key.
+Input shape: `{ "old.key": "new.key" }`. `--dry-run` previews changes; `--force` overwrites an existing new key.
 
-After renaming, update the Swift call sites to use the new key, then run
-`check_source_strings.py` (Step 5) to confirm no stale references remain. No need to
-run `extract.py --missing` unless you also changed the English text.
+After renaming, update the Swift call sites to the new key, then run `check_source_strings.py` (Step 5) to confirm no stale references remain. Skip `extract.py --missing` unless you also changed the English text.
 
 #### 0d. Convert count strings to plurals
 
-Use when a string interpolates a count (`%lld`) and reads wrong at 1 (e.g. "1 logged
-expenses"). Converts the key's English to a CLDR `variations.plural` block and clears the
-non-en locales so they re-translate as plurals (each locale gets the categories *it* needs).
+Use when a string interpolates a count (`%lld`) and reads wrong at 1 (e.g. "1 logged expenses"). Converts the key's English to a CLDR `variations.plural` block and clears the non-en locales so they re-translate as plurals (each locale gets the categories it needs).
 
 ```bash
 python3 scripts/translate_catalog/pluralize_keys.py - << 'EOF'
@@ -142,19 +102,11 @@ python3 scripts/translate_catalog/pluralize_keys.py - << 'EOF'
 EOF
 ```
 
-`other` is required. Then run Step 1 onward — the pipeline emits/validates/merges plural keys
-end to end (subagents return a `{ "key": {"one": …, "other": …} }` object for plural keys per
-rule 7 in the template). The pre-push gate (`check_translations.py`) already validates plural
-variations.
+`other` is required. Then run Step 1 onward; the pipeline emits/validates/merges plural keys end to end (subagents return a `{ "key": {"one": …, "other": …} }` object for plural keys per rule 7 in the template). The pre-push gate (`check_translations.py`) already validates plural variations.
 
 #### 0e. Force re-translation when a glossary term changed (English unchanged)
 
-Use when the English source text is **unchanged** but the *translation* must change — most
-commonly when a glossary term was re-translated (e.g. "Carry-Over" stopped being a protected
-English term and gained per-locale renderings), so every key that embeds that term must flow
-through translation again. `update_keys.py` is the wrong tool here (it's for English changes and
-rewrites the `en` value); use `invalidate_keys.py`, which marks the keys' non-`en` locales
-`needs_review` and never touches `en`.
+Use when the English source text is unchanged but the translation must change, most commonly when a glossary term was re-translated (e.g. "Carry-Over" stopped being a protected English term and gained per-locale renderings), so every key embedding that term must be translated again. `update_keys.py` is the wrong tool (it's for English changes and rewrites the `en` value); use `invalidate_keys.py`, which marks the keys' non-`en` locales `needs_review` and never touches `en`.
 
 ```bash
 python3 scripts/translate_catalog/invalidate_keys.py --keys-file tmp/keys.txt
@@ -162,9 +114,7 @@ python3 scripts/translate_catalog/invalidate_keys.py --keys-file tmp/keys.txt
 python3 scripts/translate_catalog/invalidate_keys.py --keys k1,k2,...
 ```
 
-Supports `--dry-run`. Then run Step 1 onward — `extract.py --missing` re-emits the invalidated
-keys and the normal dispatch → validate → merge round-trip re-translates them with the updated
-glossary term injected.
+Supports `--dry-run`. Then run Step 1 onward: `extract.py --missing` re-emits the invalidated keys, and the normal dispatch → validate → merge round-trip re-translates them with the updated glossary term injected.
 
 ### 1. Detect what needs translating
 
@@ -172,14 +122,11 @@ glossary term injected.
 python3 scripts/translate_catalog/extract.py --missing
 ```
 
-This writes:
-- `tmp/translate-inputs/source.json` — the union of all keys that are missing or stale
-  in at least one locale, with English source + comment + format specifiers.
-- `tmp/translate-inputs/manifest.json` — `{locale: [keys...]}` telling you exactly which
-  locales need work and for which keys.
+Writes:
+- `tmp/translate-inputs/source.json`: the union of all keys missing or stale in at least one locale, with English source + comment + format specifiers.
+- `tmp/translate-inputs/manifest.json`: `{locale: [keys...]}` listing which locales need work and for which keys.
 
-If the script reports "No missing or stale translations found", you are done — skip to
-step 5 to confirm.
+If the script reports "No missing or stale translations found", you're done; skip to step 5 to confirm.
 
 ### 2. Compose per-locale prompts
 
@@ -187,22 +134,11 @@ step 5 to confirm.
 python3 scripts/translate_catalog/dispatch_prompts.py
 ```
 
-This writes one ready-to-dispatch prompt per locale to
-`tmp/translate-prompts/{locale}.md`. Each prompt has `{LOCALE_NAME}`, `{LOCALE_CODE}`,
-`{REGIONAL_NOTE}`, `{GLOSSARY}`, and `{SOURCE_JSON}` (sliced to just that locale's missing keys)
-already substituted.
+Writes one ready-to-dispatch prompt per locale to `tmp/translate-prompts/{locale}.md`, with `{LOCALE_NAME}`, `{LOCALE_CODE}`, `{REGIONAL_NOTE}`, `{GLOSSARY}`, and `{SOURCE_JSON}` (sliced to that locale's missing keys) already substituted.
 
-`{GLOSSARY}` is filled automatically from `scripts/translate_catalog/glossary.json`: for each
-locale, `dispatch_prompts.py` injects the agreed translations of any glossary term that appears in
-that slice, so new strings stay terminologically consistent with the rest of the app (rule 6 in the
-template tells the subagent how to use them, including for sub-parts of a string). Nothing to do
-here — it just works when the glossary is populated.
+`{GLOSSARY}` is filled automatically from `scripts/translate_catalog/glossary.json`: for each locale, `dispatch_prompts.py` injects the agreed translations of any glossary term appearing in that slice, so new strings stay consistent with the rest of the app (rule 6 in the template tells the subagent how to use them, including for sub-parts of a string). Nothing to do; it works when the glossary is populated.
 
-By default this also deletes any stale `tmp/translate-outputs/{locale}.json` files
-for the locales in the manifest, so step 3's subagents start from a clean slate and
-step 4's `validate.py --subset` doesn't trip on leftover keys from a prior run on a
-different branch. Pass `--no-clean` only if you're manually iterating on one locale's
-output and want to preserve the others.
+By default this also deletes stale `tmp/translate-outputs/{locale}.json` files for the locales in the manifest, so step 3's subagents start clean and step 4's `validate.py --subset` doesn't trip on leftover keys from a prior run on another branch. Pass `--no-clean` only when manually iterating on one locale's output and preserving the others.
 
 ### 3. Translate each locale's slice
 
@@ -218,21 +154,15 @@ output and want to preserve the others.
 For every `tmp/translate-prompts/{locale}.md` that exists, invoke an `Agent` with:
 
 - `subagent_type`: `translation-locale` (defined in `.claude/agents/translation-locale.md`)
-- A short dispatch prompt that tells the subagent which prompt file to read and where
-  to write its JSON output. Example:
+- A short dispatch prompt telling the subagent which prompt file to read and where to write its JSON output. Example:
   > Read `/abs/path/tmp/translate-prompts/ja.md` and follow the rules in it. Write the
   > resulting JSON object (nothing else) to `/abs/path/tmp/translate-outputs/ja.json`.
 
-The subagent definition restricts the subagent to `Read` + `Write` only, defaults to
-`haiku`, and encodes the "JSON only, this file only" contract. Do not pass
-`subagent_type: general-purpose` — the narrower agent is what makes the dispatches
-auto-approvable in this project's `.claude/settings.json`.
+The subagent definition restricts it to `Read` + `Write` only, defaults to `haiku`, and encodes the "JSON only, this file only" contract. Don't pass `subagent_type: general-purpose`; the narrower agent is what makes the dispatches auto-approvable in this project's `.claude/settings.json`.
 
-**Send all subagent calls in a single message** so they run concurrently. With 49
-locales × small key counts this typically finishes in well under a minute.
+Send all subagent calls in a single message so they run concurrently. With 49 locales × small key counts this typically finishes in well under a minute.
 
-The subagent's prompt already contains every translation rule — placeholder preservation,
-tone, regional dialect notes, JSON-only output. Do not modify it.
+The subagent's prompt already contains every translation rule (placeholder preservation, tone, regional dialect notes, JSON-only output). Do not modify it.
 
 ### 4. Validate, then merge
 
@@ -240,13 +170,10 @@ tone, regional dialect notes, JSON-only output. Do not modify it.
 python3 scripts/translate_catalog/validate.py --subset
 ```
 
-`--subset` mode only checks the keys actually present in each output file (the manifest
-slice), so partial outputs are first-class. If any locale fails:
+`--subset` checks only the keys present in each output file (the manifest slice), so partial outputs are first-class. If any locale fails:
 
-- Re-read its prompt, re-dispatch a fresh subagent (often the same prompt works on
-  retry), then re-validate.
-- Format-specifier mismatches are the most common failure — the subagent's translation
-  dropped or duplicated a `%@` / `%lld`. Retry usually fixes it.
+- Re-read its prompt, re-dispatch a fresh subagent (often the same prompt works on retry), then re-validate.
+- Format-specifier mismatches are the most common failure: the translation dropped or duplicated a `%@` / `%lld`. Retry usually fixes it.
 
 Once `validate.py --subset` exits 0:
 
@@ -254,17 +181,9 @@ Once `validate.py --subset` exits 0:
 python3 scripts/translate_catalog/merge.py
 ```
 
-Merge only writes catalog entries for keys present in the output files, and refuses to
-overwrite a non-empty entry with an empty value, so existing translations are safe.
-For each key it merges, `merge.py` also promotes that key's English source from
-`state: "new"` → `"translated"` (Xcode auto-extraction lands new keys as `"new"`). This
-means a key that went through this pipeline will **not** trip the `NEW [en] (source)`
-gate in step 5 — the previous manual `add_keys.py --force` + re-merge dance is no longer
-needed for pipeline keys.
+Merge writes catalog entries only for keys present in the output files and refuses to overwrite a non-empty entry with an empty value, so existing translations are safe. For each key it merges, `merge.py` also promotes that key's English source from `state: "new"` → `"translated"` (Xcode auto-extraction lands new keys as `"new"`), so a key that went through this pipeline won't trip the `NEW [en] (source)` gate in step 5. No `add_keys.py --force` + re-merge needed for pipeline keys.
 
-**Fast path — steps 4 and 5 in one shot.** Once the subagents have written
-`tmp/translate-outputs/`, run the deterministic tail as a single command (every
-sub-command is individually allowlisted, so it never prompts):
+**Fast path (steps 4 and 5 in one shot).** Once the subagents have written `tmp/translate-outputs/`, run the deterministic tail as a single command (every sub-command is individually allowlisted, so it never prompts):
 
 ```bash
 python3 scripts/translate_catalog/validate.py --subset \
@@ -273,23 +192,17 @@ python3 scripts/translate_catalog/validate.py --subset \
   && python3 scripts/check_source_strings.py
 ```
 
-If `validate.py --subset` fails for a locale, re-dispatch that locale's subagent and
-re-run the chain. Don't split these into four separate tool calls — that's slower and
-was the source of past friction.
+If `validate.py --subset` fails for a locale, re-dispatch that locale's subagent and re-run the chain. Don't split these into four tool calls; that's slower and was a source of past friction.
 
 ### 4b. Keep the glossary current (after merge)
 
-New features often introduce terminology that now recurs across keys. Keep the glossary
-(`scripts/translate_catalog/glossary.json`) in step with it:
+New features often introduce terminology that recurs across keys. Keep the glossary (`scripts/translate_catalog/glossary.json`) in step with it:
 
 ```bash
 python3 scripts/translate_catalog/glossary_sync.py --detect
 ```
 
-This is deterministic (no LLM). It detects **high-confidence** new terms — an English string now
-reused across ≥2 keys but not yet in the glossary — and writes them to `tmp/glossary/terms.json`;
-more ambiguous frequent words go to `tmp/glossary/candidates_review.json` for you to skim. If it
-reports new high-confidence terms, add them to the glossary (Opus):
+This is deterministic (no LLM). It detects high-confidence new terms (an English string now reused across ≥2 keys but not yet in the glossary) and writes them to `tmp/glossary/terms.json`; more ambiguous frequent words go to `tmp/glossary/candidates_review.json` for you to skim. If it reports new high-confidence terms, add them to the glossary (Opus):
 
 ```bash
 python3 scripts/translate_catalog/glossary_build.py --dispatch
@@ -298,9 +211,7 @@ python3 scripts/translate_catalog/glossary_build.py --dispatch
 python3 scripts/translate_catalog/glossary_build.py --merge
 ```
 
-`--merge` appends to `glossary.json` (it never drops existing terms). Skip this step entirely if
-`--detect` reports nothing new. The fuller glossary build/rebuild flow lives in
-`scripts/translate_catalog/README.md`.
+`--merge` appends to `glossary.json` (it never drops existing terms). Skip this step if `--detect` reports nothing new. The fuller glossary build/rebuild flow is in `scripts/translate_catalog/README.md`.
 
 ### 5. Authoritative pre-push gate
 
@@ -309,28 +220,15 @@ python3 scripts/check_translations.py
 python3 scripts/check_source_strings.py
 ```
 
-Both are run by `lefthook.yml` on `pre-push`.
+`lefthook.yml` runs both on `pre-push`.
 
-- `check_translations.py` is the **definition of done** for this skill. It walks the
-  catalog (not the per-locale output files), so it catches anything that didn't actually
-  merge in correctly. If it reports missing/stale `(key, locale)` pairs:
+- `check_translations.py` is the definition of done. It walks the catalog (not the per-locale output files), so it catches anything that didn't merge in correctly. If it reports missing/stale `(key, locale)` pairs:
   - Run `extract.py --keys k1,k2,...` for just those keys, or re-run `--missing`.
   - Loop back to step 2.
-- `check_source_strings.py` catches hard-coded `Text("English string")` in Swift files.
-  A failure here means there's an un-keyed string in production code — fix that first
-  (add to xcstrings, then re-run this skill), since untranslated keys are downstream of
-  un-keyed strings.
-- `NEW [en] '<key>' (source)` means the key's English source state is still `"new"`
-  (Xcode-extracted, not yet reviewed). For keys you just translated this is now
-  auto-resolved by `merge.py` (see step 4). It can still surface for a key whose 49
-  locales were *already* complete (so nothing merged) but whose en stayed `"new"` — in
-  that rare case run `extract.py --keys <key>` then the step-4 fast-path chain, or
-  re-run `merge.py` (the existing `tmp/translate-outputs/<locale>.json` are reused and
-  the en promotion fires). Do not hand-edit the catalog.
+- `check_source_strings.py` catches hard-coded `Text("English string")` in Swift files. A failure means an un-keyed string in production code: fix that first (add to xcstrings, then re-run this skill), since untranslated keys are downstream of un-keyed strings.
+- `NEW [en] '<key>' (source)` means the key's English source state is still `"new"` (Xcode-extracted, not yet reviewed). For keys you just translated, `merge.py` resolves it (see step 4). It can still surface for a key whose 49 locales were already complete (so nothing merged) but whose en stayed `"new"`; in that rare case run `extract.py --keys <key>` then the step-4 fast-path chain, or re-run `merge.py` (the existing `tmp/translate-outputs/<locale>.json` are reused and the en promotion fires). Do not hand-edit the catalog.
 
-If `check_translations.py` reports keys that exist in the catalog but no longer have a
-Swift reference (i.e. the code dropped the `String(localized: ...)` call), those keys
-are **orphaned**. Remove them with:
+If `check_translations.py` reports keys that exist in the catalog but no longer have a Swift reference (the code dropped the `String(localized: ...)` call), those keys are orphaned. Remove them:
 
 ```bash
 python3 scripts/translate_catalog/remove_keys.py --keys k1,k2,...
@@ -338,8 +236,7 @@ python3 scripts/translate_catalog/remove_keys.py --keys k1,k2,...
 python3 scripts/translate_catalog/remove_keys.py --keys-file path/to/keys.txt
 ```
 
-This deletes every locale entry for those keys cleanly. Use `--dry-run` first to see
-what would be removed.
+This deletes every locale entry for those keys. Use `--dry-run` first to see what would be removed.
 
 ### 6. Build + test
 
@@ -351,9 +248,7 @@ make format && make lint-fix && make build && make test
 
 ### 7. Cleanup — offer to clear tmp working files
 
-Once `check_translations.py` is green, offer to clear this pipeline's gitignored tmp
-files. Ask first (the intermediate JSON is handy if the user wants to inspect a locale);
-on a yes:
+Once `check_translations.py` is green, offer to clear this pipeline's gitignored tmp files. Ask first (the intermediate JSON is handy if the user wants to inspect a locale); on a yes:
 
 ```bash
 python3 scripts/pipeline_tmp.py clean translate
@@ -361,25 +256,22 @@ python3 scripts/pipeline_tmp.py clean translate
 
 ## Subagent prompt invariants
 
-The prompt file generated by `dispatch_prompts.py` is the single source of truth.
-Subagents are told to:
+The prompt file generated by `dispatch_prompts.py` is the single source of truth. Subagents are told to:
 
 1. Preserve every format specifier exactly (count and form; order may change for grammar).
 2. Use the `comment` field for context.
 3. Match Apple's first-party iOS app voice for the target locale.
 4. Leave `Wren`, `iCloud`, and other Apple-untranslated proper nouns in English.
-5. **RTL locales (ar, he, ur):** never start a sentence or UI string with a Latin brand token (`Wren`, `iCloud`). In RTL rendering a Latin-initial string pops to the visual end of the line. Lead with a native word; the brand can follow mid-sentence.
+5. RTL locales (ar, he, ur): never start a sentence or UI string with a Latin brand token (`Wren`, `iCloud`). In RTL rendering a Latin-initial string pops to the visual end of the line. Lead with a native word; the brand can follow mid-sentence.
 6. Output only the JSON object — no markdown fences, no prose.
 
-If you find yourself wanting to "remind" the subagent of one of these rules in the
-dispatch message, instead **fix `PROMPT_TEMPLATE.md`** so the rule survives across runs.
+If you want to "remind" the subagent of one of these rules in the dispatch message, fix `PROMPT_TEMPLATE.md` instead so the rule survives across runs.
 
 ## When to fall back to full backfill
 
-This skill is the right tool when keys have been added/changed for a feature. It is
-**not** the right tool when:
+This skill fits when keys were added/changed for a feature. It does not fit when:
 
-- Changing the translation model and wanting to regenerate every existing translation.
+- Changing the translation model and regenerating every existing translation.
 - Seeding a brand-new catalog from scratch.
 - Recovering from a corrupted catalog.
 

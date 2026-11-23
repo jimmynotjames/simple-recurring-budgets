@@ -78,7 +78,7 @@ def main(argv: list[str]) -> int:
             print(f"  SKIP {key!r}: already plural", file=sys.stderr)
             continue
 
-        # Set en → plural; drop every other locale so extract --missing re-translates as plural.
+        # en → plural; drop other locales so extract --missing re-translates them as plural.
         localizations.clear()
         localizations["en"] = {
             "variations": {

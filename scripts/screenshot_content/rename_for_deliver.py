@@ -2,15 +2,14 @@
 """
 Rename captured screenshot folders from runtime codes to App Store storefront codes.
 
-fastlane `snapshot` writes screenshots into fastlane/screenshots/<lang>/ where
-<lang> is the `-AppleLanguages` string from the Snapfile — i.e. the app *runtime*
-locale code (de, nb, ar, ...). `deliver` / `upload_to_app_store`, however, expects
-folders named with App Store Connect *storefront* codes (de-DE, no, ar-SA, ...).
+fastlane `snapshot` writes fastlane/screenshots/<lang>/ where <lang> is the
+Snapfile `-AppleLanguages` string, i.e. the app *runtime* locale code (de, nb,
+ar, ...). `deliver` / `upload_to_app_store` expects App Store Connect *storefront*
+codes (de-DE, no, ar-SA, ...).
 
-This step renames each runtime folder to its storefront code using the mapping in
-content_locales.py (which reuses metadata_locales.RUNTIME_TO_STOREFRONT). Folders
-already named with a storefront code (en-US, en-GB, en-AU, en-CA, and codes that
-are identical in both systems) are left as-is.
+Renames each runtime folder to its storefront code via content_locales.py
+(metadata_locales.RUNTIME_TO_STOREFRONT). Folders already storefront-named
+(en-US, en-GB, en-AU, en-CA, codes identical in both systems) are left as-is.
 
 Run after `fastlane screenshots` and before `fastlane push_screenshots`.
 
@@ -44,7 +43,7 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: no screenshots dir at {SCREENSHOTS_DIR}. Run `fastlane screenshots` first.", file=sys.stderr)
         return 1
 
-    # runtime -> storefront for the targets; en-US is already a valid storefront.
+    # runtime -> storefront; en-US is already a valid storefront.
     mapping = dict(RUNTIME_TO_STOREFRONT)
     mapping[SOURCE_LOCALE] = SOURCE_LOCALE
 
@@ -68,10 +67,9 @@ def main(argv: list[str]) -> int:
     verb = "Would rename" if args.dry_run else "Renamed"
     print(f"\n{verb} {renamed} folder(s) to storefront codes under {SCREENSHOTS_DIR}.")
 
-    # fastlane generates screenshots.html BEFORE this rename runs, so its image
-    # paths still point at the old runtime-coded folders (e.g. ./ar/...), which
-    # now 404. Rewrite those references so the inspection report stays valid.
-    # Idempotent: re-running finds no stale `./<runtime>/` paths to replace.
+    # fastlane generates screenshots.html BEFORE this rename, so its image paths
+    # still point at runtime-coded folders (./ar/...) that now 404; rewrite them.
+    # Idempotent: a re-run finds no stale `./<runtime>/` paths.
     html = SCREENSHOTS_DIR / "screenshots.html"
     if html.exists():
         text = html.read_text(encoding="utf-8")

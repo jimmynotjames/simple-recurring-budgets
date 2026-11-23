@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 """
 Mark existing keys' non-en translations as needs_review in Localizable.xcstrings,
-WITHOUT changing the English source — so extract.py --missing re-emits them and the
-normal translate pipeline re-translates them.
+WITHOUT changing the English source, so extract.py --missing re-emits them for
+re-translation.
 
-Use this when the *translation* of a key must change even though its English text did
-not — most commonly when a glossary term was re-translated (e.g. "Carry-Over" stopped
-being a protected English term and gained per-locale renderings), so every string that
-embeds that term needs to flow through translation again to pick up the new wording.
+Use when a key's *translation* must change though its English didn't, e.g. a glossary
+term was re-translated ("Carry-Over" stopped being a protected English term and gained
+per-locale renderings), so every string embedding it must be re-translated.
 
-This is the term-changed sibling of update_keys.py (English-changed). Unlike update_keys,
-it never touches the `en` localization, so the English source and its `translated` state
-are left exactly as-is.
+Term-changed sibling of update_keys.py (English-changed). Never touches the `en`
+localization or its `translated` state.
 
 For each key:
   - Sets every non-`en` locale entry's stringUnit.state to "needs_review"

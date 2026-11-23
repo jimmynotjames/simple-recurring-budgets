@@ -64,11 +64,10 @@ def check_keywords(storefront: str, value: str) -> Tuple[list[str], list[str]]:
 def validate_storefront(storefront: str, source: dict, subset: bool = False) -> Tuple[list, list, str]:
     """Return (errors, warnings, pending_reason).
 
-    pending_reason is "" for a normally-validated locale, or a short string when
-    the locale simply has not been produced yet (no file, or an empty stub left by
-    a cleaned run). PENDING is distinct from FAIL: it means "(re)dispatch this
-    storefront's subagent", not "the output is corrupt". It is still non-passing,
-    so an autonomous loop keeps going until every locale is filled.
+    pending_reason is "" for a validated locale, else a short string when the locale
+    isn't produced yet (no file, or an empty stub from a cleaned run). PENDING is
+    distinct from FAIL ("(re)dispatch this subagent", not "output is corrupt") but is
+    still non-passing, so an autonomous loop continues until every locale is filled.
     """
     errors: list[str] = []
     warnings: list[str] = []

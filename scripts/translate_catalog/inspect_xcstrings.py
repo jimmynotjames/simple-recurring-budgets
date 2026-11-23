@@ -2,11 +2,9 @@
 """
 Read-only inspector for Localizable.xcstrings.
 
-Replaces the recurring ad-hoc `python3 -c "import json; ..."` one-liners used to
-poke at the catalog during translation work. Pure read-only: never writes the
-catalog. For "untranslated copy" detection (a locale value that equals the
-English source) use scripts/translate_audit/untranslated_copies.py instead —
-this tool deliberately does not duplicate that audit.
+Replaces ad-hoc `python3 -c "import json; ..."` one-liners. Pure read-only: never
+writes the catalog. For "untranslated copy" detection (locale value equals English)
+use scripts/translate_audit/untranslated_copies.py; this tool doesn't duplicate it.
 
 Subcommands:
   info

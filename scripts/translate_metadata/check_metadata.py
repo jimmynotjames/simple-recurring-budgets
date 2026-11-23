@@ -10,12 +10,11 @@ verifies two invariants:
 
   2. For every translatable field that is blank in en-US, every target storefront
      also has an empty (or absent) .txt file. A non-empty translation for a blank
-     source field means merge.py's clear step did not run; fix with `merge.py`.
+     source field means merge.py's clear step didn't run; fix with `merge.py`.
 
 Also verifies the passthrough URL files exist per storefront when en-US has them.
 
-Exits 0 if the metadata tree satisfies both invariants; 1 otherwise.
-This is the metadata analogue of scripts/check_translations.py.
+Exits 0 if both invariants hold; 1 otherwise. Analogue of scripts/check_translations.py.
 
 Usage:
   python3 scripts/translate_metadata/check_metadata.py [--json]

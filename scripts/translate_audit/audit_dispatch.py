@@ -10,10 +10,9 @@ per key, the English value + comment + the current L translation + both char len
 
   { "<key>": { "english", "comment", "enChars", "current", "currentChars" }, ... }
 
-Mirrors scripts/translate_catalog/dispatch_prompts.py, and reuses that pipeline's
-LOCALES / LOCALE_NAMES and the REGIONAL_NOTES / _GENERIC_NOTE register-cultural notes
-via import (no duplication) — so the auditor grades against the same per-locale rubric
-the translator was given.
+Mirrors scripts/translate_catalog/dispatch_prompts.py and imports its LOCALES /
+LOCALE_NAMES and REGIONAL_NOTES / _GENERIC_NOTE, so the auditor grades against the
+same per-locale rubric the translator got.
 
 The parent agent then reads each {locale}.md and dispatches one `translation-audit-locale`
 subagent per locale; subagents write findings JSON to tmp/translate-audit-outputs/{locale}.json.
@@ -117,8 +116,7 @@ def main(argv: list[str]) -> int:
         written += 1
         print(f"  Wrote {len(slice_source)} keys for {locale} → {PROMPTS_DIR / f'{locale}.md'}")
 
-    # Clear stale outputs for the locales we're (re)dispatching, so a partial prior run
-    # doesn't leave findings the report would double-count.
+    # Clear stale outputs for these locales so a partial prior run isn't double-counted.
     if not args.no_clean and OUTPUTS_DIR.exists():
         cleaned = 0
         for locale in dispatched_locales:

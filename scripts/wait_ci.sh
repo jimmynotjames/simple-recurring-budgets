@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 # Poll a GitHub Actions run (and optionally a PR's checks) until it finishes, then
-# print a step-level breakdown. Replaces the hand-written
-#   until s=$(gh run view <id> ...); [ "${s%% *}" = "completed" ]; do sleep 30; done; ...
-# polling loops, which (a) split into un-allowlistable segments (`until s=$(...)`,
-# `do sleep 30`, `done`) and so always prompt, and (b) use a foreground `sleep`,
-# which the Bash tool now blocks outright.
+# print a step-level breakdown. Replaces hand-written `until ...; do sleep 30; done`
+# loops, whose segments can't be allowlisted (always prompt) and whose foreground
+# `sleep` the Bash tool blocks.
 #
 # Usage:  bash scripts/wait_ci.sh <run-id> [pr-number] [poll-seconds]
-# Run it in the background so the harness re-invokes the agent when CI is done and
-# the foreground-sleep block doesn't apply:
+# Run in the background so the harness re-invokes the agent when CI is done:
 #   Bash(bash scripts/wait_ci.sh 27147053894 214, run_in_background=true)
 set -uo pipefail
 

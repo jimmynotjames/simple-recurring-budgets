@@ -1,19 +1,15 @@
-# CI — runs on every PR and on push to main.
+# Runs on every PR and on push to main.
 #
-# Defense-in-depth mirror of the local lefthook gates (lefthook.yml): the hooks
-# give fast local feedback but are bypassable (`git push --no-verify`, a hookless
-# clone, a web-UI merge). These jobs re-run the same gates somewhere unbypassable.
-# Branch protection on `main` should REQUIRE: lint, secrets, check-large-files,
-# i18n-gates, build, test (set in repo Settings → Branches; CI is advisory
-# without it).
+# Mirrors the local lefthook gates (lefthook.yml) somewhere unbypassable: hooks can be
+# skipped (`git push --no-verify`, hookless clone, web-UI merge). Branch protection on
+# `main` should REQUIRE lint, secrets, check-large-files, i18n-gates, build, test
+# (repo Settings -> Branches); without it CI is advisory.
 #
-# This is a public repo: GitHub-hosted macOS/Simulator runner minutes are free
-# and unbounded, so cost no longer gates what runs on every PR. The `test` job
-# runs the full unit + UI suite automatically (see run-ui-tests-on-demand.yml
-# for a narrower "just re-run the UI suite" lever on an open PR). App Store
-# metadata / screenshot-content checks are deliberately NOT here — those are a
-# release-time concern (there can be 100+ PRs between releases); they run in
-# the fastlane beta/release lanes instead (see fastlane/Fastfile).
+# Runner minutes are free on this public repo, so the `test` job runs the full unit +
+# UI suite on every PR (run-ui-tests-on-demand.yml re-runs just the UI suite on an open
+# PR). App Store metadata / screenshot-content checks are deliberately NOT here: they
+# are release-time (100+ PRs can land between releases) and run in the fastlane
+# beta/release lanes (see fastlane/Fastfile).
 name: CI
 
 on:
@@ -21,7 +17,7 @@ on:
   push:
     branches: [main]
 
-# Cancel superseded runs on the same ref (a new push to a PR voids the old run).
+# Cancel superseded runs on the same ref.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -31,10 +27,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  # --- Tier 1: lint/format parity with pre-commit (ubuntu) -------------------
-  # Pinned to the EXACT versions installed locally via Homebrew. A version skew
-  # would make CI fail on rules your machine doesn't enforce (or vice-versa) —
-  # keep these in lockstep with scripts/system-setup.sh / your brew installs.
+  # --- Tier 1: lint/format parity with local hooks (ubuntu) ------------------
+  # Pin the EXACT versions installed locally via Homebrew; skew makes CI fail on rules
+  # your machine doesn't enforce (or vice versa). Keep in lockstep with brew installs.
   lint:
     runs-on: ubuntu-latest
     env:
@@ -72,9 +67,9 @@ jobs:
           docker run --rm "$image" version
           docker run --rm -v "$PWD:$PWD" -w "$PWD" "$image" lint --strict
 
-  # --- Tier 1: secret scan over the PR (ubuntu) -------------------------------
-  # Complements pre-commit `gitleaks protect --staged`. Pinned binary instead of
-  # gitleaks-action to avoid that action's org-license requirement.
+  # --- Tier 1: secret scan (ubuntu) --------------------------------------------
+  # Complements the local `gitleaks protect --staged` hook. Pinned binary instead of
+  # gitleaks-action, which needs an org license.
   secrets:
     runs-on: ubuntu-latest
     env:
@@ -102,9 +97,8 @@ jobs:
           ./gitleaks detect --no-banner --redact
 
   # --- check-large-files: reject oversized files added/changed in the PR -----
-  # Mirrors the pre-commit hook (scripts/check-large-files.sh), which only ever
-  # sees staged files locally — here we diff against the PR base (or the prior
-  # push, on a push-to-main event) since there's no "staged files" concept in CI.
+  # Mirrors the pre-commit hook (scripts/check-large-files.sh). CI has no staged
+  # files, so diff against the PR base (or the prior push on push-to-main).
   check-large-files:
     runs-on: ubuntu-latest
     steps:
@@ -121,10 +115,9 @@ jobs:
         if: steps.diff.outputs.files != ''
         run: bash scripts/check-large-files.sh ${{ steps.diff.outputs.files }}
 
-  # --- #172: translation / localization gates (ubuntu) ------------------------
-  # Same gates as the pre-push hook, plus the deterministic plural/untranslated-
-  # copy checks and a non-blocking consistency report. App Store metadata and
-  # screenshot-content checks are release-time-only — see fastlane/Fastfile.
+  # --- translation / localization gates (ubuntu) ------------------------------
+  # Same gates as the pre-push hook, plus plural/untranslated-copy checks and a
+  # non-blocking consistency report.
   i18n-gates:
     runs-on: ubuntu-latest
     steps:
@@ -146,8 +139,8 @@ jobs:
         run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
 
   # --- Tier 2: compile check (macOS) ------------------------------------------
-  # Direct xcodebuild (chosen over the make/sandbox path for ephemeral runners).
-  # Mirrors scripts/build.sh — keep the scheme/project in sync with that file.
+  # Direct xcodebuild rather than the make/sandbox path (ephemeral runners).
+  # Keep scheme/project in sync with scripts/build.sh.
   build:
     runs-on: macos-26
     needs: [lint, secrets, check-large-files, i18n-gates]
@@ -174,11 +167,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
   # --- Tier 3: unit + UI tests (macOS) -----------------------------------------
-  # Phase 1 mirrors scripts/test-unit.sh: skips the UITests target, serial, and
-  # warms the simulator for Phase 2. Phase 2 mirrors scripts/test-ui.sh's suite
-  # selection — now run automatically on every PR since simulator minutes are
-  # free on this public repo (previously gated behind a /test-full comment; see
-  # run-ui-tests-on-demand.yml for a UI-only re-run lever on an open PR).
+  # Pass 1 mirrors scripts/test-unit.sh (serial, skips UITests, warms the simulator
+  # for pass 2). Pass 2 mirrors scripts/test-ui.sh's suite selection.
   test:
     runs-on: macos-26
     needs: [lint, secrets, check-large-files, i18n-gates]
@@ -224,9 +214,8 @@ jobs:
             CODE_SIGN_IDENTITY=-
 
   # --- pr-summary: one consolidated, self-updating PR comment -----------------
-  # Aggregates pass/fail across every gate into a single comment (edited in
-  # place on re-push, not re-posted) — informational only, do NOT add this as a
-  # required status check.
+  # One comment aggregating every gate, edited in place on re-push. Informational
+  # only; do NOT make it a required status check.
   pr-summary:
     runs-on: ubuntu-latest
     needs: [lint, secrets, check-large-files, i18n-gates, build, test]

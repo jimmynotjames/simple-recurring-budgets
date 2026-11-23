@@ -1,19 +1,19 @@
 """
 Single source of truth for the App Store *metadata* localization pipeline.
 
-This is the metadata sibling of scripts/translate_catalog/locales.py. The two
-pipelines target the SAME set of markets, but use DIFFERENT locale code systems:
+Metadata sibling of scripts/translate_catalog/locales.py. Both pipelines target the
+SAME markets but use DIFFERENT locale code systems:
 
-  * In-app strings (Localizable.xcstrings) use the app's *runtime* BCP 47 codes
-    (`ar`, `de`, `nb`, `nl`, `zh-Hans`, ...). Those live in translate_catalog/locales.py.
-  * App Store Connect *metadata* folders (fastlane/metadata/<storefront>/) use
-    App Store Connect *storefront* codes, which differ for several markets
-    (`ar-SA`, `de-DE`, `es-ES`, `fr-FR`, `no`, `nl-NL`, ...).
+  * In-app strings (Localizable.xcstrings) use *runtime* BCP 47 codes (`ar`, `de`,
+    `nb`, `nl`, `zh-Hans`, ...), defined in translate_catalog/locales.py.
+  * App Store Connect metadata folders (fastlane/metadata/<storefront>/) use
+    *storefront* codes, which differ for several markets (`ar-SA`, `de-DE`,
+    `es-ES`, `fr-FR`, `no`, `nl-NL`, ...).
 
-`deliver` / `upload_to_app_store` reads the storefront-coded folders, so this
-module owns the runtime -> storefront mapping and all metadata-specific facts
-(translatable fields, character limits, the brand constant, cultural register
-notes). Import from here in the other translate_metadata/ scripts.
+`deliver` / `upload_to_app_store` reads the storefront-coded folders, so this module
+owns the runtime -> storefront mapping and metadata-specific facts (translatable
+fields, character limits, brand constant, cultural register notes). The other
+translate_metadata/ scripts import from here.
 """
 
 from __future__ import annotations
@@ -21,29 +21,25 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Reuse the human-readable locale names from the in-app pipeline so we keep a
-# single source of truth for "what does this code mean in English".
+# Human-readable locale names come from the in-app pipeline (single source of truth).
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "translate_catalog"))
 from locales import LOCALE_NAMES, LOCALES as RUNTIME_LOCALES  # noqa: E402
 
-# The English source storefront. Its folder holds the copy everything else is
-# transcreated from. It is never itself a translation target.
+# English source storefront; everything else is transcreated from it. Never a target.
 SOURCE_LOCALE = "en-US"
 
-# Brand token. Kept verbatim in every locale (never translated, transliterated,
-# or glossed). The App Store `name` is "Wren" + a transcreated descriptor.
+# Brand token, verbatim in every locale (never translated, transliterated, or glossed).
+# The App Store `name` is "Wren" + a transcreated descriptor.
 BRAND = "Wren"
 
-# Map each in-app runtime locale to its App Store Connect storefront code.
-# Codes that are identical in both systems map to themselves. The values are the
-# exact folder names `deliver` expects under fastlane/metadata/.
+# In-app runtime locale -> App Store Connect storefront code (the exact folder names
+# `deliver` expects under fastlane/metadata/). Identical codes map to themselves.
 #
-# IMPORTANT: several markets require a REGION-QUALIFIED storefront code even though
-# the app's runtime code is plain — e.g. bn->bn-BD, gu/kn/ml/mr/or/pa/ta/te->*-IN,
-# sl->sl-SI, ur->ur-PK. `deliver`/App Store Connect REJECTS the plain code and fails
-# the upload with "Unsupported directory name(s)". When adding a locale, do NOT assume
-# runtime == storefront: confirm its value against the list `fastlane push_metadata`
-# prints when it hits an unknown folder (or ASC's locale list).
+# IMPORTANT: several markets need a REGION-QUALIFIED storefront code though the runtime
+# code is plain: bn->bn-BD, gu/kn/ml/mr/or/pa/ta/te->*-IN, sl->sl-SI, ur->ur-PK.
+# `deliver`/ASC REJECTS the plain code ("Unsupported directory name(s)"). When adding a
+# locale, don't assume runtime == storefront: confirm against the list `fastlane
+# push_metadata` prints on an unknown folder (or ASC's locale list).
 RUNTIME_TO_STOREFRONT: dict[str, str] = {
     "ar": "ar-SA",
     "bn": "bn-BD",
@@ -96,8 +92,7 @@ RUNTIME_TO_STOREFRONT: dict[str, str] = {
     "zh-Hant": "zh-Hant",
 }
 
-# Fail loud if the two pipelines ever drift apart (e.g. a locale added to the
-# in-app set but not mapped here).
+# Fail loud if the pipelines drift (e.g. a locale added in-app but not mapped here).
 _unmapped = [loc for loc in RUNTIME_LOCALES if loc not in RUNTIME_TO_STOREFRONT]
 if _unmapped:
     raise RuntimeError(
@@ -107,17 +102,16 @@ if _unmapped:
 
 STOREFRONT_TO_RUNTIME: dict[str, str] = {v: k for k, v in RUNTIME_TO_STOREFRONT.items()}
 
-# The translation TARGET storefronts (sorted), excluding the en-US source.
+# Target storefronts (sorted), excluding the en-US source.
 STOREFRONT_LOCALES: list[str] = sorted(RUNTIME_TO_STOREFRONT.values())
 
-# Human-readable name per storefront, derived from the in-app name map.
+# Human-readable name per storefront.
 STOREFRONT_NAMES: dict[str, str] = {
     storefront: LOCALE_NAMES[runtime]
     for runtime, storefront in RUNTIME_TO_STOREFRONT.items()
 }
 
-# Fields we transcreate, with Apple's hard character limit for each. Character
-# counts are Unicode code points (App Store Connect counts characters, not bytes).
+# Transcreated fields with Apple's hard character limits (Unicode code points, not bytes).
 FIELD_LIMITS: dict[str, int] = {
     "name": 30,
     "subtitle": 30,
@@ -127,7 +121,7 @@ FIELD_LIMITS: dict[str, int] = {
     "release_notes": 4000,
 }
 
-# Ordered list of the fields the pipeline transcreates.
+# Ordered transcreated fields.
 TRANSLATABLE_FIELDS: list[str] = [
     "name",
     "subtitle",
@@ -137,23 +131,20 @@ TRANSLATABLE_FIELDS: list[str] = [
     "release_notes",
 ]
 
-# Per-locale fields that are copied verbatim from en-US (never sent to the model).
-# These are URLs: same destination for every storefront unless you localize them
-# by hand later.
+# Per-locale fields copied verbatim from en-US (never sent to the model): URLs, the same
+# for every storefront unless localized by hand.
 PASSTHROUGH_FIELDS: list[str] = [
     "marketing_url",
     "privacy_url",
     "support_url",
 ]
 
-# Catalog-level (not per-locale) field. Lives at fastlane/metadata/copyright.txt
-# and is left untouched by this pipeline.
+# Catalog-level field (fastlane/metadata/copyright.txt), untouched by this pipeline.
 SHARED_FIELDS: list[str] = [
     "copyright",
 ]
 
-# Static, field-level guidance injected into every prompt. Explains what each
-# field is for and how to transcreate it (not just translate).
+# Field-level guidance injected into every prompt: what each field is for and how to transcreate it.
 FIELD_GUIDANCE: dict[str, str] = {
     "name": (
         f'App name shown on the store. MUST begin with the brand "{BRAND}" '

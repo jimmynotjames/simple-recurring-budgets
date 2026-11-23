@@ -14,12 +14,11 @@ Each authored (non-empty) field has the shape:
     ...
   }
 
-Fields left blank in en-US are NOT written to source.json — it stays an
-authored-fields-only map ({field: {value, charLimit}}) that validate.py and
-dispatch_prompts.py consume. Blank fields are reported to the console for
-visibility; merge.py and check_metadata.py independently re-derive blank-field
-handling straight from the en-US source folder (blank in the source means blank in
-every translation), so no consumer has to know about a special key.
+Fields blank in en-US are NOT written to source.json; it stays an authored-fields-only
+map ({field: {value, charLimit}}) consumed by validate.py and dispatch_prompts.py.
+Blank fields are only reported to the console; merge.py and check_metadata.py
+re-derive blank handling from the en-US source folder (blank in source means blank in
+every translation), so no consumer needs a special key.
 
 Modes:
   (default)   emit source.json for every non-empty translatable en-US field.
@@ -65,9 +64,7 @@ def read_source() -> tuple[dict[str, dict], list[str]]:
 
     source: every translatable field with non-empty en-US content, in the
         {field: {value, charLimit}} shape every downstream script expects.
-    blank_fields: TRANSLATABLE_FIELDS that are empty in en-US. Reported for
-        visibility only and NOT written to source.json — merge.py and
-        check_metadata.py re-derive blank handling from the en-US source folder.
+    blank_fields: TRANSLATABLE_FIELDS empty in en-US; reported only, not written to source.json.
     """
     source: dict[str, dict] = {}
     blank_fields: list[str] = []

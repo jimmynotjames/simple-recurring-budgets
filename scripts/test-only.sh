@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ad-hoc subset test run — run a specific suite or test without the full suite.
+# Ad-hoc subset test run.
 #
 # Usage:
 #   bash scripts/test-only.sh <Target/Suite[/method]> [more identifiers...] [--ui]
@@ -10,17 +10,15 @@
 #   bash scripts/test-only.sh "simple-recurring-budgetsTests/RatingPromptExpenseSignalsTests/activeNonDeficit()"
 #   bash scripts/test-only.sh simple-recurring-budgetsTests/FooTests simple-recurring-budgetsTests/BarTests
 #
-# By default the UI test target is skipped (unit-only, fast). Pass --ui to allow
-# UI tests in the filter set (needed when an -only-testing identifier targets the
-# UITests target). This exists so subset runs go through one allowlisted command
-# (`bash scripts/*`) with the correct sandboxed simulator + DerivedData, instead
-# of a hand-built `source scripts/_destination.sh && xcodebuild ... -only-testing:`
-# (the `source` segment is what triggers a permission prompt).
+# The UI test target is skipped by default; pass --ui when an identifier targets it.
+# Exists so subset runs go through one allowlisted command (`bash scripts/*`) with
+# the sandboxed simulator + DerivedData, instead of a hand-built
+# `source scripts/_destination.sh && xcodebuild ...` (the `source` segment prompts).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-# DESTINATION, SIM_DERIVED, SIM_RESULTS_DIR set by _destination.sh (sandboxed sim).
+# Sets DESTINATION, SIM_DERIVED, SIM_RESULTS_DIR.
 source "${ROOT}/scripts/_destination.sh"
 
 only_args=()

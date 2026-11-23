@@ -4,12 +4,11 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────
-# Ad-hoc localized-layout screenshot capture (issue #171). NOT part of `make test` / any hook.
-# Runs LocalizationScreenshotCapture across 13 locales at forced .xxxLarge, exports the screenshots
-# to tmp/loc-size-check/, downscales them, and leaves them for visual inspection (Claude eyeballs).
+# Ad-hoc localized-layout screenshot capture; not part of `make test` or any hook.
+# Runs LocalizationScreenshotCapture across 13 locales at forced .xxxLarge, exports the
+# screenshots to tmp/loc-size-check/, downscales them, and leaves them for visual review.
 #
-# Heavy: it spins up many simulator clones in parallel and saturates CPU/RAM for a while.
-# Requires explicit confirmation: pass --yes to proceed.
+# Heavy: many parallel simulator clones saturate CPU/RAM. Pass --yes to proceed.
 #
 # Knobs (env):
 #   WORKERS         parallel simulator clones (default 7; with the shared simulator pool, the most
@@ -77,9 +76,9 @@ rm -rf "${OUT}" && mkdir -p "${OUT}"
 RAW="$(mktemp -d)"
 xcrun xcresulttool export attachments --path "${RESULT}" --output-path "${RAW}" >/dev/null 2>&1
 
-# Rename exported UUID files to <lang>__<screen>.png using the manifest, then downscale.
-# The exporter appends `_<index>_<UUID>.png` to the attachment name we set (e.g.
-# `de__02-list-several_0_<UUID>.png`); strip that suffix back to our `<lang>__<screen>` name.
+# Rename exported UUID files to <lang>__<screen>.png via the manifest, then downscale.
+# The exporter appends `_<index>_<UUID>.png` to our attachment name (e.g.
+# `de__02-list-several_0_<UUID>.png`); the jq `sub` strips it.
 jq -r '.[] | .attachments[]? | select((.suggestedHumanReadableName // "") | test("__"))
         | "\(.exportedFileName)\t\(.suggestedHumanReadableName | sub("_[0-9]+_[0-9A-Fa-f-]+\\.png$"; ""))"' \
         "${RAW}/manifest.json" \

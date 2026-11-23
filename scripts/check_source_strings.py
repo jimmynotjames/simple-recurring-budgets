@@ -4,9 +4,9 @@ Scan production Swift source files for two categories of problems.
 
 ERRORS (exit 1) — hard-coded natural-language strings:
   Text("English text with spaces") where the argument looks like prose rather
-  than a dotted localization key. These strings bypass xcstrings keying and
-  will never be translated. Fix by using Text(String(localized: "key",
-  comment: "...")) or, for locale-invariant strings, Text(verbatim: "...").
+  than a dotted localization key. These bypass xcstrings keying and are never
+  translated. Use Text(String(localized: "key", comment: "...")) or, for
+  locale-invariant strings, Text(verbatim: "...").
 
   Suppression (rare, documented exceptions only):
     Add  // check-strings:ignore  on the same line.
@@ -37,10 +37,8 @@ SOURCE_DIR = REPO_ROOT / "simple-recurring-budgets"
 
 SUPPRESS_MARKER = "check-strings:ignore"
 
-# Matches Text("...") where the string arg contains at least one space —
-# the clearest signal that it's prose rather than a "dotted.key" identifier.
-# Does NOT match Text(verbatim: "...") because verbatim: precedes the quote.
-# Does NOT match Text(someVariable) or Text(String(localized: "key", ...)).
+# Matches Text("...") whose string arg contains a space (prose, not a "dotted.key").
+# Doesn't match Text(verbatim: "..."), Text(someVariable), or Text(String(localized: ...)).
 _NATURAL_LANG_TEXT_RE = re.compile(
     r'\bText\s*\(\s*"([^"\\]*(?:\\.[^"\\]*)*)"'
 )
@@ -77,7 +75,7 @@ def check(files: list[Path]) -> tuple[list[dict], list[dict]]:
         for lineno, raw_line in enumerate(lines, start=1):
             line = raw_line.rstrip()
 
-            # Skip pure comment lines for both checks.
+            # Skip pure comment lines.
             if _COMMENT_LINE_RE.match(line):
                 continue
 

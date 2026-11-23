@@ -3,17 +3,16 @@
 Sync the `primaryLocale` field into every screenshot demo-content catalog file.
 
 Each catalog file (simple-recurring-budgetsUITests/ScreenshotSeeds/<runtime>.json)
-carries a top-level `primaryLocale` — the region-qualified ICU locale identifier
-(de_DE, ja_JP, nb_NO, …) the AppStoreScreenshots UI test launches that locale with
-via `-AppleLocale`. fastlane `snapshot` only sets `-AppleLanguages`, leaving
-language-only locales region-less, which makes `Locale.currency` nil and the
-Settings currency-display example fall back to USD; this field fixes that without
-touching production code (the production ScreenshotSeed decoder ignores the key).
+carries a top-level `primaryLocale`: the region-qualified ICU locale id (de_DE,
+ja_JP, nb_NO, …) the AppStoreScreenshots UI test launches with via `-AppleLocale`.
+fastlane `snapshot` only sets `-AppleLanguages`, leaving language-only locales
+region-less, so `Locale.currency` is nil and the Settings currency example falls
+back to USD; this field fixes that without touching production code (the
+production ScreenshotSeed decoder ignores the key).
 
-`merge.py` already writes this field when (re)generating the catalog from per-locale
-subagent output. This script is the deterministic backfill/sync path that operates
-on the committed catalog directly — no tmp outputs or LLM regeneration needed. Run
-it after editing REGION_BY_STOREFRONT or adding a locale.
+`merge.py` also writes this field when regenerating from subagent output. This
+script is the deterministic backfill/sync on the committed catalog (no tmp outputs
+or LLM regeneration). Run it after editing REGION_BY_STOREFRONT or adding a locale.
 
 Idempotent: re-running produces no diff once every file is in sync.
 
@@ -71,7 +70,7 @@ def main(argv: list[str]) -> int:
         stale.append(runtime)
         if args.check:
             continue
-        # Canonical key order: primaryLocale first, then budgets (matches merge.py).
+        # Key order: primaryLocale, then budgets (matches merge.py).
         payload = {"primaryLocale": expected, "budgets": data["budgets"]}
         with path.open("w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)

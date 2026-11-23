@@ -3,12 +3,11 @@
 Authoritative gate for the screenshot demo-content catalog.
 
 Walks the UI-test-bundled catalog (simple-recurring-budgetsUITests/ScreenshotSeeds/)
-directly and verifies that every expected runtime locale (en-US source + all 49
-target runtimes) has a non-empty file with a well-formed `budgets` array that
-includes the mandatory `everyday-food` budget and stays within MAX_BUDGETS.
+and verifies every expected runtime locale (en-US source + all 49 targets) has a
+non-empty file with a well-formed `budgets` array that includes the mandatory
+`everyday-food` budget and stays within MAX_BUDGETS.
 
-Exits 0 if the catalog is complete and well-formed; 1 otherwise. This is the
-screenshot-content analogue of check_metadata.py.
+Exits 0 if complete and well-formed; 1 otherwise. Analogue of check_metadata.py.
 
 Usage:
   python3 scripts/screenshot_content/check_content.py

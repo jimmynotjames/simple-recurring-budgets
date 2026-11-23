@@ -1,22 +1,18 @@
 #!/usr/bin/env bash
-# PreToolUse(Bash) guard enforcing AGENTS.md "Bash command hygiene" rules
-# deterministically, so the banned patterns can't silently recur:
+# PreToolUse(Bash) guard enforcing AGENTS.md "Bash command hygiene" rules:
 #
 #   rule 1 - no absolute /tmp/ (use project-local, gitignored tmp/)
-#   rule 2 - no `sed -i` mutation (use the Edit / Write tools)
-#   rule 3 - no `sed -n RANGE_p` slicing (use the Read tool with offset/limit)
-#   rule 4 - no direct push to main (create a branch + PR instead)
-#   rule 5 - no machine-wide simulator destruction (kills other repos'/Xcode's
-#            sims); only the global `all`/`unavailable` forms are blocked, scoped
-#            `simctl <verb> <udid>` stays allowed. See AGENTS.md "What NOT to do".
-#   rule 6 - no `nohup` prefix — it shifts the leading command token away from
-#            the real command, breaking allowlist matching even for already-allowed
-#            commands like `fastlane screenshots`. Use the Bash tool's
-#            run_in_background:true parameter instead.
+#   rule 2 - no `sed -i` mutation (use Edit / Write)
+#   rule 3 - no `sed -n RANGE_p` slicing (use Read with offset/limit)
+#   rule 4 - no direct push to main (branch + PR)
+#   rule 5 - no machine-wide simulator destruction; only the global `all` /
+#            `unavailable` forms are blocked, scoped `simctl <verb> <udid>` is allowed
+#   rule 6 - no `nohup` prefix: it shifts the leading command token and breaks
+#            allowlist matching. Use Bash run_in_background:true.
 #
-# Input: PreToolUse hook JSON on stdin -> .tool_input.command
-# Output: on match, a JSON deny decision + exit 0 (the deny is authoritative).
-#         on no match, exit 0 silently (no opinion -> normal permission flow).
+# Input: PreToolUse hook JSON on stdin (.tool_input.command).
+# On match: JSON deny decision + exit 0 (authoritative). Otherwise exit 0 silently
+# (normal permission flow).
 set -euo pipefail
 
 cmd="$(jq -r '.tool_input.command // ""')"

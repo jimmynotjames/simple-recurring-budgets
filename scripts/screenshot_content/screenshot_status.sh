@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 #
-# One-shot, read-only status for the App Store screenshot capture+upload job.
+# Read-only status for the App Store screenshot capture+upload job. Run it instead of
+# ad-hoc ps/find/tail pipelines: `bash scripts/...` is allowlisted, so the pipes
+# inside aren't individually permission-checked and it never prompts.
 #
-# Run this instead of ad-hoc `ps aux | grep`, `find … | wc -l`, log-tailing
-# pipelines, etc. Because it's invoked as `bash scripts/...` (allowlisted), the
-# pipes / command-substitution / ps / sed inside it are NOT individually
-# permission-checked — so it never prompts mid-job. Safe to run any time:
-# touches nothing, just reports.
-#
-# Reports: local capture progress, any running capture/upload processes, the
-# upload controller's recent log, and per-storefront upload confirmation derived
-# from the newest fastlane push log (full or subset).
+# Reports: local capture progress, running capture/upload processes, the upload
+# controller's recent log, and per-storefront upload confirmation from the newest
+# fastlane push log (full or subset).
 
 set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 1   # repo root

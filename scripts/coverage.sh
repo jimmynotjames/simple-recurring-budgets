@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Report-only coverage summary for the app target (audit 2026-06-10, A1).
-# Reads the newest *-unit.xcresult under .build/sim/results/ (or the bundle
-# passed as $1) and prints a line-coverage report via coverage_report.py.
-# This is NOT a gate — it never fails on low coverage, only on missing data.
+# Report-only line-coverage summary: reads the newest *-unit.xcresult under
+# .build/sim/results/ (or the bundle in $1) via coverage_report.py. Not a gate;
+# fails only on missing data.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

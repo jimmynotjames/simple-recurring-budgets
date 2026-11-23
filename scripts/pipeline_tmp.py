@@ -2,19 +2,17 @@
 """
 Inspect or clear the gitignored ``tmp/`` working directories used by the
 localization fan-out pipelines (translate / metadata / screenshot-content /
-their audits / the size-check). These dirs hold per-locale prompt and output
-files.
+their audits / the size-check). They hold per-locale prompt and output files.
 
-Why this exists: the merge/validate steps read **every** file in an outputs dir,
-not just the current manifest's. So leftover per-locale files from a previous run
-silently contaminate a fresh run (re-merged, re-validated, or counted as
-"already done"). Run ``status`` before starting a pipeline to spot stale
-leftovers, ``clean`` to clear them, and ``clean`` again at the end to tidy up.
+Why: merge/validate read **every** file in an outputs dir, not just the current
+manifest's, so leftovers from a previous run contaminate a fresh one (re-merged,
+re-validated, or counted as "already done"). Run ``status`` before a pipeline
+to spot stale files, ``clean`` to clear them, and ``clean`` again at the end.
 
-This script only ever touches the known ``tmp/`` subdirectories listed below
-(all gitignored). It never deletes the directories themselves (so the pipelines'
-``mkdir -p`` stays a no-op) and never touches the catalog, the metadata tree, the
-ScreenshotSeeds catalog, or any committed file.
+Only touches the known ``tmp/`` subdirectories below (all gitignored). Never
+deletes the directories themselves (the pipelines' ``mkdir -p`` stays a no-op)
+and never touches the catalog, metadata tree, ScreenshotSeeds, or any committed
+file.
 
 Usage:
   python3 scripts/pipeline_tmp.py status [GROUP ...]   # list files per dir
@@ -39,7 +37,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TMP = REPO_ROOT / "tmp"
 
-# Each group -> the tmp/ subdirectory names it owns. Keep in sync with the
+# Group -> owned tmp/ subdirectory names. Keep in sync with the
 # *_DIR constants in scripts/{translate_catalog,translate_audit,translate_metadata,
 # screenshot_content}/*.py and translation-accessibility-size-check/run.sh.
 GROUPS: dict[str, list[str]] = {

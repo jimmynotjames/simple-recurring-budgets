@@ -67,8 +67,7 @@ def _decimal_ok(value, max_decimals: int) -> Tuple[bool, str]:
 def _is_single_emoji(icon) -> bool:
     if not isinstance(icon, str) or not icon.strip():
         return False
-    # Reject plain ASCII / latin letters; accept short non-ASCII (emoji, possibly
-    # with a variation selector or ZWJ). Keep the grapheme short.
+    # Reject ASCII/latin letters; accept short non-ASCII (emoji, possibly with a variation selector or ZWJ).
     if any(ord(ch) < 0x2190 for ch in icon if ch.isalnum()):
         return False
     return len(icon) <= 8
@@ -115,7 +114,7 @@ def validate_storefront(storefront: str, source_by_role: dict, subset: bool) -> 
             errors.append(f"{tag}: unknown role (not in source)")
             continue
 
-        # Structural fields must match the source exactly.
+        # Structural fields must match the source.
         for field in ("period", "startOffsetDays", "isCarryOverEnabled"):
             if b.get(field) != src.get(field):
                 errors.append(f"{tag}: {field} changed (got {b.get(field)!r}, expected {src.get(field)!r})")

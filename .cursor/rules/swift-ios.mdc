@@ -8,56 +8,56 @@ alwaysApply: false
 
 ## Money and currency
 
-- Represent monetary amounts with **`Decimal`** (or storage patterns backed by `Decimal`), not `Double`.
-- **Currency is per Budget**, not a single global default. Format amounts using the budget’s currency and the user’s locale (see F-3.04 in `docs/product-features-planning.md`).
+- Represent monetary amounts with `Decimal` (or storage patterns backed by `Decimal`), not `Double`.
+- Currency is per Budget, not a single global default. Format amounts using the budget’s currency and the user’s locale (see F-3.04 in `docs/product-features-planning.md`).
 
 ## UI and system integration
 
-- Follow **Human Interface Guidelines**: system typography, spacing, and materials; minimal, elegant layout per PRD.
-- New views should support **Dynamic Type** and **Dark Mode** without extra toggles (cross-cutting requirements: `docs/main-prd.md` §6.8.1, §6.8.2).
+- Follow Human Interface Guidelines: system typography, spacing, and materials; minimal, elegant layout per PRD.
+- New views support Dynamic Type and Dark Mode without extra toggles (`docs/main-prd.md` §6.8.1, §6.8.2).
 
 ## Accessibility
 
-- Provide meaningful **accessibility labels** (and hints where helpful); set appropriate **accessibility traits** on controls.
-- Exercise new flows with **VoiceOver** when feasible (cross-cutting requirement: `docs/main-prd.md` §6.8.1).
+- Provide meaningful accessibility labels (and hints where helpful); set appropriate accessibility traits on controls.
+- Exercise new flows with VoiceOver when feasible (`docs/main-prd.md` §6.8.1).
 
 ## Localization
 
-- No hard-coded English in production UI. Use a **String Catalog** and `LocalizedStringKey` / localized string APIs (cross-cutting requirement: `docs/main-prd.md` §6.8.3).
-- The catalog is at `simple-recurring-budgets/Resources/Localizable.xcstrings`. New strings go there automatically via Xcode's string extraction once you use `Text("key", comment: "...")`.
-- Prefer `Text("key", comment: "translator context")` over bare `Text("key")` so translators have context. The `comment:` is especially important for short or ambiguous labels (button titles, destructive actions, one-word labels).
-- After adding new string keys, re-run the translation pipeline from the repo root: `scripts/translate_catalog/` (extract → translate → merge → validate). Do not skip this step — the 49-locale translation files must stay current before the change ships. See `docs/tech-design-doc.md` §5.1 for full keying rules.
+- No hard-coded English in production UI. Use a String Catalog and `LocalizedStringKey` / localized string APIs (`docs/main-prd.md` §6.8.3).
+- The catalog is `simple-recurring-budgets/Resources/Localizable.xcstrings`. Xcode's string extraction adds new strings once you use `Text("key", comment: "...")`.
+- Prefer `Text("key", comment: "translator context")` over bare `Text("key")`. The `comment:` matters most for short or ambiguous labels (button titles, destructive actions, one-word labels).
+- After adding string keys, re-run the translation pipeline from the repo root: `scripts/translate_catalog/` (extract → translate → merge → validate). Don't skip it: the 49-locale translation files must stay current before the change ships. Keying rules: `docs/tech-design-doc.md` §5.1.
 
 ## Analytics
 
-- New user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent gate. See `docs/tech-design-doc.md` §7 for the implementation boundary. Also keep the spec in sync: any change to *what* is emitted — a new/changed event, a new/removed event property, **a new value in a categorical property's enum** (e.g. a new `BudgetPeriod`/`period` value, or a new `icloud_state`), changed bucket boundaries, or a new super/people property — must update `docs/analytics-spec.md` §9–§10 in the same change.
+- New user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect the consent gate. Implementation boundary: `docs/tech-design-doc.md` §7. Keep the spec in sync: any change to what is emitted (a new/changed event, a new/removed event property, a new value in a categorical property's enum such as a new `BudgetPeriod`/`period` value or a new `icloud_state`, changed bucket boundaries, or a new super/people property) must update `docs/analytics-spec.md` §9–§10 in the same change.
 
 ## Platform compatibility workarounds
 
-When a workaround exists because of a known platform bug or SDK false positive (not app logic), tag it at the callsite:
+Tag any workaround for a known platform bug or SDK false positive (not app logic) at the callsite:
 
 ```swift
 // iOS-COMPAT(VERSION): one-line description of the bug.
 //   Detail, issue number, and what to remove when the bug is fixed.
 ```
 
-Full convention (format, rules, audit command, current inventory) is in [`AGENTS.md` §Platform compatibility workarounds](../../AGENTS.md). To find every workaround: `grep -rn "iOS-COMPAT" . --include="*.swift"`.
+Convention (format, rules, audit command, current inventory): [`AGENTS.md` §Platform compatibility workarounds](../../AGENTS.md). Find every workaround: `grep -rn "iOS-COMPAT" . --include="*.swift"`.
 
 ## Testing
 
-- Prefer **Swift Testing** for new tests. Place tests in the Xcode test target (or project convention) alongside or mirroring app modules.
+- Prefer Swift Testing for new tests. Place tests in the Xcode test target (or project convention) alongside or mirroring app modules.
 
 ## Screen architecture
 
-- **Default pattern:** screens are SwiftUI Views using `@Query` for reads, `@Environment(\.modelContext)` for writes, and domain services in `Domain/` (`BudgetLifecycleService`, `BudgetCalculator`, `PeriodCalculator`) for logic. **No ViewModel by default.**
+- **Default pattern:** screens are SwiftUI Views using `@Query` for reads, `@Environment(\.modelContext)` for writes, and domain services in `Domain/` (`BudgetLifecycleService`, `BudgetCalculator`, `PeriodCalculator`) for logic. No ViewModel by default.
 - **Escalate to an `@Observable` ViewModel only if the screen has** non-trivial draft/form state, owns `async` / `Task` work, chains a multi-step user action, or has expensive derived display state.
-- **VM rules when escalated:** `@Observable final class <Screen>ViewModel` owned by the view via `@State`. VM holds draft state + pure logic only. It does **not** store `ModelContext`, does **not** hold `@Query` results, and does **not** fetch. Methods that write take `(context: ModelContext, ...)` at the call site.
-- **Grey-area ping:** if a screen is on the fence, **ask the user before scaffolding a VM**. Mandatory ping triggers: >3 mutable form fields, a framework call (Vision, Speech, PhotosUI, SiriKit/App Intents, network), one input that mutates >1 model property or couples fields, or a screen expected to grow materially in the next 1–2 features.
+- **VM rules when escalated:** `@Observable final class <Screen>ViewModel` owned by the view via `@State`. The VM holds draft state and pure logic only. It does not store `ModelContext`, hold `@Query` results, or fetch. Writing methods take `(context: ModelContext, ...)` at the call site.
+- **Grey-area ping:** if a screen is on the fence, ask the user before scaffolding a VM. Mandatory ping triggers: >3 mutable form fields, a framework call (Vision, Speech, PhotosUI, SiriKit/App Intents, network), one input that mutates >1 model property or couples fields, or a screen expected to grow materially in the next 1–2 features.
 - Authoritative version: [`docs/tech-design-doc.md`](docs/tech-design-doc.md) §2.1.
 
 ## Data and sync
 
 - When changing models, sync, or app structure, align with [`docs/tech-design-doc.md`](docs/tech-design-doc.md).
-- When changing the schema, consider **SwiftData** models and **CloudKit** sync early: relationships, uniqueness, and migration impact (F-1.02).
+- When changing the schema, consider SwiftData models and CloudKit sync early: relationships, uniqueness, and migration impact (F-1.02).
 
-When editing the **Xcode project** or schemes, keep target membership and test targets correct.
+When editing the Xcode project or schemes, keep target membership and test targets correct.

@@ -3,10 +3,9 @@ import SwiftUI
 // MARK: - Add Funds card (F-6.01)
 
 extension AddEditExpenseView {
-  /// The fourth form card — discrete `Toggle` that switches the entry between an expense
-  /// (subtracts from remaining) and an add-funds adjustment (adds to remaining). Lives at
-  /// the end of the form because the action is intentionally low-frequency; the strong
-  /// feedback (title flip, amount tint, description seed) compensates.
+  /// Toggle switching the entry between an expense and an add-funds adjustment. Sits last
+  /// because it's low-frequency; the title flip, amount tint, and description seed make
+  /// the state obvious.
   var addFundsCard: some View {
     GroupBox {
       VStack(alignment: .leading, spacing: 6) {

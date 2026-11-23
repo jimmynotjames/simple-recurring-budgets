@@ -1,17 +1,13 @@
 import SwiftUI
 
 #if DEBUG
-  /// Test-only hook to force the app's Dynamic Type size at launch.
+  /// Test-only hook forcing the Dynamic Type size at launch. `-UIPreferredContentSizeCategoryName` is
+  /// unreliable on the iOS 26.x simulator (renders at default), so the localized-layout screenshot check
+  /// (`scripts/translation-accessibility-size-check/`) uses this per-launch env hook instead.
   ///
-  /// The standard `-UIPreferredContentSizeCategoryName` launch argument proved unreliable on the
-  /// iOS 26.x simulator (it rendered at the default size), so the ad-hoc localized-layout screenshot
-  /// check (`scripts/translation-accessibility-size-check/`) forces the size through this env hook
-  /// instead — it's deterministic and parallel-safe (per-launch environment).
-  ///
-  /// **DEBUG-only + inert by default:** the whole type is behind `#if DEBUG`, so it's compiled out of
-  /// Release entirely. Even in DEBUG it applies no override unless the process is launched under
-  /// `IS_TESTING` *and* with `FORCE_DYNAMIC_TYPE` set (e.g. `FORCE_DYNAMIC_TYPE=xxxLarge`) — which only
-  /// XCUITest does. Its two call sites (the App root and `RootView`'s sheet) are `#if DEBUG` too.
+  /// DEBUG-only (compiled out of Release) and inert unless launched under `IS_TESTING` with
+  /// `FORCE_DYNAMIC_TYPE` set (e.g. `xxxLarge`), which only XCUITest does. Its call sites (App root,
+  /// `RootView` sheet) are `#if DEBUG` too.
   struct TestDynamicTypeOverride: ViewModifier {
     func body(content: Content) -> some View {
       if let size = Self.forced {

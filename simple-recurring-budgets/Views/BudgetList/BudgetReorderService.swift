@@ -3,15 +3,12 @@ import Foundation
 // move(fromOffsets:toOffset:) on MutableCollection is defined by SwiftUI.
 import SwiftUI
 
-/// Applies a drag-to-reorder gesture's index change to the budgets list.
-/// Extracted from `BudgetsView.move(from:to:)` so unit tests exercise the
-/// production algorithm directly with an injected `now` instead of inlining a
-/// copy of it (test-coverage-audit-2026-06-10 D1); the view's only remaining
-/// responsibility is forwarding the indices and saving.
+/// Applies a drag-to-reorder index change to the budgets list. Extracted from
+/// `BudgetsView.move(from:to:)` so tests can run the real algorithm with an injected
+/// `now`; the view only forwards indices and saves.
 enum BudgetReorderService {
-  /// Rewrites `sortOrder` densely over the new order (0..<count).
-  /// Only mutates — and bumps `lastModified` on — rows whose `sortOrder`
-  /// actually changed. Does not save; the caller batches the write.
+  /// Rewrites `sortOrder` densely (0..<count), mutating and bumping `lastModified` only on
+  /// rows whose value changed. Doesn't save; the caller batches the write.
   static func applyMove(
     budgets: [Budget],
     fromOffsets source: IndexSet,

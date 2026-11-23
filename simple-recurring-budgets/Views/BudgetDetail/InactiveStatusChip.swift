@@ -2,17 +2,11 @@ import SwiftUI
 
 // MARK: - InactiveStatusChip
 
-/// Compact status chip surfacing the reason a budget is not currently running.
+/// Compact chip for why a budget isn't running (`.preStart`, `.paused`, `.postEnd`):
+/// an SF Symbol plus a localized "{Status} · {date}" label.
 ///
-/// Generalizes the previous `PausedChip` to three variants — `.preStart`,
-/// `.paused`, `.postEnd` — sharing capsule styling, increased-contrast handling,
-/// and Dynamic-Type-scaled padding. Each variant pairs an SF Symbol with a
-/// localized "{Status} · {date}" label.
-///
-/// Lives outside the row's tap target so VoiceOver reads it as its own
-/// static-text element. The chip itself is the inactive indicator, so — unlike
-/// `CarryOverChip` — it has no `dimmed:` mode (it's always rendered in the
-/// secondary foreground).
+/// Lives outside the row's tap target so VoiceOver reads it as its own element. Unlike
+/// `CarryOverChip` it has no `dimmed:` mode; it's always in the secondary foreground.
 struct InactiveStatusChip: View {
   let reason: BudgetInactiveReason
 

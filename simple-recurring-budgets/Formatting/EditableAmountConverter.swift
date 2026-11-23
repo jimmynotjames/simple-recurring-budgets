@@ -2,21 +2,19 @@ import Foundation
 
 /// Converts between `Decimal?` and the editable text of the Amount/Allocation fields.
 ///
-/// The fields are backed by `UITextField` (see `DecimalInputField`), not SwiftUI's `TextField`, because
-/// `TextField(value:format:)` rejects keystrokes whenever parsing throws (which broke entry in RTL /
-/// non-Western-digit locales) and `TextField(text:)` + `.onChange` into an `@Observable` model fails to
-/// render typed text until focus resigns. Callers seed the field via `editableText(_:)` and convert edits
-/// back with `parser`. (If those SwiftUI bugs are fixed, this type can back a native `TextField` directly
-/// again — see issue #122.)
+/// The fields are backed by `UITextField` (see `DecimalInputField`), not SwiftUI's `TextField`:
+/// `TextField(value:format:)` rejects keystrokes whenever parsing throws (broke entry in RTL /
+/// non-Western-digit locales), and `TextField(text:)` + `.onChange` into an `@Observable` model doesn't
+/// render typed text until focus resigns. Callers seed via `editableText(_:)` and convert edits back with
+/// `parser`. If those SwiftUI bugs are fixed, this type can back a native `TextField` again.
 ///
-/// It is **currency-aware**: `editableText(_:)` seeds an existing value at the currency's minor-unit
-/// precision (e.g. 3 digits for BHD, 0 for JPY); `parser` is locale-aware and accepts whatever numbering
-/// system the locale's keyboard emits (Western, Arabic-Indic, Devanagari, …).
+/// **Currency-aware:** `editableText(_:)` uses the currency's minor-unit precision (3 digits for BHD, 0 for
+/// JPY); `parser` is locale-aware and accepts whatever numbering system the keyboard emits (Western,
+/// Arabic-Indic, Devanagari, …).
 ///
-/// This is deliberately *not* a `ParseableFormatStyle`: the field is UIKit-backed and calls `editableText`
-/// and `parser.parse` directly, so the `format(_:)`/protocol machinery that exists only to drive
-/// `TextField(value:format:)` would be dead weight. If issue #122 restores a native field, reinstating the
-/// conformance is mechanical.
+/// Deliberately *not* a `ParseableFormatStyle`: the UIKit field calls `editableText` and `parser.parse`
+/// directly, so the `format(_:)`/protocol machinery that only serves `TextField(value:format:)` would be
+/// dead weight. Reinstating the conformance is mechanical if a native field returns.
 struct EditableAmountConverter {
   /// ISO 4217 code whose minor-unit count drives the maximum fraction length.
   var currencyCode: String
@@ -57,9 +55,9 @@ struct EditableAmountParser {
   func parse(_ value: String) throws -> Decimal? {
     let trimmed = value.trimmingCharacters(in: .whitespaces)
     guard !trimmed.isEmpty else { return nil }
-    // Parse through a locale-aware `.number` style rather than `Decimal(string:locale:)`. The latter returns
-    // nil for non-Western digits; the FormatStyle parser accepts whatever numbering system the locale uses
-    // (Western, Arabic-Indic, Devanagari, …) plus locale grouping/decimal separators.
+    // Parse through a locale-aware `.number` style, not `Decimal(string:locale:)`, which returns nil for
+    // non-Western digits; the FormatStyle parser accepts the locale's numbering system plus its
+    // grouping/decimal separators.
     return try Decimal(trimmed, format: Decimal.FormatStyle(locale: locale))
   }
 }

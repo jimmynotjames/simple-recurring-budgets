@@ -65,8 +65,7 @@ import SwiftUI
   }
 
   #Preview("Edit — Biweekly (note + schedule)") {
-    // Biweekly edit: the explanatory note shows under the period chips and the
-    // Schedule disclosure auto-expands so the start date (the cycle anchor) is visible.
+    // Note shows under the period chips; Schedule auto-expands to reveal the start date (cycle anchor).
     let budget = DebugData.biweeklyDefault()
     return AddEditBudgetView(viewModel: AddEditBudgetViewModel(editing: budget))
       .modelContainer(PreviewContainer.make())
@@ -75,8 +74,7 @@ import SwiftUI
   }
 
   #Preview("Edit — Orphaning start date") {
-    // weeklyDefault has expenses at day 0, -7, -21, -35.
-    // Moving startDate to 20 days ago orphans the day-21 and day-35 expenses (count = 2).
+    // weeklyDefault has expenses at day 0, -7, -21, -35; a start 20 days ago orphans two.
     let budget = DebugData.weeklyDefault()
     let vm = AddEditBudgetViewModel(editing: budget)
     vm.startDate = Calendar.current.date(byAdding: .day, value: -20, to: Calendar.current.startOfDay(for: Date()))

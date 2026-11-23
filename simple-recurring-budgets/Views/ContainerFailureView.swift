@@ -1,13 +1,9 @@
 import SwiftUI
 
-/// Recovery surface presented by the `@main` App when both CloudKit-backed
-/// and local-only `ModelContainer` creation fail. Replaces the previous
-/// `fatalError` crash — see `container-creation-recovery` capability.
-///
-/// Layout: centered title + body + **Retry** + **Send Feedback**. The
-/// underlying `NSError.domain` / `code` are intentionally **not** shown to
-/// the user (they appear only in the Send Feedback mailto body for support
-/// triage).
+/// Recovery screen shown by the `@main` App when both CloudKit-backed and local-only
+/// `ModelContainer` creation fail: title, body, Retry, Send Feedback. The `NSError`
+/// domain / code are deliberately hidden from the user; they appear only in the
+/// Send Feedback mailto body.
 struct ContainerFailureView: View {
   let error: ContainerCreationFailure
   let onRetry: () -> Void

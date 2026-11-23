@@ -13,53 +13,43 @@ struct simple_recurring_budgetsApp: App {
   private let analytics: any AnalyticsClient
 
   @Environment(\.scenePhase) private var scenePhase
-  /// Fires `app_opened` on cold launch and on each return to the foreground from
-  /// background, ignoring transient `.inactive` interruptions. See §9.
+  /// Fires `app_opened` on cold launch and on each foreground return from background, ignoring transient `.inactive`.
   @State private var appOpenTracker = AppOpenTracker()
 
   init() {
-    // Attempt container creation via AppStartup. On failure, the app body
-    // presents ContainerFailureView (Retry / Send Feedback) instead of
-    // crashing — see `container-creation-recovery` capability.
+    // On failure the body shows ContainerFailureView (Retry / Send Feedback) instead of crashing.
     let initialStartup = AppStartup {
       try Self.makeModelContainer()
     }
     _startup = State(initialValue: initialStartup)
 
     let initialSettings = AppSettings()
-    // SyncStatus presents an iCloud indicator in Settings. On the failure
-    // path no RootView/SettingsView are constructed, so seed a placeholder
-    // `.localFallback`; the ContainerFailureView Retry handler in `body`
-    // overwrites it with the real backing once a retry succeeds, so Settings
-    // never misreports local-only after recovery.
+    // Settings shows an iCloud indicator via SyncStatus. On the failure path no RootView/SettingsView exists,
+    // so seed a placeholder `.localFallback`; the Retry handler in `body` overwrites it with the real backing
+    // after a successful retry.
     let initialSyncStatus = SyncStatus(
       containerBacking: initialStartup.containerBacking ?? .localFallback
     )
 
     #if DEBUG
-      // App Store screenshot capture only: force the Settings iCloud row to read
-      // "Active" (the Simulator has no iCloud account, so it would otherwise show
-      // "unavailable"). Set solely by the AppStoreScreenshots UI test via this flag;
-      // the whole block is compiled out of Release. See SyncStatus.swift.
+      // Screenshot capture only: force the Settings iCloud row to "Active" (the Simulator has no iCloud
+      // account). Set by the AppStoreScreenshots UI test; compiled out of Release. See SyncStatus.swift.
       if ProcessInfo.processInfo.environment["SCREENSHOT_SYNC_OK"] == "1" {
         initialSyncStatus.screenshotForcesAvailableState = true
       }
     #endif
 
-    // Use ConsoleAnalyticsClient (no-op / log-only) when:
-    //   • running under any test type (IS_TESTING=1) — prevents test-run events
-    //     from reaching Mixpanel. This guard applies only to this @main
-    //     constructor; all other call sites inject SpyAnalyticsClient directly.
-    //   • Mixpanel tokens are still the committed placeholders (fresh clone
-    //     without config/Secrets.local.xcconfig) — graceful no-op, no crash,
-    //     no Mixpanel SDK init, no network traffic to Mixpanel.
+    // Use ConsoleAnalyticsClient (log-only) when:
+    //   • running under any test (IS_TESTING=1), so test events never reach Mixpanel. Applies only to this
+    //     @main constructor; other call sites inject SpyAnalyticsClient directly.
+    //   • Mixpanel tokens are still the committed placeholders (fresh clone without
+    //     config/Secrets.local.xcconfig): no SDK init, no network.
     if Self.isRunningTests || !MixpanelTokenSource.isConfigured {
       analytics = ConsoleAnalyticsClient()
     } else {
-      // Closures capture @MainActor-isolated properties (AppSettings, SyncStatus,
-      // ModelContainer.mainContext). They are NOT @Sendable — thread safety is
-      // delegated to the @unchecked Sendable declaration on MixpanelAnalyticsClient,
-      // which is safe because all call sites (track, identify) run on the main actor.
+      // Closures capture @MainActor-isolated state (AppSettings, SyncStatus, ModelContainer.mainContext) and are
+      // deliberately not @Sendable: thread safety rests on MixpanelAnalyticsClient's @unchecked Sendable, which
+      // holds because all call sites (track, identify) run on the main actor.
       analytics = MixpanelAnalyticsClient(
         token: MixpanelTokenSource.activeToken,
         isOptedIn: { [initialSettings] in initialSettings.analyticsOptIn },
@@ -72,9 +62,7 @@ struct simple_recurring_budgetsApp: App {
           initialSettings.defaultCarryOverEnabled
         },
         syncStateProvider: { [initialSyncStatus] in initialSyncStatus.rowState.analyticsValue },
-        // Reads through `AppStartup`: on the failure path no container exists,
-        // so the count is zero. On the success path (the common case), the
-        // live container resolved at launch is captured here.
+        // Reads through `AppStartup`: zero on the failure path (no container), else the live container.
         budgetsCountProvider: { [initialStartup] in
           guard let container = initialStartup.container else { return 0 }
           let descriptor = FetchDescriptor<Budget>()
@@ -82,10 +70,9 @@ struct simple_recurring_budgetsApp: App {
         }
       )
     }
-    // F-6.03 rating prompt. Counters live in the iCloud KV store (synced, consent-
-    // independent) — same `NSUbiquitousKeyValueStore.default` as AppSettings, in
-    // every build including tests. Coordinator-logic tests inject their own
-    // in-memory store directly.
+    // Rating prompt. Counters live in the iCloud KV store (synced, consent-independent), the same
+    // `NSUbiquitousKeyValueStore.default` as AppSettings, in every build including tests. Coordinator tests
+    // inject their own in-memory store.
     _ratingPrompt = State(initialValue: RatingPromptCoordinator(
       state: RatingPromptState(),
       analytics: analytics
@@ -104,10 +91,9 @@ struct simple_recurring_budgetsApp: App {
     WindowGroup {
       if let container = startup.container {
         RootView()
-          // `.ratingPromptPresenter()` MUST stay above (inner to) the `.environment`
-          // calls below: it reads `Router` / `RatingPromptCoordinator` from the
-          // environment, so those must be injected by an outer modifier. Reordering it
-          // below the `.environment(...)` lines would crash on launch (missing env).
+          // `.ratingPromptPresenter()` MUST stay above (inner to) the `.environment` calls below: it reads `Router` /
+          // `RatingPromptCoordinator` from the environment, which an outer modifier must inject. Moving it below
+          // them crashes on launch (missing env).
           .ratingPromptPresenter()
           .modelContainer(container)
           .environment(router)
@@ -115,38 +101,29 @@ struct simple_recurring_budgetsApp: App {
           .environment(syncStatus)
           .environment(ratingPrompt)
           .environment(\.analytics, analytics)
-        // Test-only Dynamic Type override for the localized-layout screenshot check. DEBUG-only, so
-        // it's compiled out of Release entirely; even in DEBUG it's inert unless IS_TESTING +
-        // FORCE_DYNAMIC_TYPE are set (which only XCUITest does).
+        // Test-only Dynamic Type override (localized-layout screenshot check). DEBUG-only; inert unless IS_TESTING + FORCE_DYNAMIC_TYPE are set.
         #if DEBUG
           .modifier(TestDynamicTypeOverride())
         #endif
           .task {
-            // Cold-launch open. The tracker dedups against the scenePhase
-            // handler below so a launch never double-fires.
+            // Cold-launch open; the tracker dedups against the scenePhase handler below so launch never double-fires.
             if appOpenTracker.shouldFire(for: .active) {
               analytics.track(AnalyticsEvent.appOpened)
             }
           }
           .onChange(of: scenePhase) { _, newPhase in
-            // Return from background to the foreground counts as a new open;
-            // transient .inactive interruptions do not (handled by the tracker).
+            // Foreground return counts as a new open; transient .inactive does not (the tracker handles it).
             if appOpenTracker.shouldFire(for: newPhase) {
               analytics.track(AnalyticsEvent.appOpened)
             }
           }
       } else if let error = startup.error {
-        // Recovery surface — see `container-creation-recovery` capability.
-        // Intentionally does NOT receive Router / AppSettings / SyncStatus /
-        // analytics: the wedged-store state may make those unsafe to use,
-        // and the failure view does not need them.
+        // Recovery surface. Deliberately gets no Router / AppSettings / SyncStatus / analytics: a wedged store may
+        // make them unsafe, and the failure view doesn't need them.
         ContainerFailureView(error: error) {
           startup.retry()
-          // A successful retry resolved a real backing — correct the
-          // placeholder seed so the Settings iCloud row reflects the live
-          // container instead of claiming local-only until the next launch
-          // (general-code-audit-2026-06-11 L1). No-op on a failed retry
-          // (`containerBacking` stays nil and the failure surface persists).
+          // A successful retry resolved a real backing: correct the placeholder seed so Settings reflects it instead
+          // of claiming local-only until next launch. No-op on a failed retry (`containerBacking` stays nil).
           if let backing = startup.containerBacking {
             syncStatus.containerBacking = backing
           }
@@ -157,19 +134,14 @@ struct simple_recurring_budgetsApp: App {
 
   // MARK: - Private
 
-  /// `true` when the process should suppress real analytics.
-  ///
-  /// `IS_TESTING = 1` is the single canonical signal for both test types:
-  /// - **Unit tests**: set via the scheme's TestAction `EnvironmentVariables`,
-  ///   which are visible to the app-as-test-host process at launch.
-  /// - **UI tests**: injected by each `XCUIApplication` call site via
-  ///   `launchEnvironment["IS_TESTING"] = "1"` before `launch()`.
+  /// `true` when the process should suppress real analytics. `IS_TESTING = 1` is the single signal for both test types:
+  /// - **Unit tests**: set in the scheme's TestAction `EnvironmentVariables` (visible to the app-as-test-host).
+  /// - **UI tests**: set via `launchEnvironment["IS_TESTING"] = "1"` at each `XCUIApplication` call site.
   private static var isRunningTests: Bool {
     ProcessInfo.processInfo.environment["IS_TESTING"] != nil
   }
 
-  // `case normal` is always available. Non-`.normal` cases exist only in DEBUG
-  // (see `#if` inside the enum) so they are stripped from Release builds.
+  // `.normal` always exists; other cases are DEBUG-only (`#if` inside the enum) so Release strips them.
   #if DEBUG
     /// -------------------------------------------------------------------------
     /// Manual database launch — set `appDatabaseLaunchMode` below. Options:
@@ -195,13 +167,10 @@ struct simple_recurring_budgetsApp: App {
     #endif
   }
 
-  /// Picks a `ModelContainer` (and the `SyncStatus.ContainerBacking` it represents)
-  /// based on `appDatabaseLaunchMode` (DEBUG) or always production (Release).
-  ///
-  /// In-memory DEBUG containers always use `.localFallback` since they don't sync via CloudKit.
+  /// Picks a `ModelContainer` and its `SyncStatus.ContainerBacking` from `appDatabaseLaunchMode` (DEBUG) or
+  /// always production (Release). In-memory DEBUG containers use `.localFallback` (no CloudKit).
   private static func makeModelContainer() throws -> (ModelContainer, SyncStatus.ContainerBacking) {
-    // UI test isolation: every test launch gets a clean ephemeral in-memory store.
-    // Seeding for journey-test preconditions is handled by InMemoryModelContainer.
+    // UI test isolation: every launch gets a clean in-memory store; journey preconditions are seeded by InMemoryModelContainer.
     if isRunningTests {
       #if DEBUG
         return (InMemoryModelContainer.makeForUITests(), .localFallback)
@@ -228,17 +197,15 @@ struct simple_recurring_budgetsApp: App {
   }
 
   #if DEBUG
-    /// Removes every `Budget` (cascade-deletes their `ExpenseItem`s) and saves. For manual
-    /// "empty on disk / CloudKit" testing only; see `appDatabaseLaunchMode` `.emptyPersistedThenClear`.
+    /// Removes every `Budget` (cascades to `ExpenseItem`s) and saves. Manual "empty on disk / CloudKit" testing
+    /// only (`.emptyPersistedThenClear`).
     private static func deleteAllBudgets(in context: ModelContext) {
       let descriptor = FetchDescriptor<Budget>()
       guard let all = try? context.fetch(descriptor) else { return }
       for budget in all {
         context.delete(budget)
       }
-      // DEBUG-only emptyPersistedThenClear path: route through the shared helper
-      // so a failure still logs to Logger.persistence.error; swallow because
-      // there is no analytics client or presenting UI in this dev-only flow.
+      // DEBUG-only: route through the shared helper so failures still log to Logger.persistence.error; swallowed since this dev-only flow has no analytics or UI.
       try? context.saveChanges(operation: .appLaunchDedup)
     }
   #endif

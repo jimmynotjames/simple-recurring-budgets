@@ -1,22 +1,18 @@
 import Foundation
 
-/// Computes the asymmetric live-coupling spillover for the current in-progress period.
+/// Asymmetric live-coupling spillover for the current in-progress period.
 ///
-/// Rule (§A.5.6):
-/// - `.active`: only *committed* overflow spills into carry-over immediately.
-///   Ordinary mid-period slack (`0 ≤ remaining ≤ effectiveAllocation`) stays in the
-///   current-period envelope and waits for the period close — where the walker folds it in.
-///   Overspend (`remaining < 0`) and add-funds excess (`remaining > effectiveAllocation`)
-///   are committed user actions that land live.
-/// - `.postEnd`: symmetric — the entire final-period remaining folds in (the period will
-///   never close normally, so there is no future boundary to wait for).
-/// - `.preStart`, `.paused`: 0 (remaining is also 0 in both states).
+/// - `.active`: only *committed* overflow spills immediately. Ordinary slack
+///   (`0 ≤ remaining ≤ effectiveAllocation`) stays in the envelope until the period closes and the walker
+///   folds it in. Overspend (`remaining < 0`) and add-funds excess (`remaining > effectiveAllocation`) are
+///   committed actions and land live.
+/// - `.postEnd`: symmetric; the whole final-period remaining folds in (no future boundary to wait for).
+/// - `.preStart`, `.paused`: 0.
 ///
-/// **Reset interaction lives in the caller.** This function is a pure 3-input classifier;
-/// `BudgetCalculator.recurringBranch` is responsible for passing a *reset-aware* `remaining`
-/// (full allocation minus post-`lastResetDate` expenses, and 0 spillover when the reset was
-/// stamped after the budget ended) so the live spillover matches the walker's eventual
-/// contribution for the reset period. See the budget-math spec, "Reset interaction".
+/// **Reset interaction lives in the caller.** This is a pure 3-input classifier;
+/// `BudgetCalculator.recurringBranch` passes a *reset-aware* `remaining` (full allocation minus
+/// post-`lastResetDate` expenses; 0 spillover when the reset was stamped after the budget ended) so live
+/// spillover matches the walker's eventual contribution.
 func currentPeriodSpillover(
   remaining: Decimal,
   effectiveAllocation: Decimal,

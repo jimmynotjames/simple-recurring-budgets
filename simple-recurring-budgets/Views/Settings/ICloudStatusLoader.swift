@@ -3,19 +3,17 @@ import Foundation
 import OSLog
 
 /// Queries the iCloud account status and writes the mapped result into
-/// `SyncStatus.accountStatus` — the half of the Settings iCloud row that was
-/// previously unreachable from unit tests because `CKContainer` cannot be
-/// stubbed (test-coverage-audit-2026-06-10 I2). The query is an injected
-/// closure: production uses the live `CKContainer` call below; tests inject
-/// available / unavailable / throwing providers.
+/// `SyncStatus.accountStatus`. The query is an injected closure (`CKContainer` can't be
+/// stubbed): production uses the live call; tests inject available/unavailable/throwing
+/// providers.
 struct ICloudStatusLoader {
   /// Returns the live account status.
   var accountStatus: () async throws -> CKAccountStatus = {
     #if DEBUG
-      // UI tests: CKContainer.accountStatus() hangs on the account-less
-      // Simulator, pinning the iCloud row to a spinner so XCUITest can't open
-      // Settings (#211). Skip the query; `.noAccount` maps to `.unavailable`
-      // in `load(into:)`. DEBUG-only, like the SyncStatus override.
+      // UI tests: `CKContainer.accountStatus()` hangs on the account-less Simulator,
+      // pinning the iCloud row to a spinner so XCUITest can't open Settings. Skip the
+      // query; `.noAccount` maps to `.unavailable` in `load(into:)`. DEBUG-only, like the
+      // SyncStatus override.
       if ProcessInfo.processInfo.environment["IS_TESTING"] != nil {
         return .noAccount
       }
@@ -23,9 +21,8 @@ struct ICloudStatusLoader {
     return try await CKContainer.default().accountStatus()
   }
 
-  /// Queries the provider, maps the result (`.available` → available, anything
-  /// else or a thrown error → unavailable), writes it into `syncStatus`, and
-  /// logs state transitions.
+  /// Queries the provider and writes `syncStatus`: `.available` → available; anything
+  /// else, or a throw → unavailable. Logs transitions.
   func load(into syncStatus: SyncStatus) async {
     let old = syncStatus.accountStatus
     do {

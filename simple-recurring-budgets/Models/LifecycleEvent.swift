@@ -1,15 +1,12 @@
 import Foundation
 import SwiftData
 
-/// Records a pause or resume lifecycle event for a `Budget`.
+/// A pause or resume event for a `Budget`. Pause/resume work at whole-period granularity: the period
+/// *containing* the event stays active; pausing takes effect the period after. `lastModified` breaks ties
+/// for CloudKit convergence.
 ///
-/// Pause and resume operate at whole-period granularity: the period *containing* the event
-/// is itself active; pausing takes effect the period after. `lastModified` breaks ties for
-/// CloudKit cross-device convergence.
-///
-/// `kind` is stored as `kindRawValue: String` and exposed via a typed `kind` accessor so
-/// that `#Predicate<LifecycleEvent>` queries can filter by kind. See `LifecycleEventKind`
-/// for the rationale.
+/// `kind` is stored as `kindRawValue: String` behind a typed `kind` accessor so `#Predicate<LifecycleEvent>`
+/// can filter by kind (see `LifecycleEventKind`).
 @Model
 final class LifecycleEvent {
   var id: UUID = UUID()

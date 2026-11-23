@@ -1,16 +1,13 @@
 import Foundation
 
-/// Persisted eligibility signals for the automatic App Store review prompt (F-6.03).
+/// Persisted eligibility signals for the automatic App Store review prompt.
 ///
-/// Backed by the iCloud key-value store through the shared `KeyValueStore`
-/// abstraction, so the counters sync across the user's devices and are unit-testable
-/// with the test target's in-memory `KeyValueStore` double. **Independent of analytics
-/// consent** — these signals
-/// drive prompt eligibility and must work for users who declined analytics. They
-/// deliberately do **not** reuse `AppSettings.analyticsFirstOpenAt` (analytics state).
+/// Backed by the iCloud key-value store via the shared `KeyValueStore` abstraction, so counters sync across
+/// devices and are unit-testable with an in-memory double. **Independent of analytics consent**: these
+/// signals must work for users who declined analytics, so they deliberately do **not** reuse
+/// `AppSettings.analyticsFirstOpenAt`.
 ///
-/// Dates are stored as the `timeIntervalSinceReferenceDate` string and counts as
-/// `Int64`, mirroring the `AppSettings` persistence convention.
+/// Dates are stored as `timeIntervalSinceReferenceDate` strings and counts as `Int64`, mirroring `AppSettings`.
 final class RatingPromptState {
   static let installedAtKey = "ratingPromptInstalledAt"
   static let loggedExpenseCountKey = "ratingPromptLoggedExpenseCount"
@@ -53,8 +50,7 @@ final class RatingPromptState {
     set { Self.writeDate(store, Self.lastLogDayStartKey, newValue) }
   }
 
-  /// Timestamp the eligibility thresholds were first met (one-shot gate for the
-  /// `rating_prompt_eligible` event).
+  /// Timestamp the eligibility thresholds were first met (one-shot gate for `rating_prompt_eligible`).
   var firstEligibleAt: Date? {
     get { Self.readDate(store, Self.firstEligibleAtKey) }
     set { Self.writeDate(store, Self.firstEligibleAtKey, newValue) }

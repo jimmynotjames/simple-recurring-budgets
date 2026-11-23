@@ -1,22 +1,17 @@
-/// Exposes the Mixpanel project token for the active build configuration,
-/// read from Info.plist (injected via `config/Secrets.xcconfig`).
+/// Exposes the Mixpanel project token for the active build configuration, read from Info.plist (injected
+/// via `config/Secrets.xcconfig`).
 ///
-/// `isConfigured` guards SDK initialization: when tokens are still the
-/// committed placeholder sentinels (fresh clone without a local secrets
-/// file), the app falls back to `ConsoleAnalyticsClient` — no Mixpanel
-/// traffic, no crash. See `simple_recurring_budgetsApp.init()`.
+/// `isConfigured` guards SDK initialization: while tokens are still the committed placeholder sentinels
+/// (fresh clone without a local secrets file) the app uses `ConsoleAnalyticsClient`, with no Mixpanel
+/// traffic and no crash. See `simple_recurring_budgetsApp.init()`.
 ///
-/// Token source moved from hardcoded literals to xcconfig/Info.plist in the
-/// `public-repo-secrets-and-license` change; `// gitleaks:allow` tags and
-/// `.gitleaksignore` fingerprints are retained to keep the full-history CI
-/// scan green (those commits are not rewritten).
+/// Keep the `// gitleaks:allow` tags and `.gitleaksignore` fingerprints: they keep the full-history CI
+/// secrets scan green for old commits that contained hardcoded tokens.
 enum MixpanelTokenSource {
   // MARK: - Public
 
-  /// `true` when both dev and prod tokens are real (non-placeholder) values,
-  /// indicating `config/Secrets.local.xcconfig` is present and filled.
-  ///
-  /// Exposed as a testable pure function via `isConfigured(dev:prod:)`.
+  /// `true` when both dev and prod tokens are real (non-placeholder), i.e. `config/Secrets.local.xcconfig` is
+  /// present and filled. Pure function via `isConfigured(dev:prod:)` so tests stay environment-independent.
   static var isConfigured: Bool {
     isConfigured(dev: AppConfig.mixpanelDevToken, prod: AppConfig.mixpanelProdToken)
   }

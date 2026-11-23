@@ -1,23 +1,18 @@
 import SwiftUI
 
-/// A money-amount editor: a keypad-driven `DecimalInputField` flanked by the locale-correct currency
-/// affix (symbol/code on the leading or trailing side per `CurrencyDisplayPreference.affixes`).
+/// A money-amount editor: a keypad `DecimalInputField` flanked by the locale-correct currency
+/// affix (per `CurrencyDisplayPreference.affixes`). Used by the expense Amount card and the
+/// budget Allocation card; see `EditableAmountConverter` (seed/parse) and `DecimalInputField`
+/// (why UIKit-backed).
 ///
-/// Bridges the field's editable `String` to the caller's `Decimal?` draft. The `String` is held
-/// internally and is **load-bearing**: it preserves an in-progress entry like `"1."` or `"1.50"` that a
-/// `Decimal` round-trip would collapse (dropping the separator or trailing zero mid-keystroke).
+/// The internal editable `String` is load-bearing: it preserves in-progress entries like `"1."`
+/// or `"1.50"` that a `Decimal` round-trip would collapse mid-keystroke.
 ///
-/// Synchronization is **bidirectional but disambiguated** via the `lastSyncedValue` sentinel.
-/// User keystrokes flow text → value (`onChange(of: text)` parses and writes through the binding);
-/// external writes to `value` flow value → text (`onChange(of: value)` re-seeds the display).
-/// The sentinel tracks the last value the field itself round-tripped through `lastSyncedValue`, so
-/// `onChange(of: value)` re-seeds only when the new value differs from what we just wrote — a write
-/// that originated *here* never triggers a re-seed cascade. The mid-keystroke preservation of `"1."`
-/// is preserved because the matching `value` (1) parsed from `"1."` is identical to the previous
-/// `value` (1), so no value-change fires.
-///
-/// Used by both the expense Amount card and the budget Allocation card; see `EditableAmountConverter`
-/// for the seed/parse logic and `DecimalInputField` for why the field is UIKit-backed.
+/// Sync is bidirectional, disambiguated by `lastSyncedValue`. Keystrokes flow text → value
+/// (`onChange(of: text)` parses and writes the binding); external writes flow value → text
+/// (`onChange(of: value)` re-seeds). The re-seed fires only when the new value differs from
+/// the last one this field wrote, so own writes never cascade, and `"1."` survives because it
+/// parses to the same `value` (1) as before.
 struct CurrencyAmountField: View {
   @Binding var value: Decimal?
   let currencyCode: String
@@ -29,24 +24,22 @@ struct CurrencyAmountField: View {
   /// When non-nil, tints both the digits and the affix (the expense field tints green while Add Funds is
   /// on). When nil, digits use `.primary` and the affix uses `.secondary`.
   var tint: Color?
-  /// Called when the underlying field becomes first responder. The budget screen uses it to clear a
-  /// sibling `@FocusState` (the Name field) so SwiftUI focus tracks the real first responder — otherwise
-  /// the iPadOS 26 `.decimalPad` popover anchors to the stale Name field (issue #126).
+  /// Called when the underlying field becomes first responder. The budget screen clears the
+  /// Name field's `@FocusState` here; otherwise the iPadOS 26 `.decimalPad` popover anchors
+  /// to the stale Name field.
   var onBeginEditing: (() -> Void)?
-  /// When non-nil and `value` is non-nil, renders a trailing ✕ button inside the field row that calls
-  /// this closure. Placing the button inside the existing HStack avoids wrapping the UIViewRepresentable
-  /// in a new outer container, which crashes on iOS 26 during autoFocus first-responder setup.
+  /// When non-nil and `value` is non-nil, shows a trailing ✕ that calls this. The button
+  /// stays inside the existing HStack on purpose: wrapping the UIViewRepresentable in a new
+  /// outer container crashes on iOS 26 during autoFocus first-responder setup.
   var onClear: (() -> Void)?
 
   @State private var text: String = ""
-  /// Bumped when the clear (✕) is tapped so `DecimalInputField` (re)takes first responder —
-  /// the cursor must land in this field after clearing, not stay wherever it was (the bug
-  /// left it at the end of the Description field after a Recents-driven fill).
+  /// Bumped on clear (✕) so `DecimalInputField` retakes first responder; otherwise the cursor
+  /// stays wherever it was (e.g. the Description field after a Recents fill).
   @State private var focusRequest = 0
-  /// The last `value` we round-tripped through (seeded on appear; updated on every text→value parse).
-  /// `onChange(of: value)` skips the re-seed when `newValue == lastSyncedValue` — i.e., the change
-  /// came from our own parse. External writes (e.g. F-7.04 Recents tap) differ from this sentinel
-  /// and trigger a re-seed of `text`.
+  /// Last `value` this field round-tripped (seeded on appear, updated on every text→value
+  /// parse). `onChange(of: value)` skips the re-seed when equal, i.e. the change was our own
+  /// parse; external writes (e.g. a Recents tap) differ and re-seed `text`.
   @State private var lastSyncedValue: Decimal?
 
   private var converter: EditableAmountConverter {
@@ -95,7 +88,7 @@ struct CurrencyAmountField: View {
       lastSyncedValue = value
     }
     .onChange(of: value) { _, newValue in
-      // External write: re-seed `text` so the display reflects the new value.
+      // External write: re-seed the display.
       guard newValue != lastSyncedValue else { return }
       text = converter.editableText(newValue)
       lastSyncedValue = newValue
@@ -107,8 +100,8 @@ struct CurrencyAmountField: View {
     }
   }
 
-  /// Styled, VoiceOver-hidden currency affix. Renders nothing for an empty affix so only the locale-correct
-  /// side appears. The value is already announced by the field's `accessibilityLabel`, so this is decorative.
+  /// Currency affix; empty affixes render nothing so only the locale-correct side shows.
+  /// VoiceOver-hidden: the field's `accessibilityLabel` already announces the value.
   @ViewBuilder
   private func affix(_ text: String) -> some View {
     if !text.isEmpty {

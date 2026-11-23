@@ -8,10 +8,7 @@ enum BudgetLifecycleState: Equatable {
   case postEnd // now >= effectiveEndExclusive (day after endDate)
 }
 
-/// The pure, immutable snapshot of a `Budget`'s financial state at a given instant.
-///
-/// Computed by `BudgetCalculator.snapshot(...)` — the single read entry point.
-/// No SwiftData types are mutated to produce this value.
+/// Pure, immutable snapshot of a `Budget`'s financial state at an instant, produced by `BudgetCalculator.snapshot(...)`.
 struct BudgetSnapshot: Equatable {
   /// Lifecycle classification at the snapshot instant.
   let lifecycleState: BudgetLifecycleState
@@ -23,13 +20,10 @@ struct BudgetSnapshot: Equatable {
   /// `0` for `.preStart` and `.paused` states.
   let remaining: Decimal
 
-  /// Signed cumulative carry-over (walker sum + current-period spillover).
-  /// `nil` for `.specificDates` budgets — F-2.08 hides the carry-over chip for that
-  /// type, which both surfaces implement by passing
-  /// `isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates` into
-  /// `StatusChipRow` (see `BudgetDetailView.headerRow` and `BudgetRowView`).
-  /// `BudgetLifecycleResult.carryOverAmount` flattens this `nil` → `0`; the flattened
-  /// value is never rendered because the chip is hidden upstream.
+  /// Signed cumulative carry-over (walker sum + current-period spillover). `nil` for `.specificDates`: the
+  /// carry-over chip is hidden for that type (callers pass `isCarryOverEnabled: budget.isCarryOverEnabled &&
+  /// !isSpecificDates` to `StatusChipRow`). `BudgetLifecycleResult.carryOverAmount` flattens `nil` to `0`,
+  /// never rendered since the chip is hidden upstream.
   let carryOver: Decimal?
 
   /// Inclusive start of the effective current period.

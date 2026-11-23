@@ -1,11 +1,7 @@
 import Foundation
 
-/// Centralised navigation state for the app.
-///
-/// Owned by `simple_recurring_budgetsApp` as `@State` and injected into the environment so any
-/// descendant screen can push a new destination or present a sheet without
-/// needing a direct reference to the host.
-///
+/// Centralised navigation state, owned by `simple_recurring_budgetsApp` as `@State` and injected into the
+/// environment so any screen can push a destination or present a sheet.
 /// Usage in a leaf screen:
 /// ```swift
 /// @Environment(Router.self) private var router

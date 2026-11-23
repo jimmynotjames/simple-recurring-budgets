@@ -9,13 +9,11 @@ struct AddEditExpenseView: View {
   @Environment(AppSettings.self) var settings
   @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
-  /// F-6.03 rating-prompt coordinator. Not `private` — read by
-  /// `notifyRatingPromptIfNeeded()` in `AddEditExpenseView+RatingPrompt.swift`.
-  /// Optional so Previews / unit hosts that don't inject it no-op rather than crash.
+  /// Rating-prompt coordinator. Not `private`: the RatingPrompt extension reads it.
+  /// Optional so previews/hosts that don't inject it no-op.
   @Environment(RatingPromptCoordinator.self) var ratingPrompt: RatingPromptCoordinator?
 
   @State private var showDeleteConfirmation = false
-  /// Standard save-error alert state (`persistence-error-handling` capability).
   @State private var saveError: SaveErrorState?
 
   var body: some View {
@@ -73,11 +71,10 @@ struct AddEditExpenseView: View {
       notifyRatingPromptIfNeeded()
       dismiss()
     } catch let error as PersistenceError {
-      // Per `add-edit-expense-screen` delta spec: sheet stays open with input
-      // intact; expense_logged/expense_edited not fired on failure.
+      // Sheet stays open with input intact; no analytics event fires on failure.
       saveError.setForFailure(error, retry: commitSave)
     } catch {
-      // saveChanges only throws PersistenceError; exhaustive catch for safety.
+      // `saveChanges` only throws PersistenceError; catch is for exhaustiveness.
     }
   }
 
@@ -89,7 +86,7 @@ struct AddEditExpenseView: View {
     } catch let error as PersistenceError {
       saveError.setForFailure(error, retry: commitDelete)
     } catch {
-      // saveChanges only throws PersistenceError; exhaustive catch for safety.
+      // `saveChanges` only throws PersistenceError; catch is for exhaustiveness.
     }
   }
 
@@ -145,9 +142,7 @@ struct AddEditExpenseView: View {
 
   private var nameCard: some View {
     GroupBox {
-      // Mirrors CurrencyAmountField's trailing-✕ pattern so the two text inputs clear
-      // the same way. Clearing also resets the Recents filter below, restoring the
-      // full suggestion row.
+      // Trailing ✕ mirrors CurrencyAmountField. Clearing also resets the Recents filter.
       HStack(alignment: .center, spacing: 2) {
         TextField(
           String(
@@ -234,5 +229,5 @@ struct AddEditExpenseView: View {
   }
 }
 
-// Previews live in `AddEditExpenseView+Previews.swift` so this file stays under
-// the project's 600-line per-file lint cap.
+// Previews live in `AddEditExpenseView+Previews.swift` to keep this file under the
+// 600-line lint cap.

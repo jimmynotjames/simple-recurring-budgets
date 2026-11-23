@@ -1,9 +1,8 @@
 import Foundation
 
-/// State machine for the Settings "Week Starts On" confirmation flow: a picker
-/// selection is held as `pending` until the user confirms (commit) or cancels
-/// (discard) in the alert. Extracted from `SettingsView` so unit tests drive the
-/// same transitions the view renders (test-coverage-audit-2026-06-10 D2).
+/// State machine for the "Week Starts On" confirmation flow: a picker selection is held
+/// as `pending` until the alert confirms (commit) or cancels (discard). Extracted so
+/// unit tests drive the same transitions as the view.
 struct WeekStartConfirmation {
   private(set) var pending: Weekday?
 

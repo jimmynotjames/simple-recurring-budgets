@@ -16,38 +16,32 @@ struct BudgetDetailView: View {
   @State var lifecycle: BudgetLifecycleResult?
   @State private var showResetCarryOverConfirm = false
   @State private var showResetBudgetConfirm = false
-  /// Measured height of the content-area large title (issue #117). Drives the
-  /// scroll threshold at which the title collapses into the inline nav-bar title.
-  /// Varies with name length and Dynamic Type, so it's measured rather than fixed.
-  /// Internal (not `private`) so `BudgetDetailView+Title` can write it.
+  /// Measured height of the content-area large title; sets the scroll threshold for
+  /// collapsing into the inline nav-bar title. Measured because it varies with name
+  /// length and Dynamic Type. Internal so `BudgetDetailView+Title` can write it.
   @State var titleHeight: CGFloat = 0
-  /// Whether the inline nav-bar title is shown. Toggles true once the content-area
-  /// large title has substantially scrolled beneath the navigation bar. Internal
-  /// (not `private`) so `BudgetDetailView+Title` can read it.
+  /// Whether the inline nav-bar title is shown (true once the large title has mostly
+  /// scrolled under the bar). Internal so `BudgetDetailView+Title` can read it.
   @State var showInlineTitle = false
-  /// Standard save-error alert state for interactive actions on this screen
-  /// (swipe-delete an expense, Reset Budget, Reset Carry-Over, Pause, Resume).
-  /// Populated by `present(_:retry:)` on a `PersistenceError` throw; cleared
-  /// by the alert's Cancel / Send Feedback buttons or a successful retry.
+  /// Save-error alert state for this screen's actions (delete expense, reset, pause,
+  /// resume). Set on a `PersistenceError`; cleared by the alert's buttons or a
+  /// successful retry.
   @State var saveError: SaveErrorState?
 
-  /// Action-gating only: the primary slot swaps Add Expense → Resume Budget
-  /// while paused, per the existing budget-detail-screen primary-action
-  /// requirement. Presentation (header dimming, chip) reads `inactiveReason`
-  /// below, not this flag.
+  /// Action-gating only: the primary slot swaps Add Expense → Resume Budget while
+  /// paused. Presentation (header dimming, chip) reads `inactiveReason`, not this.
   private var isPaused: Bool {
     lifecycle?.lifecycleState == .paused
   }
 
-  /// Action-gating only: hides the Pause/Resume menu item past `endDate` per
-  /// F-7.07 (a terminal budget cannot be paused or resumed).
+  /// Action-gating only: hides Pause/Resume past `endDate` (a terminal budget can't be
+  /// paused or resumed).
   private var isPostEnd: Bool {
     lifecycle?.lifecycleState == .postEnd
   }
 
-  /// View-layer inactive-presentation reason (`nil` when the budget is active).
-  /// Drives the dimmed header amount / full-width secondary bar /
-  /// `InactiveStatusChip` treatment uniformly across preStart, paused, and postEnd.
+  /// Inactive-presentation reason (`nil` when active); drives the dimmed header,
+  /// full-width secondary bar, and `InactiveStatusChip` for preStart/paused/postEnd.
   private var inactiveReason: BudgetInactiveReason? {
     guard let lifecycle else { return nil }
     return BudgetInactiveReason.from(lifecycle: lifecycle, budget: budget)
@@ -79,20 +73,18 @@ struct BudgetDetailView: View {
   var body: some View {
     List {
       // ── Content-area large title ──────────────────────────────
-      // Scroll-aware title (issue #117): renders the icon as a leading view so it
-      // mirrors in RTL, wraps long names, and collapses into the inline nav-bar
-      // title on scroll — none of which `navigationTitle(String)` can do.
+      // Custom title: icon as a leading view (mirrors in RTL), wraps long names, and
+      // collapses into the inline nav-bar title on scroll — `navigationTitle(String)`
+      // can do none of these.
       Section {
         titleHeader
           .listRowBackground(Color.clear)
           .listRowSeparator(.hidden)
-          // Leading/trailing 0: align the title with the cards' outer edge (where
-          // the status-quo large title sat), not the text inside them. Inset-grouped
-          // row insets are measured from the card edge, so 0 = flush with the card.
+          // Leading/trailing 0 aligns the title with the cards' outer edge (insets are
+          // measured from the card edge), not the text inside them.
           .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
       }
-      // Tighten the gap below the title to roughly the old large-title→content
-      // spacing; without this the title gets the full inset-grouped section gap.
+      // Without this the title gets the full inset-grouped section gap.
       .listSectionSpacing(8)
 
       // ── Status header ─────────────────────────────────────────
@@ -183,18 +175,14 @@ struct BudgetDetailView: View {
     }
     .listStyle(.insetGrouped)
     .scrollContentBackground(.hidden)
-    // Drop the inset-grouped list's default top inset so the title sits just below
-    // the nav bar (its own 8pt row inset is the only remaining gap), instead of the
-    // large grouped top margin (issue #117 follow-up).
+    // Drops the inset-grouped default top inset so the title sits just below the nav
+    // bar (its own 8pt row inset is the only gap).
     .contentMargins(.top, 0, for: .scrollContent)
-    // The budget title is rendered as a scroll-aware content header (issue #117),
-    // not a string `navigationTitle`. Inline display mode frees the nav-bar center
-    // for the custom collapsed title (the `.principal` toolbar item below).
+    // Inline mode frees the nav-bar center for the custom collapsed title (the
+    // `.principal` toolbar item below).
     .navigationBarTitleDisplayMode(.inline)
-    // Collapse the content title into the inline nav-bar title once it has
-    // substantially (~60%) scrolled beneath the bar. At rest the expression is 0
-    // (and `titleHeight` is 0 before first measurement), so the inline title stays
-    // hidden until the user scrolls down.
+    // Collapse once ~60% of the content title has scrolled beneath the bar. At rest
+    // the offset is 0 (and `titleHeight` is 0 before measurement), so it stays hidden.
     .onScrollGeometryChange(for: Bool.self) { geometry in
       geometry.contentOffset.y + geometry.contentInsets.top > titleHeight * 0.6
     } action: { _, collapsed in
@@ -205,9 +193,8 @@ struct BudgetDetailView: View {
     .appBackground()
     .saveErrorAlert($saveError)
     .toolbar {
-      // Custom inline title (issue #117): fades in as the content-area large title
-      // scrolls under the bar. Renders the icon as a leading view (RTL-correct) and
-      // truncates to one line, matching the standard inline nav-title weight.
+      // Custom inline title: fades in as the large title scrolls under the bar. Icon is
+      // a leading view (RTL-correct); one line, standard inline nav-title weight.
       ToolbarItem(placement: .principal) {
         inlineTitle
       }
@@ -285,28 +272,26 @@ struct BudgetDetailView: View {
           ))
         } label: {
           Image(systemName: "ellipsis.circle")
-            // Tint the label only — tinting the Menu itself bleeds into the
-            // UIKit-hosted menu items and overrides their standard rendering
-            // (label-colored icons, red destructive).
+            // Tint the label only: tinting the Menu bleeds into the UIKit-hosted menu
+            // items and overrides their standard rendering (label-colored icons, red
+            // destructive).
             .foregroundStyle(Color.accentColor)
         }
-        // Clear the NavigationStack-level tint (RootView, #297) for the menu
-        // subtree: the hosted menu items must keep standard rendering
-        // (label-colored icons, red destructive), which any inherited tint
-        // overrides (#296). The label keeps its accent via the explicit
-        // .foregroundStyle above, which reads the accent, not the tint.
-        // The confirmationDialog chained below is NOT affected: presented
-        // content inherits environment from modifiers OUTER to the
-        // presentation modifier, and this .tint(nil) sits inner to it.
+        // Clears RootView's NavigationStack-level tint for the menu subtree: any
+        // inherited tint overrides the hosted menu items' standard rendering. The label
+        // keeps its accent via the explicit .foregroundStyle above (reads the accent,
+        // not the tint). The confirmationDialog chained below is unaffected: presented
+        // content inherits environment from modifiers OUTER to the presentation
+        // modifier, and this .tint(nil) sits inner to it.
         .tint(nil)
         .accessibilityLabel(String(
           localized: "budgetDetail.menu.accessibilityLabel",
           defaultValue: "Budget options",
           comment: "VoiceOver label for the budget options menu button"
         ))
-        // Locale-invariant test handle (= localization key) so UI tests navigate in any language.
-        // Sole consumer: LocalizationScreenshotCapture (scripts/translation-accessibility-size-check/).
-        // Don't remove/rename without updating that capture, or its navigation breaks silently.
+        // Locale-invariant test handle (= localization key) so UI tests navigate in any
+        // language. Sole consumer: LocalizationScreenshotCapture
+        // (scripts/translation-accessibility-size-check/); update it if this changes.
         .accessibilityIdentifier("budgetDetail.menu.accessibilityLabel")
         .confirmationDialog(
           String(
@@ -364,19 +349,17 @@ struct BudgetDetailView: View {
       guard newPhase == .active else { return }
       refreshLifecycle()
     }
-    // Recompute when the budget OR any of its children change — including a CloudKit
-    // remote merge that brings in expenses without re-bumping `budget.lastModified`
-    // (issue #127). See `Budget.recomputeToken`.
+    // Fires when the budget or any child changes, including a CloudKit merge that adds
+    // expenses without bumping `budget.lastModified`. See `Budget.recomputeToken`.
     .onChange(of: budget.recomputeToken) {
       refreshLifecycle()
     }
-    // Recompute when a period boundary passes while the app stays foregrounded
-    // (issue #70) — scenePhase/recomputeToken don't fire at midnight.
+    // Period boundaries passing while foregrounded: scenePhase/recomputeToken don't
+    // fire at midnight.
     .onCalendarDayChange {
       refreshLifecycle()
     }
-    // Recompute when Week Starts On changes (confirmed in Settings or synced from
-    // another device via iCloud KVS) — weekly budgets re-grid immediately (#240).
+    // Week Starts On changed (Settings or iCloud KVS sync): weekly budgets re-grid.
     .onChange(of: settings.weekStartDay) {
       refreshLifecycle()
     }
@@ -436,17 +419,16 @@ struct BudgetDetailView: View {
     do {
       try BudgetLifecycleService.resetCarryOver(budget, context: context, analytics: analytics)
     } catch let error as PersistenceError {
-      // Failed save: populate save-error state and skip the analytics event.
+      // Failed save: show the error alert and skip the analytics event.
       saveError.setForFailure(error, retry: { [self] in resetCarryOver() })
       return
     } catch {
-      // Helper only throws PersistenceError, but keep an exhaustive catch for safety.
+      // Helper only throws PersistenceError; catch exhaustively anyway.
       return
     }
     saveError.clear()
-    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
-    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
-    // The analytics event fires only on a successful save (budget-lifecycle delta spec).
+    // The analytics event fires only after a successful save; the debug log above is
+    // independent of it.
     analytics.track(
       AnalyticsEvent.carryOverReset,
       properties: [
@@ -478,9 +460,8 @@ struct BudgetDetailView: View {
       return
     }
     saveError.clear()
-    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
-    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
-    // The analytics event fires only on a successful save (budget-lifecycle delta spec).
+    // The analytics event fires only after a successful save; the debug log above is
+    // independent of it.
     analytics.track(
       AnalyticsEvent.budgetReset,
       properties: [
@@ -530,13 +511,12 @@ struct BudgetDetailView: View {
     BudgetDetailPreview(budget: DebugData.detailDailyCurrentOnly(), icon: "🍔")
   }
 
-  // Both current and past period expenses (monthly, long — exceeds screen height). With icon.
+  // Current and past period expenses (monthly; taller than the screen). With icon.
   #Preview("Current & Past Months") {
     BudgetDetailPreview(budget: DebugData.detailMonthlyCurrentAndPast(), icon: "🛍️")
   }
 
-  // Future-dated expenses — "Upcoming" bucket above the current section;
-  // current and past sections render below (audit L2). With icon.
+  // Future-dated expenses: "Upcoming" bucket above the current section. With icon.
   #Preview("Upcoming · Daily") {
     BudgetDetailPreview(budget: DebugData.detailDailyWithUpcoming(), icon: "🍔")
   }
@@ -599,7 +579,7 @@ struct BudgetDetailView: View {
     BudgetDetailPreview(budget: DebugData.detailSpecificDatesPostEnd(), icon: "🏝️")
   }
 
-  // Long name — content-area title wraps to multiple lines instead of truncating (issue #117).
+  // Long name: content-area title wraps instead of truncating.
   #Preview("Long Name · Wrapping") {
     BudgetDetailPreview(
       budget: DebugData.detailDailyCurrentOnly(),
@@ -608,7 +588,7 @@ struct BudgetDetailView: View {
     )
   }
 
-  // RTL — icon sits on the leading (right) edge, mirroring the list row (issue #117).
+  // RTL: icon sits on the leading (right) edge, mirroring the list row.
   #Preview("Long Name · RTL") {
     BudgetDetailPreview(
       budget: DebugData.detailDailyCurrentOnly(),

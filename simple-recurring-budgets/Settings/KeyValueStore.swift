@@ -17,6 +17,5 @@ extension NSUbiquitousKeyValueStore: KeyValueStore {
   }
 }
 
-// The in-memory `MockKeyValueStore` test double lives in the test target
-// (simple-recurring-budgetsTests/Helpers/MockKeyValueStore.swift) so it does
-// not ship in the app binary.
+// The in-memory `MockKeyValueStore` double lives in the test target
+// (simple-recurring-budgetsTests/Helpers/MockKeyValueStore.swift) so it doesn't ship in the app binary.

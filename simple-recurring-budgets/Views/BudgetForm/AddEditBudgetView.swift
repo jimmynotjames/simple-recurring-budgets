@@ -5,14 +5,10 @@ struct AddEditBudgetView: View {
   // MARK: - View state
 
   //
-  // Internal: cross-file extension access only.
-  //
   // `viewModel`, `settings`, `showCurrencyPicker`, `initialCurrencyCode`,
-  // `isScheduleExpanded`, `isNameFocused`, and the `sectionLabel` helper below are
-  // non-`private` solely because Swift extensions in `AddEditBudgetView+AllocationCard.swift`,
-  // `AddEditBudgetView+SpecificDates.swift`, and `AddEditBudgetView+Schedule.swift`
-  // can't see `private` members. Treat them as if they were `private` to this view
-  // — do not consume from unrelated call sites.
+  // `isScheduleExpanded`, `isNameFocused`, and `sectionLabel` are non-`private` only
+  // because the `+AllocationCard` / `+SpecificDates` / `+Schedule` extensions can't see
+  // `private` members. Treat them as private; don't use them from other call sites.
   @State var viewModel: AddEditBudgetViewModel
   @Environment(\.modelContext) private var context
   @Environment(AppSettings.self) var settings
@@ -23,18 +19,17 @@ struct AddEditBudgetView: View {
   @State var showCurrencyPicker = false
   @State private var showDeleteConfirmation = false
   @State private var showOrphanWarning = false
-  /// Save-time confirmation shown when a biweekly budget's start date is edited, since
-  /// that re-anchors the 14-day grid and recalculates past periods (and carry-over).
+  /// Save-time confirmation when a biweekly start date is edited: it re-anchors the
+  /// 14-day grid and recalculates past periods (and carry-over).
   @State private var showBiweeklyReanchorWarning = false
   @State private var showIconPicker = false
-  /// Standard save-error alert state (`persistence-error-handling` capability).
-  /// Populated when `viewModel.save`/`viewModel.delete` throws a
-  /// `PersistenceError`; the sheet stays open with input intact.
+  /// Save-error alert state, set when `viewModel.save`/`delete` throws a `PersistenceError`;
+  /// the sheet stays open with input intact.
   @State private var saveError: SaveErrorState?
   @State var initialCurrencyCode: String = ""
   @State var isScheduleExpanded: Bool = false
-  /// Non-`private` for cross-file extension access — see the note above. The allocation
-  /// card (in `+AllocationCard.swift`) clears this when its amount field begins editing.
+  /// Non-`private`: see the note above. `+AllocationCard` clears it when the amount field
+  /// begins editing.
   @FocusState var isNameFocused: Bool
 
   private var isSpecificDates: Bool {
@@ -77,9 +72,8 @@ struct AddEditBudgetView: View {
           isScheduleExpanded = true
         }
       }
-      // When the global week-start changes, re-anchor the Add-mode weekly draft's
-      // startDate to match the new grid (no-op in Edit mode / non-weekly — see
-      // realignWeeklyStartDate).
+      // Re-anchors the Add-mode weekly draft's startDate to the new grid (no-op in Edit
+      // mode / non-weekly; see realignWeeklyStartDate).
       .onChange(of: settings.weekStartDay) { _, newValue in
         viewModel.realignWeeklyStartDate(to: newValue)
       }
@@ -116,8 +110,7 @@ struct AddEditBudgetView: View {
             comment: "Button that saves the budget and dismisses the Add/Edit Budget sheet"
           )) {
             if viewModel.isBiweeklyStartDateEdited {
-              // Biweekly re-anchor confirmation; its message folds in the orphan
-              // sentence when expenses are also stranded, so we never stack alerts.
+              // Its message folds in the orphan sentence, so alerts never stack.
               showBiweeklyReanchorWarning = true
             } else if viewModel.orphanedExpenseCount > 0 {
               showOrphanWarning = true
@@ -183,9 +176,8 @@ struct AddEditBudgetView: View {
     }
   }
 
-  /// Body for the biweekly re-anchor confirmation. The base sentence explains the
-  /// re-alignment; when the same edit also strands logged expenses, the orphan
-  /// sentence is appended so both consequences land in a single alert.
+  /// Biweekly re-anchor alert body; appends the orphan sentence when the edit also
+  /// strands expenses, so both consequences share one alert.
   private var biweeklyReanchorMessage: String {
     let base = String(
       localized: "addEditBudget.biweeklyReanchor.message",
@@ -207,9 +199,8 @@ struct AddEditBudgetView: View {
       saveError.clear()
       dismiss()
     } catch let error as PersistenceError {
-      // Per `add-edit-budget-screen` delta spec: sheet stays open with input
-      // intact; alert presents Retry; the inserted-but-unsaved Budget remains
-      // in the context so Retry re-attempts the same save.
+      // The sheet stays open; the inserted-but-unsaved Budget remains in the context so
+      // Retry re-attempts the same save.
       saveError.setForFailure(error, retry: commitSave)
     } catch {
       // saveChanges only throws PersistenceError; exhaustive catch for safety.
@@ -313,11 +304,9 @@ struct AddEditBudgetView: View {
     !(viewModel.icon ?? "").isEmpty
   }
 
-  /// Optional icon prefix. A tappable chip that opens the budget icon picker
-  /// (`BudgetIconPicker`, a curated emoji grid). Shows the chosen icon, or an
-  /// accent-tinted smiley placeholder inviting the user to pick one. The accent
-  /// wash only appears in the empty state — a chosen emoji renders in its own
-  /// colors, so the chip reverts to the neutral fill.
+  /// Optional icon chip opening `BudgetIconPicker`. Shows the chosen icon or an
+  /// accent-tinted smiley placeholder; the accent wash is empty-state only, since a
+  /// chosen emoji has its own colors.
   private var iconField: some View {
     Button {
       showIconPicker = true
@@ -481,10 +470,10 @@ struct AddEditBudgetView: View {
           RoundedRectangle(cornerRadius: 8, style: .continuous)
             .fill(isSelected ? Color.accentFill : Color.secondary.opacity(0.06))
         )
-        // 0.3 is below WCAG AA contrast on purpose: in edit mode the period is
-        // immutable, and the washed-out chips are the disabled-state affordance
-        // (SC 1.4.3 exempts inactive controls; VoiceOver announces "Locked.").
-        // No accessibility audit covers the edit-mode form (issue #223 survey).
+        // 0.3 is below WCAG AA contrast on purpose: the period is immutable in edit
+        // mode and the washed-out chips are the disabled affordance (SC 1.4.3 exempts
+        // inactive controls; VoiceOver announces "Locked."). No accessibility audit
+        // covers the edit-mode form.
         .foregroundStyle(isSelected ? Color.white : Color.primary.opacity(0.3))
         .accessibilityLabel(String(
           localized: "addEditBudget.chip.period.accessibilityLabel",
@@ -499,13 +488,12 @@ struct AddEditBudgetView: View {
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     } else {
       Button {
-        // A Period chip is not a text field, so selecting one should retire the keyboard
-        // left up by prior name/allocation editing — otherwise it covers the Dates card
-        // that appears when switching to Specific Dates.
+        // Retire the keyboard left by name/allocation editing; otherwise it covers the
+        // Dates card that appears when switching to Specific Dates.
         dismissKeyboard()
         withAnimation(.easeInOut(duration: 0.15)) {
           viewModel.period = p
-          // Biweekly cycles anchor to the start date — auto-reveal it (never auto-collapse).
+          // Biweekly cycles anchor to the start date: auto-reveal, never auto-collapse.
           if p == .biweekly {
             isScheduleExpanded = true
           }
@@ -529,17 +517,15 @@ struct AddEditBudgetView: View {
         comment: "VoiceOver label for a period selection chip; argument is the period name (Daily, Weekly, etc.)"
       ))
       .accessibilityAddTraits(isSelected ? .isSelected : [])
-      // Locale-invariant handle so UI tests can tap a specific period (e.g. the
-      // AppStoreScreenshots capture taps `budgetPeriod.daily` to dismiss the
-      // auto-keyboard deterministically without changing the selection).
+      // Locale-invariant UI-test handle (e.g. the AppStoreScreenshots capture taps
+      // `budgetPeriod.daily` to dismiss the auto-keyboard without changing selection).
       .accessibilityIdentifier("budgetPeriod.\(p.rawValue)")
     }
   }
 
   // MARK: - Helpers
 
-  /// Internal: cross-file extension access only. See the comment on `viewModel` at the
-  /// top of this struct — used by `+AllocationCard.swift` and `+SpecificDates.swift`.
+  /// Internal for extension access; see the note at the top of this struct.
   func sectionLabel(_ text: String) -> some View {
     Text(text)
       .font(.subheadline)

@@ -1,14 +1,12 @@
 import Foundation
 
-/// Pure date-math service for computing budget period boundaries.
+/// Pure date math for budget period boundaries. Accepts `RecurringBudgetPeriod`, so `.specificDates` can't
+/// reach it at compile time.
 ///
-/// All methods accept `RecurringBudgetPeriod` — `.specificDates` cannot reach this service
-/// at compile time. `weekStart` is the global week grid (production callers thread
-/// `AppSettings.weekStartDay` down through `BudgetCalculator.snapshot`); it is consumed
-/// only by the `.weekly` branch. `biweeklyAnchor` is the budget's own `startDate` — the
-/// 14-day cycle's phase comes from that date and never from `weekStart` (#240).
-/// Production callers pass `Calendar.autoupdatingCurrent`; tests inject a fixed-UTC
-/// calendar.
+/// `weekStart` is the global week grid (`AppSettings.weekStartDay`, threaded via `BudgetCalculator.snapshot`)
+/// and affects only `.weekly`. `biweeklyAnchor` is the budget's own `startDate`: the 14-day cycle's phase
+/// comes from it, never from `weekStart`. Production passes `Calendar.autoupdatingCurrent`; tests inject a
+/// fixed-UTC calendar.
 enum PeriodCalculator {
   // MARK: - Period Start
 
@@ -81,10 +79,7 @@ enum PeriodCalculator {
 
   // MARK: - Period Boundary Enumeration
 
-  /// Returns all period-start dates in `[from, to)`.
-  ///
-  /// Begins at `periodStart(containing: from, ...)` and advances one period at a time
-  /// until the next boundary would equal or exceed `to`. Returns `[]` when `from >= to`.
+  /// Returns all period-start dates in `[from, to)`, starting at `periodStart(containing: from, ...)`; `[]` when `from >= to`.
   static func periodBoundaries(
     from start: Date,
     to end: Date,

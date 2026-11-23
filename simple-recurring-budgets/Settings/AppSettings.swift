@@ -40,11 +40,9 @@ final class AppSettings {
 
   /// Whether the user has opted in to product analytics (Mixpanel).
   ///
-  /// The **default is locale-aware**: in strict-opt-in jurisdictions (§7.2) the
-  /// default resolves to `false`; in auto-opt-in jurisdictions it resolves to
-  /// `true`. The resolved default is **not** written to the backing store —
-  /// persistence happens only on an explicit write (Settings toggle or first-run
-  /// consent sheet decision). `@Observable` change notifications emit on every write.
+  /// The **default is locale-aware**: `false` in strict-opt-in jurisdictions, `true` in auto-opt-in ones. The
+  /// resolved default is **not** written to the backing store; persistence happens only on an explicit write
+  /// (Settings toggle or first-run consent sheet). `@Observable` notifications emit on every write.
   var analyticsOptIn: Bool {
     didSet {
       guard !isApplyingFromStore else { return }
@@ -53,18 +51,15 @@ final class AppSettings {
     }
   }
 
-  /// `true` iff the backing store contains an explicit value for `"analyticsOptIn"`.
-  ///
-  /// Consumed by the first-run consent-sheet trigger: `false` means the user has
-  /// never made a consent decision and the sheet should appear in strict-opt-in
-  /// jurisdictions after the first Budget is created.
+  /// `true` iff the backing store has an explicit `"analyticsOptIn"` value. `false` means the user never made a
+  /// consent decision, so the first-run consent sheet should appear in strict-opt-in jurisdictions after the
+  /// first Budget is created.
   var analyticsOptInExplicitlySet: Bool {
     store.object(forKey: Self.analyticsOptInKey) != nil
   }
 
-  /// The timestamp of the app's first launch, used to compute
-  /// `time_since_first_app_open_bucket` on `budget_created` where `is_first_budget = true`
-  /// (§10.1 analytics-spec.md). Generated and persisted on first access; never updated.
+  /// Timestamp of the app's first launch, used for `time_since_first_app_open_bucket` on `budget_created` when
+  /// `is_first_budget = true`. Generated and persisted on first access; never updated.
   private(set) var analyticsFirstOpenAt: Date {
     didSet {
       guard !isApplyingFromStore else { return }
@@ -73,12 +68,9 @@ final class AppSettings {
     }
   }
 
-  /// A stable UUIDv4 string used as the Mixpanel `distinct_id`.
-  ///
-  /// On first init with a fresh store a new UUID is generated, written to the
-  /// backing store, and returned. Subsequent reads return the stored value.
-  /// The setter is `private(set)` — external callers must not rotate the ID;
-  /// `MixpanelAnalyticsClient.reset()` handles the SDK side.
+  /// A stable UUIDv4 string used as the Mixpanel `distinct_id`, generated and stored on first init with a fresh
+  /// store. `private(set)`: external callers must not rotate the ID (`MixpanelAnalyticsClient.reset()` handles
+  /// the SDK side).
   private(set) var analyticsDistinctId: String {
     didSet {
       guard !isApplyingFromStore else { return }
@@ -104,13 +96,11 @@ final class AppSettings {
       object: store as AnyObject?,
       queue: .main
     ) { [weak self] notification in
-      // Extract only Sendable data ([String]?) before entering the
-      // @MainActor assumeIsolated block. Notification itself is not
-      // Sendable (its object: AnyObject? member prevents conformance).
+      // Extract only Sendable data ([String]?) before entering the @MainActor assumeIsolated block: Notification
+      // isn't Sendable (its `object: AnyObject?` prevents conformance).
       let changedKeys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String]
-      // The observer is registered on .main queue, so we are already on
-      // the main actor. assumeIsolated makes isolation visible to the
-      // compiler without crossing any actor boundary.
+      // The observer is registered on .main, so we're already on the main actor; assumeIsolated just makes that
+      // visible to the compiler.
       MainActor.assumeIsolated {
         self?.applyChangedKeys(changedKeys)
       }
@@ -118,8 +108,8 @@ final class AppSettings {
   }
 
   deinit {
-    // deinit is nonisolated in Swift 6; use assumeIsolated since AppSettings is
-    // always owned by @MainActor code and will be deallocated on the main thread.
+    // deinit is nonisolated in Swift 6; assumeIsolated is safe because AppSettings is owned by @MainActor code
+    // and deallocates on the main thread.
     MainActor.assumeIsolated {
       if let notificationObserver {
         NotificationCenter.default.removeObserver(notificationObserver)
@@ -211,8 +201,7 @@ final class AppSettings {
     return weekday
   }
 
-  /// Reads `analyticsOptIn` from the store, falling back to a locale-aware default
-  /// if no value has been persisted. The default is NOT written to the store.
+  /// Reads `analyticsOptIn`, falling back to the locale-aware default when nothing is persisted (the default is NOT written).
   private static func readAnalyticsOptIn(from store: KeyValueStore) -> Bool {
     guard let obj = store.object(forKey: analyticsOptInKey) else {
       let regionId = Locale.current.region?.identifier
@@ -228,9 +217,7 @@ final class AppSettings {
     return ConsentJurisdiction.kind(for: regionId) == .autoOptin
   }
 
-  /// Reads the stored `analyticsDistinctId`. If absent, generates a new UUIDv4,
-  /// persists it immediately (so the same ID is returned on subsequent reads), and
-  /// returns it.
+  /// Reads `analyticsDistinctId`; if absent, generates a UUIDv4 and persists it immediately so later reads match.
   private static func readOrCreateDistinctId(from store: KeyValueStore) -> String {
     if let existing = store.object(forKey: analyticsDistinctIdKey) as? String, !existing.isEmpty {
       return existing
@@ -241,8 +228,7 @@ final class AppSettings {
     return newId
   }
 
-  /// Reads the stored first-open timestamp. If absent, records `Date.now`,
-  /// persists it immediately, and returns it.
+  /// Reads the first-open timestamp; if absent, records `Date.now` and persists it immediately.
   private static func readOrCreateFirstOpenAt(from store: KeyValueStore) -> Date {
     if let raw = store.object(forKey: analyticsFirstOpenAtKey) as? String, let ti = TimeInterval(raw) {
       return Date(timeIntervalSinceReferenceDate: ti)

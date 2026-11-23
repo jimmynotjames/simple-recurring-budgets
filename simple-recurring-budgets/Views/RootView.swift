@@ -1,13 +1,11 @@
 import SwiftData
 import SwiftUI
 
-/// Root navigation host. Owns the `NavigationStack` path and the active sheet
-/// via the environment-injected `Router`.
+/// Root navigation host: owns the `NavigationStack` path and active sheet via `Router`.
 ///
-/// Routes carry stable `UUID`s (see `AppRoute` / `SheetRoute`); this view resolves
-/// them through `ModelContext.budget(id:)` / `.expenseItem(id:)`. When a UUID no
-/// longer resolves — the model was deleted (e.g., on another device) after the
-/// route was set — the route is silently popped/dismissed instead of rendering.
+/// Routes carry stable `UUID`s (`AppRoute` / `SheetRoute`) resolved through
+/// `ModelContext.budget(id:)` / `.expenseItem(id:)`. If one no longer resolves (model
+/// deleted, e.g. on another device), the route is silently popped/dismissed.
 struct RootView: View {
   @Environment(Router.self) private var router
   @Environment(AppSettings.self) private var settings
@@ -36,15 +34,13 @@ struct RootView: View {
           }
         }
     }
-    // Explicit brand tint for the whole stack. NOTE (#297): this does NOT
-    // color the system back chevron — iOS 26 Liquid Glass renders it in
-    // monochrome label color by design and no supported API (global accent,
-    // UINavigationBar appearance, environment tint) changes it; see the #297
-    // investigation notes before attempting again. The concrete asset color
-    // (not the dynamic `.accentColor`) is deliberate: UIKit-hosted surfaces
-    // resolve the dynamic accent to system blue (#296). The known bleed into
-    // the budget-options menu is neutralized at the Menu itself
-    // (BudgetDetailView) rather than by scoping the tint per screen.
+    // Brand tint for the whole stack. It does NOT color the system back chevron: iOS 26
+    // Liquid Glass renders it monochrome and no supported API (global accent,
+    // UINavigationBar appearance, environment tint) changes it; don't retry (#297). The
+    // concrete asset color, not the dynamic `.accentColor`, is deliberate: UIKit-hosted
+    // surfaces resolve the dynamic accent to system blue. The bleed into the
+    // budget-options menu is neutralized at that Menu (BudgetDetailView), not by
+    // scoping the tint per screen.
     .tint(Color("AccentColor"))
     .sheet(item: $router.sheet) { route in
       Group {
@@ -73,24 +69,21 @@ struct RootView: View {
           AnalyticsConsentSheet()
         }
       }
-      // Sheet content does NOT inherit the NavigationStack-level tint above
-      // (same environment isolation as TestDynamicTypeOverride below), so
-      // re-apply it to keep sheet and stack environments consistent (#297).
+      // Sheet content doesn't inherit the stack-level tint above (same isolation as
+      // TestDynamicTypeOverride below), so re-apply it.
       .tint(Color("AccentColor"))
-      // Test-only Dynamic Type override (DEBUG-only — compiled out of Release; inert unless
-      // IS_TESTING + FORCE_DYNAMIC_TYPE are set). Sheet content does NOT inherit the root-level
-      // override applied in the App body, so the ad-hoc localized-layout screenshot check
-      // (scripts/translation-accessibility-size-check/) re-applies it here to reach Settings /
-      // Add Expense / Add Budget at the forced size too.
+      // DEBUG-only test Dynamic Type override (inert unless IS_TESTING + FORCE_DYNAMIC_TYPE
+      // are set). Sheets don't inherit the root-level override from the App body, so it's
+      // re-applied here for scripts/translation-accessibility-size-check/ to reach Settings /
+      // Add Expense / Add Budget at the forced size.
       #if DEBUG
         .modifier(TestDynamicTypeOverride())
       #endif
     }
   }
 
-  /// Rendered when a pushed route's UUID no longer resolves: pop it on appear.
-  /// Intentionally blank (no copy) — the model vanished out from under the route,
-  /// and returning to the previous screen mirrors what SwiftData-backed lists do.
+  /// Pops on appear when a pushed route's UUID no longer resolves. Blank on purpose: the
+  /// model vanished, and returning to the previous screen mirrors SwiftData-backed lists.
   private var unresolvedPushDestination: some View {
     Color.clear
       .onAppear {
@@ -100,7 +93,7 @@ struct RootView: View {
       }
   }
 
-  /// Rendered when a sheet route's UUID no longer resolves: dismiss on appear.
+  /// Dismisses on appear when a sheet route's UUID no longer resolves.
   private var unresolvedSheetDestination: some View {
     Color.clear
       .onAppear {

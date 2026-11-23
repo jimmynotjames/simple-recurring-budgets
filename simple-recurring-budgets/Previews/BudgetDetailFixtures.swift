@@ -14,7 +14,7 @@
         ExpenseItem(amount: 4.50, name: "Morning coffee", date: hoursAgo(2)),
         ExpenseItem(amount: 9.25, name: "Lunch", date: hoursAgo(5.5)),
         ExpenseItem(amount: 2.50, name: "Afternoon snack", date: hoursAgo(1)),
-        // F-6.01: add-funds entry in the current period (negative amount).
+        // Add-funds entry in the current period (negative amount).
         ExpenseItem(amount: -10.00, name: "Found in jacket pocket", date: hoursAgo(3)),
       ]
       attachToDetail(expenses, to: budget)
@@ -22,9 +22,8 @@
       return budget
     }
 
-    /// Daily budget with future-dated expenses — exercises the "Upcoming" bucket
-    /// (audit L2): one expense tomorrow, one next week (a different future period),
-    /// plus current-period and past entries so all three sections render together.
+    /// Daily budget with future-dated expenses: one tomorrow, one next week (a different future period), plus
+    /// current-period and past entries so all three sections, including "Upcoming", render together.
     static func detailDailyWithUpcoming(now: Date = Date()) -> Budget {
       let budget = Budget(name: "Food & Coffee", currencyCode: "USD", period: .daily)
       let cal = Calendar.current
@@ -53,8 +52,7 @@
       budget.startDate = twoMonthsAgo // show multiple past months
 
       // swiftlint:disable large_tuple
-      // F-6.01: negative amounts represent add-funds entries (one in current month,
-      // one in a past month).
+      // Negative amounts are add-funds entries (one in the current month, one in a past month).
       let currentExpenses: [(Decimal, String?, TimeInterval)] = [
         (87.40, "Groceries", 86400 * 2),
         (55.20, "Gas station", 86400 * 5),
@@ -165,7 +163,7 @@
       let expenses = [
         ExpenseItem(amount: 48.00, name: "Concert tickets", date: daysAgo(1)),
         ExpenseItem(amount: 20.40, name: "Merch", date: daysAgo(1)),
-        // F-6.01: add-funds partially rescuing the over-budget state.
+        // Add-funds partially rescuing the over-budget state.
         ExpenseItem(amount: -15.00, name: "Returned t-shirt", date: daysAgo(0)),
       ]
       attachToDetail(expenses, to: budget)
@@ -175,10 +173,8 @@
 
     // MARK: - Specific Dates fixture
 
-    /// The "Italy Trip" Specific Dates fixture used by BudgetDetail previews. Mirrors
-    /// `DebugData.specificDatesDefault` (Budgets-list previews) — see that doc comment
-    /// for why the two fixtures are intentionally separate. Keep the date offsets,
-    /// allocation, and currency in sync when one changes.
+    /// The "Italy Trip" Specific Dates fixture for BudgetDetail previews. Mirrors `DebugData.specificDatesDefault`
+    /// (see its doc for why the two are separate); keep date offsets, allocation, and currency in sync.
     static func detailSpecificDates(now: Date = Date()) -> Budget {
       let cal = Calendar.current
       let startDate = cal.date(byAdding: .day, value: -10, to: cal.startOfDay(for: now))!
@@ -198,8 +194,7 @@
 
     // MARK: - Inactive-state fixtures (preStart / postEnd)
 
-    /// Daily budget whose `startDate` is in the future — exercises the `.preStart`
-    /// inactive presentation (allocation displayed, full-width secondary bar,
+    /// Daily budget starting in the future: exercises `.preStart` (allocation shown, full-width secondary bar,
     /// "Starts {date}" chip).
     static func detailDailyPreStart(now: Date = Date()) -> Budget {
       let cal = Calendar.current
@@ -210,9 +205,8 @@
       return budget
     }
 
-    /// Monthly budget whose `endDate` has passed — exercises the `.postEnd`
-    /// inactive presentation (allocation displayed, full-width secondary bar,
-    /// "Ended {date}" chip).
+    /// Monthly budget whose `endDate` has passed: exercises `.postEnd` (allocation shown, full-width secondary
+    /// bar, "Ended {date}" chip).
     static func detailMonthlyPostEnd(now: Date = Date()) -> Budget {
       let cal = Calendar.current
       let startDate = cal.date(byAdding: .month, value: -3, to: cal.startOfDay(for: now))!

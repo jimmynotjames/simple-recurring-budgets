@@ -1,16 +1,13 @@
 import Foundation
 
-/// Typed access to app configuration injected via Info.plist
-/// (built from `config/Secrets.xcconfig` + the gitignored
-/// `config/Secrets.local.xcconfig`).
+/// Typed access to app configuration injected via Info.plist (from `config/Secrets.xcconfig` plus the
+/// gitignored `config/Secrets.local.xcconfig`).
 ///
-/// All properties read from `Bundle.main` at the callsite — no caching.
-/// Values fall back gracefully to their placeholder sentinels when the key
-/// is absent (no fatalError). This guarantees a fresh clone without a local
-/// secrets file launches without crashing.
+/// Reads `Bundle.main` at each call (no caching). Missing keys fall back to placeholder sentinels instead
+/// of crashing, so a fresh clone without a local secrets file launches.
 ///
-/// Sentinel string constants must stay in sync with the default values in
-/// `config/Secrets.xcconfig` and in `scripts/verify_release_secrets.sh`.
+/// Sentinel constants must stay in sync with `config/Secrets.xcconfig` defaults and
+/// `scripts/verify_release_secrets.sh`.
 enum AppConfig {
   // MARK: - Sentinels (keep in sync with config/Secrets.xcconfig defaults)
 

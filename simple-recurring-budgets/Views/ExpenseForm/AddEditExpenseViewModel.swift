@@ -11,11 +11,8 @@ final class AddEditExpenseViewModel {
     case edit(ExpenseItem)
   }
 
-  /// Who last wrote the `amount` draft. Drives the F-7.04 smart-apply rule in
-  /// `applyRecent`: a Recents tap only writes `amount` when the draft is `.empty` or
-  /// `.tileSeeded` — fresher user keystrokes always win over staler suggestion data,
-  /// and a silent overwrite the user might not notice before Save is the failure mode
-  /// this exists to prevent.
+  /// Who last wrote the `amount` draft. `applyRecent` writes `amount` only when this is
+  /// `.empty` or `.tileSeeded`, so user keystrokes are never silently overwritten.
   enum AmountProvenance {
     /// No amount in the draft (initial state, or the user cleared/deleted it).
     case empty
@@ -27,27 +24,25 @@ final class AddEditExpenseViewModel {
 
   var amount: Decimal? {
     didSet {
-      // Classify the write. Skipped for tile seeds (`applyRecent` sets the flag and
-      // classifies as `.tileSeeded` itself) and for echo writes — after an external
-      // write, `CurrencyAmountField` re-seeds its text and re-parses it back through
-      // the binding with an equal value, which must not be mistaken for typing.
+      // Skipped for tile seeds (`applyRecent` classifies those) and for echo writes: after
+      // an external write, `CurrencyAmountField` re-parses its text back through the binding
+      // with an equal value, which must not count as typing.
       guard !isSeedingAmountFromSuggestion, amount != oldValue else { return }
       amountProvenance = amount == nil ? .empty : .userTyped
     }
   }
 
-  /// See `AmountProvenance`. Internal (not `private(set)`) because `applyRecent` lives
-  /// in `AddEditExpenseView+RecentsSection.swift` and reclassifies on tile seed.
+  /// See `AmountProvenance`. Internal (not `private(set)`) because the Recents extension
+  /// in another file reclassifies it on tile seed.
   @ObservationIgnored var amountProvenance: AmountProvenance = .empty
-  /// True while `applyRecent` writes `amount`, so the property observer above doesn't
-  /// classify the tile seed as user typing. Internal for the same cross-file reason.
+  /// True while a tile seed writes `amount`, so `didSet` doesn't treat it as typing.
+  /// Internal for the same cross-file reason.
   @ObservationIgnored var isSeedingAmountFromSuggestion = false
 
   var name: String {
     didSet {
-      // Set the Edit-mode reveal latch whenever the Description becomes blank mid-session
-      // (one-way: never reset to false). Drives shouldShowRecentsSection in Edit mode.
-      // Guard is a fast-path; the latch write is a no-op once true.
+      // One-way latch: set when the Description goes blank, never reset. The guard is
+      // just a fast path.
       if !recentsRevealedInEdit,
          name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
         recentsRevealedInEdit = true
@@ -55,25 +50,21 @@ final class AddEditExpenseViewModel {
     }
   }
 
-  /// F-7.04 Edit-mode reveal latch. `true` once the Description draft has ever been blank
-  /// (trimmed empty) during this sheet's lifetime — either because the expense opened with
-  /// a nil/whitespace name, or because the user cleared it mid-session. One-way: never
-  /// reverts to `false`. When `true`, `shouldShowRecentsSection` shows Recents in Edit mode
-  /// identically to Add mode (same corpus, filter, tiles, and tap semantics).
+  /// Edit-mode Recents reveal latch: true once the Description has been blank (trimmed)
+  /// at any point in the sheet's lifetime, either at open or after the user cleared it.
+  /// Never reverts. See `shouldShowRecentsSection`.
   private(set) var recentsRevealedInEdit = false
 
   var date: Date
   let currencyCode: String
 
-  /// F-6.01 Add Funds toggle state. Drives the navigation title flip, the amount-text
-  /// tint, the Description default-seed behavior, and the sign of `ExpenseItem.amount`
-  /// on Save in both Add and Edit mode.
+  /// Add Funds toggle. Drives the title flip, amount tint, Description default seed, and
+  /// the sign of `ExpenseItem.amount` on Save (Add and Edit).
   var isAddFunds: Bool = false {
     didSet {
       guard isAddFunds, !oldValue else { return }
-      // Seed the description with a sensible default the first time the user toggles
-      // Add Funds on, but only if the field is empty/whitespace — never overwrite
-      // user-entered text. Intentionally one-way: toggling back off does not clear it.
+      // Seed a default description only when blank; never overwrite user text. One-way:
+      // toggling off doesn't clear it.
       let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
       if trimmed.isEmpty {
         name = String(
@@ -87,41 +78,31 @@ final class AddEditExpenseViewModel {
 
   private let mode: Mode
 
-  /// Captured at init: the global week-start day (`AppSettings.weekStartDay`) threaded
-  /// into every `BudgetCalculator.snapshot` call this VM makes. A plain `Weekday` value
-  /// (not `AppSettings`) per the add-edit-expense-screen spec's no-stored-settings rule.
-  /// Like `cachedBudgetSnapshot`, it does not track setting changes made while the
-  /// sheet is open.
+  /// Global week-start day, captured at init and passed to every `BudgetCalculator.snapshot`
+  /// call. A plain `Weekday` (not `AppSettings`); doesn't track changes while the sheet is open.
   private let weekStart: Weekday
 
-  /// Cached at init: the lifecycle snapshot for the bound budget at sheet-open time.
-  /// Avoids re-computing on every SwiftUI body evaluation. `nil` when no budget is
-  /// reachable (orphan edit case).
+  /// Lifecycle snapshot at sheet-open, cached to avoid recomputing per body pass. `nil`
+  /// when no budget is reachable (orphan edit).
   private let cachedBudgetSnapshot: BudgetSnapshot?
 
-  /// Latest most-recent `.pause` event for the bound budget; used to seed `date`
-  /// at sheet-open time and as the safe upper bound for the picker when paused.
+  /// Effective date of the latest unresumed `.pause`; seeds `date` and is the picker's
+  /// upper bound while paused.
   private let cachedPauseEffectiveDate: Date?
 
-  /// Cached at init: the abbreviated rendering of `cachedPauseEffectiveDate`.
-  /// Used in the proactive paused caption; cached so we don't re-format on every body pass.
+  /// Abbreviated `cachedPauseEffectiveDate` for the paused caption (cached to avoid
+  /// re-formatting per body pass).
   private let cachedPausedSinceFormatted: String?
 
-  /// Cached at init: the abbreviated rendering of `Budget.startDate` for the
-  /// pre-start clamped-default caption (F-2.04). `nil` outside the pre-start case.
+  /// Abbreviated `Budget.startDate` for the pre-start caption; `nil` otherwise.
   private let cachedStartDateFormatted: String?
 
-  /// Cached at init: the abbreviated rendering of `Budget.endDate` for the
-  /// post-end clamped-default caption (F-2.04). `nil` outside the post-end case.
+  /// Abbreviated `Budget.endDate` for the post-end caption; `nil` otherwise.
   private let cachedEndDateFormatted: String?
 
-  /// F-7.04 Recents search corpus, memoized at sheet-open: up to `recentsCorpusLimit`
-  /// candidate tiles. Typing filters this full corpus; `filteredRecentSuggestions`
-  /// applies the smaller `recentsDisplayLimit` cap to what's rendered. Recomputing
-  /// during typing would re-aggregate `budget.expenseItems` on every keystroke; caching
-  /// reduces the per-keystroke filter cost to O(C). Always populated (including Edit
-  /// mode, where the section is hidden) so a future presentation change doesn't strand
-  /// a stale empty. See `AddEditExpenseView+RecentsSection.swift` for the algorithm.
+  /// Recents search corpus (up to `recentsCorpusLimit` tiles), memoized at sheet-open so
+  /// typing filters it without re-aggregating `budget.expenseItems` per keystroke. Populated
+  /// in Edit mode too. Algorithm in `AddEditExpenseView+RecentsSection.swift`.
   let cachedRecentCandidates: [RecentExpenseSuggestion]
 
   var isEditing: Bool {
@@ -131,8 +112,7 @@ final class AddEditExpenseViewModel {
     return false
   }
 
-  /// The budget driving this expense entry. Used for date-bounds validation and (since
-  /// F-7.04) the Recents-section candidate query in `AddEditExpenseView+RecentsSection.swift`.
+  /// The budget driving this entry; used for date-bounds validation and Recents candidates.
   var budget: Budget? {
     switch mode {
     case let .add(budget): budget
@@ -140,9 +120,8 @@ final class AddEditExpenseViewModel {
     }
   }
 
-  /// Returns `true` when the selected `date` lies inside one of the budget's active-period
-  /// intervals (or when the bound budget is not paused). Save eligibility uses this; the
-  /// proactive paused caption does not.
+  /// True when `date` lies in an active-period interval (or the budget isn't paused).
+  /// Gates Save; the paused caption doesn't use it.
   private var isDateValid: Bool {
     guard let budget, cachedBudgetSnapshot?.lifecycleState == .paused else { return true }
     let snapAtDate = BudgetCalculator.snapshot(
@@ -151,20 +130,13 @@ final class AddEditExpenseViewModel {
     return snapAtDate.lifecycleState == .active
   }
 
-  /// The single caption rendered below the When card. Resolved in priority order:
+  /// The caption below the When card, first match wins: paused + date out of range;
+  /// paused + date valid ("Paused since…"); Add mode pre-start ("Budget starts on…");
+  /// Add mode post-end ("Budget ended on…"); otherwise `nil`.
   ///
-  /// 1. Paused + date out of range → "Pick a date within an active period of this budget."
-  /// 2. Paused + date valid → "Paused since {date}. You can still add expenses dated before then."
-  /// 3. Add mode + pre-start (`now < startDate`) → "Budget starts on {startDate}." (F-2.04)
-  /// 4. Add mode + post-end (`now > endDate`) → "Budget ended on {endDate}." (F-2.04)
-  /// 5. Otherwise → `nil`.
-  ///
-  /// The pre-start / post-end captions are intentionally **Add-mode only**: in Edit
-  /// mode the existing expense already carries its stored date, so the clamped-default
-  /// rationale doesn't apply. They also persist for the sheet's lifetime in those
-  /// lifecycle states — they're not gated on whether the picker still shows the clamped
-  /// default — since the underlying `[startDate, endDate]` constraint still applies
-  /// after the user edits the field.
+  /// Pre-start/post-end are Add-mode only (Edit already has a stored date). They persist for
+  /// the sheet's lifetime, not just while the picker shows the clamped default, because
+  /// the `[startDate, endDate]` constraint still applies after the user edits.
   var dateContextCaption: String? {
     if cachedBudgetSnapshot?.lifecycleState == .paused {
       if !isDateValid {
@@ -209,16 +181,13 @@ final class AddEditExpenseViewModel {
     return isDateValid
   }
 
-  /// The allowed range for `date` in the picker. Lower bound is the owning budget's
-  /// `effectiveStartDate`. When the budget is paused, the upper bound is the most
-  /// recent `.pause` event's `effectiveDate` (a moment guaranteed to lie inside an
-  /// active period since the pause-action period is itself active). Save-time
-  /// validation catches dates inside paused gaps for multi-cycle histories.
+  /// Allowed picker range. Lower bound is `effectiveStartDate`. While paused, the upper
+  /// bound is the latest `.pause` event's `effectiveDate` (inside an active period);
+  /// `isDateValid` catches dates in earlier paused gaps at save time.
   ///
-  /// For `.specificDates` budgets, the upper bound is the **last moment of `endDate`'s
-  /// day** (not `startOfDay(endDate)`). Per the `Budget.endDate` convention, `endDate`
-  /// is the inclusive last day of the window — clamping the picker at start-of-day
-  /// would exclude most of that day from the user's last-day picker entries.
+  /// For `.specificDates` budgets the upper bound is the last moment of `endDate`'s day, not
+  /// start-of-day: `endDate` is the inclusive last day, so start-of-day would exclude
+  /// nearly all of it.
   var dateRange: ClosedRange<Date> {
     guard let budget else {
       return Date.distantPast ... Date.distantFuture
@@ -228,10 +197,8 @@ final class AddEditExpenseViewModel {
     let pauseUpper: Date? = cachedBudgetSnapshot?.lifecycleState == .paused
       ? cachedPauseEffectiveDate
       : nil
-    // Last moment of endDate's day: midnight of (endDate + 1 day) minus one second.
-    // Matches `BudgetCalculator.effectiveEndExclusive`'s "include all of endDate's day"
-    // semantic. Without this expansion, the picker rejects any expense time other
-    // than 00:00 on `endDate`.
+    // Next midnight minus 1s: includes all of endDate's day, matching
+    // `BudgetCalculator.effectiveEndExclusive`.
     let endUpper: Date? = budget.endDate.map { endDate in
       let nextDayStart = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: endDate))!
       return nextDayStart.addingTimeInterval(-1)
@@ -242,10 +209,9 @@ final class AddEditExpenseViewModel {
     case let (.none, .some(e)): e
     case (.none, .none): Date.distantFuture
     }
-    // Defense-in-depth: `Budget.isWindowValid` ensures `endDate >= effectiveStartDate`
-    // for a healthy record; trip in debug if we ever build a range from an inverted
-    // window (e.g., partial CloudKit sync). In release, `max(lower, upper)` collapses
-    // the range to a single point so the date picker can't crash.
+    // Defense-in-depth: asserts in debug on an inverted window (e.g. partial CloudKit
+    // sync). Release relies on `max(lower, upper)` collapsing to a point so the picker
+    // can't crash on an invalid ClosedRange. Keep both.
     assert(budget.isWindowValid, "AddEditExpenseView.dateRange: inverted budget window — endDate < effectiveStartDate")
     return lower ... max(lower, upper)
   }
@@ -270,10 +236,9 @@ final class AddEditExpenseViewModel {
       ? budget.endDate?.formatted(date: .abbreviated, time: .omitted)
       : nil
     cachedRecentCandidates = Self.computeRecentCandidates(for: budget)
-    // Seed `date` so the picker opens inside `dateRange`:
-    // - Paused: most recent pause moment (guaranteed inside an active period).
-    // - Post-end: end of `endDate`'s day, matching `dateRange`'s upper bound (F-2.04).
-    // - Pre-start / active / default: today, floored at `effectiveStartDate`.
+    // Seed `date` inside `dateRange`: paused → latest pause moment; post-end → end of
+    // `endDate`'s day (the range's upper bound); otherwise today floored at
+    // `effectiveStartDate`.
     if snapshot.lifecycleState == .paused, let pauseDate {
       date = pauseDate
     } else if snapshot.lifecycleState == .postEnd, let endDate = budget.endDate {
@@ -287,21 +252,18 @@ final class AddEditExpenseViewModel {
 
   init(editing expense: ExpenseItem, weekStart: Weekday) {
     amount = expense.displayAmount
-    // Classify the seeded amount as user-typed so a single Recents tile tap fills the
-    // Description only and leaves the existing amount untouched. (The init-phase assignment
-    // above skips `didSet`, defaulting provenance to `.empty`; we correct that here.)
+    // Init-phase assignments skip `didSet`, so set provenance and the reveal latch
+    // explicitly: the existing amount counts as typed (a tile tap leaves it alone), and
+    // a blank stored description shows Recents immediately.
     amountProvenance = .userTyped
     name = expense.name ?? ""
-    // Seed the reveal latch: if the stored description was blank, show Recents immediately.
-    // Init-phase `name` assignment skips the `didSet`, so we set the latch explicitly.
     recentsRevealedInEdit = (expense.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     date = expense.date
     currencyCode = expense.budget?.currencyCode ?? (Locale.current.currency?.identifier ?? "USD")
     mode = .edit(expense)
     self.weekStart = weekStart
-    // Seed F-6.01 toggle from the existing row so the title, amount tint, and Add Funds
-    // card all reflect the row the user tapped on. Bypasses the didSet (which seeds
-    // a default description) by assigning before the property's initial value matters.
+    // Seeds the toggle from the stored row; init-phase assignment skips the `didSet`
+    // that would seed a default description.
     isAddFunds = expense.isAddFunds
     if let budget = expense.budget {
       cachedBudgetSnapshot = BudgetCalculator.snapshot(
@@ -315,14 +277,13 @@ final class AddEditExpenseViewModel {
       cachedPauseEffectiveDate = nil
       cachedPausedSinceFormatted = nil
     }
-    // Pre-start / post-end captions are Add-mode-only (F-2.04) — Edit mode never reads these.
+    // Pre-start / post-end captions are Add-mode only.
     cachedStartDateFormatted = nil
     cachedEndDateFormatted = nil
     cachedRecentCandidates = Self.computeRecentCandidates(for: expense.budget)
   }
 
-  /// Returns the `effectiveDate` of the most recent `.pause` `LifecycleEvent` that
-  /// is not followed by a later `.resume`. Mirrors the helper in
+  /// `effectiveDate` of the latest `.pause` not followed by a `.resume`. Mirrors
   /// `BudgetLifecycleService.result(for:)`.
   private static func latestPauseEffectiveDate(for budget: Budget) -> Date? {
     let sorted = budget.lifecycleEvents.sorted {
@@ -338,7 +299,7 @@ final class AddEditExpenseViewModel {
     return latest
   }
 
-  /// The navigation bar title selected from the `isEditing × isAddFunds` matrix (F-6.01).
+  /// Navigation title for the `isEditing × isAddFunds` combination.
   var navigationTitle: String {
     switch (isEditing, isAddFunds) {
     case (false, false):
@@ -358,16 +319,14 @@ final class AddEditExpenseViewModel {
   }
 
   func save(context: ModelContext, analytics: any AnalyticsClient) throws {
-    // Trim whitespace; empty-after-trim collapses to nil (spec: "Form fields are Amount, Description, and When")
+    // Empty-after-trim name collapses to nil.
     let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedName: String? = trimmed.isEmpty ? nil : trimmed
     switch mode {
     case let .add(budget):
-      // Guard per spec: "Save in Add mode inserts a new ExpenseItem attached to the in-flight Budget"
       guard canSave, let amount else { return }
       let now = Date()
-      // F-6.01: sign the persisted amount per the Add Funds toggle. The user-visible
-      // Amount field is always non-negative; the toggle encodes the sign.
+      // The Amount field is always non-negative; the Add Funds toggle encodes the sign.
       let signedAmount: Decimal = isAddFunds ? -amount : amount
       let expense = ExpenseItem(amount: signedAmount, name: trimmedName, date: date)
       expense.budget = budget
@@ -375,8 +334,7 @@ final class AddEditExpenseViewModel {
       budget.lastModified = now
       try context.saveChanges(operation: .expenseCreate, analytics: analytics)
 
-      // expense_logged fires only on a successful save (per `add-edit-expense-screen` delta spec).
-      // NO ExpenseItem field transmitted — only categorical context.
+      // Fires only after a successful save; categorical properties only, no expense fields.
       let period = budget.periodEnum
       let elapsed = Date().timeIntervalSince(budget.createdAt)
       analytics.track(
@@ -393,8 +351,8 @@ final class AddEditExpenseViewModel {
 
     case let .edit(expense):
       var changed = false
-      // F-6.01: sign per the draft `isAddFunds` so an Edit-mode toggle flip rewrites
-      // the sign even when the magnitude is unchanged.
+      // Sign follows the draft `isAddFunds`, so a toggle flip rewrites the sign even
+      // when the magnitude is unchanged.
       if let newAmount = amount {
         let desired: Decimal = isAddFunds ? -newAmount : newAmount
         if expense.amount != desired {
@@ -406,7 +364,7 @@ final class AddEditExpenseViewModel {
         expense.name = trimmedName
         changed = true
       }
-      // .minute granularity matches the picker's .hourAndMinute resolution (spec decision 6)
+      // .minute granularity matches the picker's .hourAndMinute resolution.
       if !Calendar.current.isDate(expense.date, equalTo: date, toGranularity: .minute) {
         expense.date = date
         changed = true
@@ -416,8 +374,7 @@ final class AddEditExpenseViewModel {
         expense.lastModified = now
         expense.budget?.lastModified = now
         try context.saveChanges(operation: .expenseEdit, analytics: analytics)
-        // expense_edited fires only on a successful save (per `add-edit-expense-screen` delta spec).
-        // NO ExpenseItem field transmitted — only categorical context.
+        // Fires only after a successful save; categorical properties only.
         let budget = expense.budget
         let period = budget?.periodEnum ?? .daily
         analytics.track(

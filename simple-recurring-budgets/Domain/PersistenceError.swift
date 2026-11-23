@@ -1,16 +1,13 @@
 import Foundation
 
-/// Identifier for every production `context.save()` call site, used by the
-/// shared persistence-save helper to attribute failures in logs and analytics.
+/// Identifier for every production `context.save()` call site, used by the shared save helper to attribute
+/// failures in logs and analytics.
 ///
-/// Raw values are static `snake_case` literals and are written to:
-/// - `Logger.persistence.error` interpolations (`privacy: .public`), and
-/// - the `persistence_save_failed` analytics event's `operation` property
-///   (the allow-list in `docs/analytics-spec.md` §5/§10).
+/// Raw values are static `snake_case` literals written to `Logger.persistence.error` (`privacy: .public`)
+/// and the `persistence_save_failed` event's `operation` property (allow-list in `docs/analytics-spec.md`).
 ///
-/// Adding a new case requires registering the operation in `docs/analytics-spec.md`
-/// and adding/modifying the matching write-path requirement under the
-/// `persistence-error-handling` capability.
+/// A new case must be registered in `docs/analytics-spec.md` and covered by the matching write-path
+/// requirement under `persistence-error-handling`.
 enum PersistenceOperation: String, Hashable {
   case budgetCreate = "budget_create"
   case budgetEdit = "budget_edit"
@@ -28,10 +25,9 @@ enum PersistenceOperation: String, Hashable {
   case appLaunchDedup = "app_launch_dedup"
 }
 
-/// The error thrown by the shared persistence-save helper when `context.save()`
-/// fails. Carries only the operation identifier and the underlying `NSError`'s
-/// domain and code — never user data — so it is safe to log at `privacy: .public`
-/// and to transmit via the `persistence_save_failed` analytics event.
+/// Thrown by the shared save helper when `context.save()` fails. Carries only the operation and the
+/// underlying `NSError`'s domain and code, never user data, so it is safe to log at `privacy: .public` and
+/// send in `persistence_save_failed`.
 struct PersistenceError: Error, Hashable {
   let operation: PersistenceOperation
   let errorDomain: String

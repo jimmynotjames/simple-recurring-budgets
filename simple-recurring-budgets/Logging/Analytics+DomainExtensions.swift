@@ -47,7 +47,7 @@ extension SyncStatus.RowState {
 // MARK: - BudgetPeriod
 
 extension BudgetPeriod {
-  /// Analytics value for the `period` per-event property (§10.1).
+  /// Analytics value for the `period` per-event property.
   var analyticsValue: String {
     switch self {
     case .daily: "daily"
@@ -61,8 +61,7 @@ extension BudgetPeriod {
 
 // MARK: - Time-bucket helpers
 
-/// Buckets a duration (in seconds) since first app open into the
-/// `time_since_first_app_open_bucket` property values (§10.1).
+/// Buckets seconds since first app open into `time_since_first_app_open_bucket` values.
 func timeSinceFirstOpenBucket(seconds: TimeInterval) -> String {
   switch seconds {
   case ..<300: "<5m"
@@ -73,8 +72,7 @@ func timeSinceFirstOpenBucket(seconds: TimeInterval) -> String {
   }
 }
 
-/// Buckets a duration since budget creation into the
-/// `time_since_budget_created_bucket` property values (§10.1).
+/// Buckets seconds since budget creation into `time_since_budget_created_bucket` values.
 func timeSinceBudgetCreatedBucket(seconds: TimeInterval) -> String {
   switch seconds {
   case ..<300: "<5m"
@@ -84,18 +82,13 @@ func timeSinceBudgetCreatedBucket(seconds: TimeInterval) -> String {
   }
 }
 
-// MARK: - F-7.04 Recents bucketing helpers
+// MARK: - Recents bucketing helpers
 
-//
-// All three helpers produce the same shape of categorical output the rest of the
-// analytics-spec.md §10 pipeline expects: short, stable string labels with explicit
-// boundaries. Boundaries are deliberately coarse to avoid pseudo-identification.
+// All three helpers produce short, stable categorical labels with deliberately coarse boundaries to avoid pseudo-identification.
 
-/// Buckets the number of Recents tiles visible in the section at tap time into the
-/// `recents_visible_count` property values. The top bucket is open-ended (`"8+"`)
-/// because the display cap exceeds 15 tiles; the product question is dense-vs-sparse
-/// row, so finer granularity above 8 isn't worth the extra cardinality. Negative
-/// inputs fold into `"0"`.
+/// Buckets the number of Recents tiles visible at tap time into `recents_visible_count` values. The top
+/// bucket is open-ended (`"8+"`): the product question is dense-vs-sparse, so finer granularity above 8
+/// isn't worth the cardinality. Negative inputs fold into `"0"`.
 func recentsVisibleCountBucket(_ count: Int) -> String {
   switch count {
   case ..<1: "0"
@@ -106,11 +99,9 @@ func recentsVisibleCountBucket(_ count: Int) -> String {
   }
 }
 
-/// Buckets the 0-indexed position of the tapped Recents tile into the
-/// `recents_tap_position` property values. Positions `0` and `1` are kept as their own
-/// buckets because the canonical product question is "do users overwhelmingly tap the
-/// first one?" — collapsing them would erase that signal. Negative inputs fold into
-/// `"0"` (defensive; never reached from real call sites).
+/// Buckets the 0-indexed position of the tapped Recents tile into `recents_tap_position` values. `0` and `1`
+/// stay separate buckets because the key product question is whether users overwhelmingly tap the first
+/// tile; collapsing them would erase that. Negative inputs fold into `"0"` (defensive; never reached).
 func recentsTapPositionBucket(_ position: Int) -> String {
   switch position {
   case ..<1: "0"
@@ -120,9 +111,8 @@ func recentsTapPositionBucket(_ position: Int) -> String {
   }
 }
 
-/// Buckets the length of the user's typed Description query at tap time into the
-/// `name_query_length` property values. Distinguishes "open-and-tap" (`"0"`) from
-/// "type-then-tap" (everything else) without surfacing the raw character count.
+/// Buckets the length of the typed Description query at tap time into `name_query_length` values. Separates
+/// open-and-tap (`"0"`) from type-then-tap without exposing the raw count.
 func nameQueryLengthBucket(_ length: Int) -> String {
   switch length {
   case ..<1: "0"

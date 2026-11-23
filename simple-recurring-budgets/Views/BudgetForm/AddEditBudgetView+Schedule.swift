@@ -2,12 +2,10 @@ import SwiftUI
 
 // MARK: - Schedule disclosure card (recurring period types)
 
-/// Collapsed-by-default disclosure exposing `startDate` / `endDate` for recurring
-/// budgets. Most users never expand it — the resolved schedule summary (e.g.
-/// "Starts May 18 · No end date") lives one tap deep so dates feel optional, not
-/// like another form to fill out. Specific Dates budgets use the always-visible
-/// `datesCard` in `+SpecificDates.swift` instead, since both dates are mandatory
-/// for that period type.
+/// Collapsed-by-default disclosure for recurring budgets' `startDate` / `endDate`; the
+/// summary (e.g. "Starts May 18 · No end date") keeps dates feeling optional. Specific
+/// Dates budgets use the always-visible `datesCard` (`+SpecificDates.swift`) since both
+/// dates are mandatory there.
 extension AddEditBudgetView {
   var scheduleCard: some View {
     GroupBox {
@@ -42,8 +40,8 @@ extension AddEditBudgetView {
           .font(.subheadline)
           .foregroundStyle(.primary)
           .multilineTextAlignment(.leading)
-          // iOS-COMPAT(26.x): GroupBox content area also gets Liquid Glass; tag so
-          // knownIssueHandler can suppress the platform-induced contrast failure.
+          // iOS-COMPAT(26.x): GroupBox content also gets Liquid Glass; the tag lets
+          // knownIssueHandler suppress the platform-induced contrast failure.
           .accessibilityIdentifier("srb.sectionLabel")
         Spacer(minLength: 8)
         Image(systemName: "chevron.down")

@@ -2,12 +2,9 @@
   import Foundation
   import SwiftData
 
-  /// Canonical source of truth for `Budget` / `ExpenseItem` fixtures used by `#Preview`
-  /// blocks and ad-hoc debugging.
-  ///
-  /// Every accessor is a **function** (not a computed property) because each invocation
-  /// must mint fresh SwiftData model instances. Every function takes `now: Date = Date()`
-  /// so callers can pin a deterministic anchor.
+  /// Canonical `Budget` / `ExpenseItem` fixtures for `#Preview` blocks and ad-hoc debugging. Every accessor
+  /// is a **function**, not a computed property, because each call must mint fresh SwiftData model
+  /// instances; each takes `now: Date = Date()` so callers can pin a deterministic anchor.
   enum DebugData {
     // MARK: - Shared date helpers
 
@@ -253,12 +250,10 @@
       return budget
     }
 
-    /// The "Italy Trip" Specific Dates fixture used by Budgets-list previews. A near-identical
-    /// fixture (same shape, slightly more verbose expense names) lives at
-    /// `BudgetDetailFixtures.detailSpecificDates` for the BudgetDetail preview path —
-    /// the two are intentionally separate so each fixture file owns its own
-    /// `attach` / `addInitialChange` helper without cross-file coupling, but the
-    /// underlying data is kept in sync by convention.
+    /// The "Italy Trip" Specific Dates fixture for Budgets-list previews. A near-identical fixture lives at
+    /// `BudgetDetailFixtures.detailSpecificDates` for BudgetDetail previews; they are separate so each fixture
+    /// file owns its `attach` / `addInitialChange` helper without cross-file coupling, and their data is kept
+    /// in sync by convention.
     static func specificDatesDefault(now: Date = Date()) -> Budget {
       let cal = Calendar.current
       let startDate = cal.date(byAdding: .day, value: -10, to: cal.startOfDay(for: now))!

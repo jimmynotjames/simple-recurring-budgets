@@ -1,11 +1,9 @@
 import Foundation
 import SwiftData
 
-/// In-memory `ModelContainer` (CloudKit off). Used for previews, optional **manual** app-launch
-/// overrides, and dev-only `DebugData` fixtures.
+/// In-memory `ModelContainer` (CloudKit off) for previews, manual app-launch overrides, and dev-only `DebugData` fixtures.
 enum InMemoryModelContainer {
-  /// Isolated in-memory store with **no** inserted models — for testing the first-run / empty
-  /// `Budgets` list without touching disk or iCloud.
+  /// Isolated in-memory store with **no** models, for the first-run / empty Budgets list without touching disk or iCloud.
   static func makeEmpty() -> ModelContainer {
     let schema = SchemaV1.swiftDataSchema
     let config = ModelConfiguration(
@@ -30,17 +28,14 @@ enum InMemoryModelContainer {
       return container
     }
 
-    /// In-memory store for UI test launches. Two seeding channels, checked in order:
+    /// In-memory store for UI test launches, seeded from two channels checked in order:
     ///
-    /// 1. `SEED_SCREENSHOTS_JSON` — a full per-locale screenshot demo-content catalog
-    ///    JSON (set by the `AppStoreScreenshots` UI test). Decoded via `ScreenshotSeed`
-    ///    and used to seed culturally-tuned budgets/expenses for App Store screenshots.
-    /// 2. `SEED_BUDGETS` — a comma-separated list of budget names (set by
-    ///    `makeApp(seedBudgets:)` in UITestHelpers) → one monthly $100 budget each, so
-    ///    journey tests skip UI creation.
+    /// 1. `SEED_SCREENSHOTS_JSON`: a per-locale screenshot demo-content catalog (set by the `AppStoreScreenshots`
+    ///    UI test), decoded via `ScreenshotSeed` into culturally-tuned budgets/expenses.
+    /// 2. `SEED_BUDGETS`: comma-separated budget names (set by `makeApp(seedBudgets:)` in UITestHelpers), one
+    ///    monthly $100 budget each so journey tests skip UI creation.
     ///
-    /// Returns an empty store when neither is present, matching the behaviour of tests
-    /// that set up their own state through the UI.
+    /// Returns an empty store when neither is present.
     static func makeForUITests(now: Date = Date()) -> ModelContainer {
       let env = ProcessInfo.processInfo.environment
       if let json = env["SEED_SCREENSHOTS_JSON"], !json.isEmpty, let seed = ScreenshotSeed.decode(from: json) {
@@ -55,9 +50,8 @@ enum InMemoryModelContainer {
       return makeSeeded(budgetNames: names, now: now)
     }
 
-    /// In-memory store pre-populated with one monthly $100 budget per name.
-    /// Used by `makeForUITests()` and available directly in test helpers that
-    /// need a seeded container without going through the env-var channel.
+    /// In-memory store with one monthly $100 budget per name. Used by `makeForUITests()` and by test helpers
+    /// that need a seeded container without the env-var channel.
     static func makeSeeded(budgetNames names: [String], now: Date = Date()) -> ModelContainer {
       let container = makeEmpty()
       let startDate = Calendar.current.startOfDay(for: now)

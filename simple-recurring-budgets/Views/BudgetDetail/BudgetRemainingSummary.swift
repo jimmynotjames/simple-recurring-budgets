@@ -2,45 +2,35 @@ import SwiftUI
 
 // MARK: - BudgetRemainingSummary
 
-/// Shared summary block used by `BudgetRowView` (Budgets list) and
-/// `BudgetDetailView` header. Renders the displayed-amount + period label
-/// (`ViewThatFits` switches H→V at large Dynamic Type) above a `RemainingBar`.
+/// Summary block shared by `BudgetRowView` (list) and the `BudgetDetailView` header:
+/// amount + period label (`ViewThatFits` switches H→V at large Dynamic Type) above a
+/// `RemainingBar`. Presentational only; callers pass values derived from
+/// `BudgetLifecycleResult` plus an optional `BudgetInactiveReason`.
 ///
-/// Presentational only — owns no lifecycle state. Callers pass in the values
-/// they've already derived from `BudgetLifecycleResult` and a
-/// `BudgetInactiveReason?` for the unified inactive presentation.
+/// Displayed amount: `.preStart` / `.postEnd` → `allocation`; `.paused` / `nil` → `remaining`.
 ///
-/// **Displayed amount** depends on the inactive reason:
-/// - `.preStart`, `.postEnd` → `allocation` (the budget's current allocation)
-/// - `.paused`, `nil` → `remaining` (the calculator's in-period figure)
+/// `.accessibilityHidden(true)`: callers wrap it with their own label (use
+/// `accessibilityLabel(...)`) because the surfaces differ on name prefix and on
+/// button vs header.
 ///
-/// The view is `.accessibilityHidden(true)`; callers wrap it and apply their
-/// own `.accessibilityLabel` (use `BudgetRemainingSummary.accessibilityLabel(...)`)
-/// because the two surfaces differ on whether the budget name is prefixed and
-/// whether the surrounding element is a button or a header.
-///
-/// The chip row (`StatusChipRow`) is intentionally **not** part of this view —
-/// the row needs the chips outside its tap target so VoiceOver treats them as
-/// separate static-text elements; the detail header follows the same pattern
-/// for consistency.
+/// `StatusChipRow` is deliberately not part of this view: the list row needs the chips
+/// outside its tap target so VoiceOver reads them as separate elements, and the detail
+/// header follows suit.
 struct BudgetRemainingSummary: View {
   let remaining: Decimal
   let allocation: Decimal
   let periodDisplayLabel: String
   let currencyCode: String
   let currencyDisplay: CurrencyDisplayPreference
-  /// When non-nil, applies the unified inactive presentation: dimmed amount
-  /// label and a full-width `.secondary` `RemainingBar`. For `.preStart` /
-  /// `.postEnd`, the displayed amount switches from `remaining` to `allocation`.
+  /// When non-nil: dimmed amount and a full-width `.secondary` `RemainingBar`; for
+  /// `.preStart` / `.postEnd` the amount switches from `remaining` to `allocation`.
   let inactiveReason: BudgetInactiveReason?
 
   @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 10
   @ScaledMetric(relativeTo: .callout) private var amountSpacing: CGFloat = 6
 
-  /// The amount shown by the large label. For `.preStart` / `.postEnd` this is
-  /// the budget's allocation (a meaningful summary when "remaining" has no
-  /// in-period interpretation); for `.paused` and `.active` it is the
-  /// calculator's `remaining`.
+  /// Allocation for `.preStart` / `.postEnd` (where "remaining" has no in-period
+  /// meaning); the calculator's `remaining` for `.paused` and active.
   private var displayedAmount: Decimal {
     switch inactiveReason {
     case .preStart, .postEnd: allocation
@@ -48,7 +38,7 @@ struct BudgetRemainingSummary: View {
     }
   }
 
-  /// Inactive presentation flag — drives dimming on the amount label and the bar.
+  /// Drives dimming on the amount and the bar.
   private var isInactive: Bool {
     inactiveReason != nil
   }
@@ -57,9 +47,8 @@ struct BudgetRemainingSummary: View {
     displayedAmount < 0
   }
 
-  /// Fraction of the allocation still available: 1.0 = full allocation remaining,
-  /// 0.0 = nothing left. Clamped to [0, 1]; over-budget collapses to 0 and is
-  /// signalled separately via `isOverBudget` on `RemainingBar`.
+  /// Fraction of the allocation still available, clamped to [0, 1]. Over-budget is 0 and
+  /// signalled separately via `RemainingBar.isOverBudget`.
   private var remainingFraction: Double {
     guard allocation > 0 else { return 0 }
     let ratio = remaining / allocation
@@ -93,9 +82,8 @@ struct BudgetRemainingSummary: View {
       .lineLimit(1)
       .truncationMode(.tail)
       .minimumScaleFactor(0.8)
-      // fixedSize(vertical: true) prevents the parent container from giving the
-      // text less height than its natural line height, which causes vertical
-      // clipping detected by the accessibility textClipped audit.
+      // Keeps the parent from giving the text less than its natural height, which
+      // clips vertically and trips the accessibility textClipped audit.
       .fixedSize(horizontal: false, vertical: true)
   }
 
@@ -109,23 +97,15 @@ struct BudgetRemainingSummary: View {
 // MARK: - Accessibility label
 
 extension BudgetRemainingSummary {
-  /// Builds the localized VoiceOver label for a budget summary.
+  /// Localized VoiceOver label for a budget summary.
   ///
-  /// When `budgetName` is non-nil, it is prepended to the localized body as
-  /// `"<name>, <body>"`. We prepend in Swift (rather than weaving the name
-  /// into every locale's full sentence) because VoiceOver labels are
-  /// comma-separated announcements, not flowing prose — leading-name cadence
-  /// is acceptable across all locales and saves us the combinatorial blow-up
-  /// of a parallel `withName` key family.
+  /// A non-nil `budgetName` is prepended as `"<name>, <body>"` in Swift rather than woven
+  /// into each locale's sentence: VoiceOver labels are comma-separated announcements, so
+  /// leading-name cadence works everywhere and avoids a parallel `withName` key family.
+  /// Pass `nil` when the context already announces the name (e.g. the detail nav title).
   ///
-  /// Pass `budgetName: nil` when the surrounding context already announces
-  /// the name (e.g. the detail screen's nav title).
-  ///
-  /// For `.preStart` / `.postEnd`, the helper dispatches to dedicated keys that
-  /// announce the displayed-allocation amount plus the lifecycle date. For
-  /// `.paused` and `.active`, the existing on-budget / over-budget keys are
-  /// reused — paused-state announcements are not introduced by this helper
-  /// (the chip carries the paused-since announcement separately).
+  /// `.preStart` / `.postEnd` use dedicated keys (allocation + lifecycle date);
+  /// `.paused` and active reuse the on/over-budget keys (the chip announces paused-since).
   static func accessibilityLabel(
     budgetName: String?,
     remaining: Decimal,
@@ -158,7 +138,7 @@ extension BudgetRemainingSummary {
       )
       return prefix + body
     case .paused, .none:
-      // Fall through to the existing recurring / specificDates × on-budget / over-budget label family.
+      // Recurring / specificDates × on-budget / over-budget label family.
       let isOverBudget = remaining < 0
       let amount = (isOverBudget ? -remaining : remaining)
         .formatted(currencyCode: currencyCode, display: currencyDisplay)

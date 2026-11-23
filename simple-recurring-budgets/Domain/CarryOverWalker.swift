@@ -1,24 +1,17 @@
 import Foundation
 
-/// Returns the cumulative carry-over from every completed active period in the walk window.
+/// Returns cumulative carry-over from every completed active period in `[walkWindowStart, currentPeriodStart)`.
+/// Active periods contribute `allocationInEffect − sum(expenses in period)`; paused periods contribute 0.
 ///
-/// Walk window: `[walkWindowStart, currentPeriodStart)`. For each completed period:
-/// - active → contributes `allocationInEffect − sum(expenses in period)`.
-/// - paused → contributes 0.
+/// Expenses are filtered from `max(boundaryStart, walkWindowStart)`, so the period containing
+/// `walkWindowStart` (e.g. a Reset Carry-Over) ignores pre-reset expenses while still awarding the full
+/// allocation (no proration), even when the budget started or was reset mid-period.
 ///
-/// Expenses are filtered by `max(boundaryStart, walkWindowStart)` so that for the period
-/// containing `walkWindowStart` (e.g., the period in which a Reset Carry-Over occurred),
-/// pre-reset expenses are not counted. Allocation is still awarded for the full period —
-/// no proration — matching the design choice that the user gets the full period's spending
-/// power even when the budget started, or was reset, mid-period.
+/// Pure function that re-evaluates every period on each call, so backdated expenses fold in automatically.
 ///
-/// Backdated expenses are automatically folded in on the next call because the walker
-/// re-evaluates every period on every read (pure function, no cached state).
-///
-/// **Contract:** `sortedAllocationChanges` and `sortedLifecycleEvents` must be pre-sorted
-/// ascending by `(effectiveFrom, lastModified)` and `(effectiveDate, lastModified)`
-/// respectively. The caller (`BudgetCalculator.snapshot`) sorts once at the entry point
-/// to avoid an O(log N) factor per walker iteration.
+/// **Contract:** `sortedAllocationChanges` and `sortedLifecycleEvents` must be pre-sorted ascending by
+/// `(effectiveFrom, lastModified)` and `(effectiveDate, lastModified)`; `BudgetCalculator.snapshot` sorts
+/// once to avoid a log factor per iteration.
 func walkCarryOver(
   from walkWindowStart: Date,
   to currentPeriodStart: Date,
@@ -54,10 +47,8 @@ func walkCarryOver(
       )
     }
 
-    // Only process periods that have fully completed.
     guard nextBoundary <= currentPeriodStart else { break }
 
-    // Paused periods contribute 0.
     guard isActive(
       periodStart: boundaryStart,
       periodEnd: nextBoundary,

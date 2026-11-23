@@ -1,18 +1,11 @@
 import SwiftUI
 
-/// Decides whether a `scenePhase` transition should fire `app_opened`
-/// (analytics-spec.md §9).
+/// Decides whether a `scenePhase` transition should fire `app_opened`: the user bringing the app to the
+/// foreground (cold launch or return from background). A bare foreground is meaningful because the Budgets
+/// list shows remaining amounts above the fold (glanceable checking). Transient drops to `.inactive`
+/// (notification shade, Face ID, app switcher, permission dialog) are not opens.
 ///
-/// `app_opened` marks the user bringing the app to the foreground — a cold
-/// launch or a return from background. Both are meaningful even with no further
-/// action: the Budgets list shows remaining amounts above the fold, so a bare
-/// foreground is often the user checking their numbers (glanceable
-/// budget-checking). Transient interruptions that only drop the app to
-/// `.inactive` — the notification shade, Face ID, the app switcher, a
-/// permission dialog — are not opens and must not fire.
-///
-/// No session/time constant: sessionization is Mixpanel's job (server-side,
-/// from the event stream), not something the client should replicate.
+/// No session/time constant: sessionization is Mixpanel's job (server-side), not the client's.
 @MainActor
 final class AppOpenTracker {
   private var lastPhase: ScenePhase?

@@ -23,8 +23,7 @@ struct PersistenceSaveHelperSuccessTests {
     let ctx = try makeInMemoryContext()
     let spy = SpyAnalyticsClient()
 
-    // Insert a valid Budget and save. saveChanges should return without
-    // throwing, log nothing on the persistence channel, and emit no analytics.
+    // saveChanges on a valid Budget returns without throwing, logs nothing, emits no analytics.
     let budget = Budget(period: .daily, isCarryOverEnabled: false)
     ctx.insert(budget)
 

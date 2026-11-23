@@ -70,8 +70,7 @@ struct BudgetsViewMoveTests {
     #expect(budgetB.lastModified == now, "B's sortOrder changed so lastModified SHOULD be bumped")
   }
 
-  /// 6.1.d — Single save call: verifying via observable model state (no direct call-count API).
-  /// All mutations are applied and a single save persists them correctly.
+  /// 6.1.d — One save persists all mutations (verified via observable model state; no call-count API).
   @Test func move_persistsNewOrderAcrossContextRefetch() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)

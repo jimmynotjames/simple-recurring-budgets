@@ -3,9 +3,8 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Covers the UUID route-resolution lookups (`ModelContext.budget(id:)` /
-/// `.expenseItem(id:)`) that back `AppRoute` / `SheetRoute` destination
-/// resolution in `RootView` (architecture-audit-2026-06-10.md §4.2).
+/// The UUID lookups (`ModelContext.budget(id:)` / `.expenseItem(id:)`) behind `AppRoute` /
+/// `SheetRoute` destination resolution in `RootView`.
 @MainActor
 struct ModelContextLookupTests {
   @Test func budgetLookup_findsSavedBudget() throws {

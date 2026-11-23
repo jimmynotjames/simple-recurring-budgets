@@ -2,18 +2,14 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-// MARK: - DST / non-UTC time zones (test-coverage-audit-2026-06-10 E1)
+// MARK: - DST / non-UTC time zones
 
-/// Production runs `PeriodCalculator` on `Calendar.autoupdatingCurrent`, so
-/// period boundaries must hold on real time zones across daylight-saving
-/// transitions — days that are 23 or 25 wall-clock hours long. 2026
-/// transitions: US spring-forward 2026-03-08 / fall-back 2026-11-01; EU
-/// spring-forward 2026-03-29 / fall-back 2026-10-25.
+/// Production runs `PeriodCalculator` on `Calendar.autoupdatingCurrent`, so boundaries must
+/// hold across DST (23- or 25-hour days). 2026 transitions: US 03-08 / 11-01; EU 03-29 / 10-25.
 struct PeriodCalculatorDSTTests {
-  /// One DST transition-day fixture: `hours` is the expected wall-clock length
-  /// of that day. A struct rather than a tuple (SwiftLint large_tuple);
-  /// `nonisolated`/`Sendable` because `@Test(arguments:)` evaluates outside the
-  /// default MainActor isolation.
+  /// One DST transition-day fixture; `hours` is that day's expected wall-clock length.
+  /// A struct (SwiftLint large_tuple); `nonisolated`/`Sendable` because `@Test(arguments:)`
+  /// evaluates outside the default MainActor isolation.
   nonisolated struct TransitionDay {
     let zone: String
     let year: Int
@@ -30,8 +26,8 @@ struct PeriodCalculatorDSTTests {
     TransitionDay(zone: "UTC", year: 2026, month: 3, day: 8, hours: 24), // control: no transition
   ]
 
-  /// Daily periods pin to local midnight on both sides of a transition, and the
-  /// transition day's period is exactly the shortened/lengthened wall-clock day.
+  /// Daily periods pin to local midnight on both sides of a transition; the transition day's
+  /// period is exactly the shortened/lengthened day.
   @Test(arguments: transitionDays)
   func daily_transitionDay_startsAndEndsAtLocalMidnight(_ tz: TransitionDay) {
     let cal = TestCalendars.gregorian(in: tz.zone)
@@ -53,8 +49,8 @@ struct PeriodCalculatorDSTTests {
     )
   }
 
-  /// A weekly period containing the LA spring-forward keeps its local-midnight
-  /// Sunday boundaries; the week is 167 absolute hours, not 168.
+  /// A weekly period containing the LA spring-forward keeps local-midnight Sunday boundaries
+  /// (167 absolute hours, not 168).
   @Test func weekly_acrossSpringForward_keepsLocalMidnightBoundaries() {
     let cal = TestCalendars.gregorian(in: "America/Los_Angeles")
     // 2026-03-10 is the Tuesday after the 2026-03-08 (Sunday) transition.
@@ -72,8 +68,8 @@ struct PeriodCalculatorDSTTests {
     #expect(end.timeIntervalSince(start) == 167 * 3600)
   }
 
-  /// Monthly periods containing a transition keep first-of-month local
-  /// midnights: March 2026 in LA is 743 absolute hours, November is 721.
+  /// Monthly periods keep first-of-month local midnights: March 2026 in LA is 743 absolute
+  /// hours, November 721.
   @Test(arguments: [
     (month: 3, hours: 743), // 31 days − 1h spring-forward
     (month: 11, hours: 721), // 30 days + 1h fall-back
@@ -94,8 +90,7 @@ struct PeriodCalculatorDSTTests {
     #expect(end.timeIntervalSince(start) == Double(arg.hours) * 3600)
   }
 
-  /// Boundary enumeration across the transition yields exactly the local
-  /// midnights — no skipped, duplicated, or hour-shifted boundary.
+  /// Boundary enumeration across the transition yields exactly the local midnights.
   @Test func boundaries_dailyAcrossSpringForward_areConsecutiveLocalMidnights() {
     let cal = TestCalendars.gregorian(in: "America/Los_Angeles")
     let from = TestCalendars.date(2026, 3, 6, in: cal)

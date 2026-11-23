@@ -7,7 +7,7 @@ struct EditableAmountConverterTests {
   private let enUS = Locale(identifier: "en_US")
   private let deDE = Locale(identifier: "de_DE")
 
-  // MARK: - Per-currency fraction digits (the core fix)
+  // MARK: - Per-currency fraction digits
 
   @Test func fractionDigits_followCurrencyMinorUnits() {
     #expect(EditableAmountConverter.fractionDigits(for: "USD", locale: enUS) == 2)
@@ -25,7 +25,7 @@ struct EditableAmountConverterTests {
     #expect(style.editableText(Decimal(string: "5.5")) == "5.50")
   }
 
-  /// A 3-decimal currency must NOT truncate an existing value to two places (the old `0...2` bug).
+  /// A 3-decimal currency must NOT truncate an existing value to two places.
   @Test func bhd_preservesThreeFractionDigits() {
     let style = EditableAmountConverter(currencyCode: "BHD", locale: enUS)
     #expect(style.editableText(Decimal(string: "1.234")) == "1.234")
@@ -67,15 +67,15 @@ struct EditableAmountConverterTests {
     #expect(try strategy.parse("1,5") == Decimal(string: "1.5"))
   }
 
-  /// Regression: the `.decimalPad` emits Arabic-Indic digits in ar_EG / ar_SA, and the old
-  /// `Decimal(string:locale:)` returned nil for them, so the field rejected every keystroke.
+  /// `.decimalPad` emits Arabic-Indic digits in ar_EG / ar_SA, which `Decimal(string:locale:)`
+  /// rejects (nil); parsing must handle them or the field rejects every keystroke.
   @Test func parse_acceptsArabicIndicDigits() throws {
     let strategy = EditableAmountParser(locale: Locale(identifier: "ar_EG"))
     #expect(try strategy.parse("١٢٣") == Decimal(123))
     #expect(try strategy.parse("١٢٣٫٥") == Decimal(string: "123.5"))
   }
 
-  /// What the field actually does: seed a value, then parse the seeded string back.
+  /// Round trip as the field does it: seed a value, then parse the seeded string.
   @Test func seedThenParse_roundTrips_arabicIndic() throws {
     let arEG = Locale(identifier: "ar_EG")
     let style = EditableAmountConverter(currencyCode: "EGP", locale: arEG)
@@ -104,8 +104,8 @@ struct CurrencyDisplayAffixesTests {
     #expect(trailing.contains("€"))
   }
 
-  /// The affix side must agree with the display formatter (the whole point of the fix): the rendered amount
-  /// should begin with the leading affix and end with the trailing affix.
+  /// The affix side must agree with the display formatter: the rendered amount begins with
+  /// the leading affix and ends with the trailing one.
   @Test func affixes_matchDisplayFormatter() {
     for (code, locale) in [("USD", enUS), ("EUR", frFR), ("JPY", jaJP)] {
       let (leading, trailing) = CurrencyDisplayPreference.symbol.affixes(for: code, locale: locale)

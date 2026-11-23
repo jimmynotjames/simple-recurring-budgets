@@ -3,15 +3,10 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Tests for `AddEditExpenseViewModel.computeRecentCandidates(for:limit:)` — the pure,
-/// static F-7.04 algorithm that builds the Recents candidate corpus from a budget's
-/// history.
-///
-/// The helper is exercised directly (not through a VM init) so the cases stay focused on
-/// the algorithm itself: sort order, per-name base tiles, recurrence-gated amount
-/// variants, exclusion filters, and the corpus cap. VM-level integration (cached at
-/// init, display capping in `filteredRecentSuggestions`, provenance-aware apply) lives
-/// in `AddEditExpenseViewModelRecentsTests`.
+/// Tests `AddEditExpenseViewModel.computeRecentCandidates(for:limit:)`, the pure static F-7.04 algorithm
+/// that builds the Recents corpus from a budget's history. Exercised directly (not via a VM init) to
+/// focus on sort order, per-name base tiles, recurrence-gated amount variants, exclusion filters, and the
+/// corpus cap. VM-level integration is in `AddEditExpenseViewModelRecentsTests`.
 @MainActor
 struct RecentsAlgorithmTests {
   // MARK: - Helpers
@@ -63,9 +58,8 @@ struct RecentsAlgorithmTests {
   // MARK: - Deduplication
 
   @Test func duplicatesByName_keepMostRecentOccurrenceAmount() throws {
-    // Two "Coffee" entries at different amounts, each logged ONCE; the more recent
-    // (date(0)) is the base tile, and the older singleton pair stays below the
-    // recurrence threshold so no variant tile appears.
+    // Two "Coffee" entries at different amounts, each logged once: the more recent (date(0)) is the
+    // base tile; the older singleton stays below the recurrence threshold, so no variant appears.
     let budget = try makeBudget(with: [
       ExpenseItem(amount: 5.50, name: "Coffee", date: date(-86400)), // older Coffee
       ExpenseItem(amount: 6.00, name: "Coffee", date: date(0)), // newer Coffee
@@ -101,10 +95,8 @@ struct RecentsAlgorithmTests {
   }
 
   @Test func dedupIsDiacriticInsensitive() throws {
-    // "Café", "cafe", and "CAFÉ" should all collapse to one entry, with the most
-    // recent occurrence's name + amount surviving. The folded comparison aligns the
-    // dedup equivalence class with the filter's `range(of:options:)` semantics, so
-    // the user can't end up with two visibly-identical-looking entries.
+    // "Café", "cafe", "CAFÉ" collapse to one entry (most recent name + amount wins). The folded
+    // comparison matches the filter's `range(of:options:)` semantics so users never see look-alike duplicates.
     let budget = try makeBudget(with: [
       ExpenseItem(amount: 5.50, name: "cafe", date: date(-86400)),
       ExpenseItem(amount: 6.00, name: "Café", date: date(0)),
@@ -161,10 +153,9 @@ struct RecentsAlgorithmTests {
   }
 
   @Test func defaultLimit_isCorpusCapNotDisplayCap() throws {
-    // 25 unique names exceed the old 15-tile display default but sit well under the
-    // corpus cap: the algorithm's default must return ALL of them — display trimming
-    // happens downstream in `filteredRecentSuggestions`, never here. This is the
-    // corpus/display decoupling that lets a typed query surface names beyond the row.
+    // 25 unique names exceed a typical display row but sit under the corpus cap: the default must return
+    // ALL of them; display trimming happens downstream in `filteredRecentSuggestions`. This corpus/display
+    // decoupling lets a typed query surface names beyond the row.
     let expenses = (0 ..< 25).map { i in
       ExpenseItem(amount: Decimal(i + 1), name: "Item \(i)", date: date(TimeInterval(-i * 60)))
     }
@@ -174,9 +165,8 @@ struct RecentsAlgorithmTests {
   }
 
   @Test func capConstants_pinWorkshopDecisions() {
-    // Deliberate pins for the cap design: display (Caps A/B) = 30, corpus (Cap C) =
-    // 200, variant recurrence gate = 3, extra variants per name = 2. Changing any of
-    // these is a product decision — update the test alongside the constant.
+    // Deliberate pins: display (Caps A/B) = 30, corpus (Cap C) = 200, variant recurrence gate = 3,
+    // extra variants per name = 2. Changing any is a product decision; update the test with the constant.
     #expect(AddEditExpenseViewModel.recentsDisplayLimit == 30)
     #expect(AddEditExpenseViewModel.recentsCorpusLimit == 200)
     #expect(AddEditExpenseViewModel.variantRecurrenceThreshold == 3)

@@ -3,11 +3,10 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Tests for `AddEditExpenseViewModel`'s F-7.04 Recents API surface — the cached
-/// candidate corpus, the typed-query filter and its display cap, the Add-mode-only
-/// visibility gate, the provenance-aware `applyRecent` (including its analytics
-/// emission), and the double-tap `applyRecentFullReplace`. The static algorithm itself
-/// is covered separately by `RecentsAlgorithmTests`; here we exercise the VM-level wiring.
+/// Tests `AddEditExpenseViewModel`'s F-7.04 Recents API: cached candidate corpus, typed-query filter and
+/// display cap, Add-mode-only visibility gate, provenance-aware `applyRecent` (incl. analytics), and
+/// double-tap `applyRecentFullReplace`. VM-level wiring only; the static algorithm is in
+/// `RecentsAlgorithmTests`.
 @MainActor
 struct AddEditExpenseViewModelRecentsTests {
   // MARK: - Helpers
@@ -142,9 +141,8 @@ struct AddEditExpenseViewModelRecentsTests {
   }
 
   @Test func filteredRecents_querySurfacesNameBeyondDisplayedRow() throws {
-    // "Zebra" is the oldest of 31 names, so it falls outside the 30-tile unfiltered
-    // row — but typing must still find it, because the filter searches the corpus,
-    // not the rendered row. This is the search-depth defect the cap decoupling fixed.
+    // "Zebra" is the oldest of 31 names, so it falls outside the 30-tile unfiltered row, but typing
+    // must still find it: the filter searches the corpus, not the rendered row.
     var specs = (0 ..< 30).map { i in
       ExpenseSpec(name: "Item \(i)", amount: Decimal(i + 1), hoursAgo: Double(i))
     }
@@ -436,9 +434,9 @@ struct AddEditExpenseViewModelRecentsTests {
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])
     let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
-    // Capture the pick first — toggling `isAddFunds` from false to true triggers the
-    // didSet that seeds `name = "Add funds"`, which would filter our candidate set down
-    // to zero before we could grab a suggestion. F-6.01 seeding behavior, not under test.
+    // Capture the pick first: toggling `isAddFunds` false→true seeds `name = "Add funds"` via didSet,
+    // which would filter the candidate set to zero before we grab a suggestion (F-6.01 seeding is not
+    // under test).
     let pick = try #require(vm.filteredRecentSuggestions.first)
     vm.isAddFunds = true
     vm.applyRecent(pick, visibleCount: 1, tapPosition: 0, analytics: SpyAnalyticsClient())
@@ -535,9 +533,8 @@ struct AddEditExpenseViewModelRecentsTests {
   }
 
   @Test func applyRecent_capturesQueryLengthBeforeOverwritingName() throws {
-    // The query-length analytic must reflect what the user was typing AT THE MOMENT of
-    // the tap, not the suggestion's name. So a tap on "Coffee" while the user has typed
-    // "co" should yield bucket "1-2", not "3+" (the length of "Coffee").
+    // The query-length bucket reflects what the user had typed AT THE TAP, not the tapped suggestion's
+    // name: tapping "Coffee" after typing "co" yields "1-2", not "3+".
     let budget = try makeBudgetWithExpenses([
       ExpenseSpec(name: "Coffee", amount: 5.50, hoursAgo: 1),
     ])

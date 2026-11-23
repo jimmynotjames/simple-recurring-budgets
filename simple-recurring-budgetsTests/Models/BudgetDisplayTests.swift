@@ -25,8 +25,7 @@ struct BudgetDisplayTests {
     let budget = Budget(period: .specificDates)
     budget.startDate = Self.d(2026, 5, 8)
     budget.endDate = Self.d(2026, 5, 25)
-    // Output is locale-aware; assert it includes both abbreviated month names
-    // rather than pinning a specific en-US spelling.
+    // Locale-aware output: assert both abbreviated month names, not an en-US spelling.
     let label = budget.periodDisplayLabel
     #expect(label.contains("May"))
     #expect(label.contains("8"))
@@ -34,9 +33,8 @@ struct BudgetDisplayTests {
   }
 
   @Test func periodDisplayLabel_specificDates_sameDayWindow_rendersSingleDate() {
-    // A 1-day Specific Dates budget (start == end), reachable via the snap-forward
-    // collapse path on the VM. Display must render the single date alone — passing
-    // an empty Range<Date> to IntervalFormatStyle is undefined for empty ranges.
+    // A 1-day Specific Dates budget (start == end), reachable via the VM's snap-forward collapse.
+    // Must render the single date alone; an empty Range<Date> in IntervalFormatStyle is undefined.
     let budget = Budget(period: .specificDates)
     let day = Self.d(2026, 5, 20)
     budget.startDate = day
@@ -44,25 +42,21 @@ struct BudgetDisplayTests {
     let label = budget.periodDisplayLabel
     #expect(label.contains("May"))
     #expect(label.contains("20"))
-    // Sanity: should NOT contain a separator that would indicate a multi-day range.
-    // "–" (en-dash) or "-" or "to" would suggest a range. The single-date form
-    // renders just "May 20, 2026" (or locale equivalent).
+    // No range separator ("–", "-", "to"); renders just "May 20, 2026" (or locale equivalent).
     #expect(!label.contains("–"))
   }
 
   @Test func specificDatesDisplayLabel_invertedWindow_rendersStartDateWithoutTrapping() {
-    // Inverted window (endDate < startDate) — a data-integrity violation, typically a
-    // partial CloudKit sync. `Range` construction would trap; the helper must degrade
-    // to the single start date so the Budgets list cannot crash on a corrupt record.
-    // Calls the static helper directly: the production call site (`periodDisplayLabel`)
-    // carries a debug assert for this state, which would trip under the test runner.
+    // Inverted window (endDate < startDate), typically a partial CloudKit sync. `Range`
+    // construction would trap; the helper must degrade to the start date so the Budgets list
+    // can't crash on a corrupt record. Calls the static helper directly because
+    // `periodDisplayLabel` debug-asserts on this state, which would trip under the test runner.
     let label = Budget.specificDatesDisplayLabel(
       start: Self.d(2026, 5, 25),
       end: Self.d(2026, 5, 8)
     )
     #expect(label.contains("May"))
     #expect(label.contains("25"))
-    // Single-date form — no range separator.
     #expect(!label.contains("–"))
   }
 
@@ -90,8 +84,7 @@ struct BudgetDisplayTests {
 
   @Test func periodInlineLabel_specificDates_returnsWindowDescriptor() {
     let budget = Budget(period: .specificDates)
-    // We don't pin a specific English spelling — just confirm it differs from
-    // the generic inlineLabel for specificDates.
+    // Only asserts it differs from the generic specificDates inlineLabel.
     let inline = budget.periodInlineLabel
     #expect(!inline.isEmpty)
     #expect(inline != BudgetPeriod.specificDates.inlineLabel || inline == "in this window")

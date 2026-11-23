@@ -1,8 +1,7 @@
 import XCTest
 
-/// Exercises the clear-amount button added to the expense Amount card.
-/// Each test isolates a specific interaction path that could trigger the
-/// EXC_BAD_ACCESS crash reported against AddEditExpenseView.swift:395.
+/// Exercises the expense Amount card's clear button, one interaction path per test (originally
+/// to isolate an EXC_BAD_ACCESS in AddEditExpenseView).
 final class ClearAmountButtonUITests: XCTestCase {
   override func setUpWithError() throws {
     continueAfterFailure = false
@@ -10,8 +9,7 @@ final class ClearAmountButtonUITests: XCTestCase {
 
   // MARK: - Sheet open
 
-  /// Baseline: open Add Expense on a budget with NO prior expenses.
-  /// Recents section does not render. Validates the sheet opens cleanly.
+  /// Baseline: Add Expense opens cleanly on a budget with no expenses (no Recents section).
   @MainActor
   func testOpenAddExpenseNoRecents() {
     let app = makeApp()
@@ -25,8 +23,7 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
   }
 
-  /// Open Add Expense on a budget that already has a named expense.
-  /// Recents section WILL render — exercises the Recents + amount card layout together.
+  /// Add Expense opens cleanly with a Recents section alongside the amount card.
   @MainActor
   func testOpenAddExpenseWithRecents() {
     let app = makeApp()
@@ -41,10 +38,9 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
   }
 
-  // MARK: - Typing an amount (makes viewModel.amount non-nil → button appears)
+  // MARK: - Typing an amount (viewModel.amount becomes non-nil → button appears)
 
-  /// Type an amount in Add Expense so viewModel.amount goes from nil → non-nil.
-  /// This is when the clear button's opacity flips from 0 to 1.
+  /// Typing an amount flips the clear button's opacity from 0 to 1.
   @MainActor
   func testTypeAmountMakesClearButtonVisible() {
     let app = makeApp()
@@ -67,7 +63,7 @@ final class ClearAmountButtonUITests: XCTestCase {
 
   // MARK: - Clear button tap
 
-  /// Type an amount then tap the clear button; Save should re-disable.
+  /// Clearing the typed amount re-disables Save.
   @MainActor
   func testClearButtonResetsAmount() {
     let app = makeApp()
@@ -94,7 +90,7 @@ final class ClearAmountButtonUITests: XCTestCase {
 
   // MARK: - Recents tile tap (sets both name and amount)
 
-  /// Tap a Recents tile; verifies amount is filled and clear button appears.
+  /// Tapping a Recents tile fills the amount and shows the clear button.
   @MainActor
   func testRecentsTileFillsAmount() {
     let app = makeApp()
@@ -105,7 +101,7 @@ final class ClearAmountButtonUITests: XCTestCase {
     app.buttons["Add expense for Test"].tap()
     XCTAssertTrue(app.navigationBars["Add Expense"].waitForExistence(timeout: 3))
 
-    // Tile label is "{name}, {formatted amount}" — match by expense name prefix
+    // Tile label is "{name}, {formatted amount}"; match the name prefix.
     let recentsTile = app.buttons.matching(
       NSPredicate(format: "label BEGINSWITH 'Lunch'")
     ).firstMatch
@@ -118,10 +114,8 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
   }
 
-  /// Regression (focus jump): with the cursor in the Amount field, tapping the
-  /// Amount clear (✕) after a Recents tile fill must leave focus in the Amount
-  /// field — it must NOT hand first responder to the Description field. The bug
-  /// moved the cursor to the end of the Description after clearing the amount.
+  /// Regression (focus jump): with the cursor in Amount, tapping clear (✕) after a Recents tile
+  /// fill must keep focus in Amount, not hand first responder to Description.
   @MainActor
   func testClearAmountAfterRecentsTapKeepsFocusInAmountField() {
     let app = makeApp()
@@ -132,8 +126,8 @@ final class ClearAmountButtonUITests: XCTestCase {
     app.buttons["Add expense for Test"].tap()
     XCTAssertTrue(app.navigationBars["Add Expense"].waitForExistence(timeout: 3))
 
-    // Put the cursor in the Amount field explicitly (iOS-COMPAT: double-tap forces
-    // UIViewRepresentable focus to register in XCUITest; autoFocus alone is flaky here).
+    // iOS-COMPAT: double-tap forces UIViewRepresentable focus to register in XCUITest;
+    // autoFocus alone is flaky here.
     let amountField = expenseAmountField(in: app)
     XCTAssertTrue(amountField.waitForExistence(timeout: 2))
     amountField.tap()
@@ -143,8 +137,8 @@ final class ClearAmountButtonUITests: XCTestCase {
       NSPredicate(format: "label BEGINSWITH 'Lunch'")
     ).firstMatch
     XCTAssertTrue(recentsTile.waitForExistence(timeout: 2), "Recents tile should be visible")
-    // The decimal pad is up; on a smaller device or larger type size it could cover
-    // the tile row. Fail diagnosably here rather than tapping the keyboard.
+    // The decimal pad could cover the tile row on a small device or large type; fail here
+    // diagnosably rather than tap the keyboard.
     XCTAssertTrue(recentsTile.isHittable, "Recents tile must not be covered by the keyboard")
     recentsTile.tap()
 
@@ -160,11 +154,9 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
   }
 
-  /// Regression for the reported bug: the Description field is focused (typing
-  /// there is what filters the Recents row), a Recents tile fills both fields,
-  /// and the user taps the Amount clear (✕). Before the fix the cursor stayed at
-  /// the end of the Description field; the ✕ must move it into the Amount field
-  /// (matching `UITextField`'s built-in clear-button behavior).
+  /// Regression: with Description focused (typing filters Recents) and a Recents tile filling both
+  /// fields, tapping Amount clear (✕) must move focus into Amount, like `UITextField`'s built-in
+  /// clear button; it used to stay in Description.
   @MainActor
   func testClearAmountWhileDescriptionFocused() {
     let app = makeApp()
@@ -200,11 +192,9 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
   }
 
-  /// Pins the full repeat cycle of the monotonic `focusRequest` trigger:
-  /// clear (✕) → retype an amount → move focus to the Description and type
-  /// (each keystroke re-renders the sheet; the Amount field must NOT steal
-  /// focus back — the coordinator's equality check is what prevents it) →
-  /// clear again (a fresh counter delta must hand focus to Amount again).
+  /// Pins the repeat cycle of the monotonic `focusRequest` trigger: clear → retype → type in
+  /// Description (each keystroke re-renders the sheet; the coordinator's equality check stops
+  /// Amount stealing focus back) → clear again (a fresh counter delta must refocus Amount).
   @MainActor
   func testRepeatedClearCyclesKeepHandingFocusToAmountField() {
     let app = makeApp()
@@ -215,7 +205,7 @@ final class ClearAmountButtonUITests: XCTestCase {
     app.buttons["Add expense for Test"].tap()
     XCTAssertTrue(app.navigationBars["Add Expense"].waitForExistence(timeout: 3))
 
-    // First cycle: type an amount, clear it, focus must land in Amount.
+    // First cycle: clear must land focus in Amount.
     let amountField = expenseAmountField(in: app)
     XCTAssertTrue(amountField.waitForExistence(timeout: 2))
     amountField.tap()
@@ -227,12 +217,11 @@ final class ClearAmountButtonUITests: XCTestCase {
     clearButton.tap()
     waitForKeyboardFocus(on: amountField, message: "First clear must hand focus to the Amount field")
 
-    // Retype: the field is focused from the clear, so keystrokes land directly.
+    // The field is already focused from the clear, so keystrokes land directly.
     amountField.typeText("42")
 
-    // Move to the Description (dismiss the decimal pad via the section label first,
-    // matching addNamedExpense's pattern) and type — filtering re-renders the sheet
-    // on every keystroke, and the Amount field must not steal focus back.
+    // Dismiss the decimal pad via the section label first (as in addNamedExpense), then type in
+    // Description.
     let descriptionLabel = app.staticTexts["Description (optional)"]
     XCTAssertTrue(descriptionLabel.waitForExistence(timeout: 2))
     descriptionLabel.tap()
@@ -248,7 +237,7 @@ final class ClearAmountButtonUITests: XCTestCase {
     )
     XCTAssertFalse(hasKeyboardFocus(amountField))
 
-    // Second cycle: clearing again is a fresh counter delta and must hand focus back.
+    // Second cycle.
     XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
     clearButton.tap()
     waitForKeyboardFocus(on: amountField, message: "Second clear must hand focus to the Amount field again")
@@ -260,16 +249,14 @@ final class ClearAmountButtonUITests: XCTestCase {
 
   // MARK: - Helpers
 
-  /// XCUITest exposes first-responder state through the element snapshot's
-  /// `hasKeyboardFocus` attribute (no public Swift property on iOS).
+  /// First-responder state via the snapshot's `hasKeyboardFocus` attribute (no public property on iOS).
   @MainActor
   private func hasKeyboardFocus(_ element: XCUIElement) -> Bool {
     (element.value(forKey: "hasKeyboardFocus") as? Bool) ?? false
   }
 
-  /// Deadline-based wait for keyboard focus (the refocus is a Task hop plus a keyboard
-  /// presentation, so a fixed sleep either wastes time or flakes on loaded CI sims).
-  /// The NSPredicate reads the same KVC `hasKeyboardFocus` attribute as the helper above.
+  /// Deadline-based wait for keyboard focus; the refocus is a Task hop plus keyboard
+  /// presentation, so a fixed sleep wastes time or flakes on loaded CI sims.
   @MainActor
   private func waitForKeyboardFocus(on element: XCUIElement, message: String) {
     let focused = expectation(
@@ -308,7 +295,7 @@ final class ClearAmountButtonUITests: XCTestCase {
       NSPredicate(format: "label BEGINSWITH 'Allocation amount'")
     ).firstMatch
     XCTAssertTrue(allocationField.waitForExistence(timeout: 2))
-    // iOS-COMPAT: double-tap forces UIViewRepresentable focus to register in XCUITest
+    // iOS-COMPAT: double-tap forces UIViewRepresentable focus to register in XCUITest.
     app.staticTexts["Allocation"].tap()
     allocationField.tap()
     allocationField.tap()
@@ -332,8 +319,7 @@ final class ClearAmountButtonUITests: XCTestCase {
     amountField.tap()
     amountField.typeText(amount)
 
-    // The decimal pad does not have a Done key. Tap the section label above the
-    // description field to dismiss the keyboard before refocusing.
+    // The decimal pad has no Done key; tap the section label above Description to dismiss it.
     let descriptionLabel = app.staticTexts["Description (optional)"]
     if descriptionLabel.waitForExistence(timeout: 2) {
       descriptionLabel.tap()

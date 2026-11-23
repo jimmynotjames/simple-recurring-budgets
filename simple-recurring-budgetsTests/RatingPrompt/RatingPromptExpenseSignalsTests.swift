@@ -3,9 +3,9 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Covers the Add-mode save hook's pure core, `RatingPromptCoordinator.expenseLogSignals`
-/// (W2): edit-mode / nil-budget produce no signals; active vs paused and non-deficit vs
-/// deficit budgets produce the correct flags the hook feeds to `recordExpenseLogged`.
+/// The Add-mode save hook's pure core, `RatingPromptCoordinator.expenseLogSignals`:
+/// edit-mode / nil-budget yield no signals; active vs paused and non-deficit vs deficit
+/// budgets yield the flags fed to `recordExpenseLogged`.
 @Suite("Rating prompt — expense-log signals (F-6.03, W2)")
 @MainActor
 struct RatingPromptExpenseSignalsTests {

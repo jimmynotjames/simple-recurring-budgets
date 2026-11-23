@@ -7,9 +7,8 @@ struct CurrencyPickerTests {
 
   @Test func catalogCodes_matchesLocaleCommonCodes_sortedAndDeDuped() {
     let expected = Array(Set(Locale.commonISOCurrencyCodes)).sorted()
-    // CurrencyPickerView.displayName is the only static testable helper we've exposed;
-    // the catalog computation is private.  We validate it indirectly by asserting that
-    // the known anchors are present, and that duplicates from Set/sort round-trip cancel.
+    // `CurrencyPickerView.displayName` is the only exposed static helper (the catalog computation is
+    // private), so validate indirectly: known anchors are present and Set/sort round-trips cancel duplicates.
     for code in ["USD", "EUR", "GBP"] {
       #expect(expected.contains(code), "Expected \(code) in common ISO codes")
     }
@@ -35,10 +34,8 @@ struct CurrencyPickerTests {
 
   // MARK: - 7.2.c  Filtering helper
 
-  /// Calls the production `CurrencyPickerView.filteredCodes(_:matching:)` directly —
-  /// the view's `filteredCodes` computed property forwards to the same static, so these
-  /// tests exercise the rendered code path rather than a mirror of it
-  /// (test-coverage-audit-2026-06-10 D3).
+  /// Calls the production `CurrencyPickerView.filteredCodes(_:matching:)` directly; the view's computed
+  /// property forwards to the same static, so the rendered path is exercised.
   private func filter(_ codes: [String], by query: String) -> [String] {
     CurrencyPickerView.filteredCodes(codes, matching: query)
   }
@@ -57,9 +54,8 @@ struct CurrencyPickerTests {
   }
 
   @Test func filter_byLocalisedNameSubstring_includesCode() {
-    // "yen" should match JPY via its localised name in en locale.
-    // We make the assertion conditional on the localised name actually containing "yen"
-    // so the test doesn't become locale-specific (it would pass vacuously in fr_FR).
+    // "yen" matches JPY via its en localized name. The assertion is conditional on that name containing
+    // "yen" so the test stays locale-independent.
     let codes = Array(Set(Locale.commonISOCurrencyCodes)).sorted()
     let jpyName = CurrencyPickerView.displayName(for: "JPY") ?? ""
     if jpyName.localizedCaseInsensitiveContains("yen") {

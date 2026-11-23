@@ -42,8 +42,7 @@ struct FeedbackMailtoContainerFailureTests {
 
   @Test("FeedbackMailto.recipient equals AppConfig.feedbackEmail (single source of truth)")
   func recipientEqualsAppConfigSource() {
-    // FeedbackMailto.recipient delegates to AppConfig.feedbackEmail — this test
-    // guards against future accidental divergence (e.g. re-introducing a hardcoded literal).
+    // FeedbackMailto.recipient must delegate to AppConfig.feedbackEmail, not a hardcoded literal.
     #expect(FeedbackMailto.recipient == AppConfig.feedbackEmail)
   }
 }

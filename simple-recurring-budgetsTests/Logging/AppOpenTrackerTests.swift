@@ -2,9 +2,8 @@
 import SwiftUI
 import Testing
 
-/// Covers when `app_opened` fires (analytics-spec.md §9): on cold launch and on
-/// a real return from background, but not on transient `.inactive` interruptions
-/// (notification shade, Face ID, app switcher) and not on non-active phases.
+/// `app_opened` fires on cold launch and a real return from background, not on transient
+/// `.inactive` interruptions (notification shade, Face ID, app switcher) or non-active phases.
 @Suite("AppOpenTracker — app_opened on foreground (§9)")
 @MainActor
 struct AppOpenTrackerTests {
@@ -27,7 +26,7 @@ struct AppOpenTrackerTests {
     let tracker = AppOpenTracker()
     _ = tracker.shouldFire(for: .active) // cold launch
     #expect(tracker.shouldFire(for: .inactive) == false)
-    // Returned from .inactive (not background) — a flicker, not a real open.
+    // From .inactive (not background): a flicker, not a real open.
     #expect(tracker.shouldFire(for: .active) == false)
   }
 

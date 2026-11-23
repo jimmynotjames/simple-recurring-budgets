@@ -3,10 +3,8 @@ import Foundation
 import SwiftData
 import Testing
 
-/// F-6.01 Add Funds toggle — wiring tests for `AddEditExpenseViewModel`.
-///
-/// Co-located with `AddEditExpenseViewModelTests` but in its own file to stay under the
-/// project's 600-line per-file lint cap.
+/// F-6.01 Add Funds toggle wiring tests for `AddEditExpenseViewModel`. Separate file from
+/// `AddEditExpenseViewModelTests` to stay under the 600-line lint cap.
 @MainActor
 struct AddEditExpenseViewModelAddFundsTests {
   // MARK: - Helpers
@@ -25,7 +23,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     spy.trackCalls.filter { $0.event == AnalyticsEvent.expenseEdited }
   }
 
-  // MARK: - 1. Add-mode sign on save (task 6.1)
+  // MARK: - 1. Add-mode sign on save
 
   @Test func addMode_save_isAddFundsFalse_insertsPositiveAmount() throws {
     let container = try TestModelContainer.make()
@@ -69,7 +67,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     #expect(props[AnalyticsProperty.isAddFunds] == "true")
   }
 
-  // MARK: - 2. Edit-mode init seeds isAddFunds from the existing row (task 6.2)
+  // MARK: - 2. Edit-mode init seeds isAddFunds from the existing row
 
   @Test func editMode_init_seedsIsAddFundsFromNegativeExpense() throws {
     let container = try TestModelContainer.make()
@@ -101,14 +99,14 @@ struct AddEditExpenseViewModelAddFundsTests {
     #expect(vm.amount == 4.50)
   }
 
-  // MARK: - 3. Edit-mode init does NOT fire the description seed (task 6.3)
+  // MARK: - 3. Edit-mode init does NOT fire the description seed
 
   @Test func editMode_init_doesNotSeedDefaultDescription() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let budget = makeBudget(in: context)
-    // Negative-amount expense with nil name: if the didSet fired, vm.name would become
-    // "Add funds". It must NOT fire on initializer-phase assignment.
+    // Negative-amount expense with nil name: the didSet must NOT fire on initializer-phase
+    // assignment (it would set vm.name = "Add funds").
     let expense = ExpenseItem(amount: -10, name: nil)
     expense.budget = budget
     context.insert(expense)
@@ -120,7 +118,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     #expect(vm.name == "") // empty, not "Add funds"
   }
 
-  // MARK: - 4. Edit-mode standalone toggle flip (tasks 6.4, 6.5)
+  // MARK: - 4. Edit-mode standalone toggle flip
 
   @Test func editMode_save_toggleFlipFalseToTrue_flipsSign() throws {
     let container = try TestModelContainer.make()
@@ -179,7 +177,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     #expect(edited.first?.properties?[AnalyticsProperty.isAddFunds] == "false")
   }
 
-  // MARK: - 5. Combined flip + amount change (task 6.6)
+  // MARK: - 5. Combined flip + amount change
 
   @Test func editMode_save_flipAndChangeAmount_persistsBothInOneWrite() throws {
     let container = try TestModelContainer.make()
@@ -203,7 +201,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     #expect(expenseEditedCalls(spy).count == 1)
   }
 
-  // MARK: - 6. Description seed cases (task 6.7)
+  // MARK: - 6. Description seed cases
 
   @Test func descriptionSeed_emptyName_toggleOn_seedsDefault() {
     let budget = Budget()
@@ -252,8 +250,7 @@ struct AddEditExpenseViewModelAddFundsTests {
     vm.isAddFunds = true
     #expect(vm.name == "Add funds")
     vm.isAddFunds = false
-    // Now name is non-empty ("Add funds"); second toggle-on should NOT re-seed
-    // anything different — it should leave the existing non-empty name alone.
+    // name is now "Add funds"; a second toggle-on must leave the non-empty name alone.
     vm.isAddFunds = true
 
     #expect(vm.name == "Add funds")

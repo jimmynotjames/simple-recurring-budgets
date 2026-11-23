@@ -4,15 +4,11 @@ import Testing
 
 // MARK: - BudgetRemainingSummary.accessibilityLabel
 
-/// Tests cover the 8 case paths of the static a11y label helper (4-case switch
-/// on `(isSpecificDates, isOverBudget)` × name/no-name prefix), plus the
-/// `remaining == 0` boundary and the negative-amount sign-flip. New cases
-/// added in `unify-inactive-budget-states` cover the `.preStart` and `.postEnd`
+/// Covers all 8 paths of the static a11y label helper (`(isSpecificDates, isOverBudget)` × name/no-name
+/// prefix), the `remaining == 0` boundary, the negative-amount sign flip, and the `.preStart`/`.postEnd`
 /// inactive reasons.
 ///
-/// Assertions are structural (prefix + substring) rather than full-string
-/// equality so they remain stable under copy tweaks and locale changes in the
-/// test environment.
+/// Assertions are structural (prefix + substring) so they stay stable under copy and locale changes.
 struct BudgetSummaryAccessibilityLabelTests {
   // MARK: - Recurring × under budget
 
@@ -195,9 +191,7 @@ struct BudgetSummaryAccessibilityLabelTests {
       currencyCode: "USD",
       currencyDisplay: .symbol
     )
-    // The body after the name prefix must not begin with a minus sign — the
-    // helper flips the sign so the announcement reads "$57.25 over budget…",
-    // not "-$57.25 over budget…".
+    // Body after the name prefix must not start with "-": the helper flips the sign ("$57.25 over budget…").
     let body = label.dropFirst("Foo, ".count)
     #expect(!body.hasPrefix("-"))
     #expect(body.contains("57"))
@@ -238,10 +232,8 @@ struct BudgetSummaryAccessibilityLabelTests {
       currencyDisplay: .symbol,
       inactiveReason: .preStart(startDate: startDate)
     )
-    // Without a budget name, the label must not begin with "<name>, ". The
-    // formatted date inside the body may contain ", " (e.g. "Jun 1, 2026"), so
-    // we cannot use `contains(", ")` as the assertion — check the prefix shape
-    // directly by confirming the first character is a digit / currency symbol.
+    // No name → label must not start with "<name>, ". The formatted date may contain ", " (e.g. "Jun 1, 2026"),
+    // so assert the first character is a digit/currency symbol instead of `contains(", ")`.
     let first = label.first ?? " "
     #expect(first.isNumber || first == "$" || first == "€" || first == "£")
     #expect(label.contains("starts"))
@@ -288,11 +280,8 @@ struct BudgetSummaryAccessibilityLabelTests {
 
   // MARK: - Active state (no inactive reason)
 
-  /// Verifies the "Active row is unaffected by inactive-state styling" scenario
-  /// from `budgets-screen` / `budget-detail-screen` deltas: when `inactiveReason`
-  /// is `nil`, the helper uses `remaining` (not `allocation`) and dispatches to
-  /// the existing on-budget recurring key — not to any `.preStart` / `.postEnd`
-  /// variant.
+  /// Active row (`inactiveReason == nil`) uses `remaining`, not `allocation`, and the on-budget
+  /// recurring key — never a `.preStart`/`.postEnd` variant.
   @Test func active_inactiveReasonIsNil_usesRemainingNotAllocation() {
     let label = BudgetRemainingSummary.accessibilityLabel(
       budgetName: "Groceries",
@@ -328,8 +317,7 @@ struct BudgetSummaryAccessibilityLabelTests {
       currencyDisplay: .symbol,
       inactiveReason: .paused(since: pausedSince)
     )
-    // Paused case reuses the existing on-budget recurring key; no separate
-    // paused-state suffix is introduced by `unify-inactive-budget-states`.
+    // Paused reuses the on-budget recurring key; no paused-specific suffix.
     #expect(label.contains("remaining"))
     #expect(label.contains("daily"))
     #expect(!label.contains("starts"))

@@ -10,23 +10,22 @@ struct BudgetDetailScreen {
     app.buttons["Budget options"]
   }
 
-  /// "Add expense to [name]" primary action button (visible when budget is active).
+  /// "Add expense to [name]" primary button (active budget).
   var addExpenseButton: XCUIElement {
     app.buttons["Add expense to \(budgetName)"]
   }
 
-  /// "Resume [name]" primary action button (visible when budget is paused).
+  /// "Resume [name]" primary button (paused budget).
   var resumeButton: XCUIElement {
     app.buttons["Resume \(budgetName)"]
   }
 
-  /// An expense row button whose accessibility label contains the given description text.
-  /// In BudgetDetailView, expense rows are navigable buttons (they push the edit expense form).
+  /// Expense row button (pushes the edit form) whose label contains `text`.
   func expenseRow(containing text: String) -> XCUIElement {
     app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", text)).firstMatch
   }
 
-  /// Opens the "Budget options" menu (ellipsis toolbar button).
+  /// Opens the "Budget options" (ellipsis) menu.
   func tapOptionsMenu() {
     budgetOptionsButton.tap()
   }

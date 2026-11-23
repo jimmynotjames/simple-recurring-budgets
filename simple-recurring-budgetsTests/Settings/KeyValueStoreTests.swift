@@ -2,10 +2,9 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-/// Covers the `NSUbiquitousKeyValueStore: KeyValueStore` conformance shim —
-/// specifically the `set(_:forKey:)` String overload, which must store the
-/// value so `object(forKey:)` reads it back. On the simulator the store acts
-/// as a local cache, so no iCloud account is required.
+/// The `NSUbiquitousKeyValueStore: KeyValueStore` shim's `set(_:forKey:)` String overload must
+/// store the value so `object(forKey:)` reads it back. The simulator store is a local cache,
+/// so no iCloud account is needed.
 @Suite("NSUbiquitousKeyValueStore KeyValueStore conformance")
 struct KeyValueStoreTests {
   @Test func stringSetter_roundTripsThroughObjectForKey() {

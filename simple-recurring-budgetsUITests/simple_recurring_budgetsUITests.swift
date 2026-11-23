@@ -20,4 +20,4 @@ final class simple_recurring_budgetsUITests: XCTestCase {
   }
 }
 
-// makeApp() is provided by UITestHelpers.swift (shared across all UI test files).
+// makeApp() is in UITestHelpers.swift.

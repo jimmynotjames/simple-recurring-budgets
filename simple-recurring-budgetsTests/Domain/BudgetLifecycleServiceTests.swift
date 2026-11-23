@@ -54,10 +54,8 @@ struct BudgetLifecycleResultTests {
     #expect(r1.pausedSince == d(2026, 4, 10))
   }
 
-  /// Locks in the service-seam contract: even when `now` is one minute after a mid-period
-  /// pause (same period as the pause), `BudgetLifecycleResult.lifecycleState` must already
-  /// be `.paused`. The snapshot-level moment-granular tests cover the math; this asserts the
-  /// adapter's pass-through is correct so view sites see the immediate flip.
+  /// One minute after a mid-period pause (same period), `lifecycleState` is already `.paused`.
+  /// Snapshot-level tests cover the math; this checks the adapter passes it through.
   @Test func result_lifecycleState_flipsPaused_immediately_onMidPeriodPause() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
@@ -68,7 +66,6 @@ struct BudgetLifecycleResultTests {
     pauseEvent.budget = budget; ctx.insert(pauseEvent)
     try ctx.save()
 
-    // 60 seconds after the pause moment — still inside the pause-action period.
     let oneMinuteAfter = pauseMoment.addingTimeInterval(60)
     let result = BudgetLifecycleService.result(for: budget, now: oneMinuteAfter, calendar: cal, weekStart: .sunday)
 
@@ -94,7 +91,6 @@ struct BudgetLifecycleResultTests {
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 14)
     let budget = makeBudget(allocation: 20, startDate: startDate, in: ctx)
-    // Prior period Apr 14: expense 18 → carry-over = 2
     let exp = ExpenseItem(amount: 18, date: d(2026, 4, 14, hour: 10))
     exp.budget = budget; ctx.insert(exp)
 
@@ -111,7 +107,7 @@ struct BudgetLifecycleResultTests {
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(startDate: startDate, in: ctx)
-    // Many prior periods with surplus carry-over, current period has expense 5
+    // Many prior periods build surplus carry-over; the current period spends 5.
     let currentExpense = ExpenseItem(amount: 5, date: d(2026, 4, 15, hour: 9))
     currentExpense.budget = budget; ctx.insert(currentExpense)
 
@@ -136,7 +132,6 @@ struct BudgetLifecycleResultTests {
   @Test func result_weeklyBudget_periodBoundaries() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
-    // Budget with Sunday start date → week runs Sun–Sat
     let startDate = d(2026, 4, 5) // Sunday
     let budget = makeBudget(period: .weekly, allocation: 100, startDate: startDate, in: ctx)
     let now = d(2026, 4, 12, hour: 1) // just after Sun Apr 12
@@ -161,10 +156,9 @@ struct BudgetLifecycleApplyAllocationEditTests {
     let now = d(2026, 4, 15, hour: 10)
     try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
-    // Should have original row (Apr 1 = 20) and a new row (Apr 15 = 30)
+    // Original row (Apr 1 = 20) plus a new row (Apr 15 = 30).
     #expect(budget.allocationChanges.count == 2)
     #expect(budget.lastModified == now)
-    // Snapshot should now use 30 for Apr 15
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal, weekStart: .sunday)
     #expect(snap.effectiveAllocation == 30)
   }
@@ -177,14 +171,12 @@ struct BudgetLifecycleApplyAllocationEditTests {
     try ctx.save()
 
     let now = d(2026, 4, 15, hour: 10)
-    // First edit
     try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 25, context: ctx, now: now, calendar: cal, weekStart: .sunday)
     let countAfterFirst = budget.allocationChanges.count
 
-    // Second edit in same period
+    // Second edit in the same period mutates the existing row.
     try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 35, context: ctx, now: now, calendar: cal, weekStart: .sunday)
 
-    // Should not have added a second row — mutated the existing one
     #expect(budget.allocationChanges.count == countAfterFirst)
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: now, calendar: cal, weekStart: .sunday)
     #expect(snap.effectiveAllocation == 35)
@@ -195,18 +187,14 @@ struct BudgetLifecycleApplyAllocationEditTests {
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(allocation: 20, startDate: startDate, in: ctx)
-    // Some prior period expenses
     let exp = ExpenseItem(amount: 5, date: d(2026, 4, 10, hour: 10))
     exp.budget = budget; ctx.insert(exp)
     try ctx.save()
 
-    // Edit on Apr 15
     try BudgetLifecycleService.applyAllocationEdit(budget, newAmount: 30, context: ctx, now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
 
-    // Apr 10's contribution should still use alloc 20
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 4, 15), calendar: cal, weekStart: .sunday)
-    // Walker: Apr 1–14 with alloc 20; Apr 10 had expense 5 → +15; rest +20 each
-    // Apr 1–9 = 9 × 20 = 180; Apr 10 = 15; Apr 11–14 = 4 × 20 = 80; total = 275
+    // Apr 1–14 still at 20: 9 × 20 + (20 − 5) + 4 × 20 = 275
     #expect(snap.carryOver == 275)
     #expect(snap.effectiveAllocation == 30)
   }
@@ -286,7 +274,6 @@ struct BudgetLifecycleResetCarryOverTests {
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(allocation: 20, startDate: startDate, in: ctx)
-    // Lots of prior period expenses
     for day in 1 ... 13 {
       let exp = ExpenseItem(amount: 18, date: d(2026, 4, day, hour: 10))
       exp.budget = budget; ctx.insert(exp)
@@ -295,9 +282,7 @@ struct BudgetLifecycleResetCarryOverTests {
 
     try BudgetLifecycleService.resetCarryOver(budget, context: ctx, now: d(2026, 4, 14))
 
-    // Snapshot now on Apr 14 (the reset day): walk window = max(Apr 1, Apr 14) = Apr 14 00:00
-    // Apr 14 period is [Apr 14, Apr 15). It is the current period → walker goes up to Apr 14 start.
-    // No completed period in the window since Apr 14 is the current period.
+    // On the reset day the walk window starts at Apr 14, the current period → no completed periods.
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 14), calendar: cal, weekStart: .sunday)
     #expect(snap.carryOver == 0)
   }
@@ -371,7 +356,6 @@ struct BudgetLifecyclePauseTests {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
-    // Pre-pause the budget
     let ev = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10))
     ev.budget = budget; ctx.insert(ev)
     try ctx.save()
@@ -403,7 +387,6 @@ struct BudgetLifecycleResumeTests {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
-    // Pre-pause the budget
     let ev = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10))
     ev.budget = budget; ctx.insert(ev)
     try ctx.save()
@@ -450,7 +433,7 @@ struct BudgetLifecycleResumeTests {
     let ctx = ModelContext(container)
     let budget = makeBudget(startDate: d(2026, 4, 1), in: ctx)
     budget.endDate = d(2026, 4, 10)
-    // Pre-pause the budget (but it's post-endDate so still postEnd)
+    // Paused, but past endDate, so the state is still postEnd.
     let ev = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 8))
     ev.budget = budget; ctx.insert(ev)
     try ctx.save()
@@ -495,9 +478,8 @@ struct BudgetLifecyclePausedSinceTests {
     #expect(result.pausedSince == d(2026, 4, 15))
   }
 
-  /// Regression: when a future-dated `.resume` follows a current-active `.pause`,
-  /// the unfiltered walker used to return `nil` for `pausedSince` while
-  /// `isPausedAtMoment(now)` returned `true`. Both must now agree.
+  /// A future-dated `.resume` after an active `.pause` must not null `pausedSince`;
+  /// it has to agree with `isPausedAtMoment(now)`.
   @Test func result_pausedSince_ignoresFutureResume() throws {
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
@@ -509,7 +491,7 @@ struct BudgetLifecyclePausedSinceTests {
     }
     try ctx.save()
 
-    // `now` falls strictly between the pause and the future resume.
+    // `now` is strictly between the pause and the future resume.
     let result = BudgetLifecycleService.result(for: budget, now: d(2026, 4, 20), calendar: cal, weekStart: .sunday)
 
     #expect(result.lifecycleState == .paused)

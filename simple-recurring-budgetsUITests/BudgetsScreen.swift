@@ -17,14 +17,13 @@ struct BudgetsScreen {
     app.buttons["Edit"]
   }
 
-  /// The budget row navigation button for the named budget. In a SwiftUI List,
-  /// NavigationLink rows appear as buttons whose accessibility label begins with
-  /// the budget name followed by a comma-separated summary.
+  /// Row navigation button for the named budget. List NavigationLink rows are buttons whose
+  /// label starts with the budget name, then a comma-separated summary.
   func budgetRow(named name: String) -> XCUIElement {
     app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", name)).firstMatch
   }
 
-  /// The inline "+" shortcut button on a budget row that opens the Add Expense sheet.
+  /// Row "+" shortcut that opens the Add Expense sheet.
   func addExpenseButton(for name: String) -> XCUIElement {
     app.buttons["Add expense for \(name)"]
   }
@@ -37,7 +36,7 @@ struct BudgetsScreen {
     settingsButton.tap()
   }
 
-  /// Taps a budget's navigation button to push BudgetDetailView.
+  /// Pushes BudgetDetailView.
   func tapBudget(named name: String) {
     budgetRow(named: name).tap()
   }

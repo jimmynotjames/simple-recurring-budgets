@@ -10,7 +10,7 @@ private func d(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0, minute: Int
   return Calendar(identifier: .gregorian).date(from: comps)!
 }
 
-// MARK: - isPausedAtMoment contract (F-7.06 moment-granular UI classifier)
+// MARK: - isPausedAtMoment contract (moment-granular UI classifier)
 
 struct IsPausedAtMomentTests {
   @Test func emptyHistory_returnsFalse() {
@@ -29,9 +29,8 @@ struct IsPausedAtMomentTests {
   }
 
   @Test func pauseExactlyAtNow_returnsFalse() {
-    // Boundary: effectiveDate == now → strict less-than → still active at the exact
-    // pause moment. The transition happens at the next instant, which matches the
-    // math classifier (pause-action period is itself active).
+    // effectiveDate == now: the comparison is strict `<`, so still active at the exact pause
+    // moment (matches the math classifier, where the pause-action period is active).
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 14))
     #expect(!isPausedAtMoment(now: d(2026, 4, 10, hour: 14), sortedLifecycleEvents: [pause]))
   }

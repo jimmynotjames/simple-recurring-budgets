@@ -1,7 +1,7 @@
 @testable import simple_recurring_budgets
 import Testing
 
-/// §18.1 test contract #1 — ConsentJurisdiction resolution.
+/// ConsentJurisdiction resolution.
 @Suite("ConsentJurisdiction — §18.1 #1")
 struct ConsentJurisdictionTests {
   // MARK: - Required jurisdictions (should all resolve to .required)

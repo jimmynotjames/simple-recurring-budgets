@@ -3,7 +3,7 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-// MARK: - Currency display picker → AppSettings write path (task 9.6)
+// MARK: - Currency display picker → AppSettings write path
 
 @Suite("SettingsView — currency display picker")
 struct SettingsCurrencyPickerTests {
@@ -31,11 +31,10 @@ struct SettingsCurrencyPickerTests {
   }
 }
 
-// MARK: - Week-start confirmation: cancel discards, confirm commits (task 9.7)
+// MARK: - Week-start confirmation: cancel discards, confirm commits
 
-/// Drives the production `WeekStartConfirmation` state machine — the same type
-/// `SettingsView`'s picker binding and alert buttons call — rather than mirroring
-/// its logic in the test body (test-coverage-audit-2026-06-10 D2).
+/// Drives the production `WeekStartConfirmation` state machine (the type `SettingsView`'s picker binding
+/// and alert buttons call) rather than mirroring its logic in the test body.
 @Suite("SettingsView — week-start confirmation")
 struct SettingsWeekStartConfirmationTests {
   /// Selecting a *different* day sets pending (does not immediately commit).
@@ -112,18 +111,14 @@ struct SettingsWeekStartConfirmationTests {
   }
 }
 
-// MARK: - Notification-driven SyncStatus.accountStatus update path (W1 / Decision 10d)
+// MARK: - Notification-driven SyncStatus.accountStatus update path
 
-/// Exercises the code path that `SettingsView.observeSingleNotification` drives:
-/// a posted iCloud-change notification causes `loadICloudStatus()` to re-query
-/// the account status and write the result into `SyncStatus.accountStatus`.
+/// Exercises the path `SettingsView.observeSingleNotification` drives: a posted iCloud-change
+/// notification makes `loadICloudStatus()` re-query and write `SyncStatus.accountStatus`.
 ///
-/// These tests verify the derivation half: that mutations to
-/// `SyncStatus.accountStatus` correctly propagate through `rowState`, which is
-/// the observable surface that `SettingsView`'s switch reads. The query +
-/// assignment half (previously untestable because `CKContainer` cannot be
-/// stubbed) is now covered by `ICloudStatusLoaderTests` through the loader's
-/// injected provider (test-coverage-audit-2026-06-10 I2).
+/// These tests cover the derivation half: `SyncStatus.accountStatus` changes propagate through
+/// `rowState`, the surface `SettingsView`'s switch reads. The query + assignment half is covered by
+/// `ICloudStatusLoaderTests` via the loader's injected provider.
 @Suite("SettingsView — iCloud notification-driven accountStatus update")
 struct SettingsICloudNotificationTests {
   /// Simulates the assignment that `loadICloudStatus` performs after a

@@ -68,8 +68,8 @@ struct DecimalInputFieldBeginEditingTests {
     )
   }
 
-  /// The begin-editing hook lets the budget screen clear the Name field's `@FocusState` so the
-  /// iPadOS 26 `.decimalPad` popover anchors to the amount field, not the stale Name field (issue #126).
+  /// The begin-editing hook lets the budget screen clear the Name field's `@FocusState` so the iPadOS 26
+  /// `.decimalPad` popover anchors to the amount field, not the stale Name field.
   @Test func beginEditing_invokesHandler() {
     let coordinator = makeCoordinator()
     var fired = false

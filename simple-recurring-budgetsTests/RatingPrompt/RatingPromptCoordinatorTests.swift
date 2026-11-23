@@ -5,7 +5,7 @@ import Testing
 @Suite("Rating prompt — eligibility & request (F-6.03)")
 @MainActor
 struct RatingPromptCoordinatorTests {
-  // A fixed install date and a deterministic UTC calendar so day math is stable.
+  // Fixed install date and UTC calendar keep day math deterministic.
   static let installDate = Date(timeIntervalSinceReferenceDate: 600_000_000)
   static var utcCalendar: Calendar {
     var cal = Calendar(identifier: .gregorian)
@@ -13,15 +13,14 @@ struct RatingPromptCoordinatorTests {
     return cal
   }
 
-  /// Bundles the coordinator under test with its state and spy for assertions.
+  /// Coordinator under test with its state and spy.
   private struct Harness {
     let coordinator: RatingPromptCoordinator
     let state: RatingPromptState
     let spy: SpyAnalyticsClient
   }
 
-  /// Builds a coordinator over a fresh in-memory store seeded with `installDate`,
-  /// plus the spy analytics client for assertions.
+  /// Coordinator over a fresh in-memory store seeded with `installDate`, with a spy analytics client.
   private func makeHarness() -> Harness {
     let store = MockKeyValueStore()
     store.seedExternal(
@@ -40,8 +39,7 @@ struct RatingPromptCoordinatorTests {
     Self.installDate.addingTimeInterval(Double(offset) * 86400)
   }
 
-  /// Drives the coordinator to the eligibility threshold: 10 logs across 3 distinct
-  /// days, all on an active, non-deficit budget. The final log is on day 12.
+  /// Drives to eligibility: 10 logs across 3 distinct days on an active, non-deficit budget; last log day 12.
   @discardableResult
   private func driveToEligible(
     _ coordinator: RatingPromptCoordinator,
@@ -104,8 +102,8 @@ struct RatingPromptCoordinatorTests {
 
   @Test("rating-prompt people properties fire through the AnalyticsClient protocol")
   func peoplePropertiesObservableThroughProtocol() {
-    // Pre-protocol-widening these went through an `as? MixpanelAnalyticsClient`
-    // downcast and were unobservable under the spy (audit 2026-06-10 §4.3).
+    // They must go through the protocol, not an `as? MixpanelAnalyticsClient` downcast,
+    // or the spy can't observe them.
     let harness = makeHarness()
     let eligibleAt = driveToEligible(harness.coordinator)
     #expect(harness.spy.ratingPromptFirstEligibleDates == [eligibleAt])
@@ -116,7 +114,7 @@ struct RatingPromptCoordinatorTests {
   @Test("a deficit-producing log is never eligible")
   func deficitLogNotEligible() {
     let harness = makeHarness()
-    // 9 qualifying logs to clear count/day thresholds, then a deficit log.
+    // 9 qualifying logs clear the count/day thresholds; the 10th is a deficit log.
     for _ in 0 ..< 8 {
       harness.coordinator.recordExpenseLogged(isActiveBudget: true, remainingIsNonNegative: true, now: day(10))
     }
@@ -140,7 +138,7 @@ struct RatingPromptCoordinatorTests {
   @Test("below the lifetime-count threshold is not eligible")
   func belowCountThresholdNotEligible() {
     let harness = makeHarness()
-    // 3 distinct days, install age fine, but only 3 logs (< 10).
+    // 3 distinct days and sufficient install age, but only 3 logs (< 10).
     harness.coordinator.recordExpenseLogged(isActiveBudget: true, remainingIsNonNegative: true, now: day(10))
     harness.coordinator.recordExpenseLogged(isActiveBudget: true, remainingIsNonNegative: true, now: day(11))
     harness.coordinator.recordExpenseLogged(isActiveBudget: true, remainingIsNonNegative: true, now: day(12))
@@ -150,7 +148,7 @@ struct RatingPromptCoordinatorTests {
   @Test("install age below 7 days is not eligible")
   func belowInstallAgeNotEligible() {
     let harness = makeHarness()
-    // 10 logs but all within the first few days post-install.
+    // 10 logs, all within the first few days after install.
     for i in 0 ..< 10 {
       harness.coordinator.recordExpenseLogged(
         isActiveBudget: true, remainingIsNonNegative: true, now: day(i % 3)
@@ -179,7 +177,7 @@ struct RatingPromptCoordinatorTests {
     driveToEligible(harness.coordinator, appVersion: "1.0")
     harness.coordinator.consumePendingRequest(now: day(12), appVersion: "1.0")
 
-    // Same version, another eligible log: not pending again.
+    // Same version: not pending again.
     harness.coordinator.recordExpenseLogged(
       isActiveBudget: true, remainingIsNonNegative: true, now: day(13), appVersion: "1.0"
     )
@@ -211,15 +209,14 @@ struct RatingPromptCoordinatorTests {
     #expect(!harness.spy.trackedEvents.contains("rating_prompt_resolved"))
   }
 
-  // MARK: - Presenter gate (W1)
+  // MARK: - Presenter gate
 
   @Test("presenter requests only when pending AND no sheet AND scene active")
   func presenterGate() {
-    // The one true case.
     #expect(RatingPromptCoordinator.shouldRequestReview(
       isRequestPending: true, sheetIsPresented: false, sceneIsActive: true
     ))
-    // A sheet is still up (the Add Expense sheet hasn't dismissed) → wait.
+    // A sheet is still up → wait.
     #expect(!RatingPromptCoordinator.shouldRequestReview(
       isRequestPending: true, sheetIsPresented: true, sceneIsActive: true
     ))
@@ -233,10 +230,10 @@ struct RatingPromptCoordinatorTests {
     ))
   }
 
-  // MARK: - Consent independence (S1, S2)
+  // MARK: - Consent independence
 
-  /// Coordinator wired to an opted-out analytics client (drops every event),
-  /// mirroring `MixpanelAnalyticsClient`'s `guard isOptedIn()`.
+  /// Coordinator wired to an opted-out analytics client that drops every event
+  /// (like `MixpanelAnalyticsClient`'s `guard isOptedIn()`).
   private struct OptedOutHarness {
     let coordinator: RatingPromptCoordinator
     let state: RatingPromptState
@@ -275,10 +272,8 @@ struct RatingPromptCoordinatorTests {
   }
 }
 
-/// Test double that mirrors `MixpanelAnalyticsClient`'s consent gate: events are
-/// recorded only when opted in, dropped otherwise. Used for the S1/S2 contracts.
-/// `@MainActor` so the mutable buffer is actor-protected (satisfies `Sendable`),
-/// matching `SpyAnalyticsClient`.
+/// Mirrors `MixpanelAnalyticsClient`'s consent gate: records events only when opted in.
+/// `@MainActor` protects the mutable buffer (satisfies `Sendable`), like `SpyAnalyticsClient`.
 @MainActor
 private final class ConsentGatedSpy: AnalyticsClient {
   let optedIn: Bool

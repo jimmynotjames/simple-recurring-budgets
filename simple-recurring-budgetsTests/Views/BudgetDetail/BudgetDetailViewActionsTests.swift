@@ -157,7 +157,7 @@ struct DeleteExpenseLastModifiedTests {
     let e = ExpenseItem(amount: 5); e.budget = budget; context.insert(e)
     try context.save()
 
-    // Simulate the delete with lastModified bump (as done by BudgetDetailView+ExpenseSection)
+    // Mirrors BudgetDetailView+ExpenseSection's delete + lastModified bump
     budget.lastModified = Date()
     context.delete(e)
     try context.save()
@@ -226,9 +226,8 @@ private func utcDate(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0) -> Da
 }
 
 struct PauseResumeToolbarVisibilityTests {
-  // Tests verify the showPauseResumeItem / isPaused computed properties driving the toolbar item,
-  // exercised via BudgetLifecycleService.pauseBudget / resumeBudget eligibility, which is the
-  // canonical source of truth for the view's isPostEnd / isSpecificDates gates.
+  // Drives showPauseResumeItem / isPaused via BudgetLifecycleService.pauseBudget / resumeBudget
+  // eligibility, the source of truth for the view's isPostEnd / isSpecificDates gates.
 
   @Test func pauseBudget_rejected_forSpecificDates_confirmsToolbarItemHidden() throws {
     let container = try TestModelContainer.make()
@@ -240,7 +239,7 @@ struct PauseResumeToolbarVisibilityTests {
     change.budget = b; ctx.insert(b); ctx.insert(change)
     try ctx.save()
 
-    // Service rejects, confirming the toolbar item must be hidden for this budget type.
+    // Service rejects → toolbar item hidden for this budget type.
     let result = try BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15), weekStart: .sunday)
     #expect(result == false)
     #expect(b.lifecycleEvents.isEmpty)
@@ -256,7 +255,7 @@ struct PauseResumeToolbarVisibilityTests {
     change.budget = b; ctx.insert(b); ctx.insert(change)
     try ctx.save()
 
-    // now > endDate → service rejects, confirming toolbar item must be hidden.
+    // now > endDate → service rejects (toolbar item hidden).
     let result = try BudgetLifecycleService.pauseBudget(b, context: ctx, now: utcDate(2026, 4, 15), weekStart: .sunday)
     #expect(result == false)
     #expect(b.lifecycleEvents.isEmpty)
@@ -316,11 +315,8 @@ struct PauseResumeToolbarVisibilityTests {
 // MARK: - Resume caption copy (pause-immediate-feedback change)
 
 struct ResumeCaptionCopyTests {
-  /// Lock in the source-string change "Resume to log expenses" → "Resume to log new expenses".
-  /// The caption is formatted with the pausedSince date; we don't care about the date format
-  /// here — just that the trailing clause acknowledges backdated entries remain available
-  /// (per F-7.06's two-clock model: Detail screen primary slot swaps, but backdated entry
-  /// via the Budgets-list `+` is still possible).
+  /// Locks in the caption copy "Resume to log new expenses": the trailing clause says backdated
+  /// entries remain available (via the Budgets-list `+`). The date format is not asserted.
   @Test func resumeCaptionFormat_includesLogNewExpenses_inEnglish() {
     let formatted = String(
       localized: "budgetDetail.action.resume.caption.format",

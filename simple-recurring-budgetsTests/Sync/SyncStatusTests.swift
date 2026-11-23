@@ -66,10 +66,9 @@ struct SyncStatusRowStateTests {
 
   @Test @MainActor
   func containerBackingChange_updatesRowState() {
-    // Container-failure Retry recovery (general-code-audit-2026-06-11 L1): the
-    // App seeds a placeholder `.localFallback` on the failure path, then writes
-    // the retry's resolved backing. The row must follow the corrected backing —
-    // here from `paused` (local + signed in) to `available`.
+    // Container-failure Retry: the App seeds a placeholder `.localFallback`, then writes the
+    // retry's resolved backing. The row must follow it, here from `paused` (local + signed in)
+    // to `available`.
     let s = SyncStatus(containerBacking: .localFallback, accountStatus: .available)
     #expect(s.rowState == .paused)
 

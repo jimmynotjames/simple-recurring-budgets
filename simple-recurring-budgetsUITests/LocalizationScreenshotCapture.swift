@@ -1,28 +1,28 @@
 import XCTest
 
-/// **Ad-hoc** localized-layout screenshot capture — NOT part of `make test`.
+/// Ad-hoc localized-layout screenshot capture; not part of `make test`.
 ///
-/// Drives the app in 13 locales at forced `.xxxLarge` and saves a screenshot of each key screen as a
-/// `.keepAlways` attachment named `<lang>__<screen>`. It makes **no layout assertions** — it never
-/// "fails" on truncation; a human/Claude inspects the screenshots (see
-/// `scripts/translation-accessibility-size-check/`). Runs only when the runner `-only-testing`s it.
+/// Drives the app in 13 locales at forced `.xxxLarge` and attaches a `.keepAlways` screenshot of
+/// each key screen named `<lang>__<screen>`. It makes no layout assertions; a human/Claude inspects
+/// the screenshots (see `scripts/translation-accessibility-size-check/`). Runs only when the
+/// runner `-only-testing`s it.
 ///
-/// Navigation is locale-invariant (accessibility identifiers + `cells.firstMatch`); size is forced via
-/// the `FORCE_DYNAMIC_TYPE` env hook (the `-UIPreferredContentSizeCategoryName` launch arg was flaky on
-/// iOS 26.x). One test method per language so xcodebuild fans them across many simulator clones.
+/// Navigation is locale-invariant (accessibility identifiers + `cells.firstMatch`). Size is forced
+/// via the `FORCE_DYNAMIC_TYPE` env hook because the `-UIPreferredContentSizeCategoryName` launch
+/// arg was flaky on iOS 26.x. One test method per language so xcodebuild fans them across
+/// simulator clones.
 ///
-/// **Depends on existing code (don't break these without updating this capture):**
-/// - `UITestHelpers.makeApp()` / `makeApp(seedBudgets:)` and the `SEED_BUDGETS` launch-env contract
-///   (comma-delimited names → one monthly $100 budget each). The comma delimiter is why `longName`
-///   below must not contain a comma.
-/// - `InMemoryModelContainer.makeForUITests()` (DEBUG, gated by `IS_TESTING`) — parses `SEED_BUDGETS`.
-/// - Four `.accessibilityIdentifier(...)` handles in the production views, which this is currently the
-///   *only* consumer of: `toolbar.settings.label`, `toolbar.addBudget.accessibilityLabel`,
-///   `budget.row.addExpense.accessibilityLabel` (BudgetsView), `budgetDetail.menu.accessibilityLabel`
-///   (BudgetDetailView). Removing/renaming them silently breaks navigation here.
-/// - `TestDynamicTypeOverride` (the `FORCE_DYNAMIC_TYPE` hook) applied at the app root.
-/// - The runner `scripts/translation-accessibility-size-check/run.sh` (`-only-testing`s this class;
-///   relies on the `<lang>__<screen>` attachment names and `scripts/_destination.sh` / `build.sh`).
+/// Depends on (update here if these change):
+/// - `makeApp(seedBudgets:)` and the `SEED_BUDGETS` env contract (comma-delimited names, one
+///   monthly $100 budget each); hence `longName` must not contain a comma.
+/// - `InMemoryModelContainer.makeForUITests()` (DEBUG, gated by `IS_TESTING`), which parses it.
+/// - Four production `.accessibilityIdentifier` handles, for which this is currently the only
+///   consumer: `toolbar.settings.label`, `toolbar.addBudget.accessibilityLabel`,
+///   `budget.row.addExpense.accessibilityLabel`, `budgetDetail.menu.accessibilityLabel`.
+///   Renaming them silently breaks navigation here.
+/// - `TestDynamicTypeOverride` (the `FORCE_DYNAMIC_TYPE` hook) at the app root.
+/// - `scripts/translation-accessibility-size-check/run.sh`, which relies on the
+///   `<lang>__<screen>` attachment names.
 final class LocalizationScreenshotCapture: XCTestCase {
   override func setUpWithError() throws {
     continueAfterFailure = true
@@ -68,7 +68,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
     captureAll("hi")
   }
 
-  /// 11-locale App Store expansion (2026-03-31): ur is RTL/Nastaliq, ta + bn are new Indic scripts.
+  /// ur is RTL/Nastaliq; ta and bn are new Indic scripts.
   @MainActor func testCaptureUrdu() {
     captureAll("ur")
   }
@@ -81,9 +81,9 @@ final class LocalizationScreenshotCapture: XCTestCase {
     captureAll("bn")
   }
 
-  // MARK: - Per-language sweep (7 screens; 8 shots — Add Budget captures top + scrolled)
+  // MARK: - Per-language sweep (7 screens; 8 shots: Add Budget captures top + scrolled)
 
-  /// No comma: SEED_BUDGETS is comma-delimited, so a comma here would split this into two budgets.
+  /// No comma: SEED_BUDGETS is comma-delimited, so a comma would split this into two budgets.
   private let longName = "Weekday Coffee & Breakfast Pastry Treats"
 
   @MainActor private func captureAll(_ lang: String) {
@@ -112,10 +112,9 @@ final class LocalizationScreenshotCapture: XCTestCase {
 
   // MARK: - Add Budget (special-cased: keyboard + tall form)
 
-  /// The Add Budget sheet auto-focuses the name field, raising the keyboard over the lower form —
-  /// which hides the period selector (notably the long Finnish "Kahden viikon välein" chip) and the
-  /// schedule / carry-over cards below it. At xxxLarge the whole form is taller than one screen, so
-  /// this captures **two** shots — top, then scrolled — after dismissing the keyboard.
+  /// The auto-focused name field raises a keyboard that hides the period selector (notably the long
+  /// Finnish "Kahden viikon välein" chip) and the cards below it. At xxxLarge the form is taller
+  /// than one screen, so this dismisses the keyboard and captures two shots: top, then scrolled.
   @MainActor private func captureAddBudget(_ lang: String) {
     let app = launch(lang, seed: [])
     guard tap(app, "toolbar.addBudget.accessibilityLabel"),
@@ -134,7 +133,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
 
   // MARK: - Helpers
 
-  /// Tap a control by its accessibility identifier (locale-invariant). Returns false if not found.
+  /// Taps a button by accessibility identifier (locale-invariant); `false` if not found.
   @MainActor private func tap(_ app: XCUIApplication, _ identifier: String) -> Bool {
     let element = app.buttons[identifier].firstMatch
     guard element.waitForExistence(timeout: 8) else { return false }
@@ -142,22 +141,19 @@ final class LocalizationScreenshotCapture: XCTestCase {
     return true
   }
 
-  /// Dismiss the auto-focused name-field keyboard by **tapping the selected period chip**. Tapping a
-  /// period chip ends editing (dismisses the keyboard) and re-selecting the already-selected one leaves
-  /// the form state unchanged. Two things make this the right move here:
-  /// - A **tap** (not a downward drag) can't trigger the sheet's pull-to-dismiss, which closed the whole
-  ///   sheet when we tried `.scrollDismissesKeyboard`-style drags.
-  /// - The chips have **no** `.accessibilityIdentifier` (we're not changing production), so we tap the
-  ///   first chip's on-screen location — period card, row 1, left column — which sits above the keyboard.
-  /// The coordinate is stable: the period card is the 3rd card and the name/allocation cards above it are
-  /// fixed-height (label + field). If it ever misses, the keyboard simply stays and the shot shows it.
+  /// Dismisses the auto-focused keyboard by tapping the selected period chip: tapping a chip ends
+  /// editing, and re-selecting the selected one leaves the form unchanged.
+  /// - A tap, not a downward drag: drags triggered the sheet's pull-to-dismiss and closed the sheet.
+  /// - The chips have no `.accessibilityIdentifier`, so this taps the first chip's screen location
+  ///   (period card, row 1, left column), which sits above the keyboard. The coordinate is stable
+  ///   because the cards above it are fixed-height. If it misses, the keyboard stays in the shot.
   @MainActor private func dismissKeyboard(_ app: XCUIApplication) {
     guard app.keyboards.firstMatch.waitForExistence(timeout: 3) else { return }
     app.coordinate(withNormalizedOffset: CGVector(dx: 0.28, dy: 0.55)).tap()
     _ = app.keyboards.firstMatch.waitForNonExistence(timeout: 2) // let it animate out
   }
 
-  /// Launch in `lang` at forced xxxLarge with the given seed.
+  /// Launches in `lang` at forced xxxLarge with the given seed.
   @MainActor private func launch(_ lang: String, seed: [String]) -> XCUIApplication {
     let app = seed.isEmpty ? makeApp() : makeApp(seedBudgets: seed)
     app.launchEnvironment["FORCE_DYNAMIC_TYPE"] = "xxxLarge"
@@ -166,7 +162,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
     return app
   }
 
-  /// Attach a `.keepAlways` screenshot named `<lang>__<screen>` (run.sh renames by this).
+  /// Attaches a `.keepAlways` screenshot named `<lang>__<screen>` (run.sh renames by this).
   @MainActor private func attach(_ app: XCUIApplication, _ name: String) {
     let attachment = XCTAttachment(screenshot: app.screenshot())
     attachment.name = name
@@ -174,7 +170,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
     add(attachment)
   }
 
-  /// Launch in `lang` at forced xxxLarge with the given seed, navigate, and attach a screenshot.
+  /// Launches, navigates, and attaches a screenshot; fails if `navigate` returns `false`.
   @MainActor private func capture(
     _ screen: String,
     _ lang: String,
@@ -195,7 +191,7 @@ final class LocalizationScreenshotCapture: XCTestCase {
     ["de": "de_DE", "fi": "fi_FI", "ru": "ru_RU", "th": "th_TH",
      "vi": "vi_VN", "ar": "ar_SA", "he": "he_IL",
      "ja": "ja_JP", "zh-Hans": "zh_CN", "hi": "hi_IN",
-     // 11 locales added 2026-03-31; region matches the App Store storefront.
+     // Region matches the App Store storefront.
      "bn": "bn_BD", "gu": "gu_IN", "kn": "kn_IN", "ml": "ml_IN", "mr": "mr_IN",
      "or": "or_IN", "pa": "pa_IN", "sl": "sl_SI", "ta": "ta_IN", "te": "te_IN",
      "ur": "ur_PK"][lang] ?? "\(lang)_\(lang.uppercased())"

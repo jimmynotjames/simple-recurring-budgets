@@ -2,17 +2,13 @@ import Foundation
 @testable import simple_recurring_budgets
 import SwiftData
 
-/// Fixture harness for SwiftData schema-migration tests
-/// (test-coverage-audit-2026-06-10 B2).
-///
-/// Pattern: write a store with the *source* schema at a temp URL, release the
-/// container, then re-open the same URL through `BudgetMigrationPlan` with the
-/// *current* schema and assert the rows survived. While `stages` is empty the
-/// round-trip is a sanity check; when SchemaV2 lands, its migration test
-/// copies this shape with `writeSchemaV1Fixture` as the "old store" writer.
+/// Fixture harness for SwiftData schema-migration tests: write a store with the *source*
+/// schema at a temp URL, release the container, re-open the URL through `BudgetMigrationPlan`
+/// with the *current* schema, and assert the rows survived. While `stages` is empty this is
+/// a round-trip sanity check; a SchemaV2 test copies this shape with `writeSchemaV1Fixture`
+/// as the old-store writer.
 enum MigrationTestSupport {
-  /// Runs `body` with a store URL inside a fresh temp directory; removes the
-  /// directory (and SwiftData's -wal/-shm siblings with it) afterwards.
+  /// Runs `body` with a store URL in a fresh temp directory, removed afterwards (with -wal/-shm).
   static func withTemporaryStoreURL<T>(_ body: (URL) throws -> T) throws -> T {
     let dir = FileManager.default.temporaryDirectory
       .appendingPathComponent("migration-test-\(UUID().uuidString)", isDirectory: true)
@@ -21,9 +17,8 @@ enum MigrationTestSupport {
     return try body(dir.appendingPathComponent("store.sqlite"))
   }
 
-  /// Writes a SchemaV1 store at `url` containing one budget with one expense,
-  /// one allocation change, and one lifecycle event, then releases the
-  /// container so the file can be re-opened.
+  /// Writes a SchemaV1 store at `url` (one budget with one expense, allocation change, and
+  /// lifecycle event), then releases the container so the file can be re-opened.
   static func writeSchemaV1Fixture(at url: URL, now: Date = Date()) throws {
     let container = try makeContainer(at: url)
     let context = ModelContext(container)
@@ -48,9 +43,8 @@ enum MigrationTestSupport {
     // `container` goes out of scope here, releasing the file handles.
   }
 
-  /// Opens the store at `url` through `BudgetMigrationPlan` against the
-  /// current schema — the exact configuration `ProductionContainerFactory`
-  /// uses, minus CloudKit.
+  /// Opens the store at `url` through `BudgetMigrationPlan` with the current schema, as
+  /// `ProductionContainerFactory` does minus CloudKit.
   static func openThroughMigrationPlan(at url: URL) throws -> ModelContainer {
     try makeContainer(at: url)
   }

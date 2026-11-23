@@ -36,13 +36,13 @@ struct AllocationInEffectTests {
 
   @Test func noEligibleRow_fallsBackToEarliest() {
     let history = [change(from: d(2026, 4, 10), amount: 30)]
-    // Query date is before the only row
+    // Query date precedes the only row.
     #expect(allocationInEffect(at: d(2026, 4, 5), sortedHistory: history) == 30)
   }
 
   @Test func tieOnEffectiveFrom_laterLastModifiedWins() {
-    // Input must be pre-sorted by (effectiveFrom, lastModified); the later row sorts last
-    // and wins by the "last entry with effectiveFrom <= date" rule.
+    // Input must be pre-sorted by (effectiveFrom, lastModified); the later row sorts last and
+    // wins ("last entry with effectiveFrom <= date").
     let earlier = change(from: d(2026, 4, 10), amount: 20, lastModified: d(2026, 4, 10))
     let later = change(from: d(2026, 4, 10), amount: 25, lastModified: d(2026, 4, 11))
     let history = [earlier, later]
@@ -54,7 +54,7 @@ struct AllocationInEffectTests {
   }
 
   @Test func manyRows_picksCorrectRowForEachQuery() {
-    // Exercise a budget that's had several allocation edits over time.
+    // Several allocation edits over time.
     let history = [
       change(from: d(2026, 1, 1), amount: 100),
       change(from: d(2026, 2, 1), amount: 150),

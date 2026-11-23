@@ -3,14 +3,14 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Tests for the Schedule disclosure / per-period `startDate` / `endDate` semantics
-/// on `AddEditBudgetViewModel` for recurring period types (F-7.05 + F-7.07).
+/// Schedule disclosure and per-period `startDate`/`endDate` semantics on `AddEditBudgetViewModel`
+/// for recurring period types (F-7.05, F-7.07).
 ///
-/// Specific-dates behaviour is exercised in the original `AddEditBudgetViewModelTests`;
-/// this suite covers recurring-only paths and the period-change re-anchoring rule.
+/// Specific-dates behavior is covered in `AddEditBudgetViewModelTests`; this suite covers
+/// recurring-only paths and the period-change re-anchoring rule.
 @MainActor
 struct AddEditBudgetViewModelScheduleTests {
-  // MARK: - Add-mode init pre-fill (task 3.1)
+  // MARK: - Add-mode init pre-fill
 
   @Test func addInit_preFillsStartDateForDefaultDaily() {
     let vm = AddEditBudgetViewModel(settings: AppSettings())
@@ -20,9 +20,8 @@ struct AddEditBudgetViewModelScheduleTests {
   }
 
   @Test func addInit_capturesWeekStartDay() {
-    // `weekStartDay` is private but observable via the re-anchoring side effect:
-    // switching to weekly should land on the captured weekStartDay's most-recent
-    // anchor, not on whatever AppSettings reads at that moment.
+    // `weekStartDay` is private; observe it via re-anchoring: switching to weekly lands on the
+    // captured weekStartDay's most-recent anchor, not the current AppSettings value.
     let store = MockKeyValueStore()
     store.set(Int64(Weekday.monday.rawValue), forKey: AppSettings.weekStartDayKey)
     let settings = AppSettings(store: store)
@@ -37,10 +36,8 @@ struct AddEditBudgetViewModelScheduleTests {
   }
 
   @Test func addInit_weekStartDay_frozenAtInit_doesNotTrackLaterAppSettingsChanges() {
-    // Contract: VM captures `weekStartDay` at construction. Later mutations to
-    // AppSettings.weekStartDay must NOT affect the VM's anchor computation —
-    // the sheet's behavior should be stable for its lifetime even if the user
-    // somehow flips the global setting underneath it.
+    // Contract: the VM captures `weekStartDay` at construction; later AppSettings.weekStartDay
+    // changes must NOT affect the anchor (sheet behavior is stable for its lifetime).
     let store = MockKeyValueStore()
     store.set(Int64(Weekday.monday.rawValue), forKey: AppSettings.weekStartDayKey)
     let settings = AppSettings(store: store)
@@ -59,7 +56,7 @@ struct AddEditBudgetViewModelScheduleTests {
     #expect(vm.startDate == expectedMondayAnchor)
   }
 
-  // MARK: - period.didSet re-anchoring (task 3.2)
+  // MARK: - period.didSet re-anchoring
 
   @Test func periodChange_toDaily_anchorsStartOfDay() {
     let vm = AddEditBudgetViewModel(settings: AppSettings())
@@ -86,9 +83,8 @@ struct AddEditBudgetViewModelScheduleTests {
   }
 
   @Test func periodChange_toBiweekly_anchorsToWeekStartDay() {
-    // biweekly uses the same anchor computation as weekly (the biweekly cycle
-    // anchor itself is `Budget.startDate` at math-time, but at VM-init the
-    // chosen value is the most-recent weekStartDay-aligned date).
+    // biweekly uses the same VM-init anchor as weekly (most-recent weekStartDay-aligned date);
+    // the biweekly cycle anchor is Budget.startDate only at math time.
     let store = MockKeyValueStore()
     store.set(Int64(Weekday.monday.rawValue), forKey: AppSettings.weekStartDayKey)
     let settings = AppSettings(store: store)
@@ -137,8 +133,8 @@ struct AddEditBudgetViewModelScheduleTests {
     context.insert(budget)
 
     let vm = AddEditBudgetViewModel(editing: budget)
-    // Mutate `period` in Edit mode — the !isEditing guard MUST short-circuit
-    // didSet so neither date is touched.
+    // Period change in Edit mode: the !isEditing guard must short-circuit didSet,
+    // leaving both dates untouched.
     vm.period = .monthly
     #expect(vm.startDate == originalStart)
     #expect(vm.endDate == nil)
@@ -153,8 +149,8 @@ struct AddEditBudgetViewModelScheduleTests {
     let vm = AddEditBudgetViewModel(settings: settings)
     vm.period = .weekly
 
-    // Simulate the user changing the global week-start (Sunday -> Monday) on the
-    // pushed picker; the form calls realignWeeklyStartDate with the new value.
+    // Simulates the global week-start change (Sunday -> Monday) on the pushed picker;
+    // the form calls realignWeeklyStartDate with the new value.
     vm.realignWeeklyStartDate(to: .monday)
 
     let cal = Calendar.autoupdatingCurrent
@@ -190,7 +186,7 @@ struct AddEditBudgetViewModelScheduleTests {
     #expect(vm.startDate == before)
   }
 
-  // MARK: - saveNew honours user-overridden startDate (task 3.3)
+  // MARK: - saveNew honours user-overridden startDate
 
   @Test func saveNew_recurring_honoursUserOverriddenStartDate() throws {
     let container = try TestModelContainer.make()
@@ -204,8 +200,8 @@ struct AddEditBudgetViewModelScheduleTests {
     vm.allocation = 100
     vm.period = .weekly
     let cal = Calendar.autoupdatingCurrent
-    // User picks a Thursday three weeks ago — the cycle anchor should become
-    // Thursday per F-7.05 (`weekStart = budget.startDate.weekday`).
+    // User picks a Thursday three weeks ago → cycle anchor becomes Thursday
+    // (`weekStart = budget.startDate.weekday`).
     let userPick = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 30)))
     vm.startDate = userPick
     try vm.save(context: context)
@@ -233,13 +229,12 @@ struct AddEditBudgetViewModelScheduleTests {
     #expect(saved.endDate == cal.startOfDay(for: endPick))
   }
 
-  // MARK: - saveEdit recurring date paths (task 3.4)
+  // MARK: - saveEdit recurring date paths
 
   @Test func saveEdit_recurring_startDateEdit_writesBudgetWithoutRealigningAllocation() throws {
-    // Back-dating a recurring budget MUST NOT realign the AllocationChange row.
-    // The calculator's allocationInEffect earliest-row fallback covers the
-    // back-dated window — see Domain/AllocationInEffect.swift and the
-    // back-dating integration tests in BudgetCalculatorTests.
+    // Back-dating a recurring budget must NOT realign the AllocationChange row; the calculator's
+    // allocationInEffect earliest-row fallback covers the back-dated window
+    // (Domain/AllocationInEffect.swift, back-dating tests in BudgetCalculatorTests).
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let cal = Calendar.autoupdatingCurrent
@@ -301,22 +296,18 @@ struct AddEditBudgetViewModelScheduleTests {
   }
 
   @Test func saveEdit_recurring_combinedStartDateAndAllocationEdit_stampsAllocationOnNewGrid() throws {
-    // Audit L6: when one Save edits BOTH the startDate (re-anchoring the biweekly
-    // cycle) and the allocation, the new amount must be stamped against the NEW
-    // anchor's current cycle. The old ordering computed it from the pre-edit
-    // anchor; when the new anchor moved the current cycle start earlier, the
-    // freshly typed amount landed mid-period and the current period silently
-    // kept the old allocation. (Originally a weekly fixture; switched to biweekly
-    // by #240 — weekly grids are now global, so startDate edits re-anchor only
-    // biweekly cycles, which is exactly where the L6 ordering stays load-bearing.)
+    // Ordering is load-bearing: when one Save edits BOTH startDate (re-anchoring the biweekly cycle)
+    // and allocation, the new amount must be stamped against the NEW anchor's current cycle. Computing
+    // it from the pre-edit anchor lands the amount mid-period when the new cycle start is earlier, so
+    // the current period silently keeps the old allocation. Biweekly fixture on purpose: weekly grids
+    // are global, so only biweekly cycles re-anchor on startDate edits.
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let cal = Calendar.autoupdatingCurrent
     let today = cal.startOfDay(for: Date())
 
-    // Old anchor: 14 days ago → old current cycle starts today. New anchor:
-    // 15 days ago → new current cycle starts yesterday, i.e. EARLIER — the
-    // broken direction.
+    // Old anchor 14 days ago → old current cycle starts today. New anchor 15 days ago → new
+    // cycle starts yesterday, i.e. EARLIER (the failure direction).
     let originalStart = try #require(cal.date(byAdding: .day, value: -14, to: today))
     let newStart = try #require(cal.date(byAdding: .day, value: -15, to: today))
     let expectedNewPeriodStart = try #require(cal.date(byAdding: .day, value: -1, to: today))
@@ -337,8 +328,7 @@ struct AddEditBudgetViewModelScheduleTests {
     let allocs = try context.fetch(FetchDescriptor<AllocationChange>())
     let newRow = try #require(allocs.first(where: { $0.amount == 150 }))
     #expect(newRow.effectiveFrom == expectedNewPeriodStart)
-    // …so the user-visible current period actually uses the amount they typed.
-    // (weekStart is irrelevant for biweekly — any value yields the same cycle.)
+    // …so the current period uses the typed amount (weekStart is irrelevant for biweekly).
     let snapshot = BudgetCalculator.snapshot(
       budget: budget, expenses: [], now: Date(), calendar: cal, weekStart: .sunday
     )
@@ -346,8 +336,7 @@ struct AddEditBudgetViewModelScheduleTests {
   }
 
   @Test func saveEdit_specificDates_startDateEdit_stillRealignsAllocation() throws {
-    // Defence: the specific-dates realignment must continue to work; the change
-    // I made for recurring (no realignment) MUST NOT regress this case.
+    // Specific-dates realignment must keep working (the no-realign rule is recurring-only).
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let cal = Calendar.autoupdatingCurrent
@@ -371,7 +360,7 @@ struct AddEditBudgetViewModelScheduleTests {
     #expect(allocs.first?.effectiveFrom == cal.startOfDay(for: newStart))
   }
 
-  // MARK: - startDate.didSet snap-forward cross-coupling (task 3.5)
+  // MARK: - startDate.didSet snap-forward cross-coupling
 
   @Test func startDate_didSet_snapsEndForwardWhenCrossingPastEnd() throws {
     let vm = AddEditBudgetViewModel(settings: AppSettings())
@@ -491,9 +480,8 @@ struct AddEditBudgetViewModelScheduleTests {
   }
 
   @Test func biweeklyEdit_movingStartPastExpenses_setsBothGateInputs() throws {
-    // Combined Save-gate inputs: a biweekly start-date edit that also strands
-    // expenses trips both the re-anchor gate and the orphan count — the state
-    // in which the re-anchor alert folds in the orphan sentence.
+    // A biweekly start-date edit that also strands expenses trips both the re-anchor gate and
+    // the orphan count — the state where the re-anchor alert folds in the orphan sentence.
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let cal = Calendar.autoupdatingCurrent

@@ -1,17 +1,12 @@
 import XCTest
 
-/// End-to-end user journey tests covering the core flows of the app.
+/// End-to-end user journeys for the core app flows.
 ///
-/// Tests that need a pre-existing budget use `makeApp(seedBudgets:)` to inject
-/// the budget via `SEED_BUDGETS` in the app's in-memory store before launch —
-/// skipping UI creation so each test exercises only the feature it claims to cover.
+/// Tests needing an existing budget seed it with `makeApp(seedBudgets:)` so each exercises only
+/// its own feature. Tests that create budgets through the UI cover the Add Budget form itself.
 ///
-/// Two tests (`testCreateBudget`, `testCreateBudgetAndNavigateToDetail`) keep the
-/// full UI creation path to maintain coverage of the Add Budget form itself.
-///
-/// Note: Apple does not support Swift Testing (`import Testing`) in XCUITest
-/// targets. These tests use XCTestCase with `continueAfterFailure = false`, which
-/// matches `#require` stop-on-first-failure semantics.
+/// XCUITest targets don't support Swift Testing (`import Testing`); these use XCTestCase with
+/// `continueAfterFailure = false`, matching `#require` stop-on-first-failure.
 @MainActor
 final class UserJourneyTests: XCTestCase {
   override func setUpWithError() throws {
@@ -119,9 +114,8 @@ final class UserJourneyTests: XCTestCase {
     editForm.replaceName("Groceries Updated")
     editForm.tapSave()
 
-    // Navigate back to the budgets list and verify the updated name appears there.
-    // (Checking the detail nav bar title directly is unreliable in XCUITest due to
-    // SwiftUI animation timing after sheet dismissal.)
+    // Verify via the budgets list; the detail nav bar title is unreliable in XCUITest because of
+    // SwiftUI animation timing after sheet dismissal.
     XCTAssertTrue(detail.budgetOptionsButton.waitForExistence(timeout: 3))
     app.navigationBars.buttons.firstMatch.tap()
 
@@ -219,11 +213,9 @@ final class UserJourneyTests: XCTestCase {
 
   // MARK: - Reorder budgets (drag-to-reorder in Edit mode)
 
-  /// Covers the `.onMove` wiring end-to-end (test-coverage-audit-2026-06-10 C1):
-  /// the unit suite (`BudgetsViewMoveTests`) verifies `BudgetReorderService`'s
-  /// algorithm, but only a real drag confirms the List forwards indices to it.
-  /// Order is asserted by the rows' vertical positions; no relaunch check, since
-  /// UI tests run on an ephemeral in-memory store.
+  /// Covers the `.onMove` wiring end-to-end: `BudgetsViewMoveTests` covers `BudgetReorderService`,
+  /// but only a real drag confirms the List forwards indices to it. Order is asserted by rows'
+  /// vertical positions; there is no relaunch check because the UI-test store is in-memory.
   func testReorderBudgets() {
     let app = makeApp(seedBudgets: ["Alpha", "Bravo", "Charlie"])
     app.launch()
@@ -232,19 +224,16 @@ final class UserJourneyTests: XCTestCase {
     XCTAssertTrue(budgets.budgetRow(named: "Alpha").waitForExistence(timeout: 3))
     budgets.editButton.tap()
 
-    // In Edit mode each row grows a trailing reorder grabber. Drag the last
-    // cell (Charlie, index 2) by its trailing edge to above the first cell.
+    // Edit mode adds a trailing reorder grabber; drag the last cell (Charlie) by it above the first.
     let fromCell = app.cells.element(boundBy: 2)
     let toCell = app.cells.element(boundBy: 0)
     XCTAssertTrue(fromCell.waitForExistence(timeout: 2))
     let grabber = fromCell.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5))
     let target = toCell.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.05))
-    // Default velocity/no post-drag hold produced a single fast jump on the
-    // GitHub-hosted CI simulator: too few intermediate touch samples for
-    // List's reorder gesture recognizer to register a continuous drag, and no
-    // settle time before touch-up for .onMove to commit — the row order was
-    // silently unchanged (reproduced identically across two CI runs). Slower
-    // velocity plus a hold before release fixes both.
+    // Don't speed up or drop the hold: with default velocity and no post-drag hold, the GitHub CI
+    // simulator made one fast jump. Too few touch samples for List's reorder recognizer to see a
+    // continuous drag, and no settle time before touch-up for .onMove to commit, so the order
+    // silently didn't change. Slow velocity plus a hold before release fixes both.
     grabber.press(forDuration: 1.0, thenDragTo: target, withVelocity: .slow, thenHoldForDuration: 0.5)
 
     app.buttons["Done"].tap()
@@ -314,8 +303,7 @@ final class UserJourneyTests: XCTestCase {
 
   // MARK: - Add Budget form — period selection
 
-  /// The default period when opening a new budget form is Monthly, and the
-  /// carry-over toggle should be visible for all recurring period types.
+  /// A new budget form defaults to Monthly with the carry-over toggle visible.
   func testAddBudgetDefaultPeriodShowsCarryOver() {
     let app = makeApp()
     app.launch()
@@ -324,20 +312,17 @@ final class UserJourneyTests: XCTestCase {
 
     let form = AddBudgetScreen(app: app)
     XCTAssertTrue(form.nameField.waitForExistence(timeout: 2))
-    // Monthly chip should be the selected default.
     XCTAssertTrue(
       app.buttons["Monthly period"].waitForExistence(timeout: 2),
       "Monthly period chip should be present"
     )
-    // Carry-over toggle is visible for all recurring periods.
     XCTAssertTrue(
       app.switches["Carry-Over"].waitForExistence(timeout: 2),
       "Carry-Over toggle should be visible for a recurring period"
     )
   }
 
-  /// Selecting Specific Dates hides the Carry-Over toggle (carry-over is not
-  /// meaningful for a fixed date range) and reveals the date-range section.
+  /// Specific Dates hides the Carry-Over toggle (meaningless for a fixed date range).
   func testAddBudgetSpecificDatesPeriod() {
     let app = makeApp()
     app.launch()
@@ -350,21 +335,17 @@ final class UserJourneyTests: XCTestCase {
 
     app.buttons["Specific Dates period"].tap()
 
-    // Carry-over toggle should disappear for specific-dates budgets.
     XCTAssertFalse(
       app.switches["Carry-Over"].waitForExistence(timeout: 2),
       "Carry-Over toggle should be hidden for Specific Dates period"
     )
 
-    // Creating a specific-dates budget requires a valid date range set via the
-    // compact DatePicker (complex XCUITest interaction). This test validates the
-    // UI state change only — saving specific-dates budgets is exercised manually.
+    // Saving needs a date range from the compact DatePicker (complex in XCUITest), so this
+    // validates UI state only; saving specific-dates budgets is tested manually.
     XCTAssertTrue(form.cancelButton.exists, "Form should still be open")
   }
 
-  /// Tapping through all five period chips (Daily → Weekly → Biweekly →
-  /// Monthly → Specific Dates → Monthly) should leave the form stable with no
-  /// crashes and the correct final state.
+  /// Cycling through every period chip and back to Monthly leaves the form stable.
   func testAddBudgetAllPeriodChipsSelectable() {
     let app = makeApp()
     app.launch()
@@ -382,16 +363,14 @@ final class UserJourneyTests: XCTestCase {
       button.tap()
     }
 
-    // After cycling back to Monthly, carry-over should be visible again.
     XCTAssertTrue(
       app.switches["Carry-Over"].waitForExistence(timeout: 2),
       "Carry-Over toggle should be visible after returning to Monthly"
     )
   }
 
-  /// Selecting Biweekly reveals the explanatory note under the chips AND
-  /// auto-expands the Schedule disclosure so the start-date chip (the cycle
-  /// anchor) is immediately visible.
+  /// Biweekly shows the explanatory note and auto-expands the Schedule disclosure so the
+  /// start-date chip (the cycle anchor) is visible.
   func testBiweeklyPeriodShowsNoteAndExpandsSchedule() {
     let app = makeApp()
     app.launch()
@@ -412,12 +391,9 @@ final class UserJourneyTests: XCTestCase {
     )
   }
 
-  /// Selecting Weekly reveals the explanatory note under the chips, and its
-  /// "Change start of week" link pushes the focused Start of Week screen (with its
-  /// app-wide scope banner) onto the form's own navigation stack. Tapping Back
-  /// returns to the form with the draft intact. (The cascade-confirmation gating
-  /// itself is covered by the WeekStartConfirmation unit tests, so this journey
-  /// does not mutate the global week-start setting.)
+  /// Weekly shows the note; its "Change start of week" link pushes the Start of Week screen onto
+  /// the form's navigation stack, and Back returns with the draft intact. Doesn't change the
+  /// global week-start setting (cascade confirmation is covered by WeekStartConfirmation unit tests).
   func testWeeklyPeriodNoteOpensStartOfWeekPicker() {
     let app = makeApp()
     app.launch()
@@ -443,7 +419,7 @@ final class UserJourneyTests: XCTestCase {
     XCTAssertTrue(weekStart.dayRow(1).exists, "Sunday row should be present")
     XCTAssertTrue(weekStart.dayRow(7).exists, "Saturday row should be present")
 
-    // Return to the form; the weekly note is still present (draft preserved).
+    // Back to the form.
     app.navigationBars.buttons.firstMatch.tap()
     XCTAssertTrue(
       form.weeklyNote.waitForExistence(timeout: 2),
@@ -451,10 +427,8 @@ final class UserJourneyTests: XCTestCase {
     )
   }
 
-  /// Opening Edit on an existing biweekly budget auto-expands the Schedule
-  /// disclosure so the start date (the cycle anchor) is visible on open —
-  /// without the user tapping the disclosure row. (Seeding only makes monthly
-  /// budgets, so this creates a biweekly one via the Add path first.)
+  /// Editing a biweekly budget opens with the Schedule disclosure already expanded. Seeding only
+  /// makes monthly budgets, so this creates a biweekly one via the Add form first.
   func testEditBiweeklyBudgetOpensScheduleExpanded() {
     let app = makeApp()
     app.launch()
@@ -486,8 +460,8 @@ final class UserJourneyTests: XCTestCase {
     )
   }
 
-  /// The Edit-mode period-lock caption names the period type specifically
-  /// ("Period type can't be changed…"), since dates remain editable.
+  /// The Edit-mode period-lock caption names the period type ("Period type can't be changed…")
+  /// because dates stay editable.
   func testEditBudgetPeriodLockCaptionNamesPeriodType() {
     let app = makeApp(seedBudgets: ["Groceries"])
     app.launch()
@@ -509,20 +483,15 @@ final class UserJourneyTests: XCTestCase {
   // MARK: - Save-time biweekly re-anchor confirmation (manual carve-out)
 
   //
-  // Triggering the "Change Start Date?" alert requires *changing* a biweekly
-  // budget's start date, which means driving the `.graphical` DatePicker inside
-  // the Schedule disclosure's DateColumn sheet. This suite deliberately exercises
-  // graphical-DatePicker interaction manually (see `testAddBudgetSpecificDatesPeriod`,
-  // which validates UI state only and notes that saving a date range is manual).
-  // The alert's gate is fully unit-tested — see `isBiweeklyStartDateEdited*` in
-  // `AddEditBudgetViewModelScheduleTests` — and the gate→alert binding is a trivial
-  // SwiftUI `.alert(isPresented:)`. `AddBudgetScreen.reanchorAlert` is provided for
-  // that manual pass / future automation. Manual steps: edit a biweekly budget →
-  // change Start Date → Save → expect the alert → Cancel preserves the draft →
-  // Save → Change commits.
+  // The "Change Start Date?" alert needs a changed biweekly start date, which means driving the
+  // `.graphical` DatePicker in the Schedule disclosure's DateColumn sheet; that is tested manually.
+  // The alert's gate is unit-tested (`isBiweeklyStartDateEdited*` in
+  // `AddEditBudgetViewModelScheduleTests`) and the gate-to-alert binding is a plain `.alert`.
+  // `AddBudgetScreen.reanchorAlert` exists for the manual pass or future automation. Manual steps:
+  // edit a biweekly budget → change Start Date → Save → alert appears → Cancel preserves the
+  // draft → Save → Change commits.
 
-  /// In edit mode, the period chips are locked — they render as static text,
-  /// not as interactive buttons. Attempting to tap should have no effect.
+  /// In edit mode the period chips are locked: static text, not buttons.
   func testEditBudgetPeriodChipsLocked() {
     let app = makeApp(seedBudgets: ["Groceries"])
     app.launch()
@@ -535,8 +504,6 @@ final class UserJourneyTests: XCTestCase {
 
     XCTAssertTrue(AddBudgetScreen(app: app).nameField.waitForExistence(timeout: 2))
 
-    // Period chips are locked in edit mode — no interactive button should exist
-    // for any period chip label.
     for chip in ["Daily period", "Weekly period", "Biweekly period", "Specific Dates period"] {
       XCTAssertFalse(
         app.buttons[chip].waitForExistence(timeout: 1),

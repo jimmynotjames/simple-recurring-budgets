@@ -1,11 +1,9 @@
 @testable import simple_recurring_budgets
 import Testing
 
-/// Exercises both localized label forms in `BudgetPeriod+Display.swift` for
-/// every period case. Exact wording is owned by the String Catalog (and varies
-/// by run locale), so these tests assert the structural contract instead:
-/// every case resolves to a non-empty label, and no two cases collapse to the
-/// same string.
+/// Both localized label forms in `BudgetPeriod+Display.swift` for every period case.
+/// Wording lives in the String Catalog and varies by run locale, so assert structure: every
+/// case has a non-empty label and no two labels collide.
 @Suite("BudgetPeriod display labels")
 struct BudgetPeriodDisplayTests {
   private let allPeriods: [BudgetPeriod] = [.daily, .weekly, .biweekly, .monthly, .specificDates]

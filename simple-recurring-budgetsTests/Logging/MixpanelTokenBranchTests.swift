@@ -1,12 +1,9 @@
 @testable import simple_recurring_budgets
 import Testing
 
-/// §18.1 test contract #10 — Token source selection and `isConfigured` logic.
-///
-/// All tests are env-independent: they inject tokens directly into
-/// `MixpanelTokenSource.isConfigured(dev:prod:)` rather than reading
-/// `Bundle.main`, so results are deterministic regardless of whether
-/// `Config/Secrets.local.xcconfig` is present.
+/// Token source selection and `isConfigured` logic. Tokens are injected into
+/// `MixpanelTokenSource.isConfigured(dev:prod:)` rather than read from `Bundle.main`, so
+/// results don't depend on whether `Config/Secrets.local.xcconfig` exists.
 @Suite("Mixpanel token branch — §18.1 #10")
 struct MixpanelTokenBranchTests {
   // MARK: - isConfigured pure-function tests

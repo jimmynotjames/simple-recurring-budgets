@@ -38,21 +38,18 @@ private func expense(amount: Decimal, date: Date) -> ExpenseItem {
   ExpenseItem(amount: amount, date: date)
 }
 
-// MARK: - Snapshot: monthly grid (pre-#240 safety net, Group A)
+// MARK: - Snapshot: monthly grid
 
-/// Monthly budgets share the universal calendar-month grid, so every expectation
-/// here survives the #240 "Option 1" change (which touches only weekly anchoring).
+/// Monthly budgets use the universal calendar-month grid.
 struct BudgetCalculatorMonthlySnapshotTests {
   @Test func startOnJan31_shortMonthTransition_fullAllocationsNoProration() {
-    // Start on the last day of January — a 1-day stub before the Feb 1 boundary.
+    // Starts on Jan 31: a 1-day stub before the Feb 1 boundary.
     let budget = makeBudget(startDate: d(2026, 1, 31))
     let exp = expense(amount: 100, date: d(2026, 1, 31, hour: 14))
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 3, 10), calendar: cal, weekStart: .sunday)
-    // Walker boundaries enumerate from periodStart(containing Jan 31) = Jan 1.
-    // Jan period: no row has effectiveFrom <= Jan 1, so allocationInEffect falls
-    // back to the earliest row (500); full award, no proration for the 1-day stub;
-    // expenses >= max(Jan 1, Jan 31) → 100. Contribution = 400.
-    // Feb (28 days, 2026 not a leap year): 500. Walker = 900.
+    // Boundaries start at Jan 1. No row has effectiveFrom <= Jan 1, so allocationInEffect falls
+    // back to the earliest row (500): full award for the stub (no proration), expenses >=
+    // Jan 31 = 100 → 400. Feb: 500. Walker = 900.
     #expect(snap.carryOver == 900)
     #expect(snap.remaining == 500)
     #expect(snap.effectivePeriodStart == d(2026, 3, 1))
@@ -72,7 +69,7 @@ struct BudgetCalculatorMonthlySnapshotTests {
       expense(amount: 100, date: d(2026, 3, 5, hour: 10)),
     ]
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 10), calendar: cal, weekStart: .sunday)
-    // Walker: Jan 500−450 = 50; Feb 500−700 = −200; Mar 600−100 = 500. Sum = 350.
+    // Jan 500−450 = 50; Feb 500−700 = −200; Mar 600−100 = 500 → 350.
     #expect(snap.carryOver == 350)
     #expect(snap.effectiveAllocation == 600)
     #expect(snap.remaining == 600)
@@ -82,9 +79,8 @@ struct BudgetCalculatorMonthlySnapshotTests {
     let budget = makeBudget(startDate: d(2026, 2, 1), endDate: d(2026, 4, 15))
     let exp = expense(amount: 200, date: d(2026, 4, 10, hour: 10))
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 20), calendar: cal, weekStart: .sunday)
-    // effectiveNow clamps to Apr 15 → final period [Apr 1, Apr 16) after the endDate
-    // clamp. Walker: Feb + Mar = 1000. remaining = 500 − 200 = 300; postEnd folds it
-    // all → carryOver = 1300.
+    // effectiveNow clamps to Apr 15 → final period [Apr 1, Apr 16). Walker Feb + Mar = 1000,
+    // plus remaining 500 − 200 = 300 folded by postEnd → 1300.
     #expect(snap.lifecycleState == .postEnd)
     #expect(snap.remaining == 300)
     #expect(snap.carryOver == 1300)
@@ -98,9 +94,8 @@ struct BudgetCalculatorMonthlySnapshotTests {
       expense(amount: 50, date: d(2026, 2, 20, hour: 10)), // post-reset
     ]
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 3, 10), calendar: cal, weekStart: .sunday)
-    // Walk window starts at the reset (Feb 14) → boundaries enumerate [Feb 1] only;
-    // January is implicitly excluded. February: full allocation (no proration) minus
-    // post-reset expenses = 500 − 50 = 450.
+    // Walk starts at the reset (Feb 14), so only [Feb 1] is enumerated (January excluded).
+    // February: full allocation (no proration) − post-reset expenses = 500 − 50 = 450.
     #expect(snap.carryOver == 450)
     #expect(snap.remaining == 500)
   }

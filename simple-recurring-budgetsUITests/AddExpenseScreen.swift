@@ -26,8 +26,8 @@ struct AddExpenseScreen {
   }
 
   func fillAmount(_ amount: String) {
-    // iOS-COMPAT(17+): UIViewRepresentable UITextField focus workaround.
-    // Double-tap ensures first-responder state registers before typeText().
+    // iOS-COMPAT(17+): UIViewRepresentable UITextField focus workaround. The double-tap makes
+    // first-responder state register before typeText().
     amountField.tap()
     amountField.tap()
     amountField.typeText(amount)

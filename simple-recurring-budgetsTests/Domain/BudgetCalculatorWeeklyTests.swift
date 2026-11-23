@@ -40,20 +40,17 @@ private func expense(amount: Decimal, date: Date) -> ExpenseItem {
 
 // MARK: - Snapshot: weekly, Sunday grid
 
-/// All budgets here start on a Sunday with `weekStart: .sunday`, so startDate
-/// sits exactly on the grid boundary. (These began as the pre-#240 "Group A"
-/// safety net; the #240 switch to the global grid changed only the parameter
-/// plumbing here, never the arithmetic — exactly as designed.)
+/// Budgets start on a Sunday with `weekStart: .sunday`, so startDate sits on the grid boundary.
 struct BudgetCalculatorWeeklySundayStartTests {
   @Test func pauseResume_acrossWeeks_pausedWeekContributesZero() {
-    // Start Sun Apr 5 2026. Weeks: [Apr 5–12), [Apr 12–19), [Apr 19–26), [Apr 26–May 3).
+    // Weeks: [Apr 5–12), [Apr 12–19), [Apr 19–26), [Apr 26–May 3).
     let budget = makeBudget(startDate: d(2026, 4, 5))
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 14, hour: 10))
     let resumeEvent = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 28, hour: 10))
     pauseEvent.budget = budget; resumeEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent, resumeEvent]
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 5, 4), calendar: cal, weekStart: .sunday)
-    // Walker: 100 (wk 1) + 100 (pause-action wk 2) + 0 (paused wk 3) + 100 (resume-action wk 4) = 300.
+    // 100 (wk 1) + 100 (pause-action wk 2) + 0 (paused wk 3) + 100 (resume-action wk 4) = 300.
     #expect(snap.carryOver == 300)
     #expect(snap.lifecycleState == .active)
   }
@@ -63,8 +60,7 @@ struct BudgetCalculatorWeeklySundayStartTests {
     let budget = makeBudget(startDate: d(2026, 4, 5), endDate: d(2026, 4, 22))
     let exp = expense(amount: 60, date: d(2026, 4, 20, hour: 10))
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [exp], now: d(2026, 5, 10), calendar: cal, weekStart: .sunday)
-    // effectiveNow clamps to Apr 22 → final period [Apr 19, Apr 23). Walker:
-    // weeks Apr 5 + Apr 12 = 200. remaining = 100 − 60 = 40; postEnd folds it → 240.
+    // effectiveNow clamps to Apr 22 → final period [Apr 19, Apr 23). Walker 200 + remaining 40 → 240.
     #expect(snap.lifecycleState == .postEnd)
     #expect(snap.remaining == 40)
     #expect(snap.carryOver == 240)
@@ -85,41 +81,38 @@ struct BudgetCalculatorWeeklySundayStartTests {
       expense(amount: 20, date: d(2026, 4, 22, hour: 10)), // wk 3, post-reset
     ]
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 28), calendar: cal, weekStart: .sunday)
-    // Walk window starts at the reset (Apr 21) → only week [Apr 19–26) is walked,
-    // at the edited allocation 150, with expenses >= Apr 21: 150 − 20 = 130.
+    // Walk starts at the reset (Apr 21): only week [Apr 19–26) at 150, expenses >= Apr 21: 150 − 20 = 130.
     #expect(snap.carryOver == 130)
     #expect(snap.effectiveAllocation == 150)
     #expect(snap.remaining == 150)
   }
 }
 
-// MARK: - The global week grid is independent of startDate's weekday (#240)
+// MARK: - The global week grid is independent of startDate's weekday
 
-/// Until #240 these fixtures pinned the old per-budget anchoring (startDate's
-/// weekday defined a private grid). They now demonstrate the inverse: the grid
-/// comes solely from the caller-provided weekStart (the user's Week Starts On
-/// setting); startDate only clips the window's first period.
+/// The grid comes solely from the caller's weekStart (the Week Starts On setting);
+/// startDate only clips the window's first period.
 struct BudgetCalculatorWeeklyGlobalGridTests {
   @Test func fridayStart_gridIsGlobal_notStartDateWeekday() {
-    // Start Fri Apr 3 2026 on a Sunday grid → weeks [Mar 29–Apr 5), [Apr 5–12), …;
-    // the budget's window is clipped at Apr 3, and there is NO Friday rollover.
+    // Fri Apr 3 start on a Sunday grid: weeks [Mar 29–Apr 5), [Apr 5–12), …, clipped at Apr 3;
+    // NO Friday rollover.
     let budget = makeBudget(startDate: d(2026, 4, 3))
     let lateThursday = BudgetCalculator.snapshot(
       budget: budget, expenses: [], now: d(2026, 4, 9, hour: 23), calendar: cal, weekStart: .sunday
     )
     #expect(lateThursday.effectivePeriodStart == d(2026, 4, 5))
     #expect(lateThursday.effectivePeriodEnd == d(2026, 4, 12))
-    // The partial first week [Apr 3, Apr 5) already closed at the full allocation.
+    // The partial first week [Apr 3, Apr 5) closed at the full allocation.
     #expect(lateThursday.carryOver == 100)
 
-    // Friday Apr 10 is mid-week on the Sunday grid — same period, no rollover.
+    // Friday Apr 10 is mid-week: same period.
     let fridayMidWeek = BudgetCalculator.snapshot(
       budget: budget, expenses: [], now: d(2026, 4, 10), calendar: cal, weekStart: .sunday
     )
     #expect(fridayMidWeek.effectivePeriodStart == d(2026, 4, 5))
     #expect(fridayMidWeek.carryOver == 100)
 
-    // The rollover happens on Sunday: partial week + full week both closed.
+    // Rollover happens Sunday: partial + full week closed.
     let sundayRollover = BudgetCalculator.snapshot(
       budget: budget, expenses: [], now: d(2026, 4, 12), calendar: cal, weekStart: .sunday
     )
@@ -128,15 +121,14 @@ struct BudgetCalculatorWeeklyGlobalGridTests {
   }
 
   @Test func saturdayStart_yearBoundary_onSundayGrid() {
-    // Start Sat Dec 26 2026 on a Sunday grid → partial week [Dec 26, Dec 27), then
-    // [Dec 27, Jan 3 2027), [Jan 3, Jan 10).
+    // Sat Dec 26 start on a Sunday grid: partial [Dec 26, Dec 27), then [Dec 27, Jan 3), [Jan 3, Jan 10).
     let budget = makeBudget(startDate: d(2026, 12, 26))
     let newYearsDay = BudgetCalculator.snapshot(
       budget: budget, expenses: [], now: d(2027, 1, 1), calendar: cal, weekStart: .sunday
     )
     #expect(newYearsDay.effectivePeriodStart == d(2026, 12, 27))
     #expect(newYearsDay.effectivePeriodEnd == d(2027, 1, 3))
-    // The one-day partial week [Dec 26, Dec 27) closed at the full allocation.
+    // The one-day partial week closed at the full allocation.
     #expect(newYearsDay.carryOver == 100)
 
     let secondFullWeek = BudgetCalculator.snapshot(
@@ -147,15 +139,14 @@ struct BudgetCalculatorWeeklyGlobalGridTests {
   }
 
   @Test func thursdayStart_multiWeekWalk_negativeCarry_onSundayGrid() {
-    // Start Thu Apr 2 2026 on a Sunday grid → weeks [Mar 29–Apr 5), [Apr 5–12), [Apr 12–19).
+    // Thu Apr 2 start on a Sunday grid: weeks [Mar 29–Apr 5), [Apr 5–12), [Apr 12–19).
     let budget = makeBudget(startDate: d(2026, 4, 2))
     let expenses = [
       expense(amount: 80, date: d(2026, 4, 5, hour: 10)), // Sunday-grid wk 2
       expense(amount: 130, date: d(2026, 4, 10, hour: 10)), // Sunday-grid wk 2
     ]
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: expenses, now: d(2026, 4, 18), calendar: cal, weekStart: .sunday)
-    // Walker: partial wk [Apr 2–5) = +100; wk [Apr 5–12) = 100 − 210 = −110. Sum = −10.
-    // (Same cumulative deficit as under the old per-budget grid — expenses only re-bucket.)
+    // Partial wk [Apr 2–5) = +100; wk [Apr 5–12) = 100 − 210 = −110 → −10.
     #expect(snap.carryOver == -10)
     #expect(snap.remaining == 100)
     #expect(snap.effectivePeriodStart == d(2026, 4, 12))
@@ -169,8 +160,8 @@ struct BudgetCalculatorWeeklyGlobalGridTests {
     change.budget = budget
     budget.allocationChangesStorage = [change]
     let snap = BudgetCalculator.snapshot(budget: budget, expenses: [], now: d(2026, 4, 16), calendar: cal, weekStart: .sunday)
-    // createdAt's Tuesday only sets where the window begins; the grid stays Sunday:
-    // partial week [Apr 7, Apr 12) closed at full allocation, current week [Apr 12–19).
+    // createdAt's weekday only sets where the window begins; the grid stays Sunday:
+    // partial week [Apr 7, Apr 12) closed at full allocation.
     #expect(snap.effectivePeriodStart == d(2026, 4, 12))
     #expect(snap.carryOver == 100)
   }
@@ -187,11 +178,10 @@ struct BudgetCalculatorWeeklyGlobalGridTests {
     WeekGridCase(weekStart: .monday, periodStartDay: 13, carryOver: 200),
   ])
   func weekStartSetting_controlsGrid(_ testCase: WeekGridCase) {
-    // One budget, three settings: the Week Starts On value alone decides the grid.
-    // Wed Apr 1 start, $100/week, no expenses, snapshot Mon Apr 13.
+    // Wed Apr 1 start, 100/week, snapshot Mon Apr 13; only the setting differs.
     // .sunday: weeks Mar 29 / Apr 5 / Apr 12 → two closed (partial + full) = 200.
-    // .wednesday: weeks Apr 1 / Apr 8 → one closed full week = 100.
-    // .monday: weeks Mar 30 / Apr 6 / Apr 13 → two closed (partial + full) = 200.
+    // .wednesday: weeks Apr 1 / Apr 8 → one closed = 100.
+    // .monday: weeks Mar 30 / Apr 6 / Apr 13 → two closed = 200.
     let budget = makeBudget(startDate: d(2026, 4, 1))
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [], now: d(2026, 4, 13), calendar: cal, weekStart: testCase.weekStart
@@ -201,9 +191,8 @@ struct BudgetCalculatorWeeklyGlobalGridTests {
   }
 
   @Test func midGridStart_partialFirstPeriod_fullAllocation_preStartExpensesExcluded() {
-    // Wed Apr 1 start on a Sunday grid: the first period is the clipped [Apr 1, Apr 5).
-    // Full allocation, no proration — the same convention as a monthly budget created
-    // mid-month. Expenses before startDate never count.
+    // The first period is the clipped [Apr 1, Apr 5) at the full allocation (no proration,
+    // like a monthly budget created mid-month). Expenses before startDate never count.
     let budget = makeBudget(startDate: d(2026, 4, 1))
     let expenses = [
       expense(amount: 15, date: d(2026, 3, 30, hour: 10)), // before startDate — excluded

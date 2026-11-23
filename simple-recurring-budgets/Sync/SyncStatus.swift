@@ -87,7 +87,9 @@ extension SyncStatus {
   var rowState: RowState {
     #if DEBUG
       // Screenshot-capture override (see `screenshotForcesAvailableState`); compiled out of Release.
-      if screenshotForcesAvailableState { return .available }
+      if screenshotForcesAvailableState {
+        return .available
+      }
     #endif
     return switch (containerBacking, accountStatus) {
     case (_, .checking):

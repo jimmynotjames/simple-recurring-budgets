@@ -23,13 +23,35 @@ Run in this exact order from the repo root. Fix failures before advancing to the
 
 Steps 1–3 are seconds-cheap and let you fix lint/compile errors before paying the simulator boot + full-suite cost.
 
-**One-command gate:** `make gate` (or `bash scripts/gate.sh`) runs all four steps in order, tees to `tmp/gate.log`, stops at the first failure, and exits with that step's code. Prefer it over hand-writing the chain — it's a single allowlisted command, so it never prompts (unlike the `(make … ) > tmp/gate.log 2>&1; echo "EXIT=$?"` subshell form, which splits into un-allowlistable segments). Run it `run_in_background=true` to be re-invoked on completion instead of blocking. Use the individual `make` targets when you only need one step or want to iterate on a single failure.
+**One-command gate:** `make gate` (or `bash scripts/gate.sh`) runs all four steps in order (plus `make simulator-slots-check` before the build — see § Simulator slots), tees to `tmp/gate.log`, stops at the first failure, and exits with that step's code. Prefer it over hand-writing the chain — it's a single allowlisted command, so it never prompts (unlike the `(make … ) > tmp/gate.log 2>&1; echo "EXIT=$?"` subshell form, which splits into un-allowlistable segments). Run it `run_in_background=true` to be re-invoked on completion instead of blocking. Use the individual `make` targets when you only need one step or want to iterate on a single failure.
 
 ### Per-repo simulator sandbox
 
 Each clone gets its own dedicated simulator (name derived from repo path, e.g. `iPhone 17 [a1b2c3d4]`) created and managed automatically — no manual setup needed for a normal build/test run. The UI pass runs in two phases: pass 1 skips XCUITest to warm the sim; pass 2 runs `AccessibilityAuditTests`, `UserJourneyTests`, and `ClearAmountButtonUITests`. XCUITest targets use XCTestCase with `continueAfterFailure = false` (Swift Testing is not supported in XCUITest bundles).
 
-For management commands (`make initialize-sims`, `make sim-clean`, etc.), `SRB_SIM_MAX` concurrency tuning, the AM/PM 24h time workaround, and clone-risk context, invoke the **`ios-sims` skill**.
+For management commands (`make initialize-sims`, `make sim-clean`, etc.), concurrency tuning, the AM/PM 24h time workaround, and clone-risk context, invoke the **`ios-sims` skill**.
+
+A worktree is its own checkout: it gets its own simulator and `.build/sim/` (cold first build). Run `make sim-clean` inside a worktree before removing it, or its device lingers.
+
+### Simulator slots
+
+On the maintainer's machine, every simulator running tests takes a slot from a **machine-wide pool** shared with the maintainer's other repos (it caps total simulator RAM across repos). `scripts/simulator-slots/` is this repo's vendored copy of the pool tool; its master lives outside this repo at `~/dev/simulator-slots`, and its state at `~/.local/state/simulator-slots/`.
+
+**Pool missing? That is normal — read this if you are not the maintainer.** The pool is on only where `~/dev/simulator-slots` (or `$SIMULATOR_SLOTS_MASTER`) exists. On any other machine:
+
+- The scripts already handle it: they take no slot and print a `simulator-slots: no shared pool at …` notice. Builds and tests run normally. The gate's sync check prints `sync-check skipped` — that is a pass.
+- **Do not** create `~/dev/simulator-slots` or `~/.local/state/simulator-slots/`, clone or fetch the pool's master, run `make simulator-slots-sync`, or edit `scripts/simulator-slots/`.
+- Concurrency is the developer's call, not this repo's. `SRB_SIM_MAX=1|2|3` sets how many simulators the UI pass uses (1 = serial). Unset, the scripts pass no concurrency flags and the scheme decides (it allows parallel clones, so xcodebuild may start several). If `SRB_SIM_MAX` is unset, choose for this run yourself — check other booted simulators (`xcrun simctl list devices booted`) and the machine's RAM, or ask the developer.
+- **Tell the developer once**, in your report, that the shared simulator pool wasn't found and what concurrency you used.
+
+On the maintainer's machine (pool on):
+
+- **Slots per command:** `test-unit` and `test-only`: 1. `test-ui`: up to `SRB_SIM_MAX` (default 2). `make test` chains `test-unit.sh` then `test-ui.sh`, each holding its own slots. The size check's `run.sh`: up to `WORKERS`. The screenshot lane (`fastlane screenshots`): up to 2, held for the whole capture (snapshot builds and tests in one step); with 1 it captures iPhone and iPad one after the other.
+- **How a run uses them:** it builds first (`build-for-testing`), then takes whatever is free, at least 1, and holds it until the script exits, however it exits. With 2 or more it runs that many parallel clones of this checkout's device. A run that can't get a slot fails; it never falls back to running unpooled.
+- **Fewer simulators:** when Jimmy asks for fewer simulators for a task, prefix the command with `SIMULATOR_SLOTS_FEWER=N` (leaves N free slots unused; N must be smaller than the pool). `SIMULATOR_SLOTS_TIMEOUT=S` gives up with exit 75 after waiting S seconds.
+- **Waiting:** a run waiting for a slot prints who holds each one, so start suites with `run_in_background`. `make simulator-slots-status` shows the holders, every booted simulator, and recent runs.
+- **Changing the tool:** never edit the copy. Change the master, then `make simulator-slots-sync`. `make simulator-slots-check` (in the gate) fails while the two differ.
+- **Idle devices still cost memory:** a booted simulator takes no slot but uses about 2–3 GB. `make sim-shutdown` when done.
 
 ### What NOT to do (multi-agent safety)
 
@@ -240,7 +262,9 @@ A future agent that upgrades the minimum iOS deployment target should run this c
 
 ## Infra and state locality
 
-Prefer self-contained, per-repo solutions over machine-global or shared state. When designing infra (test concurrency, locks, caches, coordination), do **not** introduce folders or state that live outside the repo or are shared across clones; cap resources per-repo with a static knob instead. Multiple clones of a repo are already independent, so cross-repo parallelism is effectively free — favor a small per-repo cap over a shared coordinator. (This is why simulator concurrency is the per-repo `SRB_SIM_MAX` knob in § Build and test rather than a machine-wide semaphore.)
+Prefer self-contained, per-repo solutions over machine-global or shared state. When designing infra (test concurrency, locks, caches, coordination), do **not** introduce folders or state that live outside the repo or are shared across clones; cap resources per-repo with a static knob instead. Multiple clones of a repo are already independent, so cross-repo parallelism is effectively free — favor a small per-repo cap over a shared coordinator.
+
+The one exception is a resource that is genuinely machine-wide, where per-repo caps can't bound the total: iOS simulator RAM. Test simulators take slots from the opt-in simulator-slots pool (§ Simulator slots). It is opt-in per machine, crash-safe (kernel-released file locks, no daemon), and off wherever its master doesn't exist. Keep any future exception to the same bar.
 
 > Mirrored in `.cursor/rules/infra-state-locality.mdc` and the global `~/.claude/CLAUDE.md`; these copies are intentionally redundant so Claude Code and Cursor stay in sync at both repo and user scope.
 

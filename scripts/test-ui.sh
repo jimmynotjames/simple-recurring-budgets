@@ -3,24 +3,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-# Runs only the UI test pass (AccessibilityAuditTests + UserJourneyTests).
-# Does NOT re-run unit tests. Use this when iterating on UI test failures
-# after `make test-unit` (or `make test`) is already green.
+# UI test pass only (no unit tests); for iterating on UI failures after `make test-unit`
+# or `make test` is green. The simulator must have hosted a prior app lifecycle before
+# the XCUITest IPC socket is reliable, so run `make test-unit` once per fresh simulator.
 #
-# IMPORTANT: This script skips the unit-test warm-up pass that `test.sh` runs
-# first. The simulator must have hosted at least one prior app lifecycle before
-# the XCUITest IPC socket is reliable. Run `make test-unit` (or
-# `make initialize-sims && make build`) at least once per fresh simulator session
-# before relying on this script alone.
-#
-# DESTINATION, SIM_DERIVED, SIM_RESULTS_DIR, and SIM_PARALLEL_FLAGS are set by
-# _destination.sh. Honors SRB_SIM_MAX (default 2 → up to 2 sim clones; 1 → serial).
+# Concurrency (AGENTS.md §"Simulator slots"): with the shared pool, asks for SRB_SIM_MAX
+# slots (default 2) and runs that many clones; without it, SRB_SIM_MAX if set, else the
+# scheme decides.
 source "${ROOT}/scripts/_destination.sh"
 
-# Guard: the UI pass requires a prior app lifecycle on the simulator to reliably
-# establish the XCUITest IPC socket. test-unit.sh / test.sh write this sentinel
-# after a successful unit run. make sim-clean wipes .build/sim/ so it auto-clears
-# on simulator reset — no manual cleanup needed.
+# Guard: test-unit.sh writes this sentinel after a successful unit run (the app lifecycle
+# the XCUITest IPC socket needs). `make sim-clean` wipes .build/sim/, clearing it.
 WARM_SENTINEL="${ROOT}/.build/sim/warmed"
 if [[ ! -f "${WARM_SENTINEL}" ]]; then
     echo "error: simulator not warmed up." >&2
@@ -29,20 +22,24 @@ if [[ ! -f "${WARM_SENTINEL}" ]]; then
     exit 1
 fi
 
-print_sim_concurrency_reminder
+RESULT_BUNDLE="${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S)-ui.xcresult"
+COMMON_ARGS=(
+    -project simple-recurring-budgets.xcodeproj
+    -scheme simple-recurring-budgets
+    -destination "${DESTINATION}"
+    -destination-timeout 300
+    -derivedDataPath "${SIM_DERIVED}"
+)
 
-TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
+# Build first, so the build never holds a simulator slot.
+xcodebuild build-for-testing "${COMMON_ARGS[@]}"
 
-# NOTE: clones of a per-repo device have historically timed out for the UI pass;
-# if this flakes, downshift with `SRB_SIM_MAX=1`.
-xcodebuild test \
-    -project simple-recurring-budgets.xcodeproj \
-    -scheme simple-recurring-budgets \
-    -destination "${DESTINATION}" \
-    -destination-timeout 300 \
-    -derivedDataPath "${SIM_DERIVED}" \
-    -resultBundlePath "${SIM_RESULTS_DIR}/${TIMESTAMP}-ui.xcresult" \
-    "${SIM_PARALLEL_FLAGS[@]}" \
+slots_parallel_args "$(ui_slots_wanted)" test-ui
+
+# testExample and testLaunchPerformance are excluded from scripted runs on purpose.
+xcodebuild test-without-building "${COMMON_ARGS[@]}" \
+    -resultBundlePath "${RESULT_BUNDLE}" \
+    ${SLOTS_PARALLEL_ARGS[@]+"${SLOTS_PARALLEL_ARGS[@]}"} \
     -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
     -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
     -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests \

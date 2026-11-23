@@ -3,30 +3,32 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-# DESTINATION, SIM_DERIVED, and SIM_RESULTS_DIR are set by _destination.sh
-# (which sources _sim_sandbox.sh). See those files for env-var overrides.
+# Sets DESTINATION, SIM_DERIVED, SIM_RESULTS_DIR, slots_parallel_args (env overrides: see
+# _sim_sandbox.sh and _sim_concurrency.sh).
 source "${ROOT}/scripts/_destination.sh"
 
-# Unit tests are ALWAYS serial: Swift Testing parallelizes the suite in-process
-# on one sim, so SRB_SIM_MAX (which controls UI-pass sim clones) does not apply
-# here. This run also serves as the warm-up that `make test-ui` depends on.
-echo "sim concurrency: unit tests run serially on 1 sim (Swift Testing parallelizes in-process); SRB_SIM_MAX affects the UI pass only." >&2
-
 RESULT_BUNDLE="${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S)-unit.xcresult"
+COMMON_ARGS=(
+    -project simple-recurring-budgets.xcodeproj
+    -scheme simple-recurring-budgets
+    -destination "${DESTINATION}"
+    -destination-timeout 300
+    -derivedDataPath "${SIM_DERIVED}"
+    -enableCodeCoverage YES
+)
 
-# Unit tests only — skips the accessibility UI test suite.
-# Use `make test` to run both unit and accessibility UI tests.
-xcodebuild test \
-    -project simple-recurring-budgets.xcodeproj \
-    -scheme simple-recurring-budgets \
-    -destination "${DESTINATION}" \
-    -destination-timeout 300 \
-    -derivedDataPath "${SIM_DERIVED}" \
+# Build first, so the build never holds a simulator slot.
+xcodebuild build-for-testing "${COMMON_ARGS[@]}"
+
+# One slot, always serial: Swift Testing parallelizes in-process on one sim, and this run is
+# the warm-up `make test-ui` needs (it must host an app lifecycle on the base device).
+take_slots 1 test-unit
+
+# Unit tests only; `make test` also runs the UI tests.
+xcodebuild test-without-building "${COMMON_ARGS[@]}" \
     -resultBundlePath "${RESULT_BUNDLE}" \
-    -enableCodeCoverage YES \
     -parallel-testing-enabled NO \
     -skip-testing:simple-recurring-budgetsUITests
 
-# Signal to test-ui.sh that the sim has hosted an app lifecycle.
-# Cleared automatically by make sim-clean (which wipes .build/sim/).
+# Warm-up sentinel for test-ui.sh; `make sim-clean` clears it.
 touch "${ROOT}/.build/sim/warmed"

@@ -35,7 +35,10 @@ run_step() {
 
 run_step format
 run_step lint-fix
+# The vendored simulator-slots copy must match its master, or repos would share one pool
+# with different code (skipped where the master doesn't exist). Touches no simulator.
+run_step simulator-slots-check
 run_step build
 run_step test
 
-printf '\nGATE PASSED (format, lint-fix, build, test). Full log: %s\n' "$LOG"
+printf '\nGATE PASSED (format, lint-fix, simulator-slots-check, build, test). Full log: %s\n' "$LOG"

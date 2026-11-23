@@ -44,14 +44,22 @@ if [[ $skip_ui -eq 1 ]]; then
 fi
 
 RESULT_BUNDLE="${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S)-only.xcresult"
+COMMON_ARGS=(
+    -project simple-recurring-budgets.xcodeproj
+    -scheme simple-recurring-budgets
+    -destination "${DESTINATION}"
+    -destination-timeout 300
+    -derivedDataPath "${SIM_DERIVED}"
+)
 
-# Subset runs are always serial (one sim); SRB_SIM_MAX cloning is for the full UI pass.
-exec xcodebuild test \
-    -project simple-recurring-budgets.xcodeproj \
-    -scheme simple-recurring-budgets \
-    -destination "${DESTINATION}" \
-    -destination-timeout 300 \
-    -derivedDataPath "${SIM_DERIVED}" \
+# Build first, so the build never holds a simulator slot.
+xcodebuild build-for-testing "${COMMON_ARGS[@]}"
+
+# Subset runs are always serial on one slot; clones are for the full UI pass. No `exec`
+# below: the slot holder's EXIT trap records this run's result.
+take_slots 1 test-only
+
+xcodebuild test-without-building "${COMMON_ARGS[@]}" \
     -resultBundlePath "${RESULT_BUNDLE}" \
     -parallel-testing-enabled NO \
     "${only_args[@]}" \

@@ -12,7 +12,8 @@ cd "$ROOT"
 # Requires explicit confirmation: pass --yes to proceed.
 #
 # Knobs (env):
-#   WORKERS         parallel simulator clones (default 7). Need NOT equal the language count — xcodebuild
+#   WORKERS         parallel simulator clones (default 7; with the shared simulator pool, the most
+#                   slots to ask for, and the run uses what is granted). Need NOT equal the language count — xcodebuild
 #                   distributes the 13 test methods across the workers. Each clone is a full simulator
 #                   (~1.5-2 GB resident) plus app + runner, so on a 16 GB machine keep this around 6-7;
 #                   higher will swap. Lower it on smaller RAM; raise it only with headroom to spare.
@@ -46,17 +47,29 @@ bash scripts/build.sh >/dev/null
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 RESULT="${SIM_RESULTS_DIR}/${TIMESTAMP}-loc-size.xcresult"
 
+COMMON_ARGS=(
+  -project simple-recurring-budgets.xcodeproj
+  -scheme simple-recurring-budgets
+  -destination "${DESTINATION}"
+  -destination-timeout 300
+  -derivedDataPath "${SIM_DERIVED}"
+)
+xcodebuild build-for-testing "${COMMON_ARGS[@]}" >/dev/null
+
+# With the machine-wide simulator pool (AGENTS.md §"Simulator slots"), take up to WORKERS slots
+# and run as many clones as granted. Without it, WORKERS as given: an explicit override of
+# SRB_SIM_MAX for this ad-hoc run, not a default change.
+take_slots "${WORKERS}" loc-size-check
+if [[ "${SIMULATOR_SLOTS_ENABLED}" -eq 1 ]]; then
+  WORKERS="${SIMULATOR_SLOTS_GRANTED}"
+fi
+
 echo "→ Capturing screenshots across 13 locales @ xxxLarge with ${WORKERS} parallel clones …"
-# Bypass the SRB_SIM_MAX clamp deliberately for this ad-hoc run (explicit override, not a default change).
-xcodebuild test \
-  -project simple-recurring-budgets.xcodeproj \
-  -scheme simple-recurring-budgets \
-  -destination "${DESTINATION}" \
-  -destination-timeout 300 \
-  -derivedDataPath "${SIM_DERIVED}" \
+xcodebuild test-without-building "${COMMON_ARGS[@]}" \
   -resultBundlePath "${RESULT}" \
   -parallel-testing-enabled YES \
   -parallel-testing-worker-count "${WORKERS}" \
+  -maximum-parallel-testing-workers "${WORKERS}" \
   -only-testing:simple-recurring-budgetsUITests/LocalizationScreenshotCapture
 
 echo "→ Exporting + downscaling screenshots into ${OUT} …"

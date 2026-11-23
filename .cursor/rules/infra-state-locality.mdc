@@ -12,7 +12,10 @@ introduce folders or state that live outside the repo or are shared across
 clones. Cap resources per-repo with a static knob instead.
 
 Multiple clones of a repo are already independent, so cross-repo parallelism is
-effectively free — favor a small per-repo cap over a shared coordinator. This is
-why the simulator concurrency control is the per-repo `SRB_SIM_MAX` knob (see
-`AGENTS.md > Build and test`) rather than a machine-wide semaphore in a shared
-cache directory.
+effectively free — favor a small per-repo cap over a shared coordinator.
+
+The one exception is a genuinely machine-wide resource that per-repo caps can't
+bound: iOS simulator RAM. Test simulators take slots from the opt-in
+simulator-slots pool (`AGENTS.md > Simulator slots`), which is off wherever its
+master doesn't exist and is crash-safe (kernel-released locks, no daemon). Keep
+any future exception to that bar.

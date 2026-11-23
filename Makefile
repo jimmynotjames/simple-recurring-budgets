@@ -1,4 +1,4 @@
-.PHONY: format format-check lint-fix build test test-unit test-only test-ui coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean
+.PHONY: format format-check lint-fix build test test-unit test-only test-ui coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
@@ -80,3 +80,19 @@ sim-clean:
 	@python3 scripts/sim_clean.py --slug-from-file "$(_UDID_FILE)" || true
 	rm -rf .build/sim
 	@echo "sim-sandbox: .build/sim removed"
+
+# -- Simulator slots ----------------------------------------------------------
+# The machine-wide pool's master is ~/dev/simulator-slots (maintainer's machine only);
+# scripts/simulator-slots is this repo's vendored copy (AGENTS.md §"Simulator slots").
+# The check fails when the copy differs from the master's last commit and is skipped
+# where the master doesn't exist; the copy's unit tests are offline and touch no simulator.
+simulator-slots-check:
+	python3 scripts/simulator-slots/simulator_slots.py sync-check --into scripts/simulator-slots
+	python3 -m unittest discover -s scripts/simulator-slots/tests -q
+
+# Maintainer only: refresh the copy from the master. Never edit the copy by hand.
+simulator-slots-sync:
+	python3 scripts/simulator-slots/simulator_slots.py sync --into scripts/simulator-slots
+
+simulator-slots-status:
+	@python3 scripts/simulator-slots/simulator_slots.py status

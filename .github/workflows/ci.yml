@@ -188,6 +188,50 @@ jobs:
           key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: |
             spm-${{ runner.os }}-xcode26.5-
+      # Some macos-26 runners start with no iOS simulator runtime, even on an image
+      # version that works on other machines, and a hard-coded `name=iPhone 17` then
+      # fails with "Unable to find a device matching the provided destination".
+      # Install a runtime if none is present, then pin both passes to one device by UDID.
+      - name: Ensure an iOS simulator is available
+        run: |
+          echo "Runner image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+          if ! xcrun simctl list runtimes available | grep -q '^iOS'; then
+            echo "::warning::No iOS simulator runtime on this runner; downloading one."
+            xcodebuild -downloadPlatform iOS
+          fi
+          udid="$(python3 - <<'PY'
+          import json, re, subprocess
+
+          def run(*args):
+              return subprocess.run(["xcrun", "simctl", *args], capture_output=True, text=True, check=True).stdout
+
+          def version(runtime_id):
+              return tuple(int(n) for n in re.findall(r"\d+", runtime_id.rsplit(".", 1)[-1]))
+
+          devices = json.loads(run("list", "devices", "available", "--json"))["devices"]
+          ios = sorted((r for r in devices if ".iOS-" in r), key=version, reverse=True)
+          # Prefer iPhone 17 on the newest iOS runtime, then any iPhone on it.
+          for want in ("iPhone 17", "iPhone"):
+              for runtime in ios:
+                  for d in devices[runtime]:
+                      if d["name"] == want or (want == "iPhone" and d["name"].startswith("iPhone")):
+                          print(d["udid"])
+                          raise SystemExit
+          # A freshly downloaded runtime may have no devices yet: create one.
+          runtimes = [r for r in json.loads(run("list", "runtimes", "available", "--json"))["runtimes"]
+                      if r["platform"] == "iOS"]
+          if runtimes:
+              newest = max(runtimes, key=lambda r: version(r["identifier"]))
+              print(run("create", "iPhone 17", "iPhone 17", newest["identifier"]).strip())
+          PY
+          )"
+          if [ -z "$udid" ]; then
+            echo "::error::No iOS simulator available on this runner, even after downloading the iOS platform."
+            xcrun simctl list runtimes
+            exit 1
+          fi
+          echo "Using simulator $udid"
+          echo "SIM_UDID=$udid" >> "$GITHUB_ENV"
       - name: Pass 1 — unit tests (warms the simulator)
         run: |
           # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
@@ -195,7 +239,7 @@ jobs:
           xcodebuild test \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -destination "id=$SIM_UDID" \
             -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
             -skip-testing:simple-recurring-budgetsUITests \
@@ -206,7 +250,7 @@ jobs:
           xcodebuild test \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -destination "id=$SIM_UDID" \
             -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
             -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \

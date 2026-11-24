@@ -569,7 +569,7 @@ Two implementations:
 
 ### 16.1 Implementation starting state (codebase snapshot) — historical record
 
-> **Historical record.** F-8.02 (`mixpanel-phase-1-foundation`) is implemented. The table shows the pre-implementation state; every action in the "Action taken" column is complete.
+> **Historical record.** F-8.02 (`mixpanel-phase-1-foundation`) is implemented. The table shows the repo state before implementing F-8.02; every action in the "Action taken" column is complete.
 
 **Pre-F-8.02 state — all refactors complete:**
 

@@ -33,7 +33,7 @@ A single `Router` instance SHALL be owned by the app entry point (`simple_recurr
 The system SHALL define `AppRoute` as a `Hashable` enum whose cases enumerate destinations reachable by push navigation within the primary `NavigationStack`. The enum SHALL include:
 
 - `case budgetDetail(UUID)` — drill into the expense list for a specific budget.
-- `case expenseDetail(UUID)` — push into the Add/Edit/View Expense screen for an existing expense (F-2.04 edit path from Budget Detail; no separate view mode).
+- `case expenseDetail(UUID)` — push into the Add/Edit/View Expense screen for an existing expense (F-2.04 edit path from Budget Detail; no separate view mode per F-2.04 AC).
 
 `AppRoute` cases SHALL carry the model's stable `id` (`Budget.id` / `ExpenseItem.id`), never a live `@Model` reference, so routes stay serializable for deep links, widgets, and App Intents. `RootView` resolves the UUID at the destination via `ModelContext.budget(id:)` / `.expenseItem(id:)`; when the UUID no longer resolves (the model was deleted, e.g. on another device, after the route was set) the route SHALL be silently popped instead of rendering. Cases SHALL NOT be added speculatively for destinations that have no consumer.
 

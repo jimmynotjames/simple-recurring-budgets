@@ -184,7 +184,7 @@ make test-ui    # UI suite only
 
 - Local gates (Lefthook): pre-commit runs SwiftFormat, SwiftLint `--fix` + strict, a large-file guard, and gitleaks; pre-push does a bare `xcodebuild build`.
 - Four-step dev gate: `make format` → `make lint-fix` → `make build` → `make test`.
-- CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)): `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), `build`, and `unit-tests` — version-pinned to match local installs. Full UI suite runs on-demand via `/test-full`.
+- CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)): `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), and `test` (sums up `unit-tests` and the parallel `ui-tests` shards; tests are skipped on docs-only PRs) — version-pinned to match local installs. Comment `/run-ui-tests` on a PR to re-run just the UI suite.
 - Release (Fastlane): lanes for `beta` (TestFlight), `release` (App Store), `push_metadata`, and `screenshots`, all guarded by a pre-build secrets check (`scripts/verify_release_secrets.sh`). App Store Connect API key auth; secrets live outside the repo.
 - Spec-driven workflow: [OpenSpec](https://github.com/Fission-AI/OpenSpec) change proposals under `openspec/`.
 

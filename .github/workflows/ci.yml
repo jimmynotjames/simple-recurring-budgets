@@ -2,7 +2,7 @@
 #
 # Mirrors the local lefthook gates (lefthook.yml) somewhere unbypassable: hooks can be
 # skipped (`git push --no-verify`, hookless clone, web-UI merge). Branch protection on
-# `main` should REQUIRE lint, secrets, check-large-files, i18n-gates, build, test
+# `main` should REQUIRE lint, secrets, check-large-files, i18n-gates, test
 # (repo Settings -> Rules -> Rulesets); without it CI is advisory.
 #
 # Runner minutes are free on this public repo, so the `test` job runs the full unit +
@@ -141,34 +141,6 @@ jobs:
       - name: consistency_check (informational, non-blocking)
         run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
 
-  # --- Tier 2: compile check (macOS) ------------------------------------------
-  # Direct xcodebuild rather than the make/sandbox path (ephemeral runners).
-  # Keep scheme/project in sync with scripts/build.sh.
-  build:
-    runs-on: macos-26
-    needs: [lint, secrets, check-large-files, i18n-gates]
-    steps:
-      - uses: actions/checkout@v7
-      - name: Select Xcode 26.5
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: "26.5"
-      - name: Cache SwiftPM packages
-        uses: actions/cache@v6
-        with:
-          path: build/DerivedData/SourcePackages
-          key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-          restore-keys: |
-            spm-${{ runner.os }}-xcode26.5-
-      - name: xcodebuild build
-        run: |
-          xcodebuild build \
-            -project simple-recurring-budgets.xcodeproj \
-            -scheme simple-recurring-budgets \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build/DerivedData \
-            CODE_SIGNING_ALLOWED=NO
-
   # --- changes: does this PR need `test`? -----------------------------------------
   # Docs-only PRs skip `test`, and a skipped required check counts as passing. A PR
   # needs tests if any changed file (old or new path of a rename) is outside the
@@ -204,9 +176,13 @@ jobs:
           fi
           echo "code=$code" | tee -a "$GITHUB_OUTPUT"
 
-  # --- Tier 3: unit + UI tests (macOS) -----------------------------------------
-  # Pass 1 mirrors scripts/test-unit.sh (serial, skips UITests, warms the simulator
-  # for pass 2). Pass 2 mirrors scripts/test-ui.sh's suite selection.
+  # --- Tier 2: compile + unit + UI tests (macOS) -------------------------------
+  # Direct xcodebuild rather than the make/sandbox path (ephemeral runners); keep
+  # scheme/project in sync with scripts/build.sh and the test scripts. Compiles once
+  # (build-for-testing), so a compile error fails its own step and is reported as PR
+  # annotations plus a job summary. Pass 1 mirrors scripts/test-unit.sh (serial, skips
+  # UITests, warms the simulator for pass 2). Pass 2 mirrors scripts/test-ui.sh's
+  # suite selection.
   test:
     runs-on: macos-26
     needs: [lint, secrets, check-large-files, i18n-gates, changes]
@@ -268,22 +244,35 @@ jobs:
           fi
           echo "Using simulator $udid"
           echo "SIM_UDID=$udid" >> "$GITHUB_ENV"
-      - name: Pass 1 — unit tests (warms the simulator)
+      - name: Build for testing
+        id: build
         run: |
+          set -o pipefail
           # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
           # CODE_SIGNING_ALLOWED=NO strips them and breaks NSUbiquitousKeyValueStore tests.
-          xcodebuild test \
+          xcodebuild build-for-testing \
+            -project simple-recurring-budgets.xcodeproj \
+            -scheme simple-recurring-budgets \
+            -destination "id=$SIM_UDID" \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=- \
+            2>&1 | tee build-for-testing.log
+      - name: Report compile errors
+        if: failure() && steps.build.outcome == 'failure'
+        run: python3 scripts/ci/xcode_errors.py build-for-testing.log
+      - name: Pass 1 — unit tests (warms the simulator)
+        run: |
+          xcodebuild test-without-building \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
             -destination "id=$SIM_UDID" \
             -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
-            -skip-testing:simple-recurring-budgetsUITests \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGN_IDENTITY=-
+            -skip-testing:simple-recurring-budgetsUITests
       - name: Pass 2 — accessibility + user-journey UI tests
         run: |
-          xcodebuild test \
+          xcodebuild test-without-building \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
             -destination "id=$SIM_UDID" \
@@ -292,16 +281,14 @@ jobs:
             -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
             -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
             -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests \
-            -only-testing:simple-recurring-budgetsUITests/AllocationFirstTapUITests \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGN_IDENTITY=-
+            -only-testing:simple-recurring-budgetsUITests/AllocationFirstTapUITests
 
   # --- pr-summary: one consolidated, self-updating PR comment -----------------
   # One comment aggregating every gate, edited in place on re-push. Informational
   # only; do NOT make it a required status check.
   pr-summary:
     runs-on: ubuntu-latest
-    needs: [lint, secrets, check-large-files, i18n-gates, build, test]
+    needs: [lint, secrets, check-large-files, i18n-gates, test]
     if: always() && github.event_name == 'pull_request'
     permissions:
       pull-requests: write

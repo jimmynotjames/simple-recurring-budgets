@@ -10,7 +10,7 @@ private func d(_ year: Int, _ month: Int, _ day: Int, hour: Int = 0, minute: Int
   return Calendar(identifier: .gregorian).date(from: comps)!
 }
 
-// MARK: - isPausedAtMoment contract (moment-granular UI classifier)
+// MARK: - isPausedAtMoment contract (F-7.06 moment-granular UI classifier)
 
 struct IsPausedAtMomentTests {
   @Test func emptyHistory_returnsFalse() {

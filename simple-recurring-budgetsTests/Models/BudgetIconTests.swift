@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 import Testing
 
-// MARK: - Budget.icon persistence
+// MARK: - Budget.icon persistence (F-4.03)
 
 struct BudgetIconModelTests {
   @Test func budget_defaultIconIsNil() throws {

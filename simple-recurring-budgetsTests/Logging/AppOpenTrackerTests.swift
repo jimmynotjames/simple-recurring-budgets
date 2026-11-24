@@ -2,7 +2,7 @@
 import SwiftUI
 import Testing
 
-/// `app_opened` fires on cold launch and a real return from background, not on transient
+/// `app_opened` (analytics-spec.md §9) fires on cold launch and a real return from background, not on transient
 /// `.inactive` interruptions (notification shade, Face ID, app switcher) or non-active phases.
 @Suite("AppOpenTracker — app_opened on foreground (§9)")
 @MainActor

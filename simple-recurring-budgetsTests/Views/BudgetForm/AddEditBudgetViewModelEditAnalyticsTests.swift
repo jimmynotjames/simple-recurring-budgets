@@ -143,7 +143,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
   }
 
   @Test func budgetCreated_doesNotCarryPerFieldFlags() throws {
-    // budget_created must not include the per-field change flags (meaningless on creation).
+    // budget_created must not include the F-8.02 per-field change flags (meaningless on creation).
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let spy = SpyAnalyticsClient()

@@ -315,7 +315,7 @@ struct PauseResumeToolbarVisibilityTests {
 // MARK: - Resume caption copy (pause-immediate-feedback change)
 
 struct ResumeCaptionCopyTests {
-  /// Locks in the caption copy "Resume to log new expenses": the trailing clause says backdated
+  /// Locks in the caption copy "Resume to log new expenses" (F-7.06 two-clock model): the trailing clause says backdated
   /// entries remain available (via the Budgets-list `+`). The date format is not asserted.
   @Test func resumeCaptionFormat_includesLogNewExpenses_inEnglish() {
     let formatted = String(

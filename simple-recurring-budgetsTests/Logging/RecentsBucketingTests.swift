@@ -2,7 +2,7 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-/// Pins the Recents bucketing boundaries (`docs/analytics-spec.md` §10.1); a silent change
+/// Pins the F-7.04 Recents bucketing boundaries (`docs/analytics-spec.md` §10.1); a silent change
 /// would shift every downstream dashboard reading.
 struct RecentsBucketingTests {
   // MARK: - recentsVisibleCountBucket

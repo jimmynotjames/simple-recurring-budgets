@@ -34,7 +34,7 @@ private func makeBudget(
   return b
 }
 
-// MARK: - Moment-granular UI pause classification
+// MARK: - Moment-granular UI pause classification (F-7.06 two-clock model)
 
 struct BudgetCalculatorMomentGranularPauseTests {
   @Test func midPeriodPause_flipsLifecycleStateImmediately() {

@@ -493,7 +493,7 @@ struct BudgetCalculatorSpecificDatesTests {
   }
 
   @Test func snapshot_specificDates_multiRowDrift_latestRowWinsRegardlessOfNow() {
-    // specificDates should have exactly one AllocationChange row. If drift (CloudKit
+    // specificDates should have exactly one AllocationChange row (F-2.08). If drift (CloudKit
     // divergence, UI bug) adds rows, the latest by (effectiveFrom, lastModified) wins with NO
     // `<= now` filter; pinned so this degradation stays deliberate.
     let budget = makeBudget(period: .specificDates, allocation: 300, startDate: d(2026, 4, 1), endDate: d(2026, 4, 30))
@@ -547,7 +547,7 @@ struct BudgetCalculatorPausedTests {
   }
 
   @Test func snapshot_pauseActionPeriod_isActiveBeforePauseMoment() {
-    // The moment-granular UI classifier shows the pause-action period as active only BEFORE
+    // The moment-granular UI classifier (F-7.06) shows the pause-action period as active only BEFORE
     // the pause moment (the walker treats the whole period as active for accrual).
     // After-pause sibling: BudgetCalculatorMomentGranularPauseTests.
     let startDate = d(2026, 4, 1)
@@ -561,7 +561,7 @@ struct BudgetCalculatorPausedTests {
   }
 
   @Test func snapshot_resumeActionPeriod_isActiveAfterResumeMoment() {
-    // The resume-action period shows .active only AFTER the resume moment (paused before it);
+    // Under F-7.06, the resume-action period shows .active only AFTER the resume moment (paused before it);
     // the walker still treats the whole period as active for accrual.
     let startDate = d(2026, 4, 1)
     let budget = makeBudget(startDate: startDate)

@@ -201,7 +201,7 @@ struct AddEditBudgetViewModelScheduleTests {
     vm.period = .weekly
     let cal = Calendar.autoupdatingCurrent
     // User picks a Thursday three weeks ago → cycle anchor becomes Thursday
-    // (`weekStart = budget.startDate.weekday`).
+    // per F-7.05 (`weekStart = budget.startDate.weekday`).
     let userPick = try #require(cal.date(from: DateComponents(year: 2026, month: 4, day: 30)))
     vm.startDate = userPick
     try vm.save(context: context)

@@ -1,6 +1,7 @@
 # Re-runs only the UI suites (accessibility + user-journey) on an open PR, e.g. for
-# flaky-test triage. ci.yml's `test` job already runs unit + UI on every PR, so this
-# is not needed for coverage. Trigger by commenting `/run-ui-tests` on a PR
+# flaky-test triage. ci.yml's unit-tests and ui-tests jobs already run on every PR, so
+# this is not needed for coverage. It runs every UI suite serially on one runner (ci.yml
+# shards them); keep its suite list in sync with ci.yml's ui-tests matrix. Trigger by commenting `/run-ui-tests` on a PR
 # (documented in .github/pull_request_template.md).
 #
 # IMPORTANT: issue_comment workflows run the copy of THIS file on the default branch,
@@ -49,7 +50,7 @@ jobs:
         with:
           xcode-version: "26.5"
 
-      # UI suite only: ci.yml's `test` job already runs the unit pass. Mirrors
+      # UI suite only: ci.yml's unit-tests job already runs the unit pass. Mirrors
       # scripts/test-ui.sh's suite selection (no separate warm-up pass, like `make test-ui`).
       - name: Accessibility + user-journey UI tests
         run: |

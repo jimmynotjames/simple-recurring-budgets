@@ -106,7 +106,7 @@ Check: an `AnalyticsClient.track(…)` call is present per `docs/analytics-spec.
 
 **UI test screen objects**
 Applies if: the diff changes navigation structure, button labels, toolbar items, or sheet routes in any view covered by `simple-recurring-budgetsUITests/`.
-Check: the relevant screen object (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) is updated in the same change. Note in the PR body that `make test-ui` should be run before merge.
+Check: the relevant screen object (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) is updated in the same change. Note in the PR body that `make ui-tests` should be run before merge.
 
 Fix any gaps. For translations, run `translate-new-strings` as a full autonomous sub-task.
 
@@ -127,7 +127,7 @@ Never skip silently; user confirmation is required. False positives and negative
 make gate
 ```
 
-Run in the background (`run_in_background: true`). `make gate` runs `make format && make lint-fix && make build && make test` and tees output to `tmp/gate.log`. Don't open the PR until the gate is green (unless step 5 confirmed a docs-only skip).
+Run in the background (`run_in_background: true`). `make gate` runs `make format && make lint-fix && make build && make tests` and tees output to `tmp/gate.log`. Don't open the PR until the gate is green (unless step 5 confirmed a docs-only skip).
 
 On failure: read `tmp/gate.log`, fix, and re-run. Format and lint-fix output is auto-applied; build and test failures need code changes.
 
@@ -174,6 +174,6 @@ Run all steps without prompting, except when a review finding is genuinely ambig
 ## What this skill does NOT do
 
 - Does not merge. Use `/merge-pr <PR>` after review.
-- Does not run `make test-ui` (slow, opt-in via CI comment `/test-full`). Note in the PR body if screen objects were updated and a UI test pass is needed.
+- Does not run `make ui-tests` (slow, opt-in via CI comment `/test-full`). Note in the PR body if screen objects were updated and a UI test pass is needed.
 - Does not handle OpenSpec changes. If the change needs spec/doc updates, the OpenSpec workflow (`/opsx:verify` → `/opsx:archive`) runs separately after merge.
 - Does not involve a GitHub issue. For issue-linked work, use `/create-pr-for-issue <N>`.

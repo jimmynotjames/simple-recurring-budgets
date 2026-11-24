@@ -29,7 +29,7 @@ Override the device name:
 
 ```bash
 SIMULATOR_NAME='iPhone 17' make build
-SIMULATOR_NAME='iPad Pro 13-inch (M4)' make test
+SIMULATOR_NAME='iPad Pro 13-inch (M4)' make tests
 ```
 
 ## Management commands
@@ -52,7 +52,7 @@ Derived data and result bundles are per repo:
 
 ## UI pass concurrency: the simulator pool and SRB_SIM_MAX
 
-`scripts/_sim_concurrency.sh` decides how many simulators a test run uses. The unit pass and `test-only` are always serial (one simulator). Full rules: `AGENTS.md` § "Simulator slots".
+`scripts/_sim_concurrency.sh` decides how many simulators a test run uses. The unit pass and `focused-tests` are always serial (one simulator). Full rules: `AGENTS.md` § "Simulator slots".
 
 **Pool on** (the maintainer's machine, where `~/dev/simulator-slots` exists): each run builds first, then takes slots from a machine-wide pool shared with the maintainer's other repos. The UI pass asks for `SRB_SIM_MAX` slots (default 2), gets what is free (at least 1), and runs that many clones. `SIMULATOR_SLOTS_FEWER=N` leaves N free slots unused; `SIMULATOR_SLOTS_TIMEOUT=S` gives up after S seconds (exit 75). `make simulator-slots-status` shows who holds what.
 
@@ -66,8 +66,8 @@ Derived data and result bundles are per repo:
 | `3` | same, with `3` | Only with headroom — RAM-heavy. |
 
 ```bash
-SRB_SIM_MAX=1 make test     # serial, lightest
-SRB_SIM_MAX=2 make test-ui  # two clones
+SRB_SIM_MAX=1 make tests     # serial, lightest
+SRB_SIM_MAX=2 make ui-tests  # two clones
 ```
 
 Agents: don't create the pool's directories or fetch its master. Pick a value (or ask), and tell the developer once that the pool wasn't found and what you used.
@@ -91,6 +91,6 @@ app.launchArguments += ["-AppleICUForce24HourTime", "NO",
 
 Pass 1 skips the UI test bundle (`-skip-testing:simple-recurring-budgetsUITests`). XCUITest needs the simulator to have hosted at least one real app lifecycle before its IPC socket is reliable; a freshly created per-repo sim hasn't, so the UI runner times out "while preparing to run tests".
 
-`make test` runs `scripts/test-unit.sh` (pass 1, which writes the `.build/sim/warmed` sentinel) and then `scripts/test-ui.sh` (pass 2), which runs `AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, and `AllocationFirstTapUITests` with `-only-testing`. Apple does not support `import Testing` in unhosted XCUITest bundles; these suites use XCTestCase with `continueAfterFailure = false`. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
+`make tests` runs `scripts/unit-tests.sh` (pass 1, which writes the `.build/sim/warmed` sentinel) and then `scripts/ui-tests.sh` (pass 2), which runs the UI target's suites as selected by `scripts/ci/ui_shards.py` (`UI_SHARD=<name>` picks one of CI's shards): `AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, and `AllocationFirstTapUITests`. Apple does not support `import Testing` in unhosted XCUITest bundles; these suites use XCTestCase with `continueAfterFailure = false`. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
 
-Run `make test-unit` once on a fresh sim before running `make test-ui` standalone; `test-ui.sh` refuses to run without the `warmed` sentinel.
+Run `make unit-tests` once on a fresh sim before running `make ui-tests` standalone; `ui-tests.sh` refuses to run without the `warmed` sentinel.

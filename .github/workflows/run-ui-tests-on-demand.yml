@@ -1,8 +1,7 @@
-# Re-runs only the UI suites (accessibility + user-journey) on an open PR, e.g. for
-# flaky-test triage. ci.yml's unit-tests and ui-tests jobs already run on every PR, so
-# this is not needed for coverage. It runs every UI suite serially on one runner (ci.yml
-# shards them); keep its suite list in sync with ci.yml's ui-tests matrix. Trigger by commenting `/run-ui-tests` on a PR
-# (documented in .github/pull_request_template.md).
+# Re-runs only the UI suite on an open PR, e.g. for flaky-test triage. ci.yml's unit-tests
+# and ui-tests jobs already run on every PR, so this is not needed for coverage. It runs every
+# UI shard serially on one runner (ci.yml splits them; scripts/ci/ui_shards.py selects them).
+# Trigger by commenting `/run-ui-tests` on a PR (documented in .github/pull_request_template.md).
 #
 # IMPORTANT: issue_comment workflows run the copy of THIS file on the default branch,
 # so changes here only take effect once merged to main.
@@ -50,20 +49,21 @@ jobs:
         with:
           xcode-version: "26.5"
 
-      # UI suite only: ci.yml's unit-tests job already runs the unit pass. Mirrors
-      # scripts/test-ui.sh's suite selection (no separate warm-up pass, like `make test-ui`).
-      - name: Accessibility + user-journey UI tests
+      # UI suite only: ci.yml's unit-tests job already runs the unit pass. The selection is
+      # `ui_shards.py args all` (no separate warm-up pass, like `make ui-tests`).
+      - name: UI tests
         run: |
+          filters=()
+          while IFS= read -r line; do
+            filters+=("$line")
+          done < <(python3 scripts/ci/ui_shards.py args all)
           xcodebuild test \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
             -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
-            -only-testing:simple-recurring-budgetsUITests/AccessibilityAuditTests \
-            -only-testing:simple-recurring-budgetsUITests/UserJourneyTests \
-            -only-testing:simple-recurring-budgetsUITests/ClearAmountButtonUITests \
-            -only-testing:simple-recurring-budgetsUITests/AllocationFirstTapUITests \
+            "${filters[@]}" \
             CODE_SIGNING_ALLOWED=YES \
             CODE_SIGN_IDENTITY=-
 

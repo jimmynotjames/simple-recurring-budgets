@@ -2,15 +2,22 @@
 #
 # Mirrors the local lefthook gates (lefthook.yml) somewhere unbypassable: hooks can be
 # skipped (`git push --no-verify`, hookless clone, web-UI merge). Branch protection on
-# `main` should REQUIRE lint, secrets, check-large-files, i18n-gates, test
+# `main` should REQUIRE lint, secrets, check-large-files, i18n-gates, tests
 # (repo Settings -> Rules -> Rulesets); without it CI is advisory.
 #
-# Runner minutes are free on this public repo, so the unit + full UI suite runs on every
-# PR that touches more than docs (unit-tests, plus ui-tests sharded across parallel
-# runners; `test` reports their combined result; see the `changes` job.
-# run-ui-tests-on-demand.yml re-runs just the UI suite on an open PR). App Store metadata / screenshot-content checks are deliberately NOT here: they
-# are release-time (100+ PRs can land between releases) and run in the fastlane
-# beta/release lanes (see fastlane/Fastfile).
+# macOS work: `build` compiles once (build-for-testing), then `unit-tests` and the `ui-tests`
+# shards (scripts/ci/ui_shards.py) run its products in parallel, one runner each. The ubuntu
+# `tests` job sums them up and is the one test check the ruleset needs. The account runs at most 5
+# macOS jobs at once across all its repos; a full run here takes 4 at a time (build, then 1 unit +
+# 3 UI).
+#
+# Docs-only PRs skip build and every test job: the cheap `changes` job lists the PR's files and
+# outputs code=false only when every one is docs (the rules are in scripts/ci/docs_only.py), and
+# `tests` then passes. Pushes to main and any error reading the list output code=true. Never use a
+# workflow-level paths-ignore for this: the required checks would never report.
+# run-ui-tests-on-demand.yml re-runs just the UI suite on an open PR. App Store metadata /
+# screenshot-content checks are deliberately NOT here: they are release-time (100+ PRs can land
+# between releases) and run in the fastlane beta/release lanes (see fastlane/Fastfile).
 name: CI
 
 on:
@@ -142,131 +149,199 @@ jobs:
       - name: consistency_check (informational, non-blocking)
         run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
 
-  # --- changes: does this PR need tests? -------------------------------------------
-  # Docs-only PRs skip unit-tests and ui-tests, and the `test` job then passes. A PR
-  # needs tests if any changed file (old or new path of a rename) is outside the
-  # docs-only list below, or is anywhere under an app/test target folder. Pushes to
-  # main always test. If the file list can't be read, the tests run.
+  # --- changes: does this PR need a build and tests? ---------------------------------
+  # Docs-only PRs skip build, unit-tests and ui-tests, and the `tests` job then passes. The rules
+  # are in scripts/ci/docs_only.py. Both the changed path and, for a rename, the previous one
+  # count, so a file renamed out of the app folder is still code. Anything but a PR event, or a
+  # failed read, means code=true.
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
-      code: ${{ steps.diff.outputs.code }}
-    steps:
-      - id: diff
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          code=true
-          if [ "$GITHUB_EVENT_NAME" = pull_request ] \
-            && files="$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
-                 --jq '.[] | .filename, (.previous_filename // empty)')" \
-            && [ -n "$files" ]; then
-            code=false
-            while IFS= read -r f; do
-              case "$f" in
-                simple-recurring-budgets*/*) code=true ;;
-                *.md | docs/* | openspec/* | releases/* | .claude/* | .cursor/*) ;;
-                *) code=true ;;
-              esac
-              if [ "$code" = true ]; then
-                echo "Needs tests: $f"
-                break
-              fi
-            done <<< "$files"
-          fi
-          echo "code=$code" | tee -a "$GITHUB_OUTPUT"
-
-  # --- Tier 2: compile + unit + UI tests (macOS) -------------------------------
-  # Direct xcodebuild rather than the make/sandbox path (ephemeral runners). Each job
-  # below runs on its own runner and compiles once via .github/actions/ios-test-setup
-  # (build-for-testing; compile errors become PR annotations), then runs its tests
-  # serially on one simulator with test-without-building. The UI suite is split into
-  # shards that run in parallel; keep the shard list in sync with scripts/test-ui.sh's
-  # suite selection and with run-ui-tests-on-demand.yml. Balance shards by suite time
-  # (as of 2026-11: AccessibilityAudit ~8 min, UserJourney ~6, ClearAmountButton ~5.5,
-  # AllocationFirstTap <1).
-  unit-tests:
-    runs-on: macos-26
-    needs: [lint, secrets, check-large-files, i18n-gates, changes]
-    if: needs.changes.outputs.code == 'true'
+      code: ${{ steps.classify.outputs.code }}
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/ios-test-setup
-      # Mirrors scripts/test-unit.sh (serial, skips the UITests target).
-      - name: Unit tests
+      - name: Classify the PR's files
+        id: classify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
-          xcodebuild test-without-building \
+          # The files API stops at 3000 files, so a bigger PR could look docs-only; it counts as code.
+          if [[ "$EVENT" != pull_request ]] \
+            || ! count=$(gh api "repos/${REPO}/pulls/${PR}" --jq .changed_files) \
+            || [[ ! "$count" =~ ^[0-9]+$ ]] || (( count >= 3000 )) \
+            || ! files=$(gh api --paginate "repos/${REPO}/pulls/${PR}/files" \
+              --jq '.[] | .filename, (.previous_filename // empty)'); then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/ci/docs_only.py <<<"$files" >> "$GITHUB_OUTPUT" \
+            || echo "code=true" >> "$GITHUB_OUTPUT"
+
+  # --- Tier 2: build once (macOS) ---------------------------------------------------
+  # Compiles the app and both test targets once (build-for-testing) and hands the products to the
+  # test jobs, which only run them, so a PR compiles once rather than once per test job. It is also
+  # the compile check: on a failure each compile error becomes a PR annotation and a job-summary
+  # line (scripts/ci/xcode_errors.py). Skipped on docs-only PRs, and with it every test job.
+  build:
+    runs-on: macos-26
+    needs: [lint, secrets, check-large-files, i18n-gates, changes]
+    # Runs after whichever gates ran; a failed gate still stops it.
+    if: >-
+      !cancelled() && !contains(needs.*.result, 'failure')
+      && needs.changes.outputs.code == 'true'
+    # The 360-minute default would let one hung build hold a macOS runner for six hours.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-setup
+        with:
+          simulator: "false"
+      - name: Cache SwiftPM packages
+        uses: actions/cache@v6
+        with:
+          path: build/DerivedData/SourcePackages
+          key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            spm-${{ runner.os }}-xcode26.5-
+      # For any simulator, so the products run on whichever device a test job's runner has.
+      # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
+      # CODE_SIGNING_ALLOWED=NO strips them and breaks NSUbiquitousKeyValueStore tests.
+      - name: Build for testing
+        run: |
+          xcodebuild build-for-testing \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
-            -destination "id=$SIM_UDID" \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/DerivedData \
-            -parallel-testing-enabled NO \
-            -skip-testing:simple-recurring-budgetsUITests
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=- \
+            2>&1 | tee build-for-testing.log \
+            || { python3 scripts/ci/xcode_errors.py build-for-testing.log; exit 1; }
+      # A tarball, because an artifact upload drops the exec bits and symlinks the app needs.
+      - name: Pack the test products
+        run: tar -czf test-products.tgz -C build/DerivedData/Build Products
+      - name: Upload the test products
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-products
+          path: test-products.tgz
+          retention-days: 1
+          compression-level: 0 # already gzipped
 
+  # --- Tier 2: tests (macOS), from the build job's products ----------------------------
+  # unit-tests and every ui-tests shard run in parallel, one runner each, serial on one
+  # simulator. The `tests` job below sums them up, and it is the one check the ruleset needs.
+  unit-tests:
+    runs-on: macos-26
+    needs: [build]
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-setup
+      - uses: ./.github/actions/test-products
+      # Under the job's timeout: a step timeout fails the step, so the result bundles still upload,
+      # while a job timeout cancels the job and skips the upload.
+      # Mirrors scripts/unit-tests.sh (serial, skips the UITests target).
+      - name: Unit tests
+        timeout-minutes: 25
+        run: |
+          mkdir -p build/results
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN" \
+            -destination "id=$SIM_UDID" \
+            -parallel-testing-enabled NO \
+            -resultBundlePath build/results/unit-tests.xcresult \
+            -skip-testing:simple-recurring-budgetsUITests
+      - name: Upload test result bundles
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xcresults-unit-tests
+          path: build/results/*.xcresult
+          retention-days: 7
+
+  # The shards are defined in scripts/ci/ui_shards.py; keep this list equal to its names (a test in
+  # scripts/tests/test_ui_shards.py checks). `rest` runs every class no other shard names.
+  # Balance shards by suite time (as of 2026-11: AccessibilityAudit ~8 min, UserJourney ~6,
+  # ClearAmountButton ~5.5, AllocationFirstTap <1).
   ui-tests:
     name: ui-tests (${{ matrix.shard }})
     runs-on: macos-26
-    needs: [lint, secrets, check-large-files, i18n-gates, changes]
-    if: needs.changes.outputs.code == 'true'
+    needs: [build]
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    timeout-minutes: 40
     strategy:
-      fail-fast: false
+      fail-fast: false # one red shard still lets the others report
       matrix:
-        include:
-          - shard: accessibility
-            suites: AccessibilityAuditTests
-          - shard: user-journey
-            suites: UserJourneyTests
-          - shard: clear-amount + first-tap
-            suites: ClearAmountButtonUITests AllocationFirstTapUITests
+        shard: [accessibility, user-journey, rest]
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/ios-test-setup
+      - uses: ./.github/actions/ios-setup
+      - uses: ./.github/actions/test-products
       # No unit pass runs first on this runner, so boot the simulator and wait for it
       # here; the first UI test then doesn't pay for the boot inside its own timeouts.
       - name: Boot the simulator
         run: xcrun simctl bootstatus "$SIM_UDID" -b
       - name: UI tests
+        timeout-minutes: 35
         env:
-          SUITES: ${{ matrix.suites }}
+          SHARD: ${{ matrix.shard }}
         run: |
-          only=()
-          for suite in $SUITES; do
-            only+=("-only-testing:simple-recurring-budgetsUITests/$suite")
-          done
+          mkdir -p build/results
+          filters=()
+          while IFS= read -r line; do
+            filters+=("$line")
+          done < <(python3 scripts/ci/ui_shards.py args "$SHARD")
           xcodebuild test-without-building \
-            -project simple-recurring-budgets.xcodeproj \
-            -scheme simple-recurring-budgets \
+            -xctestrun "$XCTESTRUN" \
             -destination "id=$SIM_UDID" \
-            -derivedDataPath build/DerivedData \
             -parallel-testing-enabled NO \
-            "${only[@]}"
+            -resultBundlePath "build/results/ui-tests-${SHARD}.xcresult" \
+            "${filters[@]}"
+      - name: Upload test result bundles
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xcresults-ui-tests-${{ matrix.shard }}
+          path: build/results/*.xcresult
+          retention-days: 7
 
-  # --- test: the one required check for all of the above ------------------------
-  # Branch protection requires `test`, not the jobs above, so shards can be added or
-  # renamed without touching the ruleset. Passes when unit-tests and every ui-tests
-  # shard passed, or when `changes` found a docs-only PR and both were skipped.
-  # Anything else (a failure, a cancel, a gate failing first, `changes` failing) fails.
-  test:
+  # --- tests: the one required check for all of the above ------------------------
+  # Branch protection requires `tests`, not the jobs above, so shards can be added or renamed
+  # without touching the ruleset. Passes when build, unit-tests and every ui-tests shard passed,
+  # or when `changes` found a docs-only PR and all three were skipped. Anything else (a failure, a
+  # cancel, a gate failing first, `changes` failing) fails.
+  tests:
     runs-on: ubuntu-latest
-    needs: [changes, unit-tests, ui-tests]
+    needs: [changes, build, unit-tests, ui-tests]
     if: ${{ !cancelled() }}
+    timeout-minutes: 5
     steps:
-      - name: Check the test jobs
+      - name: Sum up the build and test jobs
         env:
           CODE: ${{ needs.changes.outputs.code }}
+          BUILD: ${{ needs.build.result }}
           UNIT: ${{ needs.unit-tests.result }}
           UI: ${{ needs.ui-tests.result }}
         run: |
-          echo "changes.code=$CODE unit-tests=$UNIT ui-tests=$UI"
-          if [ "$UNIT" = success ] && [ "$UI" = success ]; then
+          echo "changes.code=${CODE} build=${BUILD} unit-tests=${UNIT} ui-tests=${UI}"
+          if [[ "$BUILD" == success && "$UNIT" == success && "$UI" == success ]]; then
             exit 0
           fi
-          if [ "$CODE" = false ] && [ "$UNIT" = skipped ] && [ "$UI" = skipped ]; then
-            echo "Docs-only PR: tests skipped."
+          if [[ "$CODE" == false && "$BUILD" == skipped && "$UNIT" == skipped && "$UI" == skipped ]]; then
+            echo "Docs-only PR: build and tests skipped."
             exit 0
           fi
-          echo "::error::Tests did not pass (unit-tests=$UNIT, ui-tests=$UI)."
+          echo "::error::Tests did not pass (build=${BUILD}, unit-tests=${UNIT}, ui-tests=${UI})."
           exit 1
 
   # --- pr-summary: one consolidated, self-updating PR comment -----------------
@@ -274,7 +349,7 @@ jobs:
   # only; do NOT make it a required status check.
   pr-summary:
     runs-on: ubuntu-latest
-    needs: [lint, secrets, check-large-files, i18n-gates, unit-tests, ui-tests, test]
+    needs: [lint, secrets, check-large-files, i18n-gates, changes, build, unit-tests, ui-tests, tests]
     if: always() && github.event_name == 'pull_request'
     permissions:
       pull-requests: write

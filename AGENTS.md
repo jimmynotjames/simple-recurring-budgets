@@ -13,19 +13,19 @@ Run from the repo root, in order. Fix failures before moving on.
 1. **`make format`** — `swiftformat .`; re-stage the changes.
 2. **`make lint-fix`** — `swiftlint --fix`, then `swiftlint lint --strict` as the gate. Fix remaining violations by hand.
 3. **`make build`** — `xcodebuild build`, no tests. Catches compile errors in seconds; shares the simulator destination and derived data with step 4.
-4. **`make test`** — full Swift Testing suite on one iPhone simulator. Run only after 1–3 pass.
+4. **`make tests`** — full Swift Testing suite on one iPhone simulator. Run only after 1–3 pass.
 
-`make test-ui` — UI pass only (`AccessibilityAuditTests` + `UserJourneyTests`), no unit tests. Use when iterating on UI failures after `make test-unit` is green. The simulator must have hosted one app lifecycle first (`make test-unit`, or `make initialize-sims && make build` in a fresh session).
+`make ui-tests` — UI pass only, no unit tests; the suites come from `scripts/ci/ui_shards.py`, and `UI_SHARD=<name>` runs one of CI's shards (`accessibility`, `user-journey`, `rest`). Use when iterating on UI failures after `make unit-tests` is green. The simulator must have hosted one app lifecycle first (`make unit-tests`, or `make initialize-sims && make build` in a fresh session).
 
-`make coverage` — line coverage from the latest unit `.xcresult` (run `make test-unit` or `make test` first). Report-only; nothing gates on it. Only the unit pass is instrumented.
+`make coverage` — line coverage from the latest unit `.xcresult` (run `make unit-tests` or `make tests` first). Report-only; nothing gates on it. Only the unit pass is instrumented.
 
-**Running a subset of tests:** `make test-only ONLY="<id> [more...] [--ui]"` (or `bash scripts/test-only.sh <id> ...`). Each id becomes `-only-testing:<id>` (`Target/Suite` or `Target/Suite/method()`). Example: `make test-only ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"`. It uses the sandboxed sim and is one allowlisted command. Don't hand-build `source scripts/_destination.sh && xcodebuild test -only-testing:...` — `source` prompts and bypasses the sandbox.
+**Running a subset of tests:** `make focused-tests ONLY="<id> [more...] [--ui]"` (or `bash scripts/focused-tests.sh <id> ...`). Each id becomes `-only-testing:<id>` (`Target/Suite` or `Target/Suite/method()`). Example: `make focused-tests ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"`. It uses the sandboxed sim and is one allowlisted command. Don't hand-build `source scripts/_destination.sh && xcodebuild test -only-testing:...` — `source` prompts and bypasses the sandbox.
 
-**One-command gate:** `make gate` (or `bash scripts/gate.sh`) runs all four steps (plus `make simulator-slots-check` before the build; see § Simulator slots), tees to `tmp/gate.log`, stops at the first failure, and exits with its code. Prefer it to hand-chaining: it's one allowlisted command, while `(make … ) > tmp/gate.log 2>&1; echo "EXIT=$?"` splits into segments that prompt. Run it with `run_in_background=true`. Use individual targets to iterate on one step.
+**One-command gate:** `make gate` (or `bash scripts/gate.sh`) runs all four steps (plus `make simulator-slots-check` and `make script-tests`, the offline unit tests of `scripts/tests/`, before the build; see § Simulator slots), tees to `tmp/gate.log`, stops at the first failure, and exits with its code. Prefer it to hand-chaining: it's one allowlisted command, while `(make … ) > tmp/gate.log 2>&1; echo "EXIT=$?"` splits into segments that prompt. Run it with `run_in_background=true`. Use individual targets to iterate on one step.
 
 ### Per-repo simulator sandbox
 
-Each clone gets its own simulator (named from the repo path, e.g. `iPhone 17 [a1b2c3d4]`), created and managed automatically. The UI pass runs in two phases: pass 1 skips XCUITest to warm the sim; pass 2 runs `AccessibilityAuditTests`, `UserJourneyTests`, and `ClearAmountButtonUITests`. XCUITest targets use XCTestCase with `continueAfterFailure = false` (Swift Testing isn't supported in XCUITest bundles).
+Each clone gets its own simulator (named from the repo path, e.g. `iPhone 17 [a1b2c3d4]`), created and managed automatically. The UI pass runs in two phases: pass 1 skips XCUITest to warm the sim; pass 2 runs the suites `scripts/ci/ui_shards.py` selects (`AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, `AllocationFirstTapUITests`). XCUITest targets use XCTestCase with `continueAfterFailure = false` (Swift Testing isn't supported in XCUITest bundles).
 
 For management commands (`make initialize-sims`, `make sim-clean`, …), concurrency tuning, the AM/PM 24h workaround, and clone risks, use the **`ios-sims` skill**.
 
@@ -44,7 +44,7 @@ On the maintainer's machine, every simulator running tests takes a slot from a *
 
 On the maintainer's machine (pool on):
 
-- **Slots per command:** `test-unit` and `test-only`: 1. `test-ui`: up to `SRB_SIM_MAX` (default 2). `make test` chains `test-unit.sh` then `test-ui.sh`, each holding its own slots. The size check's `run.sh`: up to `WORKERS`. The screenshot lane (`fastlane screenshots`): up to 2, held for the whole capture (snapshot builds and tests in one step); with 1 it captures iPhone and iPad one after the other.
+- **Slots per command:** `unit-tests` and `focused-tests`: 1. `ui-tests`: up to `SRB_SIM_MAX` (default 2). `make tests` chains `unit-tests.sh` then `ui-tests.sh`, each holding its own slots. The size check's `run.sh`: up to `WORKERS`. The screenshot lane (`fastlane screenshots`): up to 2, held for the whole capture (snapshot builds and tests in one step); with 1 it captures iPhone and iPad one after the other.
 - **How a run uses them:** it builds first (`build-for-testing`), then takes whatever is free, at least 1, and holds it until the script exits, however it exits. With 2 or more it runs that many parallel clones of this checkout's device. A run that can't get a slot fails; it never falls back to running unpooled.
 - **Fewer simulators:** when Jimmy asks for fewer simulators for a task, prefix the command with `SIMULATOR_SLOTS_FEWER=N` (leaves N free slots unused; N must be smaller than the pool). `SIMULATOR_SLOTS_TIMEOUT=S` gives up with exit 75 after waiting S seconds.
 - **Waiting:** a run waiting for a slot prints who holds each one, so start suites with `run_in_background`. `make simulator-slots-status` shows the holders, every booted simulator, and recent runs.
@@ -144,7 +144,7 @@ Checklist for every UI-touching change:
 - **App Store listing metadata** — a *release-time* concern, not per-change. Lives in `fastlane/metadata/`; author English in `fastlane/metadata/en-US/`, then run the **`appstore-translate-metadata` skill** (`/appstore:translate-metadata`, autonomous) to transcreate into all 49 storefronts via `scripts/translate_metadata/` (gate: `python3 scripts/translate_metadata/check_metadata.py`). Storefront codes (`de-DE`, `no`, `nl-NL`) differ from in-app codes; `metadata_locales.py` owns the map. Never write ad-hoc Python here. Audits: `audit.py` (structural: presence, char limits) and `audit_semantic.py` (voice, transcreation, keyword-ASO, cultural). The skill runs an **autonomous refine pass** after merge: Opus auditor per storefront → `audit_semantic.py --write-manifest` → re-transcreate medium+ findings → re-audit (max 2 rounds; residual goes to the owner).
 - **App Store screenshot demo-content** — *release-time*. The per-locale demo budgets/expenses for localized screenshots come from the **`appstore-generate-screenshot-seeding` skill** (`/appstore:generate-screenshot-seeding`) / `scripts/screenshot_content/` (gate: `python3 scripts/screenshot_content/check_content.py`). It reuses `metadata_locales.py` and writes a runtime-keyed catalog to `simple-recurring-budgetsUITests/ScreenshotSeeds/` (UI-test target only; never ships). Capture and upload: **`appstore-generate-push-screenshots` skill** (`/appstore:generate-push-screenshots`) — `fastlane screenshots`, then the self-healing upload controller; see `fastlane/SETUP.md`.
 - **Mixpanel events** — new user actions that materially change app state (destructive action, CTA, toggle affecting usage or retention) fire the matching `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. OSLog boundary: `docs/analytics-spec.md` §17. **Keep the catalog in sync:** any change to *what* is emitted — new/changed event, property added or removed, **a new value in a categorical property's enum** (e.g. a new `BudgetPeriod`/`period` value or `icloud_state`), changed buckets, new super/people property — updates `docs/analytics-spec.md` §9–§10 in the same change, with a Revision-History entry. (A new enum value ships no new action, so the `track(...)` rule alone misses it.)
-- **UI test screen objects** — when navigation, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) before the change is complete, then run `make test-ui`. A stale screen object that silently skips a broken flow is a defect. UI tests are slow, so update proactively rather than looping on failures.
+- **UI test screen objects** — when navigation, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) before the change is complete, then run `make ui-tests`. A stale screen object that silently skips a broken flow is a defect. UI tests are slow, so update proactively rather than looping on failures.
 
 ### Running the translation pipelines (Claude Code & Cursor)
 
@@ -304,7 +304,7 @@ Use the project-local, gitignored `tmp/`. Prefer pipes to file redirects for bui
 
 ```bash
 make build 2>&1 | tail -50                           # ✓ no file needed
-make test 2>&1 | tail -100                           # ✓
+make tests 2>&1 | tail -100                           # ✓
 make build 2>&1 | grep -E "error:|warning:" | head   # ✓ filtered
 ```
 
@@ -340,16 +340,16 @@ A script that needs to exist goes under `scripts/` with an allowlist entry. For 
 
 ### 5. Use exact `make` targets with pipe-to-`tail`
 
-The allowlist permits `make build *`, `make test *`, `make format *`, `make lint-fix *`:
+The allowlist permits `make build *`, `make tests *`, `make format *`, `make lint-fix *`:
 
 ```bash
 make build 2>&1 | tail -50               # ✓
-make test 2>&1 | tail -30                # ✓
+make tests 2>&1 | tail -30                # ✓
 make format && make lint-fix             # ✓ both allowed, no file redirect
 make gate                                # ✓ all four steps, one allowlisted command
 ```
 
-For the full gate, use `make gate` (or `bash scripts/gate.sh`) rather than chaining targets. Never use `(make format && … && make test) > tmp/gate.log 2>&1; echo "EXIT=$?"`: the parens and trailing `; echo` split into segments that match no allow entry.
+For the full gate, use `make gate` (or `bash scripts/gate.sh`) rather than chaining targets. Never use `(make format && … && make tests) > tmp/gate.log 2>&1; echo "EXIT=$?"`: the parens and trailing `; echo` split into segments that match no allow entry.
 
 ### 6. One command per Bash call — no `${PIPESTATUS}`, no `rc=...; echo $rc`, no `|| echo "fallback"`
 
@@ -452,4 +452,4 @@ These govern every commit, including ad-hoc ones; the skills cite them rather th
 
 ### CI lockstep
 
-GitHub Actions (`.github/workflows/ci.yml`; see `docs/tech-design-doc.md` §8.5) re-runs the lint, secret, and translation gates, then compiles and runs the unit tests and the UI suite in parallel shards (`unit-tests`, `ui-tests`; the required `test` check sums them up; compile errors show as PR annotations), on every PR, so they hold even when a hook is bypassed. The full UI suite runs automatically (public repo, unlimited Simulator minutes), except on docs-only PRs, where the `changes` job skips the test jobs. To re-run only the UI suite on an open PR, comment `/run-ui-tests` (`.github/workflows/run-ui-tests-on-demand.yml`). `check_metadata.py`, `check_content.py`, and `check_source_voice.py` are release-time only — they run in the `fastlane push_metadata`/`screenshots` lanes (see `fastlane/Fastfile`, `fastlane/SETUP.md`), not in per-PR CI. When you bump local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts CI mirrors, update `ci.yml` in the same change.
+GitHub Actions (`.github/workflows/ci.yml`; see `docs/tech-design-doc.md` §8.5) re-runs the lint, secret, and translation gates on every PR, so they hold even when a hook is bypassed. The macOS work builds once: the `build` job compiles the app and both test targets (`build-for-testing`; compile errors show as PR annotations) and uploads the products, then `unit-tests` and the `ui-tests` shards (`accessibility`, `user-journey`, `rest`) run those products in parallel, one runner each. `tests` aggregates build, `unit-tests` and the shards and is the required check. Docs-only PRs skip `build` and every test job (the `changes` job applies `scripts/ci/docs_only.py`), and `tests` then passes. The shards are defined in `scripts/ci/ui_shards.py`, which `make ui-tests` and `run-ui-tests-on-demand.yml` also read; `rest` runs every UI test class no other shard names, so a new class needs no CI edit. The GitHub account runs at most 5 macOS jobs at once across all its repos; a full run holds 4 (the build, then 1 unit + 3 UI). The full UI suite runs automatically (public repo, unlimited Simulator minutes). To re-run only the UI suite on an open PR, comment `/run-ui-tests` (`.github/workflows/run-ui-tests-on-demand.yml`). `check_metadata.py`, `check_content.py`, and `check_source_voice.py` are release-time only — they run in the `fastlane push_metadata`/`screenshots` lanes (see `fastlane/Fastfile`, `fastlane/SETUP.md`), not in per-PR CI. When you bump local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts CI mirrors, update `ci.yml` in the same change.

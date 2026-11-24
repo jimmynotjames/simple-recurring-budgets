@@ -237,7 +237,7 @@ Keeping the spec in sync is equally required: any change that alters **what** an
 
 The app has a suite of 15 user-journey tests in `simple-recurring-budgetsUITests/UserJourneyTests.swift` (`XCTestCase` with `continueAfterFailure = false` — Swift Testing is not supported in XCUITest targets) covering create budget, navigate to detail, add expense (from row and from detail), edit budget, pause/resume, delete expense, edit expense, reorder budgets, delete budget, settings round-trip, and period-chip behavior on the Add/Edit Budget sheet. Five screen objects encapsulate element queries: `BudgetsScreen`, `BudgetDetailScreen`, `AddBudgetScreen`, `AddExpenseScreen`, and `SettingsScreen`.
 
-**Per-change rule:** when a view's navigation structure, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` before treating the change complete. Run `make test-ui` (UI-only pass, no unit re-run) to confirm no journey regressions. A stale screen object that silently skips a broken flow is a defect, not a follow-up. UI tests run slowly; update screen objects proactively so agents do not loop on test failures after the fact.
+**Per-change rule:** when a view's navigation structure, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` before treating the change complete. Run `make ui-tests` (UI-only pass, no unit re-run) to confirm no journey regressions. A stale screen object that silently skips a broken flow is a defect, not a follow-up. UI tests run slowly; update screen objects proactively so agents do not loop on test failures after the fact.
 
 ---
 

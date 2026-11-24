@@ -1,4 +1,4 @@
-.PHONY: format format-check lint-fix build test test-unit test-only test-ui coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
+.PHONY: format format-check lint-fix build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
@@ -16,29 +16,36 @@ lint-fix:
 build:
 	bash scripts/build.sh
 
-test:
+# Named like CI's jobs (unit-tests, ui-tests); `tests` is the unit pass, then the UI pass.
+tests:
 	bash scripts/test.sh
 
-test-unit:
-	bash scripts/test-unit.sh
+unit-tests:
+	bash scripts/unit-tests.sh
+
+# UI pass only; UI_SHARD=<name> runs one of CI's shards (scripts/ci/ui_shards.py), else all.
+#   make ui-tests UI_SHARD=accessibility
+ui-tests:
+	bash scripts/ui-tests.sh
 
 # Ad-hoc subset run; ONLY = space-separated -only-testing identifiers (add --ui to
-# include the UI target). See scripts/test-only.sh.
-#   make test-only ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"
-test-only:
-	bash scripts/test-only.sh $(ONLY)
+# include the UI target). See scripts/focused-tests.sh.
+#   make focused-tests ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"
+focused-tests:
+	bash scripts/focused-tests.sh $(ONLY)
 
-test-ui:
-	bash scripts/test-ui.sh
+# Offline unit tests of the repo's CI/helper scripts; touch no simulator.
+script-tests:
+	python3 -m unittest discover -s scripts/tests
 
-# Line-coverage report from the latest unit .xcresult (run `make test-unit` first). Not a gate.
+# Line-coverage report from the latest unit .xcresult (run `make unit-tests` first). Not a gate.
 coverage:
 	bash scripts/coverage.sh
 
 lint:
 	swiftlint lint --strict
 
-# Four-step gate (format -> lint-fix -> build -> test), logged to tmp/gate.log, stops
+# Four-step gate (format -> lint-fix -> build -> tests), logged to tmp/gate.log, stops
 # at the first failure. Single-command form avoids permission prompts (see scripts/gate.sh).
 gate:
 	bash scripts/gate.sh

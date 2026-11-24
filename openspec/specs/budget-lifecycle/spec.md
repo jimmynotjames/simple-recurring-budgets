@@ -30,7 +30,7 @@ The biweekly anchor used for period math SHALL be derived from `Budget.startDate
 The system SHALL return a `BudgetLifecycleResult` value with the following fields, populated from the underlying `BudgetSnapshot`:
 
 - `remaining: Decimal` ← `snapshot.remaining`.
-- `carryOverAmount: Decimal` ← `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that `BudgetCalculator.snapshot` returns for `.specificDates` budgets. Per F-2.08 the carry-over chip is hidden for specificDates budgets (done in `BudgetDetailView` / `BudgetRowView`, shipping with the F-2.08 UI). Until F-2.08 ships the fallback is unreachable in normal flow. The F-2.08 change MUST either (a) stop calling `result(for:)` for specificDates budgets, or (b) replace `BudgetLifecycleResult` with a sum type that preserves the `nil`.
+- `carryOverAmount: Decimal` ← `snapshot.carryOver ?? 0`. The `?? 0` flattens the `nil` that `BudgetCalculator.snapshot` returns for `.specificDates` budgets. The flattened `0` SHALL NOT be rendered: per F-2.08 both surfaces hide the carry-over chip for specificDates budgets by passing `isCarryOverEnabled && !isSpecificDates` into `StatusChipRow` (`BudgetDetailView`, and `BudgetRowView` in `BudgetsView.swift`).
 - `periodStart: Date` ← `snapshot.effectivePeriodStart`.
 - `periodEnd: Date` ← `snapshot.effectivePeriodEnd`.
 - `lifecycleState: BudgetLifecycleState` ← `snapshot.lifecycleState`. View sites switch on it between active, paused, pre-start, and post-end presentations. `.paused` flips moment-granular per `budget-math` "Moment-granular UI pause classification": view sites SHALL see `lifecycleState == .paused` as soon as a `.pause` event's `effectiveDate` is at or before `now`, wherever `now` falls inside the pause-action period.

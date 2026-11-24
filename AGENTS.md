@@ -448,6 +448,7 @@ These govern every commit, including ad-hoc ones; the skills cite them rather th
 - **Commit body** (optional for one-liners; required when a PR spans several areas): `*` bullets naming **areas of change** (not files), a one-sentence `Why:` the diff can't show, and the `Co-Authored-By:` footer on Claude commits.
 - **PR body:** Write `tmp/pr-body.md`, then `gh pr create --body-file` — never inline `--body` (hygiene rule 10). Follow `.github/pull_request_template.md`. Linkage: `Closes #N` (complete fix; auto-closes on squash-merge), `Refs #N` + pending note (partial), or none.
 - **Squash-merge only** — one PR, one commit on `main`.
+- **Check `main` is green before building on it.** Branch protection doesn't require PRs to be up to date with `main` (several agents merge in parallel), so two PRs can pass alone and break `main` together. Before branching from or rebasing onto `main`, run `gh run list --branch main --event push --limit 1`. If the latest run is red, tell the user: a known flake gets `gh run rerun <id> --failed`; a real break gets fixed in a PR before other work.
 
 ### CI lockstep
 

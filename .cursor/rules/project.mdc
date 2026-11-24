@@ -5,81 +5,81 @@ alwaysApply: true
 
 # Project context
 
-- Native **SwiftUI** app for **iOS and iPadOS** (universal target). Persistence: **SwiftData** with **CloudKit** sync. No app-owned backend (Apple cloud services only).
+- Native SwiftUI app for iOS and iPadOS (universal target). Persistence: SwiftData with CloudKit sync. No app-owned backend (Apple cloud services only).
 
 ## Docs to consult (all modes, including Plan mode)
 
-These files are the high-level source of truth. **Read them when planning, specifying, or implementing**—including when Cursor is in **Plan mode** (no file edits yet). Plan mode does not skip doc checks.
+These files are the high-level source of truth. Read them when planning, specifying, or implementing, including in Plan mode (no file edits yet).
 
-- [`docs/main-prd.md`](docs/main-prd.md) — global constraints; pay special attention to **Over/Under vs remaining for the current Budget Period** (§6.7).
+- [`docs/main-prd.md`](docs/main-prd.md) — global constraints; see Over/Under vs remaining for the current Budget Period (§6.7).
 - [`docs/ux-design-brief.md`](docs/ux-design-brief.md) — High-level UX guidelines.
 - [`docs/product-features-planning.md`](docs/product-features-planning.md) — feature IDs (F-x.xx) and acceptance criteria.
 - [`docs/tech-design-doc.md`](docs/tech-design-doc.md) — technical architecture and persistence/sync; follow for code structure and CloudKit/schema decisions.
 
 ## Conflict protocol
 
-Before proposing direction, editing OpenSpec artifacts, **writing or refining a plan**, or implementing: re-read or recall the three `docs/*.md` files above. If the planned direction **contradicts** them, say so in the reply with a short **Conflict with docs** block: which file, what it says, and whether to update the doc, change the plan, or treat it as an intentional exception. Do not silently override PRD, tech-design, or feature IDs.
+Before proposing direction, editing OpenSpec artifacts, writing or refining a plan, or implementing: re-read or recall the three `docs/*.md` files above. If the planned direction contradicts them, say so in the reply with a short **Conflict with docs** block: which file, what it says, and whether to update the doc, change the plan, or treat it as an intentional exception. Don't silently override PRD, tech-design, or feature IDs.
 
 ## Plan mode and written plans
 
-When producing a **plan** (e.g. CreatePlan or any multi-step implementation plan), if the topic touches product rules, feature IDs, architecture, data model, sync, or global constraints, the plan body must include a short subsection (**Doc alignment** or **Conflicts with docs**) that either states alignment or lists concrete conflicts and proposed resolution. Also state **which** `docs/*.md` files will need updates after implementation, or that none will.
+A plan (e.g. CreatePlan or any multi-step implementation plan) that touches product rules, feature IDs, architecture, data model, sync, or global constraints must include a short **Doc alignment** or **Conflicts with docs** subsection: state alignment, or list concrete conflicts and the proposed resolution. Also state which `docs/*.md` files need updates after implementation, or that none do.
 
 ## Doc maintenance protocol
 
-When a change **materially** updates product constraints, feature IDs (F-x.xx), acceptance criteria, architecture, data model, sync, or i18n/a11y/testing expectations, **update the corresponding `docs/` file(s)** in the same effort (or add an explicit OpenSpec task to do it before archive):
+When a change materially updates product constraints, feature IDs (F-x.xx), acceptance criteria, architecture, data model, sync, or i18n/a11y/testing expectations, update the matching `docs/` file(s) in the same effort (or add an explicit OpenSpec task to do it before archive):
 
 - New or changed F-x.xx / acceptance criteria → `docs/product-features-planning.md`
 - Schema, CloudKit, architecture, stack conventions → `docs/tech-design-doc.md`
 - Global rules, glossary, product constraints → `docs/main-prd.md`
 
-**Editing `docs/*.md` is allowed and expected** when completing product or architecture work for this repo (including as part of OpenSpec apply/verify/archive), not only when the user says “edit docs.”
+Editing `docs/*.md` is allowed and expected when completing product or architecture work (including during OpenSpec apply/verify/archive), not only when the user says "edit docs."
 
 ## Cross-cutting concerns (always-on)
 
-Some concerns are **ongoing**, not feature-shaped. Every code change that adds or modifies user-facing UI MUST address each of these in the same change. Failing to do so is a defect. Canonical rule: [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns).
+These concerns are ongoing, not feature-shaped. Every code change that adds or modifies user-facing UI MUST address each in the same change; skipping one is a defect. Canonical rule: [`docs/main-prd.md` §6.8](docs/main-prd.md#68-cross-cutting-ongoing-concerns).
 
 Quick checklist:
 
 - **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics), composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls, `.accessibilityAddTraits(.isHeader)` on headings, `swipeActions` paired with `.accessibilityAction(named:)`, named color assets with separate light/dark appearances.
 - **Localized source strings** — every new user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`. No hard-coded English in production views. Locale-invariant strings use `Text(verbatim:)`. Full rules: `docs/tech-design-doc.md` §5.1.
-- **Translations** — after adding, renaming, or invalidating string keys, run the **`translate-new-strings` skill** (`.cursor/skills/translate-new-strings/`) — drives `scripts/translate_catalog/` in subset mode (extract → translate → merge → validate) for all 49 locales, ending on a clean `check_translations.py`. It auto-uses the glossary; use `pluralize_keys.py` for count strings. Run it **autonomously (no approval prompt)** via its temp-file invocations, never ad-hoc `python3 -c`/heredocs, and never skip the pipeline step. Three sibling pipelines follow the same pattern and autonomy: **`audit-translations`** (translation quality — `scripts/translate_audit/`), **`appstore-translate-metadata`** (store listing text — `scripts/translate_metadata/`), and **`appstore-screenshot-content`** (per-locale screenshot demo data — `scripts/screenshot_content/`). **Cursor has no subagent fan-out — run each per-locale prompt→output step inline and serially.** Canonical spec, incl. the cross-tool execution model: [`AGENTS.md` > Cross-cutting concerns > Running the translation pipelines](AGENTS.md).
-- **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary: `docs/analytics-spec.md` §17. **Keep the spec's catalog in sync:** any change to *what* is emitted — a new/changed event, a property added to or removed from an existing event, **a new value in a categorical property's enum** (e.g. a new `BudgetPeriod`/`period` value, or a new `icloud_state`), changed bucket boundaries, or a new super/people property — must update `docs/analytics-spec.md` §9–§10 in the same change, with a Revision-History entry.
+- **Translations** — after adding, renaming, or invalidating string keys, run the `translate-new-strings` skill (`.cursor/skills/translate-new-strings/`). It drives `scripts/translate_catalog/` in subset mode (extract → translate → merge → validate) for all 49 locales, ending on a clean `check_translations.py`. It auto-uses the glossary; use `pluralize_keys.py` for count strings. Run it autonomously (no approval prompt) via its temp-file invocations, never ad-hoc `python3 -c`/heredocs, and never skip the pipeline step. Three sibling pipelines follow the same pattern and autonomy: `audit-translations` (translation quality, `scripts/translate_audit/`), `appstore-translate-metadata` (store listing text, `scripts/translate_metadata/`), and `appstore-screenshot-content` (per-locale screenshot demo data, `scripts/screenshot_content/`). Cursor has no subagent fan-out: run each per-locale prompt→output step inline and serially. Canonical spec, including the cross-tool execution model: [`AGENTS.md` > Cross-cutting concerns > Running the translation pipelines](AGENTS.md).
+- **Mixpanel events** — new user-initiated actions that materially change app state (new destructive action, new CTA, new toggle affecting usage or retention) must fire `AnalyticsClient.track(...)` per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. Boundary: `docs/analytics-spec.md` §17. Keep the spec's catalog in sync: any change to what is emitted (a new/changed event, a property added to or removed from an existing event, a new value in a categorical property's enum such as a new `BudgetPeriod`/`period` value or a new `icloud_state`, changed bucket boundaries, or a new super/people property) must update `docs/analytics-spec.md` §9–§10 in the same change, with a Revision-History entry.
 - **UI test screen objects** — when a view's navigation structure, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) in the same change. Run `make test-ui` to confirm no journey regressions. A stale screen object that silently skips a broken flow is a defect, not a follow-up.
 
 ## Platform compatibility workarounds
 
-When a workaround exists because of a known platform bug or SDK false positive, tag it at the callsite with `// iOS-COMPAT(VERSION):` so it can be found and reassessed without reading every file. Full convention and current inventory: [`AGENTS.md` §Platform compatibility workarounds](AGENTS.md). Audit command: `grep -rn "iOS-COMPAT" . --include="*.swift"`.
+Tag any workaround for a known platform bug or SDK false positive at the callsite with `// iOS-COMPAT(VERSION):` so it can be found and reassessed. Convention and current inventory: [`AGENTS.md` §Platform compatibility workarounds](AGENTS.md). Audit: `grep -rn "iOS-COMPAT" . --include="*.swift"`.
 
 ## Spec-driven workflow (OpenSpec)
 
-- OpenSpec is the default workflow for features and significant changes. **Workflow context and per-artifact rules** for the OpenSpec CLI live in [`openspec/config.yaml`](openspec/config.yaml)—including doc alignment, conflict checks, and when to update `docs/`. Prefer **not** editing autogenerated `/opsx-*` command files or packaged OpenSpec skills; they can be overwritten when OpenSpec updates. Cursor-wide behavior stays in this rule file; OpenSpec-specific instructions stay in `openspec/config.yaml`.
-- **OpenSpec skill behavior overrides** — when an `/opsx-*` command or skill should diverge from the default packaged behavior, the override lives in [`AGENTS.md > OpenSpec > Skill behavior overrides`](AGENTS.md). Follow those rules; they take priority over the default skill content because skill files are regenerated when OpenSpec updates. Current overrides:
-  - **`/opsx:archive`** — when delta specs exist, **sync them automatically** without prompting "do you want to sync?". The standing project preference is always yes. Invoke `openspec-sync-specs` inline from the parent agent (don't delegate to a sub-agent). Only prompt the user if the sync itself surfaces a genuine merge ambiguity (e.g. a MODIFIED block targets a non-existent requirement, or a delta conflicts with a parallel main-spec edit).
+- OpenSpec is the default workflow for features and significant changes. Workflow context and per-artifact rules (doc alignment, conflict checks, when to update `docs/`) live in [`openspec/config.yaml`](openspec/config.yaml). Don't edit autogenerated `/opsx-*` command files or packaged OpenSpec skills; OpenSpec updates overwrite them. Cursor-wide behavior stays in this rule file; OpenSpec-specific instructions stay in `openspec/config.yaml`.
+- OpenSpec skill behavior overrides live in [`AGENTS.md > OpenSpec > Skill behavior overrides`](AGENTS.md). They take priority over the packaged skill content, which is regenerated on update. Current overrides:
+  - **`/opsx:archive`** — when delta specs exist, sync them automatically without prompting "do you want to sync?" (standing preference: always yes). Invoke `openspec-sync-specs` inline from the parent agent, not a sub-agent. Prompt only if the sync surfaces a genuine merge ambiguity (e.g. a MODIFIED block targets a non-existent requirement, or a delta conflicts with a parallel main-spec edit).
 - Prefer `/opsx-*` Cursor commands or OpenSpec skills under [`.cursor/skills/`](.cursor/skills/) when starting or continuing a change.
 
 ## Bash command hygiene
 
-**Canonical rules:** [`AGENTS.md > Bash command hygiene`](AGENTS.md). Quick summary (apply as hard rules):
+Canonical rules: [`AGENTS.md > Bash command hygiene`](AGENTS.md). Hard rules:
 
-- **Never write to or read from `/tmp/`.** Use project-local `tmp/` (gitignored). For build/test output capture, prefer pipes: `make build 2>&1 | tail -50`. If you genuinely need to persist a log, `tee tmp/build.log`.
-- **Never use `sed -i`** to modify files — use the Edit tool with `replace_all: true`.
-- **Never use `sed -n RANGE_p FILE`** to slice a file — use Read with `offset` and `limit`.
-- **Never write throwaway scripts** to `/tmp/` or elsewhere; use existing primitives under `scripts/` (especially `scripts/translate_catalog/*` for string-catalog work).
-- **Use exact `make` targets** with pipe-to-`tail`, not file redirects (`make build 2>&1 | tail -50`, not `make build > /tmp/build.log`).
+- Never write to or read from `/tmp/`. Use project-local `tmp/` (gitignored). For build/test output, prefer pipes: `make build 2>&1 | tail -50`; to persist a log, `tee tmp/build.log`.
+- Never use `sed -i`; use the Edit tool with `replace_all: true`.
+- Never use `sed -n RANGE_p FILE` to slice a file; use Read with `offset` and `limit`.
+- Never write throwaway scripts to `/tmp/` or elsewhere; use existing primitives under `scripts/` (especially `scripts/translate_catalog/*` for string-catalog work).
+- Use exact `make` targets with pipe-to-`tail`, not file redirects (`make build 2>&1 | tail -50`, not `make build > /tmp/build.log`).
 
-Before sending any Bash command containing `/tmp/`, `sed -i`, `sed -n`, or a one-off `python3 -c` / `python3 /tmp/...` heredoc, **stop and rewrite it** using the rules above.
+Before sending any Bash command containing `/tmp/`, `sed -i`, `sed -n`, or a one-off `python3 -c` / `python3 /tmp/...` heredoc, rewrite it using these rules.
 
 ## Platform targets
 
-- **Latest stable Swift** and **latest major OS** releases only (see PRD §6.1 / §7).
+- Latest stable Swift and latest major OS releases only (see PRD §6.1 / §7).
 
 ## Commit, branch, and PR style
 
-**Canonical rules:** `AGENTS.md > Commit and PR style`. That section is the single source of truth. Quick summary:
+Canonical rules, single source of truth: `AGENTS.md > Commit and PR style`. Summary:
 
-- **Never push directly to `main`** — all changes go through a PR. The `pre-push` lefthook blocks it.
-- **Branch:** `u/jimmyho/<tool>/<short-description>` — tool segment is `claude-code` for Claude Code, `cursor` for Cursor, combined with `+` for multi-tool work (e.g. `cursor+claude`). Kebab-case, no underscores.
+- Never push directly to `main`; all changes go through a PR. The `pre-push` lefthook blocks it.
+- **Branch:** `u/jimmyho/<tool>/<short-description>`. Tool segment is `claude-code` for Claude Code, `cursor` for Cursor, joined with `+` for multi-tool work (e.g. `cursor+claude`). Kebab-case, no underscores.
 - **Commit subject:** past-tense verb, sentence case, ≤72 chars, ends with period and `(#N)`.
 - **Commit body:** high-level area bullets + `Why:` line + `Co-Authored-By:` footer.
-- **PR description:** `## What` (high-level area bullets, not file-by-file) / `## Why` (one sentence) / `## Test plan` (lightweight checklist) / `## Tools` (AI tools and models used, one bullet each — see `AGENTS.md > Commit and PR style > PR description`).
-- **Merge method:** always **Squash and merge** — one PR = one commit on `main`. After merging, delete the remote branch (see `AGENTS.md > Commit and PR style > Merging`).
+- **PR description:** `## What` (high-level area bullets, not file-by-file) / `## Why` (one sentence) / `## Test plan` (lightweight checklist) / `## Tools` (AI tools and models used, one bullet each; see `AGENTS.md > Commit and PR style > PR description`).
+- **Merge method:** always Squash and merge (one PR = one commit on `main`). Then delete the remote branch (see `AGENTS.md > Commit and PR style > Merging`).

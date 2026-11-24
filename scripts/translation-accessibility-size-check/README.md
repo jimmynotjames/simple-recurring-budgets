@@ -31,7 +31,9 @@ before reporting and appends to it after; update it by hand when you run the too
 ## ⚠ Resources
 It spins up **`WORKERS` simulator clones in parallel** (default 7) and saturates CPU/RAM while running.
 Close other heavy apps first. This intentionally exceeds the repo's `SRB_SIM_MAX` cap (1–3) — it's an
-explicit ad-hoc override and does not change that default.
+explicit ad-hoc override and does not change that default. Where the machine-wide simulator pool is on
+(the maintainer's machine; `AGENTS.md` § "Simulator slots"), `WORKERS` is only the most it asks for: it
+builds first, then runs as many clones as the pool grants.
 
 ## What it captures
 10 languages, each chosen to stress a distinct failure mode — `de` (long Latin), `fi` (agglutinative),

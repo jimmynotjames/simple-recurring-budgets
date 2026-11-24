@@ -34,6 +34,8 @@ _UDID_FILE="${ROOT}/.build/sim/device.udid"
 # Ensures no two clones of this repo share a simulator, even on the same Mac.
 _REPO_SLUG="$(printf '%s' "${ROOT}" | shasum | cut -c1-8)"
 _SIM_DEVICE_NAME="${SIMULATOR_NAME} [${_REPO_SLUG}]"
+# The slug, for the simulator-slots pool to mark this checkout's devices (_sim_concurrency.sh).
+SIM_SLUG="${_REPO_SLUG}"
 
 _pick_sim() {
     # $1: "Booted" or "any"

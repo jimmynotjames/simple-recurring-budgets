@@ -51,6 +51,49 @@ def verify_ship_secrets!
   sh("../scripts/verify_release_secrets.sh")
 end
 
+# Holds up to `want` slots of the machine-wide simulator pool for the whole block
+# (AGENTS.md §"Simulator slots") and yields the granted count. The pool is on only
+# where its master exists (~/dev/simulator-slots, or $SIMULATOR_SLOTS_MASTER);
+# elsewhere this takes nothing and yields nil, leaving the Snapfile's settings alone.
+# The holder process watches this one and releases the slots when it exits, however
+# it exits. Lanes run from fastlane/, so the repo root is "..".
+def with_simulator_slots(want, label)
+  master = ENV.fetch("SIMULATOR_SLOTS_MASTER", File.expand_path("~/dev/simulator-slots"))
+  unless Dir.exist?(master)
+    UI.important("simulator-slots: no shared pool at #{master} (expected outside the maintainer's machine); " \
+                 "running without machine-wide coordination. See AGENTS.md §\"Simulator slots\".")
+    return yield(nil)
+  end
+
+  require "digest"
+  root = File.expand_path("..")
+  tool = File.join(root, "scripts", "simulator-slots", "simulator_slots.py")
+  owns = "[#{Digest::SHA1.hexdigest(root)[0, 8]}]"
+  holder = IO.popen(["python3", tool, "hold", "--watch-pid", Process.pid.to_s, "--want", want.to_s,
+                     "--label", label, "--root", root, "--owns", owns])
+  line = holder.gets
+  if line.nil?
+    holder.close
+    UI.user_error!("simulator-slots granted no slot (exit #{$?&.exitstatus})")
+  end
+  granted, run_id = line.split
+  UI.message("simulator-slots: #{label}: granted #{granted} of #{want} wanted (run #{run_id})")
+  rc = 1
+  begin
+    result = yield(granted.to_i)
+    rc = 0
+    result
+  ensure
+    system("python3", tool, "result", "--run", run_id, "--rc", rc.to_s)
+    begin
+      Process.kill("TERM", holder.pid)
+    rescue Errno::ESRCH
+      nil
+    end
+    holder.close
+  end
+end
+
 # App Store metadata is a release-time concern (not a per-PR one — see
 # ci.yml's header comment), so its completeness/limits gate and the
 # source-voice check run here, right before the actual metadata upload,
@@ -207,7 +250,16 @@ platform :ios do
   desc "Capture localized screenshots in the Simulator, then map folders to storefront codes"
   lane :screenshots do
     verify_content_ready!
-    capture_screenshots
+    # The Snapfile runs its two devices (iPhone, iPad) concurrently: ask the pool
+    # for 2 and run them one at a time if only 1 is granted. Builds run inside the
+    # hold, since snapshot builds and tests in one step.
+    with_simulator_slots(2, "screenshots") do |granted|
+      if granted && granted < 2
+        capture_screenshots(concurrent_simulators: false)
+      else
+        capture_screenshots
+      end
+    end
     UI.message("Renaming captured folders from runtime codes to App Store storefront codes…")
     sh("python3", "../scripts/screenshot_content/rename_for_deliver.py")
   end

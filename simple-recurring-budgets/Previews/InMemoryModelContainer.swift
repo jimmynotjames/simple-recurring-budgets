@@ -55,10 +55,12 @@ enum InMemoryModelContainer {
     static func makeSeeded(budgetNames names: [String], now: Date = Date()) -> ModelContainer {
       let container = makeEmpty()
       let startDate = Calendar.current.startOfDay(for: now)
-      for name in names {
+      for (index, name) in names.enumerated() {
         let budget = Budget(name: name, period: .monthly)
         budget.startDate = startDate
-        budget.sortOrder = (try? Budget.nextSortOrder(for: container.mainContext)) ?? 0
+        // Assigned directly so seeded lists keep the given order. The list sorts only by sortOrder, and a CI run
+        // showed these budgets out of order when this used nextSortOrder before the first save.
+        budget.sortOrder = index
         let change = AllocationChange(effectiveFrom: startDate, amount: 100)
         change.budget = budget
         budget.allocationChangesStorage = [change]

@@ -1,40 +1,40 @@
 # screenshot_content — App Store screenshot demo-content pipeline
 
-Generates the **culturally-tuned, per-locale demo data** the Wren app is seeded
+Generates the culturally-tuned, per-locale demo data the Wren app is seeded
 with when capturing App Store marketing screenshots (≤3 budgets per locale with
 locally realistic names, emoji, currency, and amounts).
 
-It is the screenshot sibling of the in-app (`translate_catalog/`) and metadata
-(`translate_metadata/`) pipelines and follows the same shape:
-**extract → dispatch → fan-out subagents → validate → merge → gate.**
+Sibling of the in-app (`translate_catalog/`) and metadata
+(`translate_metadata/`) pipelines, with the same shape:
+extract → dispatch → fan-out subagents → validate → merge → gate.
 
-The driver is the **`/appstore:generate-screenshot-seeding`** command (skill
+Driver: `/appstore:generate-screenshot-seeding` (skill
 `appstore-generate-screenshot-seeding`); this directory holds the scripts it runs.
-Capture and upload are driven by the **`/appstore:generate-push-screenshots`** skill.
+Capture and upload: `/appstore:generate-push-screenshots`.
 
 ## What it produces
 
 A runtime-keyed JSON catalog under
 `simple-recurring-budgetsUITests/ScreenshotSeeds/<runtime>.json` (en-US + 49
-target runtimes). The catalog lives in the **UI test target** so the marketing
+target runtimes). The catalog lives in the UI test target so the marketing
 fixtures never ship in the production app. The `AppStoreScreenshots` UI test loads
 the file matching the `-AppleLanguages` value fastlane `snapshot` launches with
 and seeds the app via the `SEED_SCREENSHOTS_JSON` launch-env contract.
 
-Each file also carries a top-level **`primaryLocale`** — the region-qualified ICU
+Each file also carries a top-level `primaryLocale`: the region-qualified ICU
 locale identifier (`de_DE`, `ja_JP`, `nb_NO`, …) the UI test passes as
 `-AppleLocale`. fastlane only sets `-AppleLanguages`, so language-only locales stay
 region-less and `Locale.currency` resolves to nil, making the Settings
-currency-display example fall back to USD; `primaryLocale` pins the market so every
+currency-display example fall back to USD. `primaryLocale` pins the market so every
 shot shows the right currency and number formatting. The value is owned by
 `REGION_BY_STOREFRONT` in `content_locales.py` (kept 1:1 with the currency map) and
 the production `ScreenshotSeed` decoder ignores the key.
 
 ## Locale codes
 
-- Subagent work is keyed by **storefront** codes (de-DE, no, ar-SA, …), reusing
+- Subagent work is keyed by storefront codes (de-DE, no, ar-SA, …), reusing
   `translate_metadata/metadata_locales.py` for the mapping + cultural notes.
-- The merged catalog is keyed by **runtime** codes (de, nb, ar, …) — the exact
+- The merged catalog is keyed by runtime codes (de, nb, ar, …) — the exact
   Snapfile `-AppleLanguages` strings. `merge.py` maps storefront → runtime.
 - After capture, `rename_for_deliver.py` renames the captured
   `fastlane/screenshots/<runtime>/` folders back to storefront codes so `deliver`
@@ -42,7 +42,7 @@ the production `ScreenshotSeed` decoder ignores the key.
 
 ## Source of truth
 
-`SOURCE.json` — the canonical English budget **structure**. Structural fields
+`SOURCE.json` is the canonical English budget structure. Structural fields
 (`role`, `period`, `startOffsetDays`, `isCarryOverEnabled`, expense `daysAgo`,
 expense count) are preserved by every locale; only content (`name`, `icon`,
 `currencyCode`, `allocation`, expense `name`/`amount`) is tuned. This keeps every
@@ -72,7 +72,7 @@ python3 scripts/screenshot_content/check_content.py
 ```
 
 `validate.py` reports PASS / WARN / PENDING / FAIL per storefront (your retry
-dashboard). Re-dispatch only the PENDING/FAIL subagents; do **not** re-run
+dashboard). Re-dispatch only the PENDING/FAIL subagents; don't re-run
 `dispatch_prompts.py` mid-fan-out (it clears outputs by default).
 
 ## Files
@@ -92,7 +92,7 @@ dashboard). Re-dispatch only the PENDING/FAIL subagents; do **not** re-run
 
 ## Not in scope
 
-- App Store **text** metadata → `/appstore:translate-metadata`.
+- App Store text metadata → `/appstore:translate-metadata`.
 - In-app UI strings → `translate-new-strings`.
 - Capture + upload mechanics → `fastlane/Snapfile`, `fastlane/Fastfile`
   (`screenshots` / `push_screenshots` lanes), `fastlane/SETUP.md`.

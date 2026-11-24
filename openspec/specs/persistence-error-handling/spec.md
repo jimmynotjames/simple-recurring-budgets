@@ -5,7 +5,7 @@ TBD - created by archiving change robust-persistence-error-handling. Update Purp
 ## Requirements
 ### Requirement: Single throwing save path for all production writes
 
-The app SHALL provide one persistence-save helper — `ModelContext.saveChanges(operation:analytics:)` (or equivalent) in `simple-recurring-budgets/Domain` — that wraps `try context.save()`. Every production write site that previously used `try? context.save()` SHALL route through this helper. The helper SHALL, on a thrown error: (a) emit `Logger.persistence.error` per the `diagnostic-logging` capability, (b) fire the `persistence_save_failed` analytics event per the requirement below, and (c) rethrow a `PersistenceError` value that carries the originating `PersistenceOperation` identifier and the underlying error's domain and code. On success the helper SHALL return normally without logging or tracking.
+The app SHALL provide one persistence-save helper, `ModelContext.saveChanges(operation:analytics:)` (or equivalent) in `simple-recurring-budgets/Domain`, that wraps `try context.save()`. Every production write site SHALL route through it instead of `try? context.save()`. The helper SHALL, on a thrown error: (a) emit `Logger.persistence.error` per the `diagnostic-logging` capability, (b) fire the `persistence_save_failed` analytics event per the requirement below, and (c) rethrow a `PersistenceError` value that carries the originating `PersistenceOperation` identifier and the underlying error's domain and code. On success the helper SHALL return normally without logging or tracking.
 
 `DebugData.swift` and `BudgetDetailFixtures.swift` are DEBUG/preview-only seeding paths and are exempt; they MAY retain `try?`. No other production file under `simple-recurring-budgets/` SHALL contain `try? context.save()`.
 
@@ -30,7 +30,7 @@ The helper SHALL NOT store the `ModelContext` or the `AnalyticsClient`; both are
 
 ### Requirement: Interactive save failures keep the sheet open and offer Retry
 
-A write that originates from a presenting sheet or screen (Add/Edit Budget, Add/Edit Expense, inline expense add/edit, swipe-to-delete, drag-to-reorder, and the user-tap-triggered lifecycle write-paths) is *interactive*. When an interactive write fails, the system SHALL NOT dismiss the presenting sheet and SHALL NOT clear the user's in-progress input. Instead it SHALL present a save-error alert offering **Retry** and a non-destructive dismiss-the-alert action (e.g. **Cancel** / **OK**) that returns the user to the unchanged form. Activating **Retry** SHALL re-attempt the identical write operation.
+A write that originates from a presenting sheet or screen (Add/Edit Budget, Add/Edit Expense, inline expense add/edit, swipe-to-delete, drag-to-reorder, and the user-tap-triggered lifecycle write-paths) is *interactive*. When an interactive write fails, the system SHALL NOT dismiss the presenting sheet and SHALL NOT clear the user's in-progress input. Instead it SHALL present a save-error alert offering Retry and a non-destructive dismiss action (e.g. Cancel / OK) that returns the user to the unchanged form. Activating Retry SHALL re-attempt the identical write operation.
 
 A successful write (including a successful retry) SHALL dismiss the sheet (where the screen dismisses on save) and clear any save-error state.
 
@@ -58,7 +58,7 @@ A successful write (including a successful retry) SHALL dismiss the sheet (where
 
 ### Requirement: Save-error alert escalates to Send Feedback after three consecutive failures
 
-The save-error alert SHALL track the number of consecutive failures for the same operation. While that count is less than 3, the alert offers only Retry and the dismiss action. When the count reaches 3 or more, the alert SHALL additionally offer a **Send Feedback** action that opens the app's existing feedback `mailto:` URL (the one used by Settings) with a subject/body prefilled with only the `PersistenceOperation` identifier and the error domain and code. The feedback body SHALL NOT contain any `Budget` or `ExpenseItem` field, money value, or other user-derived content. A subsequent successful save SHALL reset the consecutive-failure count.
+The save-error alert SHALL track the number of consecutive failures for the same operation. While that count is less than 3, the alert offers only Retry and the dismiss action. When the count reaches 3 or more, the alert SHALL additionally offer a Send Feedback action that opens the Settings feedback `mailto:` URL, prefilled with only the `PersistenceOperation` identifier and the error domain and code. The feedback body SHALL NOT contain any `Budget` or `ExpenseItem` field, money value, or other user-derived content. A subsequent successful save SHALL reset the consecutive-failure count.
 
 #### Scenario: Send Feedback appears on the third failure
 

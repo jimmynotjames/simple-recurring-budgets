@@ -4,7 +4,7 @@ Single-budget screen with remaining/carry-over header, period-aware expense sect
 ## Requirements
 ### Requirement: Budget detail screen is the resolved destination of `AppRoute.budgetDetail`
 
-`RootView` SHALL resolve `AppRoute.budgetDetail(UUID)` (via `ModelContext.budget(id:)`) to `BudgetDetailView(budget:)` (no longer a placeholder `Text`). The screen SHALL set `navigationBarTitleDisplayMode(.inline)` and apply `appBackground()`. The screen SHALL NOT set a string `navigationTitle`; the budget title is rendered as scroll-aware content per the "Scroll-aware content-area budget title" requirement.
+`RootView` SHALL resolve `AppRoute.budgetDetail(UUID)` (via `ModelContext.budget(id:)`) to `BudgetDetailView(budget:)`. The screen SHALL set `navigationBarTitleDisplayMode(.inline)` and apply `appBackground()`. The screen SHALL NOT set a string `navigationTitle`; the budget title is rendered as scroll-aware content per the "Scroll-aware content-area budget title" requirement.
 
 The screen SHALL render its primary content as a SwiftUI `List` with `listStyle(.insetGrouped)` and `scrollContentBackground(.hidden)` so the `appBackground()` color shows through.
 
@@ -22,7 +22,7 @@ The screen SHALL render its primary content as a SwiftUI `List` with `listStyle(
 
 ### Requirement: Scroll-aware content-area budget title
 
-The Budget detail screen SHALL render the budget's icon + name as a content-area large title rather than a string `navigationTitle`, so the title can place the icon on the leading edge (RTL-correct), wrap long names, and collapse into the inline navigation bar on scroll.
+The Budget detail screen SHALL render the budget's icon + name as a content-area large title rather than a string `navigationTitle`, so the icon sits on the leading edge (RTL-correct), long names wrap, and the title collapses into the inline navigation bar on scroll.
 
 The expanded title SHALL be the first row of the screen's `List`, leading-aligned to the outer edge of the inset-grouped cards below it, with the budget's `icon` (when set) rendered immediately before the budget `name` as a single leading title (decorative icon). It SHALL use large-title font size with bold weight, support Dynamic Type, and wrap to multiple lines (no single-line truncation) so a long name displays in full; wrapped lines SHALL align to the leading margin (the icon offsets only the first line, not subsequent lines). The icon SHALL sit on the leading edge and mirror with layout direction (right edge in RTL). When no icon is set, only the name is rendered.
 
@@ -61,16 +61,16 @@ The expanded content title SHALL expose the budget `name` as its VoiceOver label
 
 The first List section SHALL be a status header showing:
 
-- The current-period **remaining** amount, formatted with the budget's `currencyCode` and `AppSettings.currencyDisplay`, rendered in the system large-title font with `monospacedDigit()`. When remaining is negative, the amount SHALL be tinted with `Color.moneyDeficit`; when zero or positive, the primary text color.
-- The period label sourced from `Budget.periodDisplayLabel` rendered in the system callout font with secondary foreground. For recurring periods this resolves to "Daily" / "Weekly" / "Biweekly" / "Monthly" (via `BudgetPeriod.listLabel`). For `.specificDates` budgets this resolves to the formatted date range produced by `Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)` over `Budget.startDate ..< Budget.endDate`. See `data-models` for the `Budget.periodDisplayLabel` definition.
+- The current-period remaining amount, formatted with the budget's `currencyCode` and `AppSettings.currencyDisplay`, rendered in the system large-title font with `monospacedDigit()`. When remaining is negative, the amount SHALL be tinted with `Color.moneyDeficit`; when zero or positive, the primary text color.
+- The period label sourced from `Budget.periodDisplayLabel` rendered in the system callout font with secondary foreground. For recurring periods it resolves to "Daily" / "Weekly" / "Biweekly" / "Monthly" (via `BudgetPeriod.listLabel`). For `.specificDates` budgets it resolves to the date range produced by `Date.IntervalFormatStyle(date: .abbreviated, time: .omitted)` over `Budget.startDate ..< Budget.endDate`. See `data-models` for the `Budget.periodDisplayLabel` definition.
 - A `RemainingBar` decorative bar bound to `clamp(remaining / allocation, 0, 1)`, hidden from VoiceOver and following the same on-budget vs over-budget rules as the Budgets row (accent fill when remaining ≥ 0; full deficit fill when remaining < 0; empty when allocation is 0).
-- When `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`, a row beneath the bar containing a `CarryOverChip` (passing `lifecycle?.carryOverAmount ?? 0`, `currencyCode`, and `AppSettings.currencyDisplay`). The header SHALL NOT render any trailing action control on this row — the manual carry-over reset trigger lives in the toolbar overflow Menu (see the separate "Toolbar overflow Menu" requirement below). When `isCarryOverEnabled == false` OR `period == .specificDates`, this row SHALL be omitted entirely (per F-2.08, the Carry-Over chip is hidden for Specific Dates budgets regardless of the stored `isCarryOverEnabled` value).
+- When `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`, a row beneath the bar containing a `CarryOverChip` (passing `lifecycle?.carryOverAmount ?? 0`, `currencyCode`, and `AppSettings.currencyDisplay`). The header SHALL NOT render any trailing action control on this row; the manual carry-over reset lives in the toolbar overflow Menu (see "Toolbar overflow Menu" below). When `isCarryOverEnabled == false` OR `period == .specificDates`, this row SHALL be omitted entirely (per F-2.08, the chip is hidden for Specific Dates budgets regardless of the stored `isCarryOverEnabled` value).
 
 The header SHALL collapse the amount and period label into a single accessibility element with the composed VoiceOver label specified by the dedicated requirement below.
 
-The header's amount + period container SHALL use `ViewThatFits(in: .horizontal)` so the layout responds to actual content width rather than a fixed `dynamicTypeSize` threshold. The first (preferred) child SHALL be a horizontal `HStack(alignment: .firstTextBaseline, spacing: amountSpacing)` containing the amount text and the period label, both with `.lineLimit(1)` so `ViewThatFits` correctly detects overflow. The fallback child SHALL be a vertical `VStack(alignment: .leading, spacing: amountSpacing)` containing the same two texts; in this fallback the period label SHALL omit `.lineLimit(1)` so it can wrap naturally on its own line. Row spacing, amount-stack spacing, chip top spacing, and row vertical padding SHALL scale via `@ScaledMetric` relative to the relevant text style.
+The header's amount + period container SHALL use `ViewThatFits(in: .horizontal)` so the layout responds to content width rather than a fixed `dynamicTypeSize` threshold. The first (preferred) child SHALL be a horizontal `HStack(alignment: .firstTextBaseline, spacing: amountSpacing)` containing the amount text and the period label, both with `.lineLimit(1)` so `ViewThatFits` detects overflow. The fallback child SHALL be a vertical `VStack(alignment: .leading, spacing: amountSpacing)` containing the same two texts; in the fallback the period label SHALL omit `.lineLimit(1)` so it can wrap on its own line. Row spacing, amount-stack spacing, chip top spacing, and row vertical padding SHALL scale via `@ScaledMetric` relative to the relevant text style.
 
-This requirement explicitly replaces the prior fixed-threshold behaviour (HStack below `.xxxLarge`, VStack at `.xxxLarge` and above). The `ViewThatFits` approach handles both font-size scaling and content-width changes (notably the longer date-range label produced for `.specificDates` budgets) in a single rule.
+This replaces the prior fixed-threshold behaviour (HStack below `.xxxLarge`, VStack at `.xxxLarge` and above). `ViewThatFits` handles both font-size scaling and content-width changes (notably the longer `.specificDates` date-range label) in one rule.
 
 The header section SHALL set `listRowBackground(Color("CellBackground"))` and hide the row separator.
 
@@ -107,12 +107,12 @@ The header section SHALL set `listRowBackground(Color("CellBackground"))` and hi
 #### Scenario: Carry-over row visible when toggle is on and period is recurring
 
 - **WHEN** `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`
-- **THEN** the header renders a `CarryOverChip` on a row beneath the `RemainingBar`, with no trailing action button in the header; the manual carry-over reset is triggered exclusively from the toolbar overflow Menu
+- **THEN** the header renders a `CarryOverChip` on a row beneath the `RemainingBar`, with no trailing action button in the header; the manual carry-over reset is triggered only from the toolbar overflow Menu
 
 #### Scenario: Header carry-over row is unaffected by the live carry-over magnitude
 
 - **WHEN** `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates` AND the live `carryOverAmount` is zero, positive, or negative
-- **THEN** the header carry-over row renders in all three cases; the row's visibility depends only on `isCarryOverEnabled` and `period`, not on the magnitude or sign of `carryOverAmount`
+- **THEN** the header carry-over row renders in all three cases; visibility depends only on `isCarryOverEnabled` and `period`, not on the magnitude or sign of `carryOverAmount`
 
 #### Scenario: Horizontal layout when content fits
 
@@ -131,7 +131,7 @@ The header section SHALL set `listRowBackground(Color("CellBackground"))` and hi
 The header SHALL provide a single combined accessibility element (`accessibilityElement(children: .combine)`) with a localized label that describes the current-period state:
 
 - When `remaining >= 0`, the label SHALL use key `budgetDetail.header.accessibilityLabel` and include the formatted remaining amount and an inline period descriptor.
-- When `remaining < 0`, the label SHALL use key `budgetDetail.header.accessibilityLabel.overBudget` and include the **positive** overage amount (i.e. `|remaining|`) and an inline period descriptor.
+- When `remaining < 0`, the label SHALL use key `budgetDetail.header.accessibilityLabel.overBudget` and include the positive overage amount (`|remaining|`) and an inline period descriptor.
 
 The inline period descriptor SHALL be sourced from `Budget.periodInlineLabel`. For recurring periods this resolves via `BudgetPeriod.inlineLabel` to dedicated per-locale strings ("daily", "weekly", "biweekly", "monthly"). For `.specificDates` budgets it resolves to a dedicated string (key `period.specificDates.inline.budgetDetail`, English source: "in this window") so the announcement reads naturally (e.g. "$941.00 remaining in this window" rather than "$941.00 remaining this specific dates period").
 
@@ -148,7 +148,7 @@ The inline period descriptor SHALL be sourced from `Budget.periodInlineLabel`. F
 #### Scenario: Over-budget header announces positive overage
 
 - **WHEN** VoiceOver focuses the header and `remaining < 0`
-- **THEN** the announced label uses key `budgetDetail.header.accessibilityLabel.overBudget` and includes the formatted **positive** overage amount and the inline period descriptor; the negative sign is not announced literally
+- **THEN** the announced label uses key `budgetDetail.header.accessibilityLabel.overBudget` and includes the formatted positive overage amount and the inline period descriptor; the negative sign is not announced literally
 
 ---
 
@@ -156,12 +156,12 @@ The inline period descriptor SHALL be sourced from `Budget.periodInlineLabel`. F
 
 The second List section SHALL be a single full-width primary action button styled `.borderedProminent` at `.controlSize(.large)` with the system headline font. The button's label, action, and the caption beneath it SHALL be state-driven from `BudgetLifecycleResult.lifecycleState`:
 
-- **`.active`, `.preStart`, `.postEnd`** — the button SHALL be a `Label` composed of the localized title (key `budgetDetail.action.addExpense`, en-US "Add Expense") and the SF Symbol `plus`. Activating it SHALL set `router.sheet = .addExpense(budget.id)` for this specific budget. No caption is rendered beneath the button. The button SHALL provide a localized accessibility label that includes the budget's name (key `budgetDetail.action.addExpense.accessibilityLabel`) and a localized accessibility hint (key `budgetDetail.action.addExpense.accessibilityHint`).
-- **`.paused`** — the button SHALL be a `Label` composed of the localized title (key `budgetDetail.action.resume`, en-US "Resume Budget") and the SF Symbol `play.circle`. Activating it SHALL call `BudgetLifecycleService.resumeBudget(budget, context:context, now: Date())`, then — when the call returns `true` — fire the `budget_resumed` analytics event (see budget-detail-screen analytics requirements) and re-invoke `BudgetLifecycleService.result(for:)`. Directly below the button, in `.caption`/`.secondary` styling, a single line SHALL render the localized caption `budgetDetail.action.resume.caption.format` (en-US "Paused since %@. Resume to log new expenses.") with the formatted `BudgetLifecycleResult.pausedSince` (locale-aware `Date.formatted(date: .abbreviated, time: .omitted)`). The caption is the only paused-state explainer on this surface; there is no separate disabled Add Expense affordance. The button SHALL provide a localized accessibility label (key `budgetDetail.action.resume.accessibilityLabel`) and accessibility hint (key `budgetDetail.action.resume.accessibilityHint`).
+- **`.active`, `.preStart`, `.postEnd`**: the button SHALL be a `Label` composed of the localized title (key `budgetDetail.action.addExpense`, en-US "Add Expense") and the SF Symbol `plus`. Activating it SHALL set `router.sheet = .addExpense(budget.id)` for this specific budget. No caption is rendered beneath the button. The button SHALL provide a localized accessibility label that includes the budget's name (key `budgetDetail.action.addExpense.accessibilityLabel`) and a localized accessibility hint (key `budgetDetail.action.addExpense.accessibilityHint`).
+- **`.paused`**: the button SHALL be a `Label` composed of the localized title (key `budgetDetail.action.resume`, en-US "Resume Budget") and the SF Symbol `play.circle`. Activating it SHALL call `BudgetLifecycleService.resumeBudget(budget, context:context, now: Date())`, then, when the call returns `true`, fire the `budget_resumed` analytics event (see the analytics requirement below) and re-invoke `BudgetLifecycleService.result(for:)`. Directly below the button, in `.caption`/`.secondary` styling, a single line SHALL render the localized caption `budgetDetail.action.resume.caption.format` (en-US "Paused since %@. Resume to log new expenses.") with the formatted `BudgetLifecycleResult.pausedSince` (locale-aware `Date.formatted(date: .abbreviated, time: .omitted)`). The caption is the only paused-state explainer on this surface; there is no disabled Add Expense affordance. The button SHALL provide a localized accessibility label (key `budgetDetail.action.resume.accessibilityLabel`) and accessibility hint (key `budgetDetail.action.resume.accessibilityHint`).
 
-The section SHALL use `listRowBackground(Color.clear)`, hide the row separator, and apply `listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))` so the button reads as a free-standing prominent action rather than a List row.
+The section SHALL use `listRowBackground(Color.clear)`, hide the row separator, and apply `listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))` so the button reads as a free-standing action, not a List row.
 
-The "Resume to log **new** expenses" wording quietly acknowledges that backdated entries via the Budgets-list `+` button remain available while paused (per the `add-edit-expense-screen` date-bounds requirement). The Detail screen itself does not surface a backdated-entry affordance — the list `+` is the entry point for that path — but the caption avoids over-claiming that all expense entry is blocked.
+The "Resume to log new expenses" wording acknowledges that backdated entries via the Budgets-list `+` button remain available while paused (per the `add-edit-expense-screen` date-bounds requirement). The Detail screen has no backdated-entry affordance (the list `+` is that entry point), but the caption does not claim all expense entry is blocked.
 
 #### Scenario: Active state shows Add Expense
 
@@ -204,18 +204,18 @@ The "Resume to log **new** expenses" wording quietly acknowledges that backdated
 
 The screen SHALL place a single `topBarTrailing` toolbar item rendered as a `Menu` whose label is the SF Symbol `ellipsis.circle`. The Menu SHALL contain, in order:
 
-1. **Edit Budget** (key `budgetDetail.menu.editBudget`, system image `pencil`) — activating it sets `router.sheet = .editBudget(budget.id)`. Visible in every lifecycle state.
-2. **Pause Budget** / **Resume Budget** (state-driven; see below).
+1. Edit Budget (key `budgetDetail.menu.editBudget`, system image `pencil`): activating it sets `router.sheet = .editBudget(budget.id)`. Visible in every lifecycle state.
+2. Pause Budget / Resume Budget (state-driven; see below).
 3. A `Divider`.
-4. **Reset Carry-Over…** (key `budgetDetail.menu.resetCarryOver`, system image `arrow.counterclockwise.circle`, `role: .destructive`) — activating it triggers the Reset Carry-Over confirmation flow. Visible only when `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`; omitted entirely otherwise (per F-2.08, Reset Carry-Over is hidden for Specific Dates budgets). Visible in every lifecycle state in which the screen is rendered, regardless of the live carry-over balance's magnitude or sign.
-5. **Reset Budget…** (key `budgetDetail.menu.resetBudget`, system image `arrow.counterclockwise`, `role: .destructive`) — activating it triggers the Reset Budget confirmation flow.
+4. Reset Carry-Over… (key `budgetDetail.menu.resetCarryOver`, system image `arrow.counterclockwise.circle`, `role: .destructive`): activating it triggers the Reset Carry-Over confirmation flow. Visible only when `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`; omitted otherwise (per F-2.08, hidden for Specific Dates budgets). Visible in every lifecycle state, regardless of the live carry-over balance's magnitude or sign.
+5. Reset Budget… (key `budgetDetail.menu.resetBudget`, system image `arrow.counterclockwise`, `role: .destructive`): activating it triggers the Reset Budget confirmation flow.
 
 The Pause/Resume item SHALL be:
 
-- **Hidden** when `BudgetPeriod(rawValue: budget.period) == .specificDates` (Specific Dates budgets are not pausable per `docs/product-features-planning.md` F-2.08).
-- **Hidden** when `BudgetLifecycleResult.lifecycleState == .postEnd` (a terminal budget cannot be paused or resumed per F-7.07).
-- Otherwise, **visible** with state-driven label and icon:
-  - When `lifecycleState == .active` or `.preStart`: the item reads "Pause Budget" (key `budgetDetail.menu.pauseBudget`, system image `pause.circle`). Activating it calls `BudgetLifecycleService.pauseBudget(budget, context:context, now: Date())`, then — when the call returns `true` — fires the `budget_paused` analytics event and re-invokes `BudgetLifecycleService.result(for:)`. No confirmation dialog is presented (pause is reversible).
+- Hidden when `BudgetPeriod(rawValue: budget.period) == .specificDates` (Specific Dates budgets are not pausable per `docs/product-features-planning.md` F-2.08).
+- Hidden when `BudgetLifecycleResult.lifecycleState == .postEnd` (a terminal budget cannot be paused or resumed per F-7.07).
+- Otherwise visible with state-driven label and icon:
+  - When `lifecycleState == .active` or `.preStart`: the item reads "Pause Budget" (key `budgetDetail.menu.pauseBudget`, system image `pause.circle`). Activating it calls `BudgetLifecycleService.pauseBudget(budget, context:context, now: Date())`, then, when the call returns `true`, fires the `budget_paused` analytics event and re-invokes `BudgetLifecycleService.result(for:)`. No confirmation dialog is presented (pause is reversible).
   - When `lifecycleState == .paused`: the item reads "Resume Budget" (key `budgetDetail.menu.resumeBudget`, system image `play.circle`). Activating it performs the same Resume action as the primary action button.
 
 The Menu SHALL provide a localized accessibility label (key `budgetDetail.menu.accessibilityLabel`). The Reset Carry-Over… menu item SHALL provide a localized accessibility hint (key `budgetDetail.menu.resetCarryOver.accessibilityHint`) whose en-US value is "Clears the carry-over balance to zero. Expenses are not affected." per the cross-cutting accessibility requirement in `docs/main-prd.md` §6.8. The Reset Budget… menu item SHALL provide a localized accessibility hint (key `budgetDetail.menu.resetBudget.accessibilityHint`) whose en-US value is "Permanently deletes every expense for this budget, resets carry-over to zero, and resumes the budget if it is paused."
@@ -314,27 +314,27 @@ The Menu SHALL provide a localized accessibility label (key `budgetDetail.menu.a
 
 ### Requirement: Status header renders inactive presentation when lifecycle state is preStart, paused, or postEnd
 
-When `BudgetLifecycleResult.lifecycleState` is any of `.preStart`, `.paused`, or `.postEnd` (collectively, the "inactive" states), the status header SHALL render its values with a single unified visual treatment driven by a view-layer `BudgetInactiveReason` value derived from the lifecycle result and the budget. The reason carries the date payload used by the chip (`.preStart(startDate:)`, `.paused(since:)`, `.postEnd(endDate:)`). When `lifecycleState == .active`, `BudgetInactiveReason` is `nil` and none of the treatments below apply.
+When `BudgetLifecycleResult.lifecycleState` is `.preStart`, `.paused`, or `.postEnd` (the "inactive" states), the status header SHALL render its values with one unified visual treatment driven by a view-layer `BudgetInactiveReason` value derived from the lifecycle result and the budget. The reason carries the date payload used by the chip (`.preStart(startDate:)`, `.paused(since:)`, `.postEnd(endDate:)`). When `lifecycleState == .active`, `BudgetInactiveReason` is `nil` and none of the treatments below apply.
 
 The inactive presentation SHALL be:
 
-- **Large amount label.** When the reason is `.preStart` or `.postEnd`, the large amount label SHALL display the budget's `currentAllocation` (not `BudgetLifecycleResult.remaining`). When the reason is `.paused`, the label SHALL display `BudgetLifecycleResult.remaining`. In both cases the label SHALL use `.foregroundStyle(.secondary)` (the greyed value treatment), overriding the default primary-text / `Color.moneyDeficit` rules for non-inactive states.
-- **RemainingBar.** When `BudgetInactiveReason != nil`, the `RemainingBar` SHALL render as a full-width `.secondary`-filled capsule, regardless of the underlying `remainingFraction` / `isOverBudget` inputs.
-- **CarryOverChip.** When `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`, the `CarryOverChip` SHALL continue to render with its formatted carry-over amount, but its foreground style SHALL be overridden to `.secondary` while its background tint remains its existing surplus / deficit color. The chip's value SHALL remain live — backdated edits to prior active periods MAY still change it.
-- **InactiveStatusChip.** The header SHALL render an `InactiveStatusChip` carrying the reason in the status chip area (the same area that previously rendered `PausedChip`). The chip's content SHALL vary by reason:
+- Large amount label. When the reason is `.preStart` or `.postEnd`, the large amount label SHALL display the budget's `currentAllocation` (not `BudgetLifecycleResult.remaining`). When the reason is `.paused`, the label SHALL display `BudgetLifecycleResult.remaining`. In both cases the label SHALL use `.foregroundStyle(.secondary)` (the greyed value treatment), overriding the default primary-text / `Color.moneyDeficit` rules for non-inactive states.
+- RemainingBar. When `BudgetInactiveReason != nil`, the `RemainingBar` SHALL render as a full-width `.secondary`-filled capsule, regardless of `remainingFraction` / `isOverBudget`.
+- CarryOverChip. When `Budget.isCarryOverEnabled == true` AND `Budget.period != .specificDates`, the `CarryOverChip` SHALL continue to render with its formatted carry-over amount, but its foreground style SHALL be overridden to `.secondary` while its background tint remains its surplus / deficit color. The chip's value SHALL remain live; backdated edits to prior active periods MAY still change it.
+- InactiveStatusChip. The header SHALL render an `InactiveStatusChip` carrying the reason in the status chip area (the area that previously rendered `PausedChip`). Content by reason:
   - `.preStart(startDate:)` → SF Symbol `calendar.badge.clock` + localized label `chip.inactive.preStart.label.format` (en-US "Starts %@") with `startDate` formatted via `Date.formatted(date: .abbreviated, time: .omitted)`.
   - `.paused(since:)` → SF Symbol `pause.circle.fill` + localized label `chip.paused.label.format` (en-US "Paused · %@") with `since` formatted via `Date.formatted(date: .abbreviated, time: .omitted)`. *(Existing key reused; no copy change.)*
   - `.postEnd(endDate:)` → SF Symbol `checkmark.circle` + localized label `chip.inactive.postEnd.label.format` (en-US "Ended %@") with `endDate` formatted via `Date.formatted(date: .abbreviated, time: .omitted)`.
   - All three variants share capsule styling identical to the corresponding `budgets-screen` chip requirement (`.font(.caption)`, `.fontWeight(.medium)`, `.foregroundStyle(.secondary)`, Dynamic-Type-scaled padding, `Capsule().fill(Color.primary.opacity(0.15))` with `0.05` under increased contrast).
-- **VoiceOver label (header).** The header's composed VoiceOver label is produced by the same `BudgetRemainingSummary.accessibilityLabel(...)` helper used by the Budgets-list row, with `budgetName: nil` since the nav title already announces the budget name. The helper dispatches to two dedicated keys for the preStart and postEnd cases (the paused case continues to use the existing on-budget / over-budget keys):
+- VoiceOver label (header). The header's composed VoiceOver label is produced by the same `BudgetRemainingSummary.accessibilityLabel(...)` helper as the Budgets-list row, with `budgetName: nil` since the nav title already announces the name. The helper dispatches to two dedicated keys for preStart and postEnd (paused keeps the existing on-budget / over-budget keys):
   - `.preStart` → key `budget.summary.accessibilityLabel.preStart` (en-US body "%@ %@ starts %@" where args are amount, periodInlineLabel, startDate).
   - `.paused` → existing keys `budget.summary.accessibilityLabel` / `.overBudget` reused unchanged.
   - `.postEnd` → key `budget.summary.accessibilityLabel.postEnd` (en-US body "%@ %@ ended %@" where args are amount, periodInlineLabel, endDate).
-- **VoiceOver label (chip).** The `InactiveStatusChip` SHALL provide its own static-text accessibility label per reason, using the same keys as the `budgets-screen` requirement (`chip.inactive.preStart.accessibilityLabel.format`, `chip.paused.accessibilityLabel.format`, `chip.inactive.postEnd.accessibilityLabel.format`).
+- VoiceOver label (chip). The `InactiveStatusChip` SHALL provide its own static-text accessibility label per reason, using the same keys as the `budgets-screen` requirement (`chip.inactive.preStart.accessibilityLabel.format`, `chip.paused.accessibilityLabel.format`, `chip.inactive.postEnd.accessibilityLabel.format`).
 
-The inactive presentation SHALL NOT affect the primary action slot (which retains its existing state-driven behavior — Add Expense for `.active`/`.preStart`/`.postEnd`, Resume Budget for `.paused`), the toolbar overflow Menu's action gating (which continues to consume `lifecycleState` directly), or the expense list section.
+The inactive presentation SHALL NOT affect the primary action slot (state-driven as before: Add Expense for `.active`/`.preStart`/`.postEnd`, Resume Budget for `.paused`), the toolbar overflow Menu's action gating (which consumes `lifecycleState` directly), or the expense list section.
 
-Specific Dates budgets (`Budget.period == .specificDates`) viewed before `startDate` or after `endDate` SHALL receive the same `.preStart` / `.postEnd` treatment as recurring budgets (same chip, same copy, same allocation-as-amount choice). Specific Dates budgets cannot be `.paused` per F-2.08, so the `.paused` variant never fires for them. The `CarryOverChip` is omitted for Specific Dates regardless of the inactive presentation (existing F-2.08 rule).
+Specific Dates budgets (`Budget.period == .specificDates`) viewed before `startDate` or after `endDate` SHALL receive the same `.preStart` / `.postEnd` treatment as recurring budgets (same chip, same copy, same allocation-as-amount choice). Specific Dates budgets cannot be `.paused` per F-2.08, so the `.paused` variant never fires for them. The `CarryOverChip` is omitted for Specific Dates regardless of the inactive presentation (F-2.08).
 
 #### Scenario: Paused header renders greyed remaining, full-width secondary bar, and Paused chip
 
@@ -364,7 +364,7 @@ Specific Dates budgets (`Budget.period == .specificDates`) viewed before `startD
 #### Scenario: Paused header VoiceOver label uses existing on-budget / over-budget keys
 
 - **WHEN** VoiceOver focuses the header in the `.paused` state
-- **THEN** the announced label uses the existing `budget.summary.accessibilityLabel` (or `.overBudget` for negative remaining) key — the paused-state suffix is not introduced by this requirement
+- **THEN** the announced label uses the existing `budget.summary.accessibilityLabel` (or `.overBudget` for negative remaining) key; no paused-state suffix is introduced
 
 #### Scenario: Pre-start header VoiceOver label
 
@@ -384,13 +384,13 @@ Specific Dates budgets (`Budget.period == .specificDates`) viewed before `startD
 #### Scenario: Inactive presentation does not change primary action slot behavior
 
 - **WHEN** the lifecycle service returns `lifecycleState == .preStart` or `.postEnd`
-- **THEN** the primary action slot continues to render the existing "Add Expense" button (no caption is added by this requirement; only the header presentation changes)
+- **THEN** the primary action slot continues to render the existing "Add Expense" button (no caption is added; only the header presentation changes)
 
 ---
 
 ### Requirement: Pause and resume analytics events
 
-The screen SHALL fire dedicated Mixpanel events on successful Pause and Resume actions, following the sibling-pattern boundary established by F-8.01 and F-8.02 (`OSLog` and `AnalyticsClient` are independent siblings; neither is derived from the other).
+The screen SHALL fire dedicated Mixpanel events on successful Pause and Resume actions, following the sibling-pattern boundary of F-8.01 and F-8.02 (`OSLog` and `AnalyticsClient` are independent siblings; neither is derived from the other).
 
 The events SHALL be:
 
@@ -413,25 +413,25 @@ No personally-identifying information SHALL be included in event properties beyo
 
 #### Scenario: No event is fired when the service rejects the action
 
-- **WHEN** the user taps Pause Budget on a budget whose `lifecycleState` is already `.paused` (defensive — UI shouldn't expose the action in this state) and `pauseBudget(...)` returns `false`
+- **WHEN** the user taps Pause Budget on a budget whose `lifecycleState` is already `.paused` (defensive; the UI doesn't expose the action in this state) and `pauseBudget(...)` returns `false`
 - **THEN** no `budget_paused` event is fired; the analytics call site is gated on the service's return value
 
 ---
 
 ### Requirement: Reset Carry-Over presents a confirmation alert and zeros only carry-over
 
-The Menu's "Reset Carry-Over…" item SHALL present a SwiftUI `.alert` titled with key `budgetDetail.resetCarryOver.alert.title` (en-US: "Reset carry-over?") and bodied with key `budgetDetail.resetCarryOver.alert.message` (en-US: "The carry-over balance will be cleared and start fresh from zero."). The alert SHALL expose exactly one explicit button: a destructive confirm button (key `budgetDetail.resetCarryOver.alert.confirm`, en-US: "Reset to Zero"). The implementation SHALL NOT add a redundant `role: .cancel` button; the platform provides dismissal per current iOS behavior (e.g. tap-outside where applicable).
+The Menu's "Reset Carry-Over…" item SHALL present a SwiftUI `.alert` titled with key `budgetDetail.resetCarryOver.alert.title` (en-US: "Reset carry-over?") and bodied with key `budgetDetail.resetCarryOver.alert.message` (en-US: "The carry-over balance will be cleared and start fresh from zero."). The alert SHALL expose exactly one explicit button: a destructive confirm button (key `budgetDetail.resetCarryOver.alert.confirm`, en-US: "Reset to Zero"). The implementation SHALL NOT add a redundant `role: .cancel` button; the platform provides dismissal (e.g. tap-outside where applicable).
 
-On confirm, the screen SHALL invoke `BudgetLifecycleService.resetCarryOver(budget, context: context)` and SHALL NOT directly mutate `Budget` fields. The service SHALL, in a single atomic write, set `Budget.lastResetDate = now`, set `Budget.lastModified = now`, and persist via exactly one `ModelContext.save()` call. The live carry-over walker (per `docs/main-prd.md` §6.7) treats all periods whose end is at or before `lastResetDate` as excluded, producing a carry-over of zero from that moment forward. No `ExpenseItem` rows SHALL be deleted; no `LifecycleEvent` SHALL be inserted. After the service call returns, the screen SHALL fire the `carryOverReset` analytics event and re-invoke `BudgetLifecycleService.result(for:)` so the header `CarryOverChip` updates.
+On confirm, the screen SHALL invoke `BudgetLifecycleService.resetCarryOver(budget, context: context)` and SHALL NOT directly mutate `Budget` fields. The service SHALL, in a single atomic write, set `Budget.lastResetDate = now`, set `Budget.lastModified = now`, and persist via exactly one `ModelContext.save()` call. The live carry-over walker (per `docs/main-prd.md` §6.7) excludes all periods whose end is at or before `lastResetDate`, so carry-over is zero from then on. No `ExpenseItem` rows SHALL be deleted; no `LifecycleEvent` SHALL be inserted. After the service call returns, the screen SHALL fire the `carryOverReset` analytics event and re-invoke `BudgetLifecycleService.result(for:)` so the header `CarryOverChip` updates.
 
 The Reset Carry-Over Menu item SHALL provide a localized VoiceOver hint (key `budgetDetail.menu.resetCarryOver.accessibilityHint`) describing the action's non-cascading destructive consequence.
 
-The Reset Carry-Over operation is distinct from the Reset Budget operation (which also deletes every `ExpenseItem` and may auto-resume a paused budget) and from the Delete Budget operation owned by the Add/Edit Budget sheet (which removes the Budget and cascades expenses).
+Reset Carry-Over is distinct from Reset Budget (which also deletes every `ExpenseItem` and may auto-resume a paused budget) and from Delete Budget, owned by the Add/Edit Budget sheet (which removes the Budget and cascades expenses).
 
 #### Scenario: Confirming Reset Carry-Over zeros only carry-over
 
 - **WHEN** the user activates the Reset Carry-Over… Menu item and confirms the alert
-- **THEN** `BudgetLifecycleService.resetCarryOver(budget, context:context)` is called once, `Budget.lastResetDate` and `Budget.lastModified` become the current date, `ModelContext.save()` is called exactly once, and **no** `ExpenseItem` rows are deleted and **no** `LifecycleEvent` is inserted
+- **THEN** `BudgetLifecycleService.resetCarryOver(budget, context:context)` is called once, `Budget.lastResetDate` and `Budget.lastModified` become the current date, `ModelContext.save()` is called exactly once, and no `ExpenseItem` rows are deleted and no `LifecycleEvent` is inserted
 
 #### Scenario: Carry-over reads as zero after a successful reset
 
@@ -462,23 +462,23 @@ The Reset Carry-Over operation is distinct from the Reset Budget operation (whic
 
 ### Requirement: Reset Budget presents a confirmation dialog and atomically wipes expenses, resets carry-over, and resumes if paused
 
-The Menu's "Reset Budget…" item SHALL present a SwiftUI `confirmationDialog` titled with key `budgetDetail.resetBudget.dialog.title` and bodied with key `budgetDetail.resetBudget.dialog.message`. The dialog SHALL expose exactly one explicit button: a destructive confirm button (key `budgetDetail.resetBudget.dialog.confirm`). The implementation SHALL NOT add a redundant `role: .cancel` button; SwiftUI's implicit dismiss (e.g. tap-outside on iOS when presented as an anchored popover) SHALL provide the cancel path, consistent with the Add/Edit Budget and Add/Edit Expense delete confirmations.
+The Menu's "Reset Budget…" item SHALL present a SwiftUI `confirmationDialog` titled with key `budgetDetail.resetBudget.dialog.title` and bodied with key `budgetDetail.resetBudget.dialog.message`. The dialog SHALL expose exactly one explicit button: a destructive confirm button (key `budgetDetail.resetBudget.dialog.confirm`). The implementation SHALL NOT add a redundant `role: .cancel` button; SwiftUI's implicit dismiss (e.g. tap-outside when presented as an anchored popover) SHALL be the cancel path, consistent with the Add/Edit Budget and Add/Edit Expense delete confirmations.
 
 The dialog body SHALL be a single static localized string under key `budgetDetail.resetBudget.dialog.message` (en-US: "All expenses will be permanently deleted, carry-over will reset to zero, and if paused, the budget will resume.") with no runtime arguments and no expense count in the copy.
 
-On confirm, the screen SHALL wrap the call in a `withAnimation` block and invoke `BudgetLifecycleService.resetBudget(budget, context: context, now: Date())`. The screen SHALL NOT directly mutate `Budget` fields or `ExpenseItem` rows for this action; all write logic lives in the service.
+On confirm, the screen SHALL wrap the call in a `withAnimation` block and invoke `BudgetLifecycleService.resetBudget(budget, context: context, now: Date())`. The screen SHALL NOT directly mutate `Budget` fields or `ExpenseItem` rows for this action; the service owns all writes.
 
 `BudgetLifecycleService.resetBudget(_:context:now:)` SHALL, in a single atomic write:
 
 1. Iterate `Array(budget.expenseItems)` and call `context.delete(_)` on each `ExpenseItem`.
-2. Set `Budget.lastResetDate = now` so the live carry-over walker excludes all prior periods (per `docs/main-prd.md` §6.7 — there is no stored `carryOverAmount` field to zero; carry-over is recomputed live).
+2. Set `Budget.lastResetDate = now` so the live carry-over walker excludes all prior periods (per `docs/main-prd.md` §6.7; there is no stored `carryOverAmount` to zero, carry-over is recomputed live).
 3. Set `Budget.lastModified = now`.
-4. Compute the current lifecycle state via `BudgetCalculator.snapshot(...)`. If `lifecycleState == .paused`, insert a new `LifecycleEvent(budget: budget, kind: .resume, effectiveDate: now)` into the same `ModelContext`. The implementation SHALL NOT call `BudgetLifecycleService.resumeBudget(...)` here — that method saves internally, which would break the single-save atomicity guarantee. The inline event insertion is safe because reaching the `.paused` branch guarantees the budget is recurring (Specific Dates budgets cannot be paused per F-2.08) and not `.postEnd` (a `.postEnd` budget cannot have lifecycle state `.paused`).
+4. Compute the current lifecycle state via `BudgetCalculator.snapshot(...)`. If `lifecycleState == .paused`, insert a new `LifecycleEvent(budget: budget, kind: .resume, effectiveDate: now)` into the same `ModelContext`. The implementation SHALL NOT call `BudgetLifecycleService.resumeBudget(...)` here; it saves internally, which would break single-save atomicity. Inline insertion is safe because the `.paused` branch guarantees the budget is recurring (Specific Dates budgets cannot be paused per F-2.08) and not `.postEnd`.
 5. Persist via exactly one `ModelContext.save()` call covering all of the above.
 
 After the service call returns, the screen SHALL fire the `budget_reset` analytics event (unchanged: a single event regardless of whether the auto-resume branch was taken) and re-invoke `BudgetLifecycleService.result(for:)` so the header and lists re-render. The Budget itself SHALL NOT be deleted.
 
-The Reset Budget operation is distinct from the Reset Carry-Over operation (which only sets `lastResetDate`) and from the Delete Budget operation owned by the Add/Edit Budget sheet (which removes the Budget and cascades expenses). The capability `budget-detail-screen` SHALL NOT introduce a Delete Budget entry point on this screen.
+Reset Budget is distinct from Reset Carry-Over (which only sets `lastResetDate`) and from Delete Budget, owned by the Add/Edit Budget sheet (which removes the Budget and cascades expenses). The capability `budget-detail-screen` SHALL NOT introduce a Delete Budget entry point on this screen.
 
 #### Scenario: Reset Budget dialog body is static and localized
 
@@ -503,7 +503,7 @@ The Reset Budget operation is distinct from the Reset Carry-Over operation (whic
 #### Scenario: Reset Budget fires `budget_reset` analytics exactly once regardless of paused state
 
 - **WHEN** the user activates Reset Budget… on a budget in any lifecycle state and confirms the dialog
-- **THEN** the `budget_reset` Mixpanel event is fired exactly once after the service returns; no `budget_resumed` event is fired for the auto-resume branch (the auto-resume is system-initiated, not a user-initiated action)
+- **THEN** the `budget_reset` Mixpanel event is fired exactly once after the service returns; no `budget_resumed` event is fired for the auto-resume branch (auto-resume is system-initiated, not user-initiated)
 
 #### Scenario: Reset Budget does NOT delete the Budget entity
 
@@ -521,8 +521,8 @@ The Reset Budget operation is distinct from the Reset Carry-Over operation (whic
 
 When `budget.expenseItems` is non-empty, the screen SHALL render the expense list as up to two adjacent List sections:
 
-- A **Current** section containing every `ExpenseItem` whose `date >= lifecycle?.periodStart`, sorted by `date` descending. Its header SHALL be the period-aware string under `budgetDetail.section.current.<period>` ("Current Day" / "Current Week" / "Current Period" / "Current Month") and SHALL also display, on the trailing edge of the header row, the section total formatted with the budget's `currencyCode`, `AppSettings.currencyDisplay`, and `monospacedDigit`. The section header SHALL apply `textCase(nil)` to the trailing total so the digits are not uppercased.
-- A **Past** section containing every `ExpenseItem` whose `date < lifecycle?.periodStart`, sorted by `date` descending. Its header SHALL be the period-aware string under `budgetDetail.section.past.<period>` ("Past Days" / "Past Weeks" / "Past Periods" / "Past Months"). The Past section SHALL NOT display a section total.
+- A Current section containing every `ExpenseItem` whose `date >= lifecycle?.periodStart`, sorted by `date` descending. Its header SHALL be the period-aware string under `budgetDetail.section.current.<period>` ("Current Day" / "Current Week" / "Current Period" / "Current Month") and SHALL also display, on the trailing edge of the header row, the section total formatted with the budget's `currencyCode`, `AppSettings.currencyDisplay`, and `monospacedDigit`. The section header SHALL apply `textCase(nil)` to the trailing total so the digits are not uppercased.
+- A Past section containing every `ExpenseItem` whose `date < lifecycle?.periodStart`, sorted by `date` descending. Its header SHALL be the period-aware string under `budgetDetail.section.past.<period>` ("Past Days" / "Past Weeks" / "Past Periods" / "Past Months"). The Past section SHALL NOT display a section total.
 
 When `lifecycle?.periodStart` is `nil` (the lifecycle has not yet returned), the Current and Past partitions both evaluate as empty arrays; the screen SHALL render the empty-budget caption (per the next requirement) until the lifecycle resolves.
 
@@ -536,7 +536,7 @@ Each row SHALL set `listRowBackground(Color("CellBackground"))`.
 #### Scenario: Past section omits the section total
 
 - **WHEN** the budget has at least one expense before the current period
-- **THEN** the Past section header reads the localized title for that budget's period and does **not** show a trailing total
+- **THEN** the Past section header reads the localized title for that budget's period and does not show a trailing total
 
 #### Scenario: Sort order is most-recent first within each section
 
@@ -568,7 +568,7 @@ When `budget.expenseItems` is non-empty but the Current section's filtered array
 The private `ExpenseRowView` SHALL render an `HStack` with:
 
 - A leading `VStack(alignment: .leading)` containing:
-  - The expense name in body font (up to 3 lines), or — if `name == nil` — an italicized placeholder body-font caption keyed `budgetDetail.expenseRow.unnamed` (en-US "Untitled") in secondary foreground. The placeholder copy is intentionally type-neutral so the same key reads naturally for both expense rows and add-funds rows.
+  - The expense name in body font (up to 3 lines), or, if `name == nil`, an italicized placeholder body-font caption keyed `budgetDetail.expenseRow.unnamed` (en-US "Untitled") in secondary foreground. The copy is type-neutral so the same key reads naturally for expense and add-funds rows.
   - The expense `date` formatted via `Date.formattedForExpenseList()` (Today / Yesterday / locale-aware date+time) in caption font with secondary foreground.
 - A trailing amount label rendering `expense.displayAmount` (the absolute value of `expense.amount`) formatted with the budget's `currencyCode` and `AppSettings.currencyDisplay`, in body font with `monospacedDigit`. When `expense.isAddFunds == true` (i.e. `expense.amount < 0`), the amount foreground SHALL be `Color.moneySurplus`; otherwise the primary text color.
 
@@ -594,7 +594,7 @@ The row SHALL collapse to a single accessibility element via `accessibilityEleme
 #### Scenario: Unnamed add-funds row uses the same type-neutral placeholder
 
 - **WHEN** an add-funds row has `name == nil`
-- **THEN** the row shows the same italicized "Untitled" placeholder (key `budgetDetail.expenseRow.unnamed`) as an unnamed expense row — there is no separate add-funds-specific placeholder
+- **THEN** the row shows the same italicized "Untitled" placeholder (key `budgetDetail.expenseRow.unnamed`) as an unnamed expense row; there is no add-funds-specific placeholder
 
 ---
 
@@ -621,7 +621,7 @@ The combined accessibility element SHALL provide a localized label that includes
 
 Each expense row SHALL expose a trailing `swipeActions(edge: .trailing, allowsFullSwipe: true)` containing exactly one destructive `Button` whose label is a `Label` composed of the localized title `budgetDetail.deleteExpense.swipeAction` (en-US "Delete") and the SF Symbol `trash`. Activating the swipe button (partial swipe + tap, or full trailing swipe) SHALL immediately call `deleteExpense(_:)` on the tapped expense.
 
-There is no confirmation dialog for swipe-initiated expense deletion. The `@State` properties `expenseToDelete` and `showDeleteConfirm` SHALL NOT exist on `BudgetDetailView`.
+Swipe-initiated expense deletion has no confirmation dialog. The `@State` properties `expenseToDelete` and `showDeleteConfirm` SHALL NOT exist on `BudgetDetailView`.
 
 On invocation, within a single `withAnimation` block, the system SHALL `context.delete(expense)` and persist the deletion via the shared persistence-save helper (operation `expense_delete`) exactly once, then re-invoke `BudgetLifecycleService.result(for:)` on success. The Budget itself SHALL NOT be modified except by the lifecycle service's normal roll-and-persist behavior.
 
@@ -660,12 +660,12 @@ If the persistence-save helper throws, the deletion is surfaced as an *interacti
 
 The screen SHALL invoke `BudgetLifecycleService.result(for:)` for the bound `Budget` on four triggers:
 
-1. `.task(id: budget.persistentModelID)` — initial load and identity changes.
+1. `.task(id: budget.persistentModelID)`: initial load and identity changes.
 2. `onChange(of: scenePhase)` when the new phase equals `.active`.
-3. `onChange(of: budget.expenseItems.count)` — every insert or delete from the Add Expense sheet, swipe-to-delete, or Reset Budget operation.
-4. `onChange(of: settings.weekStartDay)` — a Week Starts On change (confirmed locally in Settings or synced from another device via the iCloud key-value store) re-grids weekly budgets immediately.
+3. `onChange(of: budget.expenseItems.count)`: every insert or delete from the Add Expense sheet, swipe-to-delete, or Reset Budget operation.
+4. `onChange(of: settings.weekStartDay)`: a Week Starts On change (local or synced via the iCloud key-value store) re-grids weekly budgets immediately.
 
-The screen SHALL pass `weekStart: settings.weekStartDay` per the `budget-lifecycle` capability. The screen SHALL bind the returned `BudgetLifecycleResult` to a `@State` property and use it to drive the header `remaining`, `carryOverAmount`, and `periodStart` (used by the section partitioning). The screen SHALL NOT call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly — `BudgetLifecycleService` is the sole entry point for the eager sequence (consistent with `docs/tech-design-doc.md` §5.4).
+The screen SHALL pass `weekStart: settings.weekStartDay` per the `budget-lifecycle` capability. The screen SHALL bind the returned `BudgetLifecycleResult` to a `@State` property and use it to drive the header `remaining`, `carryOverAmount`, and `periodStart` (used by the section partitioning). The screen SHALL NOT call `BudgetCalculator.rollCarryOver` or `checkScheduledReset` directly; `BudgetLifecycleService` is the sole entry point for the eager sequence (consistent with `docs/tech-design-doc.md` §5.4).
 
 When the lifecycle result is unavailable (initial state before the first call returns), the screen MAY fall back to the budget's persisted `carryOverAmount` for chip rendering and SHALL evaluate the section partitions as empty arrays (showing the empty-budget caption) until the result resolves.
 
@@ -677,7 +677,7 @@ When the lifecycle result is unavailable (initial state before the first call re
 #### Scenario: Refresh on scene activation
 
 - **WHEN** the app transitions from `.inactive` or `.background` to `.active` while `BudgetDetailView` is visible
-- **THEN** `BudgetLifecycleService.result(for:)` is invoked again so any boundaries crossed while the app was inactive are applied before the next render
+- **THEN** `BudgetLifecycleService.result(for:)` is invoked again so boundaries crossed while the app was inactive apply before the next render
 
 #### Scenario: Refresh on expense count change
 
@@ -702,9 +702,9 @@ Every user-visible string introduced by `BudgetDetailView`, `BudgetDetailView+Ex
 
 The Reset Budget dialog body (`budgetDetail.resetBudget.dialog.message`) SHALL be a single `stringUnit` entry in the catalog (no plural buckets, no format placeholders). The Swift call site SHALL use `Text("budgetDetail.resetBudget.dialog.message", comment: …)` with no string interpolation.
 
-When copy genuinely varies by count in other features, count-driven plurals MAY use Xcode String Catalog plural variations (CLDR `one` / `other` per locale) per `docs/tech-design-doc.md` §5.1; this screen's Reset Budget message intentionally avoids a count to keep catalog and call sites simple.
+Count-driven plurals elsewhere MAY use Xcode String Catalog plural variations (CLDR `one` / `other` per locale) per `docs/tech-design-doc.md` §5.1; this screen's Reset Budget message deliberately avoids a count.
 
-The keys for the period-aware section titles, section empty captions, and the inline period name in the header VoiceOver label SHALL use **dedicated** per-period keys (`budgetDetail.section.current.<period>`, `budgetDetail.section.past.<period>`, `budgetDetail.currentPeriod.empty.<period>`, `period.<period>.inline`). Inline forms SHALL NOT be derived from list-label forms via `.lowercased()`.
+The keys for the period-aware section titles, section empty captions, and the inline period name in the header VoiceOver label SHALL use dedicated per-period keys (`budgetDetail.section.current.<period>`, `budgetDetail.section.past.<period>`, `budgetDetail.currentPeriod.empty.<period>`, `period.<period>.inline`). Inline forms SHALL NOT be derived from list-label forms via `.lowercased()`.
 
 #### Scenario: Reset Budget dialog message is a plain catalog string
 
@@ -754,9 +754,9 @@ The preview fixtures SHALL live in `Previews/BudgetDetailFixtures.swift` as `Deb
 
 Each expense row rendered in `BudgetDetailView` SHALL be wrapped in a tappable affordance (a `Button` with `.buttonStyle(.plain)`) whose action appends `AppRoute.expenseDetail(expense.id)` to `router.path`. `RootView` SHALL resolve that route to `AddEditExpenseView(viewModel: AddEditExpenseViewModel(editing: expense))`, presenting the screen as a push within the `NavigationStack`.
 
-The row's visual appearance SHALL be unchanged from the non-tappable state — `.buttonStyle(.plain)` ensures no system button highlighting is applied. Swipe actions (trailing swipe-to-delete) SHALL continue to function because SwiftUI's swipe gesture takes priority over the tap gesture on list rows, and the `.swipeActions` modifier is applied outside the `Button` wrapper.
+The row's appearance SHALL be unchanged from the non-tappable state; `.buttonStyle(.plain)` applies no system button highlighting. Trailing swipe-to-delete SHALL keep working because SwiftUI's swipe gesture takes priority over the tap gesture on list rows and `.swipeActions` is applied outside the `Button` wrapper.
 
-In Edit mode, `AddEditExpenseView` provides a trailing Save toolbar button only (no Cancel button — see the `add-edit-expense-screen` spec); the system back button serves as the discard path.
+In Edit mode, `AddEditExpenseView` provides a trailing Save toolbar button only (no Cancel button; see the `add-edit-expense-screen` spec); the system back button serves as the discard path.
 
 #### Scenario: Tapping a current-period expense row pushes the edit view
 

@@ -1,12 +1,12 @@
 # `translate_metadata/` — App Store listing transcreation pipeline
 
 Fills `fastlane/metadata/<storefront>/*.txt` for all 49 target App Store
-storefronts by transcreating the English (`en-US`) listing copy. This is the
+storefronts by transcreating the English (`en-US`) listing copy. The
 App-Store-metadata sibling of `scripts/translate_catalog/` (which handles in-app
 `Localizable.xcstrings`).
 
-The two pipelines are deliberately separate because they use **different locale
-code systems**:
+The two pipelines are deliberately separate because they use different locale
+code systems:
 
 | Pipeline | Codes | Source of truth |
 |----------|-------|-----------------|
@@ -15,14 +15,14 @@ code systems**:
 
 `metadata_locales.py` owns the `runtime → storefront` mapping so the two stay in lockstep.
 
-> **Per-storefront register notes are intentionally duplicated** between this pipeline's
+> Per-storefront register notes are intentionally duplicated between this pipeline's
 > `CULTURAL_NOTES` (in `dispatch_prompts.py`) and the in-app pipeline's `REGIONAL_NOTES`
 > (`scripts/translate_catalog/dispatch_prompts.py`). They overlap only in the *formality
 > decision* per language; the surrounding guidance is genuinely different (ASO
 > positioning/keyword rules + marketer voice here vs UI dialect/length there). Issue #173
-> considered single-sourcing them and we **decided not to** — the shared-prose abstraction
-> required a per-storefront override that re-duplicated the formality sentence anyway. **Sync
-> rule:** if you change a market's *formality decision* in one map, change it in the other;
+> considered single-sourcing them and we decided not to: the shared-prose abstraction
+> required a per-storefront override that re-duplicated the formality sentence anyway. Sync
+> rule: if you change a market's *formality decision* in one map, change it in the other;
 > wording may differ but the formality call must match. (Don't re-file this as a DRY bug.)
 
 ## What it translates
@@ -31,10 +31,10 @@ Transcreated per storefront (with App Store Connect character limits):
 
 | Field | Limit | Notes |
 |-------|-------|-------|
-| `name` | 30 | Must start with the brand **Wren**; only the descriptor is localized. |
+| `name` | 30 | Must start with the brand Wren; only the descriptor is localized. |
 | `subtitle` | 30 | Punchy tagline. |
 | `promotional_text` | 170 | Editable without a new app version. |
-| `keywords` | 100 | **Search terms**, not prose — comma-separated, no spaces, deduped. |
+| `keywords` | 100 | Search terms, not prose — comma-separated, no spaces, deduped. |
 | `description` | 4000 | Full persuasive listing copy; structure preserved. |
 | `release_notes` | 4000 | "What's New" text. |
 
@@ -42,9 +42,9 @@ Copied verbatim from `en-US` by `merge.py` (never sent to the model):
 `marketing_url`, `privacy_url`, `support_url`. The catalog-level
 `copyright.txt` is left untouched.
 
-The brand **"Wren"** is treated as a proper noun everywhere: never translated,
-transliterated, or glossed. (Decision: brand stays Latin in all locales — no
-localized home-screen icon name / `InfoPlist.xcstrings` is required.)
+The brand "Wren" is a proper noun everywhere: never translated,
+transliterated, or glossed. The brand stays Latin in all locales, so no
+localized home-screen icon name / `InfoPlist.xcstrings` is required.
 
 ## The recipe (driven by the `appstore-translate-metadata` skill / `/appstore:translate-metadata`)
 
@@ -132,11 +132,11 @@ or just delete the target folders and let `extract.py --missing` flag everything
 
 Two complementary audits:
 
-- **`audit.py`** — *structural*: presence + char-limit (`OVER`/`PENDING`) over the `tmp/`
+- `audit.py` (structural): presence + char-limit (`OVER`/`PENDING`) over the `tmp/`
   fan-out, plus the consolidated `_questions` checkpoint. Already part of the translate recipe.
-- **`audit_semantic.py`** — *semantic*: grades the **committed** localized listing
-  (`fastlane/metadata/<storefront>/`) for voice, transcreation (native vs. calqued), **keyword/ASO
-  effectiveness**, cultural fit, brand, and false claims — one Opus auditor per storefront, mirroring
+- `audit_semantic.py` (semantic): grades the committed localized listing
+  (`fastlane/metadata/<storefront>/`) for voice, transcreation (native vs. calqued), keyword/ASO
+  effectiveness, cultural fit, brand, and false claims — one Opus auditor per storefront, mirroring
   the in-app `scripts/translate_audit/` pipeline.
 
   ```bash
@@ -148,8 +148,7 @@ Two complementary audits:
   It only audits storefronts that actually have localized metadata (reports "nothing to audit"
   otherwise). Run it after a transcreation round to catch quality issues a length check can't.
 
-  **Remediation (`--write-manifest`).** To act on the findings instead of just reading them,
-  turn them into a re-transcreation manifest and re-run the standard transcreation path:
+  Remediation (`--write-manifest`): turn the findings into a re-transcreation manifest and re-run the standard transcreation path:
 
   ```bash
   python3 scripts/translate_metadata/audit_semantic.py --write-manifest --min-severity medium
@@ -161,6 +160,6 @@ Two complementary audits:
   # then re-audit the remediated storefronts; loop (cap 2 rounds)
   ```
 
-  This is the `appstore-translate-metadata` skill's Step 5 (it runs the whole loop autonomously:
-  auto-remediate medium+ findings, cap 2 rounds, surface any residual for owner review). It mirrors
+  This is the `appstore-translate-metadata` skill's Step 5, which runs the whole loop autonomously:
+  auto-remediate medium+ findings, cap 2 rounds, surface any residual for owner review. It mirrors
   the in-app `scripts/translate_audit/audit_report.py --write-manifest` flow.

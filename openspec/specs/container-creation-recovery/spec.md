@@ -5,7 +5,7 @@ TBD - created by archiving change container-creation-recovery. Update Purpose af
 ## Requirements
 ### Requirement: makeProductionModelContainer does not crash on failure
 
-`simple_recurring_budgetsApp.makeProductionModelContainer()` SHALL be a throwing function that returns the created `ModelContainer` on success and `throws` on failure. When both the CloudKit-backed creation and the local-only fallback fail, the function SHALL NOT call `fatalError(_:)` (or any other process-terminating API). The diagnostic `Logger.cloudKit.error("cloudkit.container.failed: …")` line SHALL still be emitted per the `diagnostic-logging` capability before the error is propagated to the caller. The successful CloudKit / local-fallback paths SHALL behave identically to before this change.
+`simple_recurring_budgetsApp.makeProductionModelContainer()` SHALL be a throwing function that returns the created `ModelContainer` on success and `throws` on failure. When both the CloudKit-backed creation and the local-only fallback fail, the function SHALL NOT call `fatalError(_:)` (or any other process-terminating API). The diagnostic `Logger.cloudKit.error("cloudkit.container.failed: …")` line SHALL still be emitted per the `diagnostic-logging` capability before the error is propagated to the caller. The successful CloudKit and local-fallback paths SHALL be unchanged.
 
 #### Scenario: Both creation paths failing throws instead of crashing
 
@@ -15,12 +15,12 @@ TBD - created by archiving change container-creation-recovery. Update Purpose af
 #### Scenario: Successful CloudKit-backed creation is unchanged
 
 - **WHEN** CloudKit-backed `ModelContainer` creation succeeds on the first try
-- **THEN** `makeProductionModelContainer` returns the container and its `containerBacking == .cloudKit`, identically to the pre-change behavior
+- **THEN** `makeProductionModelContainer` returns the container and its `containerBacking == .cloudKit`
 
 #### Scenario: Local fallback is unchanged
 
 - **WHEN** CloudKit-backed creation fails and the local-only fallback succeeds
-- **THEN** `makeProductionModelContainer` returns the container and its `containerBacking == .localFallback`, identically to the pre-change behavior
+- **THEN** `makeProductionModelContainer` returns the container and its `containerBacking == .localFallback`
 
 ---
 
@@ -33,7 +33,7 @@ The app SHALL expose an `@Observable` `AppStartup` model in `simple-recurring-bu
 - `error: ContainerCreationFailure?` — a typed value carrying the underlying `NSError`'s `domain: String` and `code: Int`; `nil` on success.
 - `func retry()` — re-runs `simple_recurring_budgetsApp.makeProductionModelContainer()` on the main actor and updates `container` / `containerBacking` / `error` accordingly. A successful retry clears `error` and populates `container` + `containerBacking`.
 
-`AppStartup` SHALL NOT store an `AnalyticsClient` or transmit any analytics event on failure (see design.md §5). The diagnostic OSLog entry continues to be the on-device record.
+`AppStartup` SHALL NOT store an `AnalyticsClient` or transmit any analytics event on failure (see design.md §5). The OSLog entry is the on-device record.
 
 #### Scenario: Successful first attempt populates container
 
@@ -61,13 +61,13 @@ The app SHALL expose an `@Observable` `AppStartup` model in `simple-recurring-bu
 
 `simple_recurring_budgetsApp.body` SHALL branch on `AppStartup.container`:
 
-- When `AppStartup.container` is non-`nil`, the body SHALL host `RootView` with `.modelContainer(container)` and the existing `Router`, `AppSettings`, `SyncStatus`, and analytics environment bindings, identical to the pre-change success path.
-- When `AppStartup.container` is `nil` AND `AppStartup.error` is non-`nil`, the body SHALL host the new `ContainerFailureView`, passing the error and a closure that calls `AppStartup.retry()`. The failure branch SHALL NOT construct or pass `RootView`, `Router`, `AppSettings`, `SyncStatus`, or the analytics client (per design.md §3 — those are not safe to use in the wedged-store state).
+- When `AppStartup.container` is non-`nil`, the body SHALL host `RootView` with `.modelContainer(container)` and the existing `Router`, `AppSettings`, `SyncStatus`, and analytics environment bindings.
+- When `AppStartup.container` is `nil` AND `AppStartup.error` is non-`nil`, the body SHALL host `ContainerFailureView`, passing the error and a closure that calls `AppStartup.retry()`. The failure branch SHALL NOT construct or pass `RootView`, `Router`, `AppSettings`, `SyncStatus`, or the analytics client (per design.md §3 — those are not safe to use in the wedged-store state).
 
 #### Scenario: Success path is identical to pre-change
 
 - **WHEN** container creation succeeds at launch (or after a successful retry)
-- **THEN** the app body presents `RootView()` with `.modelContainer(container)` and the existing environment objects; no `ContainerFailureView` is presented
+- **THEN** the app body presents `RootView()` with `.modelContainer(container)` and the existing environment objects, and no `ContainerFailureView`
 
 #### Scenario: Failure path presents ContainerFailureView
 

@@ -8,21 +8,21 @@ SwiftUI view for adding a new `ExpenseItem` or viewing and editing an existing o
 ## Requirements
 ### Requirement: Add/Edit/View Expense screen is a single view for both create and edit modes
 
-The system SHALL present a single SwiftUI view, `AddEditExpenseView`, used for both creating a new `ExpenseItem` (Add mode) and editing an existing `ExpenseItem` (Edit/View mode). Per F-2.04, the screen does NOT distinguish between Edit and View — Edit mode IS the View mode and there is no read-only toggle.
+The system SHALL present a single SwiftUI view, `AddEditExpenseView`, used for both creating a new `ExpenseItem` (Add mode) and editing an existing `ExpenseItem` (Edit/View mode). Per F-2.04, the screen does NOT distinguish between Edit and View: Edit mode is the View mode and there is no read-only toggle.
 
 `AddEditExpenseView` SHALL NOT wrap its own body in a `NavigationStack`. The navigation context (and therefore the navigation bar that hosts toolbar items) SHALL be provided by the caller:
 
-- When presented as a **sheet** (`SheetRoute.addExpense(UUID)`), `RootView` SHALL wrap `AddEditExpenseView` in a `NavigationStack` at the sheet presentation site.
-- When presented as a **push** (`AppRoute.expenseDetail(UUID)`), `RootView`'s existing outer `NavigationStack` provides the navigation context; no additional wrapper is needed.
+- When presented as a sheet (`SheetRoute.addExpense(UUID)`), `RootView` SHALL wrap `AddEditExpenseView` in a `NavigationStack` at the sheet presentation site.
+- When presented as a push (`AppRoute.expenseDetail(UUID)`), `RootView`'s existing outer `NavigationStack` provides the navigation context; no additional wrapper is needed.
 
-This ensures that the view is not embedded inside a nested `NavigationStack`, which would produce a double navigation bar when pushed.
+This avoids a nested `NavigationStack`, which would produce a double navigation bar when pushed.
 
 The `AddEditExpenseView` previews SHALL also wrap the view in a `NavigationStack` so that toolbar items render correctly.
 
 The two access paths are:
 
-- `SheetRoute.addExpense(UUID)` — Add mode.
-- `AppRoute.expenseDetail(UUID)` — existing expense (F-2.04: same surface for view and in-place edit), reached via push navigation from `BudgetDetailView`.
+- `SheetRoute.addExpense(UUID)`: Add mode.
+- `AppRoute.expenseDetail(UUID)`: existing expense (F-2.04: same surface for view and in-place edit), reached via push from `BudgetDetailView`.
 
 `SheetRoute.expense(ExpenseItem)` is removed. No `SheetRoute` case for an existing expense remains.
 
@@ -35,7 +35,7 @@ The navigation title SHALL be sourced from one of four localized keys, selected 
 | `true`      | `false`      | `addEditExpense.title.existing`           | "Expense"     |
 | `true`      | `true`       | `addEditExpense.title.existing.addFunds`  | "Add Funds"   |
 
-The Edit-mode add-funds title is intentionally `"Add Funds"` — the same string as the Add-mode title — even though that breaks the action-verb-vs-noun symmetry of the Expense/Add Expense pair. Rationale: `"Funds"` reads awkwardly as a standalone noun-form title, whereas `"Add Funds"` is unambiguous in both Add and Edit contexts. The same word also appears as the Toggle label (`"Add funds"`, lowercased) and the seeded Description default, giving consistent terminology across the surface.
+The Edit-mode add-funds title is deliberately `"Add Funds"`, the same string as the Add-mode title, even though that breaks the verb-vs-noun symmetry of the Expense/Add Expense pair: `"Funds"` reads awkwardly as a standalone title, while `"Add Funds"` is unambiguous in both contexts. The same words appear as the Toggle label (`"Add funds"`) and the seeded Description default, keeping terminology consistent.
 
 The title SHALL be displayed inline (`.navigationBarTitleDisplayMode(.inline)`). The title SHALL re-evaluate reactively when `isAddFunds` changes mid-session (e.g., when the user toggles the Add Funds card).
 
@@ -47,7 +47,7 @@ The title SHALL be displayed inline (`.navigationBarTitleDisplayMode(.inline)`).
 #### Scenario: Existing expense path is presented via AppRoute.expenseDetail (push)
 
 - **WHEN** the user taps an expense row on `BudgetDetailView`, appending `AppRoute.expenseDetail(expense.id)` to `router.path`
-- **THEN** `RootView`'s `navigationDestination` SHALL push `AddEditExpenseView` configured for Edit/View mode, seeded from that `ExpenseItem`, inside the existing outer `NavigationStack` — no nested `NavigationStack` is introduced
+- **THEN** `RootView`'s `navigationDestination` SHALL push `AddEditExpenseView` configured for Edit/View mode, seeded from that `ExpenseItem`, inside the existing outer `NavigationStack`; no nested `NavigationStack` is introduced
 
 #### Scenario: No nested NavigationStack when pushed
 
@@ -77,10 +77,10 @@ The title SHALL be displayed inline (`.navigationBarTitleDisplayMode(.inline)`).
 
 The Add/Edit/View Expense screen SHALL expose toolbar items according to the active mode:
 
-- **Add mode** (`viewModel.isEditing == false`): a leading Cancel button (key `addEditExpense.action.cancel`, placement `.cancellationAction`) that dismisses without persisting any changes, and a trailing Save button (key `addEditExpense.action.save`, placement `.confirmationAction`) whose enablement follows the "Save is enabled only when amount is strictly positive" requirement.
-- **Edit/View mode** (`viewModel.isEditing == true`): a trailing Save button only. The Cancel button SHALL NOT be rendered. The system-provided back button in the `NavigationStack` serves as the discard path — navigating back without tapping Save discards any in-flight field changes.
+- Add mode (`viewModel.isEditing == false`): a leading Cancel button (key `addEditExpense.action.cancel`, placement `.cancellationAction`) that dismisses without persisting any changes, and a trailing Save button (key `addEditExpense.action.save`, placement `.confirmationAction`) whose enablement follows the "Save is enabled only when amount is strictly positive" requirement.
+- Edit/View mode (`viewModel.isEditing == true`): a trailing Save button only. The Cancel button SHALL NOT be rendered. The system back button is the discard path: navigating back without tapping Save discards in-flight changes.
 
-The Save button SHALL render with `.fontWeight(.semibold)` in both modes. The Cancel button locale key `addEditExpense.action.cancel` remains in the String Catalog (it is used in Add mode); it is simply not rendered in Edit mode.
+The Save button SHALL render with `.fontWeight(.semibold)` in both modes. The key `addEditExpense.action.cancel` stays in the String Catalog (used in Add mode); it is not rendered in Edit mode.
 
 No other toolbar items SHALL be present on this screen in either mode.
 
@@ -111,13 +111,13 @@ No other toolbar items SHALL be present on this screen in either mode.
 
 ### Requirement: Form fields are Amount, Description (optional), and When (date/time)
 
-The Add/Edit/View Expense screen SHALL collect exactly three user-editable fields, organised into three cards (Amount, Description, When) per the user-approved layout. Fields SHALL always be directly editable in place — there SHALL NOT be any "edit mode" toggle that switches between read-only and editable states (per F-2.04 AC).
+The Add/Edit/View Expense screen SHALL collect exactly three user-editable fields, organised into three cards (Amount, Description, When). Fields SHALL always be directly editable in place; there SHALL NOT be an "edit mode" toggle switching between read-only and editable (per F-2.04 AC).
 
 The fields are:
 
-- **Amount** (`Decimal?` in `AddEditExpenseViewModel`) — entered via a **`DecimalInputField`** — a `UITextField`-backed `UIViewRepresentable` — rather than SwiftUI's `TextField(value:format:)` (which rejects keystrokes whenever parsing throws, breaking RTL / non-Western-digit entry) or `TextField(text:)` + `.onChange` (which on iOS 17+ fails to render typed text until the field resigns first responder). The field is **seeded** from the draft `Decimal?` via `OptionalDecimalFormatStyle.editableText(_:)` at the expense currency's minor-unit precision (e.g. 0 for JPY, 2 for USD, 3 for BHD/KWD; no grouping separators), and an empty field maps to `nil` (blank default in Add mode). Each edit is parsed back to `Decimal?` via the style's **locale-aware `parseStrategy`**, which accepts whatever numbering system the locale's keyboard emits (Western, Arabic-Indic, Devanagari, …). Entry is **capped live** to the currency's minor-unit count by the field's delegate: 0-decimal currencies (JPY, KRW, …) reject the decimal separator entirely (no fractional entry), and other currencies accept at most that many fraction digits. Placeholder `"0"` (key `addEditExpense.field.amount.placeholder`). Keyboard type SHALL be `.decimalPad`. A currency symbol/code SHALL be displayed adjacent to the field in the same `HStack`, on the **locale-correct side** (leading or trailing); the decoration is derived from `settings.currencyDisplay.affixes(for: viewModel.currencyCode)` — which returns `(leading, trailing)` strings whose placement and spacing follow the same currency `FormatStyle` used by `Decimal.formatted(currencyCode:display:locale:)` (e.g. leading `"$"` for USD in en_US, trailing `" €"` for EUR in fr_FR), mirroring correctly in RTL — and SHALL update reactively whenever `settings.currencyDisplay` changes. The decoration `Text`(s) SHALL be `accessibilityHidden`. Accessibility label `"Expense amount"` (key `addEditExpense.field.amount.accessibilityLabel`). When the draft amount is non-`nil`, a trailing clear button (`xmark.circle.fill`, accessibility label `"Clear amount"`, key `currencyAmountField.clearButton.accessibilityLabel`) SHALL render inside the field's `HStack`; tapping it SHALL clear the amount to `nil` **and hand keyboard focus to the Amount field** (a deferred `becomeFirstResponder` via `DecimalInputField`'s `focusRequest` trigger — matching `UITextField`'s built-in clear-button convention; without the handoff the cursor stayed wherever it was, e.g. at the end of the Description field after a Recents-driven fill). The view SHALL read `AppSettings` via `@Environment(AppSettings.self)`; the VM SHALL NOT store `AppSettings`.
-- **Description** (`String` in the VM, persisted as `String?`) — bound to a single-line `TextField` in the Description card. Placeholder `"e.g. Coffee"` (key `addEditExpense.field.name.placeholder`). Section label `"Description (optional)"` (key `addEditExpense.section.name`). Accessibility label `"Expense description"` (key `addEditExpense.field.name.accessibilityLabel`). Per F-2.04 AC, the description is optional — Save SHALL NOT be gated on it being non-empty. When the field is non-empty, a trailing clear button (`xmark.circle.fill`, mirroring `CurrencyAmountField`'s pattern) SHALL render inside the card and clear the field on tap; its accessibility label is "Clear description" (key `addEditExpense.field.name.clearButton.accessibilityLabel`). Clearing also restores the unfiltered Recents row (the Description doubles as the Recents filter query per F-7.04).
-- **When** (`Date`) — bound to a `DatePicker` with `displayedComponents: [.date, .hourAndMinute]` and `.datePickerStyle(.compact)`. Section label `"When"` (key `addEditExpense.section.when`). The picker's own label is hidden (`.labelsHidden()`) and provided via the section header.
+- Amount (`Decimal?` in `AddEditExpenseViewModel`): entered via `DecimalInputField`, a `UITextField`-backed `UIViewRepresentable`, not SwiftUI's `TextField(value:format:)` (rejects keystrokes whenever parsing throws, breaking RTL / non-Western-digit entry) or `TextField(text:)` + `.onChange` (on iOS 17+ doesn't render typed text until the field resigns first responder). The field is seeded from the draft `Decimal?` via `OptionalDecimalFormatStyle.editableText(_:)` at the expense currency's minor-unit precision (e.g. 0 for JPY, 2 for USD, 3 for BHD/KWD; no grouping separators), and an empty field maps to `nil` (blank default in Add mode). Each edit is parsed back to `Decimal?` via the style's locale-aware `parseStrategy`, which accepts whatever numbering system the locale's keyboard emits (Western, Arabic-Indic, Devanagari, …). The field's delegate caps entry live to the currency's minor-unit count: 0-decimal currencies (JPY, KRW, …) reject the decimal separator entirely, and other currencies accept at most that many fraction digits. Placeholder `"0"` (key `addEditExpense.field.amount.placeholder`). Keyboard type SHALL be `.decimalPad`. A currency symbol/code SHALL be displayed adjacent to the field in the same `HStack`, on the locale-correct side (leading or trailing); the decoration comes from `settings.currencyDisplay.affixes(for: viewModel.currencyCode)`, which returns `(leading, trailing)` strings whose placement and spacing follow the same currency `FormatStyle` as `Decimal.formatted(currencyCode:display:locale:)` (e.g. leading `"$"` for USD in en_US, trailing `" €"` for EUR in fr_FR), mirrors in RTL, and SHALL update reactively whenever `settings.currencyDisplay` changes. The decoration `Text`(s) SHALL be `accessibilityHidden`. Accessibility label `"Expense amount"` (key `addEditExpense.field.amount.accessibilityLabel`). When the draft amount is non-`nil`, a trailing clear button (`xmark.circle.fill`, accessibility label `"Clear amount"`, key `currencyAmountField.clearButton.accessibilityLabel`) SHALL render inside the field's `HStack`; tapping it SHALL clear the amount to `nil` and hand keyboard focus to the Amount field (a deferred `becomeFirstResponder` via `DecimalInputField`'s `focusRequest` trigger, matching `UITextField`'s built-in clear-button convention; without the handoff the cursor stays where it was, e.g. in the Description field after a Recents-driven fill). The view SHALL read `AppSettings` via `@Environment(AppSettings.self)`; the VM SHALL NOT store `AppSettings`.
+- Description (`String` in the VM, persisted as `String?`): bound to a single-line `TextField` in the Description card. Placeholder `"e.g. Coffee"` (key `addEditExpense.field.name.placeholder`). Section label `"Description (optional)"` (key `addEditExpense.section.name`). Accessibility label `"Expense description"` (key `addEditExpense.field.name.accessibilityLabel`). Per F-2.04 AC, the description is optional; Save SHALL NOT be gated on it. When the field is non-empty, a trailing clear button (`xmark.circle.fill`, mirroring `CurrencyAmountField`'s pattern) SHALL render inside the card and clear the field on tap; its accessibility label is "Clear description" (key `addEditExpense.field.name.clearButton.accessibilityLabel`). Clearing also restores the unfiltered Recents row (the Description doubles as the Recents filter query per F-7.04).
+- When (`Date`): bound to a `DatePicker` with `displayedComponents: [.date, .hourAndMinute]` and `.datePickerStyle(.compact)`. Section label `"When"` (key `addEditExpense.section.when`). The picker's own label is hidden (`.labelsHidden()`) and provided via the section header.
 
 Section labels for the three cards use keys `addEditExpense.section.amount`, `addEditExpense.section.name`, and `addEditExpense.section.when`.
 
@@ -126,7 +126,7 @@ The currency code shown in the Amount decoration SHALL be derived as follows:
 - In Add mode, from the in-flight `Budget.currencyCode`.
 - In Edit/View mode, from `expense.budget?.currencyCode`, falling back to `Locale.current.currency?.identifier ?? "USD"` if the parent budget reference is `nil` (defensive against orphan rows synced from another device).
 
-The currency code SHALL be stored on the VM as a `let` (immutable for the lifetime of the sheet); the user CANNOT change the per-expense currency from this screen.
+The currency code SHALL be stored on the VM as a `let` (immutable for the lifetime of the sheet); the user cannot change the per-expense currency from this screen.
 
 #### Scenario: All three fields render in their cards
 
@@ -136,10 +136,10 @@ The currency code SHALL be stored on the VM as a `let` (immutable for the lifeti
 #### Scenario: Amount currency decoration matches AppSettings.currencyDisplay on the locale-correct side
 
 - **WHEN** `settings.currencyDisplay == .symbol`, the budget's currency is `"USD"`, and the locale is `en_US`
-- **THEN** the Amount card displays `"$"` as a **leading** decoration before the numeric field, and no trailing decoration
+- **THEN** the Amount card displays `"$"` as a leading decoration before the numeric field, and no trailing decoration
 
 - **WHEN** `settings.currencyDisplay == .symbol`, the budget's currency is `"EUR"`, and the locale is `fr_FR`
-- **THEN** the Amount card displays the `"€"` symbol as a **trailing** decoration after the numeric field, and no leading decoration
+- **THEN** the Amount card displays the `"€"` symbol as a trailing decoration after the numeric field, and no leading decoration
 
 - **WHEN** `settings.currencyDisplay == .code` and the budget's currency is `"USD"`
 - **THEN** the Amount card displays `"USD"` as a leading decoration
@@ -150,7 +150,7 @@ The currency code SHALL be stored on the VM as a `let` (immutable for the lifeti
 #### Scenario: Currency decoration updates live when settings change
 
 - **WHEN** the user changes `AppSettings.currencyDisplay` while the sheet is open
-- **THEN** the decoration around the Amount field updates immediately to reflect the new preference without dismissing or reloading the sheet
+- **THEN** the decoration around the Amount field updates immediately, without dismissing or reloading the sheet
 
 #### Scenario: Amount fraction precision follows the budget currency
 
@@ -224,7 +224,7 @@ The currency code SHALL be stored on the VM as a `let` (immutable for the lifeti
 
 In Add mode, the Amount field SHALL receive keyboard focus automatically when the sheet appears, so the software keyboard appears immediately and the user can begin typing without an extra tap. In Edit/View mode, no field SHALL receive automatic focus; the user must tap to begin editing.
 
-Because the Amount field is a `UITextField`-backed `UIViewRepresentable` (outside SwiftUI's `@FocusState` system), this is implemented via `DecimalInputField`'s `autoFocus` parameter — a one-shot, coordinator-deduped `becomeFirstResponder` deferred via `Task` (synchronous first-responder setup during a SwiftUI update pass is the fragile spot in the iOS 26 crash PR #164 worked around). The Add/Edit gate lives at the call site:
+The Amount field is a `UITextField`-backed `UIViewRepresentable` (outside SwiftUI's `@FocusState`), so this uses `DecimalInputField`'s `autoFocus` parameter: a one-shot, coordinator-deduped `becomeFirstResponder` deferred via `Task` (synchronous first-responder setup during a SwiftUI update pass is the fragile spot behind the iOS 26 crash PR #164 worked around). The Add/Edit gate lives at the call site:
 
 ```swift
 CurrencyAmountField(
@@ -246,15 +246,15 @@ CurrencyAmountField(
 
 ### Requirement: Add mode seeds blank-amount, empty-description, current-date defaults
 
-In Add mode, the form fields SHALL be initialised at sheet-open time as follows, all evaluated **once** when `AddEditExpenseViewModel.init(adding:)` runs:
+In Add mode, the form fields SHALL be initialised at sheet-open time as follows, all evaluated once when `AddEditExpenseViewModel.init(adding:)` runs:
 
-- `amount = nil` (no default amount — the Amount field is blank until the user enters a positive value).
-- `name = ""` (empty string — the Description `TextField` displays the placeholder; the persisted value is `nil` if the user does not type anything).
+- `amount = nil` (the Amount field is blank until the user enters a positive value).
+- `name = ""` (the Description `TextField` shows the placeholder; the persisted value is `nil` if the user types nothing).
 - `currencyCode = budget.currencyCode` (matches the parent budget's currency for the prefix display).
 - `date` — seeded per the bound budget's `BudgetSnapshot.lifecycleState` at sheet-open time:
-  - `.paused` (with a recoverable pause moment) → the most recent unbalanced `.pause` event's `effectiveDate` (guaranteed to lie inside the active union; matches the upper bound of `dateRange`).
-  - `.postEnd` (with `budget.endDate` non-`nil`) → the last moment of `endDate`'s day (specifically `calendar.startOfDay(for: Date.addingTimeInterval(86400, to: startOfDay(endDate))) - 1` — i.e. the same upper-bound expression used by `dateRange` for post-end / specific-dates budgets). This guarantees the picker opens inside its allowed range; without this clamp the default would be `Date()` (now), which sits above the upper bound when `now > endDate`.
-  - All other states (`.active`, `.preStart`, `.paused` without a recoverable pause moment) → `max(Date(), budget.effectiveStartDate)` (the existing rule — floor at the budget's start so a pre-start picker opens at the start date).
+  - `.paused` (with a recoverable pause moment) → the most recent unbalanced `.pause` event's `effectiveDate` (inside the active union; matches the upper bound of `dateRange`).
+  - `.postEnd` (with `budget.endDate` non-`nil`) → the last moment of `endDate`'s day (`calendar.startOfDay(for: Date.addingTimeInterval(86400, to: startOfDay(endDate))) - 1`, the same upper-bound expression `dateRange` uses for post-end / specific-dates budgets). This guarantees the picker opens inside its allowed range; without the clamp the default `Date()` sits above the upper bound when `now > endDate`.
+  - All other states (`.active`, `.preStart`, `.paused` without a recoverable pause moment) → `max(Date(), budget.effectiveStartDate)` (floor at the budget's start so a pre-start picker opens at the start date).
 
 The defaults SHALL NOT update reactively in response to changes in `AppSettings` or the parent `Budget` after the sheet opens; the user can edit any field manually before saving.
 
@@ -282,13 +282,13 @@ The `cachedStartDateFormatted` and `cachedEndDateFormatted` `String?` properties
 
 ### Requirement: Edit/View mode seeds form fields from the existing ExpenseItem
 
-In Edit/View mode, every editable form field SHALL be seeded from the corresponding field of the `ExpenseItem` passed to the sheet, evaluated **once** at sheet-open time:
+In Edit/View mode, every editable form field SHALL be seeded from the corresponding field of the `ExpenseItem` passed to the sheet, evaluated once at sheet-open time:
 
-- `amount = expense.displayAmount` (absolute value of `expense.amount`; the field shows a positive number even for `isAddFunds` rows whose stored `amount` is negative — the sign is restored on Save per the "Edit-mode Save honors the Add Funds toggle for sign of ExpenseItem.amount" requirement).
+- `amount = expense.displayAmount` (absolute value of `expense.amount`; the field shows a positive number even for `isAddFunds` rows whose stored `amount` is negative; the sign is restored on Save per the "Edit-mode Save honors the Add Funds toggle for sign of ExpenseItem.amount" requirement).
 - `name = expense.name ?? ""` (empty string when the persisted name is `nil`).
 - `date = expense.date`.
 - `currencyCode = expense.budget?.currencyCode ?? (Locale.current.currency?.identifier ?? "USD")` (defensive fallback for orphan rows whose parent budget reference is `nil`).
-- `isAddFunds = expense.isAddFunds` (so the sheet reflects the persisted sign — the Add Funds toggle reads as on, the amount text tints `Color.moneySurplus`, and the navigation title reads "Add Funds"; this initializer-phase assignment does NOT fire the `isAddFunds` `didSet` so the Description field is NOT auto-seeded with "Add funds" — existing rows keep their stored name).
+- `isAddFunds = expense.isAddFunds` (so the sheet reflects the persisted sign: the toggle reads on, the amount text tints `Color.moneySurplus`, and the title reads "Add Funds"; this initializer-phase assignment does NOT fire the `isAddFunds` `didSet`, so the Description is NOT auto-seeded with "Add funds" and existing rows keep their stored name).
 
 The view SHALL hold a reference to the passed-in `ExpenseItem` (via the VM's `Mode.edit` associated value) so that Save in Edit/View mode can mutate the same instance and Delete can remove it. Cancel SHALL NOT mutate the `ExpenseItem`.
 
@@ -300,7 +300,7 @@ The view SHALL hold a reference to the passed-in `ExpenseItem` (via the VM's `Mo
 #### Scenario: Edit/View mode pre-fills from a negative-amount (isAddFunds) expense
 
 - **WHEN** the sheet is presented for an existing `ExpenseItem` with `amount == -10` (i.e. an Add Funds row, `isAddFunds == true`)
-- **THEN** the Amount field shows `10` (the absolute value); the Add Funds toggle is **on**; the currency prefix and amount text render in `Color.moneySurplus`; the navigation title reads `"Add Funds"`; the underlying `expense.amount` remains `-10` until the user explicitly Saves a change
+- **THEN** the Amount field shows `10` (the absolute value); the Add Funds toggle is on; the currency prefix and amount text render in `Color.moneySurplus`; the navigation title reads `"Add Funds"`; the underlying `expense.amount` remains `-10` until the user explicitly Saves a change
 
 #### Scenario: Edit/View mode tolerates orphan expenses
 
@@ -345,7 +345,7 @@ The Save button SHALL render with `.fontWeight(.semibold)` to match the Add/Edit
 
 ### Requirement: VM exposes save and delete methods that take ModelContext at the call site
 
-The `AddEditExpenseViewModel` SHALL expose a `save` method and a `delete` method that take `ModelContext` at the call site and surface a persistence-save failure to the caller (e.g. marked `throws`). Each method SHALL route its `context.save()` through the shared persistence-save helper rather than `try? context.save()`. The view SHALL read `@Environment(\.modelContext)`, invoke `save`/`delete` from inside `body`, and dismiss the sheet **only** when the call returns without error; on a thrown persistence error the view SHALL present the standard save-error alert and SHALL NOT dismiss (see the `persistence-error-handling` capability). The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The save and delete bodies SHALL NOT consult `AppSettings`. The VM SHALL NOT have any stored property of type `ModelContext` and SHALL NOT have any stored property of type `AppSettings`.
+The `AddEditExpenseViewModel` SHALL expose a `save` method and a `delete` method that take `ModelContext` at the call site and surface a persistence-save failure to the caller (e.g. marked `throws`). Each method SHALL route its `context.save()` through the shared persistence-save helper rather than `try? context.save()`. The view SHALL read `@Environment(\.modelContext)`, invoke `save`/`delete` from inside `body`, and dismiss the sheet only when the call returns without error; on a thrown persistence error the view SHALL present the standard save-error alert and SHALL NOT dismiss (see the `persistence-error-handling` capability). The context SHALL be passed at the call site every invocation. The save and delete bodies SHALL NOT consult `AppSettings`. The VM SHALL NOT have any stored property of type `ModelContext` or `AppSettings`.
 
 #### Scenario: Save reports failure to the caller
 
@@ -371,16 +371,16 @@ The `AddEditExpenseViewModel` SHALL expose a `save` method and a `delete` method
 
 When the user activates Save in Add mode, the system SHALL:
 
-0. **Guard:** If validation would disable Save (`!canSave`), the implementation SHALL return without inserting an `ExpenseItem` (defence in depth if save is invoked without a valid draft).
+0. Guard: if validation would disable Save (`!canSave`), the implementation SHALL return without inserting an `ExpenseItem` (defence in depth for an invalid draft).
 1. Compute `trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)`. If `trimmedName.isEmpty == true`, the persisted name SHALL be `nil`; otherwise the persisted name SHALL be the trimmed value.
 2. Compute `signedAmount = isAddFunds ? -amount! : amount!`. The unwrap is safe because `canSave` guarantees `amount != nil && amount > 0`.
 3. Construct an `ExpenseItem(amount: signedAmount, name: trimmedName, date: date)`. The resulting `ExpenseItem.isAddFunds` SHALL equal the viewmodel's `isAddFunds`.
 4. Set `expense.budget = budget` (the in-flight `Budget` from the VM's `Mode.add` associated value), establishing the parent relationship before insert.
 5. Call `context.insert(expense)`.
-6. Persist via the shared persistence-save helper (operation `expense_create`), which throws on failure; the method propagates that error to the caller instead of swallowing it with `try?`.
+6. Persist via the shared persistence-save helper (operation `expense_create`), which throws on failure; the method propagates that error instead of swallowing it with `try?`.
 7. On success, the view dismisses the sheet. On a thrown persistence error, the view presents the save-error alert and does not dismiss; the inserted-but-unsaved `ExpenseItem` remains in the context so Retry re-attempts the same save.
 
-The new expense SHALL appear in the budget's expense list immediately due to SwiftData's reactivity once the save succeeds. CloudKit sync SHALL propagate the new row through the existing pipeline; no schema or container changes are introduced.
+The new expense SHALL appear in the budget's expense list immediately due to SwiftData's reactivity once the save succeeds. CloudKit sync SHALL propagate the new row through the existing pipeline; no schema or container changes.
 
 The `AnalyticsProperty.isAddFunds` property on the `expense_logged` event SHALL reflect the just-inserted `ExpenseItem.isAddFunds` (which equals the viewmodel's `isAddFunds` at Save time). The `expense_logged` event SHALL fire only on a successful save; on a thrown persistence error it SHALL NOT fire.
 
@@ -428,9 +428,9 @@ When the user activates Save in Edit/View mode, the system SHALL compare each ed
 
 The fields compared are:
 
-- **Amount**: compared as `expense.displayAmount != newAmount` (where `newAmount` is the unwrapped draft `amount`).
-- **Description**: compared as `expense.name != trimmedName`.
-- **Date**: compared via `Calendar.current.isDate(expense.date, equalTo: date, toGranularity: .minute)`. Sub-minute differences SHALL NOT count as a change.
+- Amount: compared as `expense.displayAmount != newAmount` (where `newAmount` is the unwrapped draft `amount`).
+- Description: compared as `expense.name != trimmedName`.
+- Date: compared via `Calendar.current.isDate(expense.date, equalTo: date, toGranularity: .minute)`. Sub-minute differences SHALL NOT count as a change.
 
 The system SHALL NOT touch any other persisted field of `ExpenseItem` (notably `expenseType`, `createdAt`, `id`, the `budget` relationship). The `expense_edited` event SHALL fire only on a successful save; on a thrown persistence error it SHALL NOT fire.
 
@@ -467,14 +467,14 @@ When Save in Edit/View mode detects an amount change (`expense.displayAmount != 
 expense.amount = viewModel.isAddFunds ? -newAmount : newAmount
 ```
 
-This is the documented departure from the prior rule (which read `expense.isAddFunds`, the persisted value). Reading the **draft** `isAddFunds` allows the user to flip an entry's type in Edit mode without resorting to delete-and-recreate.
+This departs from the earlier rule (which read the persisted `expense.isAddFunds`): reading the draft `isAddFunds` lets the user flip an entry's type in Edit mode without delete-and-recreate.
 
-The change comparator SHALL treat an Add Funds toggle flip as a change in its own right — that is, the Save path SHALL detect and persist a toggle flip even when `amount`, `name`, and `date` are unchanged:
+The change comparator SHALL treat an Add Funds toggle flip as a change in its own right: the Save path SHALL detect and persist a toggle flip even when `amount`, `name`, and `date` are unchanged:
 
 - If `viewModel.isAddFunds != expense.isAddFunds`, the model write SHALL flip the sign of `expense.amount` (specifically: `expense.amount = -expense.amount`), mark `expense.lastModified = Date()`, and call `context.save()` exactly once.
 - If neither the amount, the toggle, the name, nor the date changed, the Save path SHALL no-op (no mutation, no `lastModified` bump, no `context.save()`).
 
-The user-visible Amount field SHALL remain a non-negative numeric editor regardless of the underlying sign — the sign is encoded by the type of the row (expense vs add-funds), not by the field itself.
+The user-visible Amount field SHALL remain a non-negative numeric editor regardless of the underlying sign — the sign is encoded by the row type (expense vs add-funds), not by the field.
 
 The `AnalyticsProperty.isAddFunds` property on the `expense_edited` event SHALL reflect the post-Save value (i.e. `viewModel.isAddFunds`, equal to `expense.isAddFunds` after the write).
 
@@ -515,7 +515,7 @@ The `AnalyticsProperty.isAddFunds` property on the `expense_edited` event SHALL 
 
 ### Requirement: Cancel dismisses without persisting any changes
 
-When the user activates the Cancel toolbar button (available in Add mode only), the system SHALL dismiss the sheet without inserting, mutating, or saving any `ExpenseItem`. Any in-flight draft state SHALL be discarded. In Edit/View mode the Cancel button is not rendered; the system back button provides the equivalent discard path.
+When the user activates the Cancel toolbar button (available in Add mode only), the system SHALL dismiss the sheet without inserting, mutating, or saving any `ExpenseItem`. Any in-flight draft state SHALL be discarded. In Edit/View mode the Cancel button is not rendered; the system back button is the equivalent discard path.
 
 #### Scenario: Cancel from Add mode inserts no expense
 
@@ -529,7 +529,7 @@ When the user activates the Cancel toolbar button (available in Add mode only), 
 
 ### Requirement: Delete Expense button is rendered only in Edit/View mode
 
-The Add/Edit/View Expense screen SHALL render a destructive **Delete Expense** button beneath the three cards (Amount, Description, When) when, and only when, the screen is in Edit/View mode (`viewModel.isEditing == true`). In Add mode the button SHALL NOT be rendered (or rendered hidden) — there must be no Delete affordance for a draft `ExpenseItem` that has not yet been inserted.
+The Add/Edit/View Expense screen SHALL render a destructive Delete Expense button beneath the three cards (Amount, Description, When) when, and only when, the screen is in Edit/View mode (`viewModel.isEditing == true`). In Add mode the button SHALL NOT be rendered (or SHALL be hidden); a draft `ExpenseItem` that has not been inserted has no Delete affordance.
 
 The button SHALL be rendered with `.buttonStyle(.bordered)`, tinted red (`.tint(.red)` / destructive role), with its label expanded across the available width via `.frame(maxWidth: .infinity)`. The label text SHALL come from the localized key `addEditExpense.action.delete` with English source value `"Delete Expense"`.
 
@@ -552,7 +552,7 @@ The button SHALL declare a VoiceOver hint sourced from `addEditExpense.action.de
 
 ### Requirement: Delete Expense action requires a destructive confirmation dialog
 
-Activating the Delete Expense button SHALL present a `confirmationDialog` with `titleVisibility: .visible`. The dialog SHALL expose exactly one explicit button: a destructive confirm button. SwiftUI's implicit Cancel button SHALL provide the cancel path; the implementation SHALL NOT add a redundant cancel button.
+Activating the Delete Expense button SHALL present a `confirmationDialog` with `titleVisibility: .visible`. The dialog SHALL expose exactly one explicit button: a destructive confirm button. SwiftUI's implicit Cancel button SHALL be the cancel path; the implementation SHALL NOT add a redundant cancel button.
 
 - The dialog title SHALL come from `addEditExpense.deleteConfirmation.title` (English source `"Delete Expense?"`).
 - The dialog message body SHALL come from `addEditExpense.deleteConfirmation.message` (English source `"This action cannot be undone."`) and SHALL be rendered as a `Text` view in the `message:` trailing closure.
@@ -579,10 +579,10 @@ The dialog SHALL be presented from the `AddEditExpenseView` (sheet root) so it i
 
 The `AddEditExpenseViewModel` delete method SHALL behave as follows:
 
-- In **Edit/View mode**, the method SHALL invoke `context.delete(expense)` for the editing `ExpenseItem` and SHALL persist via the shared persistence-save helper (operation `expense_delete`) once. The method SHALL surface a persistence-save failure to its caller rather than swallowing it with `try?`.
-- In **Add mode**, the method SHALL be a no-op: it SHALL NOT call `context.delete`, SHALL NOT save, and SHALL NOT mutate any state.
+- In Edit/View mode, the method SHALL invoke `context.delete(expense)` for the editing `ExpenseItem` and SHALL persist via the shared persistence-save helper (operation `expense_delete`) once. The method SHALL surface a persistence-save failure to its caller rather than swallowing it with `try?`.
+- In Add mode, the method SHALL be a no-op: it SHALL NOT call `context.delete`, SHALL NOT save, and SHALL NOT mutate any state.
 
-The VM SHALL NOT store `ModelContext`; the context SHALL be passed at the call site every invocation. The VM SHALL NOT consult `AppSettings` from delete. `ExpenseItem` has no child relationships, so no cascade is needed. The view SHALL dismiss only on a successful delete; on failure it SHALL present the save-error alert and SHALL NOT dismiss.
+The context SHALL be passed at the call site every invocation. Delete SHALL NOT consult `AppSettings`. `ExpenseItem` has no child relationships, so no cascade is needed. The view SHALL dismiss only on a successful delete; on failure it SHALL present the save-error alert and SHALL NOT dismiss.
 
 #### Scenario: Delete in Edit mode removes the expense and saves once
 
@@ -607,15 +607,15 @@ The screen-namespaced key prefix SHALL be `addEditExpense.*`. Keys SHALL NOT be 
 
 The minimum set of keys SHALL include:
 
-- `addEditExpense.title.add`, `addEditExpense.title.existing`, `addEditExpense.title.add.addFunds`, `addEditExpense.title.existing.addFunds` — sheet titles (the four-way matrix from the navigation-title requirement).
-- `addEditExpense.action.cancel`, `addEditExpense.action.save` — toolbar items.
-- `addEditExpense.action.delete`, `addEditExpense.action.delete.accessibilityHint` — destructive button label and VoiceOver hint.
-- `addEditExpense.deleteConfirmation.title`, `addEditExpense.deleteConfirmation.message`, `addEditExpense.deleteConfirmation.confirm` — destructive confirmation dialog.
-- `addEditExpense.section.amount`, `addEditExpense.section.name`, `addEditExpense.section.when` — card section labels.
-- `addEditExpense.field.amount.placeholder`, `addEditExpense.field.amount.accessibilityLabel`, `addEditExpense.field.amount.accessibilityLabel.addFunds` — Amount field placeholder and VoiceOver labels (the label flips between expense and add-funds variants based on `viewModel.isAddFunds`).
-- `addEditExpense.field.name.placeholder`, `addEditExpense.field.name.accessibilityLabel`, `addEditExpense.field.name.addFundsDefault` — Description field placeholder, VoiceOver label, and the "Add funds" default seeded on toggle-on.
-- `addEditExpense.field.date.label` — fallback / explicit label for the date picker.
-- `addEditExpense.addFunds.toggle.label`, `addEditExpense.addFunds.toggle.caption` — Add Funds card Toggle label and explanatory caption.
+- `addEditExpense.title.add`, `addEditExpense.title.existing`, `addEditExpense.title.add.addFunds`, `addEditExpense.title.existing.addFunds`: sheet titles (the four-way matrix from the navigation-title requirement).
+- `addEditExpense.action.cancel`, `addEditExpense.action.save`: toolbar items.
+- `addEditExpense.action.delete`, `addEditExpense.action.delete.accessibilityHint`: destructive button label and VoiceOver hint.
+- `addEditExpense.deleteConfirmation.title`, `addEditExpense.deleteConfirmation.message`, `addEditExpense.deleteConfirmation.confirm`: destructive confirmation dialog.
+- `addEditExpense.section.amount`, `addEditExpense.section.name`, `addEditExpense.section.when`: card section labels.
+- `addEditExpense.field.amount.placeholder`, `addEditExpense.field.amount.accessibilityLabel`, `addEditExpense.field.amount.accessibilityLabel.addFunds`: Amount field placeholder and VoiceOver labels (the label flips between expense and add-funds variants based on `viewModel.isAddFunds`).
+- `addEditExpense.field.name.placeholder`, `addEditExpense.field.name.accessibilityLabel`, `addEditExpense.field.name.addFundsDefault`: Description field placeholder, VoiceOver label, and the "Add funds" default seeded on toggle-on.
+- `addEditExpense.field.date.label`: fallback / explicit label for the date picker.
+- `addEditExpense.addFunds.toggle.label`, `addEditExpense.addFunds.toggle.caption`: Add Funds card Toggle label and explanatory caption.
 
 Each key SHALL have a non-empty `comment` providing translator context.
 
@@ -647,13 +647,13 @@ When the bound budget's current `BudgetLifecycleResult.lifecycleState == .paused
 
 The constraint SHALL be implemented in two stages:
 
-1. **Picker range.** The `DatePicker` `in:` parameter SHALL be the closed range `[firstActivePeriodStart, pauseEffectiveDate]`, where:
+1. Picker range. The `DatePicker` `in:` parameter SHALL be the closed range `[firstActivePeriodStart, pauseEffectiveDate]`, where:
    - `firstActivePeriodStart` is the `effectivePeriodStart` of the budget's earliest active period since `Budget.startDate` (falling back to `Budget.createdAt` if `startDate` is `nil`).
-   - `pauseEffectiveDate` is the `effectiveDate` of the most recent `.pause` `LifecycleEvent` that is not followed by a later `.resume`. This is the precise upper bound — it explicitly permits **same-period-before-pause-moment** entries (e.g., the user paused at 11:00 today and can still log a coffee dated 09:00 today, because 09:00 lies inside the pause-action period and before the pause moment). It also implicitly inherits the math classifier's "pause-action period is active for math" rule.
+   - `pauseEffectiveDate` is the `effectiveDate` of the most recent `.pause` `LifecycleEvent` that is not followed by a later `.resume`. This is the precise upper bound: it permits same-period-before-pause-moment entries (e.g., paused at 11:00 today, a coffee dated 09:00 today is still loggable, because 09:00 lies inside the pause-action period and before the pause moment), and inherits the math classifier's "pause-action period is active for math" rule.
    - When `Budget.endDate` is set, the upper bound SHALL additionally be clamped to `min(pauseEffectiveDate, endDate)`.
-2. **Save-time validation.** When the user attempts to Save, the screen SHALL validate that the selected date lies inside one of the active-period intervals (not merely inside the bounding range above). If the selected date falls inside a paused gap (e.g., between two active intervals after multiple pause/resume cycles) or outside `[Budget.startDate, Budget.endDate]`, Save SHALL be blocked and the inline `.caption`/`.secondary` slot below the When card SHALL show the localized message `addEditExpense.date.outOfRange.caption` (en-US "Pick a date within an active period of this budget."), replacing the proactive paused note (see "Add Expense surfaces a proactive paused note while budget is paused"). Save SHALL become enabled again as soon as the user picks a date inside an active interval.
+2. Save-time validation. When the user attempts to Save, the screen SHALL validate that the selected date lies inside one of the active-period intervals (not merely inside the bounding range above). If the selected date falls inside a paused gap (e.g., between two active intervals after multiple pause/resume cycles) or outside `[Budget.startDate, Budget.endDate]`, Save SHALL be blocked and the inline `.caption`/`.secondary` slot below the When card SHALL show the localized message `addEditExpense.date.outOfRange.caption` (en-US "Pick a date within an active period of this budget."), replacing the proactive paused note (see "Add Expense surfaces a proactive paused note while budget is paused"). Save SHALL become enabled again as soon as the user picks a date inside an active interval.
 
-When `BudgetLifecycleResult.lifecycleState != .paused`, the date-bounds rule SHALL be the existing rule (no paused-state constraints introduced by this requirement). The pre-start (`now < startDate`) and post-end (`now > endDate`) clamping rules from F-2.04 apply independently and are not changed by this requirement.
+When `BudgetLifecycleResult.lifecycleState != .paused`, the date-bounds rule SHALL be the existing rule (no paused-state constraints). The pre-start (`now < startDate`) and post-end (`now > endDate`) clamping rules from F-2.04 apply independently.
 
 The same two-stage validation SHALL apply in Add mode (the in-flight budget passed via `SheetRoute.addExpense(budget.id)`) and in Edit mode (`expense.budget`). In Edit mode, if the existing `expense.date` is outside the valid union (e.g., the user edits an expense from a since-paused budget whose date now sits inside a paused gap created by a later pause action), the picker SHALL load with its current value but Save SHALL be blocked with the same caption until the user picks a date inside an active interval, or until the user reverts the date to a value inside the active union.
 
@@ -695,17 +695,17 @@ The Add/Edit Expense screen SHALL render at most one inline caption (`.font(.cap
 
 The caption is resolved in priority order. The screen SHALL never render two captions stacked.
 
-1. **Paused + date out of range.** When `cachedBudgetSnapshot?.lifecycleState == .paused` AND the picked `date` falls outside the active union (per the "Date picker bounds restrict the When field to the budget's active periods when paused" requirement), the caption SHALL be the localized string keyed `addEditExpense.date.outOfRange.caption` (en-US: *"Pick a date within an active period of this budget."*).
-2. **Paused + date valid.** When `cachedBudgetSnapshot?.lifecycleState == .paused` AND the picked `date` lies inside the active union AND a `pauseEffectiveDate` is recoverable, the caption SHALL be the localized key `addEditExpense.paused.caption.format` (en-US: *"Paused since %@. You can still add expenses dated before then."*) with the formatted `pauseEffectiveDate` (locale-aware `Date.formatted(date: .abbreviated, time: .omitted)`). This is the proactive paused note.
-3. **Add mode + pre-start.** When the VM is in Add mode (`isEditing == false`) AND `cachedBudgetSnapshot?.lifecycleState == .preStart` AND `cachedStartDateFormatted` is non-`nil`, the caption SHALL be the localized key `addEditExpense.preStart.caption.format` (en-US: *"Budget starts on %@."*) with `cachedStartDateFormatted`. (Per F-2.04.)
-4. **Add mode + post-end.** When the VM is in Add mode AND `cachedBudgetSnapshot?.lifecycleState == .postEnd` AND `cachedEndDateFormatted` is non-`nil`, the caption SHALL be the localized key `addEditExpense.postEnd.caption.format` (en-US: *"Budget ended on %@."*) with `cachedEndDateFormatted`. (Per F-2.04.)
-5. **Otherwise** the property SHALL return `nil` (active budget in Add mode, any state in Edit mode that doesn't match the paused branches, etc.).
+1. Paused + date out of range. When `cachedBudgetSnapshot?.lifecycleState == .paused` AND the picked `date` falls outside the active union (per the "Date picker bounds restrict the When field to the budget's active periods when paused" requirement), the caption SHALL be the localized string keyed `addEditExpense.date.outOfRange.caption` (en-US: *"Pick a date within an active period of this budget."*).
+2. Paused + date valid. When `cachedBudgetSnapshot?.lifecycleState == .paused` AND the picked `date` lies inside the active union AND a `pauseEffectiveDate` is recoverable, the caption SHALL be the localized key `addEditExpense.paused.caption.format` (en-US: *"Paused since %@. You can still add expenses dated before then."*) with the formatted `pauseEffectiveDate` (locale-aware `Date.formatted(date: .abbreviated, time: .omitted)`). This is the proactive paused note.
+3. Add mode + pre-start. When the VM is in Add mode (`isEditing == false`) AND `cachedBudgetSnapshot?.lifecycleState == .preStart` AND `cachedStartDateFormatted` is non-`nil`, the caption SHALL be the localized key `addEditExpense.preStart.caption.format` (en-US: *"Budget starts on %@."*) with `cachedStartDateFormatted`. (Per F-2.04.)
+4. Add mode + post-end. When the VM is in Add mode AND `cachedBudgetSnapshot?.lifecycleState == .postEnd` AND `cachedEndDateFormatted` is non-`nil`, the caption SHALL be the localized key `addEditExpense.postEnd.caption.format` (en-US: *"Budget ended on %@."*) with `cachedEndDateFormatted`. (Per F-2.04.)
+5. Otherwise the property SHALL return `nil` (active budget in Add mode, any state in Edit mode that doesn't match the paused branches, etc.).
 
-Edit-mode pre-start / post-end captions are intentionally suppressed (Add-mode-only per F-2.04): an existing `ExpenseItem` already carries its stored date, so the clamped-default rationale doesn't apply.
+Edit-mode pre-start / post-end captions are suppressed (Add-mode-only per F-2.04): an existing `ExpenseItem` already carries its stored date, so the clamped-default rationale doesn't apply.
 
-The paused branches (priority 1 and 2) apply in BOTH Add mode and Edit mode — these are about explaining the date-bounds constraint, which still applies in Edit mode when the bound budget is paused.
+The paused branches (priority 1 and 2) apply in both Add and Edit mode: they explain the date-bounds constraint, which still applies in Edit mode when the budget is paused.
 
-The pre-start and post-end captions SHALL persist for the entire lifetime of the sheet while the budget is in that lifecycle state — they are NOT gated on whether the picker still shows the clamped default — since the underlying `[startDate, endDate]` constraint still applies after the user edits the field.
+The pre-start and post-end captions SHALL persist for the sheet's lifetime while the budget is in that lifecycle state (not gated on whether the picker still shows the clamped default), since the `[startDate, endDate]` constraint still applies after the user edits the field.
 
 #### Scenario: Paused-budget Add Expense shows the proactive note at sheet open
 
@@ -755,7 +755,7 @@ The pre-start and post-end captions SHALL persist for the entire lifetime of the
 #### Scenario: Paused state outranks pre-start / post-end in caption priority
 
 - **WHEN** a hypothetical lifecycle classification reported `.paused` simultaneously with `.preStart` (which the moment-granular UI classifier prevents in practice)
-- **THEN** the paused caption (priority 1 or 2) is rendered, not the pre-start or post-end caption — the priority ordering is defensive against future overlapping-state changes
+- **THEN** the paused caption (priority 1 or 2) is rendered, not the pre-start or post-end caption; the ordering is defensive against future overlapping-state changes
 
 ### Requirement: Screen escalates to an @Observable ViewModel per tech-design §2.1
 
@@ -763,9 +763,9 @@ The Add/Edit/View Expense screen SHALL use an `@Observable AddEditExpenseViewMod
 
 The VM SHALL accept the parent `Budget` (in `init(adding:)`) or the editing `ExpenseItem` (in `init(editing:)`) and store it in a private `Mode` enum. The VM SHALL NOT retain references to `AppSettings` or `ModelContext` after `init` returns.
 
-This pattern follows `docs/tech-design-doc.md` §2.1's VM rules, which apply because:
+`docs/tech-design-doc.md` §2.1's VM rules apply because:
 
-- Escalation criterion #1 — non-trivial draft/form state not persisted until commit — is satisfied.
+- Escalation criterion #1 (non-trivial draft/form state not persisted until commit) is satisfied.
 
 The VM SHALL be testable in isolation: a test that constructs an `AddEditExpenseViewModel` and invokes `save(context:)` / `delete(context:)` against an in-memory `ModelContainer` SHALL exercise the full save/delete logic without instantiating any SwiftUI view hierarchy and without needing an `AppSettings` instance.
 
@@ -786,14 +786,14 @@ The VM SHALL be testable in isolation: a test that constructs an `AddEditExpense
 
 ### Requirement: AddEditExpenseView includes an Add Funds toggle card at the end of the form
 
-The Add/Edit/View Expense screen SHALL render a fourth card — the **Add Funds card** — immediately after the When card and before the Delete button (the Delete button only appears in Edit mode). The card SHALL contain:
+The Add/Edit/View Expense screen SHALL render a fourth card, the Add Funds card, immediately after the When card and before the Delete button (the Delete button only appears in Edit mode). The card SHALL contain:
 
 - A `Toggle` whose label is the localized key `addEditExpense.addFunds.toggle.label` (en-US `"Add funds"`).
 - An explanatory caption immediately below the Toggle row, in `.caption` font with `.secondary` foreground, using the localized key `addEditExpense.addFunds.toggle.caption` (en-US `"Adds to your remaining balance instead of subtracting."`).
 
 The Toggle's tint SHALL be `.accentColor` (matching the carry-over toggle pattern in `AddEditBudgetView.swift:245` and the analytics toggle in `SettingsView.swift:144`). The Toggle SHALL be bound to `AddEditExpenseViewModel.isAddFunds: Bool` (default `false` in Add mode; seeded from the existing row in Edit mode per the "Edit/View mode seeds form fields from the existing ExpenseItem" requirement).
 
-The card SHALL render in both Add and Edit/View mode. In Edit mode the Toggle is interactive — the user MAY flip the type of an existing entry without delete-and-recreate.
+The card SHALL render in both Add and Edit/View mode. In Edit mode the Toggle is interactive; the user MAY flip the type of an existing entry without delete-and-recreate.
 
 The card SHALL use the same `GroupBox` + `Color("CellBackground")` background-style treatment as the other three cards (Amount, Description, When) so it visually reads as a peer.
 
@@ -838,7 +838,7 @@ When `AddEditExpenseViewModel.isAddFunds` transitions from `false` to `true`, th
 - Toggling Add Funds off (true → false) SHALL NOT clear `name`.
 - Subsequent on transitions (false → true) SHALL NOT overwrite `name` if it is non-empty.
 
-The seed SHALL NOT fire during `init(editing:)` even though that initializer assigns `isAddFunds = expense.isAddFunds` — Swift's `didSet` does not run for initializer-phase assignments, which is the intended behavior here (existing rows already have a user-set description or `nil`, and the seed is reserved for first-time Add-mode entry).
+The seed SHALL NOT fire during `init(editing:)` even though that initializer assigns `isAddFunds = expense.isAddFunds`: Swift's `didSet` does not run for initializer-phase assignments, as intended (existing rows already have a user-set description or `nil`; the seed is for first-time Add-mode entry).
 
 #### Scenario: Toggling on with empty Description seeds "Add funds"
 
@@ -872,9 +872,9 @@ The seed SHALL NOT fire during `init(editing:)` even though that initializer ass
 
 ### Requirement: Add Expense surfaces a Recents section below the Description card (F-7.04)
 
-In Add mode, the Add/Edit Expense screen SHALL render a "Recents" section **directly below the Description card** (card order: Amount, Description, Recents, When, Add Funds) when the bound budget has at least one prior expense item eligible to surface as a suggestion. The placement is deliberate: the Description field doubles as the Recents filter query, so the suggestions sit directly beneath their input (input-above/suggestions-below autocomplete idiom), while the Amount card keeps the top slot for the amount-first quick-log flow.
+In Add mode, the Add/Edit Expense screen SHALL render a "Recents" section directly below the Description card (card order: Amount, Description, Recents, When, Add Funds) when the bound budget has at least one prior expense item eligible to surface as a suggestion. The placement is deliberate: the Description field doubles as the Recents filter query, so suggestions sit beneath their input (input-above/suggestions-below autocomplete idiom), and the Amount card keeps the top slot for amount-first quick logging.
 
-In Edit/View mode, the section SHALL render only after a **reveal latch** has been set, and once set it SHALL remain rendered for the rest of the sheet's lifetime. The latch SHALL be set when the trimmed Description is empty, evaluated:
+In Edit/View mode, the section SHALL render only after a reveal latch has been set, and once set it SHALL remain rendered for the rest of the sheet's lifetime. The latch SHALL be set when the trimmed Description is empty, evaluated:
 
 - at sheet-open (`init(editing:)` for an `ExpenseItem` whose name is `nil` or whitespace-only), and
 - whenever the Description draft transitions to empty (trimmed) during the sheet's lifetime.
@@ -919,18 +919,18 @@ When the bound budget has zero eligible candidates, the section SHALL NOT render
 
 ### Requirement: Recents algorithm builds a recency-ordered corpus with recurrence-gated amount variants
 
-The Recents candidate set SHALL be a memoized **search corpus** derived from `Budget.expenseItems` at sheet-open (recomputing per keystroke is forbidden) by:
+The Recents candidate set SHALL be a memoized search corpus derived from `Budget.expenseItems` at sheet-open (recomputing per keystroke is forbidden) by:
 
 1. Excluding Add Funds entries (`ExpenseItem.isAddFunds == true`) — they are not reusable as expense suggestions.
 2. Excluding entries with no description (nil or whitespace-only `name`) — they are not actionable as suggestions, and description-optional quick logging would otherwise flood the row with bare amounts.
-3. Aggregating the remaining entries into (name, amount) pairs, where the name component uses a case- AND diacritic-insensitive comparison after trimming whitespace (so "Café" / "cafe" / "CAFÉ" belong to one name), and the recurrence count of a pair aggregates across that folded equivalence class.
+3. Aggregating the remaining entries into (name, amount) pairs, where the name component uses a case- and diacritic-insensitive comparison after trimming whitespace (so "Café" / "cafe" / "CAFÉ" belong to one name), and the recurrence count of a pair aggregates across that folded equivalence class.
 4. Surfacing, per unique name:
-   - a **base tile** — the pair with the most recent occurrence, regardless of its recurrence count (the most recent occurrence's trimmed display name and amount ride along), and
-   - **variant tiles** — other pairs of the same name whose exact (name, amount) recurrence count is at least `variantRecurrenceThreshold` (3), ordered by pair recency descending and capped at `maxVariantsPerName` (2) extras per name. Pairs below the threshold SHALL NOT surface as variants, so one-off price jitter collapses to the base tile alone.
+   - a base tile: the pair with the most recent occurrence, regardless of its recurrence count (the most recent occurrence's trimmed display name and amount ride along), and
+   - variant tiles: other pairs of the same name whose exact (name, amount) recurrence count is at least `variantRecurrenceThreshold` (3), ordered by pair recency descending and capped at `maxVariantsPerName` (2) extras per name. Pairs below the threshold SHALL NOT surface as variants, so one-off price jitter collapses to the base tile alone.
 5. Ordering name groups by their most recent occurrence descending and flattening with each group's variants clustered immediately after their base tile (duplicate names read as one family; tiles never interleave across names by raw date).
 6. Capping the corpus at `recentsCorpusLimit` (200).
 
-The constants `recentsDisplayLimit` (30), `recentsCorpusLimit` (200), `variantRecurrenceThreshold` (3), and `maxVariantsPerName` (2) are deliberate product decisions pinned by unit test; changing any of them SHALL be treated as a spec-level change.
+`recentsDisplayLimit` (30), `recentsCorpusLimit` (200), `variantRecurrenceThreshold` (3), and `maxVariantsPerName` (2) are product decisions pinned by unit test; changing any is a spec-level change.
 
 #### Scenario: Most recent occurrence per unique description is the base tile
 
@@ -969,7 +969,7 @@ The constants `recentsDisplayLimit` (30), `recentsCorpusLimit` (200), `variantRe
 
 ### Requirement: Recents display caps the row at the display limit while the filter searches the full corpus
 
-The rendered Recents row SHALL show at most `recentsDisplayLimit` (30) tiles in both query states: with an empty Description query, the first `recentsDisplayLimit` tiles of the corpus; with a non-empty query, the first `recentsDisplayLimit` matching tiles. The typed-query filter SHALL match against the **entire memoized corpus**, not the rendered row, so a name outside the visible row still surfaces once the query narrows the matches.
+The rendered Recents row SHALL show at most `recentsDisplayLimit` (30) tiles in both query states: with an empty Description query, the first `recentsDisplayLimit` tiles of the corpus; with a non-empty query, the first `recentsDisplayLimit` matching tiles. The typed-query filter SHALL match against the entire memoized corpus, not the rendered row, so a name outside the visible row still surfaces once the query narrows the matches.
 
 #### Scenario: Unfiltered row is capped at the display limit
 
@@ -984,13 +984,13 @@ The rendered Recents row SHALL show at most `recentsDisplayLimit` (30) tiles in 
 
 ### Requirement: Tapping a Recents tile applies the amount-provenance smart-apply rule
 
-The draft's amount SHALL carry a provenance classification: **empty** (no amount; initial state or after the user clears/deletes it), **user-typed** (the user entered or edited the current amount this session), or **tile-seeded** (a Recents apply wrote the current amount). Echo writes — the amount field re-parsing the text it re-seeded after an external write — SHALL NOT change provenance.
+The draft's amount SHALL carry a provenance classification: empty (no amount; initial state or after the user clears/deletes it), user-typed (the user entered or edited the current amount this session), or tile-seeded (a Recents apply wrote the current amount). Echo writes — the amount field re-parsing the text it re-seeded after an external write — SHALL NOT change provenance.
 
-In Edit/View mode, the amount seeded from the existing `ExpenseItem` at sheet-open SHALL be classified **user-typed** for the purposes of this rule. This protects the existing amount: a single tile tap fills the Description only and SHALL NOT overwrite the stored amount, while the double-tap full replace (or clearing the amount first, then tapping) remains the explicit path to take the tile's amount.
+In Edit/View mode, the amount seeded from the existing `ExpenseItem` at sheet-open SHALL be classified user-typed for this rule. This protects the existing amount: a single tile tap fills the Description only and SHALL NOT overwrite the stored amount, while the double-tap full replace (or clearing the amount first, then tapping) remains the explicit path to take the tile's amount.
 
-A single tap on a Recents tile SHALL always write the suggestion's `name` to the draft and SHALL reset the Add Funds toggle (`isAddFunds`) to off (a Recents tile represents a prior *expense*). The tap SHALL write the suggestion's `amount` **only when the draft amount's provenance is empty or tile-seeded**; a user-typed amount SHALL survive the tap, and SHALL keep surviving across subsequent single taps (suggestion-switching never clobbers typed input). An amount written by a tap is classified tile-seeded, so a later single tap on a different tile replaces it. The tap SHALL NOT persist the expense — the user remains on the sheet to review and confirm via Save — and SHALL NOT alter the `date` field or other draft state.
+A single tap on a Recents tile SHALL always write the suggestion's `name` to the draft and SHALL reset the Add Funds toggle (`isAddFunds`) to off (a Recents tile represents a prior *expense*). The tap SHALL write the suggestion's `amount` only when the draft amount's provenance is empty or tile-seeded; a user-typed amount SHALL survive the tap, and SHALL keep surviving across subsequent single taps (suggestion-switching never clobbers typed input). An amount written by a tap is classified tile-seeded, so a later single tap on a different tile replaces it. The tap SHALL NOT persist the expense — the user remains on the sheet to review and confirm via Save — and SHALL NOT alter the `date` field or other draft state.
 
-Rationale: a user-typed amount is fresher intent than the tile's historical amount, and the silent-overwrite failure (a wrong amount saved unnoticed) is costlier than the visible not-applied failure (fixable in place). The escape hatches for explicitly wanting the tile's amount over a typed one are the amount clear button followed by a re-tap, or the double-tap full replace.
+Rationale: a user-typed amount is fresher intent than the tile's historical amount, and a silent overwrite (wrong amount saved unnoticed) costs more than a visible not-applied amount (fixable in place). To take the tile's amount over a typed one, use the amount clear button then re-tap, or the double-tap full replace.
 
 #### Scenario: Tap with an empty amount fills name and amount but does not save
 
@@ -1035,7 +1035,7 @@ Rationale: a user-typed amount is fresher intent than the tile's historical amou
 
 ### Requirement: Double-tap (or VoiceOver custom action) performs a full replace overriding provenance
 
-A double-tap on a Recents tile SHALL write **both** `name` and `amount` from the suggestion unconditionally — overriding the amount-provenance rule — and SHALL reset Add Funds, classifying the written amount tile-seeded (a later single tap on another tile may replace it). The double-tap SHALL be recognized via a simultaneous gesture so that single taps incur no recognition delay; consequently the double-tap's first tap runs the normal smart apply before the second tap upgrades it to the full replace (the end state is the full replace). VoiceOver users SHALL have an equivalent custom action (named with the localized equivalent of "Replace amount and description"), because VoiceOver's double-tap gesture is its activation gesture. The full replace SHALL NOT emit a second `expense_recent_reused` analytics event (the pair's first tap already emitted one).
+A double-tap on a Recents tile SHALL write both `name` and `amount` from the suggestion unconditionally (overriding the amount-provenance rule) and SHALL reset Add Funds, classifying the written amount tile-seeded (a later single tap on another tile may replace it). The double-tap SHALL be recognized via a simultaneous gesture so that single taps incur no recognition delay; consequently the double-tap's first tap runs the normal smart apply before the second tap upgrades it to the full replace (the end state is the full replace). VoiceOver users SHALL have an equivalent custom action (named with the localized equivalent of "Replace amount and description"), because VoiceOver's double-tap gesture is its activation gesture. The full replace SHALL NOT emit a second `expense_recent_reused` analytics event (the pair's first tap already emitted one).
 
 #### Scenario: Double-tap overrides a user-typed amount
 
@@ -1054,7 +1054,7 @@ A double-tap on a Recents tile SHALL write **both** `name` and `amount` from the
 
 ### Requirement: Recents section filters as the user types into Description
 
-The Recents candidate corpus SHALL filter in place as the user types into the Description field, using a case- AND diacritic-insensitive substring match against each candidate's name. The match SHALL run against the **full memoized corpus** (not the rendered row), and the filtered result SHALL render capped at `recentsDisplayLimit`. The section SHALL stay on the same surface as the form — no separate picker view, sheet, or screen is presented. The corpus SHALL NOT be recomputed per keystroke. Clearing the Description field (including via its trailing clear button) SHALL restore the unfiltered row.
+The Recents candidate corpus SHALL filter in place as the user types into the Description field, using a case- and diacritic-insensitive substring match against each candidate's name. The match SHALL run against the full memoized corpus (not the rendered row), and the filtered result SHALL render capped at `recentsDisplayLimit`. The section SHALL stay on the form's surface; no separate picker view, sheet, or screen is presented. The corpus SHALL NOT be recomputed per keystroke. Clearing the Description field (including via its trailing clear button) SHALL restore the unfiltered row.
 
 #### Scenario: Typing into Description narrows the Recents row
 
@@ -1097,7 +1097,7 @@ When the user types into Description and the resulting filter yields zero matche
 
 Each tappable Recents tile SHALL expose a composed `accessibilityLabel` that announces both the description and the formatted amount, an `accessibilityHint` that explains the tap action ("Fills the amount and description for review."), and a custom accessibility action (localized equivalent of "Replace amount and description") mirroring the sighted double-tap full replace. The trailing swipe-affordance icon (when shown) SHALL be hidden from VoiceOver (`accessibilityHidden(true)`) because its meaning is reproduced by VoiceOver's natural scroll-container behavior. The "No matches" placeholder SHALL expose an `accessibilityLabel` distinct from the visible glyph (e.g., "No matching recent expenses"). The phantom-content sizing anchor used by the placeholder SHALL be hidden from VoiceOver.
 
-Tile geometry — the maximum tile width and the inner padding values — SHALL scale with Dynamic Type via `@ScaledMetric(relativeTo: .subheadline)` so the section remains legible at larger type sizes.
+Tile geometry (maximum tile width and inner padding) SHALL scale with Dynamic Type via `@ScaledMetric(relativeTo: .subheadline)` so the section remains legible at larger type sizes.
 
 #### Scenario: VoiceOver reads a Recents tile as one combined element
 
@@ -1178,7 +1178,7 @@ The event SHALL NOT include the description string, the amount value, or any use
 
 ### Requirement: Successful Add-mode log feeds the rating-prompt coordinator
 
-On a successful **Add-mode** expense save, the Add/Edit Expense screen SHALL notify the rating-prompt coordinator, passing whether the parent budget is in the active lifecycle state and whether the budget's current-period Remaining (computed from the existing budget calculator) is non-deficit after the save. This notification MUST occur only for successful Add-mode logs — not for edits, deletes, or save failures — and MUST NOT change the existing save, `expense_logged`, dismissal, or error-handling behavior.
+On a successful Add-mode expense save, the Add/Edit Expense screen SHALL notify the rating-prompt coordinator, passing whether the parent budget is in the active lifecycle state and whether the budget's current-period Remaining (computed from the existing budget calculator) is non-deficit after the save. This notification MUST occur only for successful Add-mode logs (not edits, deletes, or save failures) and MUST NOT change the existing save, `expense_logged`, dismissal, or error-handling behavior.
 
 #### Scenario: Add-mode save notifies the coordinator
 

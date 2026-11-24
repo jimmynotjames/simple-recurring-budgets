@@ -3,14 +3,14 @@
 Translates `Localizable.xcstrings` from English into the 49 App Store storefront locales
 using AI subagents (one per locale, dispatched in parallel by a parent agent).
 
-The skill at `.claude/skills/translate-new-strings/` encodes the canonical workflow for
-adding translations for newly-keyed strings; this README is the authority for *what each
-script does*. The skill is the authority for *when and how to invoke them*.
+The skill at `.claude/skills/translate-new-strings/` is the canonical workflow for
+adding translations for newly-keyed strings. This README is the authority for what each
+script does; the skill is the authority for when and how to invoke them.
 
-> **Auditing existing translations for quality** (tone, register, cultural fit, length) is a
-> separate pipeline: see `scripts/translate_audit/` (the `audit-translations` skill). It reads
+> Auditing existing translations for quality (tone, register, cultural fit, length) is a
+> separate pipeline: `scripts/translate_audit/` (the `audit-translations` skill). It reads
 > this folder's `locales.py` and `REGIONAL_NOTES`/`_GENERIC_NOTE`, grades the translations
-> already in the catalog, and can emit a re-translation manifest that feeds back into the flow
+> already in the catalog, and can emit a re-translation manifest that feeds the flow
 > below.
 
 ## Scripts
@@ -28,19 +28,19 @@ script does*. The skill is the authority for *when and how to invoke them*.
 
 No dependencies beyond Python 3 stdlib.
 
-> **Per-locale register notes are intentionally duplicated** between this pipeline's
+> Per-locale register notes are intentionally duplicated between this pipeline's
 > `REGIONAL_NOTES` (in `dispatch_prompts.py`) and the metadata pipeline's `CULTURAL_NOTES`
 > (`scripts/translate_metadata/dispatch_prompts.py`). The two overlap only in the *formality
 > decision* per language (e.g. de→"du", ja→です/ます); the rest is genuinely
 > different (UI dialect/length here vs ASO positioning/keyword guidance there). Issue #173
-> considered consolidating them and we **decided not to** — a shared abstraction needed a
-> per-storefront override map that re-duplicated the formality sentence anyway. **Sync rule:**
+> considered consolidating them and we decided not to: a shared abstraction needed a
+> per-storefront override map that re-duplicated the formality sentence anyway. Sync rule:
 > if you change a language's *formality decision* in one map, change it in the other too; the
 > wording may differ but the formality call must match. (Don't re-file this as a DRY bug.)
 
 ## Default flow — adding/changing a small set of strings
 
-Use this whenever you've added new `String(localized:)` / `LocalizedStringResource` keys
+Use when you've added new `String(localized:)` / `LocalizedStringResource` keys
 or Xcode has flagged existing keys as `stale` / `needs_review`.
 
 ```bash
@@ -138,9 +138,9 @@ python3 scripts/translate_catalog/inspect_glossary.py term Carry-Over
 
 ## Glossary (terminology consistency)
 
-`glossary.json` pins **one canonical per-locale translation for recurring app terms** ("Add",
+`glossary.json` pins one canonical per-locale translation for recurring app terms ("Add",
 "Expense", "Budget", "Add Funds", …) so that two keys with the same English don't drift, and so a
-compound like "Add Expense" reuses the agreed "Add" + "Expense". It is **consulted automatically**:
+compound like "Add Expense" reuses the agreed "Add" + "Expense". It is consulted automatically:
 `dispatch_prompts.py` injects the relevant terms into each translation prompt as a `{GLOSSARY}` block
 (rule 6 in `PROMPT_TEMPLATE.md` tells the model to use them but keep the full string coherent), and
 `audit_dispatch.py` injects the same block so the auditor can raise `consistency` findings. Protected

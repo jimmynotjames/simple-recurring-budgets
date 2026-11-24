@@ -1,12 +1,12 @@
 # Budget icon
 
-Optional per-budget decorative emoji icon. Synced from change `budget-icon-emoji` (2026-05-25).
+Optional per-budget decorative emoji icon.
 
 ## Requirements
 
 ### Requirement: Optional per-budget icon
 
-Each Budget SHALL support an optional icon: a single emoji chosen from a curated set the app provides. The icon is decorative and OPTIONAL — a Budget with no icon SHALL be fully valid and SHALL render name-only. The user SHALL be able to set, change, or remove the icon at any time via the Add/Edit Budget screen.
+Each Budget SHALL support an optional icon: a single emoji chosen from a curated set the app provides. The icon is decorative and OPTIONAL: a Budget with no icon SHALL be fully valid and SHALL render name-only. The user SHALL be able to set, change, or remove the icon at any time via the Add/Edit Budget screen.
 
 #### Scenario: Budget created without an icon
 
@@ -27,7 +27,7 @@ Each Budget SHALL support an optional icon: a single emoji chosen from a curated
 
 ### Requirement: Curated emoji set sourced from code
 
-The icon picker SHALL present a curated, budget-relevant set of emoji defined in application code. The picker component SHALL be the single master source for the set; the set SHALL NOT be enumerated in specs or product docs (to avoid drift). Picker entries SHALL be unique.
+The icon picker SHALL present a curated, budget-relevant set of emoji defined in application code. The picker component SHALL be the single source for the set; the set SHALL NOT be enumerated in specs or product docs. Picker entries SHALL be unique.
 
 #### Scenario: Picker presents the curated set
 
@@ -59,7 +59,7 @@ The Add/Edit Budget screen SHALL present an icon-selection control adjacent to t
 
 ### Requirement: Icon display on the Budgets list
 
-On the Budgets screen, each budget row SHALL display the budget's icon (when set) as a prefix of the budget name, separated by a single space so it reads as part of the name. When no icon is set, the row SHALL render the name alone. The icon SHALL be treated as decorative: it SHALL NOT be announced by VoiceOver as part of the row, which announces the budget name and status via the row's existing accessibility label.
+On the Budgets screen, each budget row SHALL display the budget's icon (when set) as a prefix of the budget name, separated by a single space so it reads as part of the name. When no icon is set, the row SHALL render the name alone. The icon is decorative: VoiceOver SHALL NOT announce it; the row announces the budget name and status via its existing accessibility label.
 
 #### Scenario: Row with an icon
 
@@ -80,7 +80,7 @@ On the Budgets screen, each budget row SHALL display the budget's icon (when set
 
 ### Requirement: Icon display on the Budget detail screen
 
-On the Budget detail screen, the budget title SHALL render the budget's icon (when set) on the leading edge preceding the budget name — not as a string `navigationTitle` prefix — so the icon mirrors with layout direction (right edge in RTL), consistent with the Budgets list row. When no icon is set, the title SHALL render the budget name alone. The icon is decorative and SHALL NOT be announced by VoiceOver. (The full title behavior — wrapping and scroll collapse — is specified by the "Scroll-aware content-area budget title" requirement in the budget-detail-screen capability.)
+On the Budget detail screen, the budget title SHALL render the budget's icon (when set) on the leading edge before the budget name, not as a string `navigationTitle` prefix, so it mirrors with layout direction (right edge in RTL) like the Budgets list row. When no icon is set, the title SHALL render the budget name alone. The icon is decorative and SHALL NOT be announced by VoiceOver. (Title wrapping and scroll collapse: "Scroll-aware content-area budget title" requirement in budget-detail-screen.)
 
 #### Scenario: Detail title with an icon
 

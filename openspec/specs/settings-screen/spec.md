@@ -1,6 +1,6 @@
 # Settings screen
 
-Screen-level UX contract for `SettingsView` — sections present, controls in each section, the Done dismissal, the iCloud sync-status derivation, and the rules for how Settings reads from and writes to `AppSettings`. The persistence and sync behavior of individual settings (`defaultCarryOverEnabled`, `weekStartDay`, `currencyDisplay`) lives in the `app-settings` capability and is referenced from here, not duplicated. Synced from change `settings-screen` (2026-04-28).
+Screen-level UX contract for `SettingsView`: sections, controls in each section, Done dismissal, iCloud sync-status derivation, and how Settings reads and writes `AppSettings`. Persistence and sync of individual settings (`defaultCarryOverEnabled`, `weekStartDay`, `currencyDisplay`) live in `app-settings`, not here.
 ## Requirements
 ### Requirement: Settings entry point and presentation
 
@@ -24,9 +24,9 @@ The screen SHALL provide a confirmation-action toolbar item titled "Done" (local
 
 ### Requirement: Budgets section — default carry-over toggle
 
-The Settings screen SHALL include a "Budgets" section that contains a toggle bound to `AppSettings.defaultCarryOverEnabled`. The toggle's persistence, default value, and external-change handling are governed by the `app-settings` capability — this requirement governs only the screen's binding and presentation.
+The Settings screen SHALL include a "Budgets" section that contains a toggle bound to `AppSettings.defaultCarryOverEnabled`. Persistence, default value, and external-change handling belong to `app-settings`; this requirement covers only binding and presentation.
 
-The section SHALL include a localized footer explaining that the toggle controls the default for new budgets only and that existing budgets are unaffected. The toggle SHALL be tinted with `Color.accentColor` so the picker color follows the app's tint.
+The section SHALL include a localized footer explaining that the toggle sets the default for new budgets only and existing budgets are unaffected. The toggle SHALL be tinted with `Color.accentColor`.
 
 #### Scenario: Toggling the default carry-over
 
@@ -46,7 +46,7 @@ The Settings screen SHALL include a "Calendar" section that contains a menu-styl
 
 Selecting a different value from the current `AppSettings.weekStartDay` SHALL NOT directly write the value. Instead the system SHALL hold the candidate value in a transient view-local state and present a confirmation alert (localized title, body, and buttons). The alert's body SHALL include the newly-selected weekday name as an interpolated argument.
 
-The alert body and the picker's accessibility hint SHALL accurately reflect the cascade scope per the `budget-math` capability: the change **also affects existing weekly budgets and recalculates their past weeks** onto the new grid. The copy SHALL NOT claim any effect on biweekly budgets (whose 14-day cycle stays anchored to their own start date); it need not mention biweekly explicitly.
+The alert body and the picker's accessibility hint SHALL accurately reflect the cascade scope per the `budget-math` capability: the change also affects existing weekly budgets and recalculates their past weeks onto the new grid. The copy SHALL NOT claim any effect on biweekly budgets (whose 14-day cycle stays anchored to their own start date); it need not mention biweekly explicitly.
 
 The system SHALL commit the candidate value to `AppSettings.weekStartDay` only when the user activates the alert's "Change" (confirmation) button. Activating the alert's "Cancel" (cancel-role) button SHALL discard the candidate value with no write. Dismissing the alert by any other means SHALL also discard the candidate value.
 
@@ -79,7 +79,7 @@ Persistence and sync of `AppSettings.weekStartDay` are governed by the `app-sett
 The Settings screen SHALL include a "Display" section that contains a menu-style `Picker` bound to `AppSettings.currencyDisplay` (capability: `app-settings`). The picker SHALL list every `CurrencyDisplayPreference` case (`symbol`, `code`, `codeAndSymbol`) and SHALL render each row in the form `"<localized label> — <example>"` where:
 
 - `<localized label>` is the case's localized human-readable name ("Symbol", "Code", "Code + Symbol" in en).
-- `<example>` is a **locale-aware live preview** produced by routing a fixed sentinel `Decimal` (specifically `Decimal(25)`) through `Decimal.formatted(currencyCode:display:locale:)` with `currencyCode = Locale.autoupdatingCurrent.currency?.identifier ?? "USD"` and `display` set to the case under render. This guarantees the picker preview is exactly what the user will see for each preference in their own locale.
+- `<example>` is a locale-aware live preview: `Decimal(25)` routed through `Decimal.formatted(currencyCode:display:locale:)` with `currencyCode = Locale.autoupdatingCurrent.currency?.identifier ?? "USD"` and `display` set to the case under render, so the preview is exactly what the user sees for each preference in their locale.
 
 Setting the picker SHALL write the new value directly to `AppSettings.currencyDisplay` (no confirmation alert; this preference is non-destructive and reversible). Persistence and sync are governed by the `app-settings` capability.
 
@@ -123,7 +123,7 @@ The Settings screen SHALL include an "iCloud Sync" section that displays a singl
 
 `SyncStatus` SHALL carry two pieces of state:
 
-- `containerBacking` — set at app launch from the outcome of `simple_recurring_budgetsApp.makeProductionModelContainer`. Values: `cloudKit` when the SwiftData `ModelContainer` was constructed with `cloudKitDatabase: .automatic`; `localFallback` when CloudKit container construction failed and the app fell back to `cloudKitDatabase: .none`. This value SHALL NOT change at runtime, with one exception: when container creation failed at launch (the `container-creation-recovery` surface is showing, and the value was seeded as a `.localFallback` placeholder) and a later **Retry** succeeds, the app SHALL update `containerBacking` to the retry's resolved backing so the row does not misreport local-only sync after recovery.
+- `containerBacking` — set at app launch from the outcome of `simple_recurring_budgetsApp.makeProductionModelContainer`. Values: `cloudKit` when the SwiftData `ModelContainer` was constructed with `cloudKitDatabase: .automatic`; `localFallback` when CloudKit container construction failed and the app fell back to `cloudKitDatabase: .none`. This value SHALL NOT change at runtime, with one exception: when container creation failed at launch (the `container-creation-recovery` surface is showing, and the value was seeded as a `.localFallback` placeholder) and a later Retry succeeds, the app SHALL update `containerBacking` to the retry's resolved backing so the row does not misreport local-only sync after recovery.
 - `accountStatus` — initialized to `.checking`; updated by `SettingsView` from `CKContainer.default().accountStatus()` and from observers of `CKAccountChangedNotification` and `NSUbiquityIdentityDidChange` while the screen is alive. Values: `.checking`, `.available`, `.unavailable`.
 
 The row's view-state SHALL be derived from `(containerBacking, accountStatus)` using exactly this mapping:
@@ -141,9 +141,9 @@ The four view-states SHALL each render a distinct row composition (icon + label)
 - `checking` — neutral progress indicator with a "Checking…" label and an accessibility label that announces the loading state.
 - `available` — green `checkmark.icloud` SF Symbol with an "iCloud Sync is Active" label and an accessibility label that announces "iCloud sync is active".
 - `unavailable` — orange `xmark.icloud` SF Symbol with an "iCloud Not Available" label, an accessibility label announcing the state plus guidance, and a section footer guiding the user to sign in via the system Settings app.
-- `paused` — distinct icon (proposed: `exclamationmark.icloud` in orange) with a "Sync paused / local only" style label, a fully descriptive accessibility label, and a distinct section footer explaining the cause and the user's recourse. The exact English source strings for this state are gated on user approval before implementation per the change's design and tasks.
+- `paused` — distinct icon (`exclamationmark.icloud` in orange) with a "Sync paused / local only" style label, a fully descriptive accessibility label, and a distinct section footer explaining the cause and the user's recourse.
 
-The accessibility labels for `available`, `unavailable`, and `checking` rows SHALL match the existing localized strings in `Localizable.xcstrings` exactly; this requirement does not introduce changes to those strings.
+The accessibility labels for `available`, `unavailable`, and `checking` rows SHALL match the existing localized strings in `Localizable.xcstrings` exactly.
 
 #### Scenario: Initial load shows checking
 
@@ -181,27 +181,27 @@ The accessibility labels for `available`, `unavailable`, and `checking` rows SHA
 
 The Settings screen SHALL include a "Support" section that contains exactly three rows in this order:
 
-1. **Send Feedback** — a SwiftUI `Link` whose destination is a `mailto:` URL composed from the app's static feedback email (`AppInfo.feedbackEmail`) and a percent-encoded subject (`AppInfo.feedbackSubject`). The row SHALL include a localized accessibility hint indicating the action ("Opens a new email to send feedback about the app").
-2. **Rate the App** — a `Button` whose action invokes `@Environment(\.requestReview)`, presenting Apple's StoreKit review prompt. The row SHALL include a localized accessibility hint ("Opens the App Store rating prompt").
-3. **Privacy Policy** — a SwiftUI `Link` whose destination is the URL string in `AppInfo.privacyPolicyURL`. The row SHALL include a localized accessibility hint ("Opens the privacy policy in your browser").
+1. Send Feedback: a SwiftUI `Link` whose destination is a `mailto:` URL composed from the app's static feedback email (`AppInfo.feedbackEmail`) and a percent-encoded subject (`AppInfo.feedbackSubject`). The row SHALL include a localized accessibility hint indicating the action ("Opens a new email to send feedback about the app").
+2. Rate the App: a `Button` whose action invokes `@Environment(\.requestReview)`, presenting Apple's StoreKit review prompt. The row SHALL include a localized accessibility hint ("Opens the App Store rating prompt").
+3. Privacy Policy: a SwiftUI `Link` whose destination is the URL string in `AppInfo.privacyPolicyURL`. The row SHALL include a localized accessibility hint ("Opens the privacy policy in your browser").
 
-The destination of the **Privacy Policy** link is `https://www.termsfeed.com/live/9bf5a2a7-b34d-416e-86df-bbd5097410cc`, stored as the static constant `AppInfo.privacyPolicyURL` in `SettingsView.swift`. The placeholder and `// TODO` comment have been removed.
+The Privacy Policy link destination is `https://www.termsfeed.com/live/9bf5a2a7-b34d-416e-86df-bbd5097410cc`, stored as the static constant `AppInfo.privacyPolicyURL` in `SettingsView.swift`.
 
-If the device has no `mailto:` handler installed, the Send Feedback `Link` MAY no-op when activated. This edge case is acknowledged and accepted; the screen SHALL NOT add a fallback flow for it as part of this capability.
+If the device has no `mailto:` handler, the Send Feedback `Link` MAY no-op. This is accepted; the screen SHALL NOT add a fallback flow.
 
 #### Scenario: Send Feedback opens the mail composer
 
-- **WHEN** the user taps the **Send Feedback** row on a device with a `mailto:` handler installed
+- **WHEN** the user taps the Send Feedback row on a device with a `mailto:` handler installed
 - **THEN** the system SHALL open the mail handler with the recipient set to `AppInfo.feedbackEmail` and the subject prefilled with `AppInfo.feedbackSubject`.
 
 #### Scenario: Rate the App invokes requestReview
 
-- **WHEN** the user taps the **Rate the App** row
+- **WHEN** the user taps the Rate the App row
 - **THEN** the system SHALL invoke `@Environment(\.requestReview)`, presenting the StoreKit review prompt (subject to Apple's rate-limiting rules; the row SHALL still attempt the call regardless of whether Apple chooses to display the prompt).
 
 #### Scenario: Privacy Policy opens the configured URL
 
-- **WHEN** the user taps the **Privacy Policy** row
+- **WHEN** the user taps the Privacy Policy row
 - **THEN** the system SHALL open the URL in `AppInfo.privacyPolicyURL` via the system browser.
 
 ---
@@ -250,7 +250,7 @@ The row SHALL be a single `accessibilityElement(children: .combine)`-collapsed e
 
 All other state SHALL be derived from `AppSettings` (preferences) or `SyncStatus` (sync availability) via the environment.
 
-This requirement codifies the §2.1 architecture choice in `docs/tech-design-doc.md` ("View + Services, ViewModels on demand"): none of the four escalation triggers (non-trivial draft state, async/Task work beyond a single call, multi-step user actions, expensive derived state) apply at the screen level.
+This follows `docs/tech-design-doc.md` §2.1 ("View + Services, ViewModels on demand"): none of the four escalation triggers (non-trivial draft state, async/Task work beyond a single call, multi-step user actions, expensive derived state) applies here.
 
 #### Scenario: No SettingsViewModel exists
 
@@ -261,19 +261,19 @@ This requirement codifies the §2.1 architecture choice in `docs/tech-design-doc
 
 The Settings screen SHALL include a "Diagnostics & Analytics" section, ordered between the existing "iCloud Sync" and "Support" sections. The section SHALL contain a single toggle bound to `AppSettings.analyticsOptIn` (capability: `app-settings`).
 
-The toggle SHALL be tinted with `Color.accentColor` so the picker color follows the app's tint, matching the existing Budgets section's default-carry-over toggle convention.
+The toggle SHALL be tinted with `Color.accentColor`, as the Budgets section's default-carry-over toggle is.
 
 The section SHALL include a localized footer that:
 
 - Summarizes what is and is not transmitted (mirroring the field-level allow/deny rules in [`docs/analytics-spec.md` §5](../../../docs/analytics-spec.md#5-privacy-contract--pii-and-field-level-rules) in plain language: never any expense field, never any iCloud or Apple ID identifier, only categorical Budget metadata and bucketed counts).
 - Notes that the initial state was set automatically based on the device locale and can be changed at any time.
 
-All copy in the section SHALL be keyed in `Localizable.xcstrings` with translator-friendly comments per F-3.03. The required keys are `settings.analytics.section.title`, `settings.analytics.toggle.title`, and `settings.analytics.toggle.footer`. No hard-coded English literal SHALL appear in the new section.
+All copy in the section SHALL be keyed in `Localizable.xcstrings` with translator-friendly comments per F-3.03. The required keys are `settings.analytics.section.title`, `settings.analytics.toggle.title`, and `settings.analytics.toggle.footer`. No hard-coded English literal SHALL appear in the section.
 
 Toggling the switch SHALL drive the `analytics_consent_changed` event flow defined in the `product-analytics` capability:
 
 - **Toggle-on transition** (`false → true`): the system SHALL set `AppSettings.analyticsOptIn = true` (which persists), then `analytics.track("analytics_consent_changed", properties: [new_value: true, old_value: false])` SHALL fire, lazy-initializing the SDK.
-- **Toggle-off transition** (`true → false`): the system SHALL fire `analytics.track("analytics_consent_changed", properties: [new_value: false, old_value: true])` FIRST while still opted in, then call `MixpanelAnalyticsClient.reset()`, then set `AppSettings.analyticsOptIn = false` LAST. This ordering ensures the opt-out is observable before subsequent `track` calls are dropped.
+- **Toggle-off transition** (`true → false`): the system SHALL fire `analytics.track("analytics_consent_changed", properties: [new_value: false, old_value: true])` FIRST while still opted in, then call `MixpanelAnalyticsClient.reset()`, then set `AppSettings.analyticsOptIn = false` LAST. This makes the opt-out observable before later `track` calls are dropped.
 
 The opt-in toggle change SHALL NOT also fire a `setting_changed` event (per the `product-analytics` capability's `setting_changed` requirement, the analytics opt-in is excluded from the `setting_name` enum and uses the dedicated `analytics_consent_changed` event instead).
 

@@ -291,24 +291,24 @@ jobs:
       # here; the first UI test then doesn't pay for the boot inside its own timeouts.
       - name: Boot the simulator
         run: xcrun simctl bootstatus "$SIM_UDID" -b
-      # A booted simulator is still cold: the first app launch, test-runner launch, and
-      # accessibility audit each take far longer than later ones (#360: first tests ran 50-130 s
-      # vs ~30 s, and audits timed out or sampled contrast mid-render). Locally the unit pass
-      # warms it; here one throwaway UI test does (SimulatorWarmUpTests). It asserts nothing, so
-      # a failure here doesn't fail the job; the shard below still runs and reports.
+      # A UI test needs the simulator to have hosted an app once first (scripts/ui-tests.sh's
+      # header), which locally the unit pass does. Here one small unit suite gives it that first
+      # app lifecycle, as checklists' CI does. The unit-tests job is what checks these tests, so
+      # a failure here doesn't fail the shard.
       - name: Warm up the simulator
         continue-on-error: true
         timeout-minutes: 10
         run: |
-          filters=()
-          while IFS= read -r line; do
-            filters+=("$line")
-          done < <(python3 scripts/ci/ui_shards.py warm-up)
           xcodebuild test-without-building \
             -xctestrun "$XCTESTRUN" \
             -destination "id=$SIM_UDID" \
             -parallel-testing-enabled NO \
-            "${filters[@]}"
+            -collect-test-diagnostics never \
+            -only-testing:simple-recurring-budgetsTests/simple_recurring_budgetsTests
+      # One retry per failed test, as the local parallel runs do (scripts/_sim_concurrency.sh).
+      # For minutes after boot the simulator is busy with first-boot work, and on these runners
+      # that makes accessibility audits time out (-56) or sample contrast mid-render (#360).
+      # A test that fails both tries still fails the shard.
       - name: UI tests
         timeout-minutes: 35
         env:
@@ -323,6 +323,8 @@ jobs:
             -xctestrun "$XCTESTRUN" \
             -destination "id=$SIM_UDID" \
             -parallel-testing-enabled NO \
+            -retry-tests-on-failure \
+            -test-iterations 2 \
             -resultBundlePath "build/results/ui-tests-${SHARD}.xcresult" \
             "${filters[@]}"
       - name: Upload test result bundles

@@ -1,10 +1,13 @@
-name: iOS test setup
+name: iOS setup
 description: >-
-  Shared setup for ci.yml's unit-tests and ui-tests jobs: select Xcode, restore the
-  SwiftPM cache, make sure an iOS simulator exists (exports SIM_UDID), and compile
-  once with build-for-testing. On a compile failure it turns each error into a PR
-  annotation and a job-summary line (scripts/ci/xcode_errors.py), then fails.
-  Expects the repo to be checked out already.
+  Shared setup for ci.yml's macOS jobs: select Xcode 26.5 and, for jobs that run tests, make
+  sure an iOS simulator exists (exports SIM_UDID). Expects the repo to be checked out already.
+
+inputs:
+  simulator:
+    description: "'true' for a job that runs tests on a simulator; 'false' for the build job"
+    required: false
+    default: "true"
 
 runs:
   using: composite
@@ -13,18 +16,12 @@ runs:
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: "26.5"
-    - name: Cache SwiftPM packages
-      uses: actions/cache@v6
-      with:
-        path: build/DerivedData/SourcePackages
-        key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-        restore-keys: |
-          spm-${{ runner.os }}-xcode26.5-
     # Some macos-26 runners start with no iOS simulator runtime, even on an image
     # version that works on other machines, and a hard-coded `name=iPhone 17` then
     # fails with "Unable to find a device matching the provided destination".
     # Install a runtime if none is present, then pin the job's tests to one device by UDID.
     - name: Ensure an iOS simulator is available
+      if: inputs.simulator == 'true'
       shell: bash
       run: |
         echo "Runner image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
@@ -65,18 +62,3 @@ runs:
         fi
         echo "Using simulator $udid"
         echo "SIM_UDID=$udid" >> "$GITHUB_ENV"
-    # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
-    # CODE_SIGNING_ALLOWED=NO strips them and breaks NSUbiquitousKeyValueStore tests.
-    # Mirrors scripts/build.sh's scheme/project.
-    - name: Build for testing
-      shell: bash
-      run: |
-        xcodebuild build-for-testing \
-          -project simple-recurring-budgets.xcodeproj \
-          -scheme simple-recurring-budgets \
-          -destination "id=$SIM_UDID" \
-          -derivedDataPath build/DerivedData \
-          CODE_SIGNING_ALLOWED=YES \
-          CODE_SIGN_IDENTITY=- \
-          2>&1 | tee build-for-testing.log \
-          || { python3 scripts/ci/xcode_errors.py build-for-testing.log; exit 1; }

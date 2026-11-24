@@ -5,9 +5,10 @@ import XCTest
 /// at default Dynamic Type and Light mode, with per-locale demo content. Not the same as
 /// `LocalizationScreenshotCapture` (forces `.xxxLarge`).
 ///
-/// Excluded from every test pipeline: `scripts/test.sh`, `test-ui.sh`, and `test-unit.sh` use an
-/// explicit `-only-testing:` allowlist that omits this class, so it never runs in `make test*` or
-/// CI. Its only runner is the Snapfile `only_testing` via `fastlane screenshots`.
+/// Excluded from every test pipeline: `ALWAYS_SKIPPED` in `scripts/ci/ui_shards.py` (the UI
+/// selection for `make ui-tests` and CI) lists this class, and the unit pass skips the whole UI
+/// target, so it never runs in `make tests` or CI. Its only runner is the Snapfile `only_testing`
+/// via `fastlane screenshots`.
 ///
 /// Depends on (update here if these change):
 /// - Four production `.accessibilityIdentifier` nav handles (locale-invariant):

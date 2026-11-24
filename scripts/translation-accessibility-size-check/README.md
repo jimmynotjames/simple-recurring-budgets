@@ -3,7 +3,7 @@
 A manual, ad-hoc check for localized truncation / overflow / RTL-mirroring at large Dynamic
 Type. It renders the app in 7 locales at forced `.xxxLarge`, captures a screenshot of each key screen,
 and leaves them for visual inspection (Claude reads them and reports). It is not wired into
-`make test`, pre-commit, or CI; run it on demand, e.g. before an App Store submission.
+`make tests`, pre-commit, or CI; run it on demand, e.g. before an App Store submission.
 
 > Visual, not assertions: on iOS 26.x `performAccessibilityAudit(for: .textClipped)` is a
 > predictive heuristic that false-positives on static text / SwiftUI nodes (issue #171), so it
@@ -69,8 +69,8 @@ This check is thin and leans on existing app/test infrastructure. If you modify 
   (BudgetsView) and `budgetDetail.menu.accessibilityLabel` (BudgetDetailView). Each is commented in-view.
 - `TestDynamicTypeOverride` (the `FORCE_DYNAMIC_TYPE` hook) at the app root.
 - `scripts/_destination.sh` + `scripts/build.sh` (the runner sources/builds through them).
-- The capture is **excluded** from `make test` by omission from `scripts/test-ui.sh`'s `-only-testing` list —
-  it runs only when `run.sh` targets it. Keep it out of that list.
+- The capture is **excluded** from `make tests` by `ALWAYS_SKIPPED` in `scripts/ci/ui_shards.py` —
+  it runs only when `run.sh` targets it. Keep it in that list.
 
 ## Extending it
 - **More languages:** add a `testCaptureXxx()` method + a `localeID` entry in

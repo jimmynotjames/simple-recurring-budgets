@@ -16,7 +16,7 @@ fi
 
 if [[ -z "${BUNDLE}" || ! -e "${BUNDLE}" ]]; then
     echo "coverage: no unit .xcresult found under ${RESULTS_DIR}" >&2
-    echo "coverage: run \`make test-unit\` first (coverage is collected on the unit pass)" >&2
+    echo "coverage: run \`make unit-tests\` first (coverage is collected on the unit pass)" >&2
     exit 1
 fi
 
@@ -24,7 +24,7 @@ echo "coverage: reading ${BUNDLE}" >&2
 
 if ! JSON="$(xcrun xccov view --report --json "${BUNDLE}" 2>/dev/null)"; then
     echo "coverage: ${BUNDLE} has no coverage data" >&2
-    echo "coverage: it likely predates -enableCodeCoverage — re-run \`make test-unit\`" >&2
+    echo "coverage: it likely predates -enableCodeCoverage — re-run \`make unit-tests\`" >&2
     exit 1
 fi
 

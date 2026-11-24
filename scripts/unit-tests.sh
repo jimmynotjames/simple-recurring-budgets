@@ -21,14 +21,14 @@ COMMON_ARGS=(
 xcodebuild build-for-testing "${COMMON_ARGS[@]}"
 
 # One slot, always serial: Swift Testing parallelizes in-process on one sim, and this run is
-# the warm-up `make test-ui` needs (it must host an app lifecycle on the base device).
-take_slots 1 test-unit
+# the warm-up `make ui-tests` needs (it must host an app lifecycle on the base device).
+take_slots 1 unit-tests
 
-# Unit tests only; `make test` also runs the UI tests.
+# Unit tests only; `make tests` also runs the UI tests.
 xcodebuild test-without-building "${COMMON_ARGS[@]}" \
     -resultBundlePath "${RESULT_BUNDLE}" \
     -parallel-testing-enabled NO \
     -skip-testing:simple-recurring-budgetsUITests
 
-# Warm-up sentinel for test-ui.sh; `make sim-clean` clears it.
+# Warm-up sentinel for ui-tests.sh; `make sim-clean` clears it.
 touch "${ROOT}/.build/sim/warmed"

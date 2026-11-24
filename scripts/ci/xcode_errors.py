@@ -2,7 +2,7 @@
 """
 Turn the errors in an xcodebuild log into GitHub feedback.
 
-ci.yml's `test` job tees `xcodebuild build-for-testing` into a log. When that step
+ci.yml's `build` job tees `xcodebuild build-for-testing` into a log. When that step
 fails, this script reads the log and emits:
 
   1. One `::error file=...,line=...,col=...::msg` annotation per distinct compiler

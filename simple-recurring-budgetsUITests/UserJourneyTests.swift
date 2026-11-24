@@ -221,10 +221,37 @@ final class UserJourneyTests: XCTestCase {
     app.launch()
 
     let budgets = BudgetsScreen(app: app)
-    XCTAssertTrue(budgets.budgetRow(named: "Alpha").waitForExistence(timeout: 3))
-    budgets.editButton.tap()
+    let alphaRow = budgets.budgetRow(named: "Alpha")
+    let bravoRow = budgets.budgetRow(named: "Bravo")
+    let charlieRow = budgets.budgetRow(named: "Charlie")
+    XCTAssertTrue(charlieRow.waitForExistence(timeout: 3))
+    // The drag below picks cells by index, so first confirm the seed order it assumes.
+    XCTAssertLessThan(alphaRow.frame.minY, bravoRow.frame.minY, "Seed order should start Alpha, Bravo")
+    XCTAssertLessThan(bravoRow.frame.minY, charlieRow.frame.minY, "Seed order should end Bravo, Charlie")
 
-    // Edit mode adds a trailing reorder grabber; drag the last cell (Charlie) by it above the first.
+    // Synthesized drags occasionally don't register on CI simulators (the order stays unchanged), so allow
+    // one more attempt. A drag that registers but lands wrong still fails the asserts below.
+    for _ in 0 ..< 2 {
+      dragLastBudgetToTop(app: app, budgets: budgets)
+      XCTAssertTrue(charlieRow.waitForExistence(timeout: 3))
+      if charlieRow.frame.minY < alphaRow.frame.minY {
+        break
+      }
+    }
+
+    XCTAssertLessThan(
+      charlieRow.frame.minY, alphaRow.frame.minY,
+      "Charlie should render above Alpha after the drag"
+    )
+    XCTAssertLessThan(
+      alphaRow.frame.minY, bravoRow.frame.minY,
+      "Alpha should remain above Bravo after the drag"
+    )
+  }
+
+  /// Enters Edit mode, drags the last of three cells above the first by its trailing reorder grabber, then taps Done.
+  private func dragLastBudgetToTop(app: XCUIApplication, budgets: BudgetsScreen) {
+    budgets.editButton.tap()
     let fromCell = app.cells.element(boundBy: 2)
     let toCell = app.cells.element(boundBy: 0)
     XCTAssertTrue(fromCell.waitForExistence(timeout: 2))
@@ -235,21 +262,7 @@ final class UserJourneyTests: XCTestCase {
     // continuous drag, and no settle time before touch-up for .onMove to commit, so the order
     // silently didn't change. Slow velocity plus a hold before release fixes both.
     grabber.press(forDuration: 1.0, thenDragTo: target, withVelocity: .slow, thenHoldForDuration: 0.5)
-
     app.buttons["Done"].tap()
-
-    let charlieRow = budgets.budgetRow(named: "Charlie")
-    let alphaRow = budgets.budgetRow(named: "Alpha")
-    let bravoRow = budgets.budgetRow(named: "Bravo")
-    XCTAssertTrue(charlieRow.waitForExistence(timeout: 3))
-    XCTAssertLessThan(
-      charlieRow.frame.minY, alphaRow.frame.minY,
-      "Charlie should render above Alpha after the drag"
-    )
-    XCTAssertLessThan(
-      alphaRow.frame.minY, bravoRow.frame.minY,
-      "Alpha should remain above Bravo after the drag"
-    )
   }
 
   // MARK: - Budget deletion

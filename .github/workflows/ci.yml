@@ -3,11 +3,11 @@
 # Mirrors the local lefthook gates (lefthook.yml) somewhere unbypassable: hooks can be
 # skipped (`git push --no-verify`, hookless clone, web-UI merge). Branch protection on
 # `main` should REQUIRE lint, secrets, check-large-files, i18n-gates, build, test
-# (repo Settings -> Branches); without it CI is advisory.
+# (repo Settings -> Rules -> Rulesets); without it CI is advisory.
 #
 # Runner minutes are free on this public repo, so the `test` job runs the full unit +
-# UI suite on every PR (run-ui-tests-on-demand.yml re-runs just the UI suite on an open
-# PR). App Store metadata / screenshot-content checks are deliberately NOT here: they
+# UI suite on every PR that touches more than docs (see the `changes` job;
+# run-ui-tests-on-demand.yml re-runs just the UI suite on an open PR). App Store metadata / screenshot-content checks are deliberately NOT here: they
 # are release-time (100+ PRs can land between releases) and run in the fastlane
 # beta/release lanes (see fastlane/Fastfile).
 name: CI
@@ -169,12 +169,48 @@ jobs:
             -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO
 
+  # --- changes: does this PR need `test`? -----------------------------------------
+  # Docs-only PRs skip `test`, and a skipped required check counts as passing. A PR
+  # needs tests if any changed file (old or new path of a rename) is outside the
+  # docs-only list below, or is anywhere under an app/test target folder. Pushes to
+  # main always test. If the file list can't be read, the tests run.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          code=true
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] \
+            && files="$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+                 --jq '.[] | .filename, (.previous_filename // empty)')" \
+            && [ -n "$files" ]; then
+            code=false
+            while IFS= read -r f; do
+              case "$f" in
+                simple-recurring-budgets*/*) code=true ;;
+                *.md | docs/* | openspec/* | releases/* | .claude/* | .cursor/*) ;;
+                *) code=true ;;
+              esac
+              if [ "$code" = true ]; then
+                echo "Needs tests: $f"
+                break
+              fi
+            done <<< "$files"
+          fi
+          echo "code=$code" | tee -a "$GITHUB_OUTPUT"
+
   # --- Tier 3: unit + UI tests (macOS) -----------------------------------------
   # Pass 1 mirrors scripts/test-unit.sh (serial, skips UITests, warms the simulator
   # for pass 2). Pass 2 mirrors scripts/test-ui.sh's suite selection.
   test:
     runs-on: macos-26
-    needs: [lint, secrets, check-large-files, i18n-gates]
+    needs: [lint, secrets, check-large-files, i18n-gates, changes]
+    if: needs.changes.outputs.code == 'true'
     steps:
       - uses: actions/checkout@v7
       - name: Select Xcode 26.5

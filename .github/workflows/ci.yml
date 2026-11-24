@@ -291,6 +291,24 @@ jobs:
       # here; the first UI test then doesn't pay for the boot inside its own timeouts.
       - name: Boot the simulator
         run: xcrun simctl bootstatus "$SIM_UDID" -b
+      # A booted simulator is still cold: the first app launch, test-runner launch, and
+      # accessibility audit each take far longer than later ones (#360: first tests ran 50-130 s
+      # vs ~30 s, and audits timed out or sampled contrast mid-render). Locally the unit pass
+      # warms it; here one throwaway UI test does (SimulatorWarmUpTests). It asserts nothing, so
+      # a failure here doesn't fail the job; the shard below still runs and reports.
+      - name: Warm up the simulator
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          filters=()
+          while IFS= read -r line; do
+            filters+=("$line")
+          done < <(python3 scripts/ci/ui_shards.py warm-up)
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN" \
+            -destination "id=$SIM_UDID" \
+            -parallel-testing-enabled NO \
+            "${filters[@]}"
       - name: UI tests
         timeout-minutes: 35
         env:

@@ -13,9 +13,13 @@ their own drivers (fastlane, translation-accessibility-size-check).
 Balance shards by CI job time, not test count: move a class between named shards, or name a new
 shard, when one `ui-tests` job runs well over the others.
 
+The warm-up class is skipped by every shard too. ci.yml runs it alone, before a shard, so a freshly
+booted simulator is warm when the shard's first test starts.
+
     ui_shards.py names          the shard names, one per line, in matrix order
     ui_shards.py args [SHARD]   xcodebuild -only-testing/-skip-testing flags, one per line;
                                 no SHARD (or `all`) selects the whole target
+    ui_shards.py warm-up        the -only-testing flag that selects just the warm-up class
 """
 
 from __future__ import annotations
@@ -32,6 +36,9 @@ ALWAYS_SKIPPED = (
     "simple_recurring_budgetsUITests",
     "simple_recurring_budgetsUITestsLaunchTests",
 )
+
+# Runs on its own before a shard (`ui_shards.py warm-up`), never inside one.
+WARM_UP = "SimulatorWarmUpTests"
 
 NAMED_SHARDS: dict[str, tuple[str, ...]] = {
     # The slowest suite (~8 min).
@@ -50,15 +57,22 @@ def args(shard: str = "all") -> list[str]:
         return [f"-only-testing:{TARGET}/{cls}" for cls in NAMED_SHARDS[shard]]
     if shard not in (REST, "all"):
         raise ValueError(f"unknown UI shard {shard!r}; one of: {', '.join(names())}")
-    skipped = list(ALWAYS_SKIPPED)
+    skipped = [*ALWAYS_SKIPPED, WARM_UP]
     if shard == REST:
         skipped += [cls for classes in NAMED_SHARDS.values() for cls in classes]
     return [f"-only-testing:{TARGET}"] + [f"-skip-testing:{TARGET}/{cls}" for cls in skipped]
 
 
+def warm_up_args() -> list[str]:
+    return [f"-only-testing:{TARGET}/{WARM_UP}"]
+
+
 def main(argv: list[str]) -> int:
     if argv[:1] == ["names"] and len(argv) == 1:
         print("\n".join(names()))
+        return 0
+    if argv == ["warm-up"]:
+        print("\n".join(warm_up_args()))
         return 0
     if argv[:1] == ["args"] and len(argv) <= 2:
         try:
@@ -67,7 +81,7 @@ def main(argv: list[str]) -> int:
             print(f"error: {error}", file=sys.stderr)
             return 2
         return 0
-    print("usage: ui_shards.py names | ui_shards.py args [SHARD]", file=sys.stderr)
+    print("usage: ui_shards.py names | ui_shards.py args [SHARD] | ui_shards.py warm-up", file=sys.stderr)
     return 2
 
 

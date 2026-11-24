@@ -302,7 +302,7 @@ struct SettingsView: View {
                 AnalyticsProperty.oldValue: false,
               ]
             )
-            // Must follow `track` (which lazy-inits the SDK).
+            // Opt-in timestamp (analytics-spec.md §10.3). Must follow `track`, which lazy-inits the SDK.
             analytics.setAnalyticsOptInAt()
           } else {
             // Order matters (analytics-spec.md §7.3): fire consent_changed while still opted in, reset the SDK,

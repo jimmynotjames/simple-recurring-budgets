@@ -23,11 +23,11 @@ protocol AnalyticsClient: AnyObject, Sendable {
   // (ConsoleAnalyticsClient) skip these. Call sites MUST go through the protocol, never downcast to
   // `MixpanelAnalyticsClient`, so test doubles can observe the calls.
 
-  /// Re-registers the super properties on the live backend; call after any write that affects a super-property value.
+  /// Re-registers the §10.2 super properties on the live backend; call after any write that affects a super-property value.
   func refreshSuperProperties()
-  /// Recomputes and persists the cohort people-properties from the current Budget collection; call after `budget_created` / `budget_edited` / `budget_deleted`.
+  /// Recomputes and persists the §10.3 cohort people-properties from the current Budget collection; call after `budget_created` / `budget_edited` / `budget_deleted`.
   func refreshCohortPeopleProperties(budgets: [BudgetCohortInfo])
-  /// Sets the `analytics_opt_in_at` people property; call on the opt-in transition, after the first opted-in `track` has lazily initialised the SDK.
+  /// Sets the §10.3 `analytics_opt_in_at` people property; call on the opt-in transition, after the first opted-in `track` has lazily initialised the SDK.
   func setAnalyticsOptInAt()
   /// Sets the F-6.03 `rating_prompt_first_eligible_at` people property (set-once).
   func setRatingPromptFirstEligible(_ date: Date)
@@ -50,7 +50,7 @@ extension AnalyticsClient {
 
 // MARK: - BudgetCohortInfo
 
-/// Snapshot of the Budget properties needed for cohort people-properties; callers build it from their `Budget` models and pass it to `refreshCohortPeopleProperties(budgets:)`.
+/// Snapshot of the Budget properties needed for cohort people-properties (§10.3); callers build it from their `Budget` models and pass it to `refreshCohortPeopleProperties(budgets:)`.
 struct BudgetCohortInfo {
   let currencyCode: String
   let periodRawValue: String

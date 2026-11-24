@@ -24,7 +24,7 @@ enum ConsentJurisdiction: Equatable {
   /// (e.g. `"DE"`, `"US"`); `nil` (region unavailable) → `.required` (safe default).
   nonisolated static func kind(for regionIdentifier: String?) -> ConsentJurisdiction {
     guard let code = regionIdentifier else {
-      // Unknown region: default to strict consent.
+      // Unknown region: default to strict consent (analytics-spec.md §7.2).
       return .required
     }
     return strictOptInRegions.contains(code) ? .required : .autoOptin
@@ -43,7 +43,7 @@ enum ConsentJurisdiction: Equatable {
   /// - BR — LGPD
   /// - TR — KVKK
   /// - TH — PDPA
-  /// - CA — Law 25 (Quebec); applied CA-wide as a pragmatic choice
+  /// - CA — Law 25 (Quebec); applied CA-wide per the §7.2 pragmatism clause
   nonisolated private static let strictOptInRegions: Set<String> = [
     // European Union (27 member states)
     "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE",

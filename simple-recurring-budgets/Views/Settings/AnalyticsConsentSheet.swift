@@ -89,7 +89,7 @@ struct AnalyticsConsentSheet: View {
       .appBackground()
       .navigationBarTitleDisplayMode(.inline)
     }
-    // Swiping down is allowed and counts as Decline (handled in `onDisappear`).
+    // Swiping down is allowed and counts as Decline per analytics-spec.md §7.2 (handled in `onDisappear`).
     .interactiveDismissDisabled(false)
     .onDisappear {
       // Swipe-dismiss without a button tap: record opt-out so the sheet doesn't reappear
@@ -108,7 +108,7 @@ struct AnalyticsConsentSheet: View {
       AnalyticsEvent.analyticsConsentChanged,
       properties: [AnalyticsProperty.newValue: true]
     )
-    // Must follow `track` (which lazy-inits the SDK).
+    // Opt-in timestamp (analytics-spec.md §10.3). Must follow `track`, which lazy-inits the SDK.
     analytics.setAnalyticsOptInAt()
     dismiss()
   }

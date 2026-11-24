@@ -40,7 +40,7 @@ final class AppSettings {
 
   /// Whether the user has opted in to product analytics (Mixpanel).
   ///
-  /// The **default is locale-aware**: `false` in strict-opt-in jurisdictions, `true` in auto-opt-in ones. The
+  /// The **default is locale-aware**: `false` in strict-opt-in jurisdictions (analytics-spec.md §7.2), `true` in auto-opt-in ones. The
   /// resolved default is **not** written to the backing store; persistence happens only on an explicit write
   /// (Settings toggle or first-run consent sheet). `@Observable` notifications emit on every write.
   var analyticsOptIn: Bool {

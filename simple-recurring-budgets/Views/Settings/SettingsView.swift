@@ -20,7 +20,7 @@ struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.requestReview) private var requestReview
 
-  /// Holds the pending week-start selection until confirmed.
+  /// Holds the pending week-start selection until confirmed (F-5.01).
   @State private var weekStartConfirmation = WeekStartConfirmation()
 
   private var appVersion: String {
@@ -259,7 +259,7 @@ struct SettingsView: View {
           }
         )
       ) {
-        // Each row reads "<option label> — <locale-aware example>", not the example alone.
+        // Each row reads "<option label> — <locale-aware example>", not the example alone (F-2.05).
         ForEach(CurrencyDisplayPreference.allCases) { option in
           Text(String(
             localized: "settings.currencyDisplay.option.row",
@@ -283,7 +283,7 @@ struct SettingsView: View {
     }
   }
 
-  // MARK: - Diagnostics & Analytics section
+  // MARK: - Diagnostics & Analytics section (F-8.02)
 
   @ViewBuilder
   private var analyticsSection: some View {
@@ -305,7 +305,7 @@ struct SettingsView: View {
             // Must follow `track` (which lazy-inits the SDK).
             analytics.setAnalyticsOptInAt()
           } else {
-            // Order matters: fire consent_changed while still opted in, reset the SDK,
+            // Order matters (analytics-spec.md §7.3): fire consent_changed while still opted in, reset the SDK,
             // then set `analyticsOptIn = false` so later events are dropped.
             analytics.track(
               AnalyticsEvent.analyticsConsentChanged,

@@ -2,15 +2,15 @@ import SwiftUI
 
 // MARK: - Budget icon picker
 
-/// Sheet for choosing a budget's optional icon, a single emoji from a curated set;
+/// Sheet for choosing a budget's optional icon (F-4.03), a single emoji from a curated set;
 /// picking writes `selection` and dismisses, "Remove" clears it. Master source for the
-/// offered emoji; feature docs deliberately don't enumerate them.
+/// offered emoji (F-4.03); feature docs deliberately don't enumerate them.
 struct BudgetIconPicker: View {
   @Binding var selection: String?
   @Environment(\.dismiss) private var dismiss
 
   /// Curated emoji grouped by spending category, covering the PRD personas' recurring
-  /// categories (docs/main-prd.md §5), plus a short tongue-in-cheek set at the end.
+  /// categories (docs/main-prd.md §5, docs/ux-design-brief.md), plus a short tongue-in-cheek set at the end.
   /// Entries MUST stay unique (`ForEach` keys on the emoji). `static` for tests.
   static let curatedIcons: [String] = [
     // Food & dining

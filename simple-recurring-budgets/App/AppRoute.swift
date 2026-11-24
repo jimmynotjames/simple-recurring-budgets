@@ -11,6 +11,6 @@ import Foundation
 enum AppRoute: Hashable {
   /// Drill into the expense list for a specific budget.
   case budgetDetail(UUID)
-  /// Push into the Add/Edit/View Expense screen for an existing expense.
+  /// Push into the Add/Edit/View Expense screen for an existing expense (F-2.04).
   case expenseDetail(UUID)
 }

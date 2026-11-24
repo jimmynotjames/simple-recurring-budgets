@@ -2,7 +2,7 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-// MARK: - Pause / Resume actions
+// MARK: - Pause / Resume actions (F-7.06)
 
 extension BudgetDetailView {
   func pauseBudgetTapped() {
@@ -25,7 +25,7 @@ extension BudgetDetailView {
       return
     }
     saveError.clear()
-    // budget_paused fires only after a successful save; the debug log above is
+    // budget_paused fires only after a successful save (F-8.02); the debug log above (F-8.01) is
     // independent of it.
     if succeeded {
       analytics.track(
@@ -62,7 +62,7 @@ extension BudgetDetailView {
       return
     }
     saveError.clear()
-    // budget_resumed fires only after a successful save; the debug log above is
+    // budget_resumed fires only after a successful save (F-8.02); the debug log above (F-8.01) is
     // independent of it.
     if succeeded {
       analytics.track(

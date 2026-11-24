@@ -11,7 +11,7 @@ final class AddEditExpenseViewModel {
     case edit(ExpenseItem)
   }
 
-  /// Who last wrote the `amount` draft. `applyRecent` writes `amount` only when this is
+  /// Who last wrote the `amount` draft (F-7.04 smart-apply). `applyRecent` writes `amount` only when this is
   /// `.empty` or `.tileSeeded`, so user keystrokes are never silently overwritten.
   enum AmountProvenance {
     /// No amount in the draft (initial state, or the user cleared/deleted it).
@@ -50,7 +50,7 @@ final class AddEditExpenseViewModel {
     }
   }
 
-  /// Edit-mode Recents reveal latch: true once the Description has been blank (trimmed)
+  /// F-7.04 Edit-mode Recents reveal latch: true once the Description has been blank (trimmed)
   /// at any point in the sheet's lifetime, either at open or after the user cleared it.
   /// Never reverts. See `shouldShowRecentsSection`.
   private(set) var recentsRevealedInEdit = false
@@ -58,7 +58,7 @@ final class AddEditExpenseViewModel {
   var date: Date
   let currencyCode: String
 
-  /// Add Funds toggle. Drives the title flip, amount tint, Description default seed, and
+  /// Add Funds toggle (F-6.01). Drives the title flip, amount tint, Description default seed, and
   /// the sign of `ExpenseItem.amount` on Save (Add and Edit).
   var isAddFunds: Bool = false {
     didSet {
@@ -79,7 +79,7 @@ final class AddEditExpenseViewModel {
   private let mode: Mode
 
   /// Global week-start day, captured at init and passed to every `BudgetCalculator.snapshot`
-  /// call. A plain `Weekday` (not `AppSettings`); doesn't track changes while the sheet is open.
+  /// call. A plain `Weekday` (not `AppSettings`, per the add-edit-expense-screen spec's no-stored-settings rule); doesn't track changes while the sheet is open.
   private let weekStart: Weekday
 
   /// Lifecycle snapshot at sheet-open, cached to avoid recomputing per body pass. `nil`
@@ -94,13 +94,13 @@ final class AddEditExpenseViewModel {
   /// re-formatting per body pass).
   private let cachedPausedSinceFormatted: String?
 
-  /// Abbreviated `Budget.startDate` for the pre-start caption; `nil` otherwise.
+  /// Abbreviated `Budget.startDate` for the pre-start clamped-default caption (F-2.04); `nil` otherwise.
   private let cachedStartDateFormatted: String?
 
-  /// Abbreviated `Budget.endDate` for the post-end caption; `nil` otherwise.
+  /// Abbreviated `Budget.endDate` for the post-end clamped-default caption (F-2.04); `nil` otherwise.
   private let cachedEndDateFormatted: String?
 
-  /// Recents search corpus (up to `recentsCorpusLimit` tiles), memoized at sheet-open so
+  /// F-7.04 Recents search corpus (up to `recentsCorpusLimit` tiles), memoized at sheet-open so
   /// typing filters it without re-aggregating `budget.expenseItems` per keystroke. Populated
   /// in Edit mode too. Algorithm in `AddEditExpenseView+RecentsSection.swift`.
   let cachedRecentCandidates: [RecentExpenseSuggestion]
@@ -112,7 +112,7 @@ final class AddEditExpenseViewModel {
     return false
   }
 
-  /// The budget driving this entry; used for date-bounds validation and Recents candidates.
+  /// The budget driving this entry; used for date-bounds validation and F-7.04 Recents candidates.
   var budget: Budget? {
     switch mode {
     case let .add(budget): budget
@@ -131,8 +131,8 @@ final class AddEditExpenseViewModel {
   }
 
   /// The caption below the When card, first match wins: paused + date out of range;
-  /// paused + date valid ("Paused since…"); Add mode pre-start ("Budget starts on…");
-  /// Add mode post-end ("Budget ended on…"); otherwise `nil`.
+  /// paused + date valid ("Paused since…"); Add mode pre-start ("Budget starts on…",
+  /// F-2.04); Add mode post-end ("Budget ended on…", F-2.04); otherwise `nil`.
   ///
   /// Pre-start/post-end are Add-mode only (Edit already has a stored date). They persist for
   /// the sheet's lifetime, not just while the picker shows the clamped default, because
@@ -237,7 +237,7 @@ final class AddEditExpenseViewModel {
       : nil
     cachedRecentCandidates = Self.computeRecentCandidates(for: budget)
     // Seed `date` inside `dateRange`: paused → latest pause moment; post-end → end of
-    // `endDate`'s day (the range's upper bound); otherwise today floored at
+    // `endDate`'s day (the range's upper bound, F-2.04); otherwise today floored at
     // `effectiveStartDate`.
     if snapshot.lifecycleState == .paused, let pauseDate {
       date = pauseDate
@@ -262,7 +262,7 @@ final class AddEditExpenseViewModel {
     currencyCode = expense.budget?.currencyCode ?? (Locale.current.currency?.identifier ?? "USD")
     mode = .edit(expense)
     self.weekStart = weekStart
-    // Seeds the toggle from the stored row; init-phase assignment skips the `didSet`
+    // Seeds the F-6.01 toggle from the stored row; init-phase assignment skips the `didSet`
     // that would seed a default description.
     isAddFunds = expense.isAddFunds
     if let budget = expense.budget {
@@ -277,7 +277,7 @@ final class AddEditExpenseViewModel {
       cachedPauseEffectiveDate = nil
       cachedPausedSinceFormatted = nil
     }
-    // Pre-start / post-end captions are Add-mode only.
+    // Pre-start / post-end captions are Add-mode only (F-2.04).
     cachedStartDateFormatted = nil
     cachedEndDateFormatted = nil
     cachedRecentCandidates = Self.computeRecentCandidates(for: expense.budget)
@@ -299,7 +299,7 @@ final class AddEditExpenseViewModel {
     return latest
   }
 
-  /// Navigation title for the `isEditing × isAddFunds` combination.
+  /// Navigation title for the `isEditing × isAddFunds` combination (F-6.01).
   var navigationTitle: String {
     switch (isEditing, isAddFunds) {
     case (false, false):
@@ -326,7 +326,7 @@ final class AddEditExpenseViewModel {
     case let .add(budget):
       guard canSave, let amount else { return }
       let now = Date()
-      // The Amount field is always non-negative; the Add Funds toggle encodes the sign.
+      // F-6.01: the Amount field is always non-negative; the Add Funds toggle encodes the sign.
       let signedAmount: Decimal = isAddFunds ? -amount : amount
       let expense = ExpenseItem(amount: signedAmount, name: trimmedName, date: date)
       expense.budget = budget
@@ -351,7 +351,7 @@ final class AddEditExpenseViewModel {
 
     case let .edit(expense):
       var changed = false
-      // Sign follows the draft `isAddFunds`, so a toggle flip rewrites the sign even
+      // F-6.01: sign follows the draft `isAddFunds`, so a toggle flip rewrites the sign even
       // when the magnitude is unchanged.
       if let newAmount = amount {
         let desired: Decimal = isAddFunds ? -newAmount : newAmount

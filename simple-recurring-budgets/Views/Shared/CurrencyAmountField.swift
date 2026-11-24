@@ -39,7 +39,7 @@ struct CurrencyAmountField: View {
   @State private var focusRequest = 0
   /// Last `value` this field round-tripped (seeded on appear, updated on every text→value
   /// parse). `onChange(of: value)` skips the re-seed when equal, i.e. the change was our own
-  /// parse; external writes (e.g. a Recents tap) differ and re-seed `text`.
+  /// parse; external writes (e.g. an F-7.04 Recents tap) differ and re-seed `text`.
   @State private var lastSyncedValue: Decimal?
 
   private var converter: EditableAmountConverter {

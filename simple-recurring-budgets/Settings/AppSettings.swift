@@ -68,7 +68,7 @@ final class AppSettings {
     }
   }
 
-  /// A stable UUIDv4 string used as the Mixpanel `distinct_id`, generated and stored on first init with a fresh
+  /// A stable UUIDv4 string used as the Mixpanel `distinct_id` (analytics-spec.md §10.1), generated and stored on first init with a fresh
   /// store. `private(set)`: external callers must not rotate the ID (`MixpanelAnalyticsClient.reset()` handles
   /// the SDK side).
   private(set) var analyticsDistinctId: String {

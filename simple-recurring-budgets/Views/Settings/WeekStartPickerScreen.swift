@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Pushable screen for changing the global week-start day from inside a navigation stack
-/// (e.g. the Add/Edit Budget form) without losing in-progress work.
+/// (e.g. the Add/Edit Budget form) without losing in-progress work (F-5.01).
 ///
 /// Writes the same global `AppSettings.weekStartDay` as Settings, behind the same cascade
 /// warning (`WeekStartConfirmation` + shared `settings.weekStart.alert.*` strings), so it

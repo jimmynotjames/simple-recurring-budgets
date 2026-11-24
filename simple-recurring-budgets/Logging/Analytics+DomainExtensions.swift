@@ -82,9 +82,9 @@ func timeSinceBudgetCreatedBucket(seconds: TimeInterval) -> String {
   }
 }
 
-// MARK: - Recents bucketing helpers
+// MARK: - F-7.04 Recents bucketing helpers
 
-// All three helpers produce short, stable categorical labels with deliberately coarse boundaries to avoid pseudo-identification.
+// All three helpers produce short, stable categorical labels (as the analytics-spec.md §10 pipeline expects) with deliberately coarse boundaries to avoid pseudo-identification.
 
 /// Buckets the number of Recents tiles visible at tap time into `recents_visible_count` values. The top
 /// bucket is open-ended (`"8+"`): the product question is dense-vs-sparse, so finer granularity above 8

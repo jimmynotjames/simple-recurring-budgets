@@ -35,7 +35,7 @@ struct BudgetDetailView: View {
   }
 
   /// Action-gating only: hides Pause/Resume past `endDate` (a terminal budget can't be
-  /// paused or resumed).
+  /// paused or resumed, F-7.07).
   private var isPostEnd: Bool {
     lifecycle?.lifecycleState == .postEnd
   }
@@ -427,7 +427,7 @@ struct BudgetDetailView: View {
       return
     }
     saveError.clear()
-    // The analytics event fires only after a successful save; the debug log above is
+    // The analytics event fires only after a successful save (F-8.02); the debug log above (F-8.01) is
     // independent of it.
     analytics.track(
       AnalyticsEvent.carryOverReset,
@@ -460,7 +460,7 @@ struct BudgetDetailView: View {
       return
     }
     saveError.clear()
-    // The analytics event fires only after a successful save; the debug log above is
+    // The analytics event fires only after a successful save (F-8.02); the debug log above (F-8.01) is
     // independent of it.
     analytics.track(
       AnalyticsEvent.budgetReset,

@@ -1,7 +1,7 @@
 import StoreKit
 import SwiftUI
 
-/// Root-level presenter for the automatic App Store review prompt, hosted once above the `NavigationStack`
+/// Root-level presenter for the automatic App Store review prompt (F-6.03), hosted once above the `NavigationStack`
 /// and the centralized Add Expense sheet so it works from the Budgets list or a Budget detail. When the
 /// coordinator has a pending request, the scene is active, and no sheet is presented, it invokes the native
 /// `requestReview` and records the version. Gating on `router.sheet == nil` makes the prompt appear *after*
@@ -31,7 +31,7 @@ private struct RatingPromptPresenter: ViewModifier {
 }
 
 extension View {
-  /// Applies the automatic rating-prompt presenter. Apply once at the app root, where `Router` and `RatingPromptCoordinator` are in the environment.
+  /// Applies the F-6.03 automatic rating-prompt presenter. Apply once at the app root, where `Router` and `RatingPromptCoordinator` are in the environment.
   func ratingPromptPresenter() -> some View {
     modifier(RatingPromptPresenter())
   }

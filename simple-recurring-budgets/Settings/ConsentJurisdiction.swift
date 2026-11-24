@@ -30,9 +30,9 @@ enum ConsentJurisdiction: Equatable {
     return strictOptInRegions.contains(code) ? .required : .autoOptin
   }
 
-  // MARK: - Private: canonical region list
+  // MARK: - Private: canonical region list (analytics-spec.md §7.2)
 
-  /// All regions requiring explicit opt-in consent. Sources (as of 2026-05-03):
+  /// All regions requiring explicit opt-in consent. To add or remove a region, update `docs/analytics-spec.md` §7.2 and this set together.
   /// Sources (as of 2026-05-03):
   /// - EU member states: GDPR + ePrivacy Directive
   /// - EEA (non-EU): IS, LI, NO — GDPR via EEA agreement

@@ -21,7 +21,7 @@ struct BudgetSnapshot: Equatable {
   let remaining: Decimal
 
   /// Signed cumulative carry-over (walker sum + current-period spillover). `nil` for `.specificDates`: the
-  /// carry-over chip is hidden for that type (callers pass `isCarryOverEnabled: budget.isCarryOverEnabled &&
+  /// carry-over chip is hidden for that type per F-2.08 (callers pass `isCarryOverEnabled: budget.isCarryOverEnabled &&
   /// !isSpecificDates` to `StatusChipRow`). `BudgetLifecycleResult.carryOverAmount` flattens `nil` to `0`,
   /// never rendered since the chip is hidden upstream.
   let carryOver: Decimal?

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// First-run analytics consent sheet, shown once in strict-opt-in jurisdictions after
-/// the first Budget is created.
+/// the first Budget is created (analytics-spec.md §7.2).
 ///
 /// - Accept: `analyticsOptIn = true`, fires `analytics_consent_changed`, dismisses.
 /// - Decline: `analyticsOptIn = false`, dismisses; no event (SDK not initialized).

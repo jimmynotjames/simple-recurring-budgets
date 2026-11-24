@@ -29,9 +29,9 @@ extension Decimal {
   }
 }
 
-// MARK: - Carry-over
+// MARK: - Carry-over (PRD §6.7)
 
-/// Sign classification for a signed cumulative carry-over: positive is surplus (under-spent), negative is deficit (over-spent).
+/// Sign classification for a signed cumulative carry-over (PRD §6.7): positive is surplus (under-spent), negative is deficit (over-spent).
 enum CarryOverSign { case surplus, deficit, zero }
 
 /// Styling-friendly carry-over components. `amount` is always the magnitude in the budget's currency so
@@ -44,7 +44,7 @@ struct CarryOverDisplay: Equatable {
 
 enum CarryOverFormatter {
   /// Splits sign from magnitude so views can style the label independently (e.g. color) without re-parsing
-  /// formatted strings. Exact copy lives in the String Catalog. `display` defaults to `.symbol`.
+  /// formatted strings. Exact copy is a design choice per PRD §6.7 and lives in the String Catalog (F-3.03). `display` defaults to `.symbol`.
   static func display(
     _ amount: Decimal,
     currencyCode: String,

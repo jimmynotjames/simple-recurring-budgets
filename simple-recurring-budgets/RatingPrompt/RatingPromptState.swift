@@ -1,6 +1,6 @@
 import Foundation
 
-/// Persisted eligibility signals for the automatic App Store review prompt.
+/// Persisted eligibility signals for the automatic App Store review prompt (F-6.03).
 ///
 /// Backed by the iCloud key-value store via the shared `KeyValueStore` abstraction, so counters sync across
 /// devices and are unit-testable with an in-memory double. **Independent of analytics consent**: these

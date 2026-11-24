@@ -9,7 +9,7 @@ struct AddEditExpenseView: View {
   @Environment(AppSettings.self) var settings
   @Environment(\.analytics) private var analytics
   @Environment(\.dismiss) private var dismiss
-  /// Rating-prompt coordinator. Not `private`: the RatingPrompt extension reads it.
+  /// F-6.03 rating-prompt coordinator. Not `private`: the RatingPrompt extension reads it.
   /// Optional so previews/hosts that don't inject it no-op.
   @Environment(RatingPromptCoordinator.self) var ratingPrompt: RatingPromptCoordinator?
 

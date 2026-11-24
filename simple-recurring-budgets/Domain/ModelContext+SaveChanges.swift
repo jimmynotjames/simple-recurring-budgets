@@ -6,13 +6,13 @@ extension ModelContext {
   /// Shared persistence-save helper; every production `context.save()` routes through it rather than
   /// `try? context.save()`.
   ///
-  /// On failure it emits **one** `Logger.persistence.error` line, fires **one** `persistence_save_failed`
+  /// Boundary note (`diagnostic-logging` spec): on failure it emits **one** `Logger.persistence.error` line, fires **one** `persistence_save_failed`
   /// analytics event, and rethrows a `PersistenceError` with the operation and the underlying `NSError`'s
   /// domain and code.
   ///
   /// The log and the `analytics.track(...)` call are **sibling** statements built from the same plain values
   /// (`operation.rawValue`, `error_domain`, `error_code`). Neither consumes the other's result and no
-  /// `OSLog`-shaped type crosses into `AnalyticsClient`, as the `diagnostic-logging` boundary requires.
+  /// `OSLog`-shaped type crosses into `AnalyticsClient`, as the `diagnostic-logging` spec's boundary requires.
   ///
   /// - Parameters:
   ///   - operation: The originating call site (used in log + analytics).

@@ -9,7 +9,7 @@ import Foundation
 /// - `.postEnd`: symmetric; the whole final-period remaining folds in (no future boundary to wait for).
 /// - `.preStart`, `.paused`: 0.
 ///
-/// **Reset interaction lives in the caller.** This is a pure 3-input classifier;
+/// **Reset interaction lives in the caller** (budget-math spec, "Reset interaction"). This is a pure 3-input classifier;
 /// `BudgetCalculator.recurringBranch` passes a *reset-aware* `remaining` (full allocation minus
 /// post-`lastResetDate` expenses; 0 spillover when the reset was stamped after the budget ended) so live
 /// spillover matches the walker's eventual contribution.

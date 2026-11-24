@@ -7,20 +7,21 @@ import SwiftData
 ///
 /// `BudgetSnapshot.effectiveAllocation` is deliberately not exposed: view surfaces read
 /// `Budget.currentAllocation`, which `applyAllocationEdit` keeps equal to the current period's in-effect
-/// allocation. Plumb it only if a surface needs the period-accurate value for a non-current period.
+/// allocation (the F-7.05 / F-7.07 date-input UI relies on this). Plumb it only if a surface needs the
+/// period-accurate value for a non-current period.
 struct BudgetLifecycleResult: Equatable {
-  /// `effectiveAllocation − net expenses in current period`; may be negative. Not adjusted by carry-over.
+  /// `effectiveAllocation − net expenses in current period`; may be negative. Not adjusted by carry-over (PRD §6.7).
   let remaining: Decimal
   /// Carry-over from completed prior active periods plus current-period spillover: `snapshot.carryOver ?? 0`.
   /// The `?? 0` flattens the `nil` returned for `.specificDates` budgets (hit on every such read); it is never
-  /// rendered because both surfaces hide the carry-over chip for that type
+  /// rendered because per F-2.08 both surfaces hide the carry-over chip for that type
   /// (`isCarryOverEnabled && !isSpecificDates` into `StatusChipRow`).
   let carryOverAmount: Decimal
   /// Inclusive start of the current budget period.
   let periodStart: Date
   /// Exclusive end of the current budget period (start of the next period).
   let periodEnd: Date
-  /// The lifecycle classification at the snapshot instant.
+  /// The lifecycle classification at the snapshot instant (F-7.06).
   let lifecycleState: BudgetLifecycleState
   /// When `lifecycleState == .paused`, the `effectiveDate` of the most recent unbalanced
   /// `.pause` `LifecycleEvent`. `nil` when the budget is not currently paused.
@@ -105,8 +106,8 @@ enum BudgetLifecycleService {
     weekStart: Weekday
   ) throws {
     guard let periodRaw = BudgetPeriod(rawValue: budget.period) else { return }
-    // Specific Dates: latest-wins whole-window overwrite. Exactly one AllocationChange row exists for the
-    // window; mutate it in place (no audit trail; the prior figure isn't retrievable). The single-row invariant
+    // Specific Dates: latest-wins whole-window overwrite (F-2.08). Exactly one AllocationChange row exists for the
+    // window; mutate it in place (no audit trail; the prior figure isn't retrievable), per F-2.08. The single-row invariant
     // is enforced at create (saveNew) and edit (here); asserts in debug if it drifts (e.g. a future feature adds
     // multi-row history without updating this branch).
     if periodRaw == .specificDates {
@@ -168,7 +169,7 @@ enum BudgetLifecycleService {
     analytics: (any AnalyticsClient)? = nil,
     now: Date = Date()
   ) throws {
-    // The algorithm ignores `lastResetDate` for specificDates (the UI hides Reset Carry-Over), so a call
+    // The algorithm ignores `lastResetDate` for specificDates (the F-2.08 UI hides Reset Carry-Over), so a call
     // here would have no effect: assert in debug to surface the UI bug, no-op in release.
     assert(
       budget.periodEnum != .specificDates,
@@ -213,10 +214,10 @@ enum BudgetLifecycleService {
     try context.saveChanges(operation: .lifecycleResetBudget, analytics: analytics)
   }
 
-  // MARK: - Pause / Resume
+  // MARK: - Pause / Resume (F-7.06)
 
   /// Pauses `budget` by inserting a `.pause` `LifecycleEvent`. Returns `false` without mutation when the period
-  /// is `.specificDates` (not pausable), the state is already `.paused` (no redundant write), or the state is
+  /// is `.specificDates` (not pausable per F-2.08), the state is already `.paused` (no redundant write), or the state is
   /// `.postEnd` (terminal).
   ///
   /// The effective date is `now` clamped into `[startDate, endDate]`, so pausing before `startDate` records the

@@ -14,7 +14,7 @@
         ExpenseItem(amount: 4.50, name: "Morning coffee", date: hoursAgo(2)),
         ExpenseItem(amount: 9.25, name: "Lunch", date: hoursAgo(5.5)),
         ExpenseItem(amount: 2.50, name: "Afternoon snack", date: hoursAgo(1)),
-        // Add-funds entry in the current period (negative amount).
+        // F-6.01: add-funds entry in the current period (negative amount).
         ExpenseItem(amount: -10.00, name: "Found in jacket pocket", date: hoursAgo(3)),
       ]
       attachToDetail(expenses, to: budget)
@@ -52,7 +52,7 @@
       budget.startDate = twoMonthsAgo // show multiple past months
 
       // swiftlint:disable large_tuple
-      // Negative amounts are add-funds entries (one in the current month, one in a past month).
+      // F-6.01: negative amounts are add-funds entries (one in the current month, one in a past month).
       let currentExpenses: [(Decimal, String?, TimeInterval)] = [
         (87.40, "Groceries", 86400 * 2),
         (55.20, "Gas station", 86400 * 5),
@@ -163,7 +163,7 @@
       let expenses = [
         ExpenseItem(amount: 48.00, name: "Concert tickets", date: daysAgo(1)),
         ExpenseItem(amount: 20.40, name: "Merch", date: daysAgo(1)),
-        // Add-funds partially rescuing the over-budget state.
+        // F-6.01: add-funds partially rescuing the over-budget state.
         ExpenseItem(amount: -15.00, name: "Returned t-shirt", date: daysAgo(0)),
       ]
       attachToDetail(expenses, to: budget)

@@ -1,7 +1,7 @@
 import SwiftUI
 
 extension AddEditExpenseView {
-  /// After a successful Add-mode save, feeds the rating-prompt coordinator its post-save
+  /// F-6.03: after a successful Add-mode save, feeds the rating-prompt coordinator its post-save
   /// lifecycle and non-deficit signals. Edit saves and failed saves never reach here.
   func notifyRatingPromptIfNeeded() {
     guard let ratingPrompt,

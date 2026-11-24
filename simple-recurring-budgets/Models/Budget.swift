@@ -35,7 +35,7 @@ final class Budget {
 
   /// Optional decorative icon prefixed to the name on budget surfaces (Budgets list, detail header); `nil` if
   /// unpicked. Stored as `String?` for CloudKit optionality; by convention a single emoji grapheme (the picker
-  /// enforces it). Named `icon`, not `emoji`, so the column survives a broader icon source.
+  /// enforces it). Named `icon`, not `emoji`, so the column survives a broader icon source (F-4.03).
   var icon: String?
 
   /// CloudKit requires optional relationships; use `allocationChanges` in app code (always non-optional).

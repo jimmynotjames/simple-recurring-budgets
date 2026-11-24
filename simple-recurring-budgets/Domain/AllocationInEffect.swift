@@ -10,7 +10,7 @@ import Foundation
 /// Falls back to the earliest row's amount when no row matches. Load-bearing: the walker may query at a
 /// `boundaryStart` before the budget's `startDate` (a weekly budget created mid-week has its first
 /// `boundaryStart` on the weekday-aligned date before `startDate`); the earliest amount awards the full
-/// period's allocation (no proration).
+/// period's allocation (no proration; F-2.03 allocation-edit semantics).
 func allocationInEffect(at date: Date, sortedHistory: [AllocationChange]) -> Decimal {
   guard !sortedHistory.isEmpty else { return 0 }
   if let best = sortedHistory.last(where: { $0.effectiveFrom <= date }) {

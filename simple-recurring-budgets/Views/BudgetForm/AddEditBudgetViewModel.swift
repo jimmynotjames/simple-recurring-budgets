@@ -21,8 +21,8 @@ final class AddEditBudgetViewModel {
   var allocation: Decimal?
   var currencyCode: String
 
-  /// Selected period. In Add mode, switching resets `startDate` / `endDate` to per-period
-  /// defaults (see `onPeriodChange`). Edit mode locks the chip, so `didSet` short-circuits.
+  /// Selected period. In Add mode, switching resets `startDate` / `endDate` to the
+  /// per-period anchor defaults (F-2.03; see `onPeriodChange`). Edit mode locks the chip, so `didSet` short-circuits.
   var period: BudgetPeriod {
     didSet {
       guard period != oldValue, !isEditing else { return }
@@ -187,7 +187,7 @@ final class AddEditBudgetViewModel {
 
     // `startDate` is pre-filled by init and re-anchored by `onPeriodChange`, so it's
     // non-nil here. The saved value (possibly user-overridden via Schedule) is the cycle
-    // anchor read by `Budget.effectiveStartDate` and the calculator. `endDate` is
+    // anchor (F-7.05) read by `Budget.effectiveStartDate` and the calculator. `endDate` is
     // optional for recurring types; `canSave` requires it for `.specificDates`.
     guard let pickedStart = startDate else { return }
     let computedStartDate = calendar.startOfDay(for: pickedStart)
@@ -246,9 +246,10 @@ final class AddEditBudgetViewModel {
     analytics: any AnalyticsClient,
     settings: AppSettings
   ) throws {
-    // Only allocation/start/end changes become `budget_edited` flags (see
+    // Only allocation/start/end changes become `budget_edited` flags (F-8.02; see
     // `docs/analytics-spec.md` §10.1). The name, icon, currency, and carry-over locals
-    // exist solely for the aggregate `changed` gate below.
+    // exist solely for the aggregate `changed` gate below: F-8.02 doesn't surface them,
+    // so revisit if F-8.02 expands to cover them.
     var nameChanged = false
     var iconChanged = false
     var allocationChanged = false
@@ -331,7 +332,7 @@ final class AddEditBudgetViewModel {
     }
   }
 
-  /// Add-mode default `startDate` per period, called only from `onPeriodChange`:
+  /// Add-mode default `startDate` per period (F-2.03), called only from `onPeriodChange`:
   /// - `.daily` → start of today.
   /// - `.weekly` / `.biweekly` → most recent `weekStartDay`-aligned date at or before today
   ///   (needs the captured `weekStartDay`, which Edit mode lacks; it can't get here).
@@ -383,10 +384,10 @@ final class AddEditBudgetViewModel {
   }
 
   /// Applies Edit-mode `startDate` / `endDate` diffs (normalized to start of day before
-  /// comparing); returns which fields changed, for the `budget_edited` flags.
+  /// comparing); returns which fields changed, for the F-8.02 `budget_edited` flags.
   ///
   /// A `.specificDates` startDate change also calls `realignMostRecentAllocationChange`
-  /// so the single-period algorithm reads the new window (latest wins).
+  /// so the single-period algorithm reads the new window (F-2.08 latest wins).
   ///
   /// Recurring types update only `Budget.startDate`; leaving `AllocationChange` history
   /// alone is deliberate, not an omission. The `allocationInEffect` fallback
@@ -394,7 +395,7 @@ final class AddEditBudgetViewModel {
   /// its `effectiveFrom`, so back-dating credits the original allocation automatically;
   /// forward-dating works because `last(where: effectiveFrom <= date)` still matches the
   /// original row. For weekly/biweekly the new `startDate.weekday` also becomes the cycle
-  /// anchor, an intended consequence of the edit.
+  /// anchor per F-7.05, an intended consequence of the edit.
   private func applyDateEdits(to budget: Budget) -> (startChanged: Bool, endChanged: Bool) {
     let calendar = Calendar.autoupdatingCurrent
     let now = Date()
@@ -426,7 +427,7 @@ final class AddEditBudgetViewModel {
   }
 
   /// Moves the most recent `AllocationChange.effectiveFrom` to `newStartDate` after a
-  /// `.specificDates` startDate edit (latest wins). No-op without allocation rows, which a
+  /// `.specificDates` startDate edit (single-period semantics per F-2.08). No-op without allocation rows, which a
   /// saved budget always has.
   private func realignMostRecentAllocationChange(on budget: Budget, to newStartDate: Date, now: Date) {
     guard let mostRecent = budget.mostRecentAllocationChange else { return }
@@ -445,7 +446,7 @@ final class AddEditBudgetViewModel {
     ]
   }
 
-  /// `budgetEdited`-only variant adding per-field change flags (`allocation_changed`,
+  /// `budgetEdited`-only variant adding the F-8.02 per-field change flags (`allocation_changed`,
   /// `start_date_changed`, `end_date_changed`); deliberately not sent on other events
   /// (see `docs/analytics-spec.md` §10.1). `orphanedExpenseCount` (post-save) is included
   /// only when > 0; an absent key means no orphaned state.

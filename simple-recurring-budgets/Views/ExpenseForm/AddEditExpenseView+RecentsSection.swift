@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - Suggestion value type
 
-/// Condensed prior `ExpenseItem` used as a Recents suggestion. Identity is the source
+/// Condensed prior `ExpenseItem` used as an F-7.04 Recents suggestion. Identity is the source
 /// expense's `persistentModelID`, so duplicate name + amount pairs stay distinct rows.
 struct RecentExpenseSuggestion: Identifiable, Hashable {
   let id: PersistentIdentifier
@@ -46,7 +46,7 @@ extension AddEditExpenseViewModel {
   /// - Pass 3: sort name groups by most recent date descending, flatten (variants directly
   ///   after their base), then `prefix(recentsCorpusLimit)`.
   ///
-  /// Excludes Add Funds entries (not meaningful as expense suggestions) and unnamed
+  /// F-7.04 exclusions: Add Funds entries (F-6.01; not meaningful as expense suggestions) and unnamed
   /// entries (bare amounts aren't actionable and would flood the row).
   static func computeRecentCandidates(
     for budget: Budget?,
@@ -110,7 +110,7 @@ extension AddEditExpenseViewModel {
   }
 
   /// True when any prior expense could surface as a suggestion. Drives true-empty
-  /// visibility (section hidden); distinct from `filteredRecentSuggestions.isEmpty`, which
+  /// visibility (section hidden, per the F-7.04 edge case); distinct from `filteredRecentSuggestions.isEmpty`, which
   /// shows the "No matches" placeholder.
   var hasRecentSources: Bool {
     !cachedRecentCandidates.isEmpty
@@ -136,13 +136,13 @@ extension AddEditExpenseViewModel {
   /// True when the Recents section should appear.
   /// - Add mode: whenever the budget has a candidate.
   /// - Edit/View mode: once the `recentsRevealedInEdit` latch is set (Description blank at
-  ///   open, or cleared mid-session). It then persists for the sheet's lifetime even if
+  ///   open, or cleared mid-session; the F-7.04 blank-Description-gated reveal). It then persists for the sheet's lifetime even if
   ///   the Description is refilled (tile tap or re-type).
   var shouldShowRecentsSection: Bool {
     hasRecentSources && (!isEditing || recentsRevealedInEdit)
   }
 
-  /// Applies a tapped Recents suggestion to the draft. Always writes `name` and resets
+  /// F-7.04: applies a tapped Recents suggestion to the draft. Always writes `name` and resets
   /// Add Funds to off (a tile is a prior expense; a stale toggle could log its amount as
   /// an add-funds adjustment).
   ///
@@ -152,8 +152,9 @@ extension AddEditExpenseViewModel {
   /// unnoticed wrong saved amount is the costly failure). To take the tile's amount
   /// anyway: clear (✕) then re-tap, or double-tap (`applyRecentFullReplace`).
   ///
-  /// Date is untouched and Save is not triggered. Emits `expense_recent_reused` with
-  /// bucketed categorical properties only; query length is captured before `name` is
+  /// Date is untouched (stays today/clamped, F-2.04) and Save is not triggered. Emits
+  /// `expense_recent_reused` with bucketed categorical properties only (no PII per
+  /// analytics-spec.md §2.1); query length is captured before `name` is
   /// overwritten. The write to `amount` syncs back to `CurrencyAmountField` via its
   /// `lastSyncedValue` sentinel. No default-analytics overload on purpose: every call site
   /// passes the client so bucket values come from real context.
@@ -185,7 +186,7 @@ extension AddEditExpenseViewModel {
     )
   }
 
-  /// Double-tap full replace: writes `name` and `amount` unconditionally, overriding the
+  /// F-7.04 double-tap full replace: writes `name` and `amount` unconditionally, overriding the
   /// provenance rule. Also resets Add Funds.
   ///
   /// No analytics: the double-tap's first tap already ran `applyRecent` (the gesture fires
@@ -209,7 +210,7 @@ extension AddEditExpenseViewModel {
 // MARK: - View entry point
 
 extension AddEditExpenseView {
-  /// Recents section below the Description card; visibility per `shouldShowRecentsSection`.
+  /// F-7.04 Recents section below the Description card; visibility per `shouldShowRecentsSection`.
   ///
   /// Placement is deliberate: Description doubles as the filter query, so tiles sit directly
   /// beneath it (autocomplete idiom) and the Amount card keeps the top slot.

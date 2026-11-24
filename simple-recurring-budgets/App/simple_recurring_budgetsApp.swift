@@ -70,7 +70,7 @@ struct simple_recurring_budgetsApp: App {
         }
       )
     }
-    // Rating prompt. Counters live in the iCloud KV store (synced, consent-independent), the same
+    // Rating prompt (F-6.03). Counters live in the iCloud KV store (synced, consent-independent), the same
     // `NSUbiquitousKeyValueStore.default` as AppSettings, in every build including tests. Coordinator tests
     // inject their own in-memory store.
     _ratingPrompt = State(initialValue: RatingPromptCoordinator(

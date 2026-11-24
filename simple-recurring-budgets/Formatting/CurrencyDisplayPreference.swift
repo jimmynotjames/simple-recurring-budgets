@@ -43,7 +43,7 @@ enum CurrencyDisplayPreference: String, CaseIterable, Identifiable, Codable {
   // MARK: - Formatted example
 
   /// Locale-aware preview of how `Decimal(25)` renders under this preference. The currency code comes from
-  /// `locale.currency?.identifier`, falling back to `"USD"`. The default `Locale.autoupdatingCurrent` shows the
+  /// `locale.currency?.identifier`, falling back to `"USD"` (mirrors F-3.04 convention). The default `Locale.autoupdatingCurrent` shows the
   /// user's own currency in the Settings picker; tests pass an explicit locale.
   func example(locale: Locale = .autoupdatingCurrent) -> String {
     let code = locale.currency?.identifier ?? "USD"

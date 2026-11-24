@@ -191,13 +191,13 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
     instance.people.set(properties: [AnalyticsProperty.analyticsOptInAt: Date()])
   }
 
-  /// Sets `rating_prompt_first_eligible_at` (set-once). No-op before lazy init (opted out).
+  /// Sets the F-6.03 `rating_prompt_first_eligible_at` (set-once). No-op before lazy init (opted out).
   func setRatingPromptFirstEligible(_ date: Date) {
     guard let instance = currentInstance() else { return }
     instance.people.setOnce(properties: [AnalyticsProperty.ratingPromptFirstEligibleAt: date])
   }
 
-  /// Refreshes `rating_prompt_last_requested_at`. No-op before lazy init (opted out).
+  /// Refreshes the F-6.03 `rating_prompt_last_requested_at`. No-op before lazy init (opted out).
   func setRatingPromptLastRequested(_ date: Date) {
     guard let instance = currentInstance() else { return }
     instance.people.set(properties: [AnalyticsProperty.ratingPromptLastRequestedAt: date])

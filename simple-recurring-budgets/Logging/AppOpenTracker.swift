@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Decides whether a `scenePhase` transition should fire `app_opened`: the user bringing the app to the
-/// foreground (cold launch or return from background). A bare foreground is meaningful because the Budgets
+/// foreground (cold launch or return from background; analytics-spec.md §9). A bare foreground is meaningful because the Budgets
 /// list shows remaining amounts above the fold (glanceable checking). Transient drops to `.inactive`
 /// (notification shade, Face ID, app switcher, permission dialog) are not opens.
 ///

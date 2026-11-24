@@ -126,7 +126,7 @@ extension BudgetDetailView {
       return
     }
     saveError.clear()
-    // expense_deleted fires only after a successful save; the debug log above is
+    // expense_deleted fires only after a successful save (F-8.02); the debug log above (F-8.01) is
     // independent of it.
     analytics.track(
       AnalyticsEvent.expenseDeleted,

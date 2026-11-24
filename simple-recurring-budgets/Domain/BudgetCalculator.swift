@@ -11,7 +11,7 @@ import Foundation
 /// (as all monthly budgets share the calendar-month grid), and a mid-grid `startDate` just clips the first
 /// period (full allocation, no proration). Biweekly cycles stay anchored to the budget's own `startDate`
 /// (a weekday can't determine which of two alternating weeks a 14-day cycle restarts in), so `weekStart`
-/// never affects them.
+/// never affects them (see budget-math spec).
 enum BudgetCalculator {
   // MARK: - Main entry point
 
@@ -174,7 +174,7 @@ enum BudgetCalculator {
       .active
     }
 
-    // Spillover honors `lastResetDate`: its input excludes pre-reset expenses but still awards the full
+    // Spillover honors `lastResetDate` (budget-math spec, "Reset interaction"): its input excludes pre-reset expenses but still awards the full
     // allocation (the walker's no-proration convention for the reset period), so it equals what the walker
     // contributes when the period closes and committed overflow carries continuously across the boundary
     // (ordinary slack still waits for the close). `remaining` above deliberately keeps all current-period
@@ -213,15 +213,16 @@ enum BudgetCalculator {
 
   // MARK: - Specific Dates branch
 
-  /// Specific Dates: a single-window, no-recurrence budget type.
+  /// Specific Dates: a single-window, no-recurrence budget type (F-2.08).
   ///
   /// **Intentionally ignored:** `Budget.lastResetDate`, `Budget.lifecycleEvents`, and
-  /// `Budget.isCarryOverEnabled`. The UI hides Reset Carry-Over, the carry-over toggle, and Pause/Resume for
+  /// `Budget.isCarryOverEnabled`. Per F-2.08, the UI hides Reset Carry-Over, the carry-over toggle, and Pause/Resume for
   /// this type, so the math ignores those signals if they ever land on a specificDates row (direct CloudKit
   /// write, UI bug). Allocation is latest-wins (most recent `AllocationChange` by
   /// `(effectiveFrom, lastModified)`), not the period-history walk recurring budgets use.
   ///
-  /// Do **not** thread `lastResetDate` or `lifecycleEvents` through this branch.
+  /// Future agents wiring the F-2.08 UI: do **not** thread `lastResetDate` or `lifecycleEvents` through this
+  /// branch (re-read F-2.08 first).
   private static func specificDatesBranch(
     budget: Budget,
     expenses: [ExpenseItem],

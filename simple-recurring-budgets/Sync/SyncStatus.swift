@@ -75,7 +75,8 @@ final class SyncStatus {
 // MARK: - Derived row state
 
 extension SyncStatus {
-  /// Derives the Settings iCloud row view-state from `(containerBacking, accountStatus)`:
+  /// Derives the Settings iCloud row view-state from `(containerBacking, accountStatus)`
+  /// (per `openspec/specs/settings-screen/spec.md`):
   ///
   /// | containerBacking | accountStatus | rowState   |
   /// |------------------|---------------|------------|

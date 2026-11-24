@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-/// Decision core for the automatic App Store review prompt.
+/// Decision core for the automatic App Store review prompt (F-6.03).
 ///
 /// On each successful Add-mode expense log the view calls `recordExpenseLogged`, which advances the
 /// persisted eligibility counters and, when the balanced-profile thresholds are met at a positive moment and
@@ -14,7 +14,7 @@ import Observation
 /// logic depends on an outcome.
 @Observable
 final class RatingPromptCoordinator {
-  /// Balanced-profile eligibility thresholds.
+  /// Balanced-profile eligibility thresholds (F-6.03 acceptance criteria).
   static let minInstallAgeDays = 7
   static let minDistinctLogDays = 3
   static let minLoggedExpenses = 10

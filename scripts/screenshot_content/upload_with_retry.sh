@@ -1,24 +1,20 @@
 #!/usr/bin/env bash
 #
-# Autonomous, self-healing uploader for App Store screenshots.
+# Self-healing uploader for App Store screenshots. Launch once as a background task.
 #
-# `fastlane push_screenshots` (deliver) occasionally jams in its finalization
-# phase when App Store Connect returns HTTP 500s — it retries forever instead of
-# exiting, so a plain background run can hang indefinitely. This controller wraps
-# it with:
-#   * hang detection — if no new "Uploaded" line appears for HANG_SECS while the
-#     log tail shows ASC 500s, the attempt is killed (it won't self-recover),
+# `fastlane push_screenshots` (deliver) can jam in finalization when App Store
+# Connect returns HTTP 500s: it retries forever instead of exiting. This wraps it with:
+#   * hang detection: no new "Uploaded" line for HANG_SECS while the log tail shows
+#     ASC 500s => kill the attempt (it won't self-recover),
 #   * a hard per-attempt timeout,
-#   * bounded retries with linear backoff (lets a transient ASC incident clear),
-#   * a fallback that re-uploads ONLY the storefronts that never confirmed, by
-#     staging a pruned screenshots dir and calling the push_screenshots_subset
-#     lane (deliver only touches languages present in the path).
+#   * bounded retries with linear backoff,
+#   * a fallback that re-uploads ONLY unconfirmed storefronts via a pruned
+#     screenshots dir and the push_screenshots_subset lane (deliver only touches
+#     languages present in the path).
 #
-# Nothing goes live: the lanes set submit_for_review:false. Exits 0 once an
-# upload attempt completes cleanly (fastlane exit 0), non-zero if all attempts
-# are exhausted. Designed to be launched once as a background task and left alone.
-#
-# All paths are repo-relative; logs land in tmp/. Idempotent (overwrite_screenshots).
+# Nothing goes live (lanes set submit_for_review:false). Exits 0 on the first clean
+# fastlane exit, non-zero when all attempts are exhausted. Idempotent
+# (overwrite_screenshots); paths are repo-relative, logs in tmp/.
 
 set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 1   # repo root
@@ -33,10 +29,9 @@ POLL=20
 
 log() { echo "[$(date '+%H:%M:%S')] $*" | tee -a "$STAMP"; }
 
-# Run one upload attempt with hang/timeout watchdog.
-#   $1 = log file, $2 = lane, $3 = optional SUBSET_PATH env
-# Returns: 0 fastlane exited cleanly; 2 hard timeout; 3 killed (hung on 500s);
-#          other = fastlane non-zero exit.
+# One upload attempt with hang/timeout watchdog. $1 = log file, $2 = lane,
+# $3 = optional SUBSET_PATH env.
+# Returns: 0 clean exit; 2 hard timeout; 3 killed (hung on 500s); else fastlane's exit code.
 run_attempt() {
   local logf="$1" lane="$2" subset="${3:-}"
   : > "$logf"
@@ -69,7 +64,7 @@ run_attempt() {
   wait "$pid"; return $?
 }
 
-# Print storefront folder names whose pngs are not all confirmed in $1 (a log).
+# Print storefront folders whose pngs are not all confirmed in log $1.
 remaining_storefronts() {
   local logf="$1" d name total ok
   for d in "$SHOTS_DIR"/*/; do
@@ -81,9 +76,8 @@ remaining_storefronts() {
   done
 }
 
-# Stage the given storefronts into a pruned dir and run the subset-upload retry
-# loop against them. $* = space-separated storefront names. Returns 0 on a clean
-# upload (fastlane exit 0), 1 if all subset attempts are exhausted.
+# Stage storefronts ($* = space-separated names) into a pruned dir and retry-upload
+# them. Returns 0 on a clean upload, 1 if all subset attempts are exhausted.
 subset_upload_loop() {
   local rem; rem=$(echo "$*" | xargs)
   [ -z "$rem" ] && { log "subset_upload_loop: nothing to do"; return 0; }
@@ -111,9 +105,8 @@ log "=== screenshot upload controller start ($(find "$SHOTS_DIR" -name '*.png' |
 
 # ---- Phase 0: subset-only mode -------------------------------------------
 # `SUBSET_ONLY="kn-IN ru" bash scripts/screenshot_content/upload_with_retry.sh`
-# skips the full uploads and (re)uploads only the named storefronts. Used to
-# re-push a couple of locales that needed a retry, and to verify them (a clean
-# fastlane exit 0 means ASC accepted all their shots).
+# skips the full upload and re-uploads only the named storefronts (a clean fastlane
+# exit 0 means ASC accepted all their shots).
 if [ -n "${SUBSET_ONLY:-}" ]; then
   log "SUBSET_ONLY mode for: $SUBSET_ONLY"
   if subset_upload_loop "$SUBSET_ONLY"; then exit 0; else exit 1; fi
@@ -137,7 +130,7 @@ while [ "$attempt" -le "$MAX_FULL_ATTEMPTS" ]; do
   attempt=$(( attempt + 1 ))
 done
 
-# ---- Phase 2: subset fallback (only unconfirmed storefronts) --------------
+# ---- Phase 2: subset fallback (unconfirmed storefronts only) --------------
 rem=$(remaining_storefronts "$last_log" | sort -u | tr '\n' ' ')
 rem=$(echo "$rem" | xargs)   # trim
 if [ -z "$rem" ]; then

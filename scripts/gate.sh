@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
-# Single-command form of the four-step gate (format -> lint-fix -> build -> test).
+# Four-step gate (format -> lint-fix -> build -> test) as one command.
 #
-# Why this exists: the agent kept writing the gate as
-#   (make format && make lint-fix && make build && make test) > tmp/gate.log 2>&1; echo "EXIT=$?"
-# Claude Code splits compound bash on (){};|&& and checks each segment against the
-# allowlist; the subshell parens and trailing `; echo` produce segments like
-# `(make format` and `make test) > tmp/gate.log 2>&1` that match no allow entry, so
-# it prompts. Collapsing the whole thing into one script means the only command run
-# is `bash scripts/gate.sh`, which the existing `Bash(bash scripts/*)` entry already
-# allows — no prompt, no subshell, no trailing echo. See the [[feedback_gate_no_prompt]]
-# memory.
+# Exists so the allowlist matches: Claude Code checks each segment of a compound
+# command, and `(make format && ...) > tmp/gate.log; echo` yields segments that match
+# no allow entry (prompt). `bash scripts/gate.sh` matches `Bash(bash scripts/*)`.
 #
-# Logs everything to tmp/gate.log and stops at the first failing step. Exit code is
-# that step's exit code (0 = all four passed). Run it in the background to get
-# re-invoked on completion:  Bash(bash scripts/gate.sh, run_in_background=true)
+# Logs to tmp/gate.log; stops at the first failing step and exits with its code
+# (0 = all passed). Run with run_in_background=true to be re-invoked on completion.
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

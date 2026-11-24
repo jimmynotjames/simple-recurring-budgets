@@ -2,10 +2,9 @@
 """
 Audit the per-storefront transcreation outputs in tmp/metadata-outputs/.
 
-This is the inspection + escalation tool for the metadata pipeline. It exists so
-the skill (and a human) never need ad-hoc `python3 -c`, `wc`, `cat`, or `jq` to
-answer "what did the fan-out produce, what's over the limit, and what did the
-subagents flag for me?" — all of which are non-allowlistable and prompt.
+Inspection + escalation tool for the metadata pipeline: answers "what did the
+fan-out produce, what's over the limit, what did the subagents flag?" without
+ad-hoc `python3 -c`, `wc`, `cat`, or `jq` (non-allowlistable, so they prompt).
 
 For every target storefront it reports, per field:
   - the transcreated value (optionally elided),

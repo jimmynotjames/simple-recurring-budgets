@@ -55,8 +55,7 @@ def has_translatable_content(value: str) -> bool:
 
 
 def _validate_plural(locale: str, key: str, src_plural: dict, translated, errors: list) -> None:
-    """Validate a plural key's output: a CLDR-category object with a non-empty `other` and
-    matching format specifiers in every category."""
+    """Validate a plural key's output: CLDR-category object, non-empty `other`, matching specifiers per category."""
     if not isinstance(translated, dict):
         errors.append(f"[{locale}] Key {key!r}: expected a plural object, got {type(translated).__name__}")
         return
@@ -83,9 +82,8 @@ def _validate_plural(locale: str, key: str, src_plural: dict, translated, errors
 def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[list, list]:
     """Return (errors, warnings). Only errors count toward the exit code.
 
-    When ``subset`` is True, keys present in ``source`` but absent from the
-    output file are not flagged as errors — only the keys actually present in
-    the output file are checked.
+    With ``subset``, keys in ``source`` but absent from the output file are not
+    errors; only keys present in the output are checked.
     """
     errors: list[str] = []
     warnings: list[str] = []
@@ -111,7 +109,7 @@ def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[li
 
         translated = translations[key]
 
-        # Plural keys carry a `plural` object in the source and expect a CLDR-category object back.
+        # Plural keys carry a `plural` object in the source; expect a CLDR-category object back.
         if "plural" in src_entry:
             _validate_plural(locale, key, src_entry["plural"], translated, errors)
             continue
@@ -119,7 +117,7 @@ def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[li
         src_value = src_entry["value"]
         src_specs = specifier_multiset(src_value)
 
-        # Accept both flat string and {"value": "...", ...} dict produced by some models
+        # Accept a flat string or the {"value": "...", ...} dict some models emit.
         if isinstance(translated, dict):
             translated = translated.get("value", "")
 
@@ -138,10 +136,8 @@ def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[li
                 f"source={dict(src_specs)} translated={dict(tran_specs)}"
             )
 
-        # Identical-to-source is a WARNING only (not a hard error): many short
-        # technical terms are legitimate loanwords, brand names, or product
-        # concepts intentionally kept in English (e.g. "iCloud", "Wren",
-        # "Version", "Budget", "Symbol" in languages that use these words).
+        # Identical-to-source is only a WARNING: short terms are often legitimate loanwords,
+        # brands, or concepts kept in English (e.g. "iCloud", "Wren", "Version", "Budget", "Symbol").
         if (
             not is_english_variant
             and src_value
@@ -180,9 +176,8 @@ def main(argv: list[str]) -> int:
     if args.locales:
         locales = args.locales
     elif args.subset:
-        # In subset mode with no explicit locales, validate exactly the locales that have an
-        # output file — otherwise we'd report "File missing" for every locale that wasn't part
-        # of this partial run (the full LOCALES default only makes sense for a full backfill).
+        # Subset mode with no explicit locales: validate only locales with an output file,
+        # else every locale outside this partial run reports "File missing".
         locales = [loc for loc in LOCALES if (OUTPUTS_DIR / f"{loc}.json").exists()]
         if not locales:
             print(f"No output files in {OUTPUTS_DIR} to validate (--subset). Run dispatch + subagents first.", file=sys.stderr)

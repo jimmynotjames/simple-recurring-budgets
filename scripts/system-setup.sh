@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# One-time (or repeat-safe) machine setup: Homebrew CLI tools, Python 3 for
-# scripts/test.sh, Xcode CLI, Lefthook hooks. Hooks use Lefthook, not Python pre-commit.
+# Repeat-safe machine setup: Homebrew CLI tools, Python 3 (for scripts/test.sh),
+# Xcode CLI check, Lefthook hooks.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

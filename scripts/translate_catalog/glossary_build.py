@@ -2,14 +2,14 @@
 """
 Build (and extend) the app translation glossary: scripts/translate_catalog/glossary.json.
 
-The glossary gives each recurring app term ONE canonical translation per locale, so two
-keys with the same English ("Add Funds" under several keys) stay consistent, and so that
-"Add Expense" can reuse the glossary's "Add" and "Expense". It is consulted by
-dispatch_prompts.py (translation) and audit_dispatch.py (audit), and grown by glossary_sync.py.
+The glossary gives each recurring app term ONE canonical translation per locale, so
+keys with the same English ("Add Funds") stay consistent and "Add Expense" can reuse
+"Add" and "Expense". Consulted by dispatch_prompts.py (translation) and
+audit_dispatch.py (audit); grown by glossary_sync.py.
 
-This script is an orchestration *primitive* — it never calls an LLM itself. It prepares
-inputs/prompts and merges agent outputs, exactly like extract.py/dispatch_prompts.py/merge.py.
-The parent agent runs the `glossary-locale` (Opus) agents between --dispatch and --merge.
+An orchestration *primitive*: never calls an LLM. It prepares inputs/prompts and merges
+agent outputs, like extract.py/dispatch_prompts.py/merge.py. The parent agent runs the
+`glossary-locale` (Opus) agents between --dispatch and --merge.
 
 Pipeline:
   1. --candidates          deterministic: mine duplicate strings + frequent terms
@@ -25,8 +25,7 @@ Pipeline:
                            glossary.json (merging into any existing terms); force protected
                            nouns to themselves; validate locale coverage
 
-Reuses scripts/translate_catalog/{locales.py, dispatch_prompts.py} (LOCALES, LOCALE_NAMES,
-REGIONAL_NOTES, _GENERIC_NOTE) — no duplication.
+Imports LOCALES, LOCALE_NAMES, REGIONAL_NOTES, _GENERIC_NOTE from locales.py / dispatch_prompts.py.
 """
 
 from __future__ import annotations
@@ -58,7 +57,7 @@ from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE  # noqa: E402
 
 PROTECTED = ["Wren", "iCloud"]
 
-# Small English stopword set — enough to keep the frequent-word candidate pool to content words.
+# English stopwords; keeps the frequent-word candidate pool to content words.
 STOPWORDS = {
     "the", "a", "an", "to", "of", "in", "on", "for", "and", "or", "is", "are", "was", "be",
     "this", "that", "these", "those", "it", "its", "your", "you", "we", "us", "our", "with",
@@ -146,10 +145,9 @@ def cmd_candidates() -> int:
 # ---------------------------------------------------------------- export terms
 
 def cmd_export_terms() -> int:
-    """Dump the already-curated term set from the committed glossary.json back out to
-    tmp/glossary/terms.json, so the dispatch/merge steps can extend the EXISTING terms to
-    newly-added locales without re-running curation. Examples are intentionally omitted —
-    cmd_dispatch re-derives them from the catalog (_term_examples) at dispatch time."""
+    """Dump the curated term set from glossary.json to tmp/glossary/terms.json, so dispatch/merge
+    can extend existing terms to new locales without re-curating. Examples are omitted:
+    cmd_dispatch re-derives them from the catalog (_term_examples)."""
     glossary = load_glossary()
     terms = glossary.get("terms", {})
     if not terms:
@@ -238,7 +236,7 @@ def cmd_dispatch(locales: list[str]) -> int:
         print(f"ERROR: not target locales: {unknown}", file=sys.stderr)
         return 2
 
-    # Build the per-term payload once (examples are locale-independent).
+    # Per-term payload is built once (examples are locale-independent).
     term_payload = []
     for t in terms:
         en = t["en"]
@@ -253,8 +251,7 @@ def cmd_dispatch(locales: list[str]) -> int:
     for old in PROMPTS_DIR.glob("*.md"):
         old.unlink()
     for locale in sorted(requested):
-        # Protected nouns need no translation; the agent is told to keep them as-is, but we
-        # also force them at merge time. Still include them so the agent sees the full set.
+        # Protected nouns are kept as-is (agent is told; also forced at merge). Included so the agent sees the full set.
         prompt = (
             template.replace("{LOCALE_NAME}", LOCALE_NAMES.get(locale, locale))
             .replace("{LOCALE_CODE}", locale)
@@ -320,7 +317,7 @@ def cmd_merge() -> int:
             "translations": translations,
         }
         if en in existing:
-            # Merge: keep any prior translations not re-produced this round.
+            # Keep prior translations not re-produced this round.
             merged = dict(existing[en].get("translations", {}))
             merged.update(translations)
             entry["translations"] = merged

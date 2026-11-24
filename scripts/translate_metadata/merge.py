@@ -7,12 +7,11 @@ writes each field to fastlane/metadata/{storefront}/{field}.txt. Also copies the
 PASSTHROUGH_FIELDS (URLs) verbatim from en-US into each storefront folder, since
 `deliver` expects every metadata key to exist per-locale.
 
-After merging translated content, scans the en-US source folder for translatable
-fields left blank. Any existing translated copy of such a field is cleared (emptied)
-in every target storefront — blank in the source means blank in every translation.
-This is derived straight from the source folder (the same signal check_metadata.py
-enforces), not from tmp/metadata-inputs/source.json, so merge and the gate can never
-disagree. Pass --skip-clear-blank to suppress this behaviour.
+After merging, scans the en-US source folder for translatable fields left blank and
+empties any existing translated copy in every target storefront (blank in source means
+blank in every translation). Derived from the source folder (the signal
+check_metadata.py enforces), not tmp/metadata-inputs/source.json, so merge and the gate
+can't disagree. Pass --skip-clear-blank to suppress.
 
 Idempotent: re-running with identical inputs produces identical files.
 Refuses to overwrite an existing non-empty .txt with an empty translated value,
@@ -74,11 +73,9 @@ def clear_field(storefront: str, field: str) -> bool:
 def blank_source_fields() -> list[str]:
     """Translatable fields that are empty (or absent) in the en-US source folder.
 
-    Derived straight from the source folder — the same canonical signal
-    check_metadata.py enforces — so merge and the gate never disagree about which
-    fields must be blank. Deliberately NOT read from tmp/metadata-inputs/source.json:
-    that file is an authored-fields-only map consumed by validate.py and
-    dispatch_prompts.py, and the refine pass rewrites it scoped to a subset.
+    Derived from the source folder (the signal check_metadata.py enforces). Deliberately
+    NOT read from tmp/metadata-inputs/source.json: that is an authored-fields-only map
+    for validate.py/dispatch_prompts.py, and the refine pass rewrites it scoped to a subset.
     """
     blanks: list[str] = []
     for field in TRANSLATABLE_FIELDS:
@@ -136,9 +133,7 @@ def main(argv: list[str]) -> int:
             continue
         raw = path.read_text(encoding="utf-8")
         if not raw.strip():
-            # Empty stub (cleaned but never filled). Treat as "not produced"
-            # rather than crashing on json.load(""). Only locales with real
-            # content are merged.
+            # Empty stub (cleaned, never filled): treat as not produced; json.load("") would crash.
             print(f"  SKIP {storefront}: empty output (subagent not run / produced nothing)", file=sys.stderr)
             skipped.append(storefront)
             continue

@@ -2,9 +2,8 @@
 """
 Shared CI feedback helper for the mechanical per-PR gates.
 
-Wraps a checker script's `--json` output mode and turns it into three things
-GitHub Actions understands natively, so a first-time CI reader gets in-context
-feedback instead of "go read the raw log":
+Wraps a checker script's `--json` output and emits three things GitHub Actions
+understands natively, for in-context feedback instead of raw logs:
 
   1. GitHub annotations (`::error file=...,line=...::msg` / `::warning ...`)
      for findings that carry a real file/line.
@@ -14,10 +13,10 @@ feedback instead of "go read the raw log":
      `pr-summary` job can read every gate's result via `needs.<job>.outputs`
      and assemble one consolidated PR comment.
 
-The wrapped command's own exit code is this script's exit code, so it's a
-transparent gate — only the reporting is additive. The wrapped command must
-support a `--json` flag; run without --github-report to fall back to the
-plain human-readable path with no annotations (useful when iterating locally).
+The wrapped command's exit code is this script's exit code (transparent gate;
+reporting is additive). The wrapped command must support `--json`; without
+--github-report it falls back to plain human-readable output with no
+annotations (useful locally).
 
 Usage:
   python3 scripts/ci/annotate.py --name <check-name> -- <command> [args...]
@@ -46,9 +45,10 @@ def _finding_line(f: dict) -> str:
 
 
 def normalize(payload: dict) -> list[dict]:
-    """Best-effort normalization of a checker's --json payload into a flat
-    list of finding dicts. Handles the shapes already in use across
-    scripts/check_*.py and scripts/translate_audit|metadata/*.py."""
+    """Normalize a checker's --json payload into a flat list of finding dicts.
+
+    Handles the shapes used across scripts/check_*.py and scripts/translate_audit|metadata/*.py.
+    """
     if "errors" in payload or "warnings" in payload:
         # check_source_strings.py: {"errors": [...], "warnings": [...]}
         out = []
@@ -123,8 +123,7 @@ def main(argv: list[str]) -> int:
         payload = json.loads(proc.stdout)
         findings = normalize(payload)
     except json.JSONDecodeError:
-        # Wrapped command doesn't (yet) support --json cleanly — fall back to
-        # printing whatever it produced and skip annotations/summary detail.
+        # No clean --json: print whatever it produced; skip annotations/summary.
         sys.stdout.write(proc.stdout)
         sys.stderr.write(proc.stderr)
         write_gate_output(args.name, passed)

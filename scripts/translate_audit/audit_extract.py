@@ -3,9 +3,9 @@
 Extract English source + every locale's CURRENT translation from
 Localizable.xcstrings, for the translation-quality audit (Track B).
 
-Unlike scripts/translate_catalog/extract.py (which emits only the English source
-for *translating*), this emits the existing translations too, so an auditor can
-grade them. Writes tmp/translate-audit-inputs/audit_source.json:
+Unlike scripts/translate_catalog/extract.py (English source only, for translating),
+this also emits existing translations so an auditor can grade them. Writes
+tmp/translate-audit-inputs/audit_source.json:
 
   {
     "key": {
@@ -17,11 +17,11 @@ grade them. Writes tmp/translate-audit-inputs/audit_source.json:
     ...
   }
 
-Only flat `stringUnit` translations are captured; a key whose locale entry uses a
-plural/device `variations` block is skipped *for that locale* (consistent with the
-translate pipeline's subset mode). `check_translations.py` remains the structural gate.
+Only flat `stringUnit` translations are captured; a locale entry using a
+plural/device `variations` block is skipped for that locale (as in the translate
+pipeline's subset mode). `check_translations.py` remains the structural gate.
 
-Reuses scripts/translate_catalog/{locales.py, extract.py} via import (no duplication).
+Imports scripts/translate_catalog/{locales.py, extract.py}.
 
 Modes:
   (default)          every translatable key, all target locales
@@ -43,7 +43,7 @@ CATALOG_DIR = REPO_ROOT / "scripts" / "translate_catalog"
 AUDIT_INPUTS_DIR = REPO_ROOT / "tmp" / "translate-audit-inputs"
 AUDIT_SOURCE_PATH = AUDIT_INPUTS_DIR / "audit_source.json"
 
-# Reuse the catalog pipeline's single sources of truth.
+# Catalog pipeline is the single source of truth.
 sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES  # noqa: E402
 from extract import extract_format_specifiers, localization_plural  # noqa: E402
@@ -69,7 +69,7 @@ def build_entry(key: str, strings: dict, locales: list[str]) -> dict:
     comment = entry.get("comment", "")
     en_plural = localization_plural(localizations.get("en"))
     if en_plural is not None:
-        # Plural key: carry the English per-category forms and each locale's current plural forms.
+        # Plural key: English per-category forms plus each locale's current plural forms.
         translations: dict[str, dict] = {}
         for locale in locales:
             loc_plural = localization_plural(localizations.get(locale))
@@ -147,8 +147,7 @@ def main(argv: list[str]) -> int:
         keys = [k for k, v in strings.items() if is_translatable(v)]
 
     entries = {k: build_entry(k, strings, locales) for k in sorted(keys)}
-    # Drop keys with neither a flat English value nor a plural block (e.g. device `variations`):
-    # they have nothing to audit and would otherwise clutter the source with empty entries.
+    # Drop keys with neither a flat English value nor a plural block (e.g. device `variations`): nothing to audit.
     skipped = sorted(k for k, v in entries.items() if not (v.get("value") or v.get("plural")))
     entries = {k: v for k, v in entries.items() if v.get("value") or v.get("plural")}
     if skipped:

@@ -2,8 +2,7 @@
 """
 Read-only inspector for scripts/translate_catalog/glossary.json.
 
-Replaces the recurring ad-hoc `python3 -c "import json; g=json.load(...)"`
-one-liners used to poke at the translation glossary. Pure read-only.
+Replaces ad-hoc `python3 -c "import json; g=json.load(...)"` one-liners. Pure read-only.
 
 Glossary shape: {"meta": {...}, "protected": [...], "terms": {TERM: {
   "context", "en", "partOfSpeech", "sourceKeys", "translations": {locale: str}}}}.

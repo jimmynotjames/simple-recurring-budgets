@@ -8,9 +8,9 @@ strips the optional `_questions` array, and writes the runtime-keyed catalog fil
 (storefront -> runtime mapping owned by content_locales.py). Also writes the en-US
 catalog entry verbatim from the staged source.json.
 
-The catalog lives in the UI test target so these marketing fixtures never ship in
-the production app bundle. The AppStoreScreenshots UI test loads the file matching
-the `-AppleLanguages` value fastlane `snapshot` launches with.
+The catalog lives in the UI test target so marketing fixtures never ship in the
+app bundle. The AppStoreScreenshots UI test loads the file matching the
+`-AppleLanguages` value fastlane `snapshot` launches with.
 
 Usage:
   python3 scripts/screenshot_content/merge.py [storefront ...]
@@ -39,10 +39,9 @@ SOURCE_PATH = INPUTS_DIR / "source.json"
 
 def write_catalog(runtime: str, data: dict) -> None:
     CATALOG_DIR.mkdir(parents=True, exist_ok=True)
-    # `primaryLocale` is the region-qualified ICU id the AppStoreScreenshots UI test
-    # launches this locale with (-AppleLocale), so the Settings currency-display
-    # example renders the market's currency. The production ScreenshotSeed decoder
-    # ignores this key. See content_locales.primary_locale_for_runtime.
+    # `primaryLocale`: region-qualified ICU id the UI test launches with (-AppleLocale)
+    # so the Settings currency example shows the market's currency. The production
+    # ScreenshotSeed decoder ignores it. See content_locales.primary_locale_for_runtime.
     payload = {"primaryLocale": primary_locale_for_runtime(runtime), "budgets": data["budgets"]}
     path = CATALOG_DIR / f"{runtime}.json"
     with path.open("w", encoding="utf-8") as f:
@@ -53,7 +52,7 @@ def write_catalog(runtime: str, data: dict) -> None:
 def main(argv: list[str]) -> int:
     storefronts = argv if argv else list(STOREFRONT_LOCALES)
 
-    # Always (re)write the en-US source entry from the staged source.
+    # en-US is always rewritten from the staged source.
     if SOURCE_PATH.exists():
         source = json.loads(SOURCE_PATH.read_text(encoding="utf-8"))
         write_catalog(SOURCE_LOCALE, source)

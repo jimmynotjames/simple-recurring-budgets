@@ -97,7 +97,7 @@ def main(argv: list[str]) -> int:
             en_is_plural = "plural" in localizations.get("en", {}).get("variations", {})
 
             if en_is_plural:
-                # Plural key: expect a CLDR-category → string object; write a variations.plural block.
+                # Plural key: CLDR-category → string object, written as a variations.plural block.
                 cats = {}
                 if isinstance(translated_value, dict):
                     cats = {c: v for c, v in translated_value.items()
@@ -114,21 +114,20 @@ def main(argv: list[str]) -> int:
                 }
                 locale_merged += 1
             else:
-                # Flat key. Accept a flat string or a {"value": "..."} dict some models emit.
+                # Flat key: accept a string or the {"value": "..."} dict some models emit.
                 flat = translated_value.get("value", "") if isinstance(translated_value, dict) else translated_value
                 if not isinstance(flat, str) or not flat.strip():
-                    # Refuse to overwrite an existing good translation with an empty/non-string value.
+                    # Never overwrite an existing translation with an empty/non-string value.
                     print(f"  WARN [{locale}] key {key!r} has empty/invalid value — skipping", file=sys.stderr)
                     rejected_empty += 1
                     continue
                 localizations[locale] = {"stringUnit": {"state": "translated", "value": flat}}
                 locale_merged += 1
 
-            # Finalize the English source. A key auto-extracted by Xcode lands with
-            # en.stringUnit.state == "new"; once we've translated it the source is
-            # effectively reviewed, so promote it to "translated". Otherwise
-            # check_translations.py flags `NEW [en] '<key>' (source)` and blocks the
-            # push even though every locale is translated. Idempotent across locales.
+            # Promote the English source to "translated": Xcode-extracted keys land with
+            # en.stringUnit.state == "new", and check_translations.py would flag
+            # `NEW [en] '<key>' (source)` and block the push even when every locale is
+            # translated. Idempotent across locales.
             en_unit = localizations.get("en", {}).get("stringUnit")
             if isinstance(en_unit, dict) and en_unit.get("state") == "new":
                 en_unit["state"] = "translated"

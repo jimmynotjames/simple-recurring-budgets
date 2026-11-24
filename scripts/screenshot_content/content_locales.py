@@ -1,29 +1,25 @@
 """
 Single source of truth for the App Store *screenshot demo-content* pipeline.
 
-This pipeline generates the culturally-tuned, per-locale demo data that the app
-is seeded with when capturing App Store marketing screenshots (≤3 budgets per
-locale with realistic names, emoji, currency, and amounts). It is the screenshot
-sibling of:
+Generates the culturally-tuned, per-locale demo data the app is seeded with when
+capturing App Store marketing screenshots (≤3 budgets per locale with realistic
+names, emoji, currency, amounts). Sibling of:
 
   * scripts/translate_catalog/  -> in-app UI strings (Localizable.xcstrings)
   * scripts/translate_metadata/ -> App Store text metadata (fastlane/metadata/)
 
-It reuses the runtime<->storefront locale mapping owned by
-scripts/translate_metadata/metadata_locales.py (do NOT duplicate that map). The
-two code systems:
+Reuses the runtime<->storefront mapping from
+scripts/translate_metadata/metadata_locales.py (don't duplicate it). Two code systems:
 
-  * The per-locale subagent work is keyed by App Store Connect *storefront* codes
-    (ar-SA, de-DE, no, nl-NL, ...), matching the metadata pipeline, so cultural
-    notes and human-readable names line up 1:1 with metadata.
-  * The merged demo-content *catalog* the UI test bundles is keyed by the app's
-    *runtime* locale code (ar, de, nb, nl, ...) — i.e. the exact `-AppleLanguages`
-    string fastlane `snapshot` launches the app with. `merge.py` maps storefront
-    -> runtime when writing the catalog.
+  * Per-locale subagent work is keyed by App Store Connect *storefront* codes
+    (ar-SA, de-DE, no, nl-NL, ...), matching the metadata pipeline.
+  * The merged catalog the UI test bundles is keyed by the app's *runtime*
+    locale code (ar, de, nb, nl, ...), the exact `-AppleLanguages` string
+    fastlane `snapshot` launches with. `merge.py` maps storefront -> runtime.
 
-The English source (en-US) is authored by hand as SOURCE.json in this directory
-and is the structure every locale transcreates from; it is also emitted verbatim
-as the `en-US` catalog entry by `merge.py`.
+The English source (en-US) is hand-authored as SOURCE.json in this directory;
+every locale transcreates from its structure, and `merge.py` emits it verbatim
+as the `en-US` catalog entry.
 """
 
 from __future__ import annotations
@@ -33,8 +29,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# Reuse the runtime<->storefront mapping + human-readable names from the metadata
-# pipeline. Single source of truth — never re-list the locale set here.
+# Runtime<->storefront mapping and names come from the metadata pipeline; never re-list locales here.
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_metadata"))
 from metadata_locales import (  # noqa: E402
     RUNTIME_TO_STOREFRONT,
@@ -44,7 +39,7 @@ from metadata_locales import (  # noqa: E402
     STOREFRONT_TO_RUNTIME,
 )
 
-# Canonical English source structure + the directory holding it.
+# Canonical English source structure.
 PIPELINE_DIR = Path(__file__).parent
 SOURCE_JSON_PATH = PIPELINE_DIR / "SOURCE.json"
 PROMPT_TEMPLATE_PATH = PIPELINE_DIR / "PROMPT_TEMPLATE.md"
@@ -54,25 +49,22 @@ INPUTS_DIR = REPO_ROOT / "tmp" / "screenshot-content-inputs"
 PROMPTS_DIR = REPO_ROOT / "tmp" / "screenshot-content-prompts"
 OUTPUTS_DIR = REPO_ROOT / "tmp" / "screenshot-content-outputs"
 
-# The UI-test-bundled demo-content catalog (keyed by runtime locale code). Lives
-# in the test target so the marketing fixtures never ship in the production app.
+# UI-test-bundled catalog (keyed by runtime locale code); in the test target so
+# marketing fixtures never ship in the app.
 CATALOG_DIR = REPO_ROOT / "simple-recurring-budgetsUITests" / "ScreenshotSeeds"
 
-# At most this many budgets per locale (the screen story stays glanceable).
+# Max budgets per locale (keeps the screen story glanceable).
 MAX_BUDGETS = 3
 
-# Budget "roles" carried through from SOURCE.json. `everyday-food` is mandatory
-# (Food/Groceries is the universal anchor); the personal/feminine-leaning budget
-# may be dropped or swapped by a locale if it does not fit.
+# Budget "roles" from SOURCE.json. `everyday-food` is mandatory (universal anchor);
+# the personal/feminine-leaning budget may be dropped or swapped if it doesn't fit.
 REQUIRED_ROLES: set[str] = {"everyday-food"}
 
 # Valid BudgetPeriod raw values (must match Domain/BudgetPeriod.swift).
 VALID_PERIODS: set[str] = {"daily", "weekly", "biweekly", "monthly", "specificDates"}
 
-# Default ISO-4217 currency per storefront. The subagent is told this is the
-# expected currency for the market and should only deviate with a recorded
-# `_questions` note. Values chosen as the dominant consumer currency of the
-# storefront's primary market.
+# Default ISO-4217 currency per storefront (dominant consumer currency of its primary
+# market). Subagents deviate only with a recorded `_questions` note.
 CURRENCY_BY_STOREFRONT: dict[str, str] = {
     "ar-SA": "SAR",
     "ca": "EUR",
@@ -116,8 +108,8 @@ CURRENCY_BY_STOREFRONT: dict[str, str] = {
 # The en-US source currency.
 CURRENCY_BY_STOREFRONT[SOURCE_LOCALE] = "USD"
 
-# 11 storefronts added 2026-03-31 (region-qualified codes; see metadata_locales).
-# India locales use INR; plus Bangladesh (BDT), Pakistan (PKR), Slovenia (EUR).
+# Region-qualified storefronts (see metadata_locales): India locales use INR, plus
+# Bangladesh (BDT), Pakistan (PKR), Slovenia (EUR).
 CURRENCY_BY_STOREFRONT.update(
     {
         "bn-BD": "BDT",
@@ -134,15 +126,12 @@ CURRENCY_BY_STOREFRONT.update(
     }
 )
 
-# Representative ISO-3166 region per storefront — the market whose currency and
-# number formatting the screenshots should render. Chosen as the primary market of
-# the storefront's dominant consumer currency above (so the region's locale resolves
-# to that exact currency). Drives the `-AppleLocale` the capture launches each locale
-# with, via `primary_locale_for_storefront()` below: fastlane `snapshot` only sets
-# `-AppleLanguages`, leaving language-only locales (de, ja, nb, …) region-less, which
-# makes `Locale.currency` nil and the Settings currency-display example fall back to
-# USD even though the seeded budgets show the right currency. Keep this 1:1 with
-# CURRENCY_BY_STOREFRONT (same market).
+# ISO-3166 region per storefront: the market whose currency/number formatting the
+# screenshots render (its locale must resolve to the CURRENCY_BY_STOREFRONT currency;
+# keep the two 1:1). Drives `-AppleLocale` via `primary_locale_for_storefront()`:
+# fastlane `snapshot` only sets `-AppleLanguages`, so language-only locales (de, ja,
+# nb, …) are region-less, `Locale.currency` is nil, and the Settings currency example
+# falls back to USD even though seeded budgets show the right currency.
 REGION_BY_STOREFRONT: dict[str, str] = {
     "ar-SA": "SA",
     "bn-BD": "BD",
@@ -197,9 +186,8 @@ REGION_BY_STOREFRONT: dict[str, str] = {
 # The en-US source region.
 REGION_BY_STOREFRONT[SOURCE_LOCALE] = "US"
 
-# ISO-4217 currencies that have NO minor unit (amounts are whole numbers). Used
-# by validate.py to reject e.g. "2500.50" JPY, and told to the subagent so it
-# writes whole-number amounts for these markets.
+# ISO-4217 currencies with no minor unit (whole-number amounts). validate.py uses
+# it to reject e.g. "2500.50" JPY; subagents are told the same.
 ZERO_DECIMAL_CURRENCIES: set[str] = {
     "JPY",
     "KRW",
@@ -226,15 +214,14 @@ def runtime_for_storefront(storefront: str) -> str:
 def primary_locale_for_storefront(storefront: str) -> str:
     """Return the ICU locale identifier the screenshots launch this storefront with.
 
-    Built from the runtime locale code + the storefront's representative region:
+    Runtime locale code + the storefront's region:
       de-DE  -> de_DE      (region appended to a language-only runtime)
       no     -> nb_NO      (runtime `nb`, region NO)
       zh-Hans-> zh_Hans_CN (script kept, region appended)
       pt-BR  -> pt_BR      (runtime already region-qualified; left as-is)
 
-    Passed to the app as `-AppleLocale` so `Locale.autoupdatingCurrent.currency`
-    resolves to the market's currency (REGION_BY_STOREFRONT is kept 1:1 with
-    CURRENCY_BY_STOREFRONT) and number/date formatting matches the market.
+    Passed as `-AppleLocale` so `Locale.autoupdatingCurrent.currency` and number/date
+    formatting match the market.
     """
     region = REGION_BY_STOREFRONT[storefront]
     base = runtime_for_storefront(storefront).replace("-", "_")
@@ -268,7 +255,7 @@ __all__ = [
     "runtime_for_storefront",
     "primary_locale_for_storefront",
     "primary_locale_for_runtime",
-    # re-exported from metadata_locales for convenience
+    # re-exported from metadata_locales
     "RUNTIME_TO_STOREFRONT",
     "STOREFRONT_TO_RUNTIME",
     "STOREFRONT_LOCALES",

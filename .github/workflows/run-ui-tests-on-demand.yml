@@ -1,17 +1,10 @@
-# On-demand UI-only test re-run (accessibility + user-journey suites).
+# Re-runs only the UI suites (accessibility + user-journey) on an open PR, e.g. for
+# flaky-test triage. ci.yml's `test` job already runs unit + UI on every PR, so this
+# is not needed for coverage. Trigger by commenting `/run-ui-tests` on a PR
+# (documented in .github/pull_request_template.md).
 #
-# ci.yml's `test` job already runs the full unit + UI suite automatically on
-# every PR (simulator minutes are free on this public repo), so this workflow
-# is NOT how you get UI coverage — it's a narrower lever: re-run just the UI
-# suite on an already-open PR (e.g. for flaky-test triage) without waiting on
-# a full unit+UI re-run. Comment
-#   /run-ui-tests
-# on a PR to kick it off. (Documented in .github/pull_request_template.md so
-# it shows on every PR.)
-#
-# IMPORTANT: issue_comment workflows always run the copy of THIS file on the
-# default branch — so `/run-ui-tests` won't work on the PR that introduces
-# this rename; it works on PRs opened after it merges to main.
+# IMPORTANT: issue_comment workflows run the copy of THIS file on the default branch,
+# so changes here only take effect once merged to main.
 name: Run UI tests (on demand)
 
 on:
@@ -25,8 +18,8 @@ permissions:
 
 jobs:
   run-ui-tests:
-    # Only on PR comments, only the trigger phrase, only from someone with write
-    # access (so a drive-by commenter can't burn macOS minutes).
+    # PR comments only, trigger phrase only, write-access authors only (a drive-by
+    # commenter can't burn macOS minutes).
     if: >
       github.event.issue.pull_request &&
       startsWith(github.event.comment.body, '/run-ui-tests') &&
@@ -56,10 +49,8 @@ jobs:
         with:
           xcode-version: "26.5"
 
-      # UI-suite only — ci.yml's `test` job already re-runs the unit pass on
-      # every push, so re-running it here would be pure duplication. Mirrors
-      # scripts/test-ui.sh's suite selection; matches how `make test-ui` runs
-      # this same suite standalone locally (no separate warm-up pass).
+      # UI suite only: ci.yml's `test` job already runs the unit pass. Mirrors
+      # scripts/test-ui.sh's suite selection (no separate warm-up pass, like `make test-ui`).
       - name: Accessibility + user-journey UI tests
         run: |
           xcodebuild test \

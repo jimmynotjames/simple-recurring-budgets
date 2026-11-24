@@ -9,15 +9,12 @@ Exits 1 if any key is missing or has a non-translated state (new,
 needs_review, stale) for the source language or any target locale.
 
 Why the source language is checked:
-The xcstrings format stores the en source value under
-`localizations.en.stringUnit`, and that stringUnit has its own `state`.
-When the state is `new` (a common initial value after `xcodebuild`
-extraction without an Xcode-IDE catalog write), SwiftUI's
-`Text(LocalizedStringKey)` and similar APIs that lack a `defaultValue`
-fallback resolve the key to the literal key string at runtime — a
-production bug. The safer `Text(String(localized:defaultValue:comment:))`
-pattern masks this with a hard English fallback, but the gap remains a
-latent risk. Validating en source state here closes the gap.
+The en source value lives under `localizations.en.stringUnit` and has its own
+`state`. When it is `new` (common after `xcodebuild` extraction without an
+Xcode-IDE catalog write), `Text(LocalizedStringKey)` and similar APIs without a
+`defaultValue` fallback render the literal key at runtime — a production bug.
+`Text(String(localized:defaultValue:comment:))` masks it with an English
+fallback but leaves the latent risk.
 
 Usage:
   python3 scripts/check_translations.py [--json]
@@ -39,10 +36,8 @@ from locales import LOCALES  # noqa: E402
 # States that mean a translation is not ready to ship.
 UNTRANSLATED_STATES = {"new", "needs_review", "stale"}
 
-# Source-language code stored in the xcstrings catalog. Validated separately
-# from LOCALES because semantically it's the *source*, not a translation target,
-# but a `new` / `needs_review` / `stale` state on the source still breaks
-# runtime localization for code paths that lack a `defaultValue` fallback.
+# Source-language code. Validated separately from LOCALES (it's the source, not a
+# target), but a non-translated source state still breaks runtime localization.
 SOURCE_LANGUAGE = "en"
 
 
@@ -65,15 +60,13 @@ def main(argv: list[str]) -> int:
     issues: list[str] = []
 
     for key, entry in strings.items():
-        # Keys marked shouldTranslate=false (e.g. locale-invariant identifiers) are intentionally skipped.
+        # shouldTranslate=false keys (locale-invariant identifiers) are skipped.
         if not entry.get("shouldTranslate", True):
             continue
 
         localizations: dict = entry.get("localizations", {})
 
-        # Validate the source-language entry first: a `new` / `needs_review` /
-        # `stale` state on the source breaks runtime localization for any code
-        # path that uses `Text(LocalizedStringKey)` without a `defaultValue`.
+        # Source-language entry first (see SOURCE_LANGUAGE).
         source_entry = localizations.get(source_language)
         if source_entry is None:
             issues.append(f"  MISSING  [{source_language}] {key!r} (source)")
@@ -91,9 +84,9 @@ def main(argv: list[str]) -> int:
                 issues.append(f"  MISSING  [{locale}] {key!r}")
                 continue
 
-            # Handle plural variants (stringSet) — check each variant.
+            # Plural variants: check each.
             if "variations" in loc_entry:
-                # Plural/device variations: check each stringUnit within.
+                # Plural/device variations: check each nested stringUnit.
                 _check_variations(loc_entry["variations"], locale, key, issues)
                 continue
 

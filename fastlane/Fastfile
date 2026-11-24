@@ -1,7 +1,5 @@
-# Fastfile — App Store / TestFlight automation for Wren (simple-recurring-budgets)
-#
-# Auth: App Store Connect API key, read from fastlane/.env (gitignored).
-# See fastlane/README.md for the full picture of what is live vs. dormant.
+# App Store / TestFlight automation for Wren. Auth: App Store Connect API key from
+# gitignored fastlane/.env. See fastlane/README.md for live vs. dormant lanes.
 
 default_platform(:ios)
 
@@ -9,13 +7,9 @@ SCHEME = "simple-recurring-budgets"
 OUTPUT_DIR = "./build"
 APP_IDENTIFIER = "com.jimmyho.simple-recurring-budgets"
 
-# Next build number = highest build currently on TestFlight + 1.
-#
-# Derived from App Store Connect (not the local project), so it never collides
-# with an existing build — App Store Connect stays the source of truth for the
-# number. The ASC builds API counts builds that are still processing, so a
-# freshly-uploaded build is included. `initial_build_number: 0` means a brand-new
-# app/version starts at 1.
+# Next build number = highest TestFlight build + 1. Derived from App Store Connect
+# (source of truth, never collides); its builds API includes builds still processing.
+# `initial_build_number: 0` makes a brand-new app/version start at 1.
 def next_build_number
   latest = latest_testflight_build_number(
     app_identifier: APP_IDENTIFIER,
@@ -24,16 +18,12 @@ def next_build_number
   latest + 1
 end
 
-# Persist the build number into project.pbxproj so that local / Xcode (Debug)
-# builds display the last-shipped build number instead of the hardcoded `1`
-# (the Settings version row reads CFBundleVersion, synthesized from
-# CURRENT_PROJECT_VERSION by GENERATE_INFOPLIST_FILE). A plain gsub keeps the
-# file format identical so the diff is just the changed numeric tokens —
-# agvtool/`increment_build_number` can't be used here (VERSIONING_SYSTEM is
-# unset) and the xcodeproj gem would reformat the whole file. Sets every target
-# (app + tests) to the same number, matching agvtool semantics. ASC remains the
-# source of truth for collision-free numbering; this is purely so the committed
-# value tracks reality. See fastlane/SETUP.md "Build numbers".
+# Persist the build number into project.pbxproj so local/Xcode Debug builds show the
+# last-shipped number (the Settings version row reads CFBundleVersion, synthesized
+# from CURRENT_PROJECT_VERSION). Uses a plain gsub so the diff is only the numeric
+# tokens: agvtool/`increment_build_number` can't be used (VERSIONING_SYSTEM is unset)
+# and the xcodeproj gem would reformat the whole file. Sets every target (app +
+# tests), like agvtool. See fastlane/SETUP.md "Build numbers".
 def set_project_build_number(number)
   path = "../simple-recurring-budgets.xcodeproj/project.pbxproj"
   contents = File.read(path)
@@ -42,11 +32,9 @@ def set_project_build_number(number)
   File.write(path, updated)
 end
 
-# Run the release ship guard before archiving.
-# Exits immediately (exit 1 + instructions) if placeholder secrets remain,
-# before spending time on archive/sign/upload.
-# Lanes that must not call this: verify_auth, screenshots, push_metadata,
-# push_screenshots — they don't ship a Release binary.
+# Release ship guard: fails fast if placeholder secrets remain, before archive/sign/upload.
+# Don't call from lanes that ship no Release binary (verify_auth, screenshots,
+# push_metadata, push_screenshots).
 def verify_ship_secrets!
   sh("../scripts/verify_release_secrets.sh")
 end
@@ -100,21 +88,20 @@ end
 # rather than on every PR.
 def verify_metadata_ready!
   sh("python3 ../scripts/translate_metadata/check_metadata.py")
-  # Advisory only (calm/understated brand voice) — warn, don't block the lane.
+  # Advisory (brand voice): warns, doesn't block the lane.
   sh("python3 ../scripts/translate_metadata/check_source_voice.py") do |status, _result|
     UI.important("check_source_voice: possible voice issue(s) in the en-US source — review the log above.") unless status.success?
   end
 end
 
-# Screenshot demo-content is also release-time-only. Gate it right before
-# capture, since a malformed/missing locale entry affects what gets captured.
+# Screenshot demo content is also checked at release time, right before capture
+# (a malformed/missing locale entry changes what gets captured).
 def verify_content_ready!
   sh("python3 ../scripts/screenshot_content/check_content.py")
 end
 
 platform :ios do
-  # Authenticate every lane with the App Store Connect API key.
-  # Values come from fastlane/.env (KEY_ID / ISSUER_ID / KEY_FILEPATH).
+  # Authenticates every lane with the App Store Connect API key (fastlane/.env: ASC_API_*).
   before_all do
     app_store_connect_api_key(
       key_id: ENV.fetch("ASC_API_KEY_ID"),
@@ -126,8 +113,7 @@ platform :ios do
   end
 
   # ---------------------------------------------------------------------------
-  # UTILITY: prove the API key / issuer / .p8 authenticate against App Store
-  # Connect without building anything. Makes a read-only TestFlight query.
+  # UTILITY: read-only TestFlight query proving the API key / issuer / .p8 authenticate.
   # ---------------------------------------------------------------------------
   desc "Verify App Store Connect API auth (read-only, builds nothing)"
   lane :verify_auth do
@@ -139,16 +125,16 @@ platform :ios do
   end
 
   # ---------------------------------------------------------------------------
-  # LIVE: build + ship a build to TestFlight. This is the lane to run now.
+  # LIVE: build + ship a build to TestFlight.
   # ---------------------------------------------------------------------------
   desc "Build and upload a build to TestFlight"
   lane :beta do
     verify_ship_secrets!
     build_number = next_build_number
     UI.message("Auto-incrementing build number to #{build_number} (TestFlight latest + 1)")
-    # Write the number into project.pbxproj so the archive — and future local
-    # Debug builds — carry it (no more xcargs override). -allowProvisioningUpdates
-    # still lets Xcode create/refresh the distribution cert + app-store profile.
+    # Write the number into project.pbxproj so the archive and later local Debug
+    # builds carry it. -allowProvisioningUpdates lets Xcode create/refresh the
+    # distribution cert + app-store profile.
     set_project_build_number(build_number)
     build_app(
       scheme: SCHEME,
@@ -159,8 +145,8 @@ platform :ios do
     upload_to_testflight(
       skip_waiting_for_build_processing: true
     )
-    # Commit the version bump only after a successful upload, so the repo records
-    # only builds that actually shipped. Scoped to the pbxproj; does NOT push.
+    # Commit only after a successful upload so the repo records shipped builds only.
+    # Scoped to the pbxproj; does not push.
     git_commit(
       path: "simple-recurring-budgets.xcodeproj/project.pbxproj",
       message: "chore(release): set build number to #{build_number}"
@@ -169,23 +155,18 @@ platform :ios do
   end
 
   # ---------------------------------------------------------------------------
-  # DORMANT: full App Store release (binary + metadata + screenshots).
-  # Screenshots and metadata are skipped until you are ready to submit.
-  # Flip the skip_* flags to false once the metadata/ and screenshots/ trees
-  # are populated and translated.
+  # DORMANT: full App Store release. Screenshots and metadata are skipped; flip the
+  # skip_* flags to false once metadata/ and screenshots/ are populated and translated.
+  # The standard release flow submits the `beta`-lane TestFlight build instead (see
+  # docs/app-store-release-checklist.md Phase 4).
   # ---------------------------------------------------------------------------
   desc "Build and submit a release to the App Store (metadata/screenshots skipped for now)"
   lane :release do
     verify_ship_secrets!
-    # Screenshots are intentionally NOT uploaded by this lane (see skip_screenshots
-    # below). They are managed separately via `fastlane screenshots` +
-    # `fastlane push_screenshots`. Remind the operator to decide before building —
-    # this only prompts; it never uploads anything.
-    # Agents have no TTY for UI.confirm: after confirming with the operator that
-    # screenshots are current/pushed, they set RELEASE_SCREENSHOTS_HANDLED=1 to
-    # skip the prompt. (The standard release flow no longer uses this lane — it
-    # submits the `beta`-lane TestFlight build; see
-    # docs/app-store-release-checklist.md Phase 4.)
+    # This lane never uploads screenshots (`fastlane screenshots` + `push_screenshots`
+    # do); it only prompts the operator to decide first. Agents have no TTY for
+    # UI.confirm: after confirming with the operator that screenshots are current,
+    # set RELEASE_SCREENSHOTS_HANDLED=1 to skip the prompt.
     if ENV["RELEASE_SCREENSHOTS_HANDLED"] == "1"
       UI.message("RELEASE_SCREENSHOTS_HANDLED=1 — screenshots decision made upstream; skipping prompt.")
     elsif UI.confirm("Do you need to upload fresh App Store screenshots for this release?")
@@ -213,7 +194,7 @@ platform :ios do
       force: true,              # skip the interactive HTML preview confirmation
       submit_for_review: false  # upload only; you press submit in ASC
     )
-    # Commit the version bump after a successful upload (scoped to pbxproj; no push).
+    # Commit after a successful upload (scoped to pbxproj; no push).
     git_commit(
       path: "simple-recurring-budgets.xcodeproj/project.pbxproj",
       message: "chore(release): set build number to #{build_number}"
@@ -222,8 +203,8 @@ platform :ios do
   end
 
   # ---------------------------------------------------------------------------
-  # DORMANT: push only localized metadata (no binary). Use this once the
-  # metadata/<locale>/*.txt tree is filled in by the translation pipeline.
+  # DORMANT: push only localized metadata (no binary), once metadata/<locale>/*.txt
+  # is filled in by the translation pipeline.
   # ---------------------------------------------------------------------------
   desc "Upload localized App Store metadata only (no binary, no screenshots)"
   lane :push_metadata do
@@ -239,13 +220,12 @@ platform :ios do
 
   # ---------------------------------------------------------------------------
   # Capture localized screenshots across the device/locale matrix, then rename the
-  # captured runtime-coded folders (de, nb, ar, ...) to App Store storefront codes
-  # (de-DE, no, ar-SA, ...) so `deliver` can find them. Config lives in
-  # fastlane/Snapfile; the AppStoreScreenshots UI test drives the capture.
+  # runtime-coded folders (de, nb, ar, ...) to App Store storefront codes (de-DE, no,
+  # ar-SA, ...) so `deliver` finds them. Config: fastlane/Snapfile; capture is driven
+  # by the AppStoreScreenshots UI test.
   #
-  # Touches the Simulator only — NOT App Store Connect. Inspect the output under
-  # fastlane/screenshots/ before uploading with `push_screenshots`.
-  # No frameit / device frames / captions — bare device screenshots only.
+  # Simulator only, not App Store Connect; inspect fastlane/screenshots/ before
+  # `push_screenshots`. Bare device screenshots (no frameit/captions).
   # ---------------------------------------------------------------------------
   desc "Capture localized screenshots in the Simulator, then map folders to storefront codes"
   lane :screenshots do
@@ -265,9 +245,9 @@ platform :ios do
   end
 
   # ---------------------------------------------------------------------------
-  # Upload ONLY the localized screenshots (no binary, no metadata). Screenshots
-  # stage into the unreleased "Prepare for Submission" version — nothing goes live
-  # until you submit in App Store Connect. Run AFTER inspecting `fastlane/screenshots/`.
+  # Upload ONLY localized screenshots. They stage into the unreleased "Prepare for
+  # Submission" version; nothing goes live until you submit in App Store Connect.
+  # Run after inspecting `fastlane/screenshots/`.
   # ---------------------------------------------------------------------------
   desc "Upload localized App Store screenshots only (no binary, no metadata)"
   lane :push_screenshots do
@@ -283,11 +263,10 @@ platform :ios do
   end
 
   # ---------------------------------------------------------------------------
-  # Upload ONLY the screenshots found under $SUBSET_PATH (default: the full tree).
-  # Used by scripts/screenshot_content/upload_with_retry.sh to re-upload just the
-  # storefronts that failed a full run (App Store Connect occasionally 500s mid-
-  # upload). deliver only touches the languages present in the path, so a pruned
-  # directory overwrites just those storefronts and leaves the rest untouched.
+  # Upload ONLY the screenshots under $SUBSET_PATH (default: full tree). Used by
+  # scripts/screenshot_content/upload_with_retry.sh to re-upload storefronts that
+  # failed a full run. deliver only touches languages present in the path, so a pruned
+  # directory overwrites just those storefronts.
   # ---------------------------------------------------------------------------
   desc "Upload only the screenshots under $SUBSET_PATH (subset retry)"
   lane :push_screenshots_subset do

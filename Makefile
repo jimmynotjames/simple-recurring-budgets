@@ -6,7 +6,7 @@ system:
 format:
 	swiftformat .
 
-# Check-only (no rewrite) — parity with the CI `lint` job's SwiftFormat step.
+# Check only; matches the CI `lint` job's SwiftFormat step.
 format-check:
 	swiftformat --lint .
 
@@ -22,26 +22,24 @@ test:
 test-unit:
 	bash scripts/test-unit.sh
 
-# Ad-hoc subset run. ONLY holds one or more -only-testing identifiers (space-separated).
+# Ad-hoc subset run; ONLY = space-separated -only-testing identifiers (add --ui to
+# include the UI target). See scripts/test-only.sh.
 #   make test-only ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"
-# Add --ui inside ONLY to include the UI target. See scripts/test-only.sh.
 test-only:
 	bash scripts/test-only.sh $(ONLY)
 
 test-ui:
 	bash scripts/test-ui.sh
 
-# Line-coverage report from the latest unit .xcresult (run `make test-unit` first).
-# Report-only — not a gate; nothing blocks on these numbers.
+# Line-coverage report from the latest unit .xcresult (run `make test-unit` first). Not a gate.
 coverage:
 	bash scripts/coverage.sh
 
 lint:
 	swiftlint lint --strict
 
-# Full four-step gate (format -> lint-fix -> build -> test) in one command, logged
-# to tmp/gate.log, stopping at the first failure. See scripts/gate.sh for why this
-# single-command form exists (avoids the subshell/`; echo` permission prompt).
+# Four-step gate (format -> lint-fix -> build -> test), logged to tmp/gate.log, stops
+# at the first failure. Single-command form avoids permission prompts (see scripts/gate.sh).
 gate:
 	bash scripts/gate.sh
 
@@ -51,10 +49,9 @@ hooks-install:
 initialize-sims:
 	@ROOT="$(CURDIR)" bash -c 'source "$(CURDIR)/scripts/_sim_sandbox.sh"'
 
-# -- Scoped simulator management (affects only this repo's device) --
-# These targets operate on the single UDID stored in .build/sim/device.udid.
+# -- Scoped simulator management: only the UDID in .build/sim/device.udid --
 # Never use `pkill Simulator`, `killall Simulator`, or bare `simctl shutdown/erase all`
-# — those commands affect every simulator on the machine.
+# (they hit every simulator on the machine).
 
 _UDID_FILE := $(CURDIR)/.build/sim/device.udid
 

@@ -3,9 +3,8 @@
 Aggregate the per-locale audit findings in tmp/translate-audit-outputs/ into a single
 triage report, and (optionally) emit a re-translation manifest for the flagged subset.
 
-Modeled on scripts/translate_metadata/audit.py — the inspection + escalation tool so a
-human (and the skill) never need ad-hoc `jq`/`python3 -c` to answer "what did the audit
-find, how bad is it, and what should I re-translate?"
+Modeled on scripts/translate_metadata/audit.py: answers "what did the audit find,
+how bad, what to re-translate?" without ad-hoc `jq`/`python3 -c`.
 
 Inputs:
   tmp/translate-audit-outputs/{locale}.json  — findings from each auditor subagent
@@ -14,10 +13,10 @@ Inputs:
 
 Two kinds of findings are combined:
   [llm]   — judged by the auditor subagent (any category)
-  [ratio] — a deterministic length flag: current translation is more than --max-expansion
+  [ratio] — deterministic length flag: current translation is more than --max-expansion
             times the English length. Added only when the auditor did NOT already raise a
             `length` finding for that (locale, key). A raw ratio can't tell justified
-            expansion from bloat, so treat [ratio] findings as "look at these," not verdicts.
+            expansion from bloat, so treat [ratio] as "look at these," not verdicts.
 
 Usage:
   python3 scripts/translate_audit/audit_report.py [options] [locale ...]
@@ -54,9 +53,8 @@ SEVERITY_RANK = {"high": 3, "medium": 2, "low": 1}
 
 
 def loads_tolerant(raw: str) -> dict:
-    """Parse a findings JSON object, tolerating ```json fences or surrounding prose that a
-    subagent may emit despite the JSON-only contract — so one stray locale doesn't force a
-    re-dispatch during an unattended run."""
+    """Parse a findings JSON object, tolerating ```json fences or surrounding prose from a
+    subagent that broke the JSON-only contract (avoids a re-dispatch mid-run)."""
     text = raw.strip()
     if text.startswith("```"):
         lines = text.splitlines()
@@ -122,10 +120,9 @@ def deterministic_length_findings(
     """Flag (locale, key) whose current translation is >max_expansion× the English length,
     unless the auditor already raised a `length` finding for that pair.
 
-    Skips translations shorter than ``min_chars``: on very short strings the ratio is
-    unstable (e.g. "Retry"→"Erneut versuchen" is 3.2× but a fine 16-char button) and short
-    strings rarely truncate, so flagging them is mostly noise. Truncation risk concentrates
-    in genuinely long strings that also expanded a lot."""
+    Skips translations shorter than ``min_chars``: the ratio is unstable on short strings
+    (e.g. "Retry"→"Erneut versuchen" is 3.2× but a fine button) and they rarely truncate.
+    """
     already = {(f["locale"], f["key"]) for f in llm if f.get("category") == "length"}
     out: list[dict] = []
     for key, entry in source.items():
@@ -155,13 +152,10 @@ def deterministic_length_findings(
 
 
 def write_manifest(findings: list[dict], source: dict) -> None:
-    # Re-translation is driven by the auditor's judgment ([llm]) only. The deterministic
-    # [ratio] flag can't tell structurally-justified expansion (German compounding, agglutination,
-    # script width) from avoidable bloat — on German alone it false-positives on standard words
-    # like "Datenschutzerklärung" and "iCloud-Synchronisierung". Feeding those into the manifest
-    # would re-translate correct strings and risk regressing them. Genuine length problems are
-    # already captured as [llm] `length` findings (with a concrete suggestion); [ratio] stays
-    # advisory in the human-readable report only.
+    # Manifest is driven by [llm] findings only. [ratio] can't tell justified expansion
+    # (German compounding, agglutination, script width) from bloat; it false-positives on
+    # correct words like "Datenschutzerklärung", and re-translating them risks regressions.
+    # Real length problems already appear as [llm] `length` findings; [ratio] stays advisory.
     advisory = sum(1 for f in findings if f.get("source") == "ratio")
     findings = [f for f in findings if f.get("source") != "ratio"]
     if advisory:
@@ -191,8 +185,8 @@ def write_manifest(findings: list[dict], source: dict) -> None:
             "comment": source[k].get("comment", ""),
             "formatSpecifiers": source[k].get("formatSpecifiers", []),
         }
-        # Carry plural source as `plural` (not `value`) so plural keys re-translate correctly;
-        # the translate pipeline keys off this exactly like extract.py --missing does.
+        # Plural source goes in `plural` (not `value`), as extract.py --missing does; the
+        # translate pipeline keys off it.
         if "plural" in source[k]:
             entry["plural"] = source[k]["plural"]
         else:
@@ -252,7 +246,7 @@ def main(argv: list[str]) -> int:
             deterministic_length_findings(source, locales, all_findings, args.max_expansion, args.min_chars)
         )
 
-    # Apply the severity threshold to everything we report / count / manifest.
+    # Severity threshold applies to everything reported, counted, or manifested.
     kept = [f for f in all_findings if SEVERITY_RANK[f["severity"]] >= threshold]
     kept.sort(key=lambda f: (-SEVERITY_RANK[f["severity"]], f["locale"], f["key"]))
 

@@ -1,12 +1,12 @@
 # https://realm.github.io/SwiftLint/rule-directory.html
-# Thresholds balance the plan with a passing baseline on the current tree; tighten over time.
+# Thresholds fit the current tree's baseline.
 disabled_rules:
   - trailing_whitespace
   # SwiftFormat uses trailing commas for multiline collection literals.
   - trailing_comma
   # Common in tests and SwiftUI previews; SwiftFormat handles brace placement elsewhere.
   - implicit_optional_initialization
-  # Product placeholders tracked outside SwiftLint until launch.
+  # Placeholders are tracked outside SwiftLint.
   - todo
 
 opt_in_rules:

@@ -2,21 +2,20 @@
 """
 Grow the glossary as the app gains repeated terminology.
 
-After translations are added/changed, run `--detect` to find English terms that now recur
-across keys but are NOT yet in glossary.json. Repeated *exact* strings (an English string under
->= --min-keys keys) are treated as **high-confidence** new glossary terms and written to
-tmp/glossary/terms.json in the curated shape, ready to translate. Frequent single words that
-aren't yet covered are written to tmp/glossary/candidates_review.json for a human to consider
-(more ambiguous — a word isn't always a term worth pinning).
+After translations change, run `--detect` to find English terms that now recur across
+keys but are NOT yet in glossary.json. Repeated *exact* strings (under >= --min-keys
+keys) are **high-confidence** new terms, written to tmp/glossary/terms.json in the
+curated shape, ready to translate. Uncovered frequent single words go to
+tmp/glossary/candidates_review.json for human review (ambiguous; a word isn't always
+a term worth pinning).
 
-Not every exact duplicate is terminology, though: placeholders ("0"), full accessibility
-sentences, and "Label, %@" a11y strings recur (often just because a key has a `.recurring.`
-twin) without being terms worth pinning. Those are listed in IGNORED_NONTERMS — a small,
-hand-curated set (one human glance per entry) — and skipped, so the high-confidence signal
-stays trustworthy. It's an explicit list rather than a content heuristic on purpose: the
-recurrence is idiosyncratic, and a guessy rule risks silently dropping a real future term.
+Not every exact duplicate is terminology: placeholders ("0"), full accessibility
+sentences, and "Label, %@" a11y strings recur (often because a key has a `.recurring.`
+twin). Those are listed in IGNORED_NONTERMS, a small hand-curated set, and skipped.
+It's an explicit list, not a content heuristic, on purpose: the recurrence is
+idiosyncratic and a guessy rule could silently drop a real future term.
 
-This script never calls an LLM. To actually add the detected high-confidence terms:
+Never calls an LLM. To add the detected high-confidence terms:
     python3 scripts/translate_catalog/glossary_sync.py --detect
     # then run the standard glossary translate cycle on the new terms:
     python3 scripts/translate_catalog/glossary_build.py --dispatch
@@ -41,17 +40,17 @@ import glossary_build as gb  # noqa: E402
 
 REVIEW_PATH = gb.GLOSSARY_DIR / "candidates_review.json"
 
-# Exact English strings that recur across keys but are deliberately NOT glossary terms, so
-# `--detect` should not keep proposing them. The glossary pins recurring *terminology* (e.g.
-# "Carry-Over", "Add Funds"); these are placeholders / numbers / full accessibility strings whose
-# recurrence is incidental (a bare placeholder shared by two fields, or a key and its `.recurring.`
-# twin holding identical text) — not shared vocabulary. Curated by hand, one glance per entry,
-# rather than a heuristic: the recurrence here is idiosyncratic, and a guessy content rule risks
-# silently dropping a real future term. Each entry notes why. (See issue #205.)
+# Exact English strings that recur across keys but are deliberately NOT glossary terms
+# (so `--detect` stops proposing them). The glossary pins recurring *terminology*
+# ("Carry-Over", "Add Funds"); these are placeholders / numbers / full accessibility
+# strings whose recurrence is incidental (a bare placeholder shared by two fields, or a
+# key and its `.recurring.` twin with identical text). Hand-curated rather than a
+# heuristic: a guessy content rule risks silently dropping a real future term. Each
+# entry notes why.
 #
-# Add to this list when `--detect` surfaces a new genuine non-term; the staleness check below
-# warns if an entry stops recurring so the list doesn't rot. Matched whitespace-/case-insensitively
-# via _normset, consistent with the glossary `known` check.
+# Add an entry when `--detect` surfaces a genuine non-term; the staleness check below
+# warns if an entry stops recurring. Matched whitespace-/case-insensitively via
+# _normset, like the glossary `known` check.
 IGNORED_NONTERMS = {
     "0",  # placeholder digit in the allocation / amount fields — locale-invariant, not a term
     "End date, %@",  # VoiceOver "Label, value" label; recurs only via the base/.recurring. key twin
@@ -84,8 +83,7 @@ def cmd_detect(min_keys: int) -> int:
         normed = " ".join(en.split()).casefold()
         if normed in known:
             continue
-        # Skip curated non-terms (placeholders, numbers, a11y strings) so the high-confidence
-        # signal stays trustworthy. See IGNORED_NONTERMS.
+        # Skip curated non-terms (see IGNORED_NONTERMS).
         if normed in ignored:
             ignored_seen.add(normed)
             filtered_nonterms += 1
@@ -123,8 +121,7 @@ def cmd_detect(min_keys: int) -> int:
           f"→ {gb.TERMS_PATH}")
     if filtered_nonterms:
         print(f"Filtered {filtered_nonterms} curated non-term duplicate(s) — see IGNORED_NONTERMS.")
-    # Staleness: an ignore entry that no longer recurs is dead weight — surface it so the list
-    # gets pruned instead of silently rotting.
+    # Staleness: surface ignore entries that no longer recur so the list gets pruned.
     stale = sorted(s for s in IGNORED_NONTERMS if " ".join(s.split()).casefold() not in ignored_seen)
     if stale:
         print(f"WARNING: {len(stale)} IGNORED_NONTERMS entr(y/ies) no longer recur in the catalog "

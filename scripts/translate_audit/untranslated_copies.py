@@ -2,25 +2,22 @@
 """
 Deterministic "untranslated copy" detector for Localizable.xcstrings.
 
-Catches a class the state-based gate (scripts/check_translations.py) is blind to: a
-locale whose value is *byte-identical to the English source* yet carries
-`state: translated`. Such an entry looks done to every state check, but it's English
-sitting in a non-English slot — e.g. Hindi `period.specificDates` shipped as
-"Specific Dates". A visual pass found that one; this finds the rest, no LLM, no cost.
+Catches what the state-based gate (scripts/check_translations.py) can't: a locale
+whose value is *byte-identical to the English source* yet has `state: translated`
+(e.g. Hindi `period.specificDates` shipped as "Specific Dates"). No LLM, no cost.
 
-The naive signal ("value == English") is far too noisy to gate on:
+"value == English" alone is too noisy to gate on:
   - English regional variants (en-AU/en-CA/en-GB) legitimately equal `en` → excluded.
   - Cognates / loanwords legitimately match: German "Name", Swedish "Period",
-    French "Allocation", and broadly-kept terms like "Budget" / "Symbol" / "Version".
+    French "Allocation", broadly-kept terms like "Budget" / "Symbol" / "Version".
 
-So we report a holdout only when it's an *outlier*: the key is translated away from
-English in the overwhelming majority of OTHER non-English locales (so broadly-kept
-loanwords/brand terms are suppressed), AND only a handful of locales held out (a real
-miss is usually 1, occasionally 2 — a loanword is kept in many). Residual legitimate
-cognates (one language coincidentally matching English) are listed in ALLOWLIST.
+So a holdout is reported only as an *outlier*: the key is translated away from English
+in the overwhelming majority of OTHER non-English locales (suppressing broadly-kept
+loanwords/brands) AND only a few locales held out (a real miss is usually 1, sometimes
+2). Residual legitimate cognates are listed in ALLOWLIST.
 
-It's the value-identity complement to consistency_check.py (cross-key drift) and the
-LLM auditor (scripts/translate_audit/) — run all three.
+Value-identity complement to consistency_check.py (cross-key drift) and the LLM
+auditor (scripts/translate_audit/); run all three.
 
 Usage:
   python3 scripts/translate_audit/untranslated_copies.py [options] [locale ...]
@@ -51,15 +48,15 @@ GLOSSARY_PATH = CATALOG_DIR / "glossary.json"
 sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES  # noqa: E402
 
-# The glossary (scripts/translate_catalog/glossary.json) is the authority on which whole-string
-# terms are *deliberately* kept in English per locale — protected brands (Wren, iCloud)
-# and genuine cognates the language uses verbatim (ca "Recents", de "Name", sv "Period",
-# fr "Allocation", …). load_glossary_kept_english() turns it into {locale: {kept-English terms}}
-# so those are auto-allowed without hand-maintenance; re-run the glossary pipeline to change them.
+# The glossary (scripts/translate_catalog/glossary.json) is the authority on whole-string
+# terms deliberately kept in English per locale: protected brands (Wren, iCloud) and
+# cognates used verbatim (ca "Recents", de "Name", sv "Period", fr "Allocation", …).
+# load_glossary_kept_english() turns it into {locale: {kept-English terms}}, auto-allowed;
+# change them by re-running the glossary pipeline.
 #
-# ALLOWLIST only carries the residue the glossary can't speak to: identical-to-English values that
-# aren't whole glossary terms (a phrase, a cognate on a key with no glossary term). Each is a
-# deliberate human call — add here, with the reason, when triage confirms a flag is fine.
+# ALLOWLIST holds only the residue the glossary can't cover: identical-to-English values
+# that aren't whole glossary terms (a phrase, a cognate on a key with no glossary term).
+# Each is a human call; add with the reason when triage confirms a flag is fine.
 ALLOWLIST: set[tuple[str, str]] = {
     ("addEditBudget.chip.period.accessibilityLabel", "sv"),  # sv: "period" — glossary keeps 'Period' English for sv.
     ("budget.summary.accessibilityLabel.overBudget.specificDates", "da"),  # da: "over budget" is Danish (cf. …overBudget sibling).
@@ -72,8 +69,8 @@ ALLOWLIST: set[tuple[str, str]] = {
 def load_glossary_kept_english() -> dict[str, set[str]]:
     """{locale: set of English term-values the glossary keeps in English for that locale}.
 
-    A term is "kept-English" for a locale when its canonical translation equals the term itself;
-    protected terms count for every locale. Used to auto-allow legitimate verbatim-English values.
+    A term is kept-English for a locale when its canonical translation equals the term;
+    protected terms count for every locale.
     """
     try:
         glossary = json.loads(GLOSSARY_PATH.read_text(encoding="utf-8"))

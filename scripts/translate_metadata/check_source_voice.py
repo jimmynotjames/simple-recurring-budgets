@@ -2,20 +2,18 @@
 """
 Pre-flight voice check on the **English (en-US) App Store metadata source**.
 
-The transcreation pipeline fans the en-US source out to 49 storefronts, so a
-brand-voice slip in the source (an exclamation mark, ALL-CAPS shouting, a salesy
-superlative) propagates everywhere and then gets independently re-flagged by all
-49 semantic auditors — one source flaw becomes a whole audit+remediation cycle.
-This catches it once, at the source, before any fan-out.
+The en-US source fans out to 49 storefronts, so a brand-voice slip (exclamation
+mark, ALL-CAPS shouting, salesy superlative) propagates everywhere and is re-flagged
+by all 49 semantic auditors, turning one source flaw into a whole audit+remediation
+cycle. This catches it once, at the source.
 
-It enforces the **calm/understated** rule from PROMPT_TEMPLATE.md / the audit
-rubric: "No exclamation marks, no ALL-CAPS shouting, no '!!!', no salesy
-superlatives ('the best', 'amazing', 'revolutionary')."
+Enforces the **calm/understated** rule from PROMPT_TEMPLATE.md / the audit rubric:
+"No exclamation marks, no ALL-CAPS shouting, no '!!!', no salesy superlatives
+('the best', 'amazing', 'revolutionary')."
 
-These are **warnings, not hard errors** — there can be a legitimate reason to keep
-one. The skill's source-ready confirmation runs this first and, on any finding,
-halts and surfaces the warning to the human, who decides whether to fix the source
-or proceed anyway. Exit code: 0 = clean, 1 = at least one possible voice issue.
+**Warnings, not hard errors**: a finding may be legitimate. The skill's source-ready
+confirmation runs this first and, on any finding, halts so the human decides whether
+to fix the source or proceed. Exit code: 0 = clean, 1 = at least one possible voice issue.
 
 Usage:
   python3 scripts/translate_metadata/check_source_voice.py [--json]
@@ -36,9 +34,8 @@ METADATA_DIR = REPO_ROOT / "fastlane" / "metadata"
 sys.path.insert(0, str(SCRIPT_DIR))
 from metadata_locales import SOURCE_LOCALE, TRANSLATABLE_FIELDS  # noqa: E402
 
-# Salesy superlatives / hype words the voice rule calls out, plus close kin. Kept
-# tight to avoid false positives on legitimate plain copy — this is a warn-and-ask
-# gate, so a rare miss is fine; noisy false alarms are not.
+# Salesy superlatives / hype words from the voice rule, plus close kin. Kept tight: this
+# is a warn-and-ask gate, so a rare miss is fine; noisy false alarms are not.
 SUPERLATIVES = [
     "the best", "best", "amazing", "revolutionary", "incredible", "ultimate",
     "awesome", "fantastic", "unbelievable", "world-class", "must-have",

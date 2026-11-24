@@ -1,37 +1,29 @@
 #!/usr/bin/env bash
-# Sourceable helper: manages a per-repo simulator in the default CoreSimulator device set.
-# Callers must set ROOT before sourcing (absolute path to repo root).
+# Sourceable helper: manages a per-repo simulator in the default CoreSimulator device
+# set. Callers set ROOT (repo root) first.
 #
-# Each clone of this repo gets its own dedicated simulator, identified by a unique
-# device name derived from the repo path (e.g. "iPhone 17 [a1b2c3d4]"). The device
-# lives in the default set so xcodebuild can see it, but the name collision risk is
-# eliminated — other repos and Xcode's own devices have different names/UDIDs.
+# Each clone gets its own simulator, named from a hash of the repo path (e.g.
+# "iPhone 17 [a1b2c3d4]"), so it never collides with other repos or Xcode's devices.
 #
-# After sourcing, the following are exported for downstream scripts:
-#   SIM_UDID        — UDID of a booted simulator for this repo
-#   SIM_DERIVED     — path for xcodebuild -derivedDataPath
-#   SIM_RESULTS_DIR — parent directory for -resultBundlePath
-#
-# Environment variables respected:
-#   SIMULATOR_UDID  — if set, skip sandbox management entirely (pin this device)
-#   SIMULATOR_NAME  — base device name to create/select (default: iPhone 17)
+# Exports: SIM_UDID (booted device), SIM_DERIVED (-derivedDataPath),
+# SIM_RESULTS_DIR (parent of -resultBundlePath).
+# Env: SIMULATOR_UDID (skip sandbox management, pin this device),
+# SIMULATOR_NAME (base name, default iPhone 17).
 #
 # NEVER use `pkill Simulator`, `killall Simulator`, or bare `simctl shutdown all` /
-# `simctl erase all` — those affect all simulators on the machine. Use
-# `make sim-shutdown` or `make sim-clean` instead (they operate on this repo's
-# device UDID only).
+# `simctl erase all`: they hit every simulator on the machine. Use
+# `make sim-shutdown` / `make sim-clean` (this repo's UDID only).
 
 : "${ROOT:?ROOT must be set before sourcing _sim_sandbox.sh}"
 
 SIMULATOR_NAME="${SIMULATOR_NAME:-iPhone 17}"
 
-# Scoped output paths — inside .build/ which is already gitignored
+# Output paths under gitignored .build/
 SIM_DERIVED="${ROOT}/.build/sim/DerivedData"
 SIM_RESULTS_DIR="${ROOT}/.build/sim/results"
 _UDID_FILE="${ROOT}/.build/sim/device.udid"
 
-# Unique device name: base name + 8-char hash of the repo path.
-# Ensures no two clones of this repo share a simulator, even on the same Mac.
+# Device name = base name + 8-char hash of the repo path (one simulator per clone).
 _REPO_SLUG="$(printf '%s' "${ROOT}" | shasum | cut -c1-8)"
 _SIM_DEVICE_NAME="${SIMULATOR_NAME} [${_REPO_SLUG}]"
 # The slug, for the simulator-slots pool to mark this checkout's devices (_sim_concurrency.sh).
@@ -53,7 +45,7 @@ _ensure_sim_booted() {
 
     mkdir -p "${ROOT}/.build/sim" "${SIM_DERIVED}" "${SIM_RESULTS_DIR}"
 
-    # 1. Already booted — reuse it (still call bootstatus to confirm UI services ready)
+    # 1. Already booted: reuse (bootstatus still confirms UI services are ready)
     local udid
     udid="$(_pick_sim Booted)"
     if [[ -n "${udid}" ]]; then
@@ -64,7 +56,7 @@ _ensure_sim_booted() {
         return
     fi
 
-    # 2. Exists but shutdown — boot it and wait for full readiness
+    # 2. Exists but shut down: boot and wait
     udid="$(_pick_sim any)"
     if [[ -n "${udid}" ]]; then
         echo "sim-sandbox: booting existing ${_SIM_DEVICE_NAME} (${udid})" >&2
@@ -74,7 +66,7 @@ _ensure_sim_booted() {
         return
     fi
 
-    # 3. No device yet — create one in the default set and boot it
+    # 3. No device: create and boot
     echo "sim-sandbox: resolving spec for ${SIMULATOR_NAME}..." >&2
     local spec device_type runtime
     spec="$(python3 "${ROOT}/scripts/resolve_sim_spec.py" --name "${SIMULATOR_NAME}")" || {
@@ -93,15 +85,13 @@ _ensure_sim_booted() {
     printf '%s' "${SIM_UDID}" > "${_UDID_FILE}"
 }
 
-# Boot the device if not booted, then block until it's fully ready (SpringBoard,
-# accessibility services, etc.). `simctl boot` alone returns as soon as boot
-# starts — UI tests will time out trying to talk to a half-booted simulator.
+# Boot and block until fully ready (SpringBoard, accessibility services).
+# `simctl boot` alone returns when boot starts; UI tests time out on a half-booted sim.
 _boot_and_wait() {
     xcrun simctl bootstatus "$1" -b
 }
 
-# Wait for an already-booted device to finish coming up. Idempotent and fast
-# when the device is already ready; blocks otherwise.
+# Wait for an already-booted device to finish coming up (fast if already ready).
 _wait_for_ready() {
     xcrun simctl bootstatus "$1"
 }

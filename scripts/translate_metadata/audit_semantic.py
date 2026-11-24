@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-SEMANTIC quality audit for the App Store metadata transcreations — the marketing-copy
-counterpart to scripts/translate_audit/ (which audits in-app strings).
+SEMANTIC quality audit for the App Store metadata transcreations; the marketing-copy
+counterpart to scripts/translate_audit/ (in-app strings).
 
-`audit.py` (sibling) checks only presence + char limits (structural). This script grades the
-*quality* of the localized store listing: voice/tone, transcreation (native vs. calqued),
-keyword/ASO effectiveness, cultural fit, brand, and false claims — via one Opus auditor per
-storefront, exactly like the catalog audit.
+`audit.py` checks only presence + char limits (structural). This grades the *quality*
+of the localized listing: voice/tone, transcreation (native vs. calqued), keyword/ASO
+effectiveness, cultural fit, brand, and false claims, via one Opus auditor per
+storefront, like the catalog audit.
 
-It reads the **committed** localized metadata under fastlane/metadata/<storefront>/ (not the
-tmp/ fan-out), so you can audit what's actually shipping.
+Reads the **committed** metadata under fastlane/metadata/<storefront>/ (not the tmp/
+fan-out), so it audits what's shipping.
 
 Flow:
   1. --dispatch [storefronts]   compose tmp/metadata-audit-prompts/{storefront}.md (en source +
@@ -17,7 +17,7 @@ Flow:
   2. fan out one metadata-audit-locale (Opus) agent per prompt → tmp/metadata-audit-outputs/{sf}.json
   3. --report [storefronts]     aggregate findings into a triage report; --json; --min-severity
 
-Reuses metadata_locales (limits/fields/names) and dispatch_prompts.CULTURAL_NOTES (no duplication).
+Imports metadata_locales (limits/fields/names) and dispatch_prompts.CULTURAL_NOTES.
 
 Usage:
   python3 scripts/translate_metadata/audit_semantic.py --dispatch [storefront ...]
@@ -37,16 +37,15 @@ METADATA_DIR = REPO_ROOT / "fastlane" / "metadata"
 PROMPTS_DIR = REPO_ROOT / "tmp" / "metadata-audit-prompts"
 OUTPUTS_DIR = REPO_ROOT / "tmp" / "metadata-audit-outputs"
 TEMPLATE_PATH = SCRIPT_DIR / "AUDIT_PROMPT_TEMPLATE.md"
-# --write-manifest target: the same files extract.py writes, so the existing
+# --write-manifest target: the files extract.py writes, so the normal
 # dispatch_prompts.py → metadata-locale → validate → merge path can remediate.
 INPUTS_DIR = REPO_ROOT / "tmp" / "metadata-inputs"
 MANIFEST_PATH = INPUTS_DIR / "manifest.json"
 SOURCE_OUT_PATH = INPUTS_DIR / "source.json"
 
 sys.path.insert(0, str(SCRIPT_DIR))
-# Import the *metadata* dispatch_prompts first, while SCRIPT_DIR is path[0] — the module name
-# `dispatch_prompts` also exists in translate_catalog/, and metadata_locales' own path setup can
-# otherwise shadow it.
+# Import the *metadata* dispatch_prompts first, while SCRIPT_DIR is path[0]: translate_catalog/
+# also has a `dispatch_prompts`, and metadata_locales' own path setup can shadow it.
 from dispatch_prompts import CULTURAL_NOTES  # noqa: E402
 from metadata_locales import (  # noqa: E402
     FIELD_LIMITS,
@@ -194,12 +193,11 @@ def _english_source() -> dict[str, dict]:
 def cmd_write_manifest(storefronts: list[str], min_severity: str) -> int:
     """Turn audit findings at/above `min_severity` into a re-transcreation manifest.
 
-    Writes tmp/metadata-inputs/{manifest,source}.json in the exact shape
-    `extract.py --missing` produces, scoped to the flagged (storefront, field)
-    pairs — so the standard `dispatch_prompts.py` → metadata-locale → validate →
-    merge path can fix exactly what the auditors flagged, with no ad-hoc plumbing.
-    The per-field issues/suggestions stay in tmp/metadata-audit-outputs/{sf}.json
-    for the remediation dispatch to feed each translator.
+    Writes tmp/metadata-inputs/{manifest,source}.json in the shape `extract.py --missing`
+    produces, scoped to the flagged (storefront, field) pairs, so the standard
+    dispatch_prompts.py → metadata-locale → validate → merge path fixes them. Per-field
+    issues/suggestions stay in tmp/metadata-audit-outputs/{sf}.json for the remediation
+    dispatch to feed each translator.
     """
     targets = storefronts or [s for s in STOREFRONT_LOCALES if s != SOURCE_LOCALE]
     threshold = SEVERITY_RANK[min_severity]
@@ -225,7 +223,7 @@ def cmd_write_manifest(storefronts: list[str], min_severity: str) -> int:
             sev = f.get("severity", "medium")
             if sev not in SEVERITY_RANK:
                 sev = "medium"
-            # Only fields we can actually re-transcreate (authored in en-US source).
+            # Only fields authored in the en-US source can be re-transcreated.
             if field in source and SEVERITY_RANK[sev] >= threshold:
                 fields.add(field)
         if fields:

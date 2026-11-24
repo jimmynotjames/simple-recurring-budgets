@@ -20,7 +20,7 @@ file_size() {
 
 for path in "$@"; do
   [[ -f "$path" ]] || continue
-  # Skip .xcstrings localization catalogs—they grow naturally with language translations
+  # .xcstrings catalogs grow with every locale; exempt.
   [[ "$path" == *.xcstrings ]] && continue
   size="$(file_size "$path")"
   if (( size > MAX_BYTES )); then

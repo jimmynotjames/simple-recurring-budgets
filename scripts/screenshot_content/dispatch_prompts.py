@@ -37,8 +37,7 @@ from content_locales import (  # noqa: E402
     runtime_for_storefront,
 )
 
-# Reuse the metadata pipeline's per-storefront cultural register notes verbatim —
-# the formality/voice guidance is identical work, single-sourced there.
+# Per-storefront cultural register notes are single-sourced from the metadata pipeline.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "translate_metadata"))
 from dispatch_prompts import CULTURAL_NOTES, _GENERIC_NOTE  # noqa: E402
 

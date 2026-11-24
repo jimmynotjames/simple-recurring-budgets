@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """Shut down and delete this repo's simulator and any leftover xcodebuild clones.
 
-The base device for this repo has a unique slug suffix in its name, e.g.
-"iPhone 17 [a1b2c3d4]". xcodebuild's parallel testing creates short-lived clones
-named "Clone N of <base name>" — these are usually torn down automatically, but
-crashes (e.g. "Test crashed with signal kill") can leave them orphaned. This
-script finds every device whose name contains the slug and deletes them all,
-then removes .build/sim/.
+The repo's base device has a unique slug suffix, e.g. "iPhone 17 [a1b2c3d4]".
+xcodebuild parallel testing creates clones named "Clone N of <base name>";
+crashes (e.g. "Test crashed with signal kill") can orphan them. This script
+deletes every device whose name contains the slug, then removes .build/sim/.
 
 Safe by design: only matches devices containing this repo's unique slug, so it
 cannot touch other repos' simulators or Xcode's own devices.

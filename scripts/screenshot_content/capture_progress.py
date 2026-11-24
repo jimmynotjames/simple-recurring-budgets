@@ -2,25 +2,22 @@
 """Report App Store screenshot *capture* progress (done vs. pending locales).
 
 Read-only. Scans ``fastlane/screenshots/`` while (or after) ``fastlane
-screenshots`` runs and prints which runtime locales have finished capturing and
-which are still pending — without tailing the noisy xcodebuild/snapshot log.
+screenshots`` runs and prints which runtime locales are done vs. pending,
+without tailing the noisy xcodebuild/snapshot log.
 
-A locale counts as **done** once its folder holds the final shot of the 5-shot
-story (``05_settings``) for *every* capture device. Devices and the expected
-locale set are both discovered, not hard-coded:
+A locale is **done** once its folder holds the final shot of the 5-shot story
+(``05_settings``) for *every* capture device. Both are discovered, not hard-coded:
 
 * expected locales  = the ``ScreenshotSeeds/*.json`` catalog (what gets seeded),
 * device count      = the ``devices([...])`` list in ``fastlane/Snapfile``.
 
-Folders are matched by their on-disk name. During capture these are runtime
-codes (``de``, ``nb``, ``ar``) matching the seed catalog; the ``screenshots``
-lane then renames them to App Store storefront codes (``de-DE``, ``no``,
-``ar-SA``) via ``rename_for_deliver.py``. This script accepts **either** name
-per locale, so it reports correctly both mid-capture and after the rename
-(``RUNTIME_TO_STOREFRONT`` owns the map).
+Folders are matched by on-disk name: runtime codes (``de``, ``nb``, ``ar``)
+during capture, then storefront codes (``de-DE``, ``no``, ``ar-SA``) after the
+``screenshots`` lane runs ``rename_for_deliver.py``. Either name counts, so it
+reports correctly before and after the rename (``RUNTIME_TO_STOREFRONT`` owns the map).
 
-Exit status: 0 when all locales are done, 1 otherwise — so it doubles as a
-condition in a wait loop. ``--quiet`` prints only the one-line summary.
+Exit status: 0 when all locales are done, 1 otherwise (usable as a wait-loop
+condition). ``--quiet`` prints only the one-line summary.
 """
 from __future__ import annotations
 
@@ -35,8 +32,7 @@ SHOTS_DIR = ROOT / "fastlane" / "screenshots"
 SNAPFILE = ROOT / "fastlane" / "Snapfile"
 FINAL_SHOT = "05_settings"  # last shot in the marketing story → locale complete
 
-# Runtime → storefront map so a locale counts as done whether its folder still
-# carries the runtime code (mid-capture) or the storefront code (post-rename).
+# Runtime → storefront map: a locale is done under either folder name.
 sys.path.insert(0, str(Path(__file__).parent))
 from content_locales import RUNTIME_TO_STOREFRONT  # noqa: E402
 
@@ -68,8 +64,7 @@ def main() -> int:
     ndev = device_count()
     done, pending = [], []
     for loc in locales:
-        # Accept the runtime-code folder (mid-capture) or its renamed
-        # storefront-code folder (post `rename_for_deliver.py`).
+        # Runtime-code folder (mid-capture) or storefront-code folder (post-rename).
         names = [loc]
         sf = RUNTIME_TO_STOREFRONT.get(loc)
         if sf and sf != loc:

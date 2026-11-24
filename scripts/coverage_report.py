@@ -6,11 +6,11 @@ Reads the xccov JSON on stdin (piped by scripts/coverage.sh) and prints:
   - a per-top-level-folder breakdown
   - the per-file list sorted ascending, flagging 0%-covered files
 
-Report-only by design (audit 2026-06-10, A1): exits 0 regardless of the
-numbers; exits 1 only if the app target can't be found in the JSON.
+Report-only: exits 0 regardless of the numbers; exits 1 only if the app target
+can't be found in the JSON.
 
-Exclusions mirror the audit's "reasonable to skip" set: preview fixtures and
-screenshot/debug tooling that ship in the app target but are never user-facing.
+Exclusions: preview fixtures and screenshot/debug tooling that ship in the app
+target but are never user-facing.
 """
 
 import json
@@ -18,7 +18,7 @@ import sys
 
 APP_TARGET_SUFFIX = "simple-recurring-budgets.app"
 
-# Path substrings excluded from the headline number (still listed at the end).
+# Path substrings excluded from the headline number (still listed).
 EXCLUDED_PATH_PARTS = [
     "/Previews/",
     "/DebugData.swift",

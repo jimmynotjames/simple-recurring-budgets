@@ -38,9 +38,8 @@ struct CurrencyDisplayPreferenceTests {
 
   // MARK: - Localized label
 
-  /// Exact wording is owned by the String Catalog (and varies by run locale),
-  /// so assert the structural contract: every case resolves to a non-empty
-  /// label and no two cases collapse to the same string.
+  /// Wording lives in the String Catalog and varies by run locale, so assert structure:
+  /// every case has a non-empty label and no two labels collide.
   @Test func label_nonEmptyAndDistinct_forAllCases() {
     let labels = CurrencyDisplayPreference.allCases.map(\.label)
     for label in labels {
@@ -93,7 +92,7 @@ struct CurrencyDisplayPreferenceTests {
     }
   }
 
-  /// When `locale.currency?.identifier` is nil, falls back to "USD".
+  /// A nil `locale.currency?.identifier` falls back to "USD".
   @Test func example_fallsBackToUSD_forNilCurrencyLocale() {
     // `Locale.init(identifier: "")` has no currency
     let noLocale = Locale(identifier: "")

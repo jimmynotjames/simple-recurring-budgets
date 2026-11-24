@@ -3,11 +3,9 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Verifies that the §10.2/§10.3 super/people-property refreshes fire through the
-/// `AnalyticsClient` protocol — observable by any client, not just the concrete
-/// Mixpanel one (architecture-audit-2026-06-10.md §4.3). Before the protocol was
-/// widened these calls went through an `as? MixpanelAnalyticsClient` downcast and
-/// silently no-opped under `SpyAnalyticsClient`, making regressions unobservable.
+/// Regression guard: the §10.2/§10.3 super/people-property refreshes must go through the
+/// `AnalyticsClient` protocol, not an `as? MixpanelAnalyticsClient` downcast (which silently no-ops
+/// under `SpyAnalyticsClient`, hiding regressions).
 @MainActor
 struct AddEditBudgetViewModelCohortRefreshTests {
   /// Creates a budget through the Add-mode VM with a plain (console) save,
@@ -79,7 +77,7 @@ struct AddEditBudgetViewModelCohortRefreshTests {
     try vm.delete(context: context, analytics: spy)
 
     #expect(spy.cohortRefreshCalls.count == 1)
-    // The deleted budget was the only one, so the cohort snapshot is now empty.
+    // Deleted budget was the only one → cohort snapshot is empty.
     #expect(spy.cohortRefreshCalls.first?.isEmpty == true)
   }
 }

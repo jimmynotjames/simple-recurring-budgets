@@ -3,10 +3,9 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Tests for the F-8.02 per-field change flags emitted on `budget_edited` from
-/// `AddEditBudgetViewModel.saveEdit`: `allocation_changed`, `start_date_changed`,
-/// `end_date_changed`. The flags are emitted ONLY on `budgetEdited` — not on
-/// `budgetCreated` or any other event.
+/// F-8.02 per-field change flags on `budget_edited` from `AddEditBudgetViewModel.saveEdit`
+/// (`allocation_changed`, `start_date_changed`, `end_date_changed`). Emitted only on `budgetEdited`,
+/// never on `budgetCreated` or other events.
 @MainActor
 struct AddEditBudgetViewModelEditAnalyticsTests {
   // MARK: - Helpers
@@ -144,8 +143,7 @@ struct AddEditBudgetViewModelEditAnalyticsTests {
   }
 
   @Test func budgetCreated_doesNotCarryPerFieldFlags() throws {
-    // budget_created MUST NOT include the F-8.02 per-field change flags — they're
-    // meaningless on creation (everything is "new" by definition).
+    // budget_created must not include the F-8.02 per-field change flags (meaningless on creation).
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let spy = SpyAnalyticsClient()

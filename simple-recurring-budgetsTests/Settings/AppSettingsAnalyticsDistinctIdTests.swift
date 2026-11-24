@@ -2,7 +2,7 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-/// §18.1 test contract #3 — AppSettings.analyticsDistinctId generation and persistence.
+/// AppSettings.analyticsDistinctId generation and persistence.
 @Suite("AppSettings — analyticsDistinctId §18.1 #3")
 @MainActor
 struct AppSettingsAnalyticsDistinctIdTests {
@@ -35,14 +35,11 @@ struct AppSettingsAnalyticsDistinctIdTests {
 
   @Test("setter is not publicly accessible (private(set))")
   func setterIsPrivate() {
-    // This is a compile-time contract. If `analyticsDistinctId` had a public setter,
-    // the assignment below would compile; since it's `private(set)` it must NOT compile.
-    // We verify the invariant semantically: the only way to read the value is via the
-    // getter, and re-reading from a fresh `AppSettings` on the same store returns the same ID.
+    // The real contract is compile-time (`private(set)` rejects assignment); semantically,
+    // a fresh `AppSettings` on the same store reads back the same ID.
     let store = MockKeyValueStore()
     let settings = AppSettings(store: store)
     let original = settings.analyticsDistinctId
-    // Re-read from a second AppSettings instance on the same store.
     let settings2 = AppSettings(store: store)
     #expect(settings2.analyticsDistinctId == original)
   }

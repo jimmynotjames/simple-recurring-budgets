@@ -25,26 +25,22 @@ struct AddBudgetScreen {
     app.buttons["Delete Budget"]
   }
 
-  /// The biweekly explanatory caption under the Period chips. Matched on a stable
-  /// prefix so wording polish doesn't break the query.
+  /// Biweekly caption under the Period chips; prefix match survives wording changes.
   var biweeklyNote: XCUIElement {
     app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Repeating 14-day period'")).firstMatch
   }
 
-  /// The Edit-mode period-lock caption. Matched on a prefix that avoids the
-  /// apostrophe in "can't".
+  /// Edit-mode period-lock caption; prefix stops before the apostrophe in "can't".
   var periodLockCaption: XCUIElement {
     app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Period type can'")).firstMatch
   }
 
-  /// The weekly explanatory caption under the Period chips. Matched on a stable
-  /// prefix so the interpolated weekday name and wording polish don't break it.
+  /// Weekly caption under the Period chips; prefix match skips the interpolated weekday.
   var weeklyNote: XCUIElement {
     app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'All weekly budgets start on'")).firstMatch
   }
 
-  /// The "Change start of week" link below the weekly note (pushes the Start of
-  /// Week screen). Matched by accessibility identifier to survive copy changes.
+  /// "Change start of week" link below the weekly note; matched by identifier to survive copy changes.
   var changeStartOfWeekLink: XCUIElement {
     app.buttons["addEditBudget.changeStartOfWeek"]
   }
@@ -53,14 +49,13 @@ struct AddBudgetScreen {
     changeStartOfWeekLink.tap()
   }
 
-  /// The expanded Schedule disclosure's start-date chip. Only present when the
-  /// disclosure is expanded (a collapsed disclosure does not render it), so its
-  /// existence doubles as proof of auto-expand.
+  /// Start-date chip, rendered only when the Schedule disclosure is expanded, so its existence
+  /// proves auto-expand.
   var startDateChip: XCUIElement {
     app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Start date'")).firstMatch
   }
 
-  /// The Save-time biweekly re-anchor confirmation alert.
+  /// Save-time biweekly re-anchor confirmation alert.
   var reanchorAlert: XCUIElement {
     app.alerts["Change Start Date?"]
   }
@@ -74,8 +69,7 @@ struct AddBudgetScreen {
     nameField.typeText(name)
   }
 
-  /// Replaces any existing name with `name`. Use when editing a budget whose
-  /// name field is already populated.
+  /// Replaces any existing name with `name`.
   func replaceName(_ name: String) {
     nameField.tap()
     if let current = nameField.value as? String, !current.isEmpty {
@@ -85,8 +79,8 @@ struct AddBudgetScreen {
   }
 
   func fillAllocation(_ amount: String) {
-    // iOS-COMPAT(17+): UIViewRepresentable UITextField focus workaround.
-    // Tap the GroupBox label to dismiss alpha keyboard, then double-tap the field.
+    // iOS-COMPAT(17+): UIViewRepresentable UITextField focus workaround. Tap the GroupBox
+    // label to dismiss the alpha keyboard, then double-tap the field. See `createBudget`.
     app.staticTexts["Allocation"].tap()
     allocationField.tap()
     allocationField.tap()
@@ -101,10 +95,8 @@ struct AddBudgetScreen {
     cancelButton.tap()
   }
 
-  /// Taps "Delete Budget" in the form, then confirms via the action sheet.
-  /// Uses app.sheets to scope the confirmation tap and avoid ambiguity with
-  /// the form's own "Delete Budget" button (which stays in the hierarchy
-  /// when the confirmation sheet presents on top).
+  /// Taps "Delete Budget", then confirms in the action sheet. The tap is scoped to `app.sheets`
+  /// because the form's own "Delete Budget" button stays in the hierarchy behind the sheet.
   func tapDeleteAndConfirm() {
     deleteBudgetButton.tap()
     let sheet = app.sheets.firstMatch

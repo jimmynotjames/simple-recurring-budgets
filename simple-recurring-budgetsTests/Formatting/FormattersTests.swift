@@ -251,7 +251,7 @@ struct DateExpenseListFormattingTests {
     #expect(!result.lowercased().contains("today"))
     #expect(!result.lowercased().contains("yesterday"))
     #expect(result.contains("2025"))
-    // Should include both date and time components.
+    // Includes both date and time.
     #expect(result.contains("11") || result.contains("Nov"))
   }
 }

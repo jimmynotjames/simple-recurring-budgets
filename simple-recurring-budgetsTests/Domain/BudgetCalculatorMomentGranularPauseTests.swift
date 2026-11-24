@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 import Testing
 
-// MARK: - Shared test helpers (deliberately local — mirrors BudgetCalculatorTests.swift)
+// MARK: - Shared test helpers (local copy of BudgetCalculatorTests.swift's)
 
 private let cal: Calendar = {
   var c = Calendar(identifier: .gregorian)
@@ -42,7 +42,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 14))
     pauseEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent]
-    // now is one minute after the pause moment, same period (the day Apr 10).
+    // One minute after the pause moment, same day.
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [],
       now: d(2026, 4, 10, hour: 14, minute: 1), calendar: cal, weekStart: .sunday
@@ -55,12 +55,10 @@ struct BudgetCalculatorMomentGranularPauseTests {
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 14))
     pauseEvent.budget = budget
     budget.lifecycleEventsStorage = [pauseEvent]
-    // Expenses totaling 12 on Apr 10 (before the pause moment).
+    // Expense of 12 precedes the pause moment.
     let exp = ExpenseItem(amount: 12, date: d(2026, 4, 10, hour: 9))
-    // The pause-action day contributes `allocation - in-period-expenses = 20 - 12 = 8` to the walker.
-    // Apr 1–9 (9 active days) contribute 9 * 20 = 180. Apr 10 contributes 8. Walker = 188.
-    // Apr 11 is paused (post-pause-action) → contributes 0; the current period (Apr 11)
-    // also short-circuits to remaining = 0.
+    // Walker: Apr 1–9 = 9 × 20 = 180, pause-action day Apr 10 = 20 − 12 = 8 → 188.
+    // Apr 11 is paused: contributes 0 and remaining short-circuits to 0.
     let snap = BudgetCalculator.snapshot(
       budget: budget, expenses: [exp],
       now: d(2026, 4, 11, hour: 9), calendar: cal, weekStart: .sunday
@@ -84,7 +82,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
   }
 
   @Test func preStartPrecedence_overridesPaused() {
-    // Budget starts May 1; pause clamped to startDate; now is before startDate.
+    // Pause clamped to the May 1 startDate; now is before it.
     let budget = makeBudget(startDate: d(2026, 5, 1))
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 5, 1))
     pauseEvent.budget = budget
@@ -97,7 +95,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
   }
 
   @Test func postEndPrecedence_overridesPaused() {
-    // Budget ends Apr 30; pause on Apr 25; now is after endDate.
+    // Pause on Apr 25; now is after the Apr 30 endDate.
     let budget = makeBudget(startDate: d(2026, 4, 1), endDate: d(2026, 4, 30))
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 25))
     pauseEvent.budget = budget
@@ -119,7 +117,7 @@ struct BudgetCalculatorMomentGranularPauseTests {
   }
 
   @Test func beforePauseMoment_sameDay_isStillActive() {
-    // Regression: a pause scheduled at 14:00 today must NOT flip the UI at 13:59.
+    // A pause at 14:00 must NOT flip the UI at 13:59.
     let budget = makeBudget(startDate: d(2026, 4, 1))
     let pauseEvent = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 14))
     pauseEvent.budget = budget

@@ -1,15 +1,9 @@
 import XCTest
 
-/// Exercises every major screen through XCTest's built-in accessibility audit
-/// (Xcode 15+ / iOS 17+). Each test navigates the live app to a specific screen
-/// state and calls `performAccessibilityAudit()`, which checks for missing
-/// VoiceOver labels, insufficient touch-target sizes, text clipping, and element
-/// detectability. Tests are independent — each launches a fresh app process.
+/// Runs `performAccessibilityAudit()` on each major screen. Each test launches a fresh app.
 ///
-/// If a test surfaces a known-intentional pattern that should not block CI (e.g.
-/// a decorative element that intentionally omits a label), wrap the call in
-/// `XCTExpectFailure("reason") { try app.performAccessibilityAudit() }` rather
-/// than deleting the test.
+/// For an intentional finding that shouldn't block CI, wrap the call in
+/// `XCTExpectFailure("reason") { ... }` rather than deleting the test.
 final class AccessibilityAuditTests: XCTestCase {
   override func setUpWithError() throws {
     continueAfterFailure = false
@@ -17,9 +11,7 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Budgets list — empty state
 
-  /// Audits the empty-state BudgetsView: ContentUnavailableView with "No budgets
-  /// yet" title, description, "Create a budget" CTA, Settings toolbar button, and
-  /// "New Budget" toolbar button.
+  /// Empty-state BudgetsView.
   @MainActor
   func testBudgetsListEmpty() throws {
     let app = makeApp()
@@ -29,9 +21,7 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Budgets list — populated
 
-  /// Audits BudgetsView with a single BudgetRowView: budget name, remaining
-  /// summary, add-expense "+" button, and status chip area. Also exercises the
-  /// EditButton that appears in the toolbar when the list is non-empty.
+  /// BudgetsView with one row (also shows the toolbar EditButton).
   @MainActor
   func testBudgetsListOneBudget() throws {
     let app = makeApp()
@@ -40,8 +30,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
   }
 
-  /// Audits BudgetsView with three budget rows to surface any issue that only
-  /// appears when multiple BudgetRowViews are rendered simultaneously.
+  /// BudgetsView with three rows, to catch issues that only appear with multiple rows.
   @MainActor
   func testBudgetsListSeveralBudgets() throws {
     let app = makeApp()
@@ -54,9 +43,7 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Add Budget form
 
-  /// Audits the blank Add Budget form: name field, icon button, allocation
-  /// amount field, currency picker, reset cadence chips, carry-over toggle, and
-  /// the disabled Save toolbar button.
+  /// Blank Add Budget form (Save disabled).
   @MainActor
   func testAddBudgetFormBlank() throws {
     let app = makeApp()
@@ -65,8 +52,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
   }
 
-  /// Audits the Add Budget form after the name field has been focused and filled
-  /// (keyboard visible, Save enabled).
+  /// Add Budget form with name typed (keyboard visible, Save enabled).
   @MainActor
   func testAddBudgetFormWithNameTyped() throws {
     let app = makeApp()
@@ -79,7 +65,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
   }
 
-  /// Audits the BudgetIconPicker sheet presented from the Add Budget form.
+  /// BudgetIconPicker sheet opened from the Add Budget form.
   @MainActor
   func testAddBudgetIconPicker() throws {
     let app = makeApp()
@@ -88,16 +74,14 @@ final class AccessibilityAuditTests: XCTestCase {
     let iconButton = app.buttons["Budget icon"]
     XCTAssertTrue(iconButton.waitForExistence(timeout: 2))
     iconButton.tap()
-    // Wait for the picker sheet to finish opening before auditing, so the form
-    // elements behind the sheet are fully removed from the accessibility tree.
+    // Wait for the sheet to finish opening so the form behind it leaves the accessibility tree.
     XCTAssertTrue(app.navigationBars["Optional Icon"].waitForExistence(timeout: 2))
     try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
   }
 
   // MARK: - Edit Budget form
 
-  /// Audits the Edit Budget form (same layout as Add, pre-filled with the saved
-  /// budget's name, allocation, cadence, and carry-over state).
+  /// Edit Budget form (Add layout, pre-filled).
   @MainActor
   func testEditBudgetForm() throws {
     let app = makeApp()
@@ -113,10 +97,7 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Budget detail
 
-  /// Audits BudgetDetailView immediately after creation — scroll-aware title,
-  /// remaining summary header, status chips, "Add Expense" primary button, and
-  /// the options menu toolbar button. No expenses yet, so the expense section is
-  /// absent.
+  /// BudgetDetailView right after creation (no expense section).
   @MainActor
   func testBudgetDetailNoExpenses() throws {
     let app = makeApp()
@@ -130,9 +111,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
   }
 
-  /// Audits BudgetDetailView with the options menu open — "Edit Budget", "Pause
-  /// Budget", "Reset Budget…" items. Verifies menu items have sufficient labels
-  /// and that the underlying screen remains auditable while the menu is presented.
+  /// BudgetDetailView with the options menu open.
   @MainActor
   func testBudgetDetailOptionsMenuOpen() throws {
     let app = makeApp()
@@ -147,8 +126,7 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Add Expense form
 
-  /// Audits the Add Expense form opened from the budget row's "+" shortcut
-  /// (the most common entry point for logging an expense).
+  /// Add Expense form opened from the budget row's "+" shortcut.
   @MainActor
   func testAddExpenseFormFromBudgetRow() throws {
     let app = makeApp()
@@ -164,8 +142,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
   }
 
-  /// Audits the Add Expense form opened from the "Add Expense" primary action
-  /// button inside Budget Detail.
+  /// Add Expense form opened from the primary button in Budget Detail.
   @MainActor
   func testAddExpenseFormFromBudgetDetail() throws {
     let app = makeApp()
@@ -184,10 +161,7 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Settings
 
-  /// Audits the Settings sheet: Budgets section (carry-over toggle), Calendar
-  /// section (week-start picker), Display section (currency picker), iCloud
-  /// section, Analytics section, Support section (links + rate button), and
-  /// About section (build info).
+  /// Settings sheet.
   @MainActor
   func testSettings() throws {
     let app = makeApp()
@@ -202,18 +176,14 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Large-text clipping audits
 
-  // The following tests re-run a subset of screens at the largest system
-  // accessibility text size ("Accessibility Extra Extra Extra Large") and audit
-  // for .textClipped — text that is truncated or hidden by its container at that
-  // size. This setting exercises ScaledMetric-driven layouts throughout the app.
+  // These re-run a subset of screens at the largest accessibility text size and audit only
+  // .textClipped.
   //
-  // .dynamicType is intentionally excluded: it consistently flags system-provided
-  // UI elements (navigation bar internals, UIKit presentation layer) on the iOS
-  // 26.x simulator that are outside our control. Our own custom UIKit element
-  // (DecimalInputField) already sets adjustsFontForContentSizeCategory = true
-  // with a Dynamic Type-aware UIFontDescriptor.preferredFontDescriptor font.
+  // .dynamicType is excluded on purpose: it consistently flags system-provided UI (nav bar
+  // internals, UIKit presentation layer) on the iOS 26.x simulator. Our own UIKit element
+  // (DecimalInputField) already adopts Dynamic Type.
 
-  /// Audits the empty-state budgets list at the largest accessibility text size.
+  /// Empty-state budgets list at the largest accessibility text size.
   @MainActor
   func testBudgetsListEmptyLargeText() throws {
     let app = largeTextApp()
@@ -221,9 +191,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
   }
 
-  /// Audits the populated budgets list at the largest accessibility text size.
-  /// The BudgetRowView layout switches from horizontal to vertical at xxxLarge,
-  /// so this exercises the reflow path.
+  /// Populated budgets list at the largest text size (BudgetRowView reflows to vertical).
   @MainActor
   func testBudgetsListPopulatedLargeText() throws {
     let app = largeTextApp()
@@ -232,7 +200,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
   }
 
-  /// Audits the Add Budget form at the largest accessibility text size.
+  /// Add Budget form at the largest text size.
   @MainActor
   func testAddBudgetFormLargeText() throws {
     let app = largeTextApp()
@@ -241,9 +209,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
   }
 
-  /// Audits Budget Detail at the largest accessibility text size. The
-  /// scroll-aware title and the remaining-summary label are the most likely
-  /// elements to clip as text size grows.
+  /// Budget Detail at the largest text size (scroll-aware title and remaining summary clip first).
   @MainActor
   func testBudgetDetailLargeText() throws {
     let app = largeTextApp()
@@ -254,7 +220,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
   }
 
-  /// Audits the Add Expense form at the largest accessibility text size.
+  /// Add Expense form at the largest text size.
   @MainActor
   func testAddExpenseFormLargeText() throws {
     let app = largeTextApp()
@@ -266,7 +232,7 @@ final class AccessibilityAuditTests: XCTestCase {
     try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
   }
 
-  /// Audits the Settings sheet at the largest accessibility text size.
+  /// Settings sheet at the largest text size.
   @MainActor
   func testSettingsLargeText() throws {
     let app = largeTextApp()
@@ -278,62 +244,47 @@ final class AccessibilityAuditTests: XCTestCase {
 
   // MARK: - Issue handlers
 
-  /// Shared issue handler used by every `performAccessibilityAudit` call.
+  /// Shared issue handler for every `performAccessibilityAudit` call. Returns `true` to suppress.
   ///
-  /// **Permanent suppressions:**
-  /// - `.textClipped` for `.textField` — SwiftUI TextField scrolls horizontally,
-  ///   never clips; the audit false-positives when the value exceeds the frame width.
+  /// Permanent suppression: `.textClipped` for `.textField` (SwiftUI TextField scrolls
+  /// horizontally and never clips; the audit false-positives on long values).
   ///
-  /// **iOS-COMPAT suppressions** (search `iOS-COMPAT` to find all workarounds):
-  /// Four findings are suppressed because of confirmed iOS 26.x platform bugs.
-  /// Each is tagged `// iOS-COMPAT(26.x):` inline. Re-evaluate on each major iOS
-  /// bump: remove the suppression, run the suite, and delete the tag if it passes.
-  ///   1. `.elementDetection` — sheet accessibility isolation is incomplete; system-
-  ///      provided form elements (toolbar buttons, text fields) from the presenting view
-  ///      bleed into the sheet's tree. Suppressed only for elements WITHOUT a custom
-  ///      `.accessibilityIdentifier`, which distinguishes system-provided UI (no
-  ///      identifier) from app-owned elements (explicitly annotated). Any element we tag
-  ///      with `.accessibilityIdentifier` will still fail the test if unreachable.
-  ///   2. `.sufficientElementDescription` — the same bleed-through lets a system keyboard
-  ///      `TUIPredictionViewCell` (predictive-text bar) leak into an open sheet's tree when
-  ///      a field auto-focuses. Suppressed only for elements WITHOUT a custom
-  ///      `.accessibilityIdentifier`, identical to the `.elementDetection` scope, so real
-  ///      description gaps on app-owned UI still fail.
-  ///   3. `.dynamicType` "partially unsupported" — system UIKit elements falsely
-  ///      report this variant even when Dynamic Type is correctly adopted.
-  ///   4. `.textClipped` for `.button` and `.staticText` — sheet-boundary clipping
-  ///      artifact and font-metric edge cases that produce no visible clipping.
+  /// iOS-COMPAT suppressions (search `iOS-COMPAT`): four findings are suppressed for iOS 26.x
+  /// platform bugs, each tagged inline `// iOS-COMPAT(26.x):`. On each major iOS bump, remove the
+  /// suppression, run the suite, and delete the tag if it passes.
+  ///   1. `.elementDetection`: incomplete sheet accessibility isolation lets system elements
+  ///      from the presenting view (toolbar buttons, text fields) bleed into the sheet's tree.
+  ///      Suppressed only for elements with an empty `.accessibilityIdentifier` (system UI);
+  ///      app-owned elements carry an identifier and still fail if unreachable.
+  ///   2. `.sufficientElementDescription`: same bleed-through leaks a keyboard
+  ///      `TUIPredictionViewCell` into an open sheet when a field auto-focuses. Same
+  ///      empty-identifier scope.
+  ///   3. `.dynamicType` "partially unsupported": system UIKit elements report it even when
+  ///      Dynamic Type is adopted. The "not supported" variant stays active.
+  ///   4. `.textClipped` for `.button` and `.staticText`: sheet-boundary artifacts and
+  ///      font-metric edge cases with no visible clipping.
   ///
-  /// All other audit types (hit region, trait, and the harder "not supported" Dynamic
-  /// Type message) remain active, as does `.sufficientElementDescription` for any
-  /// app-owned element (non-empty `.accessibilityIdentifier`).
+  /// Hit region, trait, and the rest remain active.
   private func knownIssueHandler(_ issue: XCUIAccessibilityAuditIssue) throws -> Bool {
     if issue.auditType == .contrast {
-      // WCAG 2.1 SC 1.4.3 exempts inactive/disabled controls from contrast requirements.
-      // The iOS audit does not skip disabled elements, so suppress them here.
+      // WCAG 2.1 SC 1.4.3 exempts disabled controls, but the audit doesn't skip them.
       if issue.element?.isEnabled == false {
         return true
       }
-      // iOS-COMPAT(26.x): The accessibility audit occasionally reports a contrast issue
-      // with a nil XCUIElement (elementType=any, no identifier, no label). This occurs
-      // on Form/NavigationStack containers in iOS 26 and cannot be traced to a specific
-      // app-owned element. The finding is a platform artifact — suppress it.
+      // iOS-COMPAT(26.x): the audit sometimes reports contrast with a nil element (no type,
+      // identifier, or label) on Form/NavigationStack containers; untraceable platform artifact.
       if issue.element == nil {
         return true
       }
-      // iOS-COMPAT(26.x): GroupBox label areas, List section headers, and GroupBox
-      // content-area elements render via Liquid Glass at the compositor level, applying
-      // opacity/material effects that override explicitly-set foreground colors (even
-      // fully-opaque Color.primary). These elements are tagged srb.sectionLabel and are
-      // visually correct — this is a platform rendering artifact, not an actual contrast
-      // failure.
+      // iOS-COMPAT(26.x): GroupBox labels/content and List section headers (tagged
+      // srb.sectionLabel) render via Liquid Glass, whose compositor opacity overrides even
+      // opaque Color.primary. Visually correct; platform artifact.
       if issue.element?.identifier == "srb.sectionLabel" {
         return true
       }
-      // iOS-COMPAT(26.x): Navigation bar Cancel buttons in Liquid Glass toolbars
-      // report contrast failures even with .foregroundStyle(.primary). Platform
-      // compositor applies glass effects to system nav bar button regions. Scope:
-      // system-provided buttons (empty identifier) labeled "Cancel".
+      // iOS-COMPAT(26.x): nav bar Cancel buttons in Liquid Glass toolbars report contrast
+      // failures even with .foregroundStyle(.primary). Scope: system buttons (empty
+      // identifier) labeled "Cancel".
       if issue.element?.label == "Cancel",
          issue.element?.elementType == .button,
          (issue.element?.identifier ?? "").isEmpty {
@@ -341,43 +292,32 @@ final class AccessibilityAuditTests: XCTestCase {
       }
     }
     if issue.auditType == .elementDetection {
-      // iOS-COMPAT(26.x): sheet accessibility isolation is incomplete — system-provided
-      // form elements (Cancel/Save toolbar buttons, TextFields) from the presenting view
-      // bleed into the open sheet's accessibility tree and appear unreachable.
+      // iOS-COMPAT(26.x): incomplete sheet accessibility isolation lets system elements
+      // (Cancel/Save buttons, TextFields) from the presenting view bleed into the sheet's
+      // tree and appear unreachable.
       //
-      // Suppression scope: elements with an EMPTY accessibility identifier only.
-      // System UIKit elements (navigation bar buttons, form rows, etc.) have no custom
-      // identifier. Every accessibility element we own and care about should be given an
-      // explicit `.accessibilityIdentifier("…")`, which will make its identifier non-empty
-      // and cause it to skip this suppression — keeping real element-detection failures
-      // visible even while the platform bug is present.
+      // Scope: empty identifier only. Every app-owned element must set an explicit
+      // `.accessibilityIdentifier`, so it skips this suppression and real failures stay visible.
       //
-      // When upgrading iOS: remove this block, run the suite, and confirm the blank-
-      // identifier finding no longer fires. If it fires on a NEW iOS version, re-tag.
+      // When upgrading iOS: remove this block and run the suite; re-tag if it still fires.
       let id = issue.element?.identifier ?? ""
       return id.isEmpty
     }
     if issue.auditType == .sufficientElementDescription {
-      // iOS-COMPAT(26.x): the same sheet accessibility-isolation bleed-through (see
-      // .elementDetection above) also lets system keyboard components leak into an open
-      // sheet's tree. When a form field auto-focuses, the predictive-text bar raises and a
-      // `TUIPredictionViewCell` (a UIKit system keyboard cell) appears in the sheet's
-      // accessibility tree without a useful description, tripping this audit.
+      // iOS-COMPAT(26.x): same sheet-isolation bleed-through as .elementDetection above. When a
+      // form field auto-focuses, the predictive-text bar's `TUIPredictionViewCell` appears in the
+      // sheet's tree without a description.
       //
-      // Suppression scope: elements with an EMPTY accessibility identifier only — identical
-      // to the .elementDetection scope. System UIKit elements carry no custom identifier;
-      // every accessible element we own is given an explicit `.accessibilityIdentifier`, so
-      // a real missing-description gap on app-owned UI still fails the test.
+      // Scope: empty identifier only (same as .elementDetection), so missing descriptions on
+      // app-owned UI still fail.
       //
-      // When upgrading iOS: remove this block, run the suite, and confirm the system
-      // keyboard cell no longer fires. If it fires on a NEW iOS version, re-tag.
+      // When upgrading iOS: remove this block and run the suite; re-tag if it still fires.
       let id = issue.element?.identifier ?? ""
       return id.isEmpty
     }
     if issue.auditType == .dynamicType {
-      // iOS-COMPAT(26.x): "partially unsupported" fires on system-provided UIKit
-      // elements (nav bar internals, presentation containers) that correctly adopt
-      // Dynamic Type. The harder "not supported" variant is NOT suppressed.
+      // iOS-COMPAT(26.x): "partially unsupported" fires on system UIKit elements (nav bar
+      // internals, presentation containers) that do adopt Dynamic Type. "Not supported" is not suppressed.
       return issue.compactDescription.contains("partially unsupported")
     }
     if issue.auditType == .textClipped {
@@ -386,11 +326,9 @@ final class AccessibilityAuditTests: XCTestCase {
     return false
   }
 
-  /// Returns `true` for element types whose `.textClipped` audit finding is a
-  /// known iOS 26 platform artifact rather than real clipping:
-  /// - `.textField`: SwiftUI TextField scrolls horizontally; overflow ≠ clipping.
-  /// - `.button`: toolbar buttons bleed to the sheet boundary (platform bleed-through).
-  /// - `.staticText`: font-metric edge cases trigger the finding with no visible clip.
+  /// `true` for element types whose `.textClipped` finding is an iOS 26 platform artifact:
+  /// `.textField` scrolls horizontally, `.button` toolbar buttons bleed to the sheet boundary,
+  /// `.staticText` font-metric edge cases show no visible clip.
   private func isTextClippedGlassArtifact(_ element: XCUIElement?) -> Bool {
     switch element?.elementType {
     case .textField, .button, .staticText: true

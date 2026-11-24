@@ -31,9 +31,8 @@ struct AddEditExpenseDateBoundsTests {
 
     let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
     #expect(vm.dateRange.lowerBound == startDate)
-    // Per Budget.endDate convention (inclusive day), the upper bound is the last
-    // moment of endDate's day — not startOfDay(endDate). Clamping at start-of-day
-    // would reject all times after 00:00 on endDate.
+    // Budget.endDate is an inclusive day, so the upper bound is the last moment of endDate's day,
+    // not startOfDay(endDate) (which would reject every time after 00:00).
     #expect(vm.dateRange.upperBound > endDate)
     #expect(vm.dateRange.upperBound < utcDate(2026, 5, 26))
     // A date inside the window passes.
@@ -43,8 +42,7 @@ struct AddEditExpenseDateBoundsTests {
     // A date at midnight on endDate is admitted.
     vm.date = endDate
     #expect(vm.canSave)
-    // A mid-day expense on endDate is admitted (this would have failed before the
-    // inclusive-day fix because upperBound was startOfDay(endDate) = midnight).
+    // A mid-day expense on endDate is admitted (regression: upperBound was startOfDay(endDate)).
     vm.date = utcDate(2026, 5, 25, hour: 14)
     #expect(vm.canSave)
     // The last hour of endDate is still admitted.
@@ -147,8 +145,8 @@ struct AddEditExpenseDateBoundsTests {
     try context.save()
 
     let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
-    // Seed should land on the pause event date (the precise upper bound of the active
-    // union under moment-granular UI), not Date() (which would be in a paused gap).
+    // Seed lands on the pause event date (precise upper bound of the active union),
+    // not Date() (inside a paused gap).
     #expect(vm.date == pauseDate)
     vm.amount = 5
     #expect(vm.canSave == true)

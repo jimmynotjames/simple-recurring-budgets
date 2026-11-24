@@ -2,11 +2,11 @@
 //  BudgetRecomputeTokenTests.swift
 //  simple-recurring-budgetsTests
 //
-//  Regression guard for issue #127: after a CloudKit sync brings in an expense,
-//  the displayed Remaining must recompute. Views drive their cached lifecycle off
-//  `.onChange(of: budget.recomputeToken)`, so the token MUST change whenever a
-//  child row is inserted, edited, or removed — even when the parent
-//  `Budget.lastModified` is NOT bumped (the remote-merge race that produced the bug).
+//  Guards the CloudKit-sync recompute: after a sync brings in an expense, the displayed
+//  Remaining must update. Views drive their cached lifecycle off
+//  `.onChange(of: budget.recomputeToken)`, so the token MUST change whenever a child row is
+//  inserted, edited, or removed, even if the parent `Budget.lastModified` is NOT bumped
+//  (the remote-merge race).
 //
 
 import Foundation
@@ -15,8 +15,8 @@ import SwiftData
 import Testing
 
 struct BudgetRecomputeTokenTests {
-  /// Inserting an expense without touching `budget.lastModified` (the remote-merge
-  /// case) still changes the token — and the lifecycle math reflects the new expense.
+  /// Inserting an expense without touching `budget.lastModified` (remote merge) still
+  /// changes the token, and the lifecycle math reflects the expense.
   @Test func token_changesWhenExpenseInsertedWithoutBumpingLastModified() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
@@ -31,8 +31,8 @@ struct BudgetRecomputeTokenTests {
     let tokenBefore = budget.recomputeToken
     let lastModifiedBefore = budget.lastModified
 
-    // Simulate a remote merge: a synced ExpenseItem appears, but the parent
-    // budget's `lastModified` is unchanged (it arrived in a separate transaction).
+    // Remote merge: the synced ExpenseItem arrives in a separate transaction, leaving the
+    // parent `lastModified` unchanged.
     let expense = ExpenseItem(amount: 5)
     expense.budget = budget
     context.insert(expense)
@@ -43,8 +43,8 @@ struct BudgetRecomputeTokenTests {
     #expect(BudgetLifecycleService.result(for: budget, weekStart: .sunday).remaining == 45)
   }
 
-  /// Editing an existing expense's amount (count unchanged) still changes the token,
-  /// because the edited row's `lastModified` advances the latest-child timestamp.
+  /// Editing an expense's amount (count unchanged) changes the token via the edited row's
+  /// `lastModified` (latest-child timestamp).
   @Test func token_changesWhenExpenseEdited() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
@@ -84,8 +84,7 @@ struct BudgetRecomputeTokenTests {
     #expect(budget.recomputeToken != tokenBefore, "Token must change when an expense is deleted")
   }
 
-  /// A no-op (no child or field change) leaves the token equal, so the view does not
-  /// recompute needlessly.
+  /// A no-op leaves the token equal so the view doesn't recompute needlessly.
   @Test func token_stableWhenNothingChanges() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)

@@ -75,9 +75,8 @@ struct BudgetLifecycleResetBudgetTests {
   }
 
   @Test func resetBudget_preservesPriorLifecycleEvents_whenCurrentlyActive() throws {
-    // Seed a pause+resume pair so the budget is currently active at `now`.
-    // Reset on an active budget must preserve prior events and NOT insert any new event
-    // (the auto-resume branch fires only when the current lifecycleState is .paused).
+    // A pause+resume pair leaves the budget active at `now`. Reset must preserve prior events
+    // and insert none (auto-resume fires only when lifecycleState is .paused).
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 1)
@@ -96,8 +95,8 @@ struct BudgetLifecycleResetBudgetTests {
   }
 
   @Test func resetBudget_active_withExpenses_doesNotInsertLifecycleEvent() throws {
-    // Confirms a reset on a non-paused budget deletes every expense, sets
-    // lastResetDate/lastModified, and inserts no LifecycleEvent.
+    // Reset on a non-paused budget deletes every expense, sets lastResetDate/lastModified,
+    // and inserts no LifecycleEvent.
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 1)
@@ -118,8 +117,7 @@ struct BudgetLifecycleResetBudgetTests {
   }
 
   @Test func resetBudget_paused_insertsResumeEvent_andSnapshotResolvesActive() throws {
-    // Confirms a reset on a paused budget folds in a .resume event and the
-    // post-reset snapshot reports lifecycleState == .active.
+    // Reset on a paused budget adds a .resume event; the post-reset snapshot is .active.
     let container = try TestModelContainer.make()
     let ctx = ModelContext(container)
     let startDate = d(2026, 4, 1)
@@ -142,9 +140,8 @@ struct BudgetLifecycleResetBudgetTests {
     #expect(resumeEvents.count == 1)
     #expect(resumeEvents.first?.effectiveDate == now)
 
-    // The moment-granular pause classifier uses a strict `effectiveDate < now` comparison
-    // (see LifecycleClassification.isPausedAtMoment). In real flow the snapshot's `Date()`
-    // is strictly after the service's `now`; the test mirrors that with a 1s delta.
+    // `LifecycleClassification.isPausedAtMoment` compares strictly (`effectiveDate < now`).
+    // In real flow the snapshot's `Date()` is strictly after the service's `now`; the 1s delta mirrors that.
     let snapshotNow = now.addingTimeInterval(1)
     let result = BudgetLifecycleService.result(for: budget, now: snapshotNow, weekStart: .sunday)
     #expect(result.lifecycleState == .active)

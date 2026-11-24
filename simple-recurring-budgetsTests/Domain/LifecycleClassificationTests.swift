@@ -18,14 +18,12 @@ struct LifecycleClassificationTests {
   @Test func pauseActionPeriod_isActive() {
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15, hour: 10))
     let events = [pause]
-    // The period containing the pause is active
     #expect(isActive(periodStart: d(2026, 4, 15), periodEnd: d(2026, 4, 16), sortedLifecycleEvents: events))
   }
 
   @Test func periodAfterPause_isPaused() {
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15, hour: 10))
     let events = [pause]
-    // The period AFTER the pause-action period is paused
     #expect(!isActive(periodStart: d(2026, 4, 16), periodEnd: d(2026, 4, 17), sortedLifecycleEvents: events))
   }
 
@@ -33,7 +31,6 @@ struct LifecycleClassificationTests {
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15, hour: 10))
     let resume = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 20, hour: 10))
     let events = [pause, resume]
-    // Resume-action period is active
     #expect(isActive(periodStart: d(2026, 4, 20), periodEnd: d(2026, 4, 21), sortedLifecycleEvents: events))
   }
 
@@ -41,7 +38,6 @@ struct LifecycleClassificationTests {
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15, hour: 10))
     let resume = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 20, hour: 10))
     let events = [pause, resume]
-    // Apr 17 is between pause (Apr 15) and resume (Apr 20) → paused
     #expect(!isActive(periodStart: d(2026, 4, 17), periodEnd: d(2026, 4, 18), sortedLifecycleEvents: events))
   }
 
@@ -58,50 +54,44 @@ struct LifecycleClassificationTests {
     let pause2 = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15, hour: 10))
     let events = [pause1, resume1, pause2]
 
-    // Apr 7 (between pause1 and resume1) → paused
+    // Apr 7 (between pause1 and resume1) paused; Apr 12 (after resume1) active; Apr 17 (after pause2) paused.
     #expect(!isActive(periodStart: d(2026, 4, 7), periodEnd: d(2026, 4, 8), sortedLifecycleEvents: events))
-    // Apr 12 (after resume1, before pause2) → active
     #expect(isActive(periodStart: d(2026, 4, 12), periodEnd: d(2026, 4, 13), sortedLifecycleEvents: events))
-    // Apr 17 (after pause2) → paused
     #expect(!isActive(periodStart: d(2026, 4, 17), periodEnd: d(2026, 4, 18), sortedLifecycleEvents: events))
   }
 
   // MARK: - Boundary edge cases
 
   @Test func eventOnPeriodStart_makesPeriodActive() {
-    // Event exactly at periodStart → in [periodStart, periodEnd) → active.
+    // An event exactly at periodStart is inside [periodStart, periodEnd).
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15))
     #expect(isActive(periodStart: d(2026, 4, 15), periodEnd: d(2026, 4, 16), sortedLifecycleEvents: [pause]))
   }
 
   @Test func eventExactlyOnPeriodEnd_doesNotMakePeriodActive() {
-    // Period end is exclusive — event at periodEnd belongs to the next period.
-    // The current period has no in-period event; falls back to prior state.
+    // periodEnd is exclusive: the Apr 16 pause belongs to the next period, so Apr 15 falls
+    // back to the prior state (the Apr 1 resume).
     let resume = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 1))
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 16))
-    // Period Apr 15–16: only the resume (Apr 1) is prior; pause at Apr 16 == periodEnd is excluded.
     #expect(isActive(periodStart: d(2026, 4, 15), periodEnd: d(2026, 4, 16), sortedLifecycleEvents: [resume, pause]))
   }
 
   @Test func sameDayPauseThenResume_inSamePeriod_periodIsActive() {
-    // User pauses then resumes within the same period (e.g., misclicked then corrected).
-    // The period contains both events → active. Subsequent periods follow the resume.
+    // Pause then resume within one period (e.g. misclick): that period is active, and later
+    // periods follow the resume.
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 15, hour: 9))
     let resume = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 4, 15, hour: 14))
     let events = [pause, resume]
-    // Apr 15 period contains both events → active
     #expect(isActive(periodStart: d(2026, 4, 15), periodEnd: d(2026, 4, 16), sortedLifecycleEvents: events))
-    // Apr 16 (next period) → most recent prior event is resume → active
     #expect(isActive(periodStart: d(2026, 4, 16), periodEnd: d(2026, 4, 17), sortedLifecycleEvents: events))
   }
 
   @Test func longPause_acrossManyPeriods_allInternalPeriodsArePaused() {
-    // Verify the early-termination + reverse-iteration logic handles a deep history.
+    // Exercises the early-termination + reverse-iteration logic over a deep history.
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 1, 1))
     let resume = LifecycleEvent(kind: .resume, effectiveDate: d(2026, 12, 1))
     let events = [pause, resume]
     for month in 2 ... 11 {
-      // Each mid-year day is paused (between pause Jan 1 and resume Dec 1)
       #expect(!isActive(
         periodStart: d(2026, month, 15),
         periodEnd: d(2026, month, 16),

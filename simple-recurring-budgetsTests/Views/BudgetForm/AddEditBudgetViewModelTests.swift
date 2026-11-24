@@ -216,9 +216,8 @@ struct AddEditBudgetViewModelTests {
   // MARK: - Specific Dates
 
   @Test func addMode_default_dailyPreFillsStartDate() {
-    // The Add-mode VM seeds .daily as the initial period and pre-fills startDate
-    // to startOfDay(now) so the Schedule disclosure summary renders coherently
-    // from sheet-open. endDate stays nil (optional for recurring).
+    // Add-mode VM seeds .daily and pre-fills startDate = startOfDay(now) so the Schedule
+    // disclosure summary renders coherently; endDate stays nil.
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     let cal = Calendar.autoupdatingCurrent
     #expect(vm.startDate == cal.startOfDay(for: Date()))
@@ -226,8 +225,7 @@ struct AddEditBudgetViewModelTests {
   }
 
   @Test func addMode_specificDates_selectingPeriodClearsDates() {
-    // period.didSet clears both dates when transitioning to .specificDates so
-    // the user is forced to pick both (per the "both required" rule).
+    // period.didSet clears both dates on transition to .specificDates (both are required).
     let vm = AddEditBudgetViewModel(settings: AppSettings())
     vm.period = .specificDates
     #expect(vm.startDate == nil)
@@ -283,11 +281,9 @@ struct AddEditBudgetViewModelTests {
   }
 
   @Test func addMode_specificDates_save_clampsIsCarryOverEnabledToFalse() throws {
-    // Repro: user opens Add Budget with settings.defaultCarryOverEnabled=true (default).
-    // VM seeds isCarryOverEnabled=true. User then switches to .specificDates — UI hides
-    // the toggle but the VM value stays true. Without the saveNew clamp, the persisted
-    // budget would carry `isCarryOverEnabled=true`, polluting analytics events and
-    // Mixpanel cohorts that read `budget.isCarryOverEnabled` directly.
+    // Repro: Add Budget with defaultCarryOverEnabled=true seeds isCarryOverEnabled=true; switching to
+    // .specificDates hides the toggle but the VM value stays true. Without the saveNew clamp the
+    // persisted budget would carry true, polluting analytics and Mixpanel cohorts.
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let store = MockKeyValueStore()
@@ -385,7 +381,7 @@ struct AddEditBudgetViewModelTests {
     vm.startDate = originalStart
     vm.endDate = originalEnd
 
-    // Move start past end: snap end forward to maintain the 7-day window.
+    // Move start past end: snap end forward to keep the 7-day window.
     let newStart = try #require(cal.date(from: DateComponents(year: 2026, month: 5, day: 20)))
     vm.startDate = newStart
 
@@ -429,10 +425,8 @@ struct AddEditBudgetViewModelTests {
   }
 
   @Test func snapForward_editModeSeeding_doesNotMutateEnd() throws {
-    // Seed Edit mode with an inverted window (start > end) so the snap-forward
-    // didSet WOULD fire if it leaked into init. The test passes only if Swift's
-    // didSet/init contract holds: `endDate` must remain the seeded value, NOT
-    // snap forward to `start + (end - start)` as it would on a regular setter call.
+    // Seed Edit mode with an inverted window (start > end) so snap-forward didSet would fire if it
+    // leaked into init. Passes only if Swift's didSet/init contract holds: endDate stays as seeded.
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let cal = Calendar.autoupdatingCurrent
@@ -446,8 +440,7 @@ struct AddEditBudgetViewModelTests {
 
     let vm = AddEditBudgetViewModel(editing: budget)
     #expect(vm.startDate == start)
-    // If didSet leaked into init, endDate would have snapped to `start` (duration=0
-    // collapse path). Seeding-preserved means didSet was correctly suppressed.
+    // A leaked didSet would collapse endDate to `start` (duration 0).
     #expect(vm.endDate == end)
   }
 

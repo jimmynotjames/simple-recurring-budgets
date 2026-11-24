@@ -2,9 +2,8 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-/// `SheetRoute` binds to `.sheet(item:)` through its `Identifiable` conformance,
-/// so `id` must be the case itself — two routes are the same presentation iff
-/// they are equal, including their carried model UUIDs.
+/// `SheetRoute` binds to `.sheet(item:)` via `Identifiable`, so `id` is the case itself: two
+/// routes are the same presentation iff equal, including carried model UUIDs.
 @Suite("SheetRoute identity")
 struct SheetRouteTests {
   @Test func id_equalsSelf_forAllCases() {

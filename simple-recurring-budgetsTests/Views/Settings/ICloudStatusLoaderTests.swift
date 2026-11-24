@@ -2,11 +2,9 @@ import CloudKit
 @testable import simple_recurring_budgets
 import Testing
 
-/// Drives `ICloudStatusLoader.load(into:)` — the query + mapping half of the
-/// Settings iCloud row — through injected account-status providers. Closes the
-/// gap documented in `SettingsICloudNotificationTests`, which could previously
-/// only test the `accountStatus → rowState` derivation
-/// (test-coverage-audit-2026-06-10 I2).
+/// Drives `ICloudStatusLoader.load(into:)` (the query + mapping half of the Settings iCloud row)
+/// through injected account-status providers. `SettingsICloudNotificationTests` covers only the
+/// `accountStatus → rowState` derivation.
 @Suite("ICloudStatusLoader — provider-driven accountStatus writes")
 @MainActor
 struct ICloudStatusLoaderTests {
@@ -49,9 +47,8 @@ struct ICloudStatusLoaderTests {
     #expect(syncStatus.accountStatus == .unavailable)
   }
 
-  /// Re-query after a sign-in: the notification-driven path transitions
-  /// unavailable → available (the live chain `SettingsView.observeSingleNotification`
-  /// drives on CKAccountChanged / NSUbiquityIdentityDidChange).
+  /// Re-query after sign-in: the notification-driven path (`SettingsView.observeSingleNotification` on
+  /// CKAccountChanged / NSUbiquityIdentityDidChange) transitions unavailable → available.
   @Test func reload_afterSignIn_transitionsToAvailable() async {
     let syncStatus = SyncStatus(containerBacking: .cloudKit, accountStatus: .checking)
     let signedIn = SignedInFlag()

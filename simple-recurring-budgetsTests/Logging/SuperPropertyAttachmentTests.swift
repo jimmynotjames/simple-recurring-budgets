@@ -1,7 +1,7 @@
 @testable import simple_recurring_budgets
 import Testing
 
-/// §18.1 test contract #9 — super-property bucket values and required keys.
+/// Super-property bucket values and required keys.
 @Suite("Super properties — §18.1 #9")
 struct SuperPropertyAttachmentTests {
   // MARK: - budgets_count_bucket transitions

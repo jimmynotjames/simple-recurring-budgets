@@ -1,7 +1,7 @@
 @testable import simple_recurring_budgets
 import Testing
 
-/// §18.1 test contract #7 — AnalyticsEvent constant string values.
+/// AnalyticsEvent constant string values.
 @Suite("AnalyticsEvent — constants §18.1 #7")
 struct AnalyticsEventConstantsTests {
   @Test("all Phase 1 event constants have correct string values")

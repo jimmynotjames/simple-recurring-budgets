@@ -3,7 +3,7 @@ import Foundation
 import Testing
 
 struct ExpenseItemPartitionTests {
-  /// Convenience factory for non-persisted ExpenseItems.
+  /// Non-persisted ExpenseItem factory.
   private func makeExpense(amount: Decimal = 1, name: String? = nil, date: Date) -> ExpenseItem {
     ExpenseItem(amount: amount, name: name, date: date)
   }
@@ -14,7 +14,7 @@ struct ExpenseItemPartitionTests {
 
   // MARK: nil bounds
 
-  /// When periodStart is nil (lifecycle not yet resolved), all arrays are empty.
+  /// A nil periodStart (lifecycle unresolved) yields empty arrays.
   @Test func partitioned_nilStart_returnsEmpty() {
     let expenses = [
       makeExpense(date: Self.base),
@@ -26,7 +26,7 @@ struct ExpenseItemPartitionTests {
     #expect(result.past.isEmpty)
   }
 
-  /// When periodEnd is nil (lifecycle not yet resolved), all arrays are empty.
+  /// A nil periodEnd (lifecycle unresolved) yields empty arrays.
   @Test func partitioned_nilEnd_returnsEmpty() {
     let expenses = [makeExpense(date: Self.base)]
     let result = expenses.partitioned(byPeriodStart: Self.base, periodEnd: nil)
@@ -37,7 +37,7 @@ struct ExpenseItemPartitionTests {
 
   // MARK: Boundary inclusivity
 
-  /// An expense exactly at periodStart falls in the CURRENT array (>= semantic).
+  /// An expense exactly at periodStart is CURRENT (>=).
   @Test func partitioned_dateEqualsStart_isCurrentNotPast() {
     let start = Self.base
     let onBoundary = makeExpense(date: start)
@@ -50,8 +50,8 @@ struct ExpenseItemPartitionTests {
     #expect(result.past.first?.date == start.addingTimeInterval(-1))
   }
 
-  /// An expense exactly at periodEnd falls in the FUTURE array (end is exclusive,
-  /// matching `BudgetCalculator`'s `date < effectivePeriodEnd` inclusion rule).
+  /// An expense exactly at periodEnd is FUTURE (end is exclusive, like `BudgetCalculator`'s
+  /// `date < effectivePeriodEnd`).
   @Test func partitioned_dateEqualsEnd_isFutureNotCurrent() {
     let onBoundary = makeExpense(date: Self.end)
     let justBefore = makeExpense(date: Self.end.addingTimeInterval(-1))
@@ -65,8 +65,7 @@ struct ExpenseItemPartitionTests {
 
   // MARK: Future bucket — one bucket for all future periods
 
-  /// Future-dated expenses from several different future periods collapse into
-  /// the single future bucket (audit L2 decision).
+  /// Expenses from several future periods collapse into the single future bucket.
   @Test func partitioned_multipleFuturePeriods_singleBucket() {
     let tomorrow = makeExpense(date: Self.end.addingTimeInterval(3600))
     let nextWeek = makeExpense(date: Self.end.addingTimeInterval(86400 * 6))
@@ -92,11 +91,8 @@ struct ExpenseItemPartitionTests {
 
     let result = [c2, f2, p2, c1, f1, p1, c3].partitioned(byPeriodStart: start, periodEnd: Self.end)
 
-    // Future: newest first
     #expect(result.future.map(\.date) == [f1.date, f2.date])
-    // Current: newest first
     #expect(result.current.map(\.date) == [c1.date, c2.date, c3.date])
-    // Past: newest first
     #expect(result.past.map(\.date) == [p1.date, p2.date])
   }
 
@@ -133,9 +129,8 @@ struct ExpenseItemPartitionTests {
 
   // MARK: Section total convenience
 
-  /// Sum of current array's `amount` matches what ExpenseSection would display
-  /// as the section total — and excludes future-dated expenses, so the header
-  /// total agrees with the Remaining headline (audit L2).
+  /// The current array's summed `amount` is the section total; it excludes future-dated
+  /// expenses so the header agrees with the Remaining headline.
   @Test func partitioned_currentTotalMatchesReduce_excludingFuture() {
     let start = Self.base
     let expenses = [

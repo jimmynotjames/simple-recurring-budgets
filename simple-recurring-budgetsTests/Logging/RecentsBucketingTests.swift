@@ -2,9 +2,8 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-/// Direct tests for the F-7.04 Recents bucketing helpers. The boundaries are part of the
-/// analytics contract (see `docs/analytics-spec.md` §10.1) — a silent bucket change would
-/// shift every dashboard reading downstream, so we lock them down here.
+/// Pins the F-7.04 Recents bucketing boundaries (`docs/analytics-spec.md` §10.1); a silent change
+/// would shift every downstream dashboard reading.
 struct RecentsBucketingTests {
   // MARK: - recentsVisibleCountBucket
 
@@ -33,8 +32,7 @@ struct RecentsBucketingTests {
   }
 
   @Test func visibleCount_eightAndBeyond_collapse() {
-    // Open-ended top bucket: the 30-tile display cap means counts 16-30 are real,
-    // and they all land in "8+" alongside 8-15.
+    // Open-ended top bucket: counts 16-30 (the 30-tile display cap) land in "8+" with 8-15.
     #expect(recentsVisibleCountBucket(8) == "8+")
     #expect(recentsVisibleCountBucket(15) == "8+")
     #expect(recentsVisibleCountBucket(30) == "8+") // full display-capped row
@@ -52,8 +50,7 @@ struct RecentsBucketingTests {
   }
 
   @Test func tapPosition_one_isItsOwnBucket() {
-    // Kept distinct from 0 because the product question "do users overwhelmingly tap
-    // the FIRST tile?" depends on keeping these two buckets separate.
+    // Kept distinct from 0 to answer "do users overwhelmingly tap the FIRST tile?".
     #expect(recentsTapPositionBucket(1) == "1")
   }
 

@@ -5,18 +5,15 @@ import Testing
 
 // MARK: - dateContextCaption pre-start / post-end branches (F-2.04) + date seeding
 
-/// Tests for the `dateContextCaption` priority-ordered resolution in
-/// `AddEditExpenseViewModel`: paused branches (existing, exercised by
-/// `AddEditExpensePausedCaptionTests`) + the new F-2.04 Add-mode pre-start /
-/// post-end branches plus the post-end date seed clamp.
+/// `dateContextCaption` priority-ordered resolution in `AddEditExpenseViewModel`: paused branches
+/// (also covered by `AddEditExpensePausedCaptionTests`), the F-2.04 Add-mode pre-start/post-end
+/// branches, and the post-end date seed clamp.
 ///
-/// Paused-state precedence is asserted defensively here even though
-/// `BudgetSnapshot.lifecycleState` cannot report `.paused` simultaneously with
-/// `.preStart` or `.postEnd` in practice — the priority ordering should hold
-/// against any future overlapping-state change.
+/// Paused precedence is asserted defensively: `BudgetSnapshot.lifecycleState` can't report `.paused`
+/// together with `.preStart`/`.postEnd` today, but the ordering should survive overlapping-state changes.
 @MainActor
 struct AddEditExpenseDateContextCaptionTests {
-  // MARK: - Add-mode pre-start branch (task 4.1)
+  // MARK: - Add-mode pre-start branch
 
   @Test func addMode_preStartBudget_showsPreStartCaption() throws {
     let budget = DebugData.dailyPreStart()
@@ -31,7 +28,7 @@ struct AddEditExpenseDateContextCaptionTests {
     #expect(caption == expected)
   }
 
-  // MARK: - Add-mode post-end branch (task 4.1)
+  // MARK: - Add-mode post-end branch
 
   @Test func addMode_postEndBudget_showsPostEndCaption() throws {
     let budget = DebugData.weeklyPostEnd()
@@ -46,7 +43,7 @@ struct AddEditExpenseDateContextCaptionTests {
     #expect(caption == expected)
   }
 
-  // MARK: - Active state — no caption (task 4.1)
+  // MARK: - Active state — no caption
 
   @Test func addMode_activeBudget_returnsNil() {
     // dailyDefault is an active budget — the caption should be nil.
@@ -55,18 +52,16 @@ struct AddEditExpenseDateContextCaptionTests {
     #expect(vm.dateContextCaption == nil)
   }
 
-  // MARK: - Edit mode suppresses pre-start / post-end captions (task 4.1)
+  // MARK: - Edit mode suppresses pre-start / post-end captions
 
   @Test func editMode_preStartBudget_suppressesPreStartCaption() throws {
-    // F-2.04 says the pre-start caption is Add-mode-only. An existing ExpenseItem
-    // already carries its stored date, so the clamped-default rationale doesn't
-    // apply.
+    // F-2.04: the pre-start caption is Add-mode-only; an existing ExpenseItem carries its stored date,
+    // so the clamped-default rationale doesn't apply.
     let container = try TestModelContainer.make()
     let context = ModelContext(container)
     let budget = DebugData.dailyPreStart()
     context.insert(budget)
-    // Attach an expense dated INSIDE the future startDate window so Edit-mode
-    // construction is well-formed.
+    // Expense dated INSIDE the future startDate window so Edit-mode construction is well-formed.
     let startDate = try #require(budget.startDate)
     let expense = ExpenseItem(amount: 5, name: nil, date: startDate)
     expense.budget = budget
@@ -91,13 +86,13 @@ struct AddEditExpenseDateContextCaptionTests {
     #expect(vm.dateContextCaption == nil)
   }
 
-  // MARK: - Post-end date seed clamps to endDate end-of-day (task 4.2)
+  // MARK: - Post-end date seed clamps to endDate end-of-day
 
   @Test func addMode_postEndBudget_dateSeededToEndOfEndDateDay() throws {
     let budget = DebugData.weeklyPostEnd()
     let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
-    // The picker upper bound is the last moment of endDate's day; the seed
-    // must land at the same moment so the picker opens inside dateRange.
+    // Picker upper bound is the last moment of endDate's day; the seed must land there so the picker
+    // opens inside dateRange.
     let cal = Calendar.autoupdatingCurrent
     let endDate = try #require(budget.endDate)
     let nextDayStart = try #require(cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: endDate)))
@@ -107,13 +102,12 @@ struct AddEditExpenseDateContextCaptionTests {
     #expect(vm.dateRange.contains(vm.date))
   }
 
-  // MARK: - Pre-start date seed lands at effectiveStartDate (task 4.3)
+  // MARK: - Pre-start date seed lands at effectiveStartDate
 
   @Test func addMode_preStartBudget_dateSeededToEffectiveStartDate() {
     let budget = DebugData.dailyPreStart()
     let vm = AddEditExpenseViewModel(adding: budget, weekStart: .sunday)
-    // For pre-start, `max(Date(), effectiveStartDate)` collapses to
-    // effectiveStartDate because `Date()` < startDate.
+    // Pre-start: `max(Date(), effectiveStartDate)` collapses to effectiveStartDate since Date() < startDate.
     #expect(vm.date == budget.effectiveStartDate)
     #expect(vm.dateRange.contains(vm.date))
   }
@@ -121,13 +115,9 @@ struct AddEditExpenseDateContextCaptionTests {
   // MARK: - Defensive: pre-start budget with nil Budget.startDate returns nil caption
 
   @Test func addMode_preStartBudget_withNilStartDate_returnsNilCaption() throws {
-    // Defensive scenario: a CloudKit-synced budget where the `startDate` field
-    // hasn't arrived yet. `Budget.effectiveStartDate` falls back to `createdAt`,
-    // so `lifecycleState == .preStart` is reachable while `Budget.startDate`
-    // is still `nil`. The pre-start caption should be omitted (there is no
-    // startDate value to surface), NOT crash. `cachedStartDateFormatted`
-    // captures `budget.startDate?.formatted(...)` which is `nil` in this case,
-    // and `dateContextCaption`'s `.preStart` branch guards on it.
+    // A CloudKit-synced budget whose `startDate` hasn't arrived: `effectiveStartDate` falls back to
+    // `createdAt`, so `.preStart` is reachable with nil `Budget.startDate`. The caption must be omitted
+    // (nothing to show), not crash; the `.preStart` branch guards on `cachedStartDateFormatted` (nil here).
     let budget = Budget(name: "Future", currencyCode: "USD", period: .daily, isCarryOverEnabled: true)
     budget.startDate = nil
     // createdAt 30 days in the future → effectiveStartDate is in the future

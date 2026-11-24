@@ -3,11 +3,10 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Drives `ProductionContainerFactory.make` through injected container
-/// factories (test-coverage-audit-2026-06-10 B1): the real `ModelContainer`
-/// initializers cannot be made to fail deterministically, so the closures
-/// substitute in-memory containers / thrown errors and record the
-/// configurations they were offered. No test touches the on-disk store.
+/// Drives `ProductionContainerFactory.make` through injected container factories: real
+/// `ModelContainer` initializers can't be made to fail deterministically, so the closures
+/// return in-memory containers or throw, and record the configurations offered. Nothing
+/// touches the on-disk store.
 @Suite("ProductionContainerFactory — CloudKit→local branch selection")
 @MainActor
 struct ProductionContainerFactoryTests {

@@ -3,11 +3,9 @@ import Foundation
 import SwiftData
 import Testing
 
-/// Sanity check for the migration harness (test-coverage-audit-2026-06-10 B2):
-/// a SchemaV1 store written to disk re-opens through `BudgetMigrationPlan` with
-/// every row and relationship intact. With `stages` empty this pins the
-/// identity round-trip; the first real SchemaV2 migration test should copy
-/// this shape via `MigrationTestSupport`.
+/// Migration harness sanity check: a SchemaV1 store on disk re-opens through
+/// `BudgetMigrationPlan` with every row and relationship intact. With `stages` empty this is
+/// an identity round-trip; a SchemaV2 test should copy this shape via `MigrationTestSupport`.
 @Suite("BudgetMigrationPlan — SchemaV1 store round-trip")
 @MainActor
 struct BudgetMigrationPlanTests {

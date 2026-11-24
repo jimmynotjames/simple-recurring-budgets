@@ -1,11 +1,8 @@
 @testable import simple_recurring_budgets
 import SwiftData
 
-/// Shared factory for in-memory `ModelContainer` instances used across all SwiftData tests.
-///
-/// Using an in-memory store ensures test isolation: each `make()` call returns a fresh,
-/// empty container with CloudKit sync disabled. Prefer this over copy-pasting the
-/// configuration in individual test files.
+/// Shared in-memory `ModelContainer` factory for SwiftData tests: each `make()` returns a
+/// fresh, empty container with CloudKit disabled. Use it instead of per-file configurations.
 enum TestModelContainer {
   /// Creates an isolated in-memory `ModelContainer` with CloudKit disabled.
   static func make() throws -> ModelContainer {

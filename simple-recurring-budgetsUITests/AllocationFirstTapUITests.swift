@@ -1,17 +1,13 @@
 import XCTest
 
-/// Regression guard: typing into the Allocation field must register on the **first** tap.
+/// Regression guard: typing into the Allocation field must register on the first tap, with no
+/// GroupBox-label/double-tap workaround.
 ///
-/// Mirrors the manual flow that broke: open Add Budget, type a name (which focuses the Name
-/// field via `@FocusState`), then single-tap the Allocation field and type — with NO "tap the
-/// GroupBox label" / double-tap workaround.
-///
-/// The amount field is a UIKit-backed `DecimalInputField`. The Allocation card clears the Name
-/// field's `@FocusState` when the amount field begins editing (so the iPadOS `.decimalPad`
-/// popover anchors correctly — issue #126). Doing that mutation *synchronously* inside the UIKit
-/// `textFieldDidBeginEditing` re-entered SwiftUI's focus machinery mid-transition and dropped the
-/// first keystrokes; the fix defers it one main-actor turn. This test fails if that synchronous
-/// clear ever returns.
+/// The Allocation card clears the Name field's `@FocusState` when the UIKit-backed
+/// `DecimalInputField` begins editing (so the iPadOS `.decimalPad` popover anchors correctly).
+/// Doing that synchronously inside `textFieldDidBeginEditing` re-entered SwiftUI's focus
+/// machinery mid-transition and dropped the first keystrokes; the clear is deferred one
+/// main-actor turn. This test fails if the synchronous clear returns.
 @MainActor
 final class AllocationFirstTapUITests: XCTestCase {
   override func setUp() {
@@ -35,12 +31,11 @@ final class AllocationFirstTapUITests: XCTestCase {
     ).firstMatch
     XCTAssertTrue(amountField.waitForExistence(timeout: 2))
 
-    // The reported flow: a SINGLE tap straight from the Name field, then type.
+    // A single tap straight from the Name field, then type.
     amountField.tap()
     amountField.typeText("25")
 
-    // If the first-responder session dropped the keystrokes, the field value
-    // will not contain "25" and Save stays disabled.
+    // Dropped keystrokes leave the value without "25" and Save disabled.
     let value = (amountField.value as? String) ?? ""
     XCTAssertTrue(
       value.contains("25"),

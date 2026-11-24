@@ -1,9 +1,7 @@
 import Foundation
 
-/// Shared time-zone-aware calendar and date builders for DST / locale tests
-/// (test-coverage-audit-2026-06-10 E1). The per-file fixed-UTC `cal` / `d(...)`
-/// helpers across the Domain suites predate this; new time-zone-sensitive
-/// tests should use these rather than adding more per-file copies.
+/// Shared time-zone-aware calendar and date builders for DST / locale tests. New
+/// time-zone-sensitive tests should use these, not more per-file fixed-UTC `cal` / `d(...)` copies.
 enum TestCalendars {
   /// Gregorian calendar pinned to the given IANA time-zone identifier.
   static func gregorian(in timeZoneID: String) -> Calendar {

@@ -2,10 +2,9 @@ import Foundation
 @testable import simple_recurring_budgets
 import Testing
 
-/// Tests for the `PersistenceError.init(operation:underlying:)` bridging
-/// initializer: it must extract only the `NSError` domain and code (never user
-/// data) so the value stays safe for `privacy: .public` logging and the
-/// `persistence_save_failed` analytics event.
+/// `PersistenceError.init(operation:underlying:)` must extract only the `NSError` domain and
+/// code (never user data), keeping it safe for `privacy: .public` logging and the
+/// `persistence_save_failed` event.
 @Suite("PersistenceError underlying-error bridging")
 struct PersistenceErrorTests {
   @Test func bridgesNSErrorDomainAndCode() {

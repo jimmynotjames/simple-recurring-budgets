@@ -2,7 +2,7 @@
 import SwiftData
 import Testing
 
-/// Top-level smoke test for the test target (replaces the Xcode template placeholder).
+/// Top-level smoke test for the test target.
 struct simple_recurring_budgetsTests {
   /// The SchemaV1 schema loads into a container and accepts a trivial fetch.
   @Test func schemaLoads() throws {

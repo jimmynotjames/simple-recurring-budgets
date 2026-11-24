@@ -88,8 +88,8 @@ struct AddEditBudgetViewModelOrphanWarningTests {
       expenseDates: [date(2026, 4, 1), date(2026, 4, 15), date(2026, 5, 1)]
     )
     let vm = AddEditBudgetViewModel(editing: budget)
-    // Drafted startDate equal to the earliest expense date — boundary equality
-    // case; filter is `$0.date < startDate` (strict), so equal is NOT orphaned.
+    // startDate equal to the earliest expense date: the filter is strict (`$0.date < startDate`),
+    // so equal is NOT orphaned.
     vm.startDate = try date(2026, 4, 1)
     #expect(vm.orphanedExpenseCount == 0)
   }
@@ -184,14 +184,11 @@ struct AddEditBudgetViewModelOrphanWarningTests {
 
   // MARK: - Period-type uniformity
 
-  /// The orphan-warning behavior is intentionally uniform across every period type:
-  /// the condition (`expenseItems.date < startDate`) is well-defined regardless of
-  /// recurrence, and the user-facing consequence (orphaned expenses stay in the list
-  /// but don't affect totals) is the same. Specific Dates therefore participates in
-  /// the same `orphanedExpenseCount` + `orphaned_expense_count` emission path as
-  /// recurring budgets. (The inline Schedule-disclosure warning is recurring-only
-  /// by structural necessity — Specific Dates uses the Dates card — but that's a
-  /// view-layer concern not visible from the viewModel.)
+  /// The orphan warning is uniform across period types: `expenseItems.date < startDate` is
+  /// recurrence-independent, and orphans stay listed but excluded from totals. Specific Dates uses the
+  /// same `orphanedExpenseCount` / `orphaned_expense_count` path as recurring. (The inline
+  /// Schedule-disclosure warning is recurring-only because Specific Dates uses the Dates card; that is
+  /// view-layer and not visible from the view model.)
   @Test func specificDatesEditMode_orphanedExpenseCountAndAnalyticsBehaveLikeRecurring() throws {
     let container = try TestModelContainer.make()
     let context = ModelContext(container)

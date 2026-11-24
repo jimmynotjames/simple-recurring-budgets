@@ -29,9 +29,8 @@ struct IsPausedAtMomentTests {
   }
 
   @Test func pauseExactlyAtNow_returnsFalse() {
-    // Boundary: effectiveDate == now → strict less-than → still active at the exact
-    // pause moment. The transition happens at the next instant, which matches the
-    // math classifier (pause-action period is itself active).
+    // effectiveDate == now: the comparison is strict `<`, so still active at the exact pause
+    // moment (matches the math classifier, where the pause-action period is active).
     let pause = LifecycleEvent(kind: .pause, effectiveDate: d(2026, 4, 10, hour: 14))
     #expect(!isPausedAtMoment(now: d(2026, 4, 10, hour: 14), sortedLifecycleEvents: [pause]))
   }

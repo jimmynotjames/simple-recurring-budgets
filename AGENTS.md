@@ -240,7 +240,7 @@ Applies to code comments and to agent-maintained docs. Readers are future agents
 - Describe current behavior in present tense. No history ("previously", "now", "no longer", "we changed"), no working notes ("Actually…"), no hedging, no speculation about future changes. History belongs in git.
 - `///` doc comments: a one-line summary, then only the parameter or edge-case notes the signature doesn't make obvious. Aim for ≤3 lines; domain rules (e.g. carry-over math) may run longer.
 - **Odd code gets room.** If code looks wrong or "fixable" but is deliberate (a workaround, an ordering dependency, a seemingly redundant check, a correct off-by-one), explain it fully enough that an agent won't "simplify" it into a bug.
-- Drop issue/PR/spec references unless the linked item holds detail that won't fit in the comment.
+- Keep references to living docs: feature IDs (`F-x.xx`) and pointers to `docs/*.md` sections and `openspec/specs/`. They are cheap and lead to the requirement. Drop history: issue/PR numbers, change names, audit dates, and pointers to historical docs (`git blame` finds those).
 - Keep markers intact: `// iOS-COMPAT(…)`, `// check-strings:ignore` (same line as its code), `// MARK:`, `swiftlint:` directives, `# noqa`, shebangs. Never add `TODO`/`FIXME` (the strict `todo` lint rule fails the build).
 - Translator `comment:` arguments in `String(localized:)` / `Text(…)` are not code comments; changing one changes `Localizable.xcstrings`.
 

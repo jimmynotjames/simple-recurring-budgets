@@ -291,24 +291,12 @@ jobs:
       # here; the first UI test then doesn't pay for the boot inside its own timeouts.
       - name: Boot the simulator
         run: xcrun simctl bootstatus "$SIM_UDID" -b
-      # A UI test needs the simulator to have hosted an app once first (scripts/ui-tests.sh's
-      # header), which locally the unit pass does. Here one small unit suite gives it that first
-      # app lifecycle, as checklists' CI does. The unit-tests job is what checks these tests, so
-      # a failure here doesn't fail the shard.
-      - name: Warm up the simulator
-        continue-on-error: true
-        timeout-minutes: 10
-        run: |
-          xcodebuild test-without-building \
-            -xctestrun "$XCTESTRUN" \
-            -destination "id=$SIM_UDID" \
-            -parallel-testing-enabled NO \
-            -collect-test-diagnostics never \
-            -only-testing:simple-recurring-budgetsTests/simple_recurring_budgetsTests
       # One retry per failed test, as the local parallel runs do (scripts/_sim_concurrency.sh).
       # For minutes after boot the simulator is busy with first-boot work, and on these runners
       # that makes accessibility audits time out (-56) or sample contrast mid-render (#360).
-      # A test that fails both tries still fails the shard.
+      # A test that fails both tries still fails the shard. A warm-up step before the shard was
+      # tried in #362 (one UI test, then one unit suite): it cost 2-5 min per shard and didn't
+      # stop the slow tests, so there is none.
       - name: UI tests
         timeout-minutes: 35
         env:

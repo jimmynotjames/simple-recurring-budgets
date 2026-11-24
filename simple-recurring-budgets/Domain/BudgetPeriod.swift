@@ -1,10 +1,9 @@
 import Foundation
 
-/// The repeating time interval over which a Budget allocates funds.
-///
-/// Ordered from shortest to longest: `daily < weekly < biweekly < monthly < specificDates`.
-/// For period-boundary math, use `RecurringBudgetPeriod` — it excludes `.specificDates` at
-/// compile time so that case cannot accidentally reach `PeriodCalculator`.
+/// The repeating interval over which a Budget allocates funds. Ordered shortest to longest:
+/// `daily < weekly < biweekly < monthly < specificDates`.
+/// Use `RecurringBudgetPeriod` for period-boundary math: it excludes `.specificDates` at compile time so
+/// that case can't reach `PeriodCalculator`.
 enum BudgetPeriod: String, Codable, CaseIterable, Comparable {
   case daily
   case weekly

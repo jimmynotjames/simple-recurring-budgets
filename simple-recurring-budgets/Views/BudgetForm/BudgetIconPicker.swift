@@ -2,23 +2,16 @@ import SwiftUI
 
 // MARK: - Budget icon picker
 
-/// Curated icon picker presented as a sheet for choosing a Budget's optional icon
-/// (F-4.03). The icon is a single emoji chosen from a curated set; selecting one
-/// writes it back through `selection` and dismisses, and "Remove" clears it. This
-/// component is the **master source** for which emoji the app offers — feature
-/// docs intentionally do not enumerate the set.
+/// Sheet for choosing a budget's optional icon (F-4.03), a single emoji from a curated set;
+/// picking writes `selection` and dismisses, "Remove" clears it. Master source for the
+/// offered emoji (F-4.03); feature docs deliberately don't enumerate them.
 struct BudgetIconPicker: View {
   @Binding var selection: String?
   @Environment(\.dismiss) private var dismiss
 
-  /// Curated, budget-relevant emoji, loosely grouped by spending category. Chosen
-  /// to cover the PRD personas' recurring categories — daily food & coffee, weekly
-  /// groceries, clothes/beauty, transit, little luxuries, kids' treats, pets, home,
-  /// health, hobbies, travel (see docs/main-prd.md §5 and docs/ux-design-brief.md).
-  /// A short tongue-in-cheek set is tacked on at the end for less-buttoned-up
-  /// budgets. Kept to a curated list rather than the full Unicode catalog. Entries
-  /// MUST stay unique (the grid keys `ForEach` on the emoji itself). This is the
-  /// master source for the budget icon set (F-4.03); exposed `static` for tests.
+  /// Curated emoji grouped by spending category, covering the PRD personas' recurring
+  /// categories (docs/main-prd.md §5, docs/ux-design-brief.md), plus a short tongue-in-cheek set at the end.
+  /// Entries MUST stay unique (`ForEach` keys on the emoji). `static` for tests.
   static let curatedIcons: [String] = [
     // Food & dining
     "🍴", "🍔", "🍕", "🍣", "🍜", "🥗", "🌮", "🍱", "🥡",

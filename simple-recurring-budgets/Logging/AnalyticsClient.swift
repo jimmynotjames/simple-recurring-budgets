@@ -1,21 +1,17 @@
 import Foundation
 
-/// Product analytics abstraction. Routes business-metric events to the
-/// configured backend (Mixpanel in production; console print in debug builds).
+/// Product analytics abstraction: routes business-metric events to the configured backend (Mixpanel in
+/// production, console print in debug). Spec: `docs/analytics-spec.md`.
 ///
-/// Diagnostic / operational events (container bootstrap, CloudKit sync, etc.)
-/// are logged directly via `OSLog.Logger` in `AppLoggers.swift` and never
-/// pass through this protocol.
+/// Diagnostic/operational events are logged via `OSLog.Logger` (`AppLoggers.swift`) and never pass through
+/// this protocol; the two channels are independent (analytics-spec.md §8, §17).
 ///
-/// **Allow/deny contract (§5 analytics-spec.md):**
-/// - Allowed per event: categorical Budget properties (`period`, `carry_over_enabled`,
-///   `currency_code`), bucketed counts, Boolean flags, and the two accepted-risk
-///   exceptions (`budget_name`, `budget_allocation_amount`).
-/// - **Hard ban**: No `ExpenseItem` field (name, amount, date, notes) is ever
-///   transmitted by value. No free-text other than `budget_name`. No money-shaped
-///   value other than `budget_allocation_amount`.
-/// - No `OSLog`-sourced data passes through this protocol; the two channels are
-///   architecturally independent (§8, §17 analytics-spec.md).
+/// **Allow/deny contract (analytics-spec.md §5):**
+/// - Allowed per event: categorical Budget properties (`period`, `carry_over_enabled`, `currency_code`),
+///   bucketed counts, Boolean flags, and the two accepted-risk exceptions (`budget_name`,
+///   `budget_allocation_amount`).
+/// - **Hard ban**: no `ExpenseItem` field (name, amount, date, notes) is ever transmitted by value; no free
+///   text other than `budget_name`; no money-shaped value other than `budget_allocation_amount`.
 protocol AnalyticsClient: AnyObject, Sendable {
   func track(_ event: String, properties: [String: any Sendable]?)
   func identify(_ distinctId: String?)
@@ -23,22 +19,15 @@ protocol AnalyticsClient: AnyObject, Sendable {
 
   // MARK: Super / people-property surface (analytics-spec.md §10.2–10.3, §13.2)
 
-  //
-  // These have default no-op implementations below so that clients with no
-  // people/super-property concept (ConsoleAnalyticsClient) need not implement
-  // them. Call sites MUST go through the protocol — never downcast to
-  // `MixpanelAnalyticsClient` — so test doubles can observe the calls
-  // (architecture-audit-2026-06-10.md §4.3).
+  // Default no-op implementations below let clients without a people/super-property concept
+  // (ConsoleAnalyticsClient) skip these. Call sites MUST go through the protocol, never downcast to
+  // `MixpanelAnalyticsClient`, so test doubles can observe the calls.
 
-  /// Re-registers the §10.2 super properties on the live backend.
-  /// Call after any write that affects a super-property value.
+  /// Re-registers the §10.2 super properties on the live backend; call after any write that affects a super-property value.
   func refreshSuperProperties()
-  /// Recomputes and persists the §10.3 cohort people-properties from the
-  /// current Budget collection. Call after `budget_created` / `budget_edited` /
-  /// `budget_deleted` so the people profile stays in sync.
+  /// Recomputes and persists the §10.3 cohort people-properties from the current Budget collection; call after `budget_created` / `budget_edited` / `budget_deleted`.
   func refreshCohortPeopleProperties(budgets: [BudgetCohortInfo])
-  /// Sets the §10.3 `analytics_opt_in_at` people property. Call on the opt-in
-  /// transition, after the first opted-in `track` has lazily initialised the SDK.
+  /// Sets the §10.3 `analytics_opt_in_at` people property; call on the opt-in transition, after the first opted-in `track` has lazily initialised the SDK.
   func setAnalyticsOptInAt()
   /// Sets the F-6.03 `rating_prompt_first_eligible_at` people property (set-once).
   func setRatingPromptFirstEligible(_ date: Date)
@@ -61,9 +50,7 @@ extension AnalyticsClient {
 
 // MARK: - BudgetCohortInfo
 
-/// A snapshot of the Budget properties needed to compute cohort
-/// people-properties (§10.3). Callers build this from their `Budget` model
-/// objects and pass it into `refreshCohortPeopleProperties(budgets:)`.
+/// Snapshot of the Budget properties needed for cohort people-properties (§10.3); callers build it from their `Budget` models and pass it to `refreshCohortPeopleProperties(budgets:)`.
 struct BudgetCohortInfo {
   let currencyCode: String
   let periodRawValue: String
@@ -72,10 +59,7 @@ struct BudgetCohortInfo {
 
 // MARK: - Canonical event names
 
-/// Canonical event-name constants for Phase 1 (analytics-spec.md §9).
-///
-/// All names are `snake_case`. Use these constants at every call site — never
-/// inline string literals — so typos are caught at compile time.
+/// Canonical event-name constants (`snake_case`; analytics-spec.md §9). Use at every call site, never inline literals, so typos fail at compile time.
 enum AnalyticsEvent {
   nonisolated static let appOpened = "app_opened"
   nonisolated static let budgetCreated = "budget_created"
@@ -88,27 +72,22 @@ enum AnalyticsEvent {
   nonisolated static let expenseLogged = "expense_logged"
   nonisolated static let expenseEdited = "expense_edited"
   nonisolated static let expenseDeleted = "expense_deleted"
-  /// F-7.04: fired when the user taps a Recents suggestion tile in Add Expense.
-  /// Properties are strictly categorical / bucketed; no `ExpenseItem` field is
-  /// transmitted (see analytics-spec.md §2.1 no-PII rule).
+  /// F-7.04: fired when the user taps a Recents suggestion tile in Add Expense. Properties are categorical/bucketed only; no `ExpenseItem` field is transmitted (analytics-spec.md §2.1 no-PII rule).
   nonisolated static let expenseRecentReused = "expense_recent_reused"
   nonisolated static let settingsOpened = "settings_opened"
   nonisolated static let settingChanged = "setting_changed"
   nonisolated static let analyticsConsentChanged = "analytics_consent_changed"
-  /// Diagnostic event fired by the shared persistence-save helper when
-  /// `context.save()` throws. Allow-listed under `docs/analytics-spec.md` §8/§17
-  /// as the single product-stream event whose source is the OSLog-shaped
-  /// failure path; payload is restricted to `operation`, `error_domain`,
-  /// `error_code` (see the `persistence-error-handling` capability).
+  /// Fired by the shared persistence-save helper when `context.save()` throws (allow-listed under
+  /// analytics-spec.md §8/§17). The single product-stream
+  /// event sourced from the OSLog-shaped failure path; payload restricted to `operation`, `error_domain`,
+  /// `error_code`.
   nonisolated static let persistenceSaveFailed = "persistence_save_failed"
 
   // MARK: Rating prompt (F-6.03; analytics-spec.md §12)
 
-  //
-  // Pulled forward from the Phase 2 (F-8.03) catalog because they are F-6.03's
-  // learning loop. The native `requestReview` API reports neither presentation
-  // nor outcome, so there is intentionally no `rating_prompt_shown` /
-  // `rating_prompt_resolved` event — do not reintroduce them.
+  // Pulled forward from the Phase 2 (F-8.03) catalog because they are F-6.03's events.
+  // There is intentionally no `rating_prompt_shown` / `rating_prompt_resolved` event: the native
+  // `requestReview` API reports neither presentation nor outcome. Do not reintroduce them.
 
   /// Fired **once per user**, the first time the rating-prompt eligibility
   /// thresholds are met (gated by the persisted first-eligible timestamp).
@@ -120,11 +99,7 @@ enum AnalyticsEvent {
 
 // MARK: - Canonical property keys
 
-/// Canonical property-key constants for Phase 1 (analytics-spec.md §10).
-///
-/// Keys match the `snake_case` names defined in the spec exactly. Use these
-/// constants at every `track(_:properties:)` call site — never inline string
-/// literals.
+/// Canonical property-key constants matching the spec's `snake_case` names (analytics-spec.md §10). Use at every `track(_:properties:)` call site, never inline literals.
 enum AnalyticsProperty {
   // MARK: Per-event — budget_*
 
@@ -133,17 +108,14 @@ enum AnalyticsProperty {
   nonisolated static let currencyCode = "currency_code"
   nonisolated static let isFirstBudget = "is_first_budget"
   nonisolated static let timeSinceFirstAppOpenBucket = "time_since_first_app_open_bucket"
-  /// Accepted-risk allow-listed per analytics-spec.md §5.4.
+  /// Accepted-risk allow-listed property (analytics-spec.md §5.4).
   nonisolated static let budgetName = "budget_name"
-  /// Accepted-risk allow-listed per analytics-spec.md §5.4. Always paired with `currency_code`.
+  /// Accepted-risk allow-listed property (analytics-spec.md §5.4). Always paired with `currency_code`.
   nonisolated static let budgetAllocationAmount = "budget_allocation_amount"
 
   // MARK: Per-event — budget_edited only (F-8.02 per-field change flags)
 
-  //
-  // Emitted on `budget_edited` so analytics can distinguish which fields the
-  // user actually edited (a name edit vs a date edit vs an allocation edit).
-  // Never emitted on `budget_created` (everything is "new" by definition).
+  // Show which fields the user edited (name vs date vs allocation). Never emitted on `budget_created`, where everything is new.
 
   nonisolated static let allocationChanged = "allocation_changed"
   nonisolated static let startDateChanged = "start_date_changed"
@@ -160,9 +132,7 @@ enum AnalyticsProperty {
 
   // MARK: Per-event — expense_recent_reused (F-7.04)
 
-  //
-  // Categorical / bucketed signal about the F-7.04 Recents-reuse interaction. Never
-  // includes the description string or amount value; see analytics-spec.md §2.1.
+  // Categorical/bucketed F-7.04 Recents-reuse signal; never includes the description string or amount (analytics-spec.md §2.1).
 
   /// Bucketed number of Recents tiles visible in the section at tap time
   /// (e.g., `"1"`, `"2-3"`, `"4-7"`, `"8-15"`).

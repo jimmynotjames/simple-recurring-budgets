@@ -1,11 +1,9 @@
 import SwiftUI
 
 extension View {
-  /// Applies the app's standard page background to a screen, including the navigation bar.
-  ///
-  /// The content background fills the full screen (including safe areas) and shows through
-  /// the transparent nav bar when the large title is visible. `toolbarBackground` kicks in
-  /// when the user scrolls and the compact bar appears, keeping the colour consistent.
+  /// Applies the standard page background, including the navigation bar. The content
+  /// background fills safe areas and shows through the transparent large-title bar;
+  /// `toolbarBackground` keeps the color consistent once the compact bar appears on scroll.
   func appBackground() -> some View {
     background(Color("AppBackground").ignoresSafeArea())
       .toolbarBackground(Color("AppBackground"), for: .navigationBar)

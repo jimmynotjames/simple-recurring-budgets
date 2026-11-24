@@ -1,18 +1,12 @@
 import Foundation
 
-/// Builders for the project's "Send Feedback" `mailto:` URL.
+/// Builders for the "Send Feedback" `mailto:` URL, shared by the Settings link and the persistence-save
+/// error alert's escalated CTA. Diagnostic variants append only the operation identifier and error
+/// domain/code, never user data.
 ///
-/// One canonical builder is used by both the Settings "Send Feedback" link
-/// and the persistence-save error alert's escalated CTA. The diagnostic
-/// variant appends *only* the operation identifier and the error domain/code
-/// to the body — never any user data — per the
-/// `persistence-error-handling` capability's payload allow-list.
-///
-/// **Localization split.** The user-addressed strings (subject, body intro,
-/// closing prompt) are localized; the developer-only diagnostic labels
-/// (`Operation:` / `Error domain:` / `Error code:`) and the "save failure"
-/// subject suffix stay in English so the maintainer's inbox is consistent
-/// across locales.
+/// **Localization split.** User-addressed strings (subject, body intro, closing prompt) are localized;
+/// developer-only diagnostic labels (`Operation:` / `Error domain:` / `Error code:`) and the "save failure"
+/// subject suffix stay English so the maintainer's inbox is consistent across locales.
 enum FeedbackMailto {
   static var recipient: String {
     AppConfig.feedbackEmail
@@ -27,8 +21,7 @@ enum FeedbackMailto {
     )
   }
 
-  /// Plain feedback URL (no diagnostic context). Matches the legacy
-  /// `SettingsView.feedbackMailtoURL` exactly.
+  /// Plain feedback URL (no diagnostic context).
   static var plainURL: URL {
     let subject = defaultSubject
       .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
@@ -36,15 +29,11 @@ enum FeedbackMailto {
     return URL(string: "mailto:\(recipient)?subject=\(subject)")!
   }
 
-  /// Feedback URL with a non-PII diagnostic context appended to the body.
-  /// The body contains only the `PersistenceOperation` raw value and the
-  /// `NSError` domain/code — no budget name, expense field, amount, or
-  /// other user-derived value (`persistence-error-handling` spec).
+  /// Feedback URL with non-PII diagnostic context in the body: only the `PersistenceOperation` raw value and
+  /// `NSError` domain/code, never budget names, amounts, or other user-derived values.
   ///
-  /// Localized parts: subject prefix, body intro, closing user prompt.
-  /// English-only parts: `" — save failure (<op>)"` subject suffix, and
-  /// the `Operation:` / `Error domain:` / `Error code:` diagnostic labels
-  /// (developer-only — keeps support triage consistent across locales).
+  /// Localized: subject prefix, body intro, closing prompt. English-only: the `" — save failure (<op>)"`
+  /// suffix and the diagnostic labels.
   static func diagnosticURL(
     operation: PersistenceOperation,
     errorDomain: String,
@@ -85,13 +74,11 @@ enum FeedbackMailto {
     )!
   }
 
-  /// Feedback URL for the container-creation failure recovery surface
-  /// (`container-creation-recovery` capability). Body contains only the
-  /// `NSError` domain + code — no user data, no model identifiers.
+  /// Feedback URL for the container-creation failure recovery surface. Body has only the `NSError` domain +
+  /// code, no user data or model identifiers.
   ///
-  /// Localized parts: subject prefix, body intro, closing user prompt.
-  /// English-only parts: `" — container failure (<domain> <code>)"` subject
-  /// suffix and the `Error domain:` / `Error code:` diagnostic labels.
+  /// Localized: subject prefix, body intro, closing prompt. English-only: the
+  /// `" — container failure (<domain> <code>)"` suffix and the diagnostic labels.
   static func containerFailureURL(
     errorDomain: String,
     errorCode: Int

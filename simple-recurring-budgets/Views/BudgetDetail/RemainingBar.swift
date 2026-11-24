@@ -7,17 +7,15 @@ import SwiftUI
 struct RemainingBar: View {
   let remainingFraction: Double
   let isOverBudget: Bool
-  /// When `true`, the filled bar renders in `.secondary` style (paused-state presentation).
+  /// Renders a full-width `.secondary` capsule (inactive presentation).
   var dimmed: Bool = false
 
   /// Conservative scale keeps the decorative bar from growing as fast as the text.
   @ScaledMetric(relativeTo: .caption2) private var barHeight: CGFloat = 4
 
-  /// Fuel gauge under budget (full = healthy, empties as you spend);
-  /// flips to a full deficit-color bar when over budget. When `dimmed` is true,
-  /// renders a full-width `.secondary` capsule — the unified inactive-state
-  /// presentation (see `BudgetInactiveReason`) used for preStart, paused, and
-  /// postEnd budgets where the fraction-driven render would be misleading.
+  /// Fuel gauge (full = healthy, empties as you spend); a full deficit-color bar when
+  /// over budget. `dimmed` is the inactive presentation (see `BudgetInactiveReason`),
+  /// where a fraction-driven fill would mislead.
   var body: some View {
     GeometryReader { geo in
       ZStack(alignment: .leading) {
@@ -29,8 +27,8 @@ struct RemainingBar: View {
       }
     }
     .frame(height: barHeight)
-    // Intentionally hidden from assistive technologies: remaining amount, period,
-    // and over-budget state are surfaced on parent accessibility labels instead.
+    // Hidden on purpose: parent accessibility labels already convey amount, period, and
+    // over-budget state.
     .accessibilityHidden(true)
   }
 }

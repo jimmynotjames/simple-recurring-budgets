@@ -1,11 +1,8 @@
 import Foundation
 import SwiftData
 
-/// Records a forward-only allocation change for a `Budget`.
-///
-/// Each row captures the per-period allocation in effect from `effectiveFrom` onward.
-/// `lastModified` breaks ties when two rows share the same `effectiveFrom` (later wins),
-/// which handles CloudKit cross-device convergence for concurrent edits.
+/// A forward-only allocation change for a `Budget`: the per-period allocation in effect from `effectiveFrom`
+/// onward. `lastModified` breaks `effectiveFrom` ties (later wins) so concurrent CloudKit edits converge.
 @Model
 final class AllocationChange {
   var id: UUID = UUID()

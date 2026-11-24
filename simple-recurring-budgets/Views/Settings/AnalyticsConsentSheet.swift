@@ -1,15 +1,11 @@
 import SwiftUI
 
-/// First-run analytics consent sheet, shown once in strict-opt-in jurisdictions
-/// after the user creates their first Budget (§7.2 analytics-spec.md).
+/// First-run analytics consent sheet, shown once in strict-opt-in jurisdictions after
+/// the first Budget is created (analytics-spec.md §7.2).
 ///
-/// **Accept** — sets `analyticsOptIn = true`, fires `analytics_consent_changed`,
-/// then dismisses.
-///
-/// **Decline** — sets `analyticsOptIn = false`, dismisses. The SDK has not been
-/// initialized so no event is sent (there is no live session to record on).
-///
-/// **Swipe-to-dismiss** — treated as Decline per §7.2: `analyticsOptIn = false`.
+/// - Accept: `analyticsOptIn = true`, fires `analytics_consent_changed`, dismisses.
+/// - Decline: `analyticsOptIn = false`, dismisses; no event (SDK not initialized).
+/// - Swipe-to-dismiss: treated as Decline.
 struct AnalyticsConsentSheet: View {
   @Environment(AppSettings.self) private var settings
   @Environment(\.analytics) private var analytics
@@ -93,12 +89,11 @@ struct AnalyticsConsentSheet: View {
       .appBackground()
       .navigationBarTitleDisplayMode(.inline)
     }
-    // Swipe-to-dismiss is treated as Decline per §7.2.
+    // Swiping down is allowed and counts as Decline per analytics-spec.md §7.2 (handled in `onDisappear`).
     .interactiveDismissDisabled(false)
     .onDisappear {
-      // If the user swiped down without tapping either button, analyticsOptIn
-      // must be set to false so the sheet does not re-appear (analyticsOptInExplicitlySet
-      // becomes true). Only write if not already set by the button handlers.
+      // Swipe-dismiss without a button tap: record opt-out so the sheet doesn't reappear
+      // (sets `analyticsOptInExplicitlySet`). Skipped if a button handler already wrote.
       if !settings.analyticsOptInExplicitlySet {
         settings.analyticsOptIn = false
       }
@@ -113,7 +108,7 @@ struct AnalyticsConsentSheet: View {
       AnalyticsEvent.analyticsConsentChanged,
       properties: [AnalyticsProperty.newValue: true]
     )
-    // §10.3: stamp the opt-in timestamp (after track lazily inits the SDK).
+    // Opt-in timestamp (analytics-spec.md §10.3). Must follow `track`, which lazy-inits the SDK.
     analytics.setAnalyticsOptInAt()
     dismiss()
   }

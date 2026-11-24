@@ -4,10 +4,8 @@ import UIKit
 extension View {
   /// Resigns the current first responder, dismissing the software keyboard.
   ///
-  /// Sends `resignFirstResponder` up the responder chain rather than toggling a specific
-  /// `@FocusState`, so it dismisses whatever is focused without the caller having to know
-  /// which field that is. This matters on screens that mix a SwiftUI `TextField` with a
-  /// UIKit-backed field (`DecimalInputField`): a single call covers both.
+  /// Sends `resignFirstResponder` up the responder chain instead of toggling a `@FocusState`,
+  /// so one call covers both SwiftUI `TextField`s and the UIKit-backed `DecimalInputField`.
   func dismissKeyboard() {
     UIApplication.shared.sendAction(
       #selector(UIResponder.resignFirstResponder),

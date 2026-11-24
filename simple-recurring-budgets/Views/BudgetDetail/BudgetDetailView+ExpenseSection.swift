@@ -25,11 +25,9 @@ extension BudgetDetailView {
       let future = futurePeriodExpenses
       let past = pastPeriodExpenses
       let current = currentPeriodExpenses
-      // Future-dated expenses live above the current section (the list is
-      // reverse-chronological) in a single "Upcoming" bucket for all future
-      // periods — they don't count toward Remaining until their date arrives,
-      // so mixing them into the current section made its total disagree with
-      // the headline (audit L2).
+      // Future-dated expenses go in one "Upcoming" bucket above the current section.
+      // They don't count toward Remaining until their date arrives, so mixing them into
+      // the current section would make its total disagree with the headline.
       if !future.isEmpty {
         Section(futureSectionTitle) {
           ForEach(future) { expense in expenseRow(expense) }
@@ -57,9 +55,7 @@ extension BudgetDetailView {
               .monospacedDigit()
               .textCase(nil)
           }
-          // Coalesce the title + total into a single VoiceOver element so
-          // it reads "Current Day, total $20.00" rather than as two
-          // separate static-text elements.
+          // One VoiceOver element: "Current Day, total $20.00", not two static texts.
           .accessibilityElement(children: .ignore)
           .accessibilityLabel(String(
             localized: "budgetDetail.section.current.accessibilityLabel",
@@ -99,8 +95,8 @@ extension BudgetDetailView {
         )
       }
     }
-    // SwiftUI does not auto-expose `swipeActions` to VoiceOver. Without an
-    // explicit `accessibilityAction`, VO users cannot delete expenses.
+    // SwiftUI doesn't expose `swipeActions` to VoiceOver; without this explicit
+    // action, VO users can't delete expenses.
     .accessibilityAction(named: Text(String(
       localized: "budgetDetail.expenseRow.accessibilityAction.delete",
       defaultValue: "Delete",
@@ -123,18 +119,15 @@ extension BudgetDetailView {
         try context.saveChanges(operation: .expenseDelete, analytics: analytics)
       }
     } catch let error as PersistenceError {
-      // Failed save: surface the standard save-error alert and skip the
-      // analytics emission (`budget-detail-screen` delta spec scenario
-      // "Failed swipe-delete surfaces the save-error alert").
+      // Failed save: show the error alert and skip analytics.
       saveError.setForFailure(error, retry: { [self] in deleteExpense(expense) })
       return
     } catch {
       return
     }
     saveError.clear()
-    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
-    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
-    // expense_deleted fires only on a successful save.
+    // expense_deleted fires only after a successful save (F-8.02); the debug log above (F-8.01) is
+    // independent of it.
     analytics.track(
       AnalyticsEvent.expenseDeleted,
       properties: [
@@ -169,9 +162,8 @@ extension BudgetDetailView {
     partitionedExpenses.past
   }
 
-  /// Single bucket for all future-dated expenses, regardless of period type —
-  /// unlike `currentSectionTitle` / `pastSectionTitle` there is no per-period
-  /// variant (audit L2 decision).
+  /// Single bucket for all future-dated expenses; unlike the current/past titles, there
+  /// is no per-period variant.
   var futureSectionTitle: String {
     String(
       localized: "budgetDetail.section.future",

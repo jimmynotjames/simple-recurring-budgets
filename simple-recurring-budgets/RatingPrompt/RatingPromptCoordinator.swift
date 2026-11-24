@@ -3,26 +3,23 @@ import Observation
 
 /// Decision core for the automatic App Store review prompt (F-6.03).
 ///
-/// On each successful Add-mode expense log the view calls `recordExpenseLogged`,
-/// which advances the persisted eligibility counters and — when the balanced-profile
-/// thresholds are met at a positive moment and we have not already asked for the
-/// current app version — sets `isRequestPending`. The root presenter
-/// (`ratingPromptPresenter()`) observes that flag and invokes Apple's native
-/// `requestReview` once the Add Expense sheet has dismissed and the scene is active,
-/// then calls `consumePendingRequest`.
+/// On each successful Add-mode expense log the view calls `recordExpenseLogged`, which advances the
+/// persisted eligibility counters and, when the balanced-profile thresholds are met at a positive moment and
+/// the current app version hasn't been asked yet, sets `isRequestPending`. The root presenter
+/// (`ratingPromptPresenter()`) observes that flag, invokes Apple's native `requestReview` once the Add
+/// Expense sheet has dismissed and the scene is active, then calls `consumePendingRequest`.
 ///
-/// No custom rating dialog is ever shown. Re-prompt prevention relies on Apple's
-/// automatic throttling plus the once-per-version guard here. The native API reports
-/// neither presentation nor the user's choice, so no logic depends on an "outcome".
+/// No custom rating dialog is shown. Re-prompt prevention relies on Apple's throttling plus the
+/// once-per-version guard here. The native API reports neither presentation nor the user's choice, so no
+/// logic depends on an outcome.
 @Observable
 final class RatingPromptCoordinator {
-  /// Balanced-profile thresholds (F-6.03 acceptance criteria).
+  /// Balanced-profile eligibility thresholds (F-6.03 acceptance criteria).
   static let minInstallAgeDays = 7
   static let minDistinctLogDays = 3
   static let minLoggedExpenses = 10
 
-  /// Transient and **not** persisted: set when an eligible log occurs, cleared after
-  /// the root presenter requests a review. Observed by `ratingPromptPresenter()`.
+  /// Transient, **not** persisted: set when an eligible log occurs, cleared after the root presenter requests a review.
   var isRequestPending = false
 
   private let state: RatingPromptState
@@ -71,9 +68,8 @@ final class RatingPromptCoordinator {
     }
   }
 
-  /// Called by the root presenter immediately after invoking `requestReview`.
-  /// Records the requested version (the once-per-version guard), clears the pending
-  /// flag, and fires `rating_prompt_requested`.
+  /// Called by the root presenter right after `requestReview`: records the requested version (once-per-version
+  /// guard), clears the pending flag, and fires `rating_prompt_requested`.
   func consumePendingRequest(
     now: Date = Date(),
     appVersion: String = RatingPromptCoordinator.currentAppVersion
@@ -113,10 +109,9 @@ final class RatingPromptCoordinator {
 
   // MARK: - Pure decision helpers (extracted for testability)
 
-  /// Whether the root presenter should request a review right now. Pure so the
-  /// gating is unit-testable; the actual `requestReview()` call and `consume` stay
-  /// in `RatingPromptPresenter`. The sheet gate is what defers the prompt until the
-  /// Add Expense sheet has dismissed.
+  /// Whether the root presenter should request a review now. Pure so gating is unit-testable; the
+  /// `requestReview()` call and `consume` stay in `RatingPromptPresenter`. The sheet gate defers the prompt
+  /// until the Add Expense sheet has dismissed.
   static func shouldRequestReview(
     isRequestPending: Bool,
     sheetIsPresented: Bool,
@@ -125,9 +120,8 @@ final class RatingPromptCoordinator {
     isRequestPending && !sheetIsPresented && sceneIsActive
   }
 
-  /// Derives the rating-prompt signals for a just-saved expense, or `nil` when the
-  /// log must not feed the prompt (edit mode, or no owning budget). Pure so the
-  /// `AddEditExpenseView` hook stays a thin call; the snapshot is computed exactly
+  /// Derives the rating-prompt signals for a just-saved expense, or `nil` when the log mustn't feed the prompt
+  /// (edit mode, no owning budget). Pure so the `AddEditExpenseView` hook stays thin; the snapshot is computed
   /// as the live UI would.
   static func expenseLogSignals(
     isAddMode: Bool,

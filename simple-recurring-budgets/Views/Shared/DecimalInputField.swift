@@ -10,28 +10,24 @@ import UIKit
 //   Related workaround: the XCUITest double-tap in AccessibilityAuditTests.createBudget compensates for
 //   the same UIViewRepresentable first-responder focus quirk. Search "iOS-COMPAT" to find all tagged sites.
 
-/// A money-amount text field backed by `UITextField` rather than SwiftUI's `TextField`.
+/// A money-amount text field backed by `UITextField` rather than SwiftUI's `TextField`,
+/// which is unreliable here in two ways:
+/// 1. `TextField(value:format:)` rejects a keystroke whenever the parse strategy throws,
+///    silently blocking all input in RTL / non-Western-digit locales (e.g. Arabic).
+/// 2. `TextField(text:)` + `.onChange` writing to an `@Observable` model doesn't render typed
+///    text until the field resigns first responder (iOS 17+ binding bug).
 ///
-/// SwiftUI's `TextField` proved unreliable for this field in two distinct ways:
-/// 1. `TextField(value:format:)` rejects a keystroke whenever the parse strategy throws — which silently
-///    blocked *all* input in RTL / non-Western-digit locales (e.g. Arabic), where the proposed string isn't
-///    what a Western-digit parser expects.
-/// 2. `TextField(text:)` + `.onChange` that writes to an `@Observable` model fails to render typed text until
-///    the field resigns first responder (a known iOS 17+ binding bug).
+/// `UITextField` owns its text and reports edits via its delegate, with no SwiftUI binding
+/// round-trip while editing. Callers parse `text` into a `Decimal?` (see
+/// `EditableAmountConverter`).
 ///
-/// Wrapping `UITextField` sidesteps both: the text view owns its text and reports edits via its delegate,
-/// with no SwiftUI binding round-trip during editing. Callers parse `text` into a `Decimal?` themselves
-/// (see `EditableAmountConverter`). This mirrors how community currency-field libraries are built.
+/// The delegate also caps input live to the currency's minor-unit precision: no decimal
+/// separator for 0-decimal currencies (JPY, KRW, …), else at most `maxFractionDigits`
+/// fraction digits.
 ///
-/// The delegate also caps input to the currency's minor-unit precision live: no decimal separator at all for
-/// 0-decimal currencies (JPY, KRW, …), and at most `maxFractionDigits` fraction digits otherwise.
-///
-/// **Revisit when SwiftUI improves (tracked in issue #122):** this is a workaround, not a preference. If
-/// either bug above is fixed in a future iOS, delete this wrapper and the UIKit interop and move back to a
-/// native SwiftUI field — `TextField(value:format:)` if the parse round-trip becomes reliable, or
-/// `TextField(text:)` + `.onChange` otherwise. `EditableAmountConverter` already holds the
-/// conversion/seed/parse logic the native path would reuse, and `.decimalPad` + a number `FormatStyle` would
-/// cover most of the fraction capping done here by hand. Re-verify the Arabic / JPY / BHD / EUR cases first.
+/// This is a workaround, not a preference (issue #122). If either bug is fixed, replace it
+/// with a native field; `EditableAmountConverter` holds the reusable conversion logic.
+/// Re-verify the Arabic / JPY / BHD / EUR cases first.
 struct DecimalInputField: UIViewRepresentable {
   let placeholder: String
   @Binding var text: String
@@ -42,27 +38,24 @@ struct DecimalInputField: UIViewRepresentable {
   /// Become first responder once when the field first appears (used for the expense Amount field in Add mode).
   var autoFocus: Bool = false
   /// Monotonic counter; each increment makes the field first responder on the next update.
-  /// `CurrencyAmountField` bumps it when its clear (✕) is tapped so the cursor lands in this
-  /// field after clearing — matching `UITextField`'s built-in clear-button behavior — instead
-  /// of staying wherever it was (e.g. the Description field after a Recents-driven fill).
+  /// `CurrencyAmountField` bumps it on clear (✕) so the cursor lands here, not wherever it was.
   var focusRequest: Int = 0
   /// Text colour; the expense Amount field tints green while Add Funds is on.
   var textColor: Color = .primary
   /// VoiceOver label (the field itself; the adjacent currency affix is decorative/hidden).
   var accessibilityLabel: String
-  /// Called when this field becomes first responder. Callers use it to keep a sibling SwiftUI
-  /// `@FocusState` in sync — without it, focus state lingers on a previously focused SwiftUI field,
-  /// which on iPadOS 26 mis-anchors the `.decimalPad` popover to that stale field (issue #126).
+  /// Called when this field becomes first responder, so callers can sync a sibling
+  /// `@FocusState`. Otherwise focus lingers on the previous SwiftUI field and iPadOS 26
+  /// mis-anchors the `.decimalPad` popover to it.
   var onBeginEditing: (() -> Void)?
 
   private var maxFractionDigits: Int {
     EditableAmountConverter.fractionDigits(for: currencyCode, locale: locale)
   }
 
-  /// Decimal-separator character(s) to recognize while capping fraction digits: exactly the locale's own
-  /// separator — the only one the `.decimalPad` emits for this locale (".", ",", Arabic "٫", …). Deriving it
-  /// from the locale rather than hardcoding a dot/comma grab-bag keeps the cap correct in comma-decimal
-  /// locales, where a "." is a *grouping* separator and must not be miscounted as a second decimal point.
+  /// The locale's own decimal separator, the only one `.decimalPad` emits for it (".", ",",
+  /// Arabic "٫", …). Don't hardcode a dot/comma set: in comma-decimal locales "." is a
+  /// grouping separator and must not count as a second decimal point.
   private var separators: Set<Character> {
     let formatter = NumberFormatter()
     formatter.locale = locale
@@ -90,7 +83,7 @@ struct DecimalInputField: UIViewRepresentable {
   }
 
   func updateUIView(_ field: UITextField, context: Context) {
-    // Only overwrite when the model genuinely diverges, so we never clobber an in-progress edit / cursor.
+    // Overwrite only on real divergence, to preserve an in-progress edit and cursor.
     if field.text != text {
       field.text = text
     }
@@ -101,10 +94,9 @@ struct DecimalInputField: UIViewRepresentable {
     }
     if context.coordinator.lastFocusRequest != focusRequest {
       context.coordinator.lastFocusRequest = focusRequest
-      // Deferred like autoFocus above. First-responder setup mid-update is the fragile
-      // spot in the iOS 26 crash worked around in `CurrencyAmountField` (its `onClear`
-      // doc / PR #164 — adding an outer container crashed during autoFocus setup), so
-      // this conservatively never calls becomeFirstResponder inside the update pass.
+      // Deferred (`Task`) like autoFocus: first-responder setup mid-update is the fragile
+      // spot behind the iOS 26 crash noted on `CurrencyAmountField.onClear`. Never call
+      // becomeFirstResponder inside the update pass.
       if !field.isFirstResponder {
         Task { field.becomeFirstResponder() }
       }
@@ -124,7 +116,7 @@ struct DecimalInputField: UIViewRepresentable {
     field.placeholder = placeholder
     field.textColor = UIColor(textColor)
     field.accessibilityLabel = accessibilityLabel
-    // Keep the coordinator's capping rules current if the currency/locale changed.
+    // Keep capping rules current if currency/locale change.
     context.coordinator.maxFractionDigits = maxFractionDigits
     context.coordinator.separators = separators
     context.coordinator.onBeginEditing = onBeginEditing
@@ -137,10 +129,10 @@ struct DecimalInputField: UIViewRepresentable {
     return UIFont(descriptor: descriptor, size: 0)
   }
 
-  /// Whether `prospective` is acceptable for a field capped at `maxFractionDigits`, treating any character in
-  /// `separators` as a decimal separator. Pure and side-effect-free so it can be unit-tested:
-  /// - 0-decimal currencies reject any decimal separator (no fractional entry at all).
-  /// - otherwise at most `maxFractionDigits` digits may follow a single separator.
+  /// Whether `prospective` is acceptable under the `maxFractionDigits` cap, treating any
+  /// character in `separators` as the decimal separator. Pure (unit-tested). 0-decimal
+  /// currencies reject any separator; otherwise at most `maxFractionDigits` digits may
+  /// follow a single separator.
   static func isAcceptable(
     _ prospective: String,
     maxFractionDigits: Int,
@@ -168,8 +160,8 @@ struct DecimalInputField: UIViewRepresentable {
     var maxFractionDigits: Int
     var separators: Set<Character>
     var didAutoFocus = false
-    /// Last `focusRequest` value acted on; seeded from the initial value so the field
-    /// doesn't grab focus on first update.
+    /// Last `focusRequest` acted on; seeded from the initial value so the field doesn't
+    /// grab focus on first update.
     var lastFocusRequest: Int
     var onBeginEditing: (() -> Void)?
 

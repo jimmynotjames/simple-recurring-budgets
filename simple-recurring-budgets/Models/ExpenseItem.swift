@@ -1,10 +1,8 @@
 import Foundation
 import SwiftData
 
-/// A single transaction linked to a `Budget`.
-///
-/// `amount` is signed: positive values represent an expense, negative values represent
-/// adding funds (F-6.01). Use `isAddFunds` and `displayAmount` for display logic.
+/// A single transaction linked to a `Budget`. `amount` is signed: positive is an expense, negative is added
+/// funds (F-6.01). Use `isAddFunds` and `displayAmount` for display logic.
 @Model
 final class ExpenseItem {
   var id: UUID = UUID()

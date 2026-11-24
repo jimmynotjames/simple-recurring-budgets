@@ -1,9 +1,7 @@
 import Foundation
 
-/// A compile-time wrapper over the four recurring `BudgetPeriod` cases.
-///
-/// `PeriodCalculator`'s public surface accepts this type so that `.specificDates` cannot
-/// accidentally reach period-boundary math — the `init?` returns `nil` for that case.
+/// Compile-time wrapper over the four recurring `BudgetPeriod` cases. `PeriodCalculator` accepts this type
+/// so `.specificDates` can't reach period-boundary math; `init?` returns `nil` for it.
 enum RecurringBudgetPeriod {
   case daily
   case weekly

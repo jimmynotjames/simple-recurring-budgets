@@ -25,9 +25,8 @@ extension BudgetDetailView {
       return
     }
     saveError.clear()
-    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
-    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
-    // budget_paused fires only on a successful save (budget-lifecycle delta spec).
+    // budget_paused fires only after a successful save (F-8.02); the debug log above (F-8.01) is
+    // independent of it.
     if succeeded {
       analytics.track(
         AnalyticsEvent.budgetPaused,
@@ -63,9 +62,8 @@ extension BudgetDetailView {
       return
     }
     saveError.clear()
-    // ⚠️ Boundary-adjacent (sibling pattern): Logger.ui.debug above (F-8.01) and
-    // analytics.track below (F-8.02) are independent siblings. See design.md D6.
-    // budget_resumed fires only on a successful save (budget-lifecycle delta spec).
+    // budget_resumed fires only after a successful save (F-8.02); the debug log above (F-8.01) is
+    // independent of it.
     if succeeded {
       analytics.track(
         AnalyticsEvent.budgetResumed,

@@ -8,25 +8,22 @@ import UIKit
 
 /// Production `AnalyticsClient` backed by the Mixpanel SDK.
 ///
-/// **Lazy init contract (§2.1.8 / §8):** `Mixpanel.initialize` is NOT called
-/// in `init`. The SDK is created the first time `isOptedIn()` returns `true`
-/// and a `track` or `identify` call arrives. Opted-out launches never create
-/// a `MixpanelInstance` and never open a network connection.
+/// **Lazy init:** `Mixpanel.initialize` is NOT called in `init`. The SDK is created the first time
+/// `isOptedIn()` is `true` and a `track` or `identify` arrives, so opted-out launches never create a
+/// `MixpanelInstance` or open a connection.
 ///
-/// **Isolation:** all public and private methods are `@MainActor` (inherited from
-/// the module's default isolation). `@unchecked Sendable` is retained because
-/// `MixpanelInstance` does not declare `Sendable` conformance.
+/// **Isolation:** all methods are `@MainActor` (module default). `@unchecked Sendable` stays because
+/// `MixpanelInstance` isn't declared `Sendable`.
 final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
   // MARK: - Stored closures
 
   private let token: String
-  /// Resolved once during `@MainActor init()` to avoid accessing the
-  /// `@MainActor`-isolated `UIDevice.current` from a `nonisolated` context.
+  /// Resolved once in `@MainActor init()` to avoid touching `@MainActor`-isolated `UIDevice.current` from a `nonisolated` context.
   private let deviceClass: String
   private let isOptedIn: () -> Bool
   private let distinctIdProvider: () -> String?
 
-  // Dynamic super-property sources (§10.2)
+  // Dynamic super-property sources
   private let weekStartDayProvider: () -> String
   private let currencyDisplayProvider: () -> String
   private let carryOverDefaultProvider: () -> Bool
@@ -35,8 +32,7 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
 
   // MARK: - Lazy-init cell
 
-  /// Serialises all reads and writes to `_instance` (redundant guard given
-  /// `@MainActor` isolation, but harmless).
+  /// Serialises reads and writes to `_instance` (redundant under `@MainActor`, but harmless).
   private let instanceLock = NSLock()
   /// The lazily-created SDK instance. Nil until the first opted-in track call.
   private var _instance: MixpanelInstance?
@@ -110,22 +106,17 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
 
   // MARK: - Super / people-property surface (AnalyticsClient protocol)
 
-  /// Re-registers the §10.2 super properties on the live `MixpanelInstance`.
-  ///
-  /// Call after any write to `AppSettings` that affects a super-property value
-  /// (`week_start_day`, `currency_display_preference`, `carry_over_default_enabled`,
-  /// `icloud_state`) or after a `budget_*` event changes `budgets_count_bucket`.
-  /// No-op if the SDK has not yet been lazily initialised.
+  /// Re-registers the super properties on the live `MixpanelInstance`. Call after any `AppSettings` write that
+  /// affects a super-property value (`week_start_day`, `currency_display_preference`,
+  /// `carry_over_default_enabled`, `icloud_state`) or after a `budget_*` event changes
+  /// `budgets_count_bucket`. No-op before lazy init.
   func refreshSuperProperties() {
     guard let instance = currentInstance() else { return }
     registerSuperProperties(on: instance)
   }
 
-  /// Recomputes and persists §10.3 cohort people-properties from the current
-  /// Budget collection. Must be called from the main actor (ViewModels are fine).
-  ///
-  /// Call immediately after `analytics.track("budget_created" / "budget_edited" /
-  /// "budget_deleted")` so Mixpanel People stays in sync with the current state.
+  /// Recomputes and persists cohort people-properties from the current Budget collection. Call from the main
+  /// actor right after `budget_created` / `budget_edited` / `budget_deleted` so Mixpanel People stays in sync.
   func refreshCohortPeopleProperties(budgets: [BudgetCohortInfo]) {
     guard let instance = currentInstance() else { return }
     setCohortPeopleProperties(on: instance, budgets: budgets)
@@ -140,9 +131,8 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
       instanceLock.unlock()
       return existing
     }
-    // First opted-in call — initialize the SDK.
     let newInstance = Mixpanel.initialize(token: token, trackAutomaticEvents: false)
-    // Conservative flush batch size per §16 Low Data Mode guidance.
+    // Conservative flush batch size for Low Data Mode.
     newInstance.flushBatchSize = 50
     registerSuperProperties(on: newInstance)
     if let distinctId = distinctIdProvider() {
@@ -160,7 +150,7 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
     return _instance
   }
 
-  // MARK: - Private: super properties (§10.2)
+  // MARK: - Private: super properties
 
   private func registerSuperProperties(on instance: MixpanelInstance) {
     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -187,7 +177,7 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
     instance.registerSuperProperties(props)
   }
 
-  // MARK: - Private: people properties (§10.3)
+  // MARK: - Private: people properties
 
   private func setBaselinePeopleProperties(on instance: MixpanelInstance) {
     let now = Date()
@@ -195,22 +185,19 @@ final class MixpanelAnalyticsClient: AnalyticsClient, @unchecked Sendable {
     instance.people.set(properties: [AnalyticsProperty.lastAppOpenAt: now])
   }
 
-  /// Sets the §10.3 `analytics_opt_in_at` people property on opt-in.
-  /// No-op if the SDK has not yet been lazily initialised (opted-out).
+  /// Sets the `analytics_opt_in_at` people property on opt-in. No-op before lazy init (opted out).
   func setAnalyticsOptInAt() {
     guard let instance = currentInstance() else { return }
     instance.people.set(properties: [AnalyticsProperty.analyticsOptInAt: Date()])
   }
 
-  /// Sets the F-6.03 `rating_prompt_first_eligible_at` people property (set-once).
-  /// No-op if the SDK has not yet been lazily initialised (opted-out).
+  /// Sets the F-6.03 `rating_prompt_first_eligible_at` (set-once). No-op before lazy init (opted out).
   func setRatingPromptFirstEligible(_ date: Date) {
     guard let instance = currentInstance() else { return }
     instance.people.setOnce(properties: [AnalyticsProperty.ratingPromptFirstEligibleAt: date])
   }
 
-  /// Refreshes the F-6.03 `rating_prompt_last_requested_at` people property.
-  /// No-op if the SDK has not yet been lazily initialised (opted-out).
+  /// Refreshes the F-6.03 `rating_prompt_last_requested_at`. No-op before lazy init (opted out).
   func setRatingPromptLastRequested(_ date: Date) {
     guard let instance = currentInstance() else { return }
     instance.people.set(properties: [AnalyticsProperty.ratingPromptLastRequestedAt: date])

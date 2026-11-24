@@ -1,10 +1,9 @@
 import SwiftUI
 
 extension AddEditBudgetView {
-  /// Disclosure shown under the period grid when Weekly is selected: states the global
-  /// week-start day all weekly budgets share, with a link that pushes the focused Start
-  /// of Week picker onto the form's own NavigationStack (the in-progress draft stays
-  /// alive underneath; on return the caption re-reads `settings.weekStartDay` live).
+  /// Note under the period grid when Weekly is selected: the global week-start day, with a
+  /// link pushing the Start of Week picker onto the form's NavigationStack (the draft
+  /// stays alive; the caption re-reads `settings.weekStartDay` on return).
   var weeklyNote: some View {
     VStack(alignment: .leading, spacing: 4) {
       Text(String(
@@ -45,9 +44,8 @@ extension AddEditBudgetView {
     .transition(.opacity.combined(with: .move(edge: .top)))
   }
 
-  /// Localized name of the global week-start day (e.g. "Sunday"). Mirrors
-  /// `SettingsView.weekdayName(_:)`; `Weekday` is 1-based (sunday = 1), the symbols
-  /// array is 0-based, hence `rawValue - 1`.
+  /// Localized global week-start day name. Mirrors `SettingsView.weekdayName(_:)`;
+  /// `Weekday` is 1-based, the symbols array 0-based, hence `rawValue - 1`.
   var weekStartDayName: String {
     Calendar.current.standaloneWeekdaySymbols[settings.weekStartDay.rawValue - 1]
   }

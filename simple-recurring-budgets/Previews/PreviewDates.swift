@@ -1,14 +1,10 @@
 #if DEBUG
   import Foundation
 
-  /// Shared anchor dates for SwiftUI previews of inactive-state UI (`BudgetInactiveReason`
-  /// variants). Anchored off `Date()` at module load — same staleness behavior as the
-  /// per-file constants these replace, but co-located so the three offsets stay in sync
-  /// and the call sites in `BudgetRemainingSummary`, `StatusChipRow`, and
-  /// `InactiveStatusChip` all see the same values.
-  ///
-  /// Not used by production code. The `#if DEBUG` gate matches the existing pattern in
-  /// `BudgetDetailFixtures.swift` / `PreviewContainer.swift`.
+  /// Shared anchor dates for previews of inactive-state UI (`BudgetInactiveReason` variants), anchored off
+  /// `Date()` at module load. Co-located so the `BudgetRemainingSummary`, `StatusChipRow`, and
+  /// `InactiveStatusChip` previews see the same offsets. Not used by production code; `#if DEBUG` like the
+  /// other preview support files.
   enum PreviewDates {
     /// Two weeks in the future — drives the `.preStart` chip preview ("Starts {date}").
     static let preStart: Date = Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date()

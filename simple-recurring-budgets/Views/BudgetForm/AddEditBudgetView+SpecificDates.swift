@@ -65,18 +65,12 @@ extension AddEditBudgetView {
 
 // MARK: - DateColumn
 
-/// Side-by-side date chip + sheet picker used by the Add/Edit Budget Dates card.
+/// Date chip + sheet picker for the Add/Edit Budget date cards: a full-width rounded chip
+/// (placeholder when empty, abbreviated locale date once set) that opens a sheet with a
+/// `.graphical` `DatePicker`; Cancel discards, Done assigns.
 ///
-/// Renders as a full-width rounded-rect chip (matching the unselected period chip style)
-/// in the empty state with a localized placeholder ("Choose start date" / "Choose end date").
-/// Once a date is set, the chip shows the locale-aware abbreviated form (e.g. "May 18, 2026").
-/// Tapping the chip presents a sheet containing a `.graphical` `DatePicker`; Cancel discards,
-/// Done assigns. Single-tap UX: tap → sheet → pick → Done.
-///
-/// **Not a reusable component.** The `placeholder`, `accessibilityHint`, and
-/// `setStateAccessibilityLabel` closure are all wired to localization keys specific to
-/// the Add/Edit Budget Dates card. If a second site needs a similar chip+picker,
-/// extract a reusable shell first rather than reusing this struct as-is.
+/// Not reusable as-is: the placeholder, hint, and label closure are wired to localization
+/// keys specific to these cards. Extract a shell first if another site needs one.
 struct DateColumn: View {
   let placeholder: String
   let accessibilityHint: String
@@ -89,13 +83,11 @@ struct DateColumn: View {
 
   var body: some View {
     Button {
-      // Retire any keyboard left up by name/allocation editing before the picker sheet
-      // covers it. Without this, iOS restores the prior first responder when the sheet
-      // is dismissed and the keyboard springs back up over the form.
+      // Retire any keyboard before the sheet covers it; otherwise iOS restores the prior
+      // first responder on dismiss and the keyboard springs back up over the form.
       dismissKeyboard()
-      // Floor the draft at minDate so it can never land below the picker's allowed
-      // range. The VM's snap-forward keeps `date >= minDate` in normal flow; this
-      // guard covers regressions and any future caller that wires `minDate` directly.
+      // Defensive: floors the draft at minDate so it can't fall below the picker's range.
+      // The VM's snap-forward normally keeps `date >= minDate`; don't remove this guard.
       let floor = minDate ?? .distantPast
       draft = max(date ?? minDate ?? Date(), floor)
       isPickerShown = true

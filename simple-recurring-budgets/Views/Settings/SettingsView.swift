@@ -20,7 +20,7 @@ struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.requestReview) private var requestReview
 
-  /// Holds the user's pending week-start selection until confirmed (F-5.01).
+  /// Holds the pending week-start selection until confirmed (F-5.01).
   @State private var weekStartConfirmation = WeekStartConfirmation()
 
   private var appVersion: String {
@@ -31,13 +31,10 @@ struct SettingsView: View {
     Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
   }
 
-  /// Localized "Debug" marker appended to the version row in development builds,
-  /// so the local build number (always `1` unless a release was cut — see
-  /// fastlane `set_project_build_number`) isn't mistaken for the live TestFlight
-  /// build. Returns `nil` in Release. Also suppressed during App Store screenshot
-  /// capture (`SCREENSHOT_SYNC_OK`, set only by the `AppStoreScreenshots` UI test,
-  /// which builds in Debug) so the marker never leaks into marketing screenshots —
-  /// same screenshot-suppression flag used in `simple_recurring_budgetsApp`.
+  /// "Debug" marker for the version row in development builds, so the local build number
+  /// isn't mistaken for the TestFlight build. `nil` in Release and during App Store
+  /// screenshot capture (`SCREENSHOT_SYNC_OK`, set by the `AppStoreScreenshots` UI test,
+  /// which builds in Debug).
   private var debugBadge: String? {
     #if DEBUG
       guard ProcessInfo.processInfo.environment["SCREENSHOT_SYNC_OK"] != "1" else { return nil }
@@ -51,8 +48,7 @@ struct SettingsView: View {
     #endif
   }
 
-  /// VoiceOver copy for the version row, with the `debugBadge` word appended in
-  /// development builds so assistive tech announces the Debug marker too.
+  /// VoiceOver copy for the version row, including the `debugBadge` word in dev builds.
   private var versionAccessibilityLabel: String {
     let base = String(
       localized: "settings.version.accessibilityLabel",
@@ -215,8 +211,7 @@ struct SettingsView: View {
             weekStartConfirmation.select(new, current: currentDay)
           }
         )
-        // setting_changed for week_start_day fires on confirmation (via alert confirm handler).
-        // See the alert confirm button below.
+        // `setting_changed` for week_start_day fires from the alert confirm handler.
       ) {
         ForEach(Weekday.allCases) { day in
           Text(weekdayName(day)).tag(day)
@@ -264,8 +259,7 @@ struct SettingsView: View {
           }
         )
       ) {
-        // F-2.05 acceptance: each row reads "<localized option label> — <locale-aware example>",
-        // not the example alone. The example is derived live from the user's locale.
+        // Each row reads "<option label> — <locale-aware example>", not the example alone (F-2.05).
         ForEach(CurrencyDisplayPreference.allCases) { option in
           Text(String(
             localized: "settings.currencyDisplay.option.row",
@@ -299,7 +293,7 @@ struct SettingsView: View {
         get: { settings.analyticsOptIn },
         set: { newValue in
           if newValue {
-            // Toggle-on: set first, then track (SDK lazy-inits on track call).
+            // Opt in first, then track: the SDK lazy-inits on the first track call.
             settings.analyticsOptIn = true
             analytics.track(
               AnalyticsEvent.analyticsConsentChanged,
@@ -308,13 +302,11 @@ struct SettingsView: View {
                 AnalyticsProperty.oldValue: false,
               ]
             )
-            // §10.3: stamp the opt-in timestamp (after track lazily inits the SDK).
+            // Opt-in timestamp (analytics-spec.md §10.3). Must follow `track`, which lazy-inits the SDK.
             analytics.setAnalyticsOptInAt()
           } else {
-            // Toggle-off ordering per §7.3 analytics-spec.md:
-            // 1. Fire consent_changed FIRST while still opted in.
-            // 2. Reset the SDK state.
-            // 3. Set analyticsOptIn = false so subsequent events are dropped.
+            // Order matters (analytics-spec.md §7.3): fire consent_changed while still opted in, reset the SDK,
+            // then set `analyticsOptIn = false` so later events are dropped.
             analytics.track(
               AnalyticsEvent.analyticsConsentChanged,
               properties: [
@@ -475,12 +467,9 @@ private extension SettingsView {
           comment: "Label for the app version row in Settings"
         ))
         Spacer()
-        // Locale-invariant numerals + parentheses; use `verbatim:` so the
-        // string is not extracted into the catalog and translators never
-        // see a `%@ (%@)` format. The accessibilityLabel below carries the
-        // real localizable copy ("Version …, build …"). The optional
-        // " · Debug" suffix is the only localized piece (extracted via
-        // `debugBadge`'s `String(localized:)`); it appears in dev builds only.
+        // `verbatim:` keeps this locale-invariant `%@ (%@)` string out of the catalog; the
+        // accessibility label carries the localizable copy. Only the dev-build " · Debug"
+        // suffix is localized (via `debugBadge`).
         Text(verbatim: "\(appVersion) (\(buildNumber))" + (debugBadge.map { " · \($0)" } ?? ""))
           .foregroundStyle(.secondary)
           .monospacedDigit()
@@ -581,17 +570,13 @@ private extension SettingsView {
   }
 
   func loadICloudStatus() async {
-    // Query + mapping live in ICloudStatusLoader so unit tests can drive them
-    // through injected providers (test-coverage-audit-2026-06-10 I2).
+    // Logic lives in ICloudStatusLoader so tests can inject providers.
     await ICloudStatusLoader().load(into: syncStatus)
   }
 
-  /// Observes iCloud account changes while the sheet is open so the row
-  /// updates reactively without requiring a dismiss / re-open.
-  ///
-  /// Watches both `CKAccountChanged` (CloudKit container sign-in/out) and
-  /// `NSUbiquityIdentityDidChange` (iCloud identity token rotation, e.g. account
-  /// switch in Settings.app) since each can fire independently.
+  /// Keeps the iCloud row current while the sheet is open. Watches both `CKAccountChanged`
+  /// (CloudKit sign-in/out) and `NSUbiquityIdentityDidChange` (identity token rotation);
+  /// each can fire independently.
   func observeAccountChanges() async {
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await observeSingleNotification(.CKAccountChanged) }

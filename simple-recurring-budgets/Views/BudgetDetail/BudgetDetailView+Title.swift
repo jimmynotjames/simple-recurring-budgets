@@ -1,25 +1,20 @@
 import SwiftUI
 
-// MARK: - Scroll-aware budget title (issue #117)
+// MARK: - Scroll-aware budget title
 
 extension BudgetDetailView {
-  /// The icon (decorative) + name as a single concatenated `Text`, so the title lays
-  /// out as one paragraph: wrapped lines flow to the leading margin (the icon only
-  /// offsets the first line, not subsequent ones), and the icon still mirrors to the
-  /// leading edge in RTL via the bidi base direction (the leading neutral emoji
-  /// attaches to the name's writing direction). A leading `HStack` icon — as on the
-  /// list row — would instead reserve a left column and indent every wrapped line
-  /// past it. The trailing space baked into the icon text reproduces a single
-  /// text-space gap.
+  /// Icon (decorative) + name as one `Text` paragraph. Wrapped lines flow to the leading
+  /// margin (the icon only offsets the first line), and the icon mirrors in RTL via the
+  /// bidi base direction (the neutral emoji takes the name's writing direction). Don't
+  /// switch to a leading `HStack` icon as on the list row: it reserves a column and
+  /// indents every wrapped line. The space in the string is the icon-name gap.
   private var titleText: Text {
     guard let icon = budget.icon, !icon.isEmpty else { return Text(budget.name) }
     return Text(verbatim: "\(icon) \(budget.name)")
   }
 
-  /// Content-area large title: large-title/bold typography that wraps long names in
-  /// full (no truncation). Measures its own height to drive the scroll-collapse
-  /// threshold. VoiceOver reads the name only (icon decorative) and treats it as the
-  /// screen heading.
+  /// Content-area large title; wraps long names in full and measures its own height for
+  /// the scroll-collapse threshold. VoiceOver reads the name only, as the screen heading.
   var titleHeader: some View {
     titleText
       .font(.largeTitle)
@@ -35,10 +30,8 @@ extension BudgetDetailView {
       }
   }
 
-  /// Inline nav-bar title: the same icon + name, truncated to one line at the
-  /// standard inline-title weight, crossfading in as the large title scrolls away.
-  /// Hidden from VoiceOver while invisible so it doesn't double-announce the name
-  /// alongside the content header.
+  /// Inline nav-bar title: same icon + name, one line, crossfading in as the large title
+  /// scrolls away. Hidden from VoiceOver while invisible to avoid double-announcing.
   var inlineTitle: some View {
     titleText
       .font(.headline)

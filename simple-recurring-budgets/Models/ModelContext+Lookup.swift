@@ -1,13 +1,9 @@
 import Foundation
 import SwiftData
 
-/// UUID-based model lookups for route resolution.
-///
-/// `AppRoute` / `SheetRoute` carry stable `UUID`s instead of live model references
-/// (architecture-audit-2026-06-10.md §4.2); `RootView` resolves them here at the
-/// destination. A `nil` return means the model no longer exists — typically deleted
-/// on another device after the route was pushed — and the caller should dismiss
-/// the route rather than render.
+/// UUID-based model lookups for route resolution. `AppRoute` / `SheetRoute` carry stable `UUID`s, and
+/// `RootView` resolves them here at the destination. `nil` means the model no longer exists (typically
+/// deleted on another device after the route was pushed); the caller should dismiss the route.
 extension ModelContext {
   /// Resolves a `Budget` by its stable `id`. Returns `nil` when no match exists.
   func budget(id: UUID) -> Budget? {

@@ -2,27 +2,18 @@ import SwiftUI
 
 // MARK: - StatusChipRow
 
-/// Shared status-chip row used by `BudgetRowView` (Budgets list) and
-/// `BudgetDetailView` header. Renders an optional `InactiveStatusChip` and an
-/// optional `CarryOverChip`, with a trailing `@ViewBuilder` slot for
-/// surface-specific controls (e.g. the detail screen's Reset Carry-Over button).
-///
-/// `ViewThatFits` drops the row to a vertical stack at large Dynamic Type when
-/// the chips together (plus any trailing content) would exceed the available
-/// width.
-///
-/// Owns only its internal between-chip spacing — the parent decides the
-/// top padding to the surrounding row content.
+/// Chip row shared by `BudgetRowView` (list) and the `BudgetDetailView` header: optional
+/// `InactiveStatusChip` and `CarryOverChip`, plus a trailing `@ViewBuilder` slot for
+/// surface-specific controls. `ViewThatFits` stacks vertically when the chips overflow
+/// (large Dynamic Type). Owns only between-chip spacing; the parent sets top padding.
 struct StatusChipRow<Trailing: View>: View {
-  /// When non-nil, drives an `InactiveStatusChip` for the matching reason and
-  /// dims the `CarryOverChip`. See `BudgetInactiveReason`.
+  /// When non-nil, shows an `InactiveStatusChip` and dims the `CarryOverChip`.
   let inactiveReason: BudgetInactiveReason?
   let isCarryOverEnabled: Bool
   let carryOverAmount: Decimal
   let currencyCode: String
   var currencyDisplay: CurrencyDisplayPreference = .symbol
-  /// Top padding applied above the row when it has content. Zero by default so
-  /// the component contributes no layout when it has nothing to show.
+  /// Top padding when the row has content; zero by default so an empty row adds no layout.
   var topSpacing: CGFloat = 0
   @ViewBuilder var trailing: () -> Trailing
 

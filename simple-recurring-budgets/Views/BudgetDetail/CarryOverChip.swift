@@ -6,8 +6,7 @@ struct CarryOverChip: View {
   let amount: Decimal
   let currencyCode: String
   var display: CurrencyDisplayPreference = .symbol
-  /// When `true`, the chip's foreground value is rendered in `.secondary` style
-  /// (the paused-state presentation). The background capsule tint is unchanged.
+  /// Renders the foreground in `.secondary` (inactive presentation); the capsule tint is unchanged.
   var dimmed: Bool = false
 
   @ScaledMetric(relativeTo: .footnote) private var chipSpacing: CGFloat = 3
@@ -32,10 +31,8 @@ struct CarryOverChip: View {
     .padding(.horizontal, chipHPadding)
     .padding(.vertical, chipVPadding)
     .background(Capsule().fill(chipBackground))
-    // Collapse the icon + amount + "carry-over" word into a single
-    // VoiceOver static-text element with the explicit composed label.
-    // Without this, each child Text/Image is its own VO element and
-    // `.accessibilityLabel(...)` does not coalesce them.
+    // One VoiceOver element with the composed label; `.accessibilityLabel(...)` alone
+    // doesn't coalesce the child Text/Image elements.
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(accessibilityLabel)
   }

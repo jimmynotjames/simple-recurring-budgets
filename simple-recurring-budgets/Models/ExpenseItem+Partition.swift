@@ -2,9 +2,8 @@ import Foundation
 
 // MARK: - Period partitioning
 
-/// Result of `[ExpenseItem].partitioned(byPeriodStart:periodEnd:)` — the three
-/// date buckets the Budget detail expense list renders. A struct rather than a
-/// tuple (SwiftLint `large_tuple`); see the method doc for bucket semantics.
+/// Result of `[ExpenseItem].partitioned(byPeriodStart:periodEnd:)`: the three date buckets the Budget detail
+/// expense list renders. A struct rather than a tuple (SwiftLint `large_tuple`).
 struct PartitionedExpenses {
   let future: [ExpenseItem]
   let current: [ExpenseItem]
@@ -14,24 +13,17 @@ struct PartitionedExpenses {
 }
 
 extension [ExpenseItem] {
-  /// Splits expenses into future, current-period, and past-period arrays, each
-  /// sorted most-recent first.
+  /// Splits expenses into future, current-period, and past-period arrays, each sorted most-recent first.
   ///
-  /// The future bucket is deliberately a **single bucket for all future periods**
-  /// (audit L2): future-dated expenses don't count toward Remaining until their
-  /// date arrives (`BudgetCalculator` filters on `date < effectivePeriodEnd`), so
-  /// folding them into the current section made the section total disagree with
-  /// the Remaining headline.
+  /// The future bucket is deliberately a **single bucket for all future periods**: future-dated expenses don't
+  /// count toward Remaining until their date arrives (`BudgetCalculator` filters on `date < effectivePeriodEnd`),
+  /// so folding them into the current section made its total disagree with the Remaining headline.
   ///
   /// - Parameters:
-  ///   - start: Inclusive start of the current Budget Period, as returned by
-  ///     `BudgetLifecycleResult.periodStart`.
-  ///   - end: Exclusive end of the current Budget Period, as returned by
-  ///     `BudgetLifecycleResult.periodEnd`. When either bound is `nil`
-  ///     (lifecycle not yet resolved), all arrays are empty.
-  /// - Returns: A `PartitionedExpenses` whose `future` array contains items with
-  ///   `date >= end`, `current` array contains items with `start <= date < end`,
-  ///   and `past` array contains items with `date < start`.
+  ///   - start: Inclusive start of the current period (`BudgetLifecycleResult.periodStart`).
+  ///   - end: Exclusive end of the current period (`BudgetLifecycleResult.periodEnd`). If either bound is
+  ///     `nil` (lifecycle not yet resolved), all arrays are empty.
+  /// - Returns: `future` has `date >= end`, `current` has `start <= date < end`, `past` has `date < start`.
   func partitioned(
     byPeriodStart start: Date?,
     periodEnd end: Date?

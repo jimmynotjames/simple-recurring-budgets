@@ -3,31 +3,21 @@ import OSLog
 import SwiftData
 
 extension ModelContext {
-  /// Shared persistence-save helper. Every production `context.save()` call
-  /// site routes through this method instead of `try? context.save()`.
+  /// Shared persistence-save helper; every production `context.save()` routes through it rather than
+  /// `try? context.save()`.
   ///
-  /// On success the helper returns silently. On failure it:
-  /// 1. Emits **one** `Logger.persistence.error` line (sibling diagnostic).
-  /// 2. Fires **one** `persistence_save_failed` analytics event (sibling).
-  /// 3. Rethrows a `PersistenceError` carrying the operation identifier and
-  ///    the underlying `NSError`'s domain and code.
+  /// Boundary note (`diagnostic-logging` spec): on failure it emits **one** `Logger.persistence.error` line, fires **one** `persistence_save_failed`
+  /// analytics event, and rethrows a `PersistenceError` with the operation and the underlying `NSError`'s
+  /// domain and code.
   ///
-  /// ### Boundary note (diagnostic-logging spec)
-  ///
-  /// The `Logger.persistence.error` call and the `analytics.track(...)` call
-  /// are **sibling** statements built from the same plain values
-  /// (`operation.rawValue`, `error_domain`, `error_code`). Neither call
-  /// consumes the other's return value, and no `OSLog`-shaped type ever
-  /// crosses into `AnalyticsClient` — this is the "Sibling call sites are
-  /// allowed" case in the `diagnostic-logging` boundary requirement, made
-  /// explicit by the "Save-failure log and analytics event are sibling, not
-  /// cross-routed" scenario.
+  /// The log and the `analytics.track(...)` call are **sibling** statements built from the same plain values
+  /// (`operation.rawValue`, `error_domain`, `error_code`). Neither consumes the other's result and no
+  /// `OSLog`-shaped type crosses into `AnalyticsClient`, as the `diagnostic-logging` spec's boundary requires.
   ///
   /// - Parameters:
   ///   - operation: The originating call site (used in log + analytics).
-  ///   - analytics: The active `AnalyticsClient`. Pass `nil` from contexts
-  ///     where no analytics client is available (e.g. early bootstrap before
-  ///     consent is resolved); failures will still log.
+  ///   - analytics: The active `AnalyticsClient`; pass `nil` where none exists (e.g. early bootstrap before
+  ///     consent is resolved). Failures still log.
   func saveChanges(
     operation: PersistenceOperation,
     analytics: (any AnalyticsClient)? = nil
@@ -44,11 +34,8 @@ extension ModelContext {
   }
 }
 
-/// Internal seam exposing the helper's log + track + map-to-`PersistenceError`
-/// logic without requiring a real `ModelContext.save()` to throw. Tests pass
-/// a synthetic `NSError`; production calls it from inside the extension's
-/// `catch`. Keeps the boundary contract (one log line, one analytics event,
-/// rethrown `PersistenceError`) in one place.
+/// Internal seam exposing the log + track + map-to-`PersistenceError` logic without a real throwing
+/// `ModelContext.save()`. Tests pass a synthetic `NSError`; production calls it from the extension's `catch`.
 enum PersistenceSaveSurface {
   static func report(
     operation: PersistenceOperation,

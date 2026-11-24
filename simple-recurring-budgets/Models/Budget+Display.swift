@@ -1,48 +1,37 @@
 import Foundation
 
 extension Budget {
-  /// The period label to show in list rows and screen headers.
+  /// The period label for list rows and screen headers. For `.specificDates`, the formatted date range
+  /// (e.g. "May 18 – Jun 3") via `Date.IntervalFormatStyle` (locale and RTL aware); otherwise
+  /// `BudgetPeriod.listLabel`.
   ///
-  /// For `.specificDates` budgets, returns the formatted date range (e.g. "May 18 – Jun 3")
-  /// using `Date.IntervalFormatStyle` for full locale and RTL support. For all other period
-  /// types, falls back to `BudgetPeriod.listLabel`.
+  /// **Same-day window** (`startDate == endDate`, reachable via the snap-forward collapse on
+  /// `AddEditBudgetViewModel.startDate`): renders the single date, since `IntervalFormatStyle` is undefined
+  /// for an empty `Range<Date>`. It is a valid 1-day window under the inclusive `Budget.endDate` convention.
   ///
-  /// **Same-day window** (`startDate == endDate`, possible via the snap-forward collapse
-  /// path on `AddEditBudgetViewModel.startDate`): renders the single date alone rather
-  /// than passing an empty `Range<Date>` to `IntervalFormatStyle` (undefined for empty
-  /// ranges). A same-day Specific Dates budget is a valid 1-day window per the
-  /// `Budget.endDate` inclusive-day convention.
+  /// **Inverted window** (`endDate < startDate`, a data-integrity violation, typically a partial CloudKit
+  /// sync; see `Budget.isWindowValid`): `Range` construction would trap on every Budgets-list row, so release
+  /// degrades to the single start date and debug asserts.
   ///
-  /// **Inverted window** (`endDate < startDate` — a data-integrity violation, typically
-  /// a partial CloudKit sync; see `Budget.isWindowValid`): `Range` construction would
-  /// trap, and this label renders on every Budgets-list row, so the helper degrades to
-  /// the single start date in release and trips an assert in debug.
-  ///
-  /// **Why `..<` and not `...`:** `Date.IntervalFormatStyle.format(_:)` only accepts
-  /// `Range<Date>` (half-open); there's no closed-range overload. The formatter just
-  /// emits both bounds as dates, so the rendered string is identical to what a closed
-  /// range would render — the half-open *syntax* does not contradict the semantic
-  /// convention that `endDate` is the inclusive last day (see `Budget.endDate`).
+  /// **Why `..<` and not `...`:** `Date.IntervalFormatStyle.format(_:)` only accepts half-open `Range<Date>`.
+  /// Both bounds render as dates, so the output matches a closed range; the syntax doesn't contradict
+  /// `endDate` being the inclusive last day.
   @MainActor var periodDisplayLabel: String {
     let p = periodEnum
     if p == .specificDates, let start = startDate, let end = endDate {
-      // Defense-in-depth (mirrors `AddEditExpenseViewModel.dateRange`): trip in debug
-      // on an inverted window; in release the helper degrades to a single-date render
-      // so the Budgets list cannot crash on a corrupt record.
+      // Defense-in-depth (mirrors `AddEditExpenseViewModel.dateRange`): assert in debug on an inverted window;
+      // release degrades to a single date so a corrupt record can't crash the list.
       assert(isWindowValid, "periodDisplayLabel: inverted budget window — endDate < startDate")
       return Self.specificDatesDisplayLabel(start: start, end: end)
     }
     return p.listLabel
   }
 
-  /// Renders the period label shown for a Specific Dates budget. Extracted so SwiftUI
-  /// previews can produce the same string production renders without duplicating the
-  /// formatter configuration.
+  /// Period label for a Specific Dates budget, extracted so previews render the same string as production without duplicating formatter configuration.
   static func specificDatesDisplayLabel(start: Date, end: Date) -> String {
-    // `>=` (not `==`) so an inverted window (endDate < startDate) takes the single-date
-    // path instead of trapping in the `Range` construction below. The debug assert for
-    // that integrity violation lives in `periodDisplayLabel` (the production call site),
-    // keeping this helper pure so tests can exercise the degraded render directly.
+    // `>=` (not `==`) so an inverted window takes the single-date path instead of trapping in the `Range`
+    // below. The debug assert lives in `periodDisplayLabel` (the production call site), keeping this helper
+    // pure so tests can exercise the degraded render.
     if start >= end {
       return start.formatted(date: .abbreviated, time: .omitted)
     }
@@ -51,9 +40,8 @@ extension Budget {
     )
   }
 
-  /// The inline period descriptor used in VoiceOver labels (e.g. "remaining this *daily* period",
-  /// "remaining *in this window*"). For recurring periods returns `BudgetPeriod.inlineLabel`;
-  /// for `.specificDates` returns a dedicated localized string so the sentence reads naturally.
+  /// Inline period descriptor for VoiceOver labels (e.g. "remaining this *daily* period", "remaining *in this
+  /// window*"): `BudgetPeriod.inlineLabel` for recurring periods, a dedicated localized string for `.specificDates`.
   @MainActor var periodInlineLabel: String {
     let p = periodEnum
     if p == .specificDates {

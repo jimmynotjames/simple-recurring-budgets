@@ -89,9 +89,8 @@ struct CurrencyPickerView: View {
     }
     .foregroundStyle(.primary)
     .listRowBackground(Color("CellBackground"))
-    // Coalesce the row's children (code + name + checkmark) into a
-    // single VoiceOver element with the explicit composed label, so
-    // VO reads "USD, US Dollar" rather than as two static-text rows.
+    // One VoiceOver element with a composed label ("USD, US Dollar") instead of separate
+    // static-text rows.
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(rowLabel)
     .accessibilityValue(selectedValue)
@@ -107,8 +106,7 @@ struct CurrencyPickerView: View {
     Self.filteredCodes(allCodes, matching: query)
   }
 
-  /// Internal (not private) so CurrencyPickerTests exercises the same code the
-  /// view renders instead of mirroring it (test-coverage-audit-2026-06-10 D3).
+  /// Internal so CurrencyPickerTests exercises the real code.
   static func filteredCodes(_ codes: [String], matching query: String) -> [String] {
     guard !query.isEmpty else { return codes }
     return codes.filter { code in

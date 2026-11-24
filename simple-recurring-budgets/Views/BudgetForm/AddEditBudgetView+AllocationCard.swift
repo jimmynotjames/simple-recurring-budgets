@@ -21,18 +21,15 @@ extension AddEditBudgetView {
               defaultValue: "Allocation amount, \((viewModel.allocation ?? 0).formatted(currencyCode: viewModel.currencyCode, display: settings.currencyDisplay))",
               comment: "VoiceOver label for the allocation field; argument is the formatted monetary amount including currency"
             ),
-            // Clear the Name field's focus when the user moves to the amount field, so SwiftUI's
-            // `@FocusState` tracks the real first responder. Stale focus on the Name field mis-anchors
-            // the iPadOS 26 `.decimalPad` popover to it (issue #126).
+            // Clears the Name field's focus so `@FocusState` tracks the real first responder;
+            // stale Name focus mis-anchors the iPadOS 26 `.decimalPad` popover to it.
             //
-            // Deferred to the next main-actor turn rather than mutated synchronously: this closure runs
-            // inside the UIKit field's `textFieldDidBeginEditing`, and clearing the @FocusState there
-            // re-enters SwiftUI's focus machinery mid-transition, tearing down the amount field's
-            // just-attached keyboard session so the *first* digits typed are silently dropped — the user
-            // had to tap away and back for input to register. (Regression from the #126 popover fix, which
-            // first introduced this synchronous clear.) Clearing on the next turn lets the editing session
-            // settle first, and still anchors the iPad popover correctly because the keypad presents after
-            // begin-editing returns.
+            // Deliberately deferred to the next main-actor turn; don't clear synchronously.
+            // This closure runs inside the UIKit field's `textFieldDidBeginEditing`, and
+            // clearing @FocusState there re-enters SwiftUI's focus machinery mid-transition,
+            // tearing down the amount field's new keyboard session so the first digits typed
+            // are silently dropped. The deferral lets editing settle and still anchors the
+            // iPad popover correctly (the keypad presents after begin-editing returns).
             onBeginEditing: { Task { isNameFocused = false } }
           )
 

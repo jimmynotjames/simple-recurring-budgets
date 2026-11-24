@@ -9,8 +9,7 @@ struct BudgetsView: View {
   @Environment(\.modelContext) private var context
   @Environment(\.analytics) private var analytics
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-  /// Standard save-error alert state for the reorder save (`budgets-screen`
-  /// delta spec scenario "Failed reorder surfaces the save-error alert").
+  /// Save-error alert state for the reorder save.
   @State private var saveError: SaveErrorState?
 
   var body: some View {
@@ -42,20 +41,19 @@ struct BudgetsView: View {
             systemImage: "gearshape"
           )
         }
-        // iOS 26 draws bar buttons monochrome by default and ignores the
-        // asset-catalog global accent; explicit tint restores the brand accent
-        // (WCAG AA per #218's darkened AccentColor). Same on all bar buttons.
+        // iOS 26 draws bar buttons monochrome and ignores the asset-catalog global accent;
+        // the explicit tint restores the brand accent (WCAG AA). Same on all bar buttons.
         .tint(.accentColor)
         .accessibilityHint(String(
           localized: "toolbar.settings.accessibilityHint",
           defaultValue: "Opens app settings",
           comment: "VoiceOver hint for the Settings toolbar button"
         ))
-        // Locale-invariant test handle (= localization key) so UI tests navigate in any language.
-        // Sole consumer: LocalizationScreenshotCapture (scripts/translation-accessibility-size-check/).
-        // Don't remove/rename without updating that capture, or its navigation breaks silently.
+        // Locale-invariant test handle (= localization key) so UI tests navigate in any
+        // language. Sole consumer: LocalizationScreenshotCapture
+        // (scripts/translation-accessibility-size-check/); update it if this changes.
         .accessibilityIdentifier("toolbar.settings.label")
-        // Only show the Edit button when there are rows to reorder.
+        // Edit only when there are rows to reorder.
         if !budgets.isEmpty {
           EditButton()
             .tint(.accentColor)
@@ -68,9 +66,8 @@ struct BudgetsView: View {
           HStack(spacing: 4) {
             Image(systemName: "plus")
               .fontWeight(.semibold)
-            // Hide the text label at accessibility sizes: the HStack clips inside
-            // the fixed-height toolbar at Accessibility Extra Large and above.
-            // The explicit .accessibilityLabel below keeps VoiceOver working.
+            // Hidden at accessibility sizes: the HStack clips in the fixed-height toolbar at
+            // Accessibility Extra Large and above. The .accessibilityLabel below covers VoiceOver.
             if !dynamicTypeSize.isAccessibilitySize {
               Text(String(
                 localized: "toolbar.addBudget.label",
@@ -92,8 +89,7 @@ struct BudgetsView: View {
           defaultValue: "Opens add budget form",
           comment: "VoiceOver hint for the Add Budget toolbar button"
         ))
-        // Locale-invariant test handle; sole consumer is LocalizationScreenshotCapture
-        // (scripts/translation-accessibility-size-check/) — see toolbar.settings.label above.
+        // Test handle; see toolbar.settings.label above.
         .accessibilityIdentifier("toolbar.addBudget.accessibilityLabel")
       }
     }
@@ -102,10 +98,9 @@ struct BudgetsView: View {
   // MARK: - Private views
 
   private var emptyStateView: some View {
-    // Custom empty state rather than ContentUnavailableView: the system component
-    // imposes an undocumented line limit on its description view that causes the
-    // long description string to clip on some iOS versions. Custom layout gives
-    // full control over text wrapping.
+    // Custom rather than ContentUnavailableView: the system component imposes an
+    // undocumented line limit on its description that clips the long string on some iOS
+    // versions. Don't swap it back.
     VStack(spacing: 16) {
       Image(systemName: "tray")
         .font(.system(size: 56))
@@ -162,8 +157,7 @@ struct BudgetsView: View {
 
   // MARK: - Handlers
 
-  /// Reorders budgets after a user drag-to-reorder gesture: applies the
-  /// `BudgetReorderService` rewrite, then batches all writes into a single save.
+  /// Applies the `BudgetReorderService` rewrite after a drag, then saves once.
   private func move(from source: IndexSet, to destination: Int) {
     BudgetReorderService.applyMove(
       budgets: budgets,
@@ -192,16 +186,14 @@ struct BudgetRowView: View {
   @Environment(\.scenePhase) private var scenePhase
   @State private var lifecycle: BudgetLifecycleResult?
 
-  /// View-layer inactive-presentation reason (`nil` when the budget is active).
-  /// Drives the dimmed amount / full-width secondary bar / `InactiveStatusChip`
-  /// treatment uniformly across preStart, paused, and postEnd.
+  /// Inactive-presentation reason (`nil` when active); drives the dimmed amount,
+  /// full-width secondary bar, and `InactiveStatusChip`.
   private var inactiveReason: BudgetInactiveReason? {
     guard let lifecycle else { return nil }
     return BudgetInactiveReason.from(lifecycle: lifecycle, budget: budget)
   }
 
-  // Scale spacing and padding with the user's preferred text size,
-  // except for add-expense button, which is fixed.
+  // Spacing scales with text size; the add-expense button is fixed.
   @ScaledMetric(relativeTo: .headline) private var rowSpacing: CGFloat = 10
   @ScaledMetric(relativeTo: .caption) private var chipTopSpacing: CGFloat = 16
   @ScaledMetric(relativeTo: .body) private var rowVerticalPadding: CGFloat = 8
@@ -214,12 +206,9 @@ struct BudgetRowView: View {
     lifecycle?.remaining ?? 0
   }
 
-  /// The budget name, optionally prefixed by the budget's `icon` emoji. The icon is
-  /// a separate leading view (not a string prefix) so it mirrors with layout
-  /// direction — in RTL it sits on the right, the leading edge. The trailing space
-  /// baked into the icon text reproduces a single text-space gap, so `spacing` is 0.
-  /// The emoji is decorative — VoiceOver reads the explicit `.accessibilityLabel`
-  /// below, which omits it.
+  /// Name with an optional `icon` emoji prefix. The icon is a separate leading view so it
+  /// mirrors in RTL; its trailing space is the gap, hence `spacing` 0. Decorative:
+  /// VoiceOver reads the explicit `.accessibilityLabel`, which omits it.
   private var nameText: some View {
     HStack(alignment: .firstTextBaseline, spacing: 0) {
       if let icon = budget.icon, !icon.isEmpty {
@@ -231,9 +220,8 @@ struct BudgetRowView: View {
 
   var body: some View {
     HStack(alignment: .center, spacing: 0) {
-      // Outer VStack groups the tappable row content with the carry-over chip.
-      // The chip lives outside the Button so VoiceOver treats it as a separate
-      // static-text element rather than a non-activatable nested element.
+      // The chip row sits outside the Button so VoiceOver reads it as a separate element,
+      // not a non-activatable nested one.
       VStack(alignment: .leading, spacing: 0) {
         Button {
           router.path.append(.budgetDetail(budget.id))
@@ -274,9 +262,7 @@ struct BudgetRowView: View {
           comment: "VoiceOver hint for a budget row; describes what happens when the user activates it"
         ))
 
-        // Chip row lives outside the Button so VoiceOver reads each chip as
-        // its own static-text element rather than swallowing them into the
-        // button's label.
+        // Outside the Button so VoiceOver doesn't fold the chips into its label.
         StatusChipRow(
           inactiveReason: inactiveReason,
           isCarryOverEnabled: budget.isCarryOverEnabled && !isSpecificDates,
@@ -297,7 +283,7 @@ struct BudgetRowView: View {
       .buttonStyle(.plain)
       .foregroundStyle(.tint)
       .padding(.leading, 16)
-      // Keep right button fixed size to allow more room for text as Dynamic Type sizes grow.
+      // Fixed size leaves more room for text as Dynamic Type grows.
       .frame(minWidth: 60, maxWidth: 60, minHeight: 44)
       .contentShape(Rectangle())
       .accessibilityLabel(
@@ -312,8 +298,7 @@ struct BudgetRowView: View {
         defaultValue: "Opens add expense form",
         comment: "VoiceOver hint for the add-expense button in a budget row"
       ))
-      // Locale-invariant test handle; sole consumer is LocalizationScreenshotCapture
-      // (scripts/translation-accessibility-size-check/) — see toolbar.settings.label above.
+      // Test handle; see toolbar.settings.label above.
       .accessibilityIdentifier("budget.row.addExpense.accessibilityLabel")
     }
     .padding(.vertical, rowVerticalPadding)
@@ -324,19 +309,17 @@ struct BudgetRowView: View {
       guard newPhase == .active else { return }
       refreshLifecycle()
     }
-    // Recompute when the budget OR any of its children change — including a CloudKit
-    // remote merge that brings in expenses without re-bumping `budget.lastModified`
-    // (issue #127). See `Budget.recomputeToken`.
+    // Fires when the budget or any child changes, including a CloudKit merge that adds
+    // expenses without bumping `budget.lastModified`. See `Budget.recomputeToken`.
     .onChange(of: budget.recomputeToken) {
       refreshLifecycle()
     }
-    // Recompute when a period boundary passes while the app stays foregrounded
-    // (issue #70) — scenePhase/recomputeToken don't fire at midnight.
+    // Period boundaries passing while foregrounded: scenePhase/recomputeToken don't
+    // fire at midnight.
     .onCalendarDayChange {
       refreshLifecycle()
     }
-    // Recompute when Week Starts On changes (confirmed in Settings or synced from
-    // another device via iCloud KVS) — weekly budgets re-grid immediately (#240).
+    // Week Starts On changed (Settings or iCloud KVS sync): weekly budgets re-grid.
     .onChange(of: settings.weekStartDay) {
       refreshLifecycle()
     }
@@ -364,13 +347,12 @@ struct BudgetRowView: View {
     }
   }
 
-  // Seeded fixtures carry icons on a few budgets (see DebugData), so these show the
-  // emoji prefix on some rows and name-only on others.
+  // Seeded fixtures give a few budgets icons, so rows mix emoji-prefixed and name-only.
   #Preview("Light Mode") { BudgetsPreview() }
   #Preview("Dark Mode") { BudgetsPreview().preferredColorScheme(.dark) }
   // Just below reformatting threshold.
   #Preview("xxLarge") { BudgetsPreview().dynamicTypeSize(.xxLarge) }
-  // Just at reformatting threshold. (Changes from horizontal stack to vertical).
+  // At the reformatting threshold (horizontal → vertical stack).
   #Preview("xxxLarge") { BudgetsPreview().dynamicTypeSize(.xxxLarge) }
   #Preview("Empty state") { BudgetsPreview(empty: true) }
 #endif

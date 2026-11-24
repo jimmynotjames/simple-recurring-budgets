@@ -2,17 +2,10 @@ import Foundation
 
 // MARK: - BudgetInactiveReason
 
-/// View-layer presentation classifier for budgets that are not currently running.
-///
-/// Collapses the domain-layer `BudgetLifecycleState` (`.preStart`, `.active`,
-/// `.paused`, `.postEnd`) into a single "is this budget inactive, and if so why?"
-/// value carrying the date payload the chip needs. `.active` maps to `nil`.
-///
-/// The view layer uses this enum to drive the unified inactive presentation
-/// (dimmed amount, full-width secondary `RemainingBar`, single `InactiveStatusChip`)
-/// while keeping the domain enum untouched. Action gating (e.g.
-/// `BudgetDetailView.showPauseResumeItem`) continues to read `lifecycleState`
-/// directly — only presentation consumes this type.
+/// Presentation classifier for budgets that aren't running: collapses
+/// `BudgetLifecycleState` into "inactive, and why" with the chip's date payload
+/// (`.active` maps to `nil`). Drives the dimmed amount, full-width `RemainingBar`, and
+/// `InactiveStatusChip`. Action gating reads `lifecycleState` directly, not this type.
 enum BudgetInactiveReason: Equatable {
   case preStart(startDate: Date)
   case paused(since: Date)
@@ -20,19 +13,13 @@ enum BudgetInactiveReason: Equatable {
 }
 
 extension BudgetInactiveReason {
-  /// Derives the inactive reason (if any) from the lifecycle service result and the budget.
+  /// Derives the inactive reason from the lifecycle result and budget; `nil` when active.
+  /// Dates come from `pausedSince` (lifecycle result) or `startDate` / `endDate` (budget).
   ///
-  /// Returns `nil` when `lifecycleState == .active`. For each inactive case the matching
-  /// date payload is sourced from the appropriate place: `pausedSince` from the lifecycle
-  /// result; `startDate` / `endDate` from the budget.
-  ///
-  /// **Defensive nil-date fallback.** If the date payload is unexpectedly `nil` for the
-  /// matching lifecycle state (e.g. the budget reaches `.preStart` via clock skew against
-  /// `createdAt` while `startDate` is unset, or a future write path produces a `.paused`
-  /// state with no recoverable pause date), the helper returns `nil` and the row renders
-  /// in its active presentation. The upstream lifecycle service is responsible for
-  /// keeping these in sync — see `BudgetLifecycleService.pausedSinceDate(from:now:)` for
-  /// the moment-granular contract that backs the `.paused` case.
+  /// Defensive nil-date fallback: if the date is unexpectedly `nil` for its state (e.g.
+  /// `.preStart` via clock skew against `createdAt` with `startDate` unset), returns `nil`
+  /// and the row renders as active. Keeping state and dates in sync is the lifecycle
+  /// service's job; see `BudgetLifecycleService.pausedSinceDate(from:now:)` for `.paused`.
   static func from(
     lifecycle: BudgetLifecycleResult,
     budget: Budget

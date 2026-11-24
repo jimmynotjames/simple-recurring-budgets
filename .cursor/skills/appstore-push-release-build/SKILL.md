@@ -5,19 +5,19 @@ description: Build and upload the App Store release-candidate build — confirms
 
 # Push the App Store release-candidate build
 
-Produces **the one binary that serves both the final TestFlight test and the
-App Store submission**: version bump → branch → build → upload to TestFlight →
-commit → PR → CI → merge. TestFlight builds and App Store submissions draw
-from the same build pool in ASC, so the exact build the user tests is what
-gets attached to the version and submitted — no separate App Store archive.
-**Submitting for review remains a manual ASC click.**
+Produces the one binary that serves both the final TestFlight test and the
+App Store submission: version bump → branch → build → upload to TestFlight →
+commit → PR → CI → merge. TestFlight builds and App Store submissions share
+one build pool in ASC, so the build the user tests is the one attached to the
+version and submitted; there is no separate App Store archive.
+Submitting for review stays a manual ASC click.
 
-Relationship to siblings: this wraps the same `fastlane ios beta` lane as
-`appstore-push-testflight-build`, adding the release-checklist confirmation
-and the `MARKETING_VERSION` bump. (The dormant `fastlane ios release` lane —
-a separate full-binary upload via deliver — is NOT used in this flow.)
+This wraps the same `fastlane ios beta` lane as `appstore-push-testflight-build`,
+adding the release-checklist confirmation and the `MARKETING_VERSION` bump.
+The dormant `fastlane ios release` lane (separate full-binary upload via deliver)
+is NOT used here.
 
-The `beta` lane does the heavy lifting: verifies ship secrets
+The `beta` lane verifies ship secrets
 (`scripts/verify_release_secrets.sh`), queries ASC for the next build number,
 bumps `CURRENT_PROJECT_VERSION` in `project.pbxproj`, archives and exports the
 `.ipa`, uploads to TestFlight, and auto-commits the pbxproj change.
@@ -25,9 +25,8 @@ bumps `CURRENT_PROJECT_VERSION` in `project.pbxproj`, archives and exports the
 ## Preconditions
 
 Normally invoked from `/appstore:prepare-for-release` with the checklist's
-Phases 0–3 complete. Either way, **step 1 always asks the user to confirm the
-checklist has been worked through** — this skill bakes a binary; it must not
-run against unfinished release prep:
+Phases 0–3 complete. Either way, step 1 always asks the user to confirm the
+checklist has been worked through; never build against unfinished release prep:
 
 - Metadata already pushed and current (`python3
   scripts/translate_metadata/check_metadata.py` exits 0).
@@ -65,16 +64,15 @@ Then ask the user (one AskUserQuestion call, three questions):
    `/appstore:prepare-for-release`, or manually through
    `docs/app-store-release-checklist.md` Phases 0–3?"** If an in-flight
    snapshot exists in `releases/`, cite its state alongside the question. A
-   no (or "not sure") means **stop** and route to
+   no (or "not sure") means stop and route to
    `/appstore:prepare-for-release` instead of building.
 2. **The new App Store version number**, showing the current
-   `MARKETING_VERSION` and, if known, the version ASC is expecting. The
-   version is a product decision — even if the checklist snapshot already
-   names one, confirm it here before it gets baked into a binary.
+   `MARKETING_VERSION` and, if known, the version ASC expects. The version is
+   a product decision: confirm it here even if the checklist snapshot names one.
 3. **"Are screenshots and metadata for this release already pushed (or
    deliberately unchanged)?"** A no means stop and finish the checklist's
-   Phase 2 first — the binary can upload regardless, but a candidate built
-   before the listing is final invites a mismatched submission.
+   Phase 2 first; a candidate built before the listing is final invites a
+   mismatched submission.
 
 ### 2. Pre-flight
 
@@ -99,7 +97,7 @@ git checkout -b u/jimmyho/claude-code/release-vX.Y.Z
 
 ### 4. Bump MARKETING_VERSION and commit
 
-Update **every** `MARKETING_VERSION = …;` occurrence in
+Update every `MARKETING_VERSION = …;` occurrence in
 `simple-recurring-budgets.xcodeproj/project.pbxproj` with the Edit tool
 (`replace_all`), then verify:
 
@@ -107,8 +105,7 @@ Update **every** `MARKETING_VERSION = …;` occurrence in
 grep MARKETING_VERSION simple-recurring-budgets.xcodeproj/project.pbxproj
 ```
 
-Commit it separately from the lane's build-number auto-commit so history
-stays legible. Write the message to `tmp/commit-msg.txt` with the Write tool
+Commit it separately from the lane's build-number auto-commit. Write the message to `tmp/commit-msg.txt` with the Write tool
 (never heredoc):
 
 ```
@@ -130,12 +127,12 @@ Run in the background (`run_in_background: true`):
 fastlane ios beta 2>&1 | tee tmp/release-build.log
 ```
 
-The lane (~10–15 min): verifies ship secrets → sets the real next build
+The lane (~10–15 min) verifies ship secrets → sets the real next build
 number from ASC → archives and exports with `-allowProvisioningUpdates` →
 uploads to TestFlight (`skip_waiting_for_build_processing: true`) →
 auto-commits `chore(release): set build number to <N>`.
 
-**Do not use the Monitor tool for ticks — it prompts on each re-arm.** Track
+Do not use the Monitor tool for ticks (it prompts on each re-arm). Track
 progress on 5-minute background sleep ticks instead (memory
 `feedback_no_prompt_periodic_progress`): launch `sleep 300` in the background;
 on its completion, read the last 10 lines of `tmp/release-build.log`, report a
@@ -148,11 +145,10 @@ git log --oneline -3
 tail -60 tmp/release-build.log
 ```
 
-**Auto-commit present**: record the build number N. Proceed to step 7.
+**Auto-commit present**: record N; go to step 7.
 
 **Failure branches** (no auto-commit + error in the log): surface the last 80
-lines and stop — the version-bump commit stays on the branch, so the lane can
-be re-run after the fix.
+lines and stop; the version-bump commit stays on the branch, so re-run after the fix.
 - *Ship-secrets guard tripped* — configure `config/Secrets.local.xcconfig`
   per `CONTRIBUTING.md § B`, then re-run.
 - *Signing failure* — `fastlane ios verify_auth`; check the distribution cert

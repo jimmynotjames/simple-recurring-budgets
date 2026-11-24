@@ -5,104 +5,98 @@ description: Transcreate the App Store listing (name, subtitle, keywords, promot
 
 # Translate App Store metadata
 
-Canonical recipe for getting `fastlane/metadata/` to a fully-transcreated state
-after authoring or editing the English (`en-US`) listing copy. Drives the
-existing `scripts/translate_metadata/` pipeline in subset mode.
+Canonical recipe for getting `fastlane/metadata/` fully transcreated after
+authoring or editing the English (`en-US`) listing copy. Drives the
+`scripts/translate_metadata/` pipeline in subset mode.
 
-**Definition of done:** `python3 scripts/translate_metadata/check_metadata.py`
-exits 0 — every translatable field the English source has authored is populated
-and within its character limit across all 49 target storefronts.
+Done when `python3 scripts/translate_metadata/check_metadata.py` exits 0: every
+translatable field the English source has authored is populated and within its
+character limit across all 49 target storefronts.
 
-This is the **metadata** pipeline (App Store listing). For in-app UI strings in
-`Localizable.xcstrings`, use the separate `translate-new-strings` skill. They use
-different locale code systems (storefront vs runtime); `metadata_locales.py` owns
-the mapping.
+This is the metadata pipeline (App Store listing). For in-app UI strings in
+`Localizable.xcstrings`, use `translate-new-strings`. The two use different
+locale code systems (storefront vs runtime); `metadata_locales.py` owns the
+mapping.
 
 ## Preflight — orchestrator model (before anything else)
 
-Before any other step, run the **orchestrator-model preflight** (canonical:
-`AGENTS.md` → "Orchestrator-model preflight"). This skill is tuned to orchestrate on
-**Sonnet**; if the current session model is **not** Sonnet, **stop and confirm**
-(`AskUserQuestion` on Claude Code, a markdown block on Cursor) before running
-anything — Opus works but is pricier for no quality gain, and a model weaker than
-Sonnet may make the Step-5 threshold/loop judgments unreliable. The `metadata-locale`
-and `metadata-audit-locale` workers stay Opus regardless (pinned in their agent
-definitions), so switching the session to Sonnet never weakens the translation or
-audit.
+Run the orchestrator-model preflight first (canonical: `AGENTS.md` →
+"Orchestrator-model preflight"). This skill is tuned to orchestrate on Sonnet; if
+the session model is not Sonnet, stop and confirm (`AskUserQuestion` on Claude
+Code, a markdown block on Cursor) before running anything. Opus is pricier for no
+quality gain, and a model weaker than Sonnet may make the Step-5 threshold/loop
+judgments unreliable. The `metadata-locale` and `metadata-audit-locale` workers
+stay Opus regardless (pinned in their agent definitions), so a Sonnet session
+never weakens the translation or audit.
 
 ## Autonomy
 
-Run this whole pipeline **autonomously, end to end, without pausing for approval
-on mechanical steps** — extract, dispatch, fan-out, validate, merge, the semantic
-audit + remediation loop (Step 5), and the gate are all routine and pre-approved
-in `.claude/settings.json`. Do **not** ask "shall I proceed?" between steps, and do
-not ask permission to retry a failed locale or to auto-fix audit findings.
+Run the whole pipeline autonomously, end to end, without pausing for approval on
+mechanical steps (extract, dispatch, fan-out, validate, merge, the semantic
+audit + remediation loop in Step 5, and the gate; all pre-approved in
+`.claude/settings.json`). Don't ask "shall I proceed?" between steps or
+permission to retry a failed locale or auto-fix audit findings.
 
-There are exactly **two** deliberate human checkpoints; everything else you decide
-and execute yourself:
+Exactly two deliberate human checkpoints; decide and execute everything else yourself:
 
-1. **Up front, before any pipeline step** — confirm the English source copy is
-   final and ready to transcreate (the **source-ready confirmation** below). This
-   is the only gate that blocks the run from starting.
-2. **Mid-run** — **genuine content questions about the marketing copy itself** that
-   the subagents flag (Step 4a). Surface those in a single batch and keep going;
-   they refine specific strings, they don't block the run.
+1. Up front, before any pipeline step: confirm the English source copy is final
+   (the source-ready confirmation below). This is the only gate that blocks the
+   run from starting.
+2. Mid-run: genuine content questions about the marketing copy that the
+   subagents flag (Step 4a). Surface them in a single batch and keep going; they
+   refine specific strings and don't block the run.
 
 ### Model roles — orchestrator vs. workers
 
-This skill is built so the **orchestrator** (the agent running these steps) can be
-**Sonnet**: every step is a script call, a parallel fan-out, or a deterministic
-branch on a PASS/FAIL/severity threshold — there are no orchestrator-level
-linguistic judgments. All the language quality lives in the **Opus** worker
-subagents: `metadata-locale` (transcreation) and `metadata-audit-locale` (quality
-audit) are both pinned to `model: opus` in their agent definitions and must stay
-that way — they out-class the copy they produce/grade. So: **Sonnet orchestrates,
-Opus translates and audits.** Keep the thresholds and round caps in Step 5 fixed
-rather than "deciding" per run, so the Sonnet orchestrator never has to judge copy
-itself.
+The orchestrator can be Sonnet: every step is a script call, a parallel fan-out,
+or a deterministic branch on a PASS/FAIL/severity threshold, with no
+orchestrator-level linguistic judgments. All language quality lives in the Opus
+worker subagents: `metadata-locale` (transcreation) and `metadata-audit-locale`
+(quality audit), both pinned to `model: opus` in their agent definitions; keep
+them that way, since they must out-class the copy they produce/grade. Sonnet
+orchestrates; Opus translates and audits. Keep the Step-5 thresholds and round
+caps fixed rather than deciding per run.
 
 ## Hard rules
 
-- **Never write ad-hoc Python** (`python3 -c`, throwaway `tmp/*.py`) to slice the
+- Never write ad-hoc Python (`python3 -c`, throwaway `tmp/*.py`) to slice the
   source, filter outputs, or post-process metadata. Every operation has a flag on
-  one of the existing `scripts/translate_metadata/` scripts. If you reach for
-  inline Python, **stop** — extend a script instead so the permission surface
-  stays narrow.
-- **Never skip the gate.** Treat anything less than `exit 0` from
-  `check_metadata.py` as not-done and loop back.
-- **The brand "Wren" stays verbatim** in every locale — never translated,
-  transliterated, or glossed. (This is enforced by the prompt and validated by
-  `validate.py`; do not "remind" subagents in the dispatch message — fix
-  `PROMPT_TEMPLATE.md` if a rule needs strengthening.)
+  an existing `scripts/translate_metadata/` script. If you reach for inline
+  Python, stop and extend a script instead so the permission surface stays narrow.
+- Never skip the gate. Anything less than `exit 0` from `check_metadata.py` is
+  not done; loop back.
+- The brand "Wren" stays verbatim in every locale: never translated,
+  transliterated, or glossed. The prompt enforces it and `validate.py` checks it;
+  don't "remind" subagents in the dispatch message. Fix `PROMPT_TEMPLATE.md` if a
+  rule needs strengthening.
 - **RTL storefronts (ar, he, ur):** never start a line with a Latin brand token (`Wren`,
   `iCloud`). In RTL rendering a Latin-initial string pops to the visual end of the line.
   Lead with a native word; the brand may follow mid-sentence.
-- **All commands run from the repo root.**
-- **Register notes are intentionally duplicated — keep them in sync, don't DRY them.**
+- Run all commands from the repo root.
+- Register notes are intentionally duplicated; keep them in sync, don't DRY them.
   The per-storefront formality guidance in `CULTURAL_NOTES` (`scripts/translate_metadata/dispatch_prompts.py`)
-  deliberately overlaps with the in-app `REGIONAL_NOTES` only on the *formality decision* per
+  deliberately overlaps with the in-app `REGIONAL_NOTES` only on the formality decision per
   language (issue #173, closed without consolidation). If you change a market's formality decision
   (e.g. de-DE "du"→"Sie") here, mirror it in `REGIONAL_NOTES`; wording may differ, the formality
-  call must not. Don't try to merge the two maps.
+  call must not. Don't merge the two maps.
 
 ## Source-ready confirmation (human checkpoint — do this first)
 
-The pipeline transcreates whatever non-empty translatable fields exist in the
-English source into **all 49 storefronts**, so a typo or an accidentally-blank
-field here propagates everywhere and costs a full re-run to undo. Before any
-pipeline step, confirm the source with the human — this is the one gate that
-blocks the run from starting.
+The pipeline transcreates every non-empty translatable field in the English
+source into all 49 storefronts, so a typo or accidentally-blank field propagates
+everywhere and costs a full re-run to undo. Before any pipeline step, confirm the
+source with the human; this is the one gate that blocks the run from starting.
 
-**Source location — the only files you edit by hand:**
+**Source location (the only files you edit by hand):**
 
 - **Folder:** `fastlane/metadata/en-US/`
 - **Translatable fields:** `name.txt`, `subtitle.txt`, `description.txt`,
   `keywords.txt`, `promotional_text.txt`, `release_notes.txt`
 - The `*_url.txt` files (`marketing_url`, `privacy_url`, `support_url`) are copied
-  verbatim to every locale, not translated — leave them out of the confirmation.
+  verbatim to every locale, not translated; leave them out of the confirmation.
 
-Read those six files and present, in a **single** message: the folder path, each
-field's current **authored / blank** state, and a short preview of the authored
+Read those six files and present, in a single message: the folder path, each
+field's current authored / blank state, and a short preview of the authored
 values. A blank field is simply skipped (not an error) — surfacing the state lets
 the human catch a field that's empty *by mistake*. Then ask them to confirm the
 copy is final and ready to transcreate:
@@ -111,17 +105,17 @@ copy is final and ready to transcreate:
 - **Cursor:** a short markdown block (mirror the orchestrator-model preflight).
 
 Wait for confirmation before Step 0. If the human wants to edit copy first, let
-them, then re-read and re-confirm. This upfront prompt is a **deliberate exception**
-to "run translation work without prompting" — it is specific to this metadata
-skill, where the blast radius of a bad source string is all 49 storefronts.
+them, then re-read and re-confirm. This upfront prompt is a deliberate exception
+to "run translation work without prompting", specific to this skill because a bad
+source string reaches all 49 storefronts.
 
 ## Recipe
 
 ### 0. Pre-flight — clear stale pipeline outputs
 
-Before extracting, clear any per-storefront leftovers from a previous run. `validate.py`
-and `merge.py` read **every** file in `tmp/metadata-outputs/` (and the audit reads
-`tmp/metadata-audit-outputs/`), not just this run's manifest — so stale files silently
+Clear per-storefront leftovers from a previous run. `validate.py` and `merge.py`
+read every file in `tmp/metadata-outputs/` (and the audit reads
+`tmp/metadata-audit-outputs/`), not just this run's manifest, so stale files
 contaminate the run.
 
 ```bash
@@ -141,9 +135,8 @@ Writes:
 - `tmp/metadata-inputs/manifest.json` — `{storefront: [fields...]}` listing the
   gaps to fill.
 
-If the manifest is empty, nothing needs transcreating — skip Steps 2–5 (including
-the refine pass; there's nothing new to refine) and go to the gate (Step 6) to
-confirm.
+If the manifest is empty, skip Steps 2–5 (including the refine pass; nothing new
+to refine) and go to the gate (Step 6) to confirm.
 
 ### 2. Compose per-storefront prompts
 
@@ -159,11 +152,11 @@ stale output files for those storefronts.
 
 ### 3. Transcreate each storefront's slice
 
-> **Cross-tool execution.** On **Claude Code**, dispatch one `metadata-locale` subagent per storefront
-> in parallel (below). On **Cursor** or any tool without a subagent primitive, run the same step
-> **inline and serially**: for each `tmp/metadata-prompts/{storefront}.md`, read it, produce the
-> transcreation JSON yourself, and write `tmp/metadata-outputs/{storefront}.json` — then continue.
-> Same scripts, same gates, same result. Canonical: `AGENTS.md > Cross-cutting concerns > Running the
+> Cross-tool execution: on Claude Code, dispatch one `metadata-locale` subagent per storefront
+> in parallel (below). On Cursor or any tool without a subagent primitive, run the same step
+> inline and serially: for each `tmp/metadata-prompts/{storefront}.md`, read it, produce the
+> transcreation JSON yourself, and write `tmp/metadata-outputs/{storefront}.json`, then continue.
+> Same scripts, gates, and result. Canonical: `AGENTS.md > Cross-cutting concerns > Running the
 > translation pipelines`.
 
 #### Claude Code — one `metadata-locale` subagent per storefront, in parallel
@@ -171,23 +164,22 @@ stale output files for those storefronts.
 For every `tmp/metadata-prompts/{storefront}.md` that exists, invoke an `Agent`:
 
 - `subagent_type`: `metadata-locale` (defined in `.claude/agents/metadata-locale.md`,
-  Read+Write only, model **opus**).
+  Read+Write only, model opus).
 - A short dispatch prompt naming the input and output paths. Example:
   > Read `/abs/path/tmp/metadata-prompts/de-DE.md` and follow the rules in it.
   > Write the resulting JSON object (nothing else) to
   > `/abs/path/tmp/metadata-outputs/de-DE.json`.
 
-Do not pass `subagent_type: general-purpose` — the narrow agent is what keeps the
+Don't pass `subagent_type: general-purpose`; the narrow agent keeps the
 dispatches auto-approvable in `.claude/settings.json`.
 
-**Batch the dispatches, and keep agent calls separate from shell/script calls.**
-Send the subagent calls concurrently in batches (e.g. ~8–12 per message) rather
-than all 49 plus shell commands in one giant message. Never mix `Agent` calls and
-`Bash` calls in the same message: if one tool call errors (a hygiene-blocked
-command, a "nothing to commit", etc.) the whole parallel batch is cancelled,
-killing in-flight subagents and wasting their work. Run scripts (extract,
-dispatch, validate, merge, audit) in their own single-purpose messages, and keep
-each `Bash` message to one command so one failure can't cascade.
+Batch the dispatches and keep agent calls separate from shell/script calls. Send
+the subagent calls concurrently in batches (~8–12 per message), not all 49 plus
+shell commands in one message. Never mix `Agent` and `Bash` calls in one message:
+if one tool call errors (a hygiene-blocked command, a "nothing to commit"), the
+whole parallel batch is cancelled, killing in-flight subagents. Run scripts
+(extract, dispatch, validate, merge, audit) in their own single-purpose messages,
+one command per `Bash` message.
 
 The prompt file already contains every rule (brand, char limits, keywords-as-search,
 tone/register, JSON-only). Do not modify it in the dispatch message.
@@ -199,30 +191,30 @@ python3 scripts/translate_metadata/validate.py --subset
 ```
 
 `--subset` checks only the fields present in each output file and reports one of
-three per-storefront states — your retry dashboard:
-- **PASS** — valid, within limits, ready to merge.
-- **PENDING** — empty/missing output: the subagent hasn't run or produced
-  nothing. Action: **(re)dispatch that one storefront.** Not an error.
-- **FAIL** — produced content but it's broken. Common causes:
-  - **Over the character limit** (especially `name`/`subtitle` at 30, and
-    `keywords` at 100 — the single most common failure) — re-dispatch; the prompt
-    tells the model to tighten until it fits.
-  - **`name` missing the brand prefix** — re-dispatch.
-  - **Keyword hygiene warnings** (spaces after commas, dupes) are warnings, not
-    failures, but re-dispatch if egregious.
+three per-storefront states (your retry dashboard):
+- **PASS**: valid, within limits, ready to merge.
+- **PENDING**: empty/missing output (subagent hasn't run or produced nothing).
+  (Re)dispatch that one storefront. Not an error.
+- **FAIL**: content produced but broken. Common causes:
+  - Over the character limit (`name`/`subtitle` at 30, `keywords` at 100; the
+    most common failure): re-dispatch; the prompt tells the model to tighten
+    until it fits.
+  - `name` missing the brand prefix: re-dispatch.
+  - Keyword hygiene warnings (spaces after commas, dupes) are warnings, not
+    failures; re-dispatch if egregious.
 
-**To retry, re-dispatch only the PENDING/FAIL subagents** (the prompt files are
-still in `tmp/metadata-prompts/`). **Do NOT re-run `dispatch_prompts.py` to
-retry** — by default it clears every manifest locale's output, wiping locales that
+To retry, re-dispatch only the PENDING/FAIL subagents (the prompt files are
+still in `tmp/metadata-prompts/`). Do NOT re-run `dispatch_prompts.py` to
+retry: by default it clears every manifest locale's output, wiping locales that
 already succeeded. (Re-running the full extract→dispatch→merge loop is safe
-because merged locales drop out of the next manifest; it's only re-running
-`dispatch_prompts.py` *mid-fan-out* that's destructive.)
+because merged locales drop out of the next manifest; only re-running
+`dispatch_prompts.py` mid-fan-out is destructive.)
 
-**Do not write ad-hoc Python/`wc`/`cat`/`jq` to inspect outputs or count
-characters.** Everything you need is in two pre-approved tools:
-- `validate.py --subset [--json]` — pass/pending/fail + every hard error.
-- `audit.py [storefront …]` — per-field char counts vs. limits with OVER flags,
-  and the consolidated `_questions` batch (see Step 4a). Add `--json` for a
+Don't write ad-hoc Python/`wc`/`cat`/`jq` to inspect outputs or count
+characters. Two pre-approved tools cover it:
+- `validate.py --subset [--json]`: pass/pending/fail + every hard error.
+- `audit.py [storefront …]`: per-field char counts vs. limits with OVER flags,
+  and the consolidated `_questions` batch (Step 4a). `--json` for a
   machine-readable summary, `--full` for untruncated values.
 
 Once `validate.py --subset` exits 0:
@@ -234,36 +226,34 @@ python3 scripts/translate_metadata/merge.py
 Writes each field to `fastlane/metadata/{storefront}/{field}.txt` and copies the
 URL files verbatim from en-US. Refuses to clobber a non-empty file with an empty
 value. The `_questions` arrays (if any) live only in the `tmp/metadata-outputs/`
-JSON — `merge.py` strips `_`-prefixed keys, so they never reach the metadata tree.
+JSON; `merge.py` strips `_`-prefixed keys.
 
 ### 4a. Collect and surface content questions (the one human checkpoint)
 
-The subagents are instructed to **work autonomously** and only attach a top-level
-`_questions` array when they hit a genuine *content* decision about the marketing
-copy (a concept with no natural equivalent, a claim that's culturally/legally
-risky in-market, a load-bearing phrase that can't fit a 30-char field, or
-genuinely ambiguous source English). They always still write a best-effort
-translation, so the pipeline is never blocked.
+The subagents work autonomously and attach a top-level `_questions` array only
+for a genuine content decision about the marketing copy (a concept with no
+natural equivalent, a claim that's culturally/legally risky in-market, a
+load-bearing phrase that can't fit a 30-char field, or genuinely ambiguous source
+English). They always still write a best-effort translation, so the pipeline is
+never blocked.
 
-Collect them with the pre-approved tool — **do not hand-roll this with `cat`/`jq`/
-`python3 -c`:**
+Collect them with the pre-approved tool, not `cat`/`jq`/`python3 -c`:
 
 ```bash
 python3 scripts/translate_metadata/audit.py --questions
 ```
 
-This prints every `_questions` entry across all locales (locale, field, issue, and
-the subagent's default decision) in one batch, or "No content questions raised" if
-there are none. Present that batch to the human **in a single consolidated
-message** (group by issue where the same question recurs across locales) so they
-can accept each default or override it. Use `AskUserQuestion` (or a concise
-written summary) — do **not** dribble out one prompt per locale, and do **not**
-stall the rest of the pipeline waiting on answers: the metadata is already merged
-and valid; these questions are about *improving* specific strings, not unblocking
-the run.
+It prints every `_questions` entry across all locales (locale, field, issue, and
+the subagent's default decision) in one batch, or "No content questions raised".
+Present the batch in a single consolidated message (group by issue where the same
+question recurs across locales) so the human can accept each default or override
+it. Use `AskUserQuestion` (or a concise written summary); don't prompt per
+locale, and don't stall the pipeline on answers: the metadata is already merged
+and valid, and these questions improve specific strings rather than unblock the
+run.
 
-If there are **no** `_questions`, say so briefly and continue — this is the
-expected case. Do not invent questions or ask for approval you don't need.
+If there are no `_questions` (the expected case), say so briefly and continue.
+Don't invent questions or ask for approval you don't need.
 
 If the human overrides a default, apply the change by editing the relevant
 `fastlane/metadata/<storefront>/<field>.txt` directly (or re-dispatching that one
@@ -271,20 +261,19 @@ locale with the added guidance), then re-run `validate.py` + `check_metadata.py`
 
 ### 5. Semantic quality audit + autonomous remediation (the refine pass)
 
-Merging produces *valid* copy (within limits, brand-correct); it does not mean the
-copy is *good*. This step grades the transcreations with an Opus auditor and
-auto-fixes what it flags — the quality counterpart to the structural `audit.py`.
-Run it **autonomously**: no prompts, fixed thresholds, bounded rounds.
+Merging produces valid copy (within limits, brand-correct), not necessarily good
+copy. This step grades the transcreations with an Opus auditor and auto-fixes
+what it flags (the quality counterpart to the structural `audit.py`). Run it
+autonomously: no prompts, fixed thresholds, bounded rounds.
 
-**Scope.** Audit the storefronts you transcreated this run — the keys of the
-initial `tmp/metadata-inputs/manifest.json` from Step 1. (On a full re-translation
-that's all 49; on an incremental run it's just the touched ones.) If Step 1's
-manifest was empty (nothing transcreated), **skip this step** — there is nothing
-new to refine — and go to the gate.
+**Scope.** Audit the storefronts transcreated this run: the keys of the initial
+`tmp/metadata-inputs/manifest.json` from Step 1 (all 49 on a full
+re-translation, only the touched ones on an incremental run). If Step 1's
+manifest was empty, skip this step and go to the gate.
 
-**Fixed policy (do not vary per run):** auto-remediate every finding at severity
-**medium or high**; `low` findings are advisory only. Cap at **2 remediation
-rounds**; residual medium+ findings after round 2 are surfaced, not looped on.
+**Fixed policy (don't vary per run):** auto-remediate every finding at severity
+medium or high; `low` findings are advisory only. Cap at 2 remediation rounds;
+residual medium+ findings after round 2 are surfaced, not looped on.
 
 Round protocol:
 
@@ -298,23 +287,23 @@ Round protocol:
 2. **Fan out one `metadata-audit-locale` (Opus) subagent per prompt.** For each
    `tmp/metadata-audit-prompts/{sf}.md`, dispatch `subagent_type:
    metadata-audit-locale` telling it to read that file and write findings JSON to
-   `tmp/metadata-audit-outputs/{sf}.json`. Batch ~8–12 per message; **never mix
-   `Agent` and `Bash` calls in one message** (a single tool error cancels the
+   `tmp/metadata-audit-outputs/{sf}.json`. Batch ~8–12 per message; never mix
+   `Agent` and `Bash` calls in one message (a single tool error cancels the
    whole batch and kills in-flight subagents).
 
 3. **Triage:**
    ```bash
    python3 scripts/translate_metadata/audit_semantic.py --report --min-severity medium <storefronts>
    ```
-   **Exit 0** → no medium+ findings: the audit is clean, go to the gate (Step 6).
-   **Exit 1** → there are findings to fix; continue.
+   Exit 0: no medium+ findings; the audit is clean, go to the gate (Step 6).
+   Exit 1: findings to fix; continue.
 
 4. **Build the remediation manifest** from the findings:
    ```bash
    python3 scripts/translate_metadata/audit_semantic.py --write-manifest --min-severity medium <storefronts>
    ```
    Writes `tmp/metadata-inputs/{manifest,source}.json` scoped to exactly the
-   flagged (storefront, field) pairs — the same shape Step 1 produces.
+   flagged (storefront, field) pairs, the same shape Step 1 produces.
 
 5. **Regenerate prompts** for the flagged set:
    ```bash
@@ -325,7 +314,7 @@ Round protocol:
 
 6. **Re-transcreate with the auditor's feedback.** Fan out one `metadata-locale`
    (Opus) subagent per flagged storefront. In each dispatch message, point the
-   agent at **both** files: its task prompt `tmp/metadata-prompts/{sf}.md` **and**
+   agent at both files: its task prompt `tmp/metadata-prompts/{sf}.md` and
    the auditor's findings `tmp/metadata-audit-outputs/{sf}.json`. Instruct it to
    fix each flagged field per the finding's `issue`/`suggestion`, stay within char
    limits and all prompt rules, and write the corrected JSON (flagged fields only)
@@ -346,10 +335,9 @@ Round protocol:
 
 8. **Re-audit only the remediated storefronts** (back to round step 1 with just
    those). If `--report --min-severity medium <remediated>` exits 0, the refine
-   pass is done. If findings remain **and** you have done fewer than 2 rounds,
-   loop. After 2 rounds, **stop**: print a short residual summary (the remaining
-   medium+ findings, grouped) for owner review and continue to the gate — do not
-   loop indefinitely.
+   pass is done. If findings remain and you have done fewer than 2 rounds,
+   loop. After 2 rounds, stop: print a short residual summary (remaining
+   medium+ findings, grouped) for owner review and continue to the gate.
 
 ### 6. Authoritative gate
 
@@ -357,9 +345,9 @@ Round protocol:
 python3 scripts/translate_metadata/check_metadata.py
 ```
 
-This walks `fastlane/metadata/` directly (not the tmp/ intermediates), so it
+Walks `fastlane/metadata/` directly (not the tmp/ intermediates), so it
 catches anything that didn't merge. If it reports gaps, loop back to step 1
-(`extract.py --missing` will re-flag exactly what's left).
+(`extract.py --missing` re-flags exactly what's left).
 
 ### 7. Ship (when ready)
 
@@ -370,14 +358,14 @@ fastlane push_metadata
 # or flip skip_metadata:false in the `release` lane and run `fastlane release`
 ```
 
-`push_metadata` / `release` touch App Store Connect — only run them when you
-actually intend to upload. See `fastlane/SETUP.md`.
+`push_metadata` / `release` touch App Store Connect; run them only when you
+intend to upload. See `fastlane/SETUP.md`.
 
 ### 8. Cleanup — offer to clear tmp working files
 
 After the gate is green (and you've shipped or decided not to), offer to clear this
-pipeline's gitignored tmp files (this clears both the transcreation and the
-`metadata-audit-*` working dirs). Ask first; on a yes:
+pipeline's gitignored tmp files (both the transcreation and `metadata-audit-*`
+working dirs). Ask first; on a yes:
 
 ```bash
 python3 scripts/pipeline_tmp.py clean metadata
@@ -386,7 +374,7 @@ python3 scripts/pipeline_tmp.py clean metadata
 ## When NOT to use this skill
 
 - Editing in-app UI strings → use `translate-new-strings`.
-- Generating App Store **screenshot** seed content → use
+- Generating App Store screenshot seed content → use
   `/appstore:generate-screenshot-seeding`.
 - Capturing + uploading App Store screenshots → use
   `/appstore:generate-push-screenshots`.

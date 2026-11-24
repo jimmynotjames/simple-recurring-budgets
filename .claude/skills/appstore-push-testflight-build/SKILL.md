@@ -5,9 +5,9 @@ description: Build and ship a TestFlight build end-to-end — creates a release 
 
 # Push a TestFlight build
 
-Automates the full TestFlight release cut: **branch → build → upload → commit → PR → CI → merge**.
+Full TestFlight release cut: branch → build → upload → commit → PR → CI → merge.
 
-The `fastlane ios beta` lane handles the heavy lifting: it queries App Store Connect for the next build number, bumps `CURRENT_PROJECT_VERSION` in `project.pbxproj`, archives and exports the `.ipa`, uploads it to TestFlight (without waiting for Apple to process it), and auto-commits the pbxproj change. This skill wraps that with branch discipline, the PR + CI wait, and the squash-merge.
+The `fastlane ios beta` lane queries App Store Connect for the next build number, bumps `CURRENT_PROJECT_VERSION` in `project.pbxproj`, archives and exports the `.ipa`, uploads it to TestFlight (without waiting for Apple to process it), and auto-commits the pbxproj change. This skill adds branch discipline, the PR + CI wait, and the squash-merge.
 
 ## Progress checklist
 
@@ -33,8 +33,8 @@ git fetch origin
 git log HEAD..origin/main --oneline
 ```
 
-- **Dirty working tree** (uncommitted or staged changes other than pbxproj): stop. The lane commits only the pbxproj; other uncommitted changes will be left behind and could confuse the reviewer. Ask the user to commit or stash first.
-- **Not on `main`**: stop. Confirm the user wants to cut a build from a non-main branch before proceeding.
+- **Dirty working tree** (uncommitted or staged changes other than pbxproj): stop. The lane commits only the pbxproj, so other changes would be left behind. Ask the user to commit or stash first.
+- **Not on `main`**: stop and confirm the user wants a build from a non-main branch.
 - **Behind `origin/main`**: pull first:
   ```bash
   git pull --ff-only
@@ -48,13 +48,13 @@ Read the current build number from `project.pbxproj`:
 grep CURRENT_PROJECT_VERSION simple-recurring-budgets.xcodeproj/project.pbxproj | head -1
 ```
 
-Extract the integer N. Create the branch before anything else — the lane's `git_commit` commits on whatever branch is checked out, so being on the feature branch is mandatory:
+Extract the integer N. Create the branch first: the lane's `git_commit` commits on whatever branch is checked out.
 
 ```bash
 git checkout -b u/jimmyho/claude-code/testflight-build-{N+1}
 ```
 
-> The branch name uses `N+1` as an approximation. The lane queries ASC for the actual next build number, which may be higher than `N+1` if earlier uploads failed. The PR title is derived from the lane's auto-commit message and will carry the real number regardless.
+> `N+1` in the branch name is approximate: the lane queries ASC for the real next number, which may be higher if earlier uploads failed. The PR title uses the real number from the lane's auto-commit message.
 
 ### 3. Build & upload — `fastlane ios beta`
 
@@ -71,7 +71,7 @@ The lane (~10–15 min):
 - Uploads to TestFlight (`skip_waiting_for_build_processing: true`)
 - Auto-commits: `chore(release): set build number to <N>`
 
-**Do not use the Monitor tool for ticks — it prompts on each re-arm.** Track progress on 5-minute background sleep ticks instead (memory `feedback_no_prompt_periodic_progress`):
+Do not use the Monitor tool for ticks (it prompts on each re-arm). Track progress on 5-minute background sleep ticks (memory `feedback_no_prompt_periodic_progress`):
 
 1. Launch `sleep 300` as a background Bash task (`run_in_background: true`).
 2. On its completion notification: read the last 10 lines of `tmp/testflight-build.log`, report one-line status, then re-arm with another `sleep 300`.
@@ -88,14 +88,14 @@ tail -60 tmp/testflight-build.log
 
 Branch on the result:
 
-**Auto-commit present** (`chore(release): set build number to N`): Record the actual build number N from the commit subject. Proceed to step 5.
+**Auto-commit present** (`chore(release): set build number to N`): record N from the commit subject; go to step 5.
 
-**No auto-commit + log shows a build or upload error**: Surface the last 80 lines of `tmp/testflight-build.log` and stop. The branch is clean (nothing committed), so the user can re-run after fixing the issue. Common causes and fixes:
+**No auto-commit + build or upload error in the log**: surface the last 80 lines of `tmp/testflight-build.log` and stop. The branch is clean, so the user can re-run after fixing. Common causes:
 - *Signing failure* — run `fastlane ios verify_auth` to check ASC API key auth; verify the distribution cert and provisioning profile are valid in Xcode / ASC.
-- *Archive failure* — the log will show a compiler error; fix the code and re-run from step 3.
+- *Archive failure* — compiler error in the log; fix and re-run from step 3.
 - *Upload failure (ASC HTTP 500)* — transient; wait a few minutes and re-run `fastlane ios beta` on the same branch. ASC will increment the build number again.
 
-**No auto-commit + log shows upload success but no commit** (rare — fastlane's `git_commit` failed after a successful upload): the pbxproj is changed but not committed. Stage and commit it manually:
+**Upload succeeded but no commit** (rare: `git_commit` failed after upload): the pbxproj is changed but uncommitted. Stage and commit it manually:
 
 ```bash
 git add simple-recurring-budgets.xcodeproj/project.pbxproj
@@ -178,7 +178,7 @@ Wait in the background (`run_in_background: true`):
 bash scripts/wait_ci.sh <run-id> <pr-number>
 ```
 
-The active CI gates are lint, secrets scan, and the i18n translation gate (the macOS build/test jobs are paused for the June 2026 Actions budget; see AGENTS.md). `wait_ci.sh` polls until the run completes, then prints the step breakdown and PR mergeability. The script times out after ~80 min.
+The active CI gates are lint, secrets scan, and the i18n translation gate (the macOS build/test jobs are paused for the June 2026 Actions budget; see AGENTS.md). `wait_ci.sh` polls until the run completes, then prints the step breakdown and PR mergeability. It times out after ~80 min.
 
 ### 8. Squash-merge and clean up
 

@@ -17,9 +17,12 @@ on:
   push:
     branches: [main]
 
-# Cancel superseded runs on the same ref.
+# PRs: cancel superseded runs on the same branch. Pushes to main: one group per commit,
+# so every merge gets its own complete run. Branch protection doesn't require PRs to be
+# up to date with main, so this post-merge run is what catches two PRs that pass alone
+# but break together.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
   cancel-in-progress: true
 
 permissions:

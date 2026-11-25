@@ -286,8 +286,9 @@ final class AccessibilityAuditTests: XCTestCase {
       }
       // iOS-COMPAT(27.x): the system compact date picker's time label (`_UIDatePickerCompactTimeLabel`,
       // Add Expense's date row) intermittently fails contrast on the iOS 27.2 simulator. System-drawn;
-      // we don't style it. Scope: that private class name in the issue description only.
-      if issue.compactDescription.contains("_UIDatePickerCompactTimeLabel") {
+      // we don't style it. Scope: that private class name in the issue's detailed description only;
+      // the compact description is just "Contrast failed".
+      if issue.detailedDescription.contains("_UIDatePickerCompactTimeLabel") {
         return true
       }
       // iOS-COMPAT(26.x+): nav bar Cancel buttons in Liquid Glass toolbars report contrast

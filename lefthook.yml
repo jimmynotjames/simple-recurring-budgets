@@ -5,7 +5,7 @@ pre-commit:
   commands:
     swiftformat:
       glob: "**/*.swift"
-      run: swiftformat {staged_files}
+      run: bash scripts/swiftformat.sh {staged_files}
       stage_fixed: true
 
     swiftlint-fix:

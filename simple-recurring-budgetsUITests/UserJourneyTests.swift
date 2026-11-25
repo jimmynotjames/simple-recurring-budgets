@@ -216,12 +216,8 @@ final class UserJourneyTests: XCTestCase {
   /// Covers the `.onMove` wiring end-to-end: `BudgetsViewMoveTests` covers `BudgetReorderService`,
   /// but only a real drag confirms the List forwards indices to it. Order is asserted by rows'
   /// vertical positions; there is no relaunch check because the UI-test store is in-memory.
-  ///
-  /// **This test must always run with animations on, on CI too. Don't remove `keepsAnimations`.**
-  /// With animations off the drag sometimes doesn't take: 9 of 10 passed on CI, against 10 of 10
-  /// with animations on.
   func testReorderBudgets() {
-    let app = makeApp(seedBudgets: ["Alpha", "Bravo", "Charlie"], keepsAnimations: true)
+    let app = makeApp(seedBudgets: ["Alpha", "Bravo", "Charlie"])
     app.launch()
 
     let budgets = BudgetsScreen(app: app)

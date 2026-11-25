@@ -229,15 +229,12 @@ final class UserJourneyTests: XCTestCase {
     XCTAssertLessThan(alphaRow.frame.minY, bravoRow.frame.minY, "Seed order should start Alpha, Bravo")
     XCTAssertLessThan(bravoRow.frame.minY, charlieRow.frame.minY, "Seed order should end Bravo, Charlie")
 
-    // Synthesized drags occasionally don't register on CI simulators (the order stays unchanged), so allow
-    // one more attempt. A drag that registers but lands wrong still fails the asserts below.
-    for _ in 0 ..< 2 {
-      dragLastBudgetToTop(app: app, budgets: budgets)
-      XCTAssertTrue(charlieRow.waitForExistence(timeout: 3))
-      if charlieRow.frame.minY < alphaRow.frame.minY {
-        break
-      }
-    }
+    // One drag, no in-test retry. A synthesized drag occasionally doesn't register on CI simulators
+    // (1 of 75 CI tries in #365's repro loop); CI's -retry-tests-on-failure then reruns the whole test
+    // from a fresh launch. Don't drag again here: a drag that leaves the list scrambled followed by
+    // a second drag by cell index crashed UIKit's reorder (NSInternalInconsistencyException, #364).
+    dragLastBudgetToTop(app: app, budgets: budgets)
+    XCTAssertTrue(charlieRow.waitForExistence(timeout: 3))
 
     XCTAssertLessThan(
       charlieRow.frame.minY, alphaRow.frame.minY,

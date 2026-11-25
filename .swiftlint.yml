@@ -18,6 +18,11 @@ opt_in_rules:
   - modifier_order
   - contains_over_first_not_nil
   - vertical_whitespace_closing_braces
+  # Swift concurrency
+  - unhandled_throwing_task
+  # SwiftUI and accessibility
+  - accessibility_label_for_image
+  - accessibility_trait_for_button
 
 excluded:
   - .build

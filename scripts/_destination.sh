@@ -14,6 +14,11 @@ source "${ROOT}/scripts/_sim_sandbox.sh"
 # Always pin by UDID so xcodebuild never resolves to an unintended device.
 DESTINATION="platform=iOS Simulator,id=${SIM_UDID}"
 
+# This repo's names. The scripts that source this file are the same in both iOS repos; only these differ.
+# The Xcode project and scheme, and the app the scheme builds (sim.sh run).
+XCODE_PROJECT="simple-recurring-budgets.xcodeproj"
+XCODE_SCHEME="simple-recurring-budgets"
+APP_PRODUCT="simple-recurring-budgets.app"
 # The UI test target, and the small, already-built unit suite warm_up_if_needed runs.
 UI_TEST_TARGET="simple-recurring-budgetsUITests"
 WARM_UP_ONLY="simple-recurring-budgetsTests/simple_recurring_budgetsTests"
@@ -29,8 +34,8 @@ prepare_test_args() {
         return 0
     fi
     local build_args=(
-        -project simple-recurring-budgets.xcodeproj
-        -scheme simple-recurring-budgets
+        -project "${XCODE_PROJECT}"
+        -scheme "${XCODE_SCHEME}"
         -destination "${DESTINATION}"
         -destination-timeout 300
         -derivedDataPath "${SIM_DERIVED}"

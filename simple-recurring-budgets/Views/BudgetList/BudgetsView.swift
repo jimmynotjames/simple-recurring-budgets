@@ -102,9 +102,11 @@ struct BudgetsView: View {
     // undocumented line limit on its description that clips the long string on some iOS
     // versions. Don't swap it back.
     VStack(spacing: 16) {
+      // Decorative: the title below says the list is empty.
       Image(systemName: "tray")
         .font(.system(size: 56))
         .foregroundStyle(.secondary)
+        .accessibilityHidden(true)
       VStack(spacing: 4) {
         Text(String(
           localized: "budgets.empty.title",

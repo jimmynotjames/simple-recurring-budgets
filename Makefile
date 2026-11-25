@@ -1,4 +1,4 @@
-.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
+.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-udid sim-show sim-run sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
@@ -70,33 +70,25 @@ hooks-install:
 	lefthook install
 
 initialize-sims:
-	@ROOT="$(CURDIR)" bash -c 'source "$(CURDIR)/scripts/_sim_sandbox.sh"'
+	@bash scripts/sim.sh init
 
-# -- Scoped simulator management: only the UDID in .build/sim/device.udid --
-# Never use `pkill Simulator`, `killall Simulator`, or bare `simctl shutdown/erase all`
-# (they hit every simulator on the machine).
+sim-udid:
+	@bash scripts/sim.sh udid
 
-_UDID_FILE := $(CURDIR)/.build/sim/device.udid
+sim-show:
+	@bash scripts/sim.sh show
+
+sim-run:
+	@bash scripts/sim.sh run
 
 sim-status:
-	@if [ -f "$(_UDID_FILE)" ]; then \
-		udid=$$(cat "$(_UDID_FILE)"); \
-		xcrun simctl list devices | grep "$$udid" || echo "(device $$udid not found in default set)"; \
-	else \
-		echo "(not initialized — run make initialize-sims)"; \
-	fi
+	@bash scripts/sim.sh status
 
-# Both hold the checkout's simulator lock (scripts/_sim_common.sh), so they wait for a running test.
-# sim-shutdown: every booted device with this checkout's slug (sandbox and clones).
 sim-shutdown:
-	@ROOT="$(CURDIR)" bash -c 'source "$(CURDIR)/scripts/_sim_common.sh" && sim_lock_acquire && python3 scripts/sim_clean.py --shutdown-only'
+	@bash scripts/sim.sh shutdown
 
-# sim-clean: delete every device and clone with this checkout's slug, then .build/sim (the lock
-# file is outside it).
 sim-clean:
-	@ROOT="$(CURDIR)" bash -c 'source "$(CURDIR)/scripts/_sim_common.sh" && sim_lock_acquire && python3 scripts/sim_clean.py' || true
-	rm -rf .build/sim
-	@echo "sim-sandbox: .build/sim removed"
+	@bash scripts/sim.sh clean
 
 # -- Simulator slots ----------------------------------------------------------
 # The machine-wide pool's master is ~/dev/simulator-slots (maintainer's machine only);

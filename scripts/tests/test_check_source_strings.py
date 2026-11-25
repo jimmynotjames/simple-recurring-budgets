@@ -14,6 +14,9 @@ import check_source_strings as checker  # noqa: E402
 
 
 def _errors_for(swift: str) -> list[str]:
+    # Inside the repo (the checker reports repo-relative paths); tmp/ is gitignored, so a fresh
+    # checkout such as CI's doesn't have it yet.
+    (REPO_ROOT / "tmp").mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(dir=REPO_ROOT / "tmp") as tmp:
         path = Path(tmp) / "Sample.swift"
         path.write_text(swift, encoding="utf-8")

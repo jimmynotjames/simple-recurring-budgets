@@ -1,7 +1,10 @@
-.PHONY: format format-check lint-fix build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
+.PHONY: tool-versions-check format format-check lint-fix build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
+
+tool-versions-check:
+	bash scripts/check-tool-versions.sh
 
 format:
 	swiftformat .
@@ -16,9 +19,9 @@ lint-fix:
 build:
 	bash scripts/build.sh
 
-# Named like CI's jobs (unit-tests, ui-tests); `tests` is the unit pass, then the UI pass.
-tests:
-	bash scripts/test.sh
+# Opt-in: AGENTS.md §"Build and test". Named like CI's jobs (unit-tests, ui-tests, focused-tests).
+# Unit then UI, as an automatic CI run does.
+tests: unit-tests ui-tests
 
 unit-tests:
 	bash scripts/unit-tests.sh
@@ -28,11 +31,9 @@ unit-tests:
 ui-tests:
 	bash scripts/ui-tests.sh
 
-# Ad-hoc subset run; ONLY = space-separated -only-testing identifiers (add --ui to
-# include the UI target). See scripts/focused-tests.sh.
-#   make focused-tests ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"
+# make focused-tests ONLY=<target>/<Class>[/<test>] [ITERATIONS=3]; ONLY may hold several ids.
 focused-tests:
-	bash scripts/focused-tests.sh $(ONLY)
+	bash scripts/focused-tests.sh "$(ONLY)" $(ITERATIONS)
 
 # Offline unit tests of the repo's CI/helper scripts; touch no simulator.
 script-tests:
@@ -70,18 +71,15 @@ sim-status:
 		echo "(not initialized — run make initialize-sims)"; \
 	fi
 
+# Both hold the checkout's simulator lock (scripts/_sim_common.sh), so they wait for a running test.
+# sim-shutdown: every booted device with this checkout's slug (sandbox and clones).
 sim-shutdown:
-	@if [ -f "$(_UDID_FILE)" ]; then \
-		udid=$$(cat "$(_UDID_FILE)"); \
-		xcrun simctl shutdown "$$udid" 2>/dev/null \
-			&& echo "sim-sandbox: simulator $$udid shut down" \
-			|| echo "sim-sandbox: simulator $$udid already shut down or not found"; \
-	else \
-		echo "sim-sandbox: not initialized"; \
-	fi
+	@ROOT="$(CURDIR)" bash -c 'source "$(CURDIR)/scripts/_sim_common.sh" && sim_lock_acquire && python3 scripts/sim_clean.py --shutdown-only'
 
+# sim-clean: delete every device and clone with this checkout's slug, then .build/sim (the lock
+# file is outside it).
 sim-clean:
-	@python3 scripts/sim_clean.py --slug-from-file "$(_UDID_FILE)" || true
+	@ROOT="$(CURDIR)" bash -c 'source "$(CURDIR)/scripts/_sim_common.sh" && sim_lock_acquire && python3 scripts/sim_clean.py' || true
 	rm -rf .build/sim
 	@echo "sim-sandbox: .build/sim removed"
 

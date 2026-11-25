@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────
-# Ad-hoc localized-layout screenshot capture; not part of `make test` or any hook.
+# Ad-hoc localized-layout screenshot capture; not part of `make tests` or any hook.
 # Runs LocalizationScreenshotCapture across 13 locales at forced .xxxLarge, exports the
 # screenshots to tmp/loc-size-check/, downscales them, and leaves them for visual review.
 #
@@ -56,12 +56,10 @@ COMMON_ARGS=(
 xcodebuild build-for-testing "${COMMON_ARGS[@]}" >/dev/null
 
 # With the machine-wide simulator pool (AGENTS.md §"Simulator slots"), take up to WORKERS slots
-# and run as many clones as granted. Without it, WORKERS as given: an explicit override of
-# SRB_SIM_MAX for this ad-hoc run, not a default change.
+# and run as many clones as granted. Without it, WORKERS as given: this ad-hoc run's own setting,
+# separate from the UI pass's UI_WORKERS.
 take_slots "${WORKERS}" loc-size-check
-if [[ "${SIMULATOR_SLOTS_ENABLED}" -eq 1 ]]; then
-  WORKERS="${SIMULATOR_SLOTS_GRANTED}"
-fi
+WORKERS="${SIMULATOR_SLOTS_GRANTED}"
 
 echo "→ Capturing screenshots across 13 locales @ xxxLarge with ${WORKERS} parallel clones …"
 xcodebuild test-without-building "${COMMON_ARGS[@]}" \

@@ -1,7 +1,7 @@
 # Fetches the products ci.yml's `build` job compiled (build-for-testing) and sets XCTESTRUN, which
-# the test jobs pass to `xcodebuild test-without-building -xctestrun` so they run those products
-# instead of building. The products travel as a tarball because an artifact upload drops exec bits
-# and symlinks, which the app and its frameworks need.
+# makes the test scripts run them instead of building (prepare_test_args in scripts/_destination.sh).
+# The products travel as a tarball because an artifact upload drops exec bits and symlinks, which
+# the app and its frameworks need.
 name: Test products
 description: Download the build job's test products and point XCTESTRUN at their .xctestrun file.
 
@@ -15,10 +15,10 @@ runs:
     - name: Unpack the test products
       shell: bash
       run: |
-        mkdir -p build/ci
-        tar -xzf test-products.tgz -C build/ci
+        mkdir -p .build/ci
+        tar -xzf test-products.tgz -C .build/ci
         rm test-products.tgz
-        found=$(find "$PWD/build/ci/Products" -maxdepth 1 -name '*.xctestrun')
+        found=$(find "$PWD/.build/ci/Products" -maxdepth 1 -name '*.xctestrun')
         echo "$found"
         xctestrun=$(head -1 <<<"$found")
         if [[ -z "$xctestrun" ]]; then

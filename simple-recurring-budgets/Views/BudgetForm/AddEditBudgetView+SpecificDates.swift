@@ -108,6 +108,11 @@ struct DateColumn: View {
     .accessibilityHint(accessibilityHint)
     .sheet(isPresented: $isPickerShown) {
       pickerSheet
+      // A sheet is its own hosting root, so the CI animations override is re-applied (DEBUG-only;
+      // inert unless UI_TESTS + FORCE_ANIMATIONS=off are set).
+      #if DEBUG
+        .modifier(TestAnimationsOverride.Modifier())
+      #endif
     }
   }
 

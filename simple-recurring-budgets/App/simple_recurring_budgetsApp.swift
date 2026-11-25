@@ -37,6 +37,8 @@ struct simple_recurring_budgetsApp: App {
       if ProcessInfo.processInfo.environment["SCREENSHOT_SYNC_OK"] == "1" {
         initialSyncStatus.screenshotForcesAvailableState = true
       }
+      // CI UI tests only: animations off (inert unless UI_TESTS + FORCE_ANIMATIONS=off are set).
+      TestAnimationsOverride.applyToUIKit()
     #endif
 
     // Use ConsoleAnalyticsClient (log-only) when:
@@ -101,9 +103,11 @@ struct simple_recurring_budgetsApp: App {
           .environment(syncStatus)
           .environment(ratingPrompt)
           .environment(\.analytics, analytics)
-        // Test-only Dynamic Type override (localized-layout screenshot check). DEBUG-only; inert unless IS_TESTING + FORCE_DYNAMIC_TYPE are set.
+        // Test-only overrides, DEBUG-only: Dynamic Type (localized-layout screenshot check; inert unless IS_TESTING +
+        // FORCE_DYNAMIC_TYPE are set) and animations (CI UI tests; inert unless UI_TESTS + FORCE_ANIMATIONS=off).
         #if DEBUG
           .modifier(TestDynamicTypeOverride())
+          .modifier(TestAnimationsOverride.Modifier())
         #endif
           .task {
             // Cold-launch open; the tracker dedups against the scenePhase handler below so launch never double-fires.

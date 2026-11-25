@@ -268,13 +268,6 @@ final class ClearAmountButtonUITests: XCTestCase {
   }
 
   @MainActor
-  private func makeApp() -> XCUIApplication {
-    let app = XCUIApplication()
-    app.launchEnvironment["IS_TESTING"] = "1"
-    return app
-  }
-
-  @MainActor
   private func expenseAmountField(in app: XCUIApplication) -> XCUIElement {
     app.textFields.matching(
       NSPredicate(format: "label == 'Expense amount'")

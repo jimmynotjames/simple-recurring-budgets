@@ -243,7 +243,7 @@ This deletes every locale entry for those keys. Use `--dry-run` first to see wha
 Standard four-step from `AGENTS.md`:
 
 ```bash
-make format && make lint-fix && make build && make test
+make format && make lint-fix && make build && make tests
 ```
 
 ### 7. Cleanup — offer to clear tmp working files

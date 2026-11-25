@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Repeat-safe machine setup: Homebrew CLI tools, Python 3 (for scripts/test.sh),
+# Repeat-safe machine setup: Homebrew CLI tools, Python 3 (for the test scripts),
 # Xcode CLI check, Lefthook hooks.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -20,12 +20,13 @@ fi
 
 printf '%s\n' "==> Installing lefthook, swiftlint, swiftformat, gitleaks (brew; idempotent)"
 brew install lefthook swiftlint swiftformat gitleaks
+bash scripts/check-tool-versions.sh || die "Lint tool versions differ from config/lint-tools.env (see above)."
 
 if ! command -v python3 >/dev/null 2>&1; then
 	die "python3 not on PATH. Install Xcode Command Line Tools or: brew install python@3.12"
 fi
 if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)' 2>/dev/null; then
-	die "python3 must be 3.9 or newer (scripts/test.sh). Try: brew install python@3.12"
+	die "python3 must be 3.9 or newer (the test scripts). Try: brew install python@3.12"
 fi
 
 if ! xcodebuild -version >/dev/null 2>&1; then
@@ -40,5 +41,5 @@ fi
 printf '%s\n' "==> Installing Git hooks (lefthook)"
 lefthook install
 
-printf '\n%s\n' "Done. Next: make test   make lint"
+printf '\n%s\n' "Done. Next: make tests   make lint"
 printf '%s\n' "(OpenSpec CLI is optional for spec workflow; not installed by this script.)"

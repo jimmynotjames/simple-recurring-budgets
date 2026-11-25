@@ -1,6 +1,6 @@
 import XCTest
 
-/// Ad-hoc localized-layout screenshot capture; not part of `make test`.
+/// Ad-hoc localized-layout screenshot capture; not part of `make tests`.
 ///
 /// Drives the app in 13 locales at forced `.xxxLarge` and attaches a `.keepAlways` screenshot of
 /// each key screen named `<lang>__<screen>`. It makes no layout assertions; a human/Claude inspects

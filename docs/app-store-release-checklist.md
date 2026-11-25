@@ -82,7 +82,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       working tree clean; `git pull --ff-only` done.
       > Note:
 - [ ] **P1.2** Full gate green: `make format && make lint-fix && make build &&
-      make test` (log to `tmp/gate.log`).
+      make tests` (log to `tmp/gate.log`).
       > Note:
 - [ ] **P1.3** 🎈 Review recent audits: look through `docs/audits/` (date is
       in the filename) and the optional-test run logs (e.g.
@@ -179,7 +179,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P3.1** 🤔 (optional, recommended before any submission) Localized-layout
       visual check: `/translation-accessibility-size-check` (truncation,
       overflow, RTL mirroring at forced `.xxxLarge`). Resource-heavy and ad-hoc
-      by design; it is **not** part of `make test`, so a release is the moment
+      by design; it is **not** part of `make tests`, so a release is the moment
       to run it.
       > Note:
 - [ ] **P3.2** 🤔 (optional) VoiceOver + Dynamic Type spot-check of screens that

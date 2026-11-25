@@ -81,7 +81,7 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
       > Note: 2026-07-12 — Working tree clean; `git pull --ff-only` reported
       > already up to date (includes the just-merged Phase 0 PR #308).
 - [x] **P1.2** Full gate green: `make format && make lint-fix && make build &&
-      make test` (log to `tmp/gate.log`).
+      make tests` (log to `tmp/gate.log`).
       > Note: 2026-07-12 — First run failed at `make format`/`make lint-fix`:
       > SwiftFormat/SwiftLint were scanning the gitignored top-level `build/`
       > dir (stale `ci-repro*` scratch dirs with full SPM checkouts from
@@ -238,7 +238,7 @@ Started: 2026-07-12 · Submitted: 2026-07-13 · Released: 2026-07-22 · Monitori
 - [x] **P3.1** 🤔 (optional, recommended before any submission) Localized-layout
       visual check: `/translation-accessibility-size-check` — truncation,
       overflow, RTL mirroring at forced `.xxxLarge`. Resource-heavy and ad-hoc
-      by design; it is **not** part of `make test`, so a release is the moment
+      by design; it is **not** part of `make tests`, so a release is the moment
       to run it.
       > Note: 2026-07-12 — Skipped. Last checks a few weeks ago are
       > sufficient.

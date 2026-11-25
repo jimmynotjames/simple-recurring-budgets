@@ -1,97 +1,158 @@
 #!/usr/bin/env bash
-# Sourceable helper (sourced by _destination.sh, after _sim_sandbox.sh): decides how many
-# simulators a test run uses. AGENTS.md §"Simulator slots" has the full picture.
+# Sourceable helper (sourced by _destination.sh, after _sim_sandbox.sh): how many simulators a
+# test run uses, whether failed UI tests get a retry, and the device warm-up. AGENTS.md
+# §"Simulator slots" has the full picture. This file is identical in checklists and
+# simple-recurring-budgets; repo-specific values come from _destination.sh.
 #
-# Two modes, picked by whether the simulator-slots master exists on this machine
-# (${SIMULATOR_SLOTS_MASTER:-~/dev/simulator-slots}):
+# The caller sets, before sourcing:
+#   ROOT          the repo root
+#   WARM_UP_ONLY  the -only-testing id of one small unit suite (warm_up_if_needed)
 #
-#   Pool on  (the maintainer's machine): every test run takes slots from a machine-wide pool
-#            shared with other opted-in repos (scripts/simulator-slots, a vendored copy).
-#            A run asks for up to WANT, gets what is free (at least 1), and holds it until
-#            the calling script exits. A failed hold fails the run; it never falls back.
-#   Pool off (everyone else): takes nothing and prints one notice. Concurrency is the
-#            dev's call: SRB_SIM_MAX (1..3) if set, otherwise no flags (the scheme decides).
+# The pool is opt-in per machine: on only where the simulator-slots master exists
+# (${SIMULATOR_SLOTS_MASTER:-~/dev/simulator-slots}). With it on, a run asks for up to N slots,
+# gets what is free (at least 1), and holds them until the calling script exits; a failed hold
+# fails the run. With it off, nothing is held and a run gets what it asks for.
 #
-# After sourcing, call once per test script, after building and before testing:
-#   slots_parallel_args WANT LABEL   — sets SIMULATOR_SLOTS_GRANTED and the bash array
-#                                      SLOTS_PARALLEL_ARGS (xcodebuild flags)
-# Knobs (pool on): SRB_SIM_MAX sets WANT for the UI pass; SIMULATOR_SLOTS_FEWER=N leaves N
-# free slots unused; SIMULATOR_SLOTS_TIMEOUT=S gives up (exit 75) after S seconds.
+# Settings:
+#   UI_WORKERS=1|2|3            simulators for the UI pass. Default 2 with the pool on (the pool
+#                               can grant fewer), 1 (serial) with it off. Clamped to 1..3.
+#   UI_RETRY_ON_FAILURE=auto|1|0
+#                               auto (default): retry a failed UI test once when 2+ workers are
+#                               granted (CPU contention flakes). 1: always retry once (CI). 0: never.
+#   SIMULATOR_SLOTS_FEWER=N     (pool on) leave N free slots unused.
+#   SIMULATOR_SLOTS_TIMEOUT=S   (pool on) give up after S seconds (exit 75).
+# Unit and focused runs are always serial on one slot.
 
 : "${ROOT:?ROOT must be set to the repo root before sourcing _sim_concurrency.sh}"
+: "${WARM_UP_ONLY:?WARM_UP_ONLY must be set before sourcing _sim_concurrency.sh}"
+
+# Renamed settings fail loudly, so an old one is never silently ignored.
+for _old_setting in SRB_SIM_MAX SIMULATOR_WORKERS_WITHOUT_POOL; do
+    if [[ -n "${!_old_setting:-}" ]]; then
+        echo "error: ${_old_setting} was renamed to UI_WORKERS (1..3); see AGENTS.md §\"Simulator slots\"" >&2
+        exit 2
+    fi
+done
+unset _old_setting
 
 SIMULATOR_SLOTS_HOME="${ROOT}/scripts/simulator-slots"
 source "${SIMULATOR_SLOTS_HOME}/simulator_slots.sh"
 
-_slots_master="${SIMULATOR_SLOTS_MASTER:-${HOME}/dev/simulator-slots}"
-if [[ -d "${_slots_master}" ]]; then
+if [[ -d "${SIMULATOR_SLOTS_MASTER:-${HOME}/dev/simulator-slots}" ]]; then
     SIMULATOR_SLOTS_ENABLED=1
 else
     SIMULATOR_SLOTS_ENABLED=0
 fi
 
-# SRB_SIM_MAX, clamped to 1..3 with a warning. Empty means unset.
-SRB_SIM_MAX="${SRB_SIM_MAX:-}"
-if [[ -n "${SRB_SIM_MAX}" ]]; then
-    if ! [[ "${SRB_SIM_MAX}" =~ ^[0-9]+$ ]]; then
-        echo "sim-concurrency: warning: SRB_SIM_MAX='${SRB_SIM_MAX}' is not a number — using 2" >&2
-        SRB_SIM_MAX=2
-    elif (( SRB_SIM_MAX < 1 )); then
-        echo "sim-concurrency: warning: SRB_SIM_MAX=${SRB_SIM_MAX} below range — clamping to 1" >&2
-        SRB_SIM_MAX=1
-    elif (( SRB_SIM_MAX > 3 )); then
-        echo "sim-concurrency: warning: SRB_SIM_MAX=${SRB_SIM_MAX} above range — clamping to 3" >&2
-        SRB_SIM_MAX=3
+pool_is_on() {
+    [[ "${SIMULATOR_SLOTS_ENABLED}" -eq 1 ]]
+}
+
+# Prints how many simulators the UI pass asks for: UI_WORKERS clamped to 1..3, or the default.
+ui_workers_wanted() {
+    local default=1 value="${UI_WORKERS:-}"
+    pool_is_on && default=2
+    if [[ -z "${value}" ]]; then
+        echo "${default}"
+    elif ! [[ "${value}" =~ ^[0-9]+$ ]]; then
+        echo "sim-concurrency: warning: UI_WORKERS='${value}' is not a number; using ${default}" >&2
+        echo "${default}"
+    elif (( value < 1 )); then
+        echo "sim-concurrency: warning: UI_WORKERS=${value} is below 1; using 1" >&2
+        echo 1
+    elif (( value > 3 )); then
+        echo "sim-concurrency: warning: UI_WORKERS=${value} is above 3; using 3" >&2
+        echo 3
+    else
+        echo "${value}"
     fi
-fi
-
-# How many slots the UI pass asks for: SRB_SIM_MAX, default 2 (the pool decides the grant).
-ui_slots_wanted() {
-    echo "${SRB_SIM_MAX:-2}"
 }
 
-_print_no_pool_notice() {
-    local concurrency="${SRB_SIM_MAX:-unset → xcodebuild/scheme default}"
-    {
-        echo "simulator-slots: no shared pool at ${_slots_master} (expected outside the maintainer's machine)."
-        echo "simulator-slots: running without machine-wide coordination; concurrency: SRB_SIM_MAX=${concurrency}."
-        echo "simulator-slots: see AGENTS.md §\"Simulator slots\"."
-    } >&2
-}
-
-# Pool on: takes up to $1 slots for a run labelled $2 (blocks while none are free).
-# Pool off: takes none; SIMULATOR_SLOTS_GRANTED is min($1, SRB_SIM_MAX), or empty when
-# SRB_SIM_MAX is unset (no opinion).
+# Takes up to $1 slots for a run labelled $2 and sets SIMULATOR_SLOTS_GRANTED. With the pool off,
+# takes none and grants $1. Call after building and before testing, so builds never hold a slot.
 take_slots() {
-    if [[ "${SIMULATOR_SLOTS_ENABLED}" -eq 0 ]]; then
-        _print_no_pool_notice
-        if [[ -n "${SRB_SIM_MAX}" ]]; then
-            SIMULATOR_SLOTS_GRANTED=$(( $1 < SRB_SIM_MAX ? $1 : SRB_SIM_MAX ))
-        else
-            SIMULATOR_SLOTS_GRANTED=""
-        fi
+    if ! pool_is_on; then
+        echo "simulator-slots: no shared pool on this machine (normal outside the maintainer's); using $1 simulator(s). AGENTS.md §\"Simulator slots\"." >&2
+        SIMULATOR_SLOTS_GRANTED="$1"
         return 0
     fi
     simulator_slots_hold "$1" "$2" "${ROOT}" "${SIM_UDID}" "[${SIM_SLUG}]"
 }
 
-# take_slots, then sets SLOTS_PARALLEL_ARGS for the grant: serial on this checkout's device
-# for 1; that many clones for more (with one retry, since the accessibility audits flake under
-# CPU contention); nothing when the pool is off and SRB_SIM_MAX is unset. Orphaned clones from
-# a crashed run are left to `make sim-clean`: this checkout has no lock, so deleting clones here
-# could kill a concurrent run's.
+# take_slots, then sets SLOTS_PARALLEL_ARGS to the xcodebuild flags for the grant: serial on this
+# checkout's device for 1, that many clones for more.
 slots_parallel_args() {
     take_slots "$1" "$2" || return $?
-    local granted="${SIMULATOR_SLOTS_GRANTED}"
-    if [[ -z "${granted}" ]]; then
-        SLOTS_PARALLEL_ARGS=()
-    elif (( granted <= 1 )); then
+    if (( SIMULATOR_SLOTS_GRANTED <= 1 )); then
         SLOTS_PARALLEL_ARGS=(-parallel-testing-enabled NO)
     else
         SLOTS_PARALLEL_ARGS=(-parallel-testing-enabled YES
-            -parallel-testing-worker-count "${granted}"
-            -maximum-parallel-testing-workers "${granted}"
-            -retry-tests-on-failure
-            -test-iterations 2)
+            -parallel-testing-worker-count "${SIMULATOR_SLOTS_GRANTED}"
+            -maximum-parallel-testing-workers "${SIMULATOR_SLOTS_GRANTED}")
+        # Clones an interrupted run left behind; safe under the checkout lock _sim_sandbox.sh holds.
+        python3 "${ROOT}/scripts/sim_clean.py" --clones-only >&2
     fi
+}
+
+# Sets RETRY_ARGS from UI_RETRY_ON_FAILURE and the grant (call after slots_parallel_args).
+retry_args() {
+    local mode="${UI_RETRY_ON_FAILURE:-auto}" retry=0
+    case "${mode}" in
+        1) retry=1 ;;
+        0) retry=0 ;;
+        auto) (( SIMULATOR_SLOTS_GRANTED > 1 )) && retry=1 ;;
+        *)
+            echo "error: UI_RETRY_ON_FAILURE='${mode}' must be auto, 1 or 0" >&2
+            return 2
+            ;;
+    esac
+    if (( retry )); then
+        RETRY_ARGS=(-retry-tests-on-failure -test-iterations 2)
+    else
+        RETRY_ARGS=()
+    fi
+}
+
+# A UI test run on this checkout's own device needs the `warmed` sentinel: XCUITest's IPC socket
+# is unreliable until the device has hosted one app lifecycle. unit-tests.sh writes the sentinel
+# and every boot clears it. Without it, runs WARM_UP_ONLY here first. Call after taking a slot;
+# uses the caller's TEST_ARGS. A parallel run skips this: its clones boot fresh.
+warm_up_if_needed() {
+    [[ -f "${ROOT}/.build/sim/warmed" ]] && return 0
+    echo "sim: device not warmed up; running one unit suite on it first" >&2
+    xcodebuild test-without-building "${TEST_ARGS[@]}" \
+        -resultBundlePath "${SIM_RESULTS_DIR}/$(date +%Y%m%d_%H%M%S)-$$-warmup.xcresult" \
+        -parallel-testing-enabled NO \
+        -collect-test-diagnostics never \
+        -only-testing:"${WARM_UP_ONLY}" >&2 || {
+        echo "error: the warm-up unit suite failed; run 'make unit-tests' to see why." >&2
+        return 1
+    }
+    touch "${ROOT}/.build/sim/warmed"
+}
+
+# Prints a run's failures as TEST-FAILED lines ($1: xcodebuild's exit code, $2: the .xcresult).
+# A green run with failures passed them only on retry: on CI each becomes a warning annotation,
+# locally a PASSED-ON-RETRY line, so the flake gets noticed. With TEST_REPORT_JSON set (CI), also
+# writes the run's test report there for the summary comment (scripts/ci/ci_summary.py), labelled
+# TEST_REPORT_JOB. Report-only; never fails.
+report_test_failures() {
+    local rc="$1" bundle="$2" failures line
+    local json_args=()
+    if [[ -n "${TEST_REPORT_JSON:-}" ]]; then
+        json_args=(--json "${TEST_REPORT_JSON}" --rc "${rc}" --job "${TEST_REPORT_JOB:-}")
+    fi
+    failures="$(python3 "${ROOT}/scripts/list_test_failures.py" ${json_args[@]+"${json_args[@]}"} "${bundle}" || true)"
+    [[ -z "${failures}" ]] && return 0
+    if [[ "${rc}" -ne 0 ]]; then
+        echo "${failures}"
+        return 0
+    fi
+    while IFS= read -r line; do
+        if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+            echo "::warning title=UI test passed only on retry::${line#TEST-FAILED: }"
+        else
+            echo "PASSED-ON-RETRY: ${line#TEST-FAILED: }"
+        fi
+    done <<<"${failures}"
 }

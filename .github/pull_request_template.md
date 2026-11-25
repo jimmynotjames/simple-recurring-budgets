@@ -30,9 +30,15 @@ For any UI-touching change, confirm each applies-or-N/A:
 
 CI auto-runs lint, secret scan, translation/localization gates, a compile
 check, and the **full unit + UI suite (accessibility + user-journey)** on
-every PR. To re-run just the UI suite on this PR (e.g. after a flaky failure),
-without waiting on a full unit+UI re-run, comment:
+every PR. To start a run on this PR, comment `/ci` with the words to run (the
+repo owner's comments only; `/ci help` lists them), e.g. the UI suite:
 
 ```
-/run-ui-tests
+/ci ui
+```
+
+or one class or test three times (e.g. after a flaky failure):
+
+```
+/ci test simple-recurring-budgetsUITests/UserJourneyTests x3
 ```

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Reject staged files larger than 1 MiB (accidental binaries, huge fixtures).
+# String Catalogs (*.xcstrings) are exempt: they are generated and grow with every locale.
 set -euo pipefail
 
 MAX_BYTES=$((1024 * 1024))
@@ -20,7 +21,6 @@ file_size() {
 
 for path in "$@"; do
   [[ -f "$path" ]] || continue
-  # .xcstrings catalogs grow with every locale; exempt.
   [[ "$path" == *.xcstrings ]] && continue
   size="$(file_size "$path")"
   if (( size > MAX_BYTES )); then

@@ -151,6 +151,10 @@ struct BudgetsView: View {
       }
       .onMove(perform: move)
     }
+    // TEMPORARY (#364) diagnostics. Do not merge.
+    .onChange(of: budgets.map(\.name)) { old, new in
+      NSLog("REPRO364 app query order %@ -> %@", old.description, new.description)
+    }
     .listStyle(.automatic)
     .scrollContentBackground(.hidden)
   }
@@ -159,6 +163,12 @@ struct BudgetsView: View {
 
   /// Applies the `BudgetReorderService` rewrite after a drag, then saves once.
   private func move(from source: IndexSet, to destination: Int) {
+    // TEMPORARY (#364) diagnostics. Do not merge.
+    NSLog(
+      "REPRO364 app onMove source %@ destination %d before %@",
+      Array(source).description, destination, budgets.map(\.name).description
+    )
+    defer { NSLog("REPRO364 app onMove done; query now %@", budgets.map(\.name).description) }
     BudgetReorderService.applyMove(
       budgets: budgets,
       fromOffsets: source,

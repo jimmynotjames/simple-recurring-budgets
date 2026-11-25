@@ -31,12 +31,15 @@ ALWAYS_SKIPPED = (
     "LocalizationScreenshotCapture",
     "simple_recurring_budgetsUITests",
     "simple_recurring_budgetsUITestsLaunchTests",
+    # TEMPORARY (#364): keep `rest` short while two shards run the repro loop. Do not merge.
+    "AccessibilityAuditTests",
+    "UserJourneyTests",
 )
 
 NAMED_SHARDS: dict[str, tuple[str, ...]] = {
-    # The slowest suite (~8 min).
-    "accessibility": ("AccessibilityAuditTests",),
-    "user-journey": ("UserJourneyTests",),
+    # TEMPORARY (#364): both named shards run the repro loop for more samples. Do not merge.
+    "accessibility": ("Repro364Tests",),
+    "user-journey": ("Repro364Tests",),
 }
 REST = "rest"
 

@@ -16,7 +16,7 @@ final class AccessibilityAuditTests: XCTestCase {
   func testBudgetsListEmpty() throws {
     let app = makeApp()
     app.launch()
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   // MARK: - Budgets list — populated
@@ -27,7 +27,7 @@ final class AccessibilityAuditTests: XCTestCase {
     let app = makeApp()
     app.launch()
     createBudget(named: "Groceries", in: app)
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   /// BudgetsView with three rows, to catch issues that only appear with multiple rows.
@@ -38,7 +38,7 @@ final class AccessibilityAuditTests: XCTestCase {
     createBudget(named: "Groceries", in: app)
     createBudget(named: "Transport", in: app)
     createBudget(named: "Entertainment", in: app)
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   // MARK: - Add Budget form
@@ -49,7 +49,7 @@ final class AccessibilityAuditTests: XCTestCase {
     let app = makeApp()
     app.launch()
     app.buttons["Add budget"].tap()
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   /// Add Budget form with name typed (keyboard visible, Save enabled).
@@ -62,7 +62,7 @@ final class AccessibilityAuditTests: XCTestCase {
     XCTAssertTrue(nameField.waitForExistence(timeout: 2))
     nameField.tap()
     nameField.typeText("Weekend Groceries")
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   /// BudgetIconPicker sheet opened from the Add Budget form.
@@ -76,7 +76,7 @@ final class AccessibilityAuditTests: XCTestCase {
     iconButton.tap()
     // Wait for the sheet to finish opening so the form behind it leaves the accessibility tree.
     XCTAssertTrue(app.navigationBars["Optional Icon"].waitForExistence(timeout: 2))
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   // MARK: - Edit Budget form
@@ -92,7 +92,7 @@ final class AccessibilityAuditTests: XCTestCase {
     XCTAssertTrue(optionsButton.waitForExistence(timeout: 2))
     optionsButton.tap()
     app.buttons["Edit Budget"].tap()
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   // MARK: - Budget detail
@@ -108,7 +108,7 @@ final class AccessibilityAuditTests: XCTestCase {
       app.buttons["Budget options"].waitForExistence(timeout: 2),
       "Budget detail should be visible"
     )
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   /// BudgetDetailView with the options menu open.
@@ -121,7 +121,7 @@ final class AccessibilityAuditTests: XCTestCase {
     let optionsButton = app.buttons["Budget options"]
     XCTAssertTrue(optionsButton.waitForExistence(timeout: 2))
     optionsButton.tap()
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   // MARK: - Add Expense form
@@ -139,7 +139,7 @@ final class AccessibilityAuditTests: XCTestCase {
       app.navigationBars["Add Expense"].waitForExistence(timeout: 3),
       "Add Expense sheet should be visible"
     )
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   /// Add Expense form opened from the primary button in Budget Detail.
@@ -156,7 +156,7 @@ final class AccessibilityAuditTests: XCTestCase {
       app.navigationBars["Add Expense"].waitForExistence(timeout: 3),
       "Add Expense sheet should be visible"
     )
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   // MARK: - Settings
@@ -171,7 +171,7 @@ final class AccessibilityAuditTests: XCTestCase {
       app.navigationBars["Settings"].waitForExistence(timeout: 2),
       "Settings sheet should be visible"
     )
-    try app.performAccessibilityAudit { try self.knownIssueHandler($0) }
+    try audit(app)
   }
 
   // MARK: - Large-text clipping audits
@@ -188,7 +188,7 @@ final class AccessibilityAuditTests: XCTestCase {
   func testBudgetsListEmptyLargeText() throws {
     let app = largeTextApp()
     app.launch()
-    try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
+    try audit(app, for: .textClipped)
   }
 
   /// Populated budgets list at the largest text size (BudgetRowView reflows to vertical).
@@ -197,7 +197,7 @@ final class AccessibilityAuditTests: XCTestCase {
     let app = largeTextApp()
     app.launch()
     createBudget(named: "Groceries", in: app)
-    try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
+    try audit(app, for: .textClipped)
   }
 
   /// Add Budget form at the largest text size.
@@ -206,7 +206,7 @@ final class AccessibilityAuditTests: XCTestCase {
     let app = largeTextApp()
     app.launch()
     app.buttons["Add budget"].tap()
-    try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
+    try audit(app, for: .textClipped)
   }
 
   /// Budget Detail at the largest text size (scroll-aware title and remaining summary clip first).
@@ -217,7 +217,7 @@ final class AccessibilityAuditTests: XCTestCase {
     createBudget(named: "Groceries", in: app)
     app.cells.firstMatch.tap()
     XCTAssertTrue(app.buttons["Budget options"].waitForExistence(timeout: 2))
-    try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
+    try audit(app, for: .textClipped)
   }
 
   /// Add Expense form at the largest text size.
@@ -229,7 +229,7 @@ final class AccessibilityAuditTests: XCTestCase {
     let addExpenseButton = app.buttons["Add expense for Groceries"]
     XCTAssertTrue(addExpenseButton.waitForExistence(timeout: 2))
     addExpenseButton.tap()
-    try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
+    try audit(app, for: .textClipped)
   }
 
   /// Settings sheet at the largest text size.
@@ -239,10 +239,30 @@ final class AccessibilityAuditTests: XCTestCase {
     app.launch()
     app.buttons["Settings"].tap()
     XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 2))
-    try app.performAccessibilityAudit(for: .textClipped) { try self.knownIssueHandler($0) }
+    try audit(app, for: .textClipped)
   }
 
   // MARK: - Issue handlers
+
+  /// Runs the audit with the shared issue handler, retrying once if it times out (code -56).
+  ///
+  /// iOS-COMPAT(27.x): on the iOS 27.2 simulator the audit sometimes runs past XCTest's deadline on a
+  /// CI runner (FLAKY_TESTS.md), and a second attempt usually finishes. A second timeout, and every
+  /// other error, still fails the test.
+  @MainActor
+  private func audit(_ app: XCUIApplication, for types: XCUIAccessibilityAuditType = .all) throws {
+    do {
+      try app.performAccessibilityAudit(for: types) { try self.knownIssueHandler($0) }
+    } catch let error as NSError where Self.isAuditTimeout(error) {
+      XCTContext.runActivity(named: "Audit timed out (code -56); retrying once") { _ in }
+      try app.performAccessibilityAudit(for: types) { try self.knownIssueHandler($0) }
+    }
+  }
+
+  /// "Audit failed to complete in time".
+  private static func isAuditTimeout(_ error: NSError) -> Bool {
+    error.domain == "com.apple.xcode.xctest.accessibilityAudit" && error.code == -56
+  }
 
   /// Shared issue handler for every `performAccessibilityAudit` call. Returns `true` to suppress.
   ///
@@ -286,8 +306,9 @@ final class AccessibilityAuditTests: XCTestCase {
       }
       // iOS-COMPAT(27.x): the system compact date picker's time label (`_UIDatePickerCompactTimeLabel`,
       // Add Expense's date row) intermittently fails contrast on the iOS 27.2 simulator. System-drawn;
-      // we don't style it. Scope: that private class name in the issue description only.
-      if issue.compactDescription.contains("_UIDatePickerCompactTimeLabel") {
+      // we don't style it. Scope: that private class name in the issue's detailed description only;
+      // the compact description is just "Contrast failed".
+      if issue.detailedDescription.contains("_UIDatePickerCompactTimeLabel") {
         return true
       }
       // iOS-COMPAT(26.x+): nav bar Cancel buttons in Liquid Glass toolbars report contrast

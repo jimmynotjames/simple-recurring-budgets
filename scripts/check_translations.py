@@ -8,13 +8,12 @@ language AND every supported target locale.
 Exits 1 if any key is missing or has a non-translated state (new,
 needs_review, stale) for the source language or any target locale.
 
-Why the source language is checked:
-The en source value lives under `localizations.en.stringUnit` and has its own
-`state`. When it is `new` (common after `xcodebuild` extraction without an
-Xcode-IDE catalog write), `Text(LocalizedStringKey)` and similar APIs without a
-`defaultValue` fallback render the literal key at runtime — a production bug.
-`Text(String(localized:defaultValue:comment:))` masks it with an English
-fallback but leaves the latent risk.
+Also exits 1 if the file's bytes differ from what Xcode would write for the same
+content, so a build in Xcode never rewrites a committed catalog.
+
+The source language is checked too: its stringUnit has its own `state`, and
+while that is `new`, APIs without a `defaultValue` fallback (such as
+`Text(LocalizedStringKey)`) resolve to the literal key at runtime.
 
 Usage:
   python3 scripts/check_translations.py [--json]
@@ -28,16 +27,15 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_catalog"))
 from locales import LOCALES  # noqa: E402
+from paths import CATALOG_PATH  # noqa: E402
+from xcstrings_io import is_xcode_format  # noqa: E402
 
 # States that mean a translation is not ready to ship.
 UNTRANSLATED_STATES = {"new", "needs_review", "stale"}
 
-# Source-language code. Validated separately from LOCALES (it's the source, not a
-# target), but a non-translated source state still breaks runtime localization.
 SOURCE_LANGUAGE = "en"
 
 
@@ -59,14 +57,19 @@ def main(argv: list[str]) -> int:
 
     issues: list[str] = []
 
+    if not is_xcode_format(CATALOG_PATH):
+        issues.append(
+            f"  FORMAT   {CATALOG_PATH.name} is not in Xcode's byte format: "
+            "python3 scripts/translate_catalog/sync_catalog.py --format"
+        )
+
     for key, entry in strings.items():
-        # shouldTranslate=false keys (locale-invariant identifiers) are skipped.
+        # Keys marked shouldTranslate=false (e.g. locale-invariant identifiers) are intentionally skipped.
         if not entry.get("shouldTranslate", True):
             continue
 
         localizations: dict = entry.get("localizations", {})
 
-        # Source-language entry first (see SOURCE_LANGUAGE).
         source_entry = localizations.get(source_language)
         if source_entry is None:
             issues.append(f"  MISSING  [{source_language}] {key!r} (source)")
@@ -84,9 +87,7 @@ def main(argv: list[str]) -> int:
                 issues.append(f"  MISSING  [{locale}] {key!r}")
                 continue
 
-            # Plural variants: check each.
             if "variations" in loc_entry:
-                # Plural/device variations: check each nested stringUnit.
                 _check_variations(loc_entry["variations"], locale, key, issues)
                 continue
 
@@ -104,7 +105,7 @@ def main(argv: list[str]) -> int:
         for line in issues:
             print(line)
         print(
-            "\nRun scripts/translate_catalog/ (extract → translate → merge → validate) "
+            "\nRun scripts/translate_catalog/ (extract → translate → validate → merge) "
             "to generate missing translations before pushing."
         )
         return 1

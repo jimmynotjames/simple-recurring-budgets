@@ -1,4 +1,5 @@
-# https://lefthook.dev/configuration/
+# https://lefthook.dev/configuration/ — install with make hooks-install.
+# Pre-commit runs on {staged_files} only.
 pre-commit:
   parallel: false
   commands:
@@ -33,11 +34,13 @@ pre-push:
       run: bash scripts/check-push-refs.sh
       use_stdin: true
 
+    # Repo-wide by design: both read the whole catalog or source tree, not the pushed diff.
     check-translations:
       run: python3 scripts/check_translations.py
 
     check-source-strings:
       run: python3 scripts/check_source_strings.py
 
+    # Compile check only; tests are opt-in (AGENTS.md §"Build and test").
     build:
       run: bash scripts/build.sh

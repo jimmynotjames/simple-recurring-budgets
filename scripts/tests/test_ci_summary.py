@@ -160,6 +160,12 @@ class DataTests(unittest.TestCase):
         self.assertEqual([(r["name"], r["seconds"]) for r in rows], [("build", 300.0)])
         self.assertEqual(cs.wall_seconds(rows), 300.0)
 
+    def test_skipped_matrix_job_drops_its_unexpanded_suffix(self) -> None:
+        raw = [{"id": 1, "name": "ui-tests (${{ matrix.shard }})", "conclusion": "skipped"},
+               {"id": 2, "name": "ui-tests (editing)", "conclusion": "success"}]
+        self.assertEqual([r["name"] for r in cs.job_rows(raw, "summary")],
+                         ["ui-tests", "ui-tests (editing)"])
+
     def test_annotations_keep_failures_first_and_at_most_twenty(self) -> None:
         found = ([{"level": "warning", "n": i} for i in range(15)] + [{"level": "notice"}]
                  + [{"level": "failure", "n": i} for i in range(10)])

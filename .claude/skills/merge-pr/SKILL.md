@@ -19,6 +19,17 @@ a request to inspect or review a PR alone is not authorization.
 
    `tests` is one of them; a docs-only PR's `tests` passes without running anything.
 
+   **The watch can return before `tests` exists.** It only watches checks already reported, and
+   `tests` reports once `build` and the test jobs finish. So after it returns, confirm every
+   required check is present and passed:
+
+   ```bash
+   gh pr checks <PR> --json name,bucket --jq '.[] | "\(.name) \(.bucket)"'
+   ```
+
+   It must list `lint`, `secrets`, `check-large-files`, `i18n-gates`, `tooling` and `tests`, each
+   `pass`. If one is missing or `pending`, wait again (`--watch` in the background) and re-check.
+
    **If any fails, do NOT merge** — report it and stop. If the latest checks came from a narrowed
    `/ci` run rather than the automatic one, they can read green over a failure (AGENTS.md § CI):
    rerun the automatic run first.

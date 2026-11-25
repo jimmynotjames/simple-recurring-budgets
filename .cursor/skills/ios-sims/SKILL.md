@@ -13,10 +13,10 @@ The sandbox is set up automatically by `scripts/_sim_sandbox.sh` (sourced by `sc
 First run:
 
 1. `_sim_sandbox.sh` computes a unique device name from the repo path.
-2. It resolves the device type and runtime for `SIMULATOR_NAME` via `scripts/resolve_sim_spec.py`.
+2. It resolves the device type and runtime for `SIMULATOR_NAME` via `scripts/resolve_sim_spec.py`: the newest available iOS runtime no newer than the selected Xcode's SDK that hosts that device type (so iPhone 17 skips the iPhone Duo-only iOS 27.2 runtime).
 3. It creates the simulator in the default set and boots it (~30–90 s, one time).
 4. The UDID is stored in `.build/sim/device.udid` for `make sim-*` targets.
-5. Later runs find the booted simulator by UDID and reuse it.
+5. Later runs find the booted simulator by UDID and reuse it. Before that, `scripts/sim_retire_stale.py` deletes the device if it is not on that newest runtime (e.g. after an Xcode upgrade), so it is recreated there.
 
 Destination priority:
 

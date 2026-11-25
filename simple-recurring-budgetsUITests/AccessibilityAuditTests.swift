@@ -249,8 +249,9 @@ final class AccessibilityAuditTests: XCTestCase {
   /// Permanent suppression: `.textClipped` for `.textField` (SwiftUI TextField scrolls
   /// horizontally and never clips; the audit false-positives on long values).
   ///
-  /// iOS-COMPAT suppressions (search `iOS-COMPAT`): four findings are suppressed for iOS 26.x
-  /// platform bugs, each tagged inline `// iOS-COMPAT(26.x):`. iOS 27 widens the toolbar-button
+  /// iOS-COMPAT suppressions (search `iOS-COMPAT`): four findings are suppressed for platform
+  /// bugs first seen on iOS 26.x, each tagged inline `// iOS-COMPAT(26.x+):`. All of them still
+  /// fire on iOS 27.2 (re-checked when the deployment target moved to 27.2). iOS 27 widens the toolbar-button
   /// contrast suppression to Done and Save (`// iOS-COMPAT(27.x):`). On each major iOS bump, remove the
   /// suppression, run the suite, and delete the tag if it passes.
   ///   1. `.elementDetection`: incomplete sheet accessibility isolation lets system elements
@@ -272,18 +273,24 @@ final class AccessibilityAuditTests: XCTestCase {
       if issue.element?.isEnabled == false {
         return true
       }
-      // iOS-COMPAT(26.x): the audit sometimes reports contrast with a nil element (no type,
+      // iOS-COMPAT(26.x+): the audit sometimes reports contrast with a nil element (no type,
       // identifier, or label) on Form/NavigationStack containers; untraceable platform artifact.
       if issue.element == nil {
         return true
       }
-      // iOS-COMPAT(26.x): GroupBox labels/content and List section headers (tagged
+      // iOS-COMPAT(26.x+): GroupBox labels/content and List section headers (tagged
       // srb.sectionLabel) render via Liquid Glass, whose compositor opacity overrides even
       // opaque Color.primary. Visually correct; platform artifact.
       if issue.element?.identifier == "srb.sectionLabel" {
         return true
       }
-      // iOS-COMPAT(26.x): nav bar Cancel buttons in Liquid Glass toolbars report contrast
+      // iOS-COMPAT(27.x): the system compact date picker's time label (`_UIDatePickerCompactTimeLabel`,
+      // Add Expense's date row) intermittently fails contrast on the iOS 27.2 simulator. System-drawn;
+      // we don't style it. Scope: that private class name in the issue description only.
+      if issue.compactDescription.contains("_UIDatePickerCompactTimeLabel") {
+        return true
+      }
+      // iOS-COMPAT(26.x+): nav bar Cancel buttons in Liquid Glass toolbars report contrast
       // failures even with .foregroundStyle(.primary).
       // iOS-COMPAT(27.x): iOS 27 also flags the accent-tinted confirmation buttons (Done, Save).
       // The rendered text measures 4.65-5.3:1 on the glass capsule (AA needs 4.5:1), and the same
@@ -297,7 +304,7 @@ final class AccessibilityAuditTests: XCTestCase {
       }
     }
     if issue.auditType == .elementDetection {
-      // iOS-COMPAT(26.x): incomplete sheet accessibility isolation lets system elements
+      // iOS-COMPAT(26.x+): incomplete sheet accessibility isolation lets system elements
       // (Cancel/Save buttons, TextFields) from the presenting view bleed into the sheet's
       // tree and appear unreachable.
       //
@@ -309,7 +316,7 @@ final class AccessibilityAuditTests: XCTestCase {
       return id.isEmpty
     }
     if issue.auditType == .sufficientElementDescription {
-      // iOS-COMPAT(26.x): same sheet-isolation bleed-through as .elementDetection above. When a
+      // iOS-COMPAT(26.x+): same sheet-isolation bleed-through as .elementDetection above. When a
       // form field auto-focuses, the predictive-text bar's `TUIPredictionViewCell` appears in the
       // sheet's tree without a description.
       //
@@ -321,7 +328,7 @@ final class AccessibilityAuditTests: XCTestCase {
       return id.isEmpty
     }
     if issue.auditType == .dynamicType {
-      // iOS-COMPAT(26.x): "partially unsupported" fires on system UIKit elements (nav bar
+      // iOS-COMPAT(26.x+): "partially unsupported" fires on system UIKit elements (nav bar
       // internals, presentation containers) that do adopt Dynamic Type. "Not supported" is not suppressed.
       return issue.compactDescription.contains("partially unsupported")
     }

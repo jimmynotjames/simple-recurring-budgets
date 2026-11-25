@@ -40,7 +40,7 @@ extension AddEditBudgetView {
           .font(.subheadline)
           .foregroundStyle(.primary)
           .multilineTextAlignment(.leading)
-          // iOS-COMPAT(26.x): GroupBox content also gets Liquid Glass; the tag lets
+          // iOS-COMPAT(26.x+): GroupBox content also gets Liquid Glass; the tag lets
           // knownIssueHandler suppress the platform-induced contrast failure.
           .accessibilityIdentifier("srb.sectionLabel")
         Spacer(minLength: 8)

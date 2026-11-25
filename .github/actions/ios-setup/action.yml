@@ -22,14 +22,16 @@ runs:
 
     # The runner image can lag the pinned Xcode's simulator runtime, and the app's deployment
     # target needs that runtime, so fetch it when it's missing. The test scripts' simulator sandbox
-    # (scripts/_sim_sandbox.sh) then creates and boots this checkout's device on it.
+    # (scripts/_sim_sandbox.sh) then creates and boots this checkout's device on it. Xcode 27.2 also
+    # installs a second iOS 27.2 runtime that hosts only iPhone Duo, so the check needs a runtime of
+    # the SDK's version that hosts iPhone 17 (the sandbox's device), not just any runtime of it.
     - name: iOS simulator runtime for the selected Xcode
       if: inputs.simulator == 'true'
       shell: bash
       run: |
         sdk="$(xcrun --sdk iphonesimulator --show-sdk-version)"
         if xcrun simctl list runtimes --json \
-          | python3 -c 'import json,sys; v=sys.argv[1]; sys.exit(0 if any(r["isAvailable"] and "iOS" in r["name"] and r["version"].startswith(v) for r in json.load(sys.stdin)["runtimes"]) else 1)' "$sdk"; then
+          | python3 -c 'import json,sys; v=sys.argv[1]; t="com.apple.CoreSimulator.SimDeviceType.iPhone-17"; sys.exit(0 if any(r["isAvailable"] and "iOS" in r["name"] and r["version"].startswith(v) and any(d.get("identifier") == t for d in r.get("supportedDeviceTypes", [])) for r in json.load(sys.stdin)["runtimes"]) else 1)' "$sdk"; then
           echo "iOS ${sdk} simulator runtime already installed"
         else
           xcodebuild -downloadPlatform iOS

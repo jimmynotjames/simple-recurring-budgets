@@ -71,7 +71,7 @@ This project was my attempt to learn agentic programming. All but two lines of c
 | **UI**                          | 100% SwiftUI                                                                                 |
 | **Persistence**                 | SwiftData                                                                                    |
 | **Sync**                        | CloudKit database app settings syncing                                                       |
-| **Min OS**                      | iOS / iPadOS 26.5+                                                                           |
+| **Min OS**                      | iOS / iPadOS 27.2+                                                                           |
 | **Targets**                     | iPhone + iPad; eventaully macOS                                                              |
 | **Analytics**                   | Mixpanel + `OSLog`                                                                           |
 | **Unit tests**                  | Swift Testing (`@Test` / `#expect`)                                                          |

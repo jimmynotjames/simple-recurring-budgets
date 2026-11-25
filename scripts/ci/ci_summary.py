@@ -161,13 +161,21 @@ def _seconds(start: str | None, end: str | None) -> float | None:
     return max(0.0, (parse(end) - parse(start)).total_seconds())
 
 
+# A skipped matrix job never expands its matrix, so GitHub names it `ui-tests (${{ matrix.shard }})`.
+_UNEXPANDED_MATRIX = re.compile(r"\s*\([^()]*\$\{\{[^()]*\}\}[^()]*\)")
+
+
+def job_name(raw_name: str | None) -> str:
+    return _UNEXPANDED_MATRIX.sub("", raw_name or "").strip() or "?"
+
+
 def job_rows(raw: list[dict], self_job: str) -> list[dict]:
     rows = []
     for job in raw:
         if job.get("name") == self_job:
             continue
         rows.append({
-            "id": job.get("id"), "name": job.get("name") or "?",
+            "id": job.get("id"), "name": job_name(job.get("name")),
             "conclusion": job.get("conclusion") or job.get("status") or "?",
             "started": job.get("started_at"), "completed": job.get("completed_at"),
             "seconds": _seconds(job.get("started_at"), job.get("completed_at")),

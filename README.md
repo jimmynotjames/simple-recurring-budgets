@@ -171,7 +171,7 @@ Everything else is Apple frameworks: SwiftUI, SwiftData, CloudKit, Foundation, `
 - UI: two XCUITest suites driven by five screen objects —
   - `UserJourneyTests` — 15 end-to-end flows (create/edit/delete budget, add/edit/delete expense, pause/resume, reorder, settings round-trip, period-chip behavior).
   - `AccessibilityAuditTests` — 30 audits across every major screen.
-- Two-pass runner (`scripts/test.sh`): unit tests first to warm the simulator, then the UI passes. `make ui-tests` runs only the UI pass.
+- Two-pass runner (`make tests`): unit tests first to warm the simulator, then the UI passes. `make ui-tests` runs only the UI pass.
 
 ```bash
 make tests      # full unit + UI suite
@@ -184,7 +184,7 @@ make ui-tests   # UI suite only
 
 - Local gates (Lefthook): pre-commit runs SwiftFormat, SwiftLint `--fix` + strict, a large-file guard, and gitleaks; pre-push does a bare `xcodebuild build`.
 - Four-step dev gate: `make format` → `make lint-fix` → `make build` → `make tests`.
-- CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)): `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), and `tests` (sums up `build`, which compiles once, plus `unit-tests` and the parallel `ui-tests` shards that run its products; build and tests are skipped on docs-only PRs) — version-pinned to match local installs. Comment `/run-ui-tests` on a PR to re-run just the UI suite.
+- CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)): `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), and `tests` (sums up `build`, which compiles once, plus `unit-tests` and the parallel `ui-tests` shards that run its products; build and tests are skipped on docs-only PRs) — version-pinned to match local installs. Comment `/ci help` on a PR to start a chosen set of gates and tests ([ci-command.yml](.github/workflows/ci-command.yml)), e.g. `/ci ui` or `/ci test <target>/<Class> x3`.
 - Release (Fastlane): lanes for `beta` (TestFlight), `release` (App Store), `push_metadata`, and `screenshots`, all guarded by a pre-build secrets check (`scripts/verify_release_secrets.sh`). App Store Connect API key auth; secrets live outside the repo.
 - Spec-driven workflow: [OpenSpec](https://github.com/Fission-AI/OpenSpec) change proposals under `openspec/`.
 

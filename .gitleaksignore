@@ -1,5 +1,5 @@
 # gitleaks: reviewed findings that are intentionally allowed. One fingerprint per
-# line (commit:file:rule:startline); read by `gitleaks detect` (CI `secrets` job) and
+# line (commit:file:rule:startline); read by `gitleaks git` (CI `secrets` job) and
 # the pre-commit hook.
 #
 # RETAINED, do NOT remove: the 4 fingerprints below cover old commits that hardcoded

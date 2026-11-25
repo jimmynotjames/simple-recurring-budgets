@@ -125,6 +125,11 @@ struct AddEditBudgetView: View {
       }
       .sheet(isPresented: $showCurrencyPicker) {
         CurrencyPickerView(selection: $viewModel.currencyCode)
+        // A sheet is its own hosting root, so the CI animations override is re-applied
+        // (DEBUG-only; inert unless UI_TESTS + FORCE_ANIMATIONS=off are set).
+        #if DEBUG
+          .modifier(TestAnimationsOverride.Modifier())
+        #endif
       }
       .saveErrorAlert($saveError)
       .alert(
@@ -345,6 +350,10 @@ struct AddEditBudgetView: View {
     ))
     .sheet(isPresented: $showIconPicker) {
       BudgetIconPicker(selection: $viewModel.icon)
+      // Own hosting root: re-apply the CI animations override (see the currency picker sheet).
+      #if DEBUG
+        .modifier(TestAnimationsOverride.Modifier())
+      #endif
     }
   }
 

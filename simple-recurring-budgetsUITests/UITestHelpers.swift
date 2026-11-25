@@ -4,11 +4,20 @@ import XCTest
 
 // MARK: - App factories
 
-/// App with IS_TESTING=1, which suppresses Mixpanel analytics.
+/// App with IS_TESTING=1, which suppresses Mixpanel analytics, and UI_TESTS=1, which marks a UI-test
+/// launch (the unit tests' host app gets IS_TESTING from the scheme but never UI_TESTS).
+///
+/// `FORCE_ANIMATIONS` is passed through from the test runner's environment when it is set (CI sets
+/// `TEST_RUNNER_FORCE_ANIMATIONS=off`; xcodebuild strips the prefix), so the app turns animations off
+/// (`TestAnimationsOverride` in the app). `keepsAnimations` opts a test out of that.
 @MainActor
-func makeApp() -> XCUIApplication {
+func makeApp(keepsAnimations: Bool = false) -> XCUIApplication {
   let app = XCUIApplication()
   app.launchEnvironment["IS_TESTING"] = "1"
+  app.launchEnvironment["UI_TESTS"] = "1"
+  if !keepsAnimations, let animations = ProcessInfo.processInfo.environment["FORCE_ANIMATIONS"] {
+    app.launchEnvironment["FORCE_ANIMATIONS"] = animations
+  }
   return app
 }
 
@@ -20,16 +29,16 @@ func makeApp() -> XCUIApplication {
 /// must not contain a comma (it would seed two budgets). `LocalizationScreenshotCapture`
 /// relies on this too.
 @MainActor
-func makeApp(seedBudgets names: [String]) -> XCUIApplication {
-  let app = makeApp()
+func makeApp(seedBudgets names: [String], keepsAnimations: Bool = false) -> XCUIApplication {
+  let app = makeApp(keepsAnimations: keepsAnimations)
   app.launchEnvironment["SEED_BUDGETS"] = names.joined(separator: ",")
   return app
 }
 
 /// App at the largest system accessibility text size.
 @MainActor
-func largeTextApp() -> XCUIApplication {
-  let app = makeApp()
+func largeTextApp(keepsAnimations: Bool = false) -> XCUIApplication {
+  let app = makeApp(keepsAnimations: keepsAnimations)
   app.launchArguments += [
     "-UIPreferredContentSizeCategoryName",
     "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",

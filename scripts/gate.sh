@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Four-step gate (format -> lint-fix -> build -> tests) as one command.
+# Gate (tool versions -> format -> lint-fix -> build -> tests) as one command.
 #
 # Exists so the allowlist matches: Claude Code checks each segment of a compound
 # command, and `(make format && ...) > tmp/gate.log; echo` yields segments that match
@@ -26,6 +26,7 @@ run_step() {
   fi
 }
 
+run_step tool-versions-check
 run_step format
 run_step lint-fix
 # The vendored simulator-slots copy must match its master, or repos would share one pool
@@ -36,4 +37,4 @@ run_step script-tests
 run_step build
 run_step tests
 
-printf '\nGATE PASSED (format, lint-fix, simulator-slots-check, script-tests, build, tests). Full log: %s\n' "$LOG"
+printf '\nGATE PASSED (tool-versions-check, format, lint-fix, simulator-slots-check, script-tests, build, tests). Full log: %s\n' "$LOG"

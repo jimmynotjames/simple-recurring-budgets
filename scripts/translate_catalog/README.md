@@ -65,7 +65,7 @@ python3 scripts/check_translations.py
 python3 scripts/check_source_strings.py
 
 # 7. Build + test
-make format && make lint-fix && make build && make test
+make format && make lint-fix && make build && make tests
 ```
 
 `check_translations.py` is the same script lefthook runs on pre-push (see `lefthook.yml`),
@@ -82,7 +82,7 @@ python3 scripts/translate_catalog/extract.py                     # all keys, no 
 python3 scripts/translate_catalog/validate.py                    # strict — full source required
 python3 scripts/translate_catalog/merge.py
 python3 scripts/check_translations.py
-make format && make lint-fix && make build && make test
+make format && make lint-fix && make build && make tests
 ```
 
 ## Script flags reference

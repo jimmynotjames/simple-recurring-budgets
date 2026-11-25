@@ -15,17 +15,17 @@ Run from the repo root, in order. Fix failures before moving on.
 3. **`make build`** — `xcodebuild build`, no tests. Catches compile errors in seconds; shares the simulator destination and derived data with step 4.
 4. **`make tests`** — full Swift Testing suite on one iPhone simulator. Run only after 1–3 pass.
 
-`make ui-tests` — UI pass only, no unit tests; the suites come from `scripts/ci/ui_shards.py`, and `UI_SHARD=<name>` runs one of CI's shards (`accessibility`, `user-journey`, `rest`). Use when iterating on UI failures after `make unit-tests` is green. The simulator must have hosted one app lifecycle first (`make unit-tests`, or `make initialize-sims && make build` in a fresh session).
+`make ui-tests` — UI pass only, no unit tests; the suites come from `scripts/ci/ui_shards.py`, and `UI_SHARD=<name>` runs one of CI's shards (`accessibility`, `user-journey`, `rest`). Use when iterating on UI failures after `make unit-tests` is green. XCUITest needs a device that has hosted one app lifecycle: `make unit-tests` leaves it warmed, and a serial `make ui-tests` on an unwarmed device runs one small unit suite on it first.
 
 `make coverage` — line coverage from the latest unit `.xcresult` (run `make unit-tests` or `make tests` first). Report-only; nothing gates on it. Only the unit pass is instrumented.
 
-**Running a subset of tests:** `make focused-tests ONLY="<id> [more...] [--ui]"` (or `bash scripts/focused-tests.sh <id> ...`). Each id becomes `-only-testing:<id>` (`Target/Suite` or `Target/Suite/method()`). Example: `make focused-tests ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"`. It uses the sandboxed sim and is one allowlisted command. Don't hand-build `source scripts/_destination.sh && xcodebuild test -only-testing:...` — `source` prompts and bypasses the sandbox.
+**Running a subset of tests:** `make focused-tests ONLY="<id> [more...]" [ITERATIONS=N]`. Each id becomes `-only-testing:<id>` (`Target/Suite` or `Target/Suite/method()`); a UI-target id is detected from its prefix and warms the device up first, so there is no `--ui` flag. `ITERATIONS=3` repeats the run (the flake check in § "Reading a test result"). Example: `make focused-tests ONLY="simple-recurring-budgetsTests/RatingPromptCoordinatorTests"`. It uses the sandboxed sim and is one allowlisted command. Don't hand-build `source scripts/_destination.sh && xcodebuild test -only-testing:...` — `source` prompts and bypasses the sandbox.
 
 **One-command gate:** `make gate` (or `bash scripts/gate.sh`) runs all four steps (plus `make simulator-slots-check` and `make script-tests`, the offline unit tests of `scripts/tests/`, before the build; see § Simulator slots), tees to `tmp/gate.log`, stops at the first failure, and exits with its code. Prefer it to hand-chaining: it's one allowlisted command, while `(make … ) > tmp/gate.log 2>&1; echo "EXIT=$?"` splits into segments that prompt. Run it with `run_in_background=true`. Use individual targets to iterate on one step.
 
-### Per-repo simulator sandbox
+### Simulator sandbox
 
-Each clone gets its own simulator (named from the repo path, e.g. `iPhone 17 [a1b2c3d4]`), created and managed automatically. The UI pass runs in two phases: pass 1 skips XCUITest to warm the sim; pass 2 runs the suites `scripts/ci/ui_shards.py` selects (`AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, `AllocationFirstTapUITests`). XCUITest targets use XCTestCase with `continueAfterFailure = false` (Swift Testing isn't supported in XCUITest bundles).
+Each clone gets its own simulator (named from the repo path, e.g. `iPhone 17 [a1b2c3d4]`), created and managed automatically. Every test script and `make sim-*` target holds the checkout's simulator lock (`.build/sim.lock`, `scripts/_sim_common.sh`) for its whole run, so two runs in one checkout queue instead of sharing the device. The UI pass needs a warmed device: `make unit-tests` warms it, and a serial `make ui-tests` without that runs one small unit suite first. It runs the suites `scripts/ci/ui_shards.py` selects (`AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, `AllocationFirstTapUITests`). XCUITest targets use XCTestCase with `continueAfterFailure = false` (Swift Testing isn't supported in XCUITest bundles).
 
 For management commands (`make initialize-sims`, `make sim-clean`, …), concurrency tuning, the AM/PM 24h workaround, and clone risks, use the **`ios-sims` skill**.
 
@@ -37,15 +37,15 @@ On the maintainer's machine, every simulator running tests takes a slot from a *
 
 **Pool missing? That is normal — read this if you are not the maintainer.** The pool is on only where `~/dev/simulator-slots` (or `$SIMULATOR_SLOTS_MASTER`) exists. On any other machine:
 
-- The scripts already handle it: they take no slot and print a `simulator-slots: no shared pool at …` notice. Builds and tests run normally. The gate's sync check prints `sync-check skipped` — that is a pass.
+- The scripts already handle it: they take no slot and print a `simulator-slots: no shared pool on this machine …` notice. Builds and tests run normally. The gate's sync check prints `sync-check skipped` — that is a pass.
 - **Do not** create `~/dev/simulator-slots` or `~/.local/state/simulator-slots/`, clone or fetch the pool's master, run `make simulator-slots-sync`, or edit `scripts/simulator-slots/`.
-- Concurrency is the developer's call, not this repo's. `SRB_SIM_MAX=1|2|3` sets how many simulators the UI pass uses (1 = serial). Unset, the scripts pass no concurrency flags and the scheme decides (it allows parallel clones, so xcodebuild may start several). If `SRB_SIM_MAX` is unset, choose for this run yourself — check other booted simulators (`xcrun simctl list devices booted`) and the machine's RAM, or ask the developer.
+- Concurrency is the developer's call, not this repo's. `UI_WORKERS=1|2|3` sets how many simulators the UI pass uses; unset, it runs serially on one. Raise it only with RAM to spare (check other booted simulators with `xcrun simctl list devices booted`), or ask the developer. The old names `SRB_SIM_MAX` and `SIMULATOR_WORKERS_WITHOUT_POOL` stop the run with "renamed to UI_WORKERS".
 - **Tell the developer once**, in your report, that the shared simulator pool wasn't found and what concurrency you used.
 
 On the maintainer's machine (pool on):
 
-- **Slots per command:** `unit-tests` and `focused-tests`: 1. `ui-tests`: up to `SRB_SIM_MAX` (default 2). `make tests` chains `unit-tests.sh` then `ui-tests.sh`, each holding its own slots. The size check's `run.sh`: up to `WORKERS`. The screenshot lane (`fastlane screenshots`): up to 2, held for the whole capture (snapshot builds and tests in one step); with 1 it captures iPhone and iPad one after the other.
-- **How a run uses them:** it builds first (`build-for-testing`), then takes whatever is free, at least 1, and holds it until the script exits, however it exits. With 2 or more it runs that many parallel clones of this checkout's device. A run that can't get a slot fails; it never falls back to running unpooled.
+- **Slots per command:** `unit-tests` and `focused-tests`: 1. `ui-tests`: up to `UI_WORKERS` (1..3, default 2; `scripts/_sim_concurrency.sh`). `make tests` runs `make unit-tests` then `make ui-tests`, each holding its own slots. The size check's `run.sh`: up to `WORKERS`. The screenshot lane (`fastlane screenshots`): up to 2, held for the whole capture (snapshot builds and tests in one step); with 1 it captures iPhone and iPad one after the other.
+- **How a run uses them:** it builds first (`build-for-testing`), then takes whatever is free, at least 1, and holds it until the script exits, however it exits. With 2 or more it runs that many parallel clones of this checkout's device (deleting clones an interrupted run left behind first), and a failed test gets one retry: `UI_RETRY_ON_FAILURE` is `auto` (retry only on 2+ clones), `1` (always) or `0` (never). A pass that needed the retry prints a `PASSED-ON-RETRY:` line, a flake for `FLAKY_TESTS.md`. A run that can't get a slot fails; it never falls back to running unpooled.
 - **Fewer simulators:** when Jimmy asks for fewer simulators for a task, prefix the command with `SIMULATOR_SLOTS_FEWER=N` (leaves N free slots unused; N must be smaller than the pool). `SIMULATOR_SLOTS_TIMEOUT=S` gives up with exit 75 after waiting S seconds.
 - **Waiting:** a run waiting for a slot prints who holds each one, so start suites with `run_in_background`. `make simulator-slots-status` shows the holders, every booted simulator, and recent runs.
 - **Changing the tool:** never edit the copy. Change the master, then `make simulator-slots-sync`. `make simulator-slots-check` (in the gate) fails while the two differ.
@@ -73,7 +73,7 @@ All clones must share one `xcode-select` path. Switching Xcode while agents run 
 
 ### Scheme
 
-Shared scheme: [`simple-recurring-budgets.xcscheme`](simple-recurring-budgets.xcodeproj/xcshareddata/xcschemes/simple-recurring-budgets.xcscheme). Use `-scheme simple-recurring-budgets` (as `scripts/build.sh` and `scripts/test.sh` do).
+Shared scheme: [`simple-recurring-budgets.xcscheme`](simple-recurring-budgets.xcodeproj/xcshareddata/xcschemes/simple-recurring-budgets.xcscheme). Use `-scheme simple-recurring-budgets` (as `scripts/build.sh` and `scripts/_destination.sh` do).
 
 ## Concurrency (Swift 6, default MainActor isolation)
 
@@ -448,8 +448,38 @@ These govern every commit, including ad-hoc ones; the skills cite them rather th
 - **Commit body** (optional for one-liners; required when a PR spans several areas): `*` bullets naming **areas of change** (not files), a one-sentence `Why:` the diff can't show, and the `Co-Authored-By:` footer on Claude commits.
 - **PR body:** Write `tmp/pr-body.md`, then `gh pr create --body-file` — never inline `--body` (hygiene rule 10). Follow `.github/pull_request_template.md`. Linkage: `Closes #N` (complete fix; auto-closes on squash-merge), `Refs #N` + pending note (partial), or none.
 - **Squash-merge only** — one PR, one commit on `main`.
-- **Check `main` is green before building on it.** Branch protection doesn't require PRs to be up to date with `main` (several agents merge in parallel), so two PRs can pass alone and break `main` together. Before branching from or rebasing onto `main`, run `gh run list --branch main --event push --limit 1`. If the latest run is red, tell the user: a known flake gets `gh run rerun <id> --failed`; a real break gets fixed in a PR before other work.
+- **Check `main` is green before building on it.** Branch protection doesn't require PRs to be up to date with `main` (several agents merge in parallel), so two PRs can pass alone and break `main` together. Before branching from or rebasing onto `main`, run `gh run list --branch main --event push --limit 1`. If the latest run is red, tell the user: a known flake (one in `simple-recurring-budgetsUITests/FLAKY_TESTS.md`) gets `gh run rerun <id> --failed`; a real break gets fixed in a PR before other work.
 
-### CI lockstep
+### CI
 
-GitHub Actions (`.github/workflows/ci.yml`; see `docs/tech-design-doc.md` §8.5) re-runs the lint, secret, and translation gates on every PR, so they hold even when a hook is bypassed. The macOS work builds once: the `build` job compiles the app and both test targets (`build-for-testing`; compile errors show as PR annotations) and uploads the products, then `unit-tests` and the `ui-tests` shards (`accessibility`, `user-journey`, `rest`) run those products in parallel, one runner each. `tests` aggregates build, `unit-tests` and the shards and is the required check. Docs-only PRs skip `build` and every test job (the `changes` job applies `scripts/ci/docs_only.py`), and `tests` then passes. The shards are defined in `scripts/ci/ui_shards.py`, which `make ui-tests` and `run-ui-tests-on-demand.yml` also read; `rest` runs every UI test class no other shard names, so a new class needs no CI edit. The GitHub account runs at most 5 macOS jobs at once across all its repos; a full run holds 4 (the build, then 1 unit + 3 UI). The full UI suite runs automatically (public repo, unlimited Simulator minutes). To re-run only the UI suite on an open PR, comment `/run-ui-tests` (`.github/workflows/run-ui-tests-on-demand.yml`). `check_metadata.py`, `check_content.py`, and `check_source_voice.py` are release-time only — they run in the `fastlane push_metadata`/`screenshots` lanes (see `fastlane/Fastfile`, `fastlane/SETUP.md`), not in per-PR CI. When you bump local gate versions (SwiftLint/SwiftFormat/gitleaks) or the build/test scripts CI mirrors, update `ci.yml` in the same change.
+`.github/workflows/ci.yml` (see `docs/tech-design-doc.md` §8.5) runs on every PR and every push to `main`. It re-runs the lint, secret, large-file and translation gates, so they hold even when a hook is bypassed; the lint and secret jobs read their tool versions from `config/lint-tools.env`, which `make tool-versions-check` (in the gate) holds local installs to.
+
+The macOS work compiles once and tests in parallel. `build` runs `xcodebuild build-for-testing` (compile errors show as PR annotations) and uploads the products. Then `unit-tests` and the `ui-tests` shards (`accessibility`, `user-journey`, `rest`) run those products through `make unit-tests` / `make ui-tests` (`XCTESTRUN` points the scripts at the products), each serially on one simulator on its own runner. The shards are defined in `scripts/ci/ui_shards.py`; `rest` runs every UI test class no other shard names, so a new class needs no CI edit. The ubuntu `tests` job sums them up and is the required check: it passes when every job the run asked for passed, or when the PR was docs-only. The GitHub account runs at most 5 macOS jobs at once across all its repos; a full run holds 4 (the build, then 1 unit + 3 UI).
+
+CI's UI tests (`ui-tests` and `focused-tests`) run with the app's animations off; local runs keep them. The jobs set `TEST_RUNNER_FORCE_ANIMATIONS=off`; xcodebuild hands it to the runner as `FORCE_ANIMATIONS`, `makeApp()` passes it to the app, and `TestAnimationsOverride` turns UIKit and SwiftUI animations off. To reproduce a CI-only UI failure locally, prefix `TEST_RUNNER_FORCE_ANIMATIONS=off` to `make focused-tests` or `make ui-tests`. A test that needs real animations calls `makeApp(keepsAnimations: true)`. CI's `ui-tests` shards also rerun a failed test once (`UI_RETRY_ON_FAILURE=1`); a test that passes only on retry leaves a "UI test passed only on retry" warning on the run, which counts as a flake for `FLAKY_TESTS.md`.
+
+Docs-only PRs skip `build` and every test job: the `changes` job lists the PR's files and they run only when one is code (`scripts/ci/docs_only.py` holds the rules). Pushes to `main` and manual runs always count as code. A skipped required check counts as passing, so don't replace this with a workflow-level `paths-ignore`: the required checks would never report. Required checks in the `main` ruleset: `lint`, `secrets`, `check-large-files`, `i18n-gates`, `tests`.
+
+`check_metadata.py` runs in `i18n-gates`; `check_content.py` and `check_source_voice.py` are release-time only: they run in the `fastlane push_metadata`/`screenshots` lanes (see `fastlane/Fastfile`, `fastlane/SETUP.md`), not in per-PR CI.
+
+**Manual runs.** A manual run on a branch shows as checks on that commit's PR, under the same names as the automatic run, and the ruleset reads the newest check of each name. So a narrowed run can turn a red PR green: a passing single-test run replaces the failed `tests`, and a job a narrowed run leaves out reports as skipped, which counts as passing. Use one to investigate, such as repeating one flaky test, then rerun the automatic run (`gh run rerun <id>`) before merging. Only Jimmy starts one, preferably by commenting on the PR so the request and its result stay there (`.github/workflows/ci-command.yml`; repo owner's comments only):
+
+- `/ci`: the four gates + build. `/ci all`: those plus unit and UI tests.
+- Words combine: `lint` `secrets` `large-files` `i18n` `gates` `build` `unit` `ui`, e.g. `/ci lint i18n` or `/ci gates unit`. `/ci help` replies with the full table.
+- `/ci test <target>/<Class>[/<test>] [xN]`: build, then only that class or test, N times in one job, as `make focused-tests` runs it locally but with animations off. For a test that fails only on CI: the result comment tallies passes and failures per test. E.g. `/ci test simple-recurring-budgetsUITests/UserJourneyTests x5`.
+
+The same runs without a comment trail (`only` empty means gates + build):
+
+```bash
+gh workflow run ci.yml --ref <branch> -f only=lint,build -f tests=ui
+gh workflow run ci.yml --ref <branch> -f only=build -f test=simple-recurring-budgetsUITests/UserJourneyTests -f iterations=5
+```
+
+**The summary comment.** Every run ends with the `summary` job (`scripts/ci/ci_summary.py`), which writes the run's job summary and comments on its PR: the verdict, every job and shard with its time, failed tests with `file:line`, tests that passed only on retry, the top annotations, and the `/ci test` tally. A PR's automatic runs keep one comment up to date; a `/ci` or `gh workflow run` run posts a new one, and so does the push to `main` after a merge, on the merged PR. The test jobs feed it through a `test-report-<job>` artifact (`TEST_REPORT_JSON`, `report_test_failures`). It isn't a required check, and a failure to post only warns.
+
+### Reading a test result
+
+- Find failures by their `TEST-FAILED: <test> <file:line> <message>` lines (every test script prints them), not by the tail of the log. Quote `file:line` from those lines, never a guess.
+- A test that fails in a full run but passes `make focused-tests ONLY=<id> ITERATIONS=3` is flaky: add a row to `simple-recurring-budgetsUITests/FLAKY_TESTS.md`, name the flake in your report, and don't fix it in passing.
+- A "UI test passed only on retry" warning on CI, or a `PASSED-ON-RETRY:` line locally, is also a flake: log it the same way.
+- Before blaming your change for a failure, take a baseline on a clean `main` (a fresh worktree) with the same command.

@@ -1,159 +1,74 @@
-# Runs on every PR and on push to main.
-#
-# Mirrors the local lefthook gates (lefthook.yml) somewhere unbypassable: hooks can be
-# skipped (`git push --no-verify`, hookless clone, web-UI merge). Branch protection on
-# `main` should REQUIRE lint, secrets, check-large-files, i18n-gates, tests
-# (repo Settings -> Rules -> Rulesets); without it CI is advisory.
+# CI — runs on every PR and every push to main. Required checks: AGENTS.md §CI.
+# Mirrors the local lefthook gates (lefthook.yml) somewhere unbypassable: hooks can be skipped
+# (`git push --no-verify`, a hookless clone, a web-UI merge).
+# Rerun or narrow a run by commenting `/ci ...` on the PR (ci-command.yml dispatches this
+# workflow), or with `gh workflow run` (AGENTS.md §CI). Every run ends with the `summary` job's
+# comment on its PR.
 #
 # macOS work: `build` compiles once (build-for-testing), then `unit-tests` and the `ui-tests`
 # shards (scripts/ci/ui_shards.py) run its products in parallel, one runner each. The ubuntu
 # `tests` job sums them up and is the one test check the ruleset needs. The account runs at most 5
 # macOS jobs at once across all its repos; a full run here takes 4 at a time (build, then 1 unit +
-# 3 UI).
+# 3 UI), leaving one for a main-push run or the sibling repo.
+#
+# App Store metadata / screenshot-content checks are deliberately NOT here: they are release-time
+# and run in the fastlane beta/release lanes (see fastlane/Fastfile).
 #
 # Docs-only PRs skip build and every test job: the cheap `changes` job lists the PR's files and
 # outputs code=false only when every one is docs (the rules are in scripts/ci/docs_only.py), and
-# `tests` then passes. Pushes to main and any error reading the list output code=true. Never use a
-# workflow-level paths-ignore for this: the required checks would never report.
-# run-ui-tests-on-demand.yml re-runs just the UI suite on an open PR. App Store metadata /
-# screenshot-content checks are deliberately NOT here: they are release-time (100+ PRs can land
-# between releases) and run in the fastlane beta/release lanes (see fastlane/Fastfile).
+# `tests` then passes. Pushes to main, manual runs and any error reading the list output code=true.
+# Never use a workflow-level paths-ignore for this: the required checks would never report.
+# An automatic run (PR or push) runs unit and UI tests; `tests` and `test` only shape manual runs.
 name: CI
+run-name: "${{ inputs.pr && format('CI · PR #{0}', inputs.pr) || 'CI' }} · ${{ inputs.only || 'gates+build' }} · ${{ inputs.test && format('test={0} x{1}', inputs.test, inputs.iterations) || format('tests={0}', inputs.tests) }}"
 
 on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Comma list, no spaces, of lint,secrets,large-files,i18n,build; empty runs all four gates + build"
+        type: string
+        default: ""
+      tests:
+        description: "Tests after the gates: none (compile only), unit, or ui (unit and UI)"
+        type: choice
+        options: [none, unit, ui]
+        default: none
+      test:
+        description: "One class or test, as make focused-tests takes it (<target>/<Class>[/<test>]); replaces `tests`"
+        type: string
+        default: ""
+      iterations:
+        description: "How many times to run `test`, 1-10"
+        type: string
+        default: "1"
+      pr:
+        description: "PR number to post the results on (set by a /ci comment); empty posts nothing"
+        type: string
+        default: ""
   pull_request:
   push:
     branches: [main]
 
-# PRs: cancel superseded runs on the same branch. Pushes to main: one group per commit,
-# so every merge gets its own complete run. Branch protection doesn't require PRs to be
-# up to date with main, so this post-merge run is what catches two PRs that pass alone
-# but break together.
+# Cancel superseded runs on the same ref (a new push to a PR voids the old run). The selection is
+# in the group so `/ci lint` and `/ci unit` on one branch don't cancel each other. A push to main
+# gets a group of its own commit, so every merge keeps a full run that shows which commit broke it
+# (a shared group would still drop a queued main run when a newer one arrives).
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}-${{ inputs.only }}-${{ inputs.tests }}-${{ inputs.test }}-${{ inputs.iterations }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  pull-requests: write
+
+# Repo-specific constants.
+env:
+  XCODE_VERSION: "26.5"
 
 jobs:
-  # --- Tier 1: lint/format parity with local hooks (ubuntu) ------------------
-  # Pin the EXACT versions installed locally via Homebrew; skew makes CI fail on rules
-  # your machine doesn't enforce (or vice versa). Keep in lockstep with brew installs.
-  lint:
-    runs-on: ubuntu-latest
-    env:
-      SWIFTLINT_VERSION: "0.65.1"
-      SWIFTFORMAT_VERSION: "0.64.1"
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Cache pinned SwiftFormat binary
-        uses: actions/cache@v6
-        id: cache-swiftformat
-        with:
-          path: swiftformat_linux
-          key: swiftformat-${{ env.SWIFTFORMAT_VERSION }}
-
-      - name: Install pinned SwiftFormat (Linux release binary)
-        if: steps.cache-swiftformat.outputs.cache-hit != 'true'
-        run: |
-          curl -sSL -o swiftformat_linux.zip \
-            "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat_linux.zip"
-          unzip -o -q swiftformat_linux.zip
-          chmod +x swiftformat_linux
-
-      - name: SwiftFormat (check only, no rewrite)
-        run: |
-          ./swiftformat_linux --version
-          ./swiftformat_linux --lint .
-
-      # The official image, not the release zip: that binary needs libxml2.so.2, which
-      # Ubuntu 26.04 (ubuntu-latest) dropped (realm/SwiftLint#6966). The workspace is
-      # mounted at its own path so reported file paths match the checkout.
-      - name: SwiftLint (strict, official Docker image)
-        run: |
-          image="ghcr.io/realm/swiftlint:${SWIFTLINT_VERSION}"
-          docker run --rm "$image" version
-          docker run --rm -v "$PWD:$PWD" -w "$PWD" "$image" lint --strict
-
-  # --- Tier 1: secret scan (ubuntu) --------------------------------------------
-  # Complements the local `gitleaks protect --staged` hook. Pinned binary instead of
-  # gitleaks-action, which needs an org license.
-  secrets:
-    runs-on: ubuntu-latest
-    env:
-      GITLEAKS_VERSION: "8.30.1"
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0 # full history so `detect` can scan the whole tree
-      - name: Cache pinned gitleaks binary
-        uses: actions/cache@v6
-        id: cache-gitleaks
-        with:
-          path: gitleaks
-          key: gitleaks-${{ env.GITLEAKS_VERSION }}
-      - name: Install pinned gitleaks
-        if: steps.cache-gitleaks.outputs.cache-hit != 'true'
-        run: |
-          curl -sSL -o gitleaks.tar.gz \
-            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          tar -xzf gitleaks.tar.gz gitleaks
-          chmod +x gitleaks
-      - name: gitleaks detect
-        run: |
-          ./gitleaks version
-          ./gitleaks detect --no-banner --redact
-
-  # --- check-large-files: reject oversized files added/changed in the PR -----
-  # Mirrors the pre-commit hook (scripts/check-large-files.sh). CI has no staged
-  # files, so diff against the PR base (or the prior push on push-to-main).
-  check-large-files:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Diff files vs base
-        id: diff
-        run: |
-          base="${{ github.event.pull_request.base.sha || github.event.before }}"
-          files=$(git diff --name-only --diff-filter=d "$base"...HEAD | tr '\n' ' ')
-          echo "files=$files" >> "$GITHUB_OUTPUT"
-      - name: check-large-files
-        if: steps.diff.outputs.files != ''
-        run: bash scripts/check-large-files.sh ${{ steps.diff.outputs.files }}
-
-  # --- translation / localization gates (ubuntu) ------------------------------
-  # Same gates as the pre-push hook, plus plural/untranslated-copy checks and a
-  # non-blocking consistency report.
-  i18n-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-      - name: check_translations.py
-        run: python3 scripts/ci/annotate.py --name check_translations -- python3 scripts/check_translations.py
-      - name: check_source_strings.py
-        run: python3 scripts/ci/annotate.py --name check_source_strings -- python3 scripts/check_source_strings.py
-      - name: check_metadata.py
-        run: python3 scripts/ci/annotate.py --name check_metadata -- python3 scripts/translate_metadata/check_metadata.py
-      - name: plural_completeness.py
-        run: python3 scripts/ci/annotate.py --name plural_completeness -- python3 scripts/translate_audit/plural_completeness.py
-      - name: untranslated_copies.py
-        run: python3 scripts/ci/annotate.py --name untranslated_copies -- python3 scripts/translate_audit/untranslated_copies.py
-      - name: consistency_check (informational, non-blocking)
-        run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
-
-  # --- changes: does this PR need a build and tests? ---------------------------------
-  # Docs-only PRs skip build, unit-tests and ui-tests, and the `tests` job then passes. The rules
-  # are in scripts/ci/docs_only.py. Both the changed path and, for a rename, the previous one
-  # count, so a file renamed out of the app folder is still code. Anything but a PR event, or a
-  # failed read, means code=true.
+  # --- Docs-only detection (ubuntu, seconds) ---------------------------------------
+  # Both the changed path and, for a rename, the previous one count, so a file renamed out of the
+  # app folder is still code. Anything but a PR event, or a failed read, means code=true.
   changes:
     runs-on: ubuntu-latest
     permissions:
@@ -183,11 +98,130 @@ jobs:
           python3 scripts/ci/docs_only.py <<<"$files" >> "$GITHUB_OUTPUT" \
             || echo "code=true" >> "$GITHUB_OUTPUT"
 
+  # --- Tier 1: lint/format parity with pre-commit (ubuntu) -------------------
+  # Versions come from config/lint-tools.env. Runs REPO-WIDE, unlike the local gate
+  # (AGENTS.md §"Lint policy").
+  lint:
+    if: inputs.only == '' || contains(format(',{0},', inputs.only), ',lint,')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Load pinned tool versions
+        run: grep -E '^[A-Z_]+=' config/lint-tools.env >> "$GITHUB_ENV"
+
+      - name: Cache pinned SwiftFormat binary
+        uses: actions/cache@v6
+        id: cache-swiftformat
+        with:
+          path: swiftformat_linux
+          key: swiftformat-${{ env.SWIFTFORMAT_VERSION }}
+
+      - name: Install pinned SwiftFormat (Linux release binary)
+        if: steps.cache-swiftformat.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL -o swiftformat_linux.zip \
+            "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat_linux.zip"
+          unzip -o -q swiftformat_linux.zip
+          chmod +x swiftformat_linux
+
+      - name: SwiftFormat (check only, no rewrite)
+        run: |
+          ./swiftformat_linux --version
+          ./swiftformat_linux --lint .
+
+      # The official image, not the release zip: that binary needs libxml2.so.2, which
+      # Ubuntu 26.04 dropped (realm/SwiftLint#6966).
+      # The workspace is mounted at its own path so reported file paths match the checkout.
+      - name: SwiftLint (strict, official Docker image)
+        run: |
+          image="ghcr.io/realm/swiftlint:${SWIFTLINT_VERSION}"
+          docker run --rm "$image" version
+          docker run --rm -v "$PWD:$PWD" -w "$PWD" "$image" lint --strict
+
+  # --- Tier 1: secret scan over full history (ubuntu) -------------------------
+  # Full-history scan. Green != no secrets — AGENTS.md §"Known issues".
+  secrets:
+    if: inputs.only == '' || contains(format(',{0},', inputs.only), ',secrets,')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history so `gitleaks git` can scan every commit
+      - name: Load pinned tool versions
+        run: grep -E '^[A-Z_]+=' config/lint-tools.env >> "$GITHUB_ENV"
+      - name: Cache pinned gitleaks binary
+        uses: actions/cache@v6
+        id: cache-gitleaks
+        with:
+          path: gitleaks
+          key: gitleaks-${{ env.GITLEAKS_VERSION }}
+      - name: Install pinned gitleaks
+        if: steps.cache-gitleaks.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar -xzf gitleaks.tar.gz gitleaks
+          chmod +x gitleaks
+      - name: gitleaks git
+        run: |
+          ./gitleaks version
+          ./gitleaks git --no-banner --redact
+
+  # --- check-large-files: reject oversized files added/changed in the PR -----
+  # Mirrors the pre-commit hook (scripts/check-large-files.sh), which only ever
+  # sees staged files locally — here we diff against the PR base (or the prior
+  # push, on a push-to-main event, or the branch point from main, on a manual
+  # run) since there's no "staged files" concept in CI.
+  check-large-files:
+    if: inputs.only == '' || contains(format(',{0},', inputs.only), ',large-files,')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Diff files vs base
+        id: diff
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [[ -z "$base" ]]; then
+            base="$(git merge-base origin/main HEAD)"
+          fi
+          files=$(git diff --name-only --diff-filter=d "$base"...HEAD | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+      - name: check-large-files
+        if: steps.diff.outputs.files != ''
+        run: bash scripts/check-large-files.sh ${{ steps.diff.outputs.files }}
+
+  # --- Localization gates (ubuntu) --------------------------------------------
+  # Same gates as the pre-push hook, plus check_metadata, the plural and untranslated-copy checks,
+  # and a non-blocking consistency report.
+  i18n-gates:
+    if: inputs.only == '' || contains(format(',{0},', inputs.only), ',i18n,')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: check_translations.py
+        run: python3 scripts/ci/annotate.py --name check_translations -- python3 scripts/check_translations.py
+      - name: check_source_strings.py
+        run: python3 scripts/ci/annotate.py --name check_source_strings -- python3 scripts/check_source_strings.py
+      - name: check_metadata.py
+        run: python3 scripts/ci/annotate.py --name check_metadata -- python3 scripts/translate_metadata/check_metadata.py
+      - name: plural_completeness.py
+        run: python3 scripts/ci/annotate.py --name plural_completeness -- python3 scripts/translate_audit/plural_completeness.py
+      - name: untranslated_copies.py
+        run: python3 scripts/ci/annotate.py --name untranslated_copies -- python3 scripts/translate_audit/untranslated_copies.py
+      - name: consistency_check (informational, non-blocking)
+        run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
+
   # --- Tier 2: build once (macOS) ---------------------------------------------------
   # Compiles the app and both test targets once (build-for-testing) and hands the products to the
   # test jobs, which only run them, so a PR compiles once rather than once per test job. It is also
-  # the compile check: on a failure each compile error becomes a PR annotation and a job-summary
-  # line (scripts/ci/xcode_errors.py). Skipped on docs-only PRs, and with it every test job.
+  # the compile check: a manual run with no tests runs it alone. Skipped on docs-only PRs, and with
+  # it every test job.
   build:
     runs-on: macos-26
     needs: [lint, secrets, check-large-files, i18n-gates, changes]
@@ -195,30 +229,53 @@ jobs:
     if: >-
       !cancelled() && !contains(needs.*.result, 'failure')
       && needs.changes.outputs.code == 'true'
+      && (github.event_name != 'workflow_dispatch' || inputs.tests != 'none' || inputs.test != ''
+        || inputs.only == '' || contains(format(',{0},', inputs.only), ',build,'))
     # The 360-minute default would let one hung build hold a macOS runner for six hours.
     timeout-minutes: 30
+    env:
+      # Whether a test job will use the products, so they're worth uploading.
+      RUNS_TESTS: ${{ github.event_name != 'workflow_dispatch' || inputs.tests != 'none' || inputs.test != '' }}
     steps:
+      # Before any setup, so a bad `gh workflow run` input costs no macOS minutes. The same checks
+      # as ci_command.py; leading zeros are refused because bash reads them as octal.
+      - name: Check the test name and iterations
+        if: inputs.test != ''
+        env:
+          TEST: ${{ inputs.test }}
+          ITERATIONS: ${{ inputs.iterations }}
+        run: |
+          if [[ ! "$TEST" =~ ^(simple-recurring-budgetsTests|simple-recurring-budgetsUITests)/[A-Za-z_][A-Za-z0-9_]*(/[A-Za-z_][A-Za-z0-9_]*(\(\))?)?$ ]]; then
+            echo "::error::test must be <target>/<Class>[/<test>] in simple-recurring-budgetsTests or simple-recurring-budgetsUITests, not '${TEST}'"
+            exit 1
+          fi
+          if [[ ! "$ITERATIONS" =~ ^[1-9][0-9]*$ ]] || (( ITERATIONS > 10 )); then
+            echo "::error::iterations must be 1-10, not '${ITERATIONS}'"
+            exit 1
+          fi
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-setup
         with:
+          xcode-version: ${{ env.XCODE_VERSION }}
           simulator: "false"
       - name: Cache SwiftPM packages
         uses: actions/cache@v6
         with:
-          path: build/DerivedData/SourcePackages
-          key: spm-${{ runner.os }}-xcode26.5-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          path: .build/sim/DerivedData/SourcePackages
+          key: spm-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-${{ hashFiles('simple-recurring-budgets.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: |
-            spm-${{ runner.os }}-xcode26.5-
-      # For any simulator, so the products run on whichever device a test job's runner has.
-      # Ad-hoc sign so entitlements (ubiquity-kvstore, CloudKit) are embedded.
-      # CODE_SIGNING_ALLOWED=NO strips them and breaks NSUbiquitousKeyValueStore tests.
+            spm-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-
+      # For any simulator, so the products run on whichever device a test job's runner has. On
+      # failure, each compile error becomes a PR annotation and a job-summary line. Ad-hoc signed so
+      # the entitlements (ubiquity-kvstore, CloudKit) are embedded: CODE_SIGNING_ALLOWED=NO strips
+      # them and breaks the NSUbiquitousKeyValueStore tests.
       - name: Build for testing
         run: |
           xcodebuild build-for-testing \
             -project simple-recurring-budgets.xcodeproj \
             -scheme simple-recurring-budgets \
             -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build/DerivedData \
+            -derivedDataPath .build/sim/DerivedData \
             ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=NO \
             CODE_SIGNING_ALLOWED=YES \
@@ -227,8 +284,10 @@ jobs:
             || { python3 scripts/ci/xcode_errors.py build-for-testing.log; exit 1; }
       # A tarball, because an artifact upload drops the exec bits and symlinks the app needs.
       - name: Pack the test products
-        run: tar -czf test-products.tgz -C build/DerivedData/Build Products
+        if: env.RUNS_TESTS == 'true'
+        run: tar -czf test-products.tgz -C .build/sim/DerivedData/Build Products
       - name: Upload the test products
+        if: env.RUNS_TESTS == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: test-products
@@ -237,36 +296,45 @@ jobs:
           compression-level: 0 # already gzipped
 
   # --- Tier 2: tests (macOS), from the build job's products ----------------------------
-  # unit-tests and every ui-tests shard run in parallel, one runner each, serial on one
-  # simulator. The `tests` job below sums them up, and it is the one check the ruleset needs.
+  # An automatic run (PR or push) runs unit-tests and every ui-tests shard, in parallel; a manual
+  # run runs what `tests` or `test` ask for. Each job is serial on one simulator. The `tests` job
+  # below sums them up, and it is the one check the ruleset needs.
   unit-tests:
     runs-on: macos-26
     needs: [build]
-    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    if: >-
+      !cancelled() && needs.build.result == 'success' && inputs.test == ''
+      && (github.event_name != 'workflow_dispatch' || inputs.tests == 'unit' || inputs.tests == 'ui')
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-setup
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
       - uses: ./.github/actions/test-products
       # Under the job's timeout: a step timeout fails the step, so the result bundles still upload,
       # while a job timeout cancels the job and skips the upload.
-      # Mirrors scripts/unit-tests.sh (serial, skips the UITests target).
-      - name: Unit tests
+      - name: Unit tests (make unit-tests)
         timeout-minutes: 25
-        run: |
-          mkdir -p build/results
-          xcodebuild test-without-building \
-            -xctestrun "$XCTESTRUN" \
-            -destination "id=$SIM_UDID" \
-            -parallel-testing-enabled NO \
-            -resultBundlePath build/results/unit-tests.xcresult \
-            -skip-testing:simple-recurring-budgetsUITests
+        env:
+          TEST_REPORT_JSON: test-report.json
+          TEST_REPORT_JOB: unit-tests
+        run: make unit-tests
+      # The summary job's input (scripts/ci/ci_summary.py); written by report_test_failures.
+      - name: Upload the test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report-unit-tests
+          path: test-report.json
+          retention-days: 1
+          if-no-files-found: ignore
       - name: Upload test result bundles
         if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: xcresults-unit-tests
-          path: build/results/*.xcresult
+          path: .build/sim/results/*.xcresult
           retention-days: 7
 
   # The shards are defined in scripts/ci/ui_shards.py; keep this list equal to its names (a test in
@@ -277,8 +345,13 @@ jobs:
     name: ui-tests (${{ matrix.shard }})
     runs-on: macos-26
     needs: [build]
-    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    if: >-
+      !cancelled() && needs.build.result == 'success' && inputs.test == ''
+      && (github.event_name != 'workflow_dispatch' || inputs.tests == 'ui')
     timeout-minutes: 40
+    env:
+      # Animations off for UI tests on CI only (TestAnimationsOverride in the app explains why).
+      TEST_RUNNER_FORCE_ANIMATIONS: "off"
     strategy:
       fail-fast: false # one red shard still lets the others report
       matrix:
@@ -286,52 +359,111 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-setup
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
       - uses: ./.github/actions/test-products
-      # No unit pass runs first on this runner, so boot the simulator and wait for it
-      # here; the first UI test then doesn't pay for the boot inside its own timeouts.
-      - name: Boot the simulator
-        run: xcrun simctl bootstatus "$SIM_UDID" -b
-      # One retry per failed test, as the local parallel runs do (scripts/_sim_concurrency.sh).
-      # For minutes after boot the simulator is busy with first-boot work, and on these runners
-      # that makes accessibility audits time out (-56) or sample contrast mid-render (#360).
-      # A test that fails both tries still fails the shard. A warm-up step before the shard was
-      # tried in #362 (one UI test, then one unit suite): it cost 2-5 min per shard and didn't
-      # stop the slow tests, so there is none.
-      - name: UI tests
+      # Serial on this runner's one simulator, which first warms up with one small unit suite
+      # (warm_up_if_needed in scripts/_sim_concurrency.sh). The retry absorbs the first minutes
+      # after boot, when the runner's simulator is busy and accessibility audits can time out
+      # (-56) or sample contrast mid-render (#360); a test that fails both tries fails the shard.
+      - name: UI tests (make ui-tests UI_SHARD=${{ matrix.shard }})
         timeout-minutes: 35
         env:
-          SHARD: ${{ matrix.shard }}
-        run: |
-          mkdir -p build/results
-          filters=()
-          while IFS= read -r line; do
-            filters+=("$line")
-          done < <(python3 scripts/ci/ui_shards.py args "$SHARD")
-          xcodebuild test-without-building \
-            -xctestrun "$XCTESTRUN" \
-            -destination "id=$SIM_UDID" \
-            -parallel-testing-enabled NO \
-            -retry-tests-on-failure \
-            -test-iterations 2 \
-            -resultBundlePath "build/results/ui-tests-${SHARD}.xcresult" \
-            "${filters[@]}"
+          UI_SHARD: ${{ matrix.shard }}
+          UI_WORKERS: "1"
+          UI_RETRY_ON_FAILURE: "1"
+          TEST_REPORT_JSON: test-report.json
+          TEST_REPORT_JOB: ui-tests (${{ matrix.shard }})
+        run: make ui-tests
+      # The summary job's input (scripts/ci/ci_summary.py); written by report_test_failures.
+      - name: Upload the test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report-ui-tests-${{ matrix.shard }}
+          path: test-report.json
+          retention-days: 1
+          if-no-files-found: ignore
       - name: Upload test result bundles
         if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: xcresults-ui-tests-${{ matrix.shard }}
-          path: build/results/*.xcresult
+          path: .build/sim/results/*.xcresult
           retention-days: 7
 
-  # --- tests: the one required check for all of the above ------------------------
-  # Branch protection requires `tests`, not the jobs above, so shards can be added or renamed
-  # without touching the ruleset. Passes when build, unit-tests and every ui-tests shard passed,
-  # or when `changes` found a docs-only PR and all three were skipped. Anything else (a failure, a
-  # cancel, a gate failing first, `changes` failing) fails.
+  # One class or test, serially, N times in one job (a manual `test` run), so a flake that shows
+  # only on this runner costs one build rather than a whole suite per try. A UI class first warms
+  # the fresh simulator up, as make focused-tests does locally. A name that matches no test fails
+  # the step rather than passing with nothing run.
+  focused-tests:
+    runs-on: macos-26
+    needs: [build]
+    if: >-
+      !cancelled() && needs.build.result == 'success'
+      && github.event_name == 'workflow_dispatch' && inputs.test != ''
+    timeout-minutes: 40
+    env:
+      TEST_RUNNER_FORCE_ANIMATIONS: "off" # as in ui-tests
+    outputs:
+      tally: ${{ steps.one.outputs.tally }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-setup
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+      - uses: ./.github/actions/test-products
+      - name: One class or test (make focused-tests)
+        id: one
+        timeout-minutes: 35
+        env:
+          TEST: ${{ inputs.test }}
+          ITERATIONS: ${{ inputs.iterations }}
+          TEST_REPORT_JSON: test-report.json
+          TEST_REPORT_JOB: focused-tests
+        run: |
+          rc=0
+          make focused-tests ONLY="$TEST" ITERATIONS="$ITERATIONS" || rc=$?
+          bundle=$(find .build/sim/results -maxdepth 1 -name '*-focused.xcresult' 2>/dev/null | head -1)
+          if [[ -n "$bundle" ]]; then
+            tally=$(python3 scripts/ci/tally_iterations.py "$bundle" || true)
+            echo "tally=${tally}" >> "$GITHUB_OUTPUT"
+            echo "$tally" >> "$GITHUB_STEP_SUMMARY"
+            if [[ "$tally" == "Tally: no test results"* && "$rc" == 0 ]]; then
+              echo "::error::'${TEST}' matched no test"
+              rc=1
+            fi
+          fi
+          exit "$rc"
+      # The summary job's input (scripts/ci/ci_summary.py); written by report_test_failures.
+      - name: Upload the test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report-focused-tests
+          path: test-report.json
+          retention-days: 1
+          if-no-files-found: ignore
+      # Kept when it passes too: with a flake, the passing runs are evidence as well.
+      - name: Upload test result bundles
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: xcresults-focused-tests
+          path: .build/sim/results/*.xcresult
+          retention-days: 7
+
+  # --- The required check: sums up the build and test jobs (ubuntu, seconds) -------------
+  # Passes when every job this run asked for passed, or when `changes` found a docs-only PR and
+  # the build and tests were skipped. Anything else fails, including a failed gate, `changes`, or
+  # `build` (the test jobs are then skipped, which on their own would count as passing). Shards can
+  # be added or renamed without touching the ruleset. Skipped on a manual run with no tests.
   tests:
     runs-on: ubuntu-latest
-    needs: [changes, build, unit-tests, ui-tests]
-    if: ${{ !cancelled() }}
+    needs: [changes, build, unit-tests, ui-tests, focused-tests]
+    if: >-
+      !cancelled()
+      && (github.event_name != 'workflow_dispatch' || inputs.tests != 'none' || inputs.test != '')
     timeout-minutes: 5
     steps:
       - name: Sum up the build and test jobs
@@ -340,58 +472,55 @@ jobs:
           BUILD: ${{ needs.build.result }}
           UNIT: ${{ needs.unit-tests.result }}
           UI: ${{ needs.ui-tests.result }}
+          FOCUSED: ${{ needs.focused-tests.result }}
+          WANT: ${{ inputs.test != '' && 'focused' || inputs.tests || 'ui' }}
         run: |
-          echo "changes.code=${CODE} build=${BUILD} unit-tests=${UNIT} ui-tests=${UI}"
-          if [[ "$BUILD" == success && "$UNIT" == success && "$UI" == success ]]; then
-            exit 0
-          fi
+          echo "changes.code=${CODE} build=${BUILD} unit-tests=${UNIT} ui-tests=${UI} focused-tests=${FOCUSED} (asked for: ${WANT})"
           if [[ "$CODE" == false && "$BUILD" == skipped && "$UNIT" == skipped && "$UI" == skipped ]]; then
             echo "Docs-only PR: build and tests skipped."
             exit 0
           fi
-          echo "::error::Tests did not pass (build=${BUILD}, unit-tests=${UNIT}, ui-tests=${UI})."
-          exit 1
+          case "$WANT" in
+            ui) jobs=(BUILD UNIT UI) ;;
+            unit) jobs=(BUILD UNIT) ;;
+            focused) jobs=(BUILD FOCUSED) ;;
+            *) echo "::error::unknown test selection '${WANT}'"; exit 1 ;;
+          esac
+          for job in "${jobs[@]}"; do
+            if [[ "${!job}" != success ]]; then
+              echo "::error::Tests did not pass (build=${BUILD}, unit-tests=${UNIT}, ui-tests=${UI}, focused-tests=${FOCUSED})."
+              exit 1
+            fi
+          done
 
-  # --- pr-summary: one consolidated, self-updating PR comment -----------------
-  # One comment aggregating every gate, edited in place on re-push. Informational
-  # only; do NOT make it a required status check.
-  pr-summary:
+  # --- Summary: the job summary page and a comment on the run's PR (ubuntu, seconds) ----------
+  # Every run, however it started (scripts/ci/ci_summary.py has the rules): a PR push keeps one
+  # comment up to date; a /ci run or a push to main posts a new comment (on the merged PR). Not a
+  # required check, and posting is best-effort.
+  summary:
+    needs: [lint, secrets, check-large-files, i18n-gates, changes, build, unit-tests, ui-tests, focused-tests, tests]
+    if: always()
     runs-on: ubuntu-latest
-    needs: [lint, secrets, check-large-files, i18n-gates, changes, build, unit-tests, ui-tests, tests]
-    if: always() && github.event_name == 'pull_request'
+    timeout-minutes: 10
     permissions:
+      contents: read
+      actions: read
+      checks: read
       pull-requests: write
     steps:
-      - name: Post/update consolidated gate summary
-        uses: actions/github-script@v9
+      - uses: actions/checkout@v7
+      - name: Download the test reports
+        uses: actions/download-artifact@v8
+        continue-on-error: true
         with:
-          script: |
-            const needs = ${{ toJSON(needs) }};
-            const marker = '<!-- ci-gate-summary -->';
-            const rows = Object.entries(needs).map(([job, info]) => {
-              const icon = info.result === 'success' ? '✅' : info.result === 'skipped' ? '⚪' : '❌';
-              return `| ${icon} | \`${job}\` | ${info.result} |`;
-            }).join('\n');
-            const body = `${marker}\n### CI gate summary\n\n| | Job | Result |\n|---|---|---|\n${rows}\n\n` +
-              `See the [full run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for step summaries and details on any failure.`;
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-            const existing = comments.find((c) => c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body,
-              });
-            }
+          pattern: test-report-*
+          path: reports
+      - name: Post the summary
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_CODE: ${{ needs.changes.outputs.code }}
+          TALLY: ${{ needs.focused-tests.outputs.tally }}
+        run: |
+          printf '%s' "$TALLY" > tally.txt
+          python3 scripts/ci/ci_summary.py post --reports reports --tally tally.txt \
+            --flaky-log simple-recurring-budgetsUITests/FLAKY_TESTS.md

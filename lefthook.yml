@@ -23,12 +23,13 @@ pre-commit:
       run: bash scripts/check-large-files.sh {staged_files}
 
     gitleaks:
-      run: gitleaks protect --staged --no-banner
+      run: gitleaks git --pre-commit --staged --no-banner
 
 pre-push:
   commands:
-    # Checks the refs being pushed (from git's stdin), not the checked-out branch.
-    no-direct-main-push:
+    # Checks the refs being pushed (from git's stdin), not the checked-out branch. Fails faster
+    # than the server-side protection that also covers main and gh-pages.
+    no-direct-protected-push:
       run: bash scripts/check-push-refs.sh
       use_stdin: true
 

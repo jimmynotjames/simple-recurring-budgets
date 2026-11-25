@@ -75,13 +75,12 @@ You don't need `config/Secrets.local.xcconfig`, `fastlane/.env`, an App Store Co
 
 ### Simulator concurrency
 
-The test scripts print a line like `simulator-slots: no shared pool at ~/dev/simulator-slots`. That's expected. The maintainer's machine has a shared pool that caps how many simulators all of their repos run at once (`scripts/simulator-slots/` is that tool's vendored copy). You don't need it, and you shouldn't create its directories. Without the pool, the scripts don't coordinate with anything.
+The test scripts print a line like `simulator-slots: no shared pool on this machine …`. That's expected. The maintainer's machine has a shared pool that caps how many simulators all of their repos run at once (`scripts/simulator-slots/` is that tool's vendored copy). You don't need it, and you shouldn't create its directories. Without the pool, the scripts don't coordinate with anything.
 
 How many simulators the UI test pass uses is up to you:
 
-- `SRB_SIM_MAX=1 make tests` runs serially on one simulator (the lightest option).
-- `SRB_SIM_MAX=2` or `3` runs that many parallel clones. Each booted simulator takes about 2–3 GB of RAM.
-- Leave `SRB_SIM_MAX` unset to let the Xcode scheme decide.
+- Unset (default), the UI pass runs serially on one simulator, the lightest option.
+- `UI_WORKERS=2 make ui-tests` (or `3`) runs that many parallel clones and retries a failed test once. Each booted simulator takes about 2–3 GB of RAM.
 
 Details: `AGENTS.md` § "Simulator slots" and the `ios-sims` skill.
 
@@ -250,7 +249,7 @@ If you are an AI agent working in this codebase:
 - **Out-of-repo secrets:** `config/Secrets.local.xcconfig` (gitignored, maintainer-only). Never read or commit it; use `config/Secrets.xcconfig` placeholder defaults for key names only.
 - **Ship guard paths:** `scripts/verify_release_secrets.sh` (shell) and `verify_ship_secrets!` (Fastfile helper). Don't bypass without the `SKIP_RELEASE_SECRETS_CHECK=1` escape hatch.
 - **Build & test:** follow `AGENTS.md > Build and test` — four-step gate: `make format` → `make lint-fix` → `make build` → `make tests`.
-- **Simulators:** a `simulator-slots: no shared pool …` notice is normal outside the maintainer's machine. Run normally; don't create the pool's directories. Choose UI-pass concurrency with `SRB_SIM_MAX`, or ask the developer. Tell the developer once that the pool wasn't found and what concurrency you used. See `AGENTS.md > Simulator slots`.
+- **Simulators:** a `simulator-slots: no shared pool …` notice is normal outside the maintainer's machine. Run normally; don't create the pool's directories. Choose UI-pass concurrency with `UI_WORKERS`, or ask the developer. Tell the developer once that the pool wasn't found and what concurrency you used. See `AGENTS.md > Simulator slots`.
 - **Translations:** adding new user-facing strings requires running the `translate-new-strings` skill. See `AGENTS.md > Cross-cutting concerns`.
 - **Branding:** Unless you are deriving your own app with its own branding, do not alter the app icon, Wren name, or store metadata as part of code changes. See `TRADEMARK.md`.
 

@@ -1,6 +1,6 @@
 ---
 name: translation-accessibility-size-check
-description: Ad-hoc visual check for localized truncation / overflow / RTL-mirroring at large Dynamic Type. Renders the app in 7 locales at forced .xxxLarge, captures screenshots of the key screens, and has Claude eyeball them. Run on demand (e.g., before an App Store submission) — NOT part of make test / CI / pre-commit. Use when the user asks to check localized layouts, translation truncation, RTL, or large-text rendering before release.
+description: Ad-hoc visual check for localized truncation / overflow / RTL-mirroring at large Dynamic Type. Renders the app in 7 locales at forced .xxxLarge, captures screenshots of the key screens, and has Claude eyeball them. Run on demand (e.g., before an App Store submission) — NOT part of make tests / CI / pre-commit. Use when the user asks to check localized layouts, translation truncation, RTL, or large-text rendering before release.
 ---
 
 # Translation accessibility size check (ad-hoc, Claude-eyeballed)

@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 """Print UDID of a simulator matching criteria, or print nothing.
 
-Exits 0 always (caller treats empty stdout as no match). simctl is capped
+Exits 0 whether or not a device matches (caller treats empty stdout as no match). simctl is capped
 with a timeout so a wedged CoreSimulatorService cannot hang CI or agents.
 
-Usage (legacy, env-var-based):
-    SIMULATOR_NAME=<name> python3 resolve_booted_sim_udid.py
-
-Usage (explicit args, used by _sim_sandbox.sh):
+Usage:
     python3 resolve_booted_sim_udid.py --name <name> [--state <Booted|any>]
 """
 import argparse
 import json
-import os
 import subprocess
 import sys
 
@@ -20,14 +16,11 @@ SIMCTL_TIMEOUT_SEC = 8
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument("--name", default=None)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--name", required=True)
     parser.add_argument("--state", default="Booted")  # "Booted" or "any"
-    args, _ = parser.parse_known_args()
-
-    name = args.name or os.environ.get("SIMULATOR_NAME", "")
-    if not name:
-        return
+    args = parser.parse_args()
+    name = args.name
 
     cmd = ["xcrun", "simctl", "list", "devices", "-j"]
     if args.state == "Booted":

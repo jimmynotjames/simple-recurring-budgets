@@ -75,9 +75,11 @@ struct RootView: View {
       // DEBUG-only test Dynamic Type override (inert unless IS_TESTING + FORCE_DYNAMIC_TYPE
       // are set). Sheets don't inherit the root-level override from the App body, so it's
       // re-applied here for scripts/translation-accessibility-size-check/ to reach Settings /
-      // Add Expense / Add Budget at the forced size.
+      // Add Expense / Add Budget at the forced size. The CI animations override is re-applied
+      // for the same reason (inert unless UI_TESTS + FORCE_ANIMATIONS=off are set).
       #if DEBUG
         .modifier(TestDynamicTypeOverride())
+        .modifier(TestAnimationsOverride.Modifier())
       #endif
     }
   }

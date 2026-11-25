@@ -1,0 +1,107 @@
+# Starts ci.yml from a `/ci ...` comment on a PR, so the PR keeps a record of every run.
+# Grammar: scripts/ci/ci_command.py (or comment `/ci help`). Only the repo owner's comments count.
+# GitHub reads issue_comment workflows from main only, so changes to this file or the parser take
+# effect once merged; the dispatched ci.yml is always the PR branch's own.
+name: CI command
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.issue.pull_request
+      && startsWith(github.event.comment.body, '/ci')
+      && github.event.comment.author_association == 'OWNER'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write # dispatch ci.yml
+      issues: write # react to the comment
+      pull-requests: write # reply on the PR
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.issue.number }}
+      COMMENT_ID: ${{ github.event.comment.id }}
+      COMMENT_URL: ${{ github.event.comment.html_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Parse the comment
+        id: parse
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: python3 scripts/ci/ci_command.py
+
+      - name: Acknowledge the comment
+        if: steps.parse.outputs.action != 'ignore'
+        run: gh api "repos/${GH_REPO}/issues/comments/${COMMENT_ID}/reactions" -f content=eyes --silent
+
+      - name: Reply with usage
+        if: steps.parse.outputs.action == 'help' || steps.parse.outputs.action == 'error'
+        env:
+          REASON: ${{ steps.parse.outputs.error }}
+        run: |
+          {
+            if [[ -n "$REASON" ]]; then
+              echo "Not started: ${REASON} in [this comment](${COMMENT_URL})."
+              echo
+            fi
+            python3 scripts/ci/ci_command.py --usage
+          } > reply.md
+          gh pr comment "$PR" --body-file reply.md
+
+      - name: Dispatch ci.yml on the PR branch
+        if: steps.parse.outputs.action == 'run'
+        env:
+          ONLY: ${{ steps.parse.outputs.only }}
+          TESTS: ${{ steps.parse.outputs.tests }}
+          TEST: ${{ steps.parse.outputs.test }}
+          ITERATIONS: ${{ steps.parse.outputs.iterations }}
+        run: |
+          pr_json=$(gh pr view "$PR" --json state,headRefName,headRefOid,isCrossRepository)
+          state=$(jq -r .state <<<"$pr_json")
+          branch=$(jq -r .headRefName <<<"$pr_json")
+          sha=$(jq -r .headRefOid <<<"$pr_json")
+          if [[ "$state" != "OPEN" ]]; then
+            gh pr comment "$PR" --body "Not started: this PR is ${state,,} ([comment](${COMMENT_URL}))."
+            exit 0
+          fi
+          if [[ "$(jq -r .isCrossRepository <<<"$pr_json")" == "true" ]]; then
+            gh pr comment "$PR" --body "Not started: the PR branch is in another repository ([comment](${COMMENT_URL}))."
+            exit 0
+          fi
+
+          inputs=(-f only="$ONLY" -f tests="$TESTS" -f pr="$PR")
+          what="tests=${TESTS}"
+          # Only a `test` run sends these, so the other commands still work on a branch whose
+          # ci.yml predates them.
+          if [[ -n "$TEST" ]]; then
+            inputs+=(-f test="$TEST" -f iterations="$ITERATIONS")
+            what="test=\`${TEST}\` x${ITERATIONS}"
+          fi
+          if ! out=$(gh workflow run ci.yml --ref "$branch" "${inputs[@]}" 2>&1); then
+            echo "$out" >&2
+            # A branch cut before this command existed has a ci.yml without its inputs.
+            if grep -qi "unexpected inputs" <<<"$out"; then
+              gh pr comment "$PR" --body "Not started: this branch's ci.yml predates this \`/ci\` command; rebase onto main ([comment](${COMMENT_URL}))."
+              exit 0
+            fi
+            exit 1
+          fi
+          echo "$out"
+          run_url=$(grep -oE 'https://github\.com/[^ ]+/actions/runs/[0-9]+' <<<"$out" | head -1 || true)
+          link="See the PR's checks."
+          [[ -n "$run_url" ]] && link="[Run](${run_url})"
+          gh pr comment "$PR" --body "Started CI on \`${branch}\` @ \`${sha::7}\`: ${ONLY:-gates+build}, ${what}. ${link} ([comment](${COMMENT_URL}))"
+
+      - name: Report a failure to start
+        if: failure()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: gh pr comment "$PR" --body "Could not start CI for [this comment](${COMMENT_URL}); see [the dispatcher run](${RUN_URL})."

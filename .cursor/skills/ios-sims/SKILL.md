@@ -1,5 +1,5 @@
 ---
-description: iOS simulator setup, management commands, SRB_SIM_MAX concurrency tuning, two-pass test architecture, and AM/PM time workaround for this repo. Invoke when setting up a fresh clone, debugging simulator failures, adjusting parallelism, or writing UI tests that assert time strings.
+description: iOS simulator setup, management commands, UI_WORKERS concurrency tuning, two-pass test architecture, and AM/PM time workaround for this repo. Invoke when setting up a fresh clone, debugging simulator failures, adjusting parallelism, or writing UI tests that assert time strings.
 ---
 
 # iOS Simulator reference
@@ -39,44 +39,43 @@ These affect only this repo's simulator:
 ```bash
 make initialize-sims  # create and boot this repo's simulator without building
 make sim-status       # show this repo's simulator status
-make sim-shutdown     # shut down this repo's simulator
+make sim-shutdown     # shut down this repo's simulator and its clones
 make sim-clean        # shut down + delete this repo's simulator + remove .build/sim/
 ```
 
-`make sim-clean` runs `scripts/sim_clean.py`, which deletes every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` from a parallel-testing crash). It cannot touch other repos' devices.
+`make sim-clean` runs `scripts/sim_clean.py`, which deletes every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` from a parallel-testing crash). It cannot touch other repos' devices. A parallel UI run also deletes leftover clones before it starts (`sim_clean.py --clones-only`). Every command here and every test script holds the checkout's simulator lock (`.build/sim.lock`, `scripts/_sim_common.sh`), so two runs in one checkout wait for each other instead of fighting over the device.
 
 Derived data and result bundles are per repo:
 
 - `-derivedDataPath .build/sim/DerivedData`
 - `-resultBundlePath .build/sim/results/<timestamp>.xcresult`
 
-## UI pass concurrency: the simulator pool and SRB_SIM_MAX
+## UI pass concurrency: the simulator pool, UI_WORKERS and retries
 
 `scripts/_sim_concurrency.sh` decides how many simulators a test run uses. The unit pass and `focused-tests` are always serial (one simulator). Full rules: `AGENTS.md` § "Simulator slots".
 
-**Pool on** (the maintainer's machine, where `~/dev/simulator-slots` exists): each run builds first, then takes slots from a machine-wide pool shared with the maintainer's other repos. The UI pass asks for `SRB_SIM_MAX` slots (default 2), gets what is free (at least 1), and runs that many clones. `SIMULATOR_SLOTS_FEWER=N` leaves N free slots unused; `SIMULATOR_SLOTS_TIMEOUT=S` gives up after S seconds (exit 75). `make simulator-slots-status` shows who holds what.
+**Pool on** (the maintainer's machine, where `~/dev/simulator-slots` exists): each run builds first, then takes slots from a machine-wide pool shared with the maintainer's other repos. The UI pass asks for `UI_WORKERS` slots (default 2), gets what is free (at least 1), and runs that many clones. `SIMULATOR_SLOTS_FEWER=N` leaves N free slots unused; `SIMULATOR_SLOTS_TIMEOUT=S` gives up after S seconds (exit 75). `make simulator-slots-status` shows who holds what.
 
-**Pool off** (everyone else — normal for contributors): the run prints a `simulator-slots: no shared pool at …` notice and takes nothing. Concurrency is your call:
+**Pool off** (everyone else, normal for contributors): the run prints a `simulator-slots: no shared pool` notice, takes nothing, and uses `UI_WORKERS` (default 1, serial):
 
-| `SRB_SIM_MAX` | UI pass flags | When to use |
+| `UI_WORKERS` | UI pass flags | When to use |
 | --- | --- | --- |
-| unset | none — the scheme decides (it allows parallel clones) | Your own setup is in charge. |
-| `1` | `-parallel-testing-enabled NO` (serial, 1 sim) | Lightest. Use if the UI pass flakes, or when other simulators are busy. |
+| unset or `1` | `-parallel-testing-enabled NO` (serial, 1 sim) | Lightest; the default without the pool. |
 | `2` | `-parallel-testing-enabled YES -parallel-testing-worker-count 2 -maximum-parallel-testing-workers 2` | ≈16 GB Apple silicon with little else running. |
-| `3` | same, with `3` | Only with headroom — RAM-heavy. |
+| `3` | same, with `3` | Only with headroom; RAM-heavy. |
+
+Values outside 1–3 are clamped with a warning. The old names `SRB_SIM_MAX` and `SIMULATOR_WORKERS_WITHOUT_POOL` stop the run with "renamed to UI_WORKERS".
 
 ```bash
-SRB_SIM_MAX=1 make tests     # serial, lightest
-SRB_SIM_MAX=2 make ui-tests  # two clones
+make tests                    # serial without the pool
+UI_WORKERS=2 make ui-tests    # two clones
 ```
 
-Agents: don't create the pool's directories or fetch its master. Pick a value (or ask), and tell the developer once that the pool wasn't found and what you used.
+Agents: don't create the pool's directories or fetch its master. Tell the developer once that the pool wasn't found and what you used.
 
-**Why RAM matters:** each booted simulator uses about 2–3 GB. On a ~16 GB machine with a browser open, 2 simulators fill the budget and a 3rd risks swap — across all repos, which is why the maintainer pools them.
+**Why RAM matters:** each booted simulator uses about 2–3 GB. On a ~16 GB machine with a browser open, 2 simulators fill the budget and a 3rd risks swap, across all repos, which is why the maintainer pools them.
 
-Flake retry: when parallel (`>= 2`), the UI pass adds `-retry-tests-on-failure -test-iterations 2`. The accessibility-audit tests are timing-sensitive and occasionally flake under CPU contention; one retry absorbs that, and a genuine failure still fails both attempts. Serial runs (`= 1`) are deterministic and add no retry.
-
-Clone risk (historical): clones of a per-repo device once timed out for the XCUITest pass ("while preparing to run tests"), so parallel testing was disabled. It no longer reproduces (validated June 2026, Xcode iPhone 17 runtime) as long as the unit pass warms the base sim first. `SRB_SIM_MAX=1` remains the fallback if `2`/`3` flake.
+**Retries:** `UI_RETRY_ON_FAILURE=auto|1|0`. `auto` (default) adds `-retry-tests-on-failure -test-iterations 2` when 2+ clones run, since the accessibility audits flake under CPU contention; `1` always retries (CI's shards); `0` never. A test that passed only on retry prints `PASSED-ON-RETRY: <test> <file:line> <message>` (on CI, a "UI test passed only on retry" warning). That is a flake: log it in `simple-recurring-budgetsUITests/FLAKY_TESTS.md`. A genuine failure fails both attempts and prints `TEST-FAILED:` lines.
 
 ## 24-hour time workaround
 
@@ -93,4 +92,4 @@ Pass 1 skips the UI test bundle (`-skip-testing:simple-recurring-budgetsUITests`
 
 `make tests` runs `scripts/unit-tests.sh` (pass 1, which writes the `.build/sim/warmed` sentinel) and then `scripts/ui-tests.sh` (pass 2), which runs the UI target's suites as selected by `scripts/ci/ui_shards.py` (`UI_SHARD=<name>` picks one of CI's shards): `AccessibilityAuditTests`, `UserJourneyTests`, `ClearAmountButtonUITests`, and `AllocationFirstTapUITests`. Apple does not support `import Testing` in unhosted XCUITest bundles; these suites use XCTestCase with `continueAfterFailure = false`. `testExample` and `testLaunchPerformance` are intentionally excluded from scripted runs.
 
-Run `make unit-tests` once on a fresh sim before running `make ui-tests` standalone; `ui-tests.sh` refuses to run without the `warmed` sentinel.
+A serial `make ui-tests` on an unwarmed device (no `warmed` sentinel; every boot clears it) runs one small unit suite on it first, so it works standalone. A parallel run skips that: its clones boot fresh.

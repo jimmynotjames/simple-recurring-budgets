@@ -58,7 +58,7 @@ After any Swift edit, before reporting completion, run the four-step procedure f
 1. `make format`
 2. `make lint-fix`
 3. `make build` (the concurrency gate; must pass clean)
-4. `make test`
+4. `make tests`
 
 If `make build` reports actor-isolation, `Sendable`, or data-race errors, don't silence them with `@unchecked Sendable`, `nonisolated(unsafe)`, or `@preconcurrency`. Fix the isolation. If you genuinely need an unsafe escape hatch, add a `// concurrency:` comment explaining the invariant and ask the user to confirm before committing.
 

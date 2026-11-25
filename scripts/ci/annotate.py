@@ -1,22 +1,9 @@
 #!/usr/bin/env python3
-"""
-Shared CI feedback helper for the mechanical per-PR gates.
+"""Run a checker with `--json` and report its findings to GitHub Actions.
 
-Wraps a checker script's `--json` output and emits three things GitHub Actions
-understands natively, for in-context feedback instead of raw logs:
-
-  1. GitHub annotations (`::error file=...,line=...::msg` / `::warning ...`)
-     for findings that carry a real file/line.
-  2. A Markdown block appended to the job's Step Summary
-     ($GITHUB_STEP_SUMMARY), so the failure is scannable without opening logs.
-  3. A `<name>_passed=true|false` line appended to $GITHUB_OUTPUT, so the
-     `pr-summary` job can read every gate's result via `needs.<job>.outputs`
-     and assemble one consolidated PR comment.
-
-The wrapped command's exit code is this script's exit code (transparent gate;
-reporting is additive). The wrapped command must support `--json`; without
---github-report it falls back to plain human-readable output with no
-annotations (useful locally).
+Emits `::error`/`::warning` annotations (with file/line where the finding has them) and a
+Markdown block in $GITHUB_STEP_SUMMARY. Exits with the wrapped command's exit code, so the
+step passes or fails exactly as the checker does. Output that isn't JSON passes through.
 
 Usage:
   python3 scripts/ci/annotate.py --name <check-name> -- <command> [args...]
@@ -37,6 +24,9 @@ def _finding_line(f: dict) -> str:
     if "locale" in f and "key" in f:
         message = f.get("message", "")
         return f"[{f['locale']}] {f['key']}" + (f": {message}" if message else "")
+    if "first" in f and "second" in f:
+        # distinct_pairs.py
+        return f"[{f.get('locale', '?')}] {f['first']} = {f['second']}: {f.get('value', '')!r}"
     if "field" in f:
         return f"{f.get('field')}: {f.get('kind', '')} {f.get('match', '')!r}"
     if "message" in f:
@@ -44,13 +34,14 @@ def _finding_line(f: dict) -> str:
     return json.dumps(f, ensure_ascii=False)
 
 
-def normalize(payload: dict) -> list[dict]:
-    """Normalize a checker's --json payload into a flat list of finding dicts.
-
-    Handles the shapes used across scripts/check_*.py and scripts/translate_audit|metadata/*.py.
-    """
+def normalize(payload: dict | list) -> list[dict]:
+    """Flatten a checker's --json payload into a list of finding dicts."""
+    if isinstance(payload, list):
+        # distinct_pairs.py: [{...}, ...]
+        return [f if isinstance(f, dict) else {"message": str(f)} for f in payload]
     if "errors" in payload or "warnings" in payload:
         # check_source_strings.py: {"errors": [...], "warnings": [...]}
+        # check_doc_pointers.py: {"errors": [...]}
         out = []
         for kind, severity in (("errors", "error"), ("warnings", "warning")):
             for f in payload.get(kind, []):
@@ -92,18 +83,9 @@ def write_summary(name: str, passed: bool, findings: list[dict]) -> None:
         fh.write("\n".join(lines) + "\n")
 
 
-def write_gate_output(name: str, passed: bool) -> None:
-    output_path = os.environ.get("GITHUB_OUTPUT")
-    if not output_path:
-        return
-    key = "".join(c if c.isalnum() else "_" for c in name)
-    with open(output_path, "a", encoding="utf-8") as fh:
-        fh.write(f"{key}_passed={'true' if passed else 'false'}\n")
-
-
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--name", required=True, help="Check name (used in the summary heading and output key).")
+    parser.add_argument("--name", required=True, help="Check name (used in the summary heading).")
     parser.add_argument("command", nargs=argparse.REMAINDER,
                          help="Command to run, e.g. -- python3 scripts/check_translations.py")
     args = parser.parse_args(argv)
@@ -118,27 +100,25 @@ def main(argv: list[str]) -> int:
     proc = subprocess.run([*command, "--json"], capture_output=True, text=True)
     passed = proc.returncode == 0
 
-    findings: list[dict] = []
     try:
-        payload = json.loads(proc.stdout)
-        findings = normalize(payload)
+        findings = normalize(json.loads(proc.stdout))
     except json.JSONDecodeError:
-        # No clean --json: print whatever it produced; skip annotations/summary.
         sys.stdout.write(proc.stdout)
         sys.stderr.write(proc.stderr)
-        write_gate_output(args.name, passed)
         return proc.returncode
 
     if findings:
         print(f"{args.name}: {len(findings)} finding(s):\n")
         for f in findings:
             print(f"  {_finding_line(f)}")
-    else:
+    elif passed:
         print(f"{args.name}: passed, no findings.")
+    else:
+        print(f"{args.name}: failed (exit {proc.returncode}) with no parsed findings.")
+        sys.stderr.write(proc.stderr)
 
     emit_annotations(findings)
     write_summary(args.name, passed, findings)
-    write_gate_output(args.name, passed)
 
     return proc.returncode
 

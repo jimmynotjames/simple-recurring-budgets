@@ -50,6 +50,13 @@
 			);
 			target = A498F5A92F8945FC00A9A394 /* simple-recurring-budgets */;
 		};
+		A4F1A7E02FA0000000C0FFEE /* Exceptions for "simple-recurring-budgetsUITests" folder in "simple-recurring-budgetsUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FLAKY_TESTS.md,
+			);
+			target = A498F5C42F8945FE00A9A394 /* simple-recurring-budgetsUITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -68,6 +75,9 @@
 		};
 		A498F5C82F8945FE00A9A394 /* simple-recurring-budgetsUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A4F1A7E02FA0000000C0FFEE /* Exceptions for "simple-recurring-budgetsUITests" folder in "simple-recurring-budgetsUITests" target */,
+			);
 			path = "simple-recurring-budgetsUITests";
 			sourceTree = "<group>";
 		};

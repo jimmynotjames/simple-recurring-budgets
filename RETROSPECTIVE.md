@@ -61,7 +61,7 @@ Exceptions:
 Along the way, AI agents also:
 * Discussed with me product, UI/UX, and technical architecture decisions.
 * Reviewed code, including all code in later phases. I at least skimmed most PRs, with in-depth reviews of code updates I thought were significant.
-* Set up skills and commands for autonomously(ish) fixing issues, generating PRs, and merging them. These include extra code review, CI/CD gates, and generally enforce discipline on the coding workflow. ([/create-pr-for-issue](.claude/skills/create-pr-for-issue/SKILL.md), [/create-pr](.claude/skills/create-pr/SKILL.md), [/merge-pr](.claude/commands/merge-pr.md))
+* Set up skills and commands for autonomously(ish) fixing issues, generating PRs, and merging them. These include extra code review, CI/CD gates, and generally enforce discipline on the coding workflow. ([/create-pr-for-issue](.claude/skills/create-pr-for-issue/SKILL.md), [/create-pr](.claude/skills/create-pr/SKILL.md), [/merge-pr](.claude/skills/merge-pr/SKILL.md))
 * Generated, reviewed, and edited documentation. This included using Fission's OpenSpec tool.
 * Conducted all manner of audits of code and documentation, and syncing the two.
 * Eyeballed sample screenshots qualitatively for Dynamic Text and translated text truncation. ([/translation-accessibility-size-check](.claude/skills/translation-accessibility-size-check/SKILL.md))

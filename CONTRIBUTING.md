@@ -248,7 +248,7 @@ If you are an AI agent working in this codebase:
 
 - **Out-of-repo secrets:** `config/Secrets.local.xcconfig` (gitignored, maintainer-only). Never read or commit it; use `config/Secrets.xcconfig` placeholder defaults for key names only.
 - **Ship guard paths:** `scripts/verify_release_secrets.sh` (shell) and `verify_ship_secrets!` (Fastfile helper). Don't bypass without the `SKIP_RELEASE_SECRETS_CHECK=1` escape hatch.
-- **Build & test:** follow `AGENTS.md > Build and test` — four-step gate: `make format` → `make lint-fix` → `make build` → `make tests`.
+- **Build & test:** follow `AGENTS.md > Build and test` — `make gate` (no simulator) plus `make focused-tests` for the tests you touched; CI runs the full unit and UI suites.
 - **Simulators:** a `simulator-slots: no shared pool …` notice is normal outside the maintainer's machine. Run normally; don't create the pool's directories. Choose UI-pass concurrency with `UI_WORKERS`, or ask the developer. Tell the developer once that the pool wasn't found and what concurrency you used. See `AGENTS.md > Simulator slots`.
 - **Translations:** adding new user-facing strings requires running the `translate-new-strings` skill. See `AGENTS.md > Cross-cutting concerns`.
 - **Branding:** Unless you are deriving your own app with its own branding, do not alter the app icon, Wren name, or store metadata as part of code changes. See `TRADEMARK.md`.

@@ -11,8 +11,8 @@
 # macOS jobs at once across all its repos; a full run here takes 4 at a time (build, then 1 unit +
 # 3 UI), leaving one for a main-push run or the sibling repo.
 #
-# App Store metadata / screenshot-content checks are deliberately NOT here: they are release-time
-# and run in the fastlane beta/release lanes (see fastlane/Fastfile).
+# check_metadata runs here (i18n-gates) and again in the fastlane push_metadata lane; the
+# screenshot-content checks are release-time only and run in the screenshots lane (fastlane/Fastfile).
 #
 # Docs-only PRs skip build and every test job: the cheap `changes` job lists the PR's files and
 # outputs code=false only when every one is docs (the rules are in scripts/ci/docs_only.py), and
@@ -26,7 +26,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Comma list, no spaces, of lint,secrets,large-files,i18n,build; empty runs all four gates + build"
+        description: "Comma list, no spaces, of lint,secrets,large-files,i18n,tooling,build; empty runs all five gates + build"
         type: string
         default: ""
       tests:
@@ -217,6 +217,22 @@ jobs:
       - name: consistency_check (informational, non-blocking)
         run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
 
+  # --- Tooling gates (ubuntu) ---------------------------------------------------
+  # The offline tests of the repo's own scripts: the part of `make gate` no other job runs, so CI
+  # covers what the local gate does and /merge-pr needn't re-run it. The simulator-slots tests
+  # need macOS (kqueue, simctl) and stay local; the pool is never on in CI. unittest prints plain
+  # text, so it runs without scripts/ci/annotate.py (which adds --json).
+  tooling:
+    if: inputs.only == '' || contains(format(',{0},', inputs.only), ',tooling,')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: script-tests
+        run: python3 -m unittest discover -s scripts/tests
+
   # --- Tier 2: build once (macOS) ---------------------------------------------------
   # Compiles the app and both test targets once (build-for-testing) and hands the products to the
   # test jobs, which only run them, so a PR compiles once rather than once per test job. It is also
@@ -224,7 +240,7 @@ jobs:
   # it every test job.
   build:
     runs-on: macos-26
-    needs: [lint, secrets, check-large-files, i18n-gates, changes]
+    needs: [lint, secrets, check-large-files, i18n-gates, tooling, changes]
     # Runs after whichever gates ran; a failed gate still stops it.
     if: >-
       !cancelled() && !contains(needs.*.result, 'failure')
@@ -498,7 +514,7 @@ jobs:
   # comment up to date; a /ci run or a push to main posts a new comment (on the merged PR). Not a
   # required check, and posting is best-effort.
   summary:
-    needs: [lint, secrets, check-large-files, i18n-gates, changes, build, unit-tests, ui-tests, focused-tests, tests]
+    needs: [lint, secrets, check-large-files, i18n-gates, tooling, changes, build, unit-tests, ui-tests, focused-tests, tests]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10

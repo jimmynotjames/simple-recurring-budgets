@@ -19,7 +19,7 @@ Print this unchecked at the start; tick each step as it completes.
 4. **Verify** — `/opsx:verify` clean (if OpenSpec change)
 5. **Fresh-eye review** — full diff reviewed; findings fixed
 6. **Docs-only CI** — user confirmed skip or proceed normally
-7. **Gate** — four-step gate green *(or skipped after docs-only confirmation)*
+7. **Gate** — `make gate` green *(or skipped after docs-only confirmation)*
 8. **Archive** — OpenSpec archived in-branch or deferred (noted in PR)
 9. **Push & PR** — branch pushed; PR opened with `Closes #<N>` or `Refs #<N>`
 
@@ -90,9 +90,11 @@ Never skip silently; user confirmation is required.
 make gate
 ```
 
-Run in the background (`run_in_background: true`) unless step 6 confirmed a docs-only skip. Re-run after any step-5 fixes. Don't open the PR until it's green.
+Run in the background (`run_in_background: true`) unless step 6 confirmed a docs-only skip. Re-run after any step-5 fixes. Don't open the PR until it's green. The gate boots no simulator (the `create-pr` skill, step 6, lists its steps); the app's unit and UI suites run in PR CI.
 
 On failure: read `tmp/gate.log`, fix, and re-run.
+
+Tests you added or changed: run just those with `make focused-tests ONLY=<target>/<Class>[/<test>]` before pushing. Don't run whole suites locally.
 
 ### 8. OpenSpec archive (when applicable)
 

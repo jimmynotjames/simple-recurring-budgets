@@ -240,10 +240,10 @@ This deletes every locale entry for those keys. Use `--dry-run` first to see wha
 
 ### 6. Build + test
 
-Standard four-step from `AGENTS.md`:
+The gate from `AGENTS.md` §"Build and test" (no simulator; the app suites run in PR CI):
 
 ```bash
-make format && make lint-fix && make build && make tests
+make gate
 ```
 
 ### 7. Cleanup — offer to clear tmp working files

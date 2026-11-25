@@ -14,8 +14,9 @@
 # fails the run. With it off, nothing is held and a run gets what it asks for.
 #
 # Settings:
-#   UI_WORKERS=1|2|3            simulators for the UI pass. Default 2 with the pool on (the pool
-#                               can grant fewer), 1 (serial) with it off. Clamped to 1..3.
+#   UI_WORKERS=1|2|3            simulators for the UI pass. Default 1 (serial), so one run never
+#                               takes the whole pool from other agents; the pool can grant fewer
+#                               than asked. Clamped to 1..3.
 #   UI_RETRY_ON_FAILURE=auto|1|0
 #                               auto (default): retry a failed UI test once when 2+ workers are
 #                               granted (CPU contention flakes). 1: always retry once (CI). 0: never.
@@ -51,7 +52,6 @@ pool_is_on() {
 # Prints how many simulators the UI pass asks for: UI_WORKERS clamped to 1..3, or the default.
 ui_workers_wanted() {
     local default=1 value="${UI_WORKERS:-}"
-    pool_is_on && default=2
     if [[ -z "${value}" ]]; then
         echo "${default}"
     elif ! [[ "${value}" =~ ^[0-9]+$ ]]; then

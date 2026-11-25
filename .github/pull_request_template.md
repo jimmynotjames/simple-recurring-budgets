@@ -29,8 +29,8 @@ For any UI-touching change, confirm each applies-or-N/A:
 ### 🧪 Running tests
 
 CI auto-runs lint, secret scan, translation/localization gates, a compile
-check, and the **full unit + UI suite (accessibility + user-journey)** on
-every PR. To start a run on this PR, comment `/ci` with the words to run (the
+check, and the **full unit + UI suite (all three UI shards: accessibility,
+user-journey, rest)** on every PR, and again on `main` after the merge. To start a run on this PR, comment `/ci` with the words to run (the
 repo owner's comments only; `/ci help` lists them), e.g. the UI suite:
 
 ```

@@ -458,30 +458,27 @@ make hooks-install   # runs `lefthook install` → writes into .git/hooks/
 | When           | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **pre-commit** | **SwiftFormat** (2-space indent, Swift 6, max 200 chars/line; see `[.swiftformat](../.swiftformat)`) — auto-formats staged `*.swift` and re-stages fixes; **SwiftLint** `--fix` — auto-corrects mechanical violations (vertical whitespace, modifier order, sorted imports, etc.) and re-stages; **SwiftLint** strict on staged files (`[.swiftlint.yml](../.swiftlint.yml)`); merge-conflict marker scan; **large-file** guard (`[scripts/check-large-files.sh](../scripts/check-large-files.sh)`) — rejects any staged file over 1 MiB; **gitleaks** on staged changes |
-| **pre-push**   | `bash scripts/build.sh` — bare compile via `xcodebuild build` for scheme `simple-recurring-budgets` using the shared destination helper `[scripts/_destination.sh](../scripts/_destination.sh)` (same resolution as ``make tests``: `SIMULATOR_UDID` → booted sim → `name=iPhone 17,OS=latest` fallback)                                                                                                                                                                                                                                        |
+| **pre-push**   | Refuses pushes to `main`/`gh-pages` (`[scripts/check-push-refs.sh](../scripts/check-push-refs.sh)`); `check_translations.py` and `check_source_strings.py` (repo-wide, under a second). No compile: `make gate` compiles before a push and CI compiles every push. |
 
 
 `gitleaks` is optional for solo work but strongly recommended once any secrets or API keys exist in the tree.
 
-Local hooks are bypassable (`--no-verify`, a hookless clone, a web-UI merge); CI (§8.5) re-runs the same gates server-side before code reaches `main`.
+Local hooks are bypassable (`--no-verify`, a hookless clone, a web-UI merge); CI (§8.4) re-runs the same gates server-side before code reaches `main`.
 
 ### 8.3 Manual commands
 
 - `make system` — machine bootstrap: Homebrew packages above, Python 3.9+ and `xcodebuild` checks, `lefthook install` (see `[scripts/system-setup.sh](../scripts/system-setup.sh)`)
-- `make build` — bare compile via `[scripts/build.sh](../scripts/build.sh)` (same destination resolution as `make tests`)
+- `make build` — bare compile via `[scripts/build.sh](../scripts/build.sh)` for a generic iOS Simulator destination; boots no simulator
+- `make gate` — the pre-PR gate (`[scripts/gate.sh](../scripts/gate.sh)`): tool versions, format and lint on changed Swift files, script tests, compile; no simulator
 - `make lint` — `swiftlint lint --strict` over the repo
 - `make lint-fix` — `swiftlint --fix --quiet .` then `swiftlint lint --strict` (auto-fix + verify)
 - `make format` — `swiftformat .` (format everything, not only staged files)
-- `make tests` — full unit/UI test run via ``make tests``
+- `make tests` — full unit then UI run on the repo's simulator (CI runs these on every PR; run locally only when needed)
 - `make hooks-install` — `lefthook install` (refresh hooks after pulling config changes)
 
 
 
-### 8.4 Pre-push build caveat
-
-The pre-push build needs a resolvable iOS Simulator (booted device or `SIMULATOR_UDID` / `SIMULATOR_NAME` as in `make tests`). If destination resolution fails, run `make tests` once or boot a simulator, then push again.
-
-### 8.5 Continuous Integration (GitHub Actions)
+### 8.4 Continuous Integration (GitHub Actions)
 
 CI lives in `.github/workflows/` and re-runs the local gates server-side, where they cannot be bypassed. Branch protection on `main` should **require** the PR checks below (one-time repo-admin setup in Settings → Rules → Rulesets; CI is advisory without it).
 
@@ -496,6 +493,7 @@ This is a public repo, so GitHub-hosted macOS/Simulator runner minutes are free 
 | `secrets`            | ubuntu | `gitleaks git` over full history — complements pre-commit `gitleaks git --pre-commit --staged`. The version is pinned in `config/lint-tools.env`. Reviewed-and-accepted findings are allowlisted by fingerprint in `.gitleaksignore`. The four retained fingerprints cover pre-externalization commits that hardcoded the Mixpanel project tokens; HEAD does not (values live in gitignored `config/Secrets.local.xcconfig`, over `config/Secrets.xcconfig` base defaults). Keep the `.gitleaksignore` entries: history is not rewritten, so the full-history scan still sees those commits. A release ship guard (`scripts/verify_release_secrets.sh`, called by Fastlane `beta`/`release` lanes and the Xcode Release-only Run Script phase) blocks builds that still carry placeholder sentinels — it is not run in CI, since it checks for a gitignored local secrets file that never exists in a CI checkout. |
 | `check-large-files`  | ubuntu | `scripts/check-large-files.sh` against the PR diff (mirrors the pre-commit hook, which only sees staged files locally).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `i18n-gates`         | ubuntu | `check_translations.py`, `check_source_strings.py`, `check_metadata.py` (the pre-push translation gates), plus the deterministic `plural_completeness.py` and `untranslated_copies.py` checks, plus a non-blocking `consistency_check.py --ignore-casing`. Enforces issue #172 server-side. Each mechanical check runs through `scripts/ci/annotate.py`, which turns `--json` findings into GitHub annotations and a step summary; the `summary` job reports each job's result.                                                                                                                                                                                                                                                                                                                |
+| `tooling`            | ubuntu | `python3 -m unittest` over `scripts/tests`, the offline script tests `make gate` runs locally, so `/merge-pr` runs none of the gate again. The simulator-slots tests are macOS-only and stay in the local gate; the pool is never on in CI. |
 | `changes`            | ubuntu | Lists the PR's files (both paths of a rename) and runs `scripts/ci/docs_only.py`: `code=false` only when every file is docs (Markdown outside `scripts/`, or anything under `docs/`, `openspec/`, `releases/`, `.claude/`, `.cursor/`) and none is in an app/test target folder. Pushes to `main`, an empty list, a PR of 3000+ files and any read error give `code=true`. |
 | `build`              | macOS  | Runs after the gates and `changes`, unless `changes` says docs-only. Selects Xcode 26.5 (`.github/actions/ios-setup`), restores a SwiftPM cache keyed on `Package.resolved`, and compiles once with `xcodebuild build-for-testing` for any simulator (ad-hoc signed so entitlements embed; on failure `scripts/ci/xcode_errors.py` turns each compile error into a PR annotation and a job-summary line). The products go up as a tarball artifact (`test-products`). |
 | `unit-tests`         | macOS  | Downloads the products (`.github/actions/test-products`, which points `XCTESTRUN` at them), then `make unit-tests` serially on one simulator. On failure the `.xcresult` is uploaded. |

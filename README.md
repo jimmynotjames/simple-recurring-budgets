@@ -138,8 +138,8 @@ Everything else is Apple frameworks: SwiftUI, SwiftData, CloudKit, Foundation, `
 - **Mirrored Cursor / Claude Code setup.** Hand-authored commands and skills are duplicated so either tool can drive the same workflow: `.claude/commands/*.md` ↔ `.cursor/commands/*.md`, `.claude/skills/<name>/SKILL.md` ↔ `.cursor/skills/<name>/SKILL.md`. Some cross-cutting rules (concurrency, build/test procedure, per-repo state locality) are also mirrored into `.cursor/rules/*.mdc`. `AGENTS.md` is canonical; the Cursor copies follow it.
 - **Custom skills** (project-specific, not generic framework reference):
   - [create-pr](.claude/skills/create-pr/SKILL.md) — review, gate, and open a PR from already-written changes
-  - [create-pr-for-issue](.claude/commands/create-pr-for-issue.md) — turn a GitHub issue into a reviewed, gated PR
-  - [merge-pr](.claude/commands/merge-pr.md) — squash-merge a reviewed PR and close its linked issue
+  - [create-pr-for-issue](.claude/skills/create-pr-for-issue/SKILL.md) — turn a GitHub issue into a reviewed, gated PR
+  - [merge-pr](.claude/skills/merge-pr/SKILL.md) — squash-merge a reviewed PR once CI is green and close its linked issue
   - [translate-new-strings](.claude/skills/translate-new-strings/SKILL.md) — translate new/stale in-app string keys to 49 locales
   - [audit-translations](.claude/skills/audit-translations/SKILL.md) — quality-audit existing translations (tone, truncation, accuracy)
   - [appstore-translate-metadata](.claude/skills/appstore-translate-metadata/SKILL.md) — transcreate the App Store listing into 49 storefronts
@@ -182,9 +182,9 @@ make ui-tests   # UI suite only
 
 ## Tooling, CI & release
 
-- Local gates (Lefthook): pre-commit runs SwiftFormat, SwiftLint `--fix` + strict, a large-file guard, and gitleaks; pre-push does a bare `xcodebuild build`.
-- Four-step dev gate: `make format` → `make lint-fix` → `make build` → `make tests`.
-- CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)): `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), and `tests` (sums up `build`, which compiles once, plus `unit-tests` and the parallel `ui-tests` shards that run its products; build and tests are skipped on docs-only PRs) — version-pinned to match local installs. Comment `/ci help` on a PR to start a chosen set of gates and tests ([ci-command.yml](.github/workflows/ci-command.yml)), e.g. `/ci ui` or `/ci test <target>/<Class> x3`.
+- Local gates (Lefthook): pre-commit runs SwiftFormat, SwiftLint `--fix` + strict, a large-file guard, and gitleaks; pre-push refuses pushes to `main` and runs the two translation checks.
+- Dev gate (`make gate`): tool versions, format and lint on changed files, script tests, a compile. No simulator; the unit and UI suites run in CI.
+- CI (GitHub Actions, [ci.yml](.github/workflows/ci.yml)): `lint`, `secrets` (gitleaks full-history), `i18n-gates` (translation/source/metadata checks), `tooling` (script tests), and `tests` (sums up `build`, which compiles once, plus `unit-tests` and the parallel `ui-tests` shards that run its products; build and tests are skipped on docs-only PRs) — version-pinned to match local installs. Comment `/ci help` on a PR to start a chosen set of gates and tests ([ci-command.yml](.github/workflows/ci-command.yml)), e.g. `/ci ui` or `/ci test <target>/<Class> x3`.
 - Release (Fastlane): lanes for `beta` (TestFlight), `release` (App Store), `push_metadata`, and `screenshots`, all guarded by a pre-build secrets check (`scripts/verify_release_secrets.sh`). App Store Connect API key auth; secrets live outside the repo.
 - Spec-driven workflow: [OpenSpec](https://github.com/Fission-AI/OpenSpec) change proposals under `openspec/`.
 

@@ -218,9 +218,10 @@ jobs:
         run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
 
   # --- Tooling gates (ubuntu) ---------------------------------------------------
-  # The offline tests of the repo's own scripts and of the vendored simulator-slots copy: the
-  # parts of `make gate` no other job runs, so CI covers everything the local gate does and
-  # /merge-pr needn't re-run it.
+  # The offline tests of the repo's own scripts: the part of `make gate` no other job runs, so CI
+  # covers what the local gate does and /merge-pr needn't re-run it. The simulator-slots tests
+  # need macOS (kqueue, simctl) and stay local; the pool is never on in CI. unittest prints plain
+  # text, so it runs without scripts/ci/annotate.py (which adds --json).
   tooling:
     if: inputs.only == '' || contains(format(',{0},', inputs.only), ',tooling,')
     runs-on: ubuntu-latest
@@ -230,9 +231,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: script-tests
-        run: python3 scripts/ci/annotate.py --name script-tests -- python3 -m unittest discover -s scripts/tests
-      - name: simulator-slots tests
-        run: python3 scripts/ci/annotate.py --name simulator-slots-tests -- python3 -m unittest discover -s scripts/simulator-slots/tests
+        run: python3 -m unittest discover -s scripts/tests
 
   # --- Tier 2: build once (macOS) ---------------------------------------------------
   # Compiles the app and both test targets once (build-for-testing) and hands the products to the

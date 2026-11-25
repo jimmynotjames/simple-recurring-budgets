@@ -24,7 +24,7 @@ a request to inspect or review a PR alone is not authorization.
    rerun the automatic run first.
 
    No local gate or tests: CI runs everything `make gate` does (the `tooling` job covers the
-   script and simulator-slots tests) plus the unit and UI suites (AGENTS.md § "Build and test").
+   script tests) plus the unit and UI suites (AGENTS.md § "Build and test").
 
 2. **Scan the PR body for issue linkage** via `gh pr view <PR> --json body --jq '.body'`: look for
    `Closes #N` (complete fix) or `Refs #N` (partial). If neither is present, this is a no-issue PR

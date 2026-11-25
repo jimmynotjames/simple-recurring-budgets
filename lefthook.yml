@@ -1,5 +1,5 @@
 # https://lefthook.dev/configuration/ — install with make hooks-install.
-# Pre-commit runs on {staged_files} only.
+# Pre-commit runs on {staged_files} only (AGENTS.md §"Lint policy").
 pre-commit:
   parallel: false
   commands:
@@ -26,6 +26,8 @@ pre-commit:
     gitleaks:
       run: gitleaks git --pre-commit --staged --no-banner
 
+# No compile here: `make gate` compiles just before a push, and CI compiles every push
+# (AGENTS.md §"Build and test").
 pre-push:
   commands:
     # Checks the refs being pushed (from git's stdin), not the checked-out branch. Fails faster
@@ -34,13 +36,10 @@ pre-push:
       run: bash scripts/check-push-refs.sh
       use_stdin: true
 
-    # Repo-wide by design: both read the whole catalog or source tree, not the pushed diff.
+    # Repo-wide by design — AGENTS.md §"Lint policy" records why these two are the
+    # exception to the changed-files rule.
     check-translations:
       run: python3 scripts/check_translations.py
 
     check-source-strings:
       run: python3 scripts/check_source_strings.py
-
-    # Compile check only; tests are opt-in (AGENTS.md §"Build and test").
-    build:
-      run: bash scripts/build.sh

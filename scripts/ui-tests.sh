@@ -7,8 +7,8 @@
 # it warms the device up first with one small unit suite (`warm_up_if_needed`). A parallel run
 # doesn't: its clones boot fresh, and xcodebuild shuts this device down to clone it.
 #
-# UI_WORKERS (1..3) is how many simulators the run uses: default 2 with the slot pool on (it takes
-# what is free), 1 with it off. 2+ splits the test classes across that many clones (AGENTS.md
+# UI_WORKERS (1..3) is how many simulators the run uses: default 1. Ask for more with UI_WORKERS=2
+# (the slot pool grants what is free). 2+ splits the test classes across that many clones (AGENTS.md
 # §"Simulator slots", _sim_concurrency.sh).
 #
 # UI_SHARD=<name> runs one of CI's shards instead of the whole target (scripts/ci/ui_shards.py).

@@ -81,8 +81,8 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P1.1** Everything intended for this release is merged to `main`;
       working tree clean; `git pull --ff-only` done.
       > Note:
-- [ ] **P1.2** Full gate green: `make format && make lint-fix && make build &&
-      make tests` (log to `tmp/gate.log`).
+- [ ] **P1.2** Latest CI run on `main` green, unit and UI tests included
+      (`gh run list --branch main --event push --limit 1`).
       > Note:
 - [ ] **P1.3** 🎈 Review recent audits: look through `docs/audits/` (date is
       in the filename) and the optional-test run logs (e.g.
@@ -179,7 +179,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P3.1** 🤔 (optional, recommended before any submission) Localized-layout
       visual check: `/translation-accessibility-size-check` (truncation,
       overflow, RTL mirroring at forced `.xxxLarge`). Resource-heavy and ad-hoc
-      by design; it is **not** part of `make tests`, so a release is the moment
+      by design; it is **not** part of CI or `make tests`, so a release is the moment
       to run it.
       > Note:
 - [ ] **P3.2** 🤔 (optional) VoiceOver + Dynamic Type spot-check of screens that
@@ -226,7 +226,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       `/appstore:push-release-build` confirms checklist prep, prompts for the
       version number (decided in P0.6), bumps `MARKETING_VERSION` on a release
       branch, uploads a TestFlight build of it (`fastlane ios beta`), then
-      PR → CI → merge. The build it produces is the submission candidate: what
+      opens the PR via `/create-pr`; merge it with `/merge-pr` once CI is green. The build it produces is the submission candidate: what
       you test in P4.3 is byte-for-byte what you attach in P5.1.
       Reuse analysis first, since a valid candidate may already exist: if
       `MARKETING_VERSION` already equals the new version and there are no

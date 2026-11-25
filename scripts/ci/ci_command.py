@@ -24,7 +24,7 @@ EXAMPLE_UI_TEST = "simple-recurring-budgetsUITests/UserJourneyTests"
 EXAMPLE_UNIT_TEST = "simple-recurring-budgetsTests/RecentsAlgorithmTests/dedupIsCaseInsensitive()"
 # --- End of repo-specific constants ---
 
-GATES = ("lint", "secrets", "large-files", "i18n")
+GATES = ("lint", "secrets", "large-files", "i18n", "tooling")
 SELECTIONS = (*GATES, "build")  # ci.yml's `only` vocabulary, in job order
 TEST_LEVELS = ("none", "unit", "ui")  # each level includes the ones before it
 MAX_ITERATIONS = 10  # bounds one run: each iteration of a UI class takes minutes
@@ -41,9 +41,9 @@ USAGE = f"""\
 
 | Word | Runs |
 |---|---|
-| *(none)* | all four gates + build, no tests |
-| `lint` `secrets` `large-files` `i18n` | that gate |
-| `gates` | all four gates |
+| *(none)* | all five gates + build, no tests |
+| `lint` `secrets` `large-files` `i18n` `tooling` | that gate |
+| `gates` | all five gates |
 | `build` | macOS compile check |
 | `unit` | build with unit tests |
 | `ui` | build with unit then UI tests |

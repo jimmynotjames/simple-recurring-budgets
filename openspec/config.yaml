@@ -21,7 +21,7 @@ context: |
 
   Apply / implementation: when work changes behavior covered by docs/, update the docs as part of tasks or leave an explicit follow-up task; a change isn't complete while it drifts from those three files.
 
-  Build/test during apply: after code changes follow the four-step procedure in AGENTS.md > Build and test (make format → make lint-fix → make build → make tests), not bare make tests, in any tool.
+  Build/test during apply: after code changes run `make gate` per AGENTS.md > Build and test (format and lint on changed files, script tests, compile; no simulator), plus `make focused-tests` for the tests the change touched. The full unit and UI suites run in PR CI, in any tool.
 
   Translations during plan + apply: when a change adds, renames, or invalidates user-facing strings (`Localizable.xcstrings` keys), bring translations current with the project's `translate-new-strings` skill, the canonical entry point that drives `scripts/translate_catalog/` in subset mode (extract → translate → merge → validate) with parallel per-locale subagents and ends on a clean `check_translations.py`. Plans that touch localization SHALL include a task to run it, and apply SHALL run it autonomously (no approval prompt) using its temp-file invocations rather than ad-hoc python/heredocs.
 

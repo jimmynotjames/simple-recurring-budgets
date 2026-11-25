@@ -1,13 +1,13 @@
 ---
 name: appstore-push-release-build
-description: Build and upload the App Store release-candidate build — confirms the release checklist has been worked through, prompts for the new App Store version number, bumps MARKETING_VERSION on a release branch, then runs `fastlane ios beta` so the candidate lands in TestFlight (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then pushes, opens a chore PR, waits for CI, and squash-merges. The same binary is then manually tested via TestFlight and attached to the App Store version in ASC — one build serves both. Does NOT submit for review — that stays a manual App Store Connect step. Use when the release checklist reaches the release-candidate build step, or when asked to push a release build. Invoked via /appstore:push-release-build.
+description: Build and upload the App Store release-candidate build — confirms the release checklist has been worked through, prompts for the new App Store version number, bumps MARKETING_VERSION on a release branch, then runs `fastlane ios beta` so the candidate lands in TestFlight (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then hands the commit to `/create-pr` (gate, push, PR) and stops; `/merge-pr` lands it on a later turn. The same binary is then manually tested via TestFlight and attached to the App Store version in ASC — one build serves both. Does NOT submit for review — that stays a manual App Store Connect step. Use when the release checklist reaches the release-candidate build step, or when asked to push a release build. Invoked via /appstore:push-release-build.
 ---
 
 # Push the App Store release-candidate build
 
 Produces the one binary that serves both the final TestFlight test and the
 App Store submission: version bump → branch → build → upload to TestFlight →
-commit → PR → CI → merge. TestFlight builds and App Store submissions share
+commit → `/create-pr`. TestFlight builds and App Store submissions share
 one build pool in ASC, so the build the user tests is the one attached to the
 version and submitted; there is no separate App Store archive.
 Submitting for review stays a manual ASC click.
@@ -31,7 +31,7 @@ checklist has been worked through; never build against unfinished release prep:
 - Metadata already pushed and current (`python3
   scripts/translate_metadata/check_metadata.py` exits 0).
 - Screenshots already pushed and current (or deliberately unchanged).
-- Gate green on `main`.
+- The latest CI run on `main` is green (`gh run list --branch main --event push --limit 1`).
 
 ## Progress checklist
 
@@ -43,10 +43,8 @@ Print this unchecked at the start; re-print with `- [x]` as each step completes.
 4. **Version bump** — `MARKETING_VERSION` set + committed
 5. **Build & upload** — `fastlane ios beta` running in background (~10–15 min)
 6. **Verify commit** — lane auto-committed `chore(release): set build number to N`
-7. **Push** — branch pushed to `origin`
-8. **PR** — chore PR opened; record PR number
-9. **CI** — `wait_ci.sh` running in background; re-invoked on completion
-10. **Merge** — squash-merge; branch cleaned up
+7. **PR** — `/create-pr` run (gate, push, PR opened); record PR number
+8. **Hand back** — report the PR; `/merge-pr <PR>` on a later turn
 
 ## Recipe
 
@@ -161,30 +159,21 @@ lines and stop; the version-bump commit stays on the branch, so re-run after the
 and commit `chore(release): set build number to <N>` manually via
 `tmp/commit-msg.txt`.
 
-### 7–10. Push, PR, CI, merge
+### 7–8. PR, then hand back
 
-Same flow as `appstore-push-testflight-build` steps 5–8:
+Same flow as `appstore-push-testflight-build` steps 5–6: invoke `create-pr`
+(gate, push, PR) and stop. `/merge-pr <PR>` merges it on a later turn, once
+CI's full run is green.
 
-```bash
-git push -u origin u/jimmyho/claude-code/release-vX.Y.Z
-gh pr create --title "chore(release): vX.Y.Z — bump version and upload build <N>" --body-file tmp/pr-body.md
-sleep 15
-gh run list --branch u/jimmyho/claude-code/release-vX.Y.Z --limit 1 --json databaseId --jq '.[0].databaseId'
-bash scripts/wait_ci.sh <run-id> <pr-number>   # run_in_background: true
-gh pr merge <pr-number> --squash --delete-branch
-git checkout main && git pull --ff-only
-git branch -D u/jimmyho/claude-code/release-vX.Y.Z
-git fetch --prune
-```
-
-PR body (via `tmp/pr-body.md`, Write tool): What = version bump to X.Y.Z +
-release-candidate build <N> uploaded to TestFlight for App Store submission;
-cross-cutting concerns section all N/A (build infrastructure only).
+- **Title:** `chore(release): vX.Y.Z — bump version and upload build <N>`
+- **Body** (`tmp/pr-body.md`, Write tool): What = version bump to X.Y.Z +
+  release-candidate build <N> uploaded to TestFlight for App Store submission;
+  cross-cutting concerns section all N/A (build infrastructure only).
 
 ### Done — hand back to the checklist
 
-Report: **"Release candidate build <N> (vX.Y.Z) is uploaded and the PR is
-merged. Apple takes ~30 min to process it; then install build <N> via
+Report: **"Release candidate build <N> (vX.Y.Z) is uploaded and PR #<PR> is
+open (merge it with `/merge-pr <PR>` once CI is green). Apple takes ~30 min to process it; then install build <N> via
 TestFlight for the final manual test (Settings must show vX.Y.Z (<N>) with no
 'Debug' badge). That exact build is what you attach to the version in ASC and
 submit for review — nothing has been submitted yet."** If running under

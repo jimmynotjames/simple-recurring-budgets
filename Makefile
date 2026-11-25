@@ -1,4 +1,4 @@
-.PHONY: tool-versions-check format format-check lint-fix build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
+.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
@@ -15,6 +15,20 @@ format-check:
 
 lint-fix:
 	swiftlint --fix --quiet . && swiftlint lint --strict
+
+# Format only the Swift files this branch changed (scripts/changed-swift-files.sh). The gate's
+# form; `format` stays for a repo-wide pass by hand.
+format-changed:
+	@files=$$(bash scripts/changed-swift-files.sh); \
+	if [ -z "$$files" ]; then echo "format-changed: no changed Swift files"; else \
+	  echo "$$files" | tr '\n' ' ' | xargs swiftformat; fi
+
+# Autocorrect then strict-lint only the Swift files this branch changed.
+lint-changed:
+	@files=$$(bash scripts/changed-swift-files.sh); \
+	if [ -z "$$files" ]; then echo "lint-changed: no changed Swift files"; else \
+	  echo "$$files" | tr '\n' ' ' | xargs swiftlint --fix --quiet && \
+	  echo "$$files" | tr '\n' ' ' | xargs swiftlint lint --strict --quiet; fi
 
 build:
 	bash scripts/build.sh
@@ -46,8 +60,9 @@ coverage:
 lint:
 	swiftlint lint --strict
 
-# Four-step gate (format -> lint-fix -> build -> tests), logged to tmp/gate.log, stops
-# at the first failure. Single-command form avoids permission prompts (see scripts/gate.sh).
+# The gate (scripts/gate.sh has the steps): format and lint on changed files, tooling tests,
+# compile. No simulator; the app suites run in CI. Logged to tmp/gate.log, stops at the first
+# failure. Single-command form avoids permission prompts.
 gate:
 	bash scripts/gate.sh
 

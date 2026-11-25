@@ -68,8 +68,12 @@ class SimConcurrencyTests(unittest.TestCase):
         out, _ = self.ui_flags(pool=False)
         self.assertEqual(out, "1|-parallel-testing-enabled NO|")
 
-    def test_pool_on_defaults_to_two_workers_with_retry(self) -> None:
-        out, err = self.ui_flags(pool=True)
+    def test_pool_on_defaults_to_serial_without_retry(self) -> None:
+        out, _ = self.ui_flags(pool=True)
+        self.assertEqual(out, "1|-parallel-testing-enabled NO|")
+
+    def test_pool_on_two_workers_get_retry(self) -> None:
+        out, err = self.ui_flags(pool=True, UI_WORKERS="2")
         self.assertEqual(
             out,
             "2|-parallel-testing-enabled YES -parallel-testing-worker-count 2 "

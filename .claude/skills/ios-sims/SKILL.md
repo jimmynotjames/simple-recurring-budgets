@@ -8,7 +8,7 @@ description: iOS simulator setup, management commands, UI_WORKERS concurrency tu
 
 Each clone gets its own simulator, named from the repo's absolute path (e.g. `iPhone 17 [a1b2c3d4]`). The device lives in the default CoreSimulator device set (required by `xcodebuild`); the unique name and UDID keep clones from sharing a simulator.
 
-The sandbox is set up automatically by `scripts/_sim_sandbox.sh` (sourced by `scripts/_destination.sh`, in turn sourced by `scripts/build.sh` and the test scripts). You do not need to manage the simulator manually for a normal build/test run.
+The sandbox is set up automatically by `scripts/_sim_sandbox.sh` (sourced by `scripts/_destination.sh`, in turn sourced by the test scripts; `make build` uses a generic destination and never touches it). You do not need to manage the simulator manually for a normal build/test run.
 
 First run:
 
@@ -54,7 +54,7 @@ Derived data and result bundles are per repo:
 
 `scripts/_sim_concurrency.sh` decides how many simulators a test run uses. The unit pass and `focused-tests` are always serial (one simulator). Full rules: `AGENTS.md` § "Simulator slots".
 
-**Pool on** (the maintainer's machine, where `~/dev/simulator-slots` exists): each run builds first, then takes slots from a machine-wide pool shared with the maintainer's other repos. The UI pass asks for `UI_WORKERS` slots (default 2), gets what is free (at least 1), and runs that many clones. `SIMULATOR_SLOTS_FEWER=N` leaves N free slots unused; `SIMULATOR_SLOTS_TIMEOUT=S` gives up after S seconds (exit 75). `make simulator-slots-status` shows who holds what.
+**Pool on** (the maintainer's machine, where `~/dev/simulator-slots` exists): each run builds first, then takes slots from a machine-wide pool shared with the maintainer's other repos. The UI pass asks for `UI_WORKERS` slots (default 1), gets what is free (at least 1), and runs that many clones. `SIMULATOR_SLOTS_FEWER=N` leaves N free slots unused; `SIMULATOR_SLOTS_TIMEOUT=S` gives up after S seconds (exit 75). `make simulator-slots-status` shows who holds what.
 
 **Pool off** (everyone else, normal for contributors): the run prints a `simulator-slots: no shared pool` notice, takes nothing, and uses `UI_WORKERS` (default 1, serial):
 
@@ -67,7 +67,7 @@ Derived data and result bundles are per repo:
 Values outside 1–3 are clamped with a warning. The old names `SRB_SIM_MAX` and `SIMULATOR_WORKERS_WITHOUT_POOL` stop the run with "renamed to UI_WORKERS".
 
 ```bash
-make tests                    # serial without the pool
+make tests                    # serial by default (UI_WORKERS=1)
 UI_WORKERS=2 make ui-tests    # two clones
 ```
 

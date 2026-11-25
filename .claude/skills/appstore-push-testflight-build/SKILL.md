@@ -1,13 +1,13 @@
 ---
 name: appstore-push-testflight-build
-description: Build and ship a TestFlight build end-to-end — creates a release branch, runs `fastlane ios beta` (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then pushes, opens a chore PR, waits for CI, and squash-merges. Use when cutting a new TestFlight build. Invoked via /appstore:push-testflight-build.
+description: Build and ship a TestFlight build end-to-end — creates a release branch, runs `fastlane ios beta` (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then hands the commit to `/create-pr` (gate, push, PR) and stops; `/merge-pr` lands it on a later turn. Use when cutting a new TestFlight build. Invoked via /appstore:push-testflight-build.
 ---
 
 # Push a TestFlight build
 
-Full TestFlight release cut: branch → build → upload → commit → PR → CI → merge.
+Full TestFlight release cut: branch → build → upload → commit, then `/create-pr`. Merging is `/merge-pr` on a later turn.
 
-The `fastlane ios beta` lane queries App Store Connect for the next build number, bumps `CURRENT_PROJECT_VERSION` in `project.pbxproj`, archives and exports the `.ipa`, uploads it to TestFlight (without waiting for Apple to process it), and auto-commits the pbxproj change. This skill adds branch discipline, the PR + CI wait, and the squash-merge.
+The `fastlane ios beta` lane queries App Store Connect for the next build number, bumps `CURRENT_PROJECT_VERSION` in `project.pbxproj`, archives and exports the `.ipa`, uploads it to TestFlight (without waiting for Apple to process it), and auto-commits the pbxproj change. This skill adds branch discipline, then routes the commit through the same PR path as every other change (AGENTS.md § "Where each check runs").
 
 ## Progress checklist
 
@@ -17,10 +17,8 @@ Print this unchecked at the start; re-print with `- [x]` as each step completes.
 2. **Branch** — create `u/jimmyho/claude-code/testflight-build-{N+1}` (approximate)
 3. **Build & upload** — `fastlane ios beta` running in background (~10–15 min)
 4. **Verify commit** — lane auto-committed `chore(release): set build number to N`
-5. **Push** — branch pushed to `origin`
-6. **PR** — chore PR opened; record PR number
-7. **CI** — `wait_ci.sh` running in background; re-invoked on completion
-8. **Merge** — squash-merge; branch cleaned up
+5. **PR** — `/create-pr` run (gate, push, PR opened); record PR number
+6. **Hand back** — report the PR; `/merge-pr <PR>` on a later turn
 
 ## Recipe
 
@@ -118,81 +116,18 @@ Then commit:
 git commit -F tmp/commit-msg.txt
 ```
 
-### 5. Push the branch
+### 5. Open the PR — `/create-pr`
 
-```bash
-git push -u origin u/jimmyho/claude-code/testflight-build-{N+1}
-```
+Invoke the `create-pr` skill on this branch. It runs the gate (no simulator), pushes, and opens the PR. For this chore PR:
 
-### 6. Open the PR
+- **Title:** `chore(release): set build number to <N>`
+- **Body** (`tmp/pr-body.md`): What = "Bumped build number to <N> and uploaded build <N> to TestFlight."; Why = "New TestFlight build for internal testing."; Test plan = "Build <N> appears in TestFlight within ~30 min of Apple processing the upload."; Tools = `fastlane ios beta`; every cross-cutting concern N/A (build infrastructure only).
 
-Write the PR body to `tmp/pr-body.md` with the Write tool:
+Record the PR number.
 
-```
-## What
-* Bumped build number to <N> and uploaded build <N> to TestFlight.
+### 6. Hand back
 
-## Why
-New TestFlight build for internal testing.
-
-## Test plan
-- [ ] Build <N> appears in TestFlight within ~30 min of Apple processing the upload.
-
-## Tools
-- fastlane ios beta
-
----
-
-## Cross-cutting concerns (PRD §6.8)
-
-N/A — build infrastructure change only; no user-facing code.
-
-- [x] Accessibility — N/A
-- [x] Dark Mode — N/A
-- [x] Localization — N/A
-- [x] Mixpanel — N/A
-- [x] UI test screen objects — N/A
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-```
-
-Create the PR:
-```bash
-gh pr create --title "chore(release): set build number to <N>" --body-file tmp/pr-body.md
-```
-
-Record the PR number from the output.
-
-### 7. Wait for CI
-
-Give CI a moment to register the push, then get the run ID:
-
-```bash
-sleep 15
-gh run list --branch u/jimmyho/claude-code/testflight-build-{N+1} --limit 1 --json databaseId --jq '.[0].databaseId'
-```
-
-Wait in the background (`run_in_background: true`):
-
-```bash
-bash scripts/wait_ci.sh <run-id> <pr-number>
-```
-
-The active CI gates are lint, secrets scan, and the i18n translation gate (the macOS build/test jobs are paused for the June 2026 Actions budget; see AGENTS.md). `wait_ci.sh` polls until the run completes, then prints the step breakdown and PR mergeability. It times out after ~80 min.
-
-### 8. Squash-merge and clean up
-
-After `wait_ci.sh` exits and all checks passed:
-
-```bash
-gh pr merge <pr-number> --squash --delete-branch
-git checkout main
-git pull --ff-only
-git branch -D u/jimmyho/claude-code/testflight-build-{N+1}
-git fetch --prune
-```
-
-Report success: "Build <N> is in TestFlight (may take ~30 min for Apple to process) and the PR is merged to `main`."
+Stop here: never merge on the turn the PR is opened (AGENTS.md § "Commit and PR style"). Report: "Build <N> is in TestFlight (may take ~30 min for Apple to process). PR #<PR> is open; CI runs the full suite on it. Merge it with `/merge-pr <PR>` once it's green."
 
 ## Commands reference
 
@@ -204,13 +139,5 @@ grep CURRENT_PROJECT_VERSION simple-recurring-budgets.xcodeproj/project.pbxproj 
 git checkout -b u/jimmyho/claude-code/testflight-build-{N+1}
 fastlane ios beta 2>&1 | tee tmp/testflight-build.log     # build + upload + auto-commit
 git log --oneline -3                                       # verify auto-commit
-git push -u origin u/jimmyho/claude-code/testflight-build-{N+1}
-gh pr create --title "chore(release): set build number to <N>" --body-file tmp/pr-body.md
-sleep 15
-gh run list --branch ... --limit 1 --json databaseId --jq '.[0].databaseId'
-bash scripts/wait_ci.sh <run-id> <pr-number>
-gh pr merge <pr-number> --squash --delete-branch
-git checkout main && git pull --ff-only
-git branch -D u/jimmyho/claude-code/testflight-build-{N+1}
-git fetch --prune
+# then /create-pr; /merge-pr <PR> on a later turn
 ```

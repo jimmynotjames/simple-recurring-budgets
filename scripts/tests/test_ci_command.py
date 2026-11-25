@@ -20,7 +20,7 @@ from ci_command import (  # noqa: E402
 
 UNIT, UI = TEST_TARGETS
 
-EVERYTHING = "lint,secrets,large-files,i18n,build"
+EVERYTHING = "lint,secrets,large-files,i18n,tooling,build"
 
 
 class ParseTests(unittest.TestCase):
@@ -28,12 +28,12 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(parse("/ci"), Command("run", only="", tests="none"))
 
     def test_single_gate(self) -> None:
-        for gate in ("lint", "secrets", "large-files", "i18n"):
+        for gate in ("lint", "secrets", "large-files", "i18n", "tooling"):
             with self.subTest(gate=gate):
                 self.assertEqual(parse(f"/ci {gate}"), Command("run", only=gate))
 
-    def test_gates_names_all_four_without_build(self) -> None:
-        self.assertEqual(parse("/ci gates"), Command("run", only="lint,secrets,large-files,i18n"))
+    def test_gates_names_all_five_without_build(self) -> None:
+        self.assertEqual(parse("/ci gates"), Command("run", only="lint,secrets,large-files,i18n,tooling"))
 
     def test_build_alone(self) -> None:
         self.assertEqual(parse("/ci build"), Command("run", only="build"))

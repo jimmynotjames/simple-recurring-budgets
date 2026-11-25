@@ -217,7 +217,7 @@ final class UserJourneyTests: XCTestCase {
   /// but only a real drag confirms the List forwards indices to it. Order is asserted by rows'
   /// vertical positions; there is no relaunch check because the UI-test store is in-memory.
   func testReorderBudgets() {
-    let app = makeApp(seedBudgets: ["Alpha", "Bravo", "Charlie"])
+    let app = makeApp(seedBudgets: ["Alpha", "Bravo", "Charlie"], keepsAnimations: true)
     app.launch()
 
     let budgets = BudgetsScreen(app: app)

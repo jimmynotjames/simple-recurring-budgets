@@ -211,7 +211,7 @@ When a workaround exists only because of a platform bug, framework limitation, o
 //   When fixed upstream: what to remove or revert.
 ```
 
-`iOS-COMPAT(17+)` for bugs first seen on iOS 17, `iOS-COMPAT(26.x)` for bugs specific to 26.x, `iOS-COMPAT(?)` when unknown.
+`iOS-COMPAT(17+)` for bugs first seen on iOS 17, `iOS-COMPAT(26.x)` for bugs specific to 26.x, `iOS-COMPAT(26.x+)` for bugs first seen on 26.x that still reproduce on a later release, `iOS-COMPAT(?)` when unknown.
 
 ### Rules
 
@@ -228,7 +228,7 @@ grep -rn "iOS-COMPAT" . --include="*.swift"
 
 When raising the minimum iOS version, run this, re-check each site against the new SDK, and remove fixed workarounds with their tags.
 
-### Current inventory (as of iOS 26.x)
+### Current inventory (as of iOS 27.2, the minimum since v1.1)
 
 | File | Tag | Summary |
 |------|-----|---------|
@@ -236,7 +236,9 @@ When raising the minimum iOS version, run this, re-check each site against the n
 | `UITestHelpers.swift` | `iOS-COMPAT(17+)` | XCUITest focus tracking doesn't sync with UIViewRepresentable UITextField; double-tap workaround in `createBudget` and `addExpense` helpers |
 | `AddBudgetScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAllocation()` |
 | `AddExpenseScreen.swift` | `iOS-COMPAT(17+)` | Same UITextField focus workaround in `fillAmount()` |
-| `AccessibilityAuditTests.swift` | `iOS-COMPAT(26.x)` | `performAccessibilityAudit` false positives: `.elementDetection`, `.sufficientElementDescription`, `.dynamicType`, `.textClipped` |
+| `AccessibilityAuditTests.swift` | `iOS-COMPAT(26.x+)` | `performAccessibilityAudit` false positives: contrast (nil element, `srb.sectionLabel`, toolbar Cancel), `.elementDetection`, `.sufficientElementDescription`, `.dynamicType`, `.textClipped`. All re-checked and still firing on iOS 27.2 |
+| `AccessibilityAuditTests.swift` | `iOS-COMPAT(27.x)` | Toolbar contrast suppression widened to Done and Save; contrast on the system compact date picker's time label (`_UIDatePickerCompactTimeLabel`) |
+| `Views/BudgetForm/AddEditBudgetView+Schedule.swift` | `iOS-COMPAT(26.x+)` | GroupBox content gets Liquid Glass; `srb.sectionLabel` tag lets the audit suppression target it |
 
 ## Infra and state locality
 

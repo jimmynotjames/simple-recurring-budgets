@@ -23,6 +23,8 @@ excluded:
   - .build
   - build
   - simple-recurring-budgets.xcodeproj
+  - .claude/worktrees
+  - tmp
 
 line_length:
   warning: 225

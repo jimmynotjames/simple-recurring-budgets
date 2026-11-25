@@ -18,3 +18,5 @@
 # Top-level gitignored `build/` (scratch, e.g. ci-repro checkouts) isn't in SwiftFormat's
 # default excludes (only `.build` is); exclude it so vendored SPM source isn't formatted.
 --exclude build
+# Other sessions' git worktrees (gitignored) hold full checkouts; format each in its own tree.
+--exclude .claude/worktrees,tmp

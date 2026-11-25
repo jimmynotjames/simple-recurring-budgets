@@ -63,7 +63,7 @@ permissions:
 
 # Repo-specific constants.
 env:
-  XCODE_VERSION: "26.5"
+  XCODE_VERSION: "27.2"
 
 jobs:
   # --- Docs-only detection (ubuntu, seconds) ---------------------------------------
@@ -239,7 +239,7 @@ jobs:
   # the compile check: a manual run with no tests runs it alone. Skipped on docs-only PRs, and with
   # it every test job.
   build:
-    runs-on: macos-26
+    runs-on: xcode-27
     needs: [lint, secrets, check-large-files, i18n-gates, tooling, changes]
     # Runs after whichever gates ran; a failed gate still stops it.
     if: >-
@@ -316,7 +316,7 @@ jobs:
   # run runs what `tests` or `test` ask for. Each job is serial on one simulator. The `tests` job
   # below sums them up, and it is the one check the ruleset needs.
   unit-tests:
-    runs-on: macos-26
+    runs-on: xcode-27
     needs: [build]
     if: >-
       !cancelled() && needs.build.result == 'success' && inputs.test == ''
@@ -359,7 +359,7 @@ jobs:
   # ClearAmountButton ~5.5, AllocationFirstTap <1).
   ui-tests:
     name: ui-tests (${{ matrix.shard }})
-    runs-on: macos-26
+    runs-on: xcode-27
     needs: [build]
     if: >-
       !cancelled() && needs.build.result == 'success' && inputs.test == ''
@@ -413,7 +413,7 @@ jobs:
   # the fresh simulator up, as make focused-tests does locally. A name that matches no test fails
   # the step rather than passing with nothing run.
   focused-tests:
-    runs-on: macos-26
+    runs-on: xcode-27
     needs: [build]
     if: >-
       !cancelled() && needs.build.result == 'success'

@@ -41,7 +41,14 @@ make initialize-sims  # create and boot this repo's simulator without building
 make sim-status       # show this repo's simulator status
 make sim-shutdown     # shut down this repo's simulator and its clones
 make sim-clean        # shut down + delete this repo's simulator + remove .build/sim/
+make sim-udid         # this repo's simulator UDID (boots it if needed); `make -s` for stdout alone
+make sim-run          # build, install, and launch the app on this repo's simulator
+make sim-show         # open DeviceHub on this repo's simulator
 ```
+
+Nothing opens a window: the simulator runs headless, and `make sim-show` opens DeviceHub on it when
+someone wants to watch. For anything interactive, get `UDID=$(make -s sim-udid)` and pass it to every
+tool explicitly.
 
 `make sim-clean` runs `scripts/sim_clean.py`, which deletes every device whose name contains this repo's unique slug (the base sim plus any orphaned `Clone N of …` from a parallel-testing crash). It cannot touch other repos' devices. A parallel UI run also deletes leftover clones before it starts (`sim_clean.py --clones-only`). Every command here and every test script holds the checkout's simulator lock (`.build/sim.lock`, `scripts/_sim_common.sh`), so two runs in one checkout wait for each other instead of fighting over the device.
 

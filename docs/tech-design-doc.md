@@ -472,7 +472,7 @@ Local hooks are bypassable (`--no-verify`, a hookless clone, a web-UI merge); CI
 - `make gate` — the pre-PR gate (`[scripts/gate.sh](../scripts/gate.sh)`): tool versions, format and lint on changed Swift files, script tests, compile; no simulator
 - `make lint` — `swiftlint lint --strict` over the repo
 - `make lint-fix` — `swiftlint --fix --quiet .` then `swiftlint lint --strict` (auto-fix + verify)
-- `make format` — `swiftformat .` (format everything, not only staged files)
+- `make format` — `scripts/swiftformat.sh` with no files (format everything, not only staged files). The script names the repo's `.swiftformat` files explicitly, so it formats the same files in an agent worktree as in the main checkout.
 - `make tests` — full unit then UI run on the repo's simulator (CI runs these on every PR; run locally only when needed)
 - `make hooks-install` — `lefthook install` (refresh hooks after pulling config changes)
 

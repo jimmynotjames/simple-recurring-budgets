@@ -11,7 +11,7 @@ Canonical procedure for every agent tool (Cursor, Claude Code, Codex, OpenSpec).
 Run `make gate` (or `bash scripts/gate.sh`) from the repo root. It runs, in order, stopping at the first failure:
 
 1. **`make tool-versions-check`** — local swiftformat/swiftlint/gitleaks/lefthook match `config/lint-tools.env`.
-2. **`make format-changed`** — `swiftformat` on the Swift files this branch changed (§ Lint policy).
+2. **`make format-changed`** — SwiftFormat (`scripts/swiftformat.sh`) on the Swift files this branch changed (§ Lint policy).
 3. **`make lint-changed`** — `swiftlint --fix`, then `swiftlint lint --strict`, on the same files. Fix remaining violations by hand.
 4. **`make simulator-slots-check`** — the vendored pool copy matches its master, plus its offline tests (§ Simulator slots).
 5. **`make script-tests`** — offline unit tests of `scripts/tests/`.

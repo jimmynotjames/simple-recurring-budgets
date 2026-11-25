@@ -7,11 +7,11 @@ tool-versions-check:
 	bash scripts/check-tool-versions.sh
 
 format:
-	swiftformat .
+	bash scripts/swiftformat.sh
 
 # Check only; matches the CI `lint` job's SwiftFormat step.
 format-check:
-	swiftformat --lint .
+	bash scripts/swiftformat.sh --lint
 
 lint-fix:
 	swiftlint --fix --quiet . && swiftlint lint --strict
@@ -21,7 +21,7 @@ lint-fix:
 format-changed:
 	@files=$$(bash scripts/changed-swift-files.sh); \
 	if [ -z "$$files" ]; then echo "format-changed: no changed Swift files"; else \
-	  echo "$$files" | tr '\n' ' ' | xargs swiftformat; fi
+	  echo "$$files" | tr '\n' ' ' | xargs bash scripts/swiftformat.sh; fi
 
 # Autocorrect then strict-lint only the Swift files this branch changed.
 lint-changed:

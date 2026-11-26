@@ -1,4 +1,4 @@
-.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests coverage lint gate hooks-install system initialize-sims sim-udid sim-show sim-run sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
+.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests i18n-check i18n-sync i18n-sync-check coverage lint gate hooks-install system initialize-sims sim-udid sim-show sim-run sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
@@ -49,9 +49,28 @@ ui-tests:
 focused-tests:
 	bash scripts/focused-tests.sh "$(ONLY)" $(ITERATIONS)
 
-# Offline unit tests of the repo's CI/helper scripts; touch no simulator.
+# Offline unit tests of the repo's CI/helper scripts and the simulator-slots copy; touch no
+# simulator. See scripts/script-tests.sh.
 script-tests:
-	python3 -m unittest discover -s scripts/tests
+	bash scripts/script-tests.sh
+
+# -- Localization -------------------------------------------------------------
+# Repo-wide on purpose: check_translations validates the catalog, check_source_strings enforces
+# a repo invariant (no unkeyed user-facing copy), and untranslated_copies catches English left in
+# a translated slot. All take under a second.
+i18n-check:
+	python3 scripts/check_translations.py
+	python3 scripts/check_source_strings.py
+	python3 scripts/translate_audit/untranslated_copies.py
+
+# Merge the last `make build`'s extracted strings into the catalog, as a build in Xcode does:
+# Swift `comment:` changes, new keys, and `stale` for keys gone from Swift. Needs that build.
+i18n-sync:
+	python3 scripts/translate_catalog/sync_catalog.py
+
+# The gate's form: fails when i18n-sync would change the catalog.
+i18n-sync-check:
+	python3 scripts/translate_catalog/sync_catalog.py --check
 
 # Line-coverage report from the latest unit .xcresult (run `make unit-tests` first). Not a gate.
 coverage:
@@ -60,8 +79,8 @@ coverage:
 lint:
 	swiftlint lint --strict
 
-# The gate (scripts/gate.sh has the steps): format and lint on changed files, tooling tests,
-# compile. No simulator; the app suites run in CI. Logged to tmp/gate.log, stops at the first
+# The gate (scripts/gate.sh has the steps): format and lint on changed files, string checks,
+# tooling tests, compile, catalog sync check. No simulator; the app suites run in CI. Logged to tmp/gate.log, stops at the first
 # failure. Single-command form avoids permission prompts.
 gate:
 	bash scripts/gate.sh
@@ -94,10 +113,9 @@ sim-clean:
 # The machine-wide pool's master is ~/dev/simulator-slots (maintainer's machine only);
 # scripts/simulator-slots is this repo's vendored copy (AGENTS.md §"Simulator slots").
 # The check fails when the copy differs from the master's last commit and is skipped
-# where the master doesn't exist; the copy's unit tests are offline and touch no simulator.
+# where the master doesn't exist. The copy's unit tests run in `make script-tests`.
 simulator-slots-check:
 	python3 scripts/simulator-slots/simulator_slots.py sync-check --into scripts/simulator-slots
-	python3 -m unittest discover -s scripts/simulator-slots/tests -q
 
 # Maintainer only: refresh the copy from the master. Never edit the copy by hand.
 simulator-slots-sync:

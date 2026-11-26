@@ -127,7 +127,7 @@ Never skip silently; user confirmation is required. False positives and negative
 make gate
 ```
 
-Run in the background (`run_in_background: true`). `make gate` runs tool-versions-check, format and lint on the changed Swift files, the simulator-slots check, the script tests and a compile (`scripts/gate.sh`), and logs to `tmp/gate.log`. It boots no simulator: the app's unit and UI suites run in PR CI. Don't open the PR until the gate is green (unless step 5 confirmed a docs-only skip).
+Run in the background (`run_in_background: true`). `make gate` runs tool-versions-check, format and lint on the changed Swift files, the string checks, the simulator-slots check, the script tests, a compile and the catalog sync check (`scripts/gate.sh`), and logs to `tmp/gate.log`. It boots no simulator: the app's unit and UI suites run in PR CI. Don't open the PR until the gate is green (unless step 5 confirmed a docs-only skip).
 
 On failure: read `tmp/gate.log`, fix, and re-run. Format and lint-fix output is auto-applied; build and script-test failures need code changes.
 

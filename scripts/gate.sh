@@ -38,11 +38,16 @@ run_step() {
 run_step tool-versions-check
 run_step format-changed
 run_step lint-changed
+# Before the build: it is the cheapest step and catches an unkeyed or untranslated
+# string without waiting on a compile.
+run_step i18n-check
 # The vendored simulator-slots copy must match its master, or repos would share one pool
 # with different code (skipped where the master doesn't exist). Touches no simulator.
 run_step simulator-slots-check
-# Offline unit tests of the CI/helper scripts (scripts/tests); quick, no simulator.
+# Offline unit tests of the CI/helper scripts and the simulator-slots copy; quick, no simulator.
 run_step script-tests
 run_step build
+# Reads the strings the build just extracted, so it can only run after it.
+run_step i18n-sync-check
 
-printf '\nGATE PASSED (tool-versions-check, format-changed, lint-changed, simulator-slots-check, script-tests, build). Full log: %s\n' "$LOG"
+printf '\nGATE PASSED (tool-versions-check, format-changed, lint-changed, i18n-check, simulator-slots-check, script-tests, build, i18n-sync-check). Full log: %s\n' "$LOG"

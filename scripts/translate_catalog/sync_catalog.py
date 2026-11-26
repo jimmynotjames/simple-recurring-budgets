@@ -15,6 +15,7 @@ Translations and their states are never touched, so a comment-only change costs 
 
 Needs a current `make build`: it reads that build's derived data, not the Swift sources. Sources
 under DesignExplorations/ (gitignored scratch) are left out, as in check_source_strings.py.
+SYNC_CATALOG_DERIVED_DATA names another `-derivedDataPath` (CI's build job uses .build/sim/DerivedData).
 
 Usage:
   python3 scripts/translate_catalog/sync_catalog.py           # sync the catalog in place
@@ -26,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -35,9 +37,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 from paths import CATALOG_PATH, REPO_ROOT, SOURCE_DIR  # noqa: E402
 from xcstrings_io import write_xcstrings, xcstrings_text  # noqa: E402
 
-# `-derivedDataPath` and destination from scripts/build.sh.
+# `-derivedDataPath` and destination from scripts/build.sh, unless SYNC_CATALOG_DERIVED_DATA names another.
+DERIVED_DATA = Path(os.environ.get("SYNC_CATALOG_DERIVED_DATA") or REPO_ROOT / ".build" / "DerivedData")
 STRINGSDATA_DIR = (
-    REPO_ROOT / ".build" / "DerivedData" / "Build" / "Intermediates.noindex" / "simple-recurring-budgets.build"
+    REPO_ROOT / DERIVED_DATA / "Build" / "Intermediates.noindex" / "simple-recurring-budgets.build"
     / "Debug-iphonesimulator" / "simple-recurring-budgets.build" / "Objects-normal" / "arm64"
 )
 WORK_DIR = REPO_ROOT / "tmp" / "catalog-sync"
@@ -113,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  {key}")
         else:
             print(f"sync_catalog: {CATALOG_PATH.name} is not in Xcode's byte format.")
-        print("Run `python3 scripts/translate_catalog/sync_catalog.py` and commit the result.")
+        print("Run `make i18n-sync` and commit the result.")
         return 1
     CATALOG_PATH.write_text(synced, encoding="utf-8")
     print(f"sync_catalog: synced {CATALOG_PATH.name}; review the diff.")

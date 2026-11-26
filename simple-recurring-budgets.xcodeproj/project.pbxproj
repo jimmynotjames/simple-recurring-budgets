@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 110;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -86,25 +86,19 @@
 /* Begin PBXFrameworksBuildPhase section */
 		A498F5A72F8945FC00A9A394 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				A422E6A02FA5312A004245B5 /* Mixpanel in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A498F5B82F8945FE00A9A394 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A498F5C22F8945FE00A9A394 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -176,8 +170,6 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				A498F5AC2F8945FC00A9A394 /* simple-recurring-budgets */,
 			);
@@ -206,8 +198,6 @@
 				A498F5BE2F8945FE00A9A394 /* simple-recurring-budgetsTests */,
 			);
 			name = "simple-recurring-budgetsTests";
-			packageProductDependencies = (
-			);
 			productName = "simple-recurring-budgetsTests";
 			productReference = A498F5BB2F8945FE00A9A394 /* simple-recurring-budgetsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -229,8 +219,6 @@
 				A498F5C82F8945FE00A9A394 /* simple-recurring-budgetsUITests */,
 			);
 			name = "simple-recurring-budgetsUITests";
-			packageProductDependencies = (
-			);
 			productName = "simple-recurring-budgetsUITests";
 			productReference = A498F5C52F8945FE00A9A394 /* simple-recurring-budgetsUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -243,7 +231,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2640;
-				LastUpgradeCheck = 2640;
+				LastUpgradeCheck = 2720;
 				TargetAttributes = {
 					A498F5A92F8945FC00A9A394 = {
 						CreatedOnToolsVersion = 26.4;
@@ -319,7 +307,7 @@
 			packageReferences = (
 				A422E69E2FA5312A004245B5 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 110;
 			productRefGroup = A498F5AB2F8945FC00A9A394 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -334,24 +322,18 @@
 /* Begin PBXResourcesBuildPhase section */
 		A498F5A82F8945FC00A9A394 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A498F5B92F8945FE00A9A394 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A498F5C32F8945FE00A9A394 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
@@ -359,48 +341,36 @@
 		A4CF00102F9BB5150025E77A /* Verify release secrets */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"$(SRCROOT)/scripts/verify_release_secrets.sh",
 				"$(SRCROOT)/config/Secrets.xcconfig",
 				"$(SRCROOT)/config/Secrets.local.xcconfig",
 			);
 			name = "Verify release secrets";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/scripts/verify_release_secrets.sh\"\n";
+			shellScript = (
+				"\"${SRCROOT}/scripts/verify_release_secrets.sh\"",
+				"",
+			);
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A498F5A62F8945FC00A9A394 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A498F5B72F8945FE00A9A394 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A498F5C12F8945FE00A9A394 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -418,7 +388,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		A498F5CF2F8945FE00A9A394 /* Debug */ = {
+		A498F5CF2F8945FE00A9A394 /* Debug configuration for PBXNativeTarget "simple-recurring-budgets" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A4CF000A2F9BB5150025E77A /* Secrets.xcconfig */;
 			buildSettings = {
@@ -450,7 +420,7 @@
 			};
 			name = Debug;
 		};
-		A498F5D02F8945FE00A9A394 /* Release */ = {
+		A498F5D02F8945FE00A9A394 /* Release configuration for PBXNativeTarget "simple-recurring-budgets" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A4CF000A2F9BB5150025E77A /* Secrets.xcconfig */;
 			buildSettings = {
@@ -482,11 +452,12 @@
 			};
 			name = Release;
 		};
-		A498F5D12F8945FE00A9A394 /* Debug */ = {
+		A498F5D12F8945FE00A9A394 /* Debug configuration for PBXProject "simple-recurring-budgets" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -542,6 +513,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -549,11 +521,12 @@
 			};
 			name = Debug;
 		};
-		A498F5D22F8945FE00A9A394 /* Release */ = {
+		A498F5D22F8945FE00A9A394 /* Release configuration for PBXProject "simple-recurring-budgets" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -602,6 +575,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -609,7 +583,7 @@
 			};
 			name = Release;
 		};
-		A498F5D42F8945FE00A9A394 /* Debug */ = {
+		A498F5D42F8945FE00A9A394 /* Debug configuration for PBXNativeTarget "simple-recurring-budgetsTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -632,7 +606,7 @@
 			};
 			name = Debug;
 		};
-		A498F5D52F8945FE00A9A394 /* Release */ = {
+		A498F5D52F8945FE00A9A394 /* Release configuration for PBXNativeTarget "simple-recurring-budgetsTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -655,7 +629,7 @@
 			};
 			name = Release;
 		};
-		A498F5D72F8945FE00A9A394 /* Debug */ = {
+		A498F5D72F8945FE00A9A394 /* Debug configuration for PBXNativeTarget "simple-recurring-budgetsUITests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -676,7 +650,7 @@
 			};
 			name = Debug;
 		};
-		A498F5D82F8945FE00A9A394 /* Release */ = {
+		A498F5D82F8945FE00A9A394 /* Release configuration for PBXNativeTarget "simple-recurring-budgetsUITests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -703,37 +677,33 @@
 		A498F5A52F8945FC00A9A394 /* Build configuration list for PBXProject "simple-recurring-budgets" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A498F5D12F8945FE00A9A394 /* Debug */,
-				A498F5D22F8945FE00A9A394 /* Release */,
+				A498F5D12F8945FE00A9A394 /* Debug configuration for PBXProject "simple-recurring-budgets" */,
+				A498F5D22F8945FE00A9A394 /* Release configuration for PBXProject "simple-recurring-budgets" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		A498F5CE2F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgets" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A498F5CF2F8945FE00A9A394 /* Debug */,
-				A498F5D02F8945FE00A9A394 /* Release */,
+				A498F5CF2F8945FE00A9A394 /* Debug configuration for PBXNativeTarget "simple-recurring-budgets" */,
+				A498F5D02F8945FE00A9A394 /* Release configuration for PBXNativeTarget "simple-recurring-budgets" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		A498F5D32F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgetsTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A498F5D42F8945FE00A9A394 /* Debug */,
-				A498F5D52F8945FE00A9A394 /* Release */,
+				A498F5D42F8945FE00A9A394 /* Debug configuration for PBXNativeTarget "simple-recurring-budgetsTests" */,
+				A498F5D52F8945FE00A9A394 /* Release configuration for PBXNativeTarget "simple-recurring-budgetsTests" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		A498F5D62F8945FE00A9A394 /* Build configuration list for PBXNativeTarget "simple-recurring-budgetsUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A498F5D72F8945FE00A9A394 /* Debug */,
-				A498F5D82F8945FE00A9A394 /* Release */,
+				A498F5D72F8945FE00A9A394 /* Debug configuration for PBXNativeTarget "simple-recurring-budgetsUITests" */,
+				A498F5D82F8945FE00A9A394 /* Release configuration for PBXNativeTarget "simple-recurring-budgetsUITests" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

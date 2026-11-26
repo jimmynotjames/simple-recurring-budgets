@@ -123,7 +123,7 @@ Three steps: generate per-locale demo content → capture → upload.
    To re-capture a few locales while iterating, pass them through `snapshot`
    with `--clear_previous_screenshots false` (the `Snapfile` sets it `true` for
    full runs, so omitting the override wipes every other locale first):
-   `fastlane snapshot --languages ja,de,ar --devices "iPhone 16 Pro Max" --clear_previous_screenshots false`
+   `fastlane snapshot --languages ja,de,ar --devices "iPhone 17 Pro Max" --clear_previous_screenshots false`
    (then re-run the rename script), or use the per-locale skill args, e.g.
    `/appstore:generate-screenshot-seeding ja de-DE ar-SA`.
 

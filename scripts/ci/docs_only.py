@@ -15,12 +15,16 @@ from __future__ import annotations
 import sys
 
 DOCS_DIRS = ("docs/", "openspec/", "releases/", ".claude/", ".cursor/")
+# Docs inside a target folder, kept out of the target by the project's membershipExceptions.
+DOCS_IN_TARGET_FOLDERS = ("simple-recurring-budgetsUITests/FLAKY_TESTS.md",)
 # Markdown here is input to code, not documentation.
 CODE_MARKDOWN_DIRS = ("scripts/",)
 
 
 def is_docs(path: str) -> bool:
     path = path.strip().strip('"')
+    if path in DOCS_IN_TARGET_FOLDERS:
+        return True
     if not path or path.startswith("simple-recurring-budgets"):  # the app, its tests and UI tests
         return False
     if path.startswith(DOCS_DIRS):

@@ -14,10 +14,11 @@ Run `make gate` (or `bash scripts/gate.sh`) from the repo root. It runs, in orde
 2. **`make format-changed`** — SwiftFormat (`scripts/swiftformat.sh`) on the Swift files this branch changed (§ Lint policy).
 3. **`make lint-changed`** — `swiftlint --fix`, then `swiftlint lint --strict`, on the same files. Fix remaining violations by hand.
 4. **`make i18n-check`** — `check_translations.py`, `check_source_strings.py` and `untranslated_copies.py`, repo-wide.
-5. **`make simulator-slots-check`** — the vendored pool copy matches its master (§ Simulator slots).
-6. **`make script-tests`** — `scripts/script-tests.sh`: offline unit tests of `scripts/tests/` and, on macOS, of the simulator-slots copy.
-7. **`make build`** — `xcodebuild build` for a generic iOS Simulator destination into `.build/DerivedData`. No tests; it boots no simulator and takes no slot.
-8. **`make i18n-sync-check`** — the catalog matches the strings that build extracted. If it fails, run `make i18n-sync` and commit the result.
+5. **`make uitest-check`** — `check_ui_test_keyboard.py`: no UI test taps a software-keyboard key.
+6. **`make simulator-slots-check`** — the vendored pool copy matches its master (§ Simulator slots).
+7. **`make script-tests`** — `scripts/script-tests.sh`: offline unit tests of `scripts/tests/` and, on macOS, of the simulator-slots copy.
+8. **`make build`** — `xcodebuild build` for a generic iOS Simulator destination into `.build/DerivedData`. No tests; it boots no simulator and takes no slot.
+9. **`make i18n-sync-check`** — the catalog matches the strings that build extracted. If it fails, run `make i18n-sync` and commit the result.
 
 It tees to `tmp/gate.log` and exits with the failing step's code. Prefer it to hand-chaining: it's one allowlisted command, while `(make … ) > tmp/gate.log 2>&1; echo "EXIT=$?"` splits into segments that prompt. Run it with `run_in_background=true`. Use individual targets to iterate on one step.
 

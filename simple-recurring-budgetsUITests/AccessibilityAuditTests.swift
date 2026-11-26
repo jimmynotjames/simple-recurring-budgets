@@ -314,8 +314,7 @@ final class AccessibilityAuditTests: XCTestCase {
       // iOS-COMPAT(26.x+): nav bar Cancel buttons in Liquid Glass toolbars report contrast
       // failures even with .foregroundStyle(.primary).
       // iOS-COMPAT(27.x): iOS 27 also flags the accent-tinted confirmation buttons (Done, Save).
-      // The rendered text measures 4.65-5.3:1 on the glass capsule (AA needs 4.5:1), and the same
-      // screens pass on iOS 26.5.
+      // The rendered text measures 4.65-5.3:1 on the glass capsule (AA needs 4.5:1).
       // Scope: system buttons (empty identifier) with these labels only.
       if let label = issue.element?.label,
          Self.glassToolbarButtonLabels.contains(label),
@@ -363,7 +362,7 @@ final class AccessibilityAuditTests: XCTestCase {
   /// Cancel since iOS 26, plus Done and Save since iOS 27. Tests run in English.
   private static let glassToolbarButtonLabels: Set<String> = ["Cancel", "Done", "Save"]
 
-  /// `true` for element types whose `.textClipped` finding is an iOS 26 platform artifact:
+  /// `true` for element types whose `.textClipped` finding is a platform artifact (iOS 26+):
   /// `.textField` scrolls horizontally, `.button` toolbar buttons bleed to the sheet boundary,
   /// `.staticText` font-metric edge cases show no visible clip.
   private func isTextClippedGlassArtifact(_ element: XCUIElement?) -> Bool {

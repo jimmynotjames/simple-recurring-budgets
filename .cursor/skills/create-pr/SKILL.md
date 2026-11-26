@@ -67,7 +67,7 @@ git diff main..HEAD
 
 Spawn a `general-purpose` Agent with the diff in the prompt (fresh context, so no prior conversation colors the review). Brief it as:
 
-> "You are reviewing a code diff for a Swift 6 / SwiftUI / SwiftData / CloudKit iOS 26 app. Review for: correctness bugs, data-race or actor-isolation issues, SwiftData model integrity (Sendable, @ModelActor, PersistentIdentifier usage), architectural problems, and serious extensibility risks. Do NOT flag style issues — a linter handles those. For each finding: state the file and approximate line, describe the issue, rate it high/medium/low. Append the full diff below."
+> "You are reviewing a code diff for a Swift 6 / SwiftUI / SwiftData / CloudKit iOS 27 app. Review for: correctness bugs, data-race or actor-isolation issues, SwiftData model integrity (Sendable, @ModelActor, PersistentIdentifier usage), architectural problems, and serious extensibility risks. Do NOT flag style issues — a linter handles those. For each finding: state the file and approximate line, describe the issue, rate it high/medium/low. Append the full diff below."
 >
 > [paste the full `git diff main..HEAD` output]
 

@@ -248,8 +248,7 @@ using the status helper:
 
 `screenshot_status.sh` reports local capture progress, running processes, the
 controller's recent log, and per-storefront upload confirmation. Prefer it over
-ad-hoc `ps` / `find` / `grep` pipelines, which are not allowlisted and will
-prompt.
+ad-hoc `ps` / `find` / `grep` pipelines: one call reports everything.
 
 ### 8. Verify completion and self-heal stragglers
 

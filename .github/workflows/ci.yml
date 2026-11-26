@@ -220,7 +220,7 @@ jobs:
   # --- Tooling gates (ubuntu) ---------------------------------------------------
   # The offline tests of the repo's own scripts: the part of `make gate` no other job runs, so CI
   # covers what the local gate does and /merge-pr needn't re-run it. The simulator-slots tests
-  # need macOS (kqueue, simctl) and stay local; the pool is never on in CI. unittest prints plain
+  # need macOS (kqueue, simctl) and skip here; the pool is never on in CI. unittest prints plain
   # text, so it runs without scripts/ci/annotate.py (which adds --json).
   tooling:
     if: inputs.only == '' || contains(format(',{0},', inputs.only), ',tooling,')
@@ -231,7 +231,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: script-tests
-        run: python3 -m unittest discover -s scripts/tests
+        run: bash scripts/script-tests.sh
 
   # --- Tier 2: build once (macOS) ---------------------------------------------------
   # Compiles the app and both test targets once (build-for-testing) and hands the products to the
@@ -298,6 +298,12 @@ jobs:
             CODE_SIGN_IDENTITY=- \
             2>&1 | tee build-for-testing.log \
             || { python3 scripts/ci/xcode_errors.py build-for-testing.log; exit 1; }
+      # The catalog matches the strings this build extracted (the gate's i18n-sync-check). Needs
+      # the compile, so it can't run with the ubuntu gates.
+      - name: sync_catalog.py --check
+        env:
+          SYNC_CATALOG_DERIVED_DATA: .build/sim/DerivedData
+        run: python3 scripts/translate_catalog/sync_catalog.py --check
       # A tarball, because an artifact upload drops the exec bits and symlinks the app needs.
       - name: Pack the test products
         if: env.RUNS_TESTS == 'true'

@@ -1,4 +1,4 @@
-.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests i18n-check i18n-sync i18n-sync-check coverage lint gate hooks-install system initialize-sims sim-udid sim-show sim-run sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
+.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests i18n-check i18n-sync i18n-sync-check uitest-check coverage lint gate hooks-install system initialize-sims sim-udid sim-show sim-run sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
@@ -71,6 +71,10 @@ i18n-sync:
 # The gate's form: fails when i18n-sync would change the catalog.
 i18n-sync-check:
 	python3 scripts/translate_catalog/sync_catalog.py --check
+
+# Static checks; the UI tests themselves run in CI (AGENTS.md §"Build and test").
+uitest-check:
+	python3 scripts/check_ui_test_keyboard.py
 
 # Line-coverage report from the latest unit .xcresult (run `make unit-tests` first). Not a gate.
 coverage:

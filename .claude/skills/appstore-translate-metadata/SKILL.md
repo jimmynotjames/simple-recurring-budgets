@@ -34,7 +34,6 @@ never weakens the translation or audit.
 Start from current `main` so the run doesn't work from stale sources:
 
 ```bash
-git status --porcelain
 git branch --show-current
 git fetch origin
 git log HEAD..origin/main --oneline
@@ -55,7 +54,8 @@ audit + remediation loop in Step 5, and the gate; all pre-approved in
 `.claude/settings.json`). Don't ask "shall I proceed?" between steps or
 permission to retry a failed locale or auto-fix audit findings.
 
-Exactly two deliberate human checkpoints; decide and execute everything else yourself:
+Exactly two deliberate human checkpoints, plus the sync preflight's stops (a refused pull, or a
+behind non-`main` branch); decide and execute everything else yourself:
 
 1. Up front, before any pipeline step: confirm the English source copy is final
    (the source-ready confirmation below). This is the only gate that blocks the

@@ -64,7 +64,7 @@ Run end to end autonomously, without pausing on mechanical steps (extract,
 dispatch, fan-out, validate, merge, gate). Don't ask "shall I proceed?" between
 steps or permission to retry a failed locale.
 
-Surface only genuine `_questions` the subagents flag (a market whose real
+Apart from the sync preflight's stops, surface only genuine `_questions` the subagents flag (a market whose real
 currency differs from the default, or a dropped third budget), in a single
 consolidated batch; decide everything else yourself.
 
@@ -73,7 +73,6 @@ consolidated batch; decide everything else yourself.
 Start from current `main` so the run doesn't work from stale sources:
 
 ```bash
-git status --porcelain
 git branch --show-current
 git fetch origin
 git log HEAD..origin/main --oneline

@@ -40,7 +40,6 @@ the tick-loop and success-verification steps unreliably, and Opus is pricier for
 Start from current `main` so the run doesn't work from stale sources:
 
 ```bash
-git status --porcelain
 git branch --show-current
 git fetch origin
 git log HEAD..origin/main --oneline
@@ -51,12 +50,11 @@ git log HEAD..origin/main --oneline
   it refuses or can't fast-forward, stop and ask the user.
 - **On another branch**: don't switch or merge. If it's behind `origin/main`,
   say by how many commits and confirm before continuing.
-- **Resuming a partial capture**: skip the pull and say so. Every shot in one
-  capture must come from the same source.
 
 ## Arguments — how to run fully unattended
 
-Optional arguments pre-answer the prompts, so there is zero prompting. Arguments are space-separated and order-independent, on two independent axes.
+Optional arguments pre-answer the prompts, so there is zero prompting (the sync
+preflight still stops if its pull is refused or the branch is behind). Arguments are space-separated and order-independent, on two independent axes.
 
 **Capture axis (pre-answers the step-2 re-capture prompt, only relevant when shots
 already exist):**
@@ -85,7 +83,7 @@ matching argument and don't prompt for that axis.
 
 ## Autonomy
 
-Apart from the step-2 re-capture prompt (only when shots already exist) and the
+Apart from the sync preflight's stops, the step-2 re-capture prompt (only when shots already exist) and the
 step-3 choice (both skippable via arguments), run end to end without pausing: don't ask "shall I
 proceed?" between steps, before re-capturing failed locales, or before
 retrying a failed upload subset (all pre-approved

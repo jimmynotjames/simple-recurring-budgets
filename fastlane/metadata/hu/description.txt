@@ -1,19 +1,19 @@
-Tudd, mennyit költhetsz, mielőtt elköltöd.
+Tudja, mennyit költhet, még mielőtt elköltené.
 
-A Wren gyorssá és egyszerűvé teszi a mindennapi költési döntéseket. Állíts be kereteket, és kövesd, hogy állsz hozzájuk képest.
+A Wren gyorssá és egyszerűvé teszi a mindennapi költési döntéseket. Szabjon meg költségkereteket, és kövesse, mennyi maradt belőlük.
 
 Funkciók:
 • Egyszerű beállítás
-• Gyors költésrögzítés
-• Napi, heti, kéthetente megújuló és havi keretek
-• Vidd át az el nem költött összeget, így amit ma megspórolsz, átgördül a következő időszakra
-• Egyszeri keretek adott időszakokra (például nyaralásra vagy egy hétvégi kiruccanásra)
-• Az adataid biztonságban maradnak az eszközön és az iCloudban
-• iCloud-szinkron az eszközeid között
-• Nincs szükség internetkapcsolatra, hacsak nem használod az iCloud-szinkront
+• Gyors kiadásrögzítés
+• Napi, heti, kétheti és havi költségkeretek
+• Átvitel: a fel nem költött összeg továbbvándorol, így amit ma megspórol, holnap is megmarad
+• Egyszeri költségkeretek adott időszakokra (például egy nyaralásra vagy hétvégi kiruccanásra)
+• Az adatok biztonságban vannak az eszközén és az iCloudban
+• iCloud-szinkronizálás az eszközei között
+• Internetkapcsolat csak az iCloud-szinkronizáláshoz kell
 
-Ez nem céges költségkövető, nem adóügyi blokk-nyilvántartó és nem bonyolult költségvetési rendszer. Nem kötöm össze a bankszámláidat, és nem zúdítok rád látványos grafikonokat. Egy egyszerű eszközt szeretnék adni, amely néhány szokásra koncentrál, nem az egész pénzügyi életedre.
+Ez nem céges kiadáskövető, nem adóügyi nyugtagyűjtő, és nem is bonyolult pénzügyi tervezőrendszer. Nem kapcsolom össze a bankszámláival, és nem kínálok látványos grafikonokat. Egy egyszerű eszközt szeretnék adni, amely néhány szokásra összpontosít, nem a teljes pénzügyi életére.
 
-Az appot úgy használhatod a legjobban, ha kiválasztasz egy-két rendszeres költési szokást, amin javítani szeretnél (étel, kávé, mozi, ruha stb.). Aztán végiggondolod, mennyit szeretnél maximum elkölteni naponta, hetente, kéthetente vagy havonta. Miután felvetted ezeket a kereteket az appba, és elkezded rögzíteni a költéseidet, valós időben tudsz majd okosabb döntéseket hozni.
+Az alkalmazás hatékony használatához elég egy-két rendszeres költési szokásra gondolnia, amelyen javítani szeretne (étkezés, kávé, szórakozás, ruha stb.). Ezután gondolja végig, legfeljebb mennyit szeretne költeni naponta, hetente, kéthetente vagy havonta. Ha felvette ezeket a költségkereteket az alkalmazásba, és elkezdi rögzíteni a kiadásait, menet közben is tudatosabb költési döntéseket hozhat.
 
-Töltsd le a Wrent, és tedd könnyebbé a mindennapjaidat.
+Töltse le a Wrent, és tegye könnyebbé minden napját.

@@ -1,19 +1,19 @@
-Sabe quanto podes gastar, antes de gastares.
+Saiba quanto pode gastar, antes de gastar.
 
-A Wren torna as decisões de gastos do dia a dia rápidas e simples. Define limites de gastos e acompanha-os.
+O Wren torna rápidas e simples as decisões de gastos do dia a dia. Defina limites e acompanhe o que gasta face a cada um.
 
 Funcionalidades:
 • Configuração fácil
 • Registo rápido de despesas
 • Orçamentos diários, semanais, quinzenais e mensais
-• Transição de saldo: o que poupas hoje passa para amanhã
-• Orçamentos pontuais para intervalos de datas específicos (como férias ou um fim de semana fora)
-• Os dados ficam seguros no dispositivo e no iCloud
-• Sincronização via iCloud entre os teus dispositivos
-• Não é precisa ligação à internet, exceto para sincronizar com o iCloud
+• Transição do dinheiro não gasto: o que poupa hoje passa para amanhã
+• Orçamentos pontuais para datas específicas (como umas férias ou uma escapadinha de fim de semana)
+• Dados guardados em segurança no dispositivo e no iCloud
+• Sincronização com o iCloud entre os seus dispositivos
+• Não precisa de ligação à internet, exceto para sincronizar com o iCloud
 
-Isto não é um registo de despesas profissionais, um arquivo de recibos para impostos nem um sistema de orçamento complicado. Não ligo as tuas contas bancárias nem te encho de gráficos elaborados. Quero oferecer-te uma ferramenta simples, focada em alguns hábitos, e não em toda a tua vida financeira.
+Isto não é uma app de despesas empresariais, um registo de faturas para o IRS nem um sistema de orçamentos complicado. Não ligo as suas contas bancárias nem lhe mostro gráficos sofisticados. Quero oferecer uma ferramenta simples, focada em alguns hábitos e não em toda a sua vida financeira.
 
-Para aproveitar a app, basta pensares num ou dois hábitos de gastos que queiras melhorar (comida, café, jantares fora, roupa, etc.). Depois pensa no máximo que queres gastar por dia, por semana, de duas em duas semanas ou por mês. Quando adicionares esses orçamentos e começares a registar as despesas, vais tomar decisões mais conscientes em tempo real.
+Para tirar partido da app, basta pensar num ou dois hábitos de consumo regulares que queira melhorar (refeições fora, café, saídas à noite, roupa, etc.). Depois, pense no máximo que quer gastar por dia, semana, quinzena ou mês. Assim que adicionar estes orçamentos à app e começar a registar as suas despesas, poderá tomar decisões mais acertadas no próprio momento.
 
-Descarrega a Wren e torna cada dia mais leve.
+Descarregue o Wren e torne cada dia mais leve.

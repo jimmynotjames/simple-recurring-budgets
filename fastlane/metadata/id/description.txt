@@ -1,19 +1,19 @@
-Tahu berapa yang bisa kamu belanjakan, sebelum kamu belanjakan.
+Ketahui berapa yang masih bisa Anda belanjakan, sebelum uang keluar.
 
-Wren bikin keputusan belanja harian jadi cepat dan simpel. Tentukan batas pengeluaran dan pantau langsung dari situ.
+Wren membuat keputusan belanja sehari-hari jadi cepat dan sederhana. Tetapkan batas pengeluaran, lalu pantau sisanya.
 
 Fitur:
-• Pengaturan gampang
-• Catat pengeluaran cepat
+• Pengaturan yang mudah
+• Pencatatan pengeluaran yang cepat
 • Anggaran harian, mingguan, dua mingguan, dan bulanan
-• Sisa dana otomatis dipindah ke periode berikutnya, jadi yang kamu hemat hari ini terbawa ke besok
-• Anggaran sekali pakai untuk rentang tanggal tertentu (misalnya liburan atau jalan-jalan akhir pekan)
+• Saldo bawaan untuk dana yang tidak terpakai, jadi yang Anda hemat hari ini terbawa ke esok hari
+• Anggaran sekali pakai untuk rentang tanggal tertentu (misalnya liburan atau akhir pekan ke luar kota)
 • Data tersimpan aman di perangkat dan di iCloud
-• Sinkronisasi iCloud di semua perangkatmu
-• Tanpa koneksi internet, kecuali kalau pakai sinkronisasi iCloud
+• Sinkronisasi iCloud di semua perangkat Anda
+• Tanpa koneksi internet, kecuali untuk sinkronisasi iCloud
 
-Ini bukan pelacak pengeluaran bisnis, pencatat struk pajak, atau sistem anggaran yang ribet. Saya tidak menautkan rekening bankmu atau menyuguhkan grafik yang ruwet. Saya cuma ingin menawarkan alat sederhana yang fokus ke beberapa kebiasaan, bukan seluruh keuangan hidupmu.
+Ini bukan aplikasi pencatat pengeluaran bisnis, pencatat struk pajak, atau sistem anggaran yang rumit. Saya tidak menghubungkan rekening bank Anda atau menyajikan grafik yang serba canggih. Saya ingin menghadirkan alat sederhana yang berfokus pada beberapa kebiasaan saja, bukan seluruh kehidupan finansial Anda.
 
-Biar app ini efektif, kamu tinggal pikirkan satu atau dua kebiasaan belanja rutin yang ingin kamu perbaiki (makan, kopi, nongkrong, baju, dan lain-lain). Lalu tentukan batas maksimal yang ingin kamu belanjakan tiap hari, minggu, dua minggu, atau bulan. Setelah anggaran ini kamu tambahkan dan mulai mencatat pengeluaran, kamu bisa mengambil keputusan belanja yang lebih bijak secara langsung.
+Agar aplikasi ini benar-benar bermanfaat, cukup pikirkan satu atau dua kebiasaan belanja rutin yang ingin Anda perbaiki (makan siang, kopi, jajan, pakaian, dan sebagainya). Lalu tentukan jumlah maksimal yang ingin Anda belanjakan setiap hari, minggu, dua minggu, atau bulan. Setelah anggaran ini Anda tambahkan ke aplikasi dan Anda mulai mencatat pengeluaran, Anda bisa membuat keputusan belanja yang lebih bijak saat itu juga.
 
-Unduh Wren dan bikin setiap hari terasa lebih ringan.
+Unduh Wren dan jalani hari-hari yang lebih ringan.

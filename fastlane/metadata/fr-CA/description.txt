@@ -1,19 +1,19 @@
-Sache ce que tu peux dépenser, avant de le dépenser.
+Sachez ce que vous pouvez dépenser, avant même de dépenser.
 
-Wren rend tes décisions de dépenses quotidiennes rapides et simples. Fixe des limites et suis-les facilement.
+Avec Wren, vos décisions de dépenses au quotidien deviennent simples et rapides. Fixez vos limites de dépenses et voyez où vous en êtes.
 
-Fonctions :
+Fonctionnalités :
 • Configuration facile
-• Saisie rapide des dépenses
+• Ajout rapide des dépenses
 • Budgets quotidiens, hebdomadaires, aux deux semaines et mensuels
-• Report des montants non dépensés : ce que tu économises aujourd'hui passe à demain
-• Budgets ponctuels pour des dates précises (un voyage ou une escapade de fin de semaine)
-• Tes données restent en sécurité sur ton appareil et dans iCloud
-• Synchronisation iCloud entre tous tes appareils
+• Report des sommes non dépensées : ce que vous économisez aujourd'hui s'ajoute au budget de demain
+• Budgets ponctuels pour une période précise (des vacances ou une escapade de fin de semaine, par exemple)
+• Données conservées en sécurité sur l'appareil et dans iCloud
+• Synchronisation iCloud entre vos appareils
 • Aucune connexion Internet requise, sauf pour la synchronisation iCloud
 
-Ce n'est ni un outil de dépenses d'affaires, ni un registre de reçus pour les impôts, ni un système de budget compliqué. Je ne relie pas tes comptes bancaires et je ne te sers pas de graphiques sophistiqués. Je veux t'offrir un outil simple, centré sur quelques habitudes plutôt que sur toute ta vie financière.
+Wren n'est pas un outil de suivi des dépenses d'entreprise, ni un registre de reçus pour les impôts, ni un système budgétaire compliqué. Je ne relie pas vos comptes bancaires et je ne vous propose pas de graphiques sophistiqués. Je veux vous offrir un outil simple, centré sur quelques habitudes, pas sur l'ensemble de vos finances.
 
-Pour bien utiliser l'appli, pense simplement à une ou deux habitudes de dépenses que tu veux améliorer (épicerie, café, sorties, vêtements, etc.). Détermine ensuite le maximum que tu veux dépenser chaque jour, semaine, deux semaines ou mois. Une fois ces budgets ajoutés et tes dépenses suivies, tu prendras de meilleures décisions en temps réel.
+Pour bien utiliser l'application, il suffit de choisir une ou deux habitudes de dépenses régulières que vous souhaitez améliorer (épicerie, café, restos, vêtements, etc.). Pensez ensuite au montant maximal que vous voulez dépenser chaque jour, chaque semaine, aux deux semaines ou chaque mois. Une fois ces budgets ajoutés et vos dépenses suivies, vous pourrez faire des choix plus éclairés au moment même de dépenser.
 
-Télécharge Wren et rends chaque journée plus légère.
+Téléchargez Wren et allégez votre quotidien.

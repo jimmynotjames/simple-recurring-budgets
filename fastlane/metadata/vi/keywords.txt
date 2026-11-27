@@ -1,1 +1,1 @@
-sổ chi tiêu,quản lý tiền,tài chính cá nhân,tiết kiệm,hạn mức,thu chi,sổ thu chi,ví tiền
+khoản chi,budget,tiền,tài chính,tiết kiệm,ví,thu chi,cá nhân,hàng,tháng,tuần,sổ

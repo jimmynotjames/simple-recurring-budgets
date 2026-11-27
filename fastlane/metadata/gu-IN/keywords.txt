@@ -1,1 +1,1 @@
-બજેટ,પૈસા,બચત,નાણાં,વોલેટ,હિસાબ,budget,money,finance,savings,expense,kharchu,paisa,daily
+budget,expense,money,spending,kharch,પૈસા,બચત,હિસાબ,માસિક,saving

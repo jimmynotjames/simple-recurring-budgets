@@ -4,7 +4,7 @@ Compose one ready-to-dispatch demo-content prompt per target storefront.
 
 For each storefront in tmp/screenshot-content-inputs/manifest.json, writes
   tmp/screenshot-content-prompts/{storefront}.md
-by substituting PROMPT_TEMPLATE.md's placeholders ({LOCALE_NAME}, {LOCALE_CODE},
+by rendering PROMPT_TEMPLATE.md's placeholders (scripts/translate_catalog/prompt_render.py) ({LOCALE_NAME}, {LOCALE_CODE},
 {RUNTIME_CODE}, {CURRENCY}, {CURRENCY_DECIMALS}, {CULTURAL_NOTE}, {SOURCE_JSON}).
 
 The parent agent then reads each {storefront}.md and dispatches one
@@ -40,6 +40,7 @@ from content_locales import (  # noqa: E402
 # Per-storefront cultural register notes are single-sourced from the metadata pipeline.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "translate_metadata"))
 from dispatch_prompts import CULTURAL_NOTES, _GENERIC_NOTE  # noqa: E402
+from prompt_render import render  # noqa: E402  (translate_catalog; metadata_locales puts it on the path)
 
 SOURCE_PATH = INPUTS_DIR / "source.json"
 MANIFEST_PATH = INPUTS_DIR / "manifest.json"
@@ -79,14 +80,17 @@ def main(argv: list[str]) -> int:
     source_json = json.dumps(source, ensure_ascii=False, indent=2)
     for storefront in sorted(manifest):
         currency = CURRENCY_BY_STOREFRONT.get(storefront, "USD")
-        prompt = (
-            template.replace("{LOCALE_NAME}", STOREFRONT_NAMES.get(storefront, storefront))
-            .replace("{LOCALE_CODE}", storefront)
-            .replace("{RUNTIME_CODE}", runtime_for_storefront(storefront))
-            .replace("{CURRENCY_DECIMALS}", str(currency_decimals(currency)))
-            .replace("{CURRENCY}", currency)
-            .replace("{CULTURAL_NOTE}", CULTURAL_NOTES.get(storefront, _GENERIC_NOTE))
-            .replace("{SOURCE_JSON}", source_json)
+        prompt = render(
+            template,
+            {
+                "LOCALE_NAME": STOREFRONT_NAMES.get(storefront, storefront),
+                "LOCALE_CODE": storefront,
+                "RUNTIME_CODE": runtime_for_storefront(storefront),
+                "CURRENCY_DECIMALS": str(currency_decimals(currency)),
+                "CURRENCY": currency,
+                "CULTURAL_NOTE": CULTURAL_NOTES.get(storefront, _GENERIC_NOTE),
+                "SOURCE_JSON": source_json,
+            },
         )
         (PROMPTS_DIR / f"{storefront}.md").write_text(prompt, encoding="utf-8")
 

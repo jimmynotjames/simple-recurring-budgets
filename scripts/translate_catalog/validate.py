@@ -2,13 +2,18 @@
 """
 Validate per-locale translation JSON files against the source.
 
-Checks each tmp/translate-outputs/{locale}.json file:
-  1. File exists and parses as valid JSON.
-  2. Every key present in source.json is present in the output.
+Checks the union of tmp/translate-outputs/{locale}.json and {locale}.sample.json.
+Errors:
+  1. At least one file exists, and each parses as valid JSON.
+  2. Every key present in source.json is present in the output (unless --subset).
   3. The multiset of format specifiers in each translation equals the source's.
   4. Value is non-empty.
-  5. For non-en-* locales, the value is NOT byte-equal to the English source
-     (catches silent translation failures).
+  5. A plural key comes back as a CLDR-category object with a non-empty `other`,
+     no unknown categories, and matching specifiers in every category.
+  6. No unexpected extra keys (`_`-prefixed and `__note` keys are allowed).
+Warning (does not fail the run):
+  7. For non-en-* locales, the value is byte-equal to the English source
+     (a loanword, or a silent translation failure).
 
 Exits with code 0 only if all locales pass. Prints a summary table.
 
@@ -39,8 +44,31 @@ from locales import LOCALES  # noqa: E402
 from extract import FORMAT_SPEC_RE, CLDR_CATEGORIES  # noqa: E402  — single source of truth
 
 
+def output_files(locale: str) -> list[Path]:
+    return [OUTPUTS_DIR / f"{locale}.json", OUTPUTS_DIR / f"{locale}.sample.json"]
+
+
+_POSITIONAL_RE = re.compile(r"%(\d+)\$(.*)")
+
+
 def specifier_multiset(value: str) -> collections.Counter:
-    return collections.Counter(FORMAT_SPEC_RE.findall(value))
+    """Count each specifier in its positional form, so `%@ … %@` matches `%2$@ … %1$@`.
+
+    A plain specifier takes the next argument, so the nth plain one is written `%n$…`; `%%`
+    passes through. A translation may reorder arguments only by numbering them, which this
+    keeps equal to the source while still catching a dropped, added or retyped one.
+    """
+    out: list[str] = []
+    plain = 0
+    for spec in FORMAT_SPEC_RE.findall(value):
+        if spec == "%%":
+            out.append(spec)
+        elif m := _POSITIONAL_RE.fullmatch(spec):
+            out.append(f"%{int(m.group(1))}${m.group(2)}")
+        else:
+            plain += 1
+            out.append(f"%{plain}${spec[1:]}")
+    return collections.Counter(out)
 
 
 def has_translatable_content(value: str) -> bool:
@@ -55,7 +83,8 @@ def has_translatable_content(value: str) -> bool:
 
 
 def _validate_plural(locale: str, key: str, src_plural: dict, translated, errors: list) -> None:
-    """Validate a plural key's output: CLDR-category object, non-empty `other`, matching specifiers per category."""
+    """Validate a plural key's output: a CLDR-category object with a non-empty `other` and
+    matching format specifiers in every category."""
     if not isinstance(translated, dict):
         errors.append(f"[{locale}] Key {key!r}: expected a plural object, got {type(translated).__name__}")
         return
@@ -82,21 +111,26 @@ def _validate_plural(locale: str, key: str, src_plural: dict, translated, errors
 def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[list, list]:
     """Return (errors, warnings). Only errors count toward the exit code.
 
-    With ``subset``, keys in ``source`` but absent from the output file are not
-    errors; only keys present in the output are checked.
+    When ``subset`` is True, keys present in ``source`` but absent from the
+    output file are not flagged as errors — only the keys actually present in
+    the output file are checked.
     """
     errors: list[str] = []
     warnings: list[str] = []
-    output_path = OUTPUTS_DIR / f"{locale}.json"
+    output_paths = [p for p in output_files(locale) if p.exists()]
 
-    if not output_path.exists():
-        return [f"[{locale}] File missing: {output_path}"], []
+    if not output_paths:
+        return [f"[{locale}] File missing: {OUTPUTS_DIR / f'{locale}.json'}"], []
 
-    try:
-        with output_path.open(encoding="utf-8") as f:
-            translations: dict = json.load(f)
-    except json.JSONDecodeError as exc:
-        return [f"[{locale}] Invalid JSON: {exc}"], []
+    # UI output and the transcreated `sample.*` output are separate files (see
+    # dispatch_prompts.TRANSCREATED_NAMESPACES); validate their union.
+    translations: dict = {}
+    for output_path in output_paths:
+        try:
+            with output_path.open(encoding="utf-8") as f:
+                translations.update(json.load(f))
+        except json.JSONDecodeError as exc:
+            return [f"[{locale}] Invalid JSON in {output_path.name}: {exc}"], []
 
     is_english_variant = locale.startswith("en-")
 
@@ -109,7 +143,7 @@ def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[li
 
         translated = translations[key]
 
-        # Plural keys carry a `plural` object in the source; expect a CLDR-category object back.
+        # Plural keys carry a `plural` object in the source and expect a CLDR-category object back.
         if "plural" in src_entry:
             _validate_plural(locale, key, src_entry["plural"], translated, errors)
             continue
@@ -117,7 +151,7 @@ def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[li
         src_value = src_entry["value"]
         src_specs = specifier_multiset(src_value)
 
-        # Accept a flat string or the {"value": "...", ...} dict some models emit.
+        # Accept both flat string and {"value": "...", ...} dict produced by some models
         if isinstance(translated, dict):
             translated = translated.get("value", "")
 
@@ -136,8 +170,10 @@ def validate_locale(locale: str, source: dict, subset: bool = False) -> Tuple[li
                 f"source={dict(src_specs)} translated={dict(tran_specs)}"
             )
 
-        # Identical-to-source is only a WARNING: short terms are often legitimate loanwords,
-        # brands, or concepts kept in English (e.g. "iCloud", "Wren", "Version", "Budget", "Symbol").
+        # Identical-to-source is a WARNING only (not a hard error): many short
+        # technical terms are legitimate loanwords, brand names, or product
+        # concepts intentionally kept in English (e.g. "iCloud", the app's brand,
+        # "Version" in languages that use these words).
         if (
             not is_english_variant
             and src_value
@@ -176,9 +212,10 @@ def main(argv: list[str]) -> int:
     if args.locales:
         locales = args.locales
     elif args.subset:
-        # Subset mode with no explicit locales: validate only locales with an output file,
-        # else every locale outside this partial run reports "File missing".
-        locales = [loc for loc in LOCALES if (OUTPUTS_DIR / f"{loc}.json").exists()]
+        # In subset mode with no explicit locales, validate exactly the locales that have an
+        # output file — otherwise we'd report "File missing" for every locale that wasn't part
+        # of this partial run (the full LOCALES default only makes sense for a full backfill).
+        locales = [loc for loc in LOCALES if any(p.exists() for p in output_files(loc))]
         if not locales:
             print(f"No output files in {OUTPUTS_DIR} to validate (--subset). Run dispatch + subagents first.", file=sys.stderr)
             return 1

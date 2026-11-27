@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Convert existing flat keys in Localizable.xcstrings into **plural** keys (CLDR
-`variations.plural`), so count-dependent strings like "%lld logged expense(s)" get
+`variations.plural`), so count-dependent strings like "%lld item(s)" get
 grammatically correct forms in every language.
 
 For each key you pass, this sets the English (`en`) localization to a
@@ -12,9 +12,9 @@ translate flow afterward.
 
 Input: JSON (file path or - for stdin) mapping each key to its English plural forms:
   {
-    "addEditBudget.orphanWarning.title": {
-      "one":   "Start date is after %lld logged expense",
-      "other": "Start date is after %lld logged expenses"
+    "checklist.items.count": {
+      "one":   "%lld item",
+      "other": "%lld items"
     }
   }
 
@@ -34,10 +34,8 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
-
 sys.path.insert(0, str(Path(__file__).parent))
+from paths import CATALOG_PATH  # noqa: E402
 from extract import CLDR_CATEGORIES  # noqa: E402
 from xcstrings_io import write_xcstrings  # noqa: E402
 
@@ -78,7 +76,7 @@ def main(argv: list[str]) -> int:
             print(f"  SKIP {key!r}: already plural", file=sys.stderr)
             continue
 
-        # en → plural; drop other locales so extract --missing re-translates them as plural.
+        # Set en → plural; drop every other locale so extract --missing re-translates as plural.
         localizations.clear()
         localizations["en"] = {
             "variations": {

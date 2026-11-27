@@ -2,14 +2,16 @@
 """
 Maintenance tool: regenerate scripts/translate_audit/plural_rules.py from CLDR.
 
-The only piece needing a third-party dependency (`babel`, which bundles the CLDR
-plural rules). Run it only to refresh the static map when the locale set or CLDR
-version changes; `plural_rules.py` and `plural_completeness.py` have no runtime dependency.
+This is the ONLY piece that needs a third-party dependency (`babel`, which bundles the
+CLDR plural rules). It runs rarely — only to refresh the static map when the locale set
+or the bundled CLDR version changes. The committed map (`plural_rules.py`) and the check
+that reads it (`plural_completeness.py`) have **no** runtime dependency.
 
 For each locale in locales.py it computes two sets of CLDR cardinal plural categories:
-  - "required": categories reachable by realistic **integer** counts (0..999), plus
-    `other` (mandatory fallback). Excludes large-number-only categories (e.g. Romance
-    `many`, only for compact millions, which an expense count never reaches).
+  - "required": the categories reachable by realistic **integer** counts (0..999), plus
+    `other` (always the mandatory fallback). This is what a plural string must cover —
+    it excludes large-number-only categories (e.g. Romance `many`, used only for compact
+    millions, which an item count never reaches).
   - "valid": every category the language's rule defines (for spurious-category detection).
 
 Usage (requires babel):
@@ -33,7 +35,8 @@ INTEGER_SAMPLE = range(0, 1000)
 
 
 def parse_locale(code: str) -> Locale:
-    """Parse a runtime locale code (e.g. 'zh-Hans', 'pt-PT'), falling back to the base language."""
+    """Parse a runtime locale code (e.g. 'zh-Hans', 'pt-PT', 'es-MX'), falling back to the
+    base language if the region/script variant isn't a distinct CLDR locale."""
     try:
         return Locale.parse(code.replace("-", "_"))
     except Exception:

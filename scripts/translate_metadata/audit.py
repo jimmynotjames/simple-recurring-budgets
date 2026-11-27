@@ -1,34 +1,17 @@
 #!/usr/bin/env python3
 """
-Audit the per-storefront transcreation outputs in tmp/metadata-outputs/.
-
-Inspection + escalation tool for the metadata pipeline: answers "what did the
-fan-out produce, what's over the limit, what did the subagents flag?" without
-ad-hoc `python3 -c`, `wc`, `cat`, or `jq` (non-allowlistable, so they prompt).
-
-For every target storefront it reports, per field:
-  - the transcreated value (optionally elided),
-  - its character count vs. the App Store Connect limit, and an OVER flag,
-and per storefront an overall status:
-  - PASS    — present, all fields within limits
-  - OVER    — present but at least one field exceeds its limit (re-dispatch)
-  - PENDING — no output yet, or an empty stub (dispatch / re-dispatch)
-It also collects every `_questions` entry the subagents attached, across all
-locales, into a single consolidated batch — the one human checkpoint.
+Report what the metadata fan-out produced in tmp/metadata-outputs/: per field, the
+value and its length against the App Store Connect limit (UTF-8 bytes for
+`keywords`, characters otherwise); per storefront, a status of PASS, OVER (a field
+exceeds its limit), PENDING (no output, or an empty stub) or FAIL (invalid JSON);
+and every `_questions` entry the subagents attached, across all storefronts.
 
 Usage:
   python3 scripts/translate_metadata/audit.py [--questions] [--full] [--json] [storefront ...]
-
-  (default)     human-readable per-storefront field/char-count table + a summary
-                line + the consolidated questions batch.
-  --questions   ONLY print the consolidated `_questions` batch (and nothing else).
-                Use this to drive the Step 4a human checkpoint.
-  --full        print full field values (default elides long fields to one line).
-  --json        emit a machine-readable JSON summary instead of the table.
-  storefront…   restrict to the given storefronts (default: all targets).
-
-Exit code: 0 if every audited storefront is PASS; 1 otherwise (OVER or PENDING),
-so it can gate an autonomous loop the same way validate.py does.
+  --questions  print only the consolidated `_questions` batch; always exits 0.
+  --full       print full values (the default elides long fields to one line).
+  --json       machine-readable summary instead of the table (takes precedence).
+Exit code, otherwise: 0 if every audited storefront is PASS, 1 if not.
 """
 
 from __future__ import annotations
@@ -42,7 +25,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUTS_DIR = REPO_ROOT / "tmp" / "metadata-outputs"
 
 sys.path.insert(0, str(Path(__file__).parent))
-from metadata_locales import FIELD_LIMITS, STOREFRONT_LOCALES, TRANSLATABLE_FIELDS  # noqa: E402
+from metadata_locales import (  # noqa: E402
+    FIELD_BYTE_LIMITS,
+    FIELD_LIMITS,
+    STOREFRONT_LOCALES,
+    TRANSLATABLE_FIELDS,
+)
 
 _ELIDE_AT = 70
 
@@ -83,10 +71,16 @@ def audit_storefront(storefront: str) -> dict:
             value = value.get("value", "")
         if not isinstance(value, str):
             value = str(value)
-        limit = FIELD_LIMITS.get(field)
-        over = bool(limit and len(value) > limit)
+        byte_limit = FIELD_BYTE_LIMITS.get(field)
+        if byte_limit is not None:
+            limit, length, unit = byte_limit, len(value.encode("utf-8")), "bytes"
+        else:
+            limit, length, unit = FIELD_LIMITS.get(field), len(value), "chars"
+        over = bool(limit and length > limit)
         any_over = any_over or over
-        info["fields"][field] = {"value": value, "len": len(value), "limit": limit, "over": over}
+        info["fields"][field] = {
+            "value": value, "len": length, "unit": unit, "limit": limit, "over": over,
+        }
 
     raw_questions = out.get("_questions", [])
     if isinstance(raw_questions, list):
@@ -147,7 +141,8 @@ def main(argv: list[str]) -> int:
             if not args.full and len(value) > _ELIDE_AT:
                 value = value[:_ELIDE_AT] + "…"
             value = value.replace("\n", "⏎")
-            print(f"    {field:<17} {fi['len']:>4}/{limit!s:<5}{mark:<6} {value}")
+            unit = "B" if fi["unit"] == "bytes" else ""
+            print(f"    {field:<17} {fi['len']:>4}/{limit!s:<4}{unit:<1}{mark:<6} {value}")
 
     n_pass = sum(1 for a in audits if a["status"] == "PASS")
     n_over = sum(1 for a in audits if a["status"] == "OVER")
@@ -164,7 +159,7 @@ def _print_questions(all_questions: list[dict]) -> int:
     if not all_questions:
         print("\nNo content questions raised by any locale. ✓ (expected case — nothing to escalate)")
         return 0
-    print(f"\n=== {len(all_questions)} content question(s) raised — the human checkpoint ===")
+    print(f"\n=== {len(all_questions)} content question(s) raised ===")
     for q in all_questions:
         sf = q.get("storefront", "?")
         field = q.get("field", "?")

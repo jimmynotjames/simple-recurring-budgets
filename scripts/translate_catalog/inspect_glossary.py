@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-Read-only inspector for scripts/translate_catalog/glossary.json.
-
-Replaces ad-hoc `python3 -c "import json; g=json.load(...)"` one-liners. Pure read-only.
+Read-only inspector for i18n/glossary.json.
 
 Glossary shape: {"meta": {...}, "protected": [...], "terms": {TERM: {
   "context", "en", "partOfSpeech", "sourceKeys", "translations": {locale: str}}}}.
@@ -27,8 +25,8 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-GLOSSARY_PATH = Path(__file__).resolve().parent / "glossary.json"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from app_config import GLOSSARY_PATH  # noqa: E402
 
 
 def load_glossary() -> dict:

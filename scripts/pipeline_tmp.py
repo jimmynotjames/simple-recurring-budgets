@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Inspect or clear the gitignored ``tmp/`` working directories used by the
-localization fan-out pipelines (translate / metadata / screenshot-content /
-their audits / the size-check). They hold per-locale prompt and output files.
+localization fan-out pipelines (translate / metadata / their audits / the
+size-check / any app-specific pipeline). They hold per-locale prompt and output files.
 
 Why: merge/validate read **every** file in an outputs dir, not just the current
 manifest's, so leftovers from a previous run contaminate a fresh one (re-merged,
@@ -11,7 +11,7 @@ to spot stale files, ``clean`` to clear them, and ``clean`` again at the end.
 
 Only touches the known ``tmp/`` subdirectories below (all gitignored). Never
 deletes the directories themselves (the pipelines' ``mkdir -p`` stays a no-op)
-and never touches the catalog, metadata tree, ScreenshotSeeds, or any committed
+and never touches the catalog, metadata tree, screenshot seeds, or any committed
 file.
 
 Usage:
@@ -22,8 +22,8 @@ GROUPs (default: all):
   translate            in-app strings        (translate-new-strings skill)
   translate-audit      translation QA audit  (audit-translations skill)
   metadata             App Store metadata    (appstore-translate-metadata skill)
-  screenshot-content   screenshot demo data  (appstore-screenshot-content skill)
   size-check           large-type captures   (translation-accessibility-size-check skill)
+  <app groups>         i18n/app.json `tmpGroups` (an app's own pipelines)
   all                  every group above
 """
 
@@ -37,9 +37,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TMP = REPO_ROOT / "tmp"
 
-# Group -> owned tmp/ subdirectory names. Keep in sync with the
-# *_DIR constants in scripts/{translate_catalog,translate_audit,translate_metadata,
-# screenshot_content}/*.py and translation-accessibility-size-check/run.sh.
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_catalog"))
+import app_config  # noqa: E402
+
+# Group -> owned tmp/ subdirectory names. Keep in sync with the *_DIR constants in
+# scripts/{translate_catalog,translate_audit,translate_metadata}/*.py and
+# translation-accessibility-size-check/run.sh; an app's own pipelines add theirs in
+# i18n/app.json `tmpGroups`.
 GROUPS: dict[str, list[str]] = {
     "translate": [
         "translate-inputs",
@@ -59,14 +63,10 @@ GROUPS: dict[str, list[str]] = {
         "metadata-audit-prompts",
         "metadata-audit-outputs",
     ],
-    "screenshot-content": [
-        "screenshot-content-inputs",
-        "screenshot-content-prompts",
-        "screenshot-content-outputs",
-    ],
     "size-check": [
         "loc-size-check",
     ],
+    **app_config.APP.get("tmpGroups", {}),
 }
 
 

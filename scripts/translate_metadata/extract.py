@@ -6,25 +6,22 @@ emit a JSON file suitable for use as transcreation input.
 Default output: tmp/metadata-inputs/source.json
 
 Each authored (non-empty) field has the shape:
-  {
-    "<field>": {
-      "value": "<English source text>",
-      "charLimit": <int>          # App Store Connect hard limit (characters)
-    },
-    ...
-  }
+  "<field>": {"value": "<English source text>", "charLimit": <int>}
+`charLimit` is App Store Connect's hard limit: characters, except UTF-8 bytes for `keywords`.
 
-Fields blank in en-US are NOT written to source.json; it stays an authored-fields-only
-map ({field: {value, charLimit}}) consumed by validate.py and dispatch_prompts.py.
-Blank fields are only reported to the console; merge.py and check_metadata.py
-re-derive blank handling from the en-US source folder (blank in source means blank in
-every translation), so no consumer needs a special key.
+Fields blank in en-US are left out of source.json and only reported to the console.
+merge.py and check_metadata.py read blank fields straight from the en-US folder: merge.py
+deletes that field's file from every storefront, so no consumer needs a special key.
 
 Modes:
-  (default)   emit source.json for every non-empty translatable en-US field.
-  --missing   additionally scan every target storefront for fields that are
-              absent or empty, and write manifest.json mapping
-              {storefront: [fields...]} — exactly the work that remains.
+  (default)        emit source.json for every non-empty translatable en-US field.
+  --missing        also write manifest.json mapping {storefront: [fields...]} for every
+                   target field that is absent or empty: exactly the work that remains.
+  --fields F [F…]  also write manifest.json forcing those fields for every storefront,
+                   translated or not (re-transcreate after a source edit). Each must be
+                   non-blank in en-US.
+  --storefronts S [S…]  with --fields, limit the manifest to these storefronts (Apple codes,
+                   e.g. fr-FR de-DE): re-transcreate only the markets a notes change touched.
 """
 
 from __future__ import annotations
@@ -64,7 +61,8 @@ def read_source() -> tuple[dict[str, dict], list[str]]:
 
     source: every translatable field with non-empty en-US content, in the
         {field: {value, charLimit}} shape every downstream script expects.
-    blank_fields: TRANSLATABLE_FIELDS empty in en-US; reported only, not written to source.json.
+    blank_fields: TRANSLATABLE_FIELDS that are empty in en-US. Reported for
+        visibility only and NOT written to source.json.
     """
     source: dict[str, dict] = {}
     blank_fields: list[str] = []
@@ -87,13 +85,23 @@ def find_missing(source: dict[str, dict]) -> dict[str, list[str]]:
     return missing
 
 
-def force_fields(source: dict[str, dict], fields: Sequence[str]) -> dict[str, list[str]]:
-    """Return {storefront: [fields...]} forcing every valid authored field in *fields* for all storefronts."""
+def force_fields(
+    source: dict[str, dict], fields: Sequence[str], storefronts: Sequence[str] | None = None
+) -> dict[str, list[str]]:
+    """Return {storefront: [fields...]} forcing every valid authored field in *fields*.
+
+    Covers every storefront, or only *storefronts* when given.
+    """
     invalid = [f for f in fields if f not in source]
     if invalid:
         print(f"ERROR: field(s) not in en-US source (blank or unknown): {invalid}", file=sys.stderr)
         sys.exit(1)
-    return {storefront: list(fields) for storefront in STOREFRONT_LOCALES}
+    unknown = sorted(set(storefronts or ()) - set(STOREFRONT_LOCALES))
+    if unknown:
+        print(f"ERROR: unknown storefront(s): {unknown}", file=sys.stderr)
+        sys.exit(1)
+    targets = [s for s in STOREFRONT_LOCALES if not storefronts or s in storefronts]
+    return {storefront: list(fields) for storefront in targets}
 
 
 def write_source(source: dict[str, dict]) -> None:
@@ -133,7 +141,15 @@ def main(argv: list[str]) -> int:
             "Field must be non-blank in en-US source."
         ),
     )
+    parser.add_argument(
+        "--storefronts",
+        nargs="+",
+        metavar="STOREFRONT",
+        help="With --fields, limit the manifest to these storefronts (Apple codes, e.g. fr-FR).",
+    )
     args = parser.parse_args(argv)
+    if args.storefronts and not args.fields:
+        parser.error("--storefronts needs --fields")
 
     if not METADATA_DIR.exists():
         print(f"ERROR: metadata dir not found at {METADATA_DIR}", file=sys.stderr)
@@ -151,11 +167,11 @@ def main(argv: list[str]) -> int:
     write_source(source)
     if blank_fields:
         print(
-            f"  Blank en-US field(s), cleared across all storefronts by merge.py: {blank_fields}"
+            f"  Blank en-US field(s), deleted from every storefront by merge.py: {blank_fields}"
         )
 
     if args.fields:
-        manifest = force_fields(source, args.fields)
+        manifest = force_fields(source, args.fields, args.storefronts)
         write_manifest(manifest)
     elif args.missing:
         manifest = find_missing(source)

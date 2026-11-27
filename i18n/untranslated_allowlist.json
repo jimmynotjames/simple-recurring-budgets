@@ -1,0 +1,27 @@
+[
+  {
+    "key": "addEditBudget.chip.period.accessibilityLabel",
+    "locale": "sv",
+    "reason": "\"period\": the glossary keeps \"Period\" in English for Swedish."
+  },
+  {
+    "key": "budget.summary.accessibilityLabel.overBudget.specificDates",
+    "locale": "da",
+    "reason": "\"over budget\" is Danish (as on the …overBudget sibling)."
+  },
+  {
+    "key": "settings.section.calendar",
+    "locale": "ro",
+    "reason": "\"Calendar\" is the Romanian word (no glossary term)."
+  },
+  {
+    "key": "carryOver.deficit",
+    "locale": "ro",
+    "reason": "\"deficit\" is a Romanian word (no glossary term)."
+  },
+  {
+    "key": "settings.currencyDisplay.codeAndSymbol",
+    "locale": "de",
+    "reason": "\"Code + Symbol\": loanwords (no glossary term)."
+  }
+]

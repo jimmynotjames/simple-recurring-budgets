@@ -19,10 +19,14 @@ For each key:
   - Updates comment when provided (omitting leaves the existing comment intact)
   - Sets every existing non-en locale entry's stringUnit.state to "needs_review"
     (en-AU, en-CA, en-GB are treated as non-en and are also invalidated)
-  - Entries with only "variations" (plural forms) are left untouched
 
 Keys absent from the catalog are skipped with a warning — use add_keys.py
 to insert brand-new keys instead.
+
+Plural keys (any localization with "variations") are refused: the whole input
+is rejected and nothing is written. To change a plural key's English forms, reset
+it to a flat key with `add_keys.py --force` (pass the comment again; it is
+replaced), then run pluralize_keys.py.
 
 Usage:
   python3 scripts/translate_catalog/update_keys.py updates.json
@@ -38,20 +42,22 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
-
 sys.path.insert(0, str(Path(__file__).parent))
+from paths import CATALOG_PATH  # noqa: E402
 from locales import LOCALES  # noqa: E402
 from xcstrings_io import write_xcstrings  # noqa: E402
 
 
-def main() -> int:
+def is_plural(entry: dict) -> bool:
+    return any("variations" in loc for loc in entry.get("localizations", {}).values())
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("input", help="JSON file with key updates, or - for stdin.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         if args.input == "-":
@@ -71,6 +77,16 @@ def main() -> int:
         catalog: dict = json.load(f)
 
     strings: dict = catalog.setdefault("strings", {})
+    plural = sorted(key for key in updates if key in strings and is_plural(strings[key]))
+    if plural:
+        print(
+            f"ERROR: plural key(s) {plural}: update_keys.py rewrites en as a flat string and "
+            "would drop the plural forms. Reset them with `add_keys.py --force` (pass the "
+            "comment again), then run pluralize_keys.py. Nothing written.",
+            file=sys.stderr,
+        )
+        return 1
+
     updated: list[str] = []
     skipped: list[str] = []
 

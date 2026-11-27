@@ -1,21 +1,14 @@
 #!/usr/bin/env python3
 """
-Compose one ready-to-dispatch audit prompt per locale, from
-tmp/translate-audit-inputs/audit_source.json + AUDIT_PROMPT_TEMPLATE.md.
+Render one audit prompt per locale from tmp/translate-audit-inputs/audit_source.json and
+AUDIT_PROMPT_TEMPLATE.md into tmp/translate-audit-prompts/{L}.md, for `translation-audit-locale`.
 
-For each target locale L (that has at least one translation in audit_source.json),
-writes tmp/translate-audit-prompts/{L}.md with {LOCALE_NAME}, {LOCALE_CODE},
-{REGIONAL_NOTE}, and {SOURCE_JSON} substituted. The SOURCE_JSON slice for L contains,
-per key, the English value + comment + the current L translation + both char lengths:
-
-  { "<key>": { "english", "comment", "enChars", "current", "currentChars" }, ... }
-
-Mirrors scripts/translate_catalog/dispatch_prompts.py and imports its LOCALES /
-LOCALE_NAMES and REGIONAL_NOTES / _GENERIC_NOTE, so the auditor grades against the
-same per-locale rubric the translator got.
-
-The parent agent then reads each {locale}.md and dispatches one `translation-audit-locale`
-subagent per locale; subagents write findings JSON to tmp/translate-audit-outputs/{locale}.json.
+Each prompt gets the translator's own regional note and glossary slice (both imported from
+translate_catalog/dispatch_prompts.py) and one entry per key the locale has translated:
+  flat:   {"english", "comment", "enChars", "current", "currentChars"}
+  plural: {"englishPlural": {category: en}, "comment", "currentPlural": {category: current}}
+The demo-content, plural and glossary sections render only when the slice needs them.
+Unless --no-clean, deletes the dispatched locales' stale tmp/translate-audit-outputs/{L}.json.
 
 Usage:
   python3 scripts/translate_audit/audit_dispatch.py [--no-clean] [locale ...]
@@ -38,7 +31,9 @@ TEMPLATE_PATH = Path(__file__).parent / "AUDIT_PROMPT_TEMPLATE.md"
 
 sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES, LOCALE_NAMES  # noqa: E402
-from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE, build_glossary_block  # noqa: E402
+from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE, glossary_lines, is_transcreated  # noqa: E402
+from prompt_render import compact_json, render  # noqa: E402
+import app_config  # noqa: E402
 
 
 def build_slice(locale: str, source: dict) -> dict:
@@ -67,6 +62,34 @@ def build_slice(locale: str, source: dict) -> dict:
     return out
 
 
+def render_audit_prompt(template: str, locale: str, slice_source: dict) -> str:
+    english = [
+        text
+        for entry in slice_source.values()
+        for text in (entry["englishPlural"].values() if "englishPlural" in entry else [entry["english"]])
+    ]
+    glossary = glossary_lines(english, locale)
+    sections = set()
+    if any(is_transcreated(key) for key in slice_source):
+        sections.add("sample")
+    if any("englishPlural" in entry for entry in slice_source.values()):
+        sections.add("plural")
+    if glossary:
+        sections.add("glossary")
+    return render(
+        template,
+        {
+            "LOCALE_NAME": LOCALE_NAMES.get(locale, locale),
+            "LOCALE_CODE": locale,
+            "REGIONAL_NOTE": REGIONAL_NOTES.get(locale, _GENERIC_NOTE),
+            "GLOSSARY": glossary,
+            "SOURCE_JSON": compact_json(slice_source),
+        },
+        sections,
+        known={"sample", "plural", "glossary"},
+    )
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--no-clean", action="store_true", help="Do not delete pre-existing audit output files.")
@@ -82,7 +105,7 @@ def main(argv: list[str]) -> int:
 
     with SOURCE_PATH.open(encoding="utf-8") as f:
         source: dict = json.load(f)
-    template = TEMPLATE_PATH.read_text(encoding="utf-8")
+    template = app_config.load_template(TEMPLATE_PATH)
 
     requested = args.locales if args.locales else LOCALES
     unknown = [loc for loc in requested if loc not in LOCALES]
@@ -100,23 +123,13 @@ def main(argv: list[str]) -> int:
         slice_source = build_slice(locale, source)
         if not slice_source:
             continue
-        regional_note = REGIONAL_NOTES.get(locale, _GENERIC_NOTE)
-        glossary_block = build_glossary_block(
-            [e.get("english", "") for e in slice_source.values()], locale, LOCALE_NAMES.get(locale, locale)
-        )
-        prompt = (
-            template.replace("{LOCALE_NAME}", LOCALE_NAMES.get(locale, locale))
-            .replace("{LOCALE_CODE}", locale)
-            .replace("{REGIONAL_NOTE}", regional_note)
-            .replace("{GLOSSARY}", glossary_block)
-            .replace("{SOURCE_JSON}", json.dumps(slice_source, ensure_ascii=False, indent=2, sort_keys=True))
-        )
-        (PROMPTS_DIR / f"{locale}.md").write_text(prompt, encoding="utf-8")
+        (PROMPTS_DIR / f"{locale}.md").write_text(render_audit_prompt(template, locale, slice_source), encoding="utf-8")
         dispatched_locales.append(locale)
         written += 1
         print(f"  Wrote {len(slice_source)} keys for {locale} → {PROMPTS_DIR / f'{locale}.md'}")
 
-    # Clear stale outputs for these locales so a partial prior run isn't double-counted.
+    # Clear stale outputs for the locales we're (re)dispatching, so a partial prior run
+    # doesn't leave findings the report would double-count.
     if not args.no_clean and OUTPUTS_DIR.exists():
         cleaned = 0
         for locale in dispatched_locales:

@@ -14,7 +14,8 @@ merge (`xcstringstool sync`) on a copy, then writes the result in Xcode's byte f
 Translations and their states are never touched, so a comment-only change costs no re-translation.
 
 Needs a current `make build`: it reads that build's derived data, not the Swift sources. Sources
-under DesignExplorations/ (gitignored scratch) are left out, as in check_source_strings.py.
+under i18n/app.json `sourceStrings.skippedDirs` (gitignored scratch) are left out, as in
+check_source_strings.py.
 SYNC_CATALOG_DERIVED_DATA names another `-derivedDataPath` (CI's build job uses .build/sim/DerivedData).
 
 Usage:
@@ -35,27 +36,29 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from paths import CATALOG_PATH, REPO_ROOT, SOURCE_DIR  # noqa: E402
+import app_config  # noqa: E402
 from xcstrings_io import write_xcstrings, xcstrings_text  # noqa: E402
 
 # `-derivedDataPath` and destination from scripts/build.sh, unless SYNC_CATALOG_DERIVED_DATA names another.
 DERIVED_DATA = Path(os.environ.get("SYNC_CATALOG_DERIVED_DATA") or REPO_ROOT / ".build" / "DerivedData")
 STRINGSDATA_DIR = (
-    REPO_ROOT / DERIVED_DATA / "Build" / "Intermediates.noindex" / "simple-recurring-budgets.build"
-    / "Debug-iphonesimulator" / "simple-recurring-budgets.build" / "Objects-normal" / "arm64"
+    REPO_ROOT / DERIVED_DATA / "Build" / "Intermediates.noindex" / f"{app_config.APP['xcode']['project']}.build"
+    / "Debug-iphonesimulator" / f"{app_config.APP['xcode']['target']}.build" / "Objects-normal" / "arm64"
 )
 WORK_DIR = REPO_ROOT / "tmp" / "catalog-sync"
-EXCLUDED_DIR = SOURCE_DIR / "DesignExplorations"
+EXCLUDED_DIRS = [SOURCE_DIR / name for name in app_config.APP.get("sourceStrings", {}).get("skippedDirs", ())]
 GENERATED_STRING_SYMBOLS = "GeneratedStringSymbols_"
 
 
-def select_stringsdata(stringsdata_dir: Path, source_dir: Path, excluded_dir: Path) -> tuple[list[Path], list[Path]]:
+def select_stringsdata(stringsdata_dir: Path, source_dir: Path, excluded_dirs) -> tuple[list[Path], list[Path]]:
     """The `.stringsdata` files for current app sources, and the app sources that have none.
 
     Derived data keeps the file of a deleted or excluded Swift source; passing it on would keep that
     source's keys alive. So would the string symbols Xcode generates from the catalog itself, which
     Xcode's own sync leaves out too: a key dropped from Swift goes `stale` there.
     """
-    sources = {p.resolve() for p in source_dir.rglob("*.swift") if not p.resolve().is_relative_to(excluded_dir.resolve())}
+    excluded = [d.resolve() for d in ([excluded_dirs] if isinstance(excluded_dirs, Path) else excluded_dirs)]
+    sources = {p.resolve() for p in source_dir.rglob("*.swift") if not any(p.resolve().is_relative_to(d) for d in excluded)}
     selected, seen = [], set()
     for path in sorted(stringsdata_dir.glob("*.stringsdata")):
         if path.name.startswith(GENERATED_STRING_SYMBOLS):
@@ -75,7 +78,7 @@ def synced_text() -> str:
             f"ERROR: {STRINGSDATA_DIR.relative_to(REPO_ROOT)} does not exist. Run `make build` first; if it "
             "has run, scripts/build.sh's derived data path, destination or ARCHS changed: update STRINGSDATA_DIR."
         )
-    selected, unbuilt = select_stringsdata(STRINGSDATA_DIR, SOURCE_DIR, EXCLUDED_DIR)
+    selected, unbuilt = select_stringsdata(STRINGSDATA_DIR, SOURCE_DIR, EXCLUDED_DIRS)
     if unbuilt:
         names = ", ".join(str(p.relative_to(REPO_ROOT)) for p in unbuilt[:5])
         raise SystemExit(f"ERROR: no extracted strings for {len(unbuilt)} source(s) ({names}). Run `make build` first.")

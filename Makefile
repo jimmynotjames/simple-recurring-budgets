@@ -63,6 +63,7 @@ i18n-check:
 	python3 scripts/check_source_strings.py
 	python3 scripts/translate_audit/untranslated_copies.py
 	python3 scripts/translate_audit/distinct_pairs.py
+	python3 scripts/screenshot_content/check_content.py
 
 # Merge the last `make build`'s extracted strings into the catalog, as a build in Xcode does:
 # Swift `comment:` changes, new keys, and `stale` for keys gone from Swift. Needs that build.

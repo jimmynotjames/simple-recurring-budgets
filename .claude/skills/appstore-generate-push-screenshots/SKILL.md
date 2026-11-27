@@ -1,6 +1,6 @@
 ---
 name: appstore-generate-push-screenshots
-description: Capture localized App Store screenshots with fastlane (Simulator) and upload them to App Store Connect via the self-healing retry controller. Runs the full capture → review → upload phase; if capture is already done, asks whether to re-capture (overwrite) or reuse the existing shots. Asks one choice (pause for inspection vs upload immediately) unless pre-authorized by an argument. Precondition: check_content.py exits 0. Use after /appstore:generate-screenshot-seeding. Invoked via /appstore:generate-push-screenshots.
+description: Capture localized App Store screenshots with fastlane (Simulator) and upload them to App Store Connect via the self-healing retry controller. Runs the full capture → review → upload phase; if capture is already done, asks whether to re-capture (overwrite) or reuse the existing shots. Asks one choice (pause for inspection vs upload immediately) unless pre-authorized by an argument. Precondition: check_content.py exits 0. Use after /appstore-generate-screenshot-seeding. Invoked via /appstore-generate-push-screenshots.
 ---
 
 # Capture and push App Store screenshots
@@ -8,7 +8,7 @@ description: Capture localized App Store screenshots with fastlane (Simulator) a
 Drives the capture → review → upload phase of the App Store screenshot
 workflow. The seed catalog must already be complete
 (`python3 scripts/screenshot_content/check_content.py` exits 0); if not, run
-`/appstore:generate-screenshot-seeding` first.
+`/appstore-generate-screenshot-seeding` first.
 
 Two long-running phases, back to back:
 
@@ -121,7 +121,7 @@ python3 scripts/screenshot_content/check_content.py
 
 - **Exit 0:** continue.
 - **Exit non-zero:** stop. The seed catalog has gaps — tell the user to run
-  `/appstore:generate-screenshot-seeding` first. Do not capture against an
+  `/appstore-generate-screenshot-seeding` first. Do not capture against an
   incomplete catalog.
 
 ### 2. Capture status — is capture already done?
@@ -314,5 +314,5 @@ bash scripts/screenshot_content/screenshot_status.sh         # running jobs + up
 
 ## When NOT to use this skill
 
-- To generate the seed catalog → `/appstore:generate-screenshot-seeding`.
-- To transcreate App Store text metadata → `/appstore:translate-metadata`.
+- To generate the seed catalog → `/appstore-generate-screenshot-seeding`.
+- To transcreate App Store text metadata → `/appstore-translate-metadata`.

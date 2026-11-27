@@ -1,6 +1,6 @@
 ---
 name: appstore-prepare-for-release
-description: Collaboratively drive an App Store release using docs/app-store-release-checklist.md — creates (or resumes) a per-release snapshot in releases/app-store-release-checklist--vX.Y.Z.md, walks the checklist with the user across sessions, invokes the sibling appstore/translation skills for the heavy steps, and closes out by filling the RELEASES.md entry after the ~1-week post-release monitoring window. Use when starting an App Store release, resuming one mid-flight (e.g. "the app got approved", "let's check on the release"), or closing one out. Invoked via /appstore:prepare-for-release.
+description: Collaboratively drive an App Store release using docs/app-store-release-checklist.md — creates (or resumes) a per-release snapshot in releases/app-store-release-checklist--vX.Y.Z.md, walks the checklist with the user across sessions, invokes the sibling appstore/translation skills for the heavy steps, and closes out by filling the RELEASES.md entry after the ~1-week post-release monitoring window. Use when starting an App Store release, resuming one mid-flight (e.g. "the app got approved", "let's check on the release"), or closing one out. Invoked via /appstore-prepare-for-release.
 ---
 
 # App Store release (collaborative, snapshot-driven)
@@ -57,9 +57,9 @@ and get a quick user decision; never skip silently.
   header), append the new items to the snapshot in place, marked `(added after
   snapshot)`.
 - The heavy steps have dedicated skills; invoke them, don't reimplement:
-  `/translate-new-strings`, `/audit-translations`, `/appstore:translate-metadata`,
-  `/appstore:generate-push-screenshots`, `/translation-accessibility-size-check`,
-  `/appstore:push-testflight-build`, `/appstore:push-release-build` (the P4.1
+  `/translate-new-strings`, `/audit-translations`, `/appstore-translate-metadata`,
+  `/appstore-generate-push-screenshots`, `/translation-accessibility-size-check`,
+  `/appstore-push-testflight-build`, `/appstore-push-release-build` (the P4.1
   release-candidate build), and the `app-store-review` skill for compliance
   questions.
 - Always prompt for the App Store version number, never infer it (step 2, P0.6).
@@ -229,7 +229,7 @@ git log <that-sha>..main --oneline -- simple-recurring-budgets/
 If `MARKETING_VERSION` already equals the new version AND the last command is
 empty, the newest TestFlight build is already the release candidate: record
 its build number (from the commit subject) and skip to P4.2. Otherwise invoke
-`/appstore:push-release-build` and let its recipe run (it re-confirms the
+`/appstore-push-release-build` and let its recipe run (it re-confirms the
 version from P0.6). Either way, copy the
 build number into the snapshot header; this one build is both the final
 TestFlight test target (P4.3) and the binary attached in P5.1.
@@ -260,7 +260,7 @@ Record pass/fail and which direction(s) were tested.
 
 Two points intentionally span days; don't poll or babysit them:
 
-- **After P5.3 (submitted)**: tell the user "Re-invoke `/appstore:prepare-for-release`
+- **After P5.3 (submitted)**: tell the user "Re-invoke `/appstore-prepare-for-release`
   when Apple emails a status change (approved/rejected), or to check anything
   meanwhile." Persist the snapshot first.
 - **During Phase 7 (monitoring)**: on each invocation report how long the

@@ -1,6 +1,6 @@
 ---
 name: appstore-push-testflight-build
-description: Build and ship a TestFlight build end-to-end — creates a release branch, runs `fastlane ios beta` (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then hands the commit to `/create-pr` (gate, push, PR) and stops; `/merge-pr` lands it on a later turn. Use when cutting a new TestFlight build. Invoked via /appstore:push-testflight-build.
+description: Build and ship a TestFlight build end-to-end — creates a release branch, runs `fastlane ios beta` (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then hands the commit to `/create-pr` (gate, push, PR) and stops; `/merge-pr` lands it on a later turn. Use when cutting a new TestFlight build. Invoked via /appstore-push-testflight-build.
 ---
 
 # Push a TestFlight build

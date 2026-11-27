@@ -135,7 +135,7 @@ Everything else is Apple frameworks: SwiftUI, SwiftData, CloudKit, Foundation, `
 
 ## AI Agent Configs
 
-- **Mirrored Cursor / Claude Code setup.** Hand-authored commands and skills are duplicated so either tool can drive the same workflow: `.claude/commands/*.md` ↔ `.cursor/commands/*.md`, `.claude/skills/<name>/SKILL.md` ↔ `.cursor/skills/<name>/SKILL.md`. Some cross-cutting rules (concurrency, build/test procedure, per-repo state locality) are also mirrored into `.cursor/rules/*.mdc`. `AGENTS.md` is canonical; the Cursor copies follow it.
+- **One agent setup for Claude Code and Cursor.** Workflows are skills in `.claude/skills/<name>/SKILL.md` (run as `/<name>`), with subagents in `.claude/agents/` and hooks in `.claude/settings.json`. Cursor loads all three directly, so nothing is duplicated per tool. `AGENTS.md` is canonical.
 - **Custom skills** (project-specific, not generic framework reference):
   - [create-pr](.claude/skills/create-pr/SKILL.md) — review, gate, and open a PR from already-written changes
   - [create-pr-for-issue](.claude/skills/create-pr-for-issue/SKILL.md) — turn a GitHub issue into a reviewed, gated PR

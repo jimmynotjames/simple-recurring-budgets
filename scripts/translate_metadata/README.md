@@ -46,7 +46,7 @@ The brand "Wren" is a proper noun everywhere: never translated,
 transliterated, or glossed. The brand stays Latin in all locales, so no
 localized home-screen icon name / `InfoPlist.xcstrings` is required.
 
-## The recipe (driven by the `appstore-translate-metadata` skill / `/appstore:translate-metadata`)
+## The recipe (driven by the `appstore-translate-metadata` skill / `/appstore-translate-metadata`)
 
 All commands run from the repo root.
 

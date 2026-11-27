@@ -43,7 +43,7 @@ See [`CONTRIBUTING.md § B`](../CONTRIBUTING.md#b--configure-secrets-ship-or-for
   app's runtime locale codes in `scripts/translate_catalog/locales.py`
   (`de`, `fr`, `nb`, `nl`). Author the English listing in
   `metadata/en-US/*.txt`, then run the `appstore-translate-metadata` skill
-  (`/appstore:translate-metadata`), which drives `scripts/translate_metadata/`
+  (`/appstore-translate-metadata`), which drives `scripts/translate_metadata/`
   (extract → dispatch → per-storefront Opus subagents → validate → merge) to
   transcreate all 49 storefronts.
   `scripts/translate_metadata/metadata_locales.py` owns the runtime→storefront
@@ -86,7 +86,7 @@ listings in ASC before submitting.
 Three steps: generate per-locale demo content → capture → upload.
 
 1. **Generate demo content.** Run the `appstore-generate-screenshot-seeding` skill
-   (`/appstore:generate-screenshot-seeding`), which drives `scripts/screenshot_content/` to
+   (`/appstore-generate-screenshot-seeding`), which drives `scripts/screenshot_content/` to
    produce a culturally-tuned, locally-realistic per-locale catalog (≤3 budgets each)
    under `simple-recurring-budgetsUITests/ScreenshotSeeds/<lang>.json`. Gate:
    `python3 scripts/screenshot_content/check_content.py` (exit 0 = ready);
@@ -108,7 +108,7 @@ Three steps: generate per-locale demo content → capture → upload.
    scopes capture to this one test; the accessibility capture + journey suite don't run.)
 
 3. **Upload (touches App Store Connect).** Prefer the
-   `/appstore:generate-push-screenshots` skill, which captures (if needed) and then
+   `/appstore-generate-push-screenshots` skill, which captures (if needed) and then
    drives the self-healing controller `scripts/screenshot_content/upload_with_retry.sh`.
    The bare lane hangs indefinitely when ASC returns HTTP 500s during
    finalization, so the controller wraps it with hang-detection, bounded retries,
@@ -125,7 +125,7 @@ Three steps: generate per-locale demo content → capture → upload.
    full runs, so omitting the override wipes every other locale first):
    `fastlane snapshot --languages ja,de,ar --devices "iPhone 17 Pro Max" --clear_previous_screenshots false`
    (then re-run the rename script), or use the per-locale skill args, e.g.
-   `/appstore:generate-screenshot-seeding ja de-DE ar-SA`.
+   `/appstore-generate-screenshot-seeding ja de-DE ar-SA`.
 
 ## Build numbers (auto-incremented)
 

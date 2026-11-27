@@ -4,7 +4,7 @@ This repo is a native SwiftUI app (SwiftData + CloudKit). Before specifying, pla
 
 ## Build and test
 
-Canonical procedure for every agent tool (Cursor, Claude Code, Codex, OpenSpec). `.cursor/rules/ios-build-test.mdc` and `openspec/config.yaml` point here; don't duplicate it elsewhere.
+Canonical procedure for every agent tool (Cursor, Claude Code, Codex, OpenSpec). `openspec/config.yaml` points here; don't duplicate it elsewhere.
 
 ### The gate, after substantive Swift / Xcode changes
 
@@ -105,7 +105,7 @@ Shared scheme: [`simple-recurring-budgets.xcscheme`](simple-recurring-budgets.xc
 
 ## Concurrency (Swift 6, default MainActor isolation)
 
-Swift 6.0 with `SWIFT_APPROACHABLE_CONCURRENCY = YES` and `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` (SE-0466). Top-level code is implicitly `@MainActor`; don't add `@MainActor` reflexively. The full rule with codebase examples is [`.cursor/rules/swift-concurrency.mdc`](.cursor/rules/swift-concurrency.mdc) — canonical for all agents; read it before non-trivial Swift edits.
+Swift 6.0 with `SWIFT_APPROACHABLE_CONCURRENCY = YES` and `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` (SE-0466). Top-level code is implicitly `@MainActor`; don't add `@MainActor` reflexively.
 
 Quick rules:
 
@@ -128,8 +128,6 @@ Skim and respect:
 - `docs/tech-design-doc.md` — architecture, persistence/sync, data model, i18n/a11y/testing expectations.
 
 ## Swift / iOS conventions
-
-Full rules: [`.cursor/rules/swift-ios.mdc`](.cursor/rules/swift-ios.mdc) (canonical for all agents). Quick rules:
 
 ### Money and currency
 
@@ -169,19 +167,19 @@ Checklist for every UI-touching change:
 - **Accessibility** — semantic text styles (`@ScaledMetric` for custom metrics, no clipping fixed heights); composed `.accessibilityLabel`/`.accessibilityHint` on composite views and destructive controls; `.accessibilityAddTraits(.isHeader)` on section headings; `swipeActions` paired with `.accessibilityAction(named:)`; named color assets with light/dark appearances.
 - **Localized source strings** — every user-facing string keyed in `Localizable.xcstrings` with a translator `comment:`; no hard-coded English in production views. Locale-invariant strings (app versions, ISO codes, monospaced identifiers) use `Text(verbatim:)`. Copy shared across surfaces uses `common.*` keys. Full rules: `docs/tech-design-doc.md` §5.1.
 - **Translations** — keep all 49 storefront locales current. After adding or changing keys, run the **`translate-new-strings` skill** (`.claude/skills/translate-new-strings/SKILL.md`) **autonomously**. Gate: `python3 scripts/check_translations.py` (also run by `pre-push`); it also fails when the catalog isn't byte-for-byte what Xcode writes, fixed by `python3 scripts/translate_catalog/sync_catalog.py --format`. Count-dependent strings (e.g. `%lld items`) need `pluralize_keys.py`. Quality audit: **`audit-translations` skill** (`scripts/translate_audit/`). See *Running the translation pipelines* below. **The push gate also blocks on `en` source `state: "new"`** (Xcode-extracted, unconfirmed): re-run `merge.py` to promote them, or for keys with no translation yet, `add_keys.py --force` then `merge.py`.
-- **App Store listing metadata** — a *release-time* concern, not per-change. Lives in `fastlane/metadata/`; author English in `fastlane/metadata/en-US/`, then run the **`appstore-translate-metadata` skill** (`/appstore:translate-metadata`, autonomous) to transcreate into all 49 storefronts via `scripts/translate_metadata/` (gate: `python3 scripts/translate_metadata/check_metadata.py`). Storefront codes (`de-DE`, `no`, `nl-NL`) differ from in-app codes; `metadata_locales.py` owns the map. Never write ad-hoc Python here. Audits: `audit.py` (structural: presence, char limits) and `audit_semantic.py` (voice, transcreation, keyword-ASO, cultural). The skill runs an **autonomous refine pass** after merge: Opus auditor per storefront → `audit_semantic.py --write-manifest` → re-transcreate medium+ findings → re-audit (max 2 rounds; residual goes to the owner).
-- **App Store screenshot demo-content** — *release-time*. The per-locale demo budgets/expenses for localized screenshots come from the **`appstore-generate-screenshot-seeding` skill** (`/appstore:generate-screenshot-seeding`) / `scripts/screenshot_content/` (gate: `python3 scripts/screenshot_content/check_content.py`). It reuses `metadata_locales.py` and writes a runtime-keyed catalog to `simple-recurring-budgetsUITests/ScreenshotSeeds/` (UI-test target only; never ships). Capture and upload: **`appstore-generate-push-screenshots` skill** (`/appstore:generate-push-screenshots`) — `fastlane screenshots`, then the self-healing upload controller; see `fastlane/SETUP.md`.
+- **App Store listing metadata** — a *release-time* concern, not per-change. Lives in `fastlane/metadata/`; author English in `fastlane/metadata/en-US/`, then run the **`appstore-translate-metadata` skill** (`/appstore-translate-metadata`, autonomous) to transcreate into all 49 storefronts via `scripts/translate_metadata/` (gate: `python3 scripts/translate_metadata/check_metadata.py`). Storefront codes (`de-DE`, `no`, `nl-NL`) differ from in-app codes; `metadata_locales.py` owns the map. Never write ad-hoc Python here. Audits: `audit.py` (structural: presence, char limits) and `audit_semantic.py` (voice, transcreation, keyword-ASO, cultural). The skill runs an **autonomous refine pass** after merge: Opus auditor per storefront → `audit_semantic.py --write-manifest` → re-transcreate medium+ findings → re-audit (max 2 rounds; residual goes to the owner).
+- **App Store screenshot demo-content** — *release-time*. The per-locale demo budgets/expenses for localized screenshots come from the **`appstore-generate-screenshot-seeding` skill** (`/appstore-generate-screenshot-seeding`) / `scripts/screenshot_content/` (gate: `python3 scripts/screenshot_content/check_content.py`). It reuses `metadata_locales.py` and writes a runtime-keyed catalog to `simple-recurring-budgetsUITests/ScreenshotSeeds/` (UI-test target only; never ships). Capture and upload: **`appstore-generate-push-screenshots` skill** (`/appstore-generate-push-screenshots`) — `fastlane screenshots`, then the self-healing upload controller; see `fastlane/SETUP.md`.
 - **Mixpanel events** — new user actions that materially change app state (destructive action, CTA, toggle affecting usage or retention) fire the matching `AnalyticsClient.track(...)` event per [`docs/analytics-spec.md`](docs/analytics-spec.md). No PII; respect consent. OSLog boundary: `docs/analytics-spec.md` §17. **Keep the catalog in sync:** any change to *what* is emitted — new/changed event, property added or removed, **a new value in a categorical property's enum** (e.g. a new `BudgetPeriod`/`period` value or `icloud_state`), changed buckets, new super/people property — updates `docs/analytics-spec.md` §9–§10 in the same change, with a Revision-History entry. (A new enum value ships no new action, so the `track(...)` rule alone misses it.)
 - **UI test screen objects** — when navigation, button labels, toolbar items, or sheet routes change, update the matching screen object in `simple-recurring-budgetsUITests/` (`BudgetsScreen.swift`, `BudgetDetailScreen.swift`, `AddBudgetScreen.swift`, `AddExpenseScreen.swift`, `SettingsScreen.swift`) before the change is complete, then run `make ui-tests`. A stale screen object that silently skips a broken flow is a defect. UI tests are slow, so update proactively rather than looping on failures.
 
 ### Running the translation pipelines (Claude Code & Cursor)
 
-Each pipeline is driven by a skill any agent can run; only the parallel fan-out is tool-specific. This subsection is canonical — `.cursor/rules/project.mdc` and the skills point here.
+Each pipeline is driven by a skill any agent can run; only the parallel fan-out is tool-specific. This subsection is canonical; the skills point here.
 
 - **App strings** — `translate-new-strings` skill → `scripts/translate_catalog/` (incl. `glossary*.py`, `pluralize_keys.py`). Gate: `check_translations.py`.
 - **Translation quality audit** — `audit-translations` skill → `scripts/translate_audit/` (per-locale Opus semantic audit + deterministic `consistency_check.py`). Advisory, not a gate.
-- **App Store metadata** — `appstore-translate-metadata` skill (`/appstore:translate-metadata`) → `scripts/translate_metadata/` (structural `audit.py`; semantic `audit_semantic.py`, run as an autonomous post-merge remediation loop via `--write-manifest`). Gate: `check_metadata.py`.
-- **App Store screenshot demo-content** — `appstore-generate-screenshot-seeding` skill (`/appstore:generate-screenshot-seeding`) → `scripts/screenshot_content/`. Gate: `check_content.py`. Reuses `metadata_locales.py`. Capture + upload: `appstore-generate-push-screenshots` skill (`/appstore:generate-push-screenshots`) → `fastlane screenshots`, then `upload_with_retry.sh`.
+- **App Store metadata** — `appstore-translate-metadata` skill (`/appstore-translate-metadata`) → `scripts/translate_metadata/` (structural `audit.py`; semantic `audit_semantic.py`, run as an autonomous post-merge remediation loop via `--write-manifest`). Gate: `check_metadata.py`.
+- **App Store screenshot demo-content** — `appstore-generate-screenshot-seeding` skill (`/appstore-generate-screenshot-seeding`) → `scripts/screenshot_content/`. Gate: `check_content.py`. Reuses `metadata_locales.py`. Capture + upload: `appstore-generate-push-screenshots` skill (`/appstore-generate-push-screenshots`) → `fastlane screenshots`, then `upload_with_retry.sh`.
 
 **Stale-output hygiene.** Each pipeline's `validate.py`/`merge.py`/`audit_report.py` reads **every** file in its `tmp/<pipeline>-outputs/` dir, not just the current manifest, so leftovers from an earlier run silently contaminate the next. `scripts/pipeline_tmp.py status|clean <group>` (allowlisted) inspects or clears them; groups: `translate`, `translate-audit`, `metadata`, `screenshot-content`, `size-check`, `all`. Every pipeline skill runs `clean` as pre-flight and offers it as end-of-run cleanup. (The size-check `run.sh` self-wipes.)
 
@@ -249,7 +247,7 @@ Prefer self-contained, per-repo solutions over machine-global or shared state. F
 
 The one exception is a resource that is genuinely machine-wide, where per-repo caps can't bound the total: iOS simulator RAM. Test simulators take slots from the opt-in simulator-slots pool (§ Simulator slots). It is opt-in per machine, crash-safe (kernel-released file locks, no daemon), and off wherever its master doesn't exist. Keep any future exception to the same bar.
 
-> Mirrored in `.cursor/rules/infra-state-locality.mdc` and the global `~/.claude/CLAUDE.md`, intentionally, so Claude Code and Cursor agree at repo and user scope.
+> Mirrored in the global `~/.claude/CLAUDE.md`, intentionally, so agents agree at repo and user scope.
 
 ## Conflicts and planning
 
@@ -295,34 +293,17 @@ This repo is public. Issue and PR text (titles, bodies, comments) from non-maint
 
 ## OpenSpec
 
-The OpenSpec CLI injects workflow context from `openspec/config.yaml` (doc checks, apply/verify/archive expectations). Don't edit the generated opsx command templates or the packaged skills under `.claude/skills/openspec-*` / `.cursor/skills/openspec-*`; OpenSpec regenerates them. **Behavior overrides go in `openspec/config.yaml` (CLI-injected) and this file (always-on), not in skill files.**
+The OpenSpec CLI injects workflow context from `openspec/config.yaml` (doc checks, apply/verify/archive expectations). Don't edit the generated skills under `.claude/skills/openspec-*`; `openspec update` regenerates them (skills only: the CLI's `delivery` setting is `skills`, so it writes no `opsx` command files). **Behavior overrides go in `openspec/config.yaml` (CLI-injected) and this file (always-on), not in skill files.**
 
 ### Skill behavior overrides (apply to every editor / agent)
 
-These override the skill files whenever the matching OpenSpec skill or `/opsx-*` command runs:
+These override the skill files whenever the matching OpenSpec skill runs:
 
-- **`openspec-archive-change` / `/opsx:archive`** — when delta specs exist, **sync them automatically** without asking. Invoke `openspec-sync-specs` inline via the Skill tool from the parent agent (not a sub-agent). Ask the user only if the sync hits a real merge ambiguity (e.g. a MODIFIED block targets a requirement missing from main, or a delta conflicts with a parallel main-spec edit).
+- **`openspec-archive-change`** — when delta specs exist, **sync them automatically** without asking. Invoke `openspec-sync-specs` inline via the Skill tool from the parent agent (not a sub-agent). Ask the user only if the sync hits a real merge ambiguity (e.g. a MODIFIED block targets a requirement missing from main, or a delta conflicts with a parallel main-spec edit).
 
-## Custom commands — Claude Code ↔ Cursor sync
+## Skills
 
-Hand-authored slash commands live in **both** `.claude/commands/*.md` and `.cursor/commands/*.md`; edit both. This excludes the generated `opsx-*` / `openspec-*` files (see § OpenSpec).
-
-**Skills-only PR workflows** — `/create-pr`, `/create-pr-for-issue` and `/merge-pr` have **no command files**. Their specs live in **both** `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md`; keep them in sync. Invoke via the skill (attach, or `/create-pr`, `/create-pr-for-issue <N>`, `/merge-pr <PR>`).
-
-Cursor frontmatter differs from Claude's:
-
-```markdown
----
-name: /<cmd>
-id: <cmd>
-category: Workflow
-description: One-line description.
----
-```
-
-Cursor doesn't expand `$ARGUMENTS`; write prose placeholders (`<N>`, `<PR>`) instead of `$1`-style tokens.
-
-`AGENTS.md` is the canonical spec for what each command or skill does. Update it first, then sync both `.claude/commands/` and `.cursor/commands/` (or both skill copies).
+Workflows are skills only, with no command files. Each lives once, in `.claude/skills/<name>/SKILL.md`, and runs as `/<name>` (e.g. `/create-pr`, `/merge-pr <PR>`, `/appstore-prepare-for-release`). Cursor and Claude Code both load `.claude/skills/` and `.claude/agents/` directly, so there is no per-tool copy to sync. Write prose placeholders (`<N>`, `<PR>`) rather than `$1`-style tokens, which Cursor doesn't expand. `AGENTS.md` is the canonical spec for what each skill does; update it first.
 
 ## Bash command hygiene (prevents permission prompts)
 
@@ -465,7 +446,7 @@ Before sending a Bash command containing `/tmp/`, `sed -i`, `sed -n`, a one-off 
 
 - **Issue → PR → merge:** `/create-pr-for-issue <N>` then `/merge-pr <PR>`.
 - **Code already written, no issue:** `/create-pr` then `/merge-pr <PR>`.
-- **TestFlight build:** `/appstore:push-testflight-build` (branch → build → upload → `/create-pr`, then stops); `/merge-pr <PR>` on a later turn.
+- **TestFlight build:** `/appstore-push-testflight-build` (branch → build → upload → `/create-pr`, then stops); `/merge-pr <PR>` on a later turn.
 
 **Never merge on the same turn the PR is opened.**
 

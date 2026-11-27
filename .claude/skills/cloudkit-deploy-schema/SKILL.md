@@ -92,4 +92,4 @@ If the preflight check finds Development schema fields with no corresponding pro
 
 ## Where this fits in a release
 
-This skill is invoked from the App Store release checklist's P3.7 (`docs/app-store-release-checklist.md`, driven by `/appstore:prepare-for-release`). That item's Note should reference what this skill did (deploy method, fields involved, verification result) rather than duplicate the recipe.
+This skill is invoked from the App Store release checklist's P3.7 (`docs/app-store-release-checklist.md`, driven by `/appstore-prepare-for-release`). That item's Note should reference what this skill did (deploy method, fields involved, verification result) rather than duplicate the recipe.

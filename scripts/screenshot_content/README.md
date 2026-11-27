@@ -8,9 +8,9 @@ Sibling of the in-app (`translate_catalog/`) and metadata
 (`translate_metadata/`) pipelines, with the same shape:
 extract → dispatch → fan-out subagents → validate → merge → gate.
 
-Driver: `/appstore:generate-screenshot-seeding` (skill
+Driver: `/appstore-generate-screenshot-seeding` (skill
 `appstore-generate-screenshot-seeding`); this directory holds the scripts it runs.
-Capture and upload: `/appstore:generate-push-screenshots`.
+Capture and upload: `/appstore-generate-push-screenshots`.
 
 ## What it produces
 
@@ -92,7 +92,7 @@ dashboard). Re-dispatch only the PENDING/FAIL subagents; don't re-run
 
 ## Not in scope
 
-- App Store text metadata → `/appstore:translate-metadata`.
+- App Store text metadata → `/appstore-translate-metadata`.
 - In-app UI strings → `translate-new-strings`.
 - Capture + upload mechanics → `fastlane/Snapfile`, `fastlane/Fastfile`
   (`screenshots` / `push_screenshots` lanes), `fastlane/SETUP.md`.

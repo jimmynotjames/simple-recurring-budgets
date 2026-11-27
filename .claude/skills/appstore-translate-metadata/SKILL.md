@@ -1,6 +1,6 @@
 ---
 name: appstore-translate-metadata
-description: Transcreate the App Store listing (name, subtitle, keywords, promotional text, description, release notes) from English into all 49 App Store storefront locales under fastlane/metadata/. Invoked via /appstore:translate-metadata. Use after editing any fastlane/metadata/en-US/*.txt, or when check_metadata.py reports gaps. Drives the scripts/translate_metadata/ pipeline in subset mode with parallel per-storefront Opus subagents, then runs an autonomous Opus semantic-audit + remediation refine pass before the gate. Orchestration is model-light enough to run on Sonnet; the Opus subagents do the translation and audit. This is the App-Store-metadata sibling of translate-new-strings (in-app strings) and appstore-generate-screenshot-seeding (screenshot demo data).
+description: Transcreate the App Store listing (name, subtitle, keywords, promotional text, description, release notes) from English into all 49 App Store storefront locales under fastlane/metadata/. Invoked via /appstore-translate-metadata. Use after editing any fastlane/metadata/en-US/*.txt, or when check_metadata.py reports gaps. Drives the scripts/translate_metadata/ pipeline in subset mode with parallel per-storefront Opus subagents, then runs an autonomous Opus semantic-audit + remediation refine pass before the gate. Orchestration is model-light enough to run on Sonnet; the Opus subagents do the translation and audit. This is the App-Store-metadata sibling of translate-new-strings (in-app strings) and appstore-generate-screenshot-seeding (screenshot demo data).
 ---
 
 # Translate App Store metadata
@@ -455,6 +455,6 @@ python3 scripts/pipeline_tmp.py clean metadata
 
 - Editing in-app UI strings → use `translate-new-strings`.
 - Generating App Store screenshot seed content → use
-  `/appstore:generate-screenshot-seeding`.
+  `/appstore-generate-screenshot-seeding`.
 - Capturing + uploading App Store screenshots → use
-  `/appstore:generate-push-screenshots`.
+  `/appstore-generate-push-screenshots`.

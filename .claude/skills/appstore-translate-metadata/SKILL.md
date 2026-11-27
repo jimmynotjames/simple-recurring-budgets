@@ -29,6 +29,24 @@ judgments unreliable. The `metadata-locale` and `metadata-audit-locale` workers
 stay Opus regardless (pinned in their agent definitions), so a Sonnet session
 never weakens the translation or audit.
 
+## Preflight — sync with `origin/main` (right after the model preflight)
+
+Start from current `main` so the run doesn't work from stale sources:
+
+```bash
+git status --porcelain
+git branch --show-current
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+
+- **On `main`, behind `origin/main`**: `git pull --ff-only`. Uncommitted edits
+  are fine; git refuses if an incoming commit touches a file you've modified. If
+  it refuses or can't fast-forward, stop and ask the user.
+- **On another branch**: don't switch or merge. If it's behind `origin/main`,
+  say by how many commits and confirm before continuing.
+
+
 ## Autonomy
 
 Run the whole pipeline autonomously, end to end, without pausing for approval on

@@ -35,6 +35,25 @@ Code, a markdown block on Cursor) before running anything. There are no
 subagents (pure capture/upload mechanics); a model weaker than Sonnet may handle
 the tick-loop and success-verification steps unreliably, and Opus is pricier for no gain.
 
+## Preflight — sync with `origin/main` (right after the model preflight)
+
+Start from current `main` so the run doesn't work from stale sources:
+
+```bash
+git status --porcelain
+git branch --show-current
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+
+- **On `main`, behind `origin/main`**: `git pull --ff-only`. Uncommitted edits
+  are fine; git refuses if an incoming commit touches a file you've modified. If
+  it refuses or can't fast-forward, stop and ask the user.
+- **On another branch**: don't switch or merge. If it's behind `origin/main`,
+  say by how many commits and confirm before continuing.
+- **Resuming a partial capture**: skip the pull and say so. Every shot in one
+  capture must come from the same source.
+
 ## Arguments — how to run fully unattended
 
 Optional arguments pre-answer the prompts, so there is zero prompting. Arguments are space-separated and order-independent, on two independent axes.
@@ -79,7 +98,8 @@ stop.
 Print this checklist unchecked at the start, then re-print it (one line
 per step) with `- [x]` as each step completes:
 
-0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding)
+0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding);
+   then sync with `origin/main`
 1. **Precondition** — seed catalog complete (`check_content.py` exits 0)
 2. **Capture status** — is capture already done? (`capture_progress.py`); if done,
    ask re-capture vs reuse (unless pre-answered by argument)

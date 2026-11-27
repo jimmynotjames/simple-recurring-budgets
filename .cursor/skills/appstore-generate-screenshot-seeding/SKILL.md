@@ -68,12 +68,31 @@ Surface only genuine `_questions` the subagents flag (a market whose real
 currency differs from the default, or a dropped third budget), in a single
 consolidated batch; decide everything else yourself.
 
+## Preflight — sync with `origin/main` (right after the model preflight)
+
+Start from current `main` so the run doesn't work from stale sources:
+
+```bash
+git status --porcelain
+git branch --show-current
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+
+- **On `main`, behind `origin/main`**: `git pull --ff-only`. Uncommitted edits
+  are fine; git refuses if an incoming commit touches a file you've modified. If
+  it refuses or can't fast-forward, stop and ask the user.
+- **On another branch**: don't switch or merge. If it's behind `origin/main`,
+  say by how many commits and confirm before continuing.
+
+
 ## Progress reporting
 
 Autonomous is not silent. Narrate the run as a fixed checklist so the user can
 see where the job is. Steps (matching the Recipe below):
 
-0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding)
+0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding);
+   then sync with `origin/main`
 1. **Pre-flight** — clear stale `tmp/screenshot-content-*` outputs
 2. **Extract** — stage source, compute the work manifest
 3. **Prompts** — compose per-storefront prompt files

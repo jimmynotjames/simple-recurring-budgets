@@ -1,19 +1,19 @@
-Harcamadan önce ne kadar harcayabileceğini bil.
+Harcamadan önce ne kadar harcayabileceğinizi bilin.
 
-Wren, günlük harcama kararlarını hızlı ve basit hale getirir. Harcama limitleri belirle, ne kadar kaldığını anında gör.
+Wren, günlük harcama kararlarınızı hızlı ve kolay hale getirir. Harcama sınırlarınızı belirleyin, harcamalarınızı bu sınırlara göre takip edin.
 
 Özellikler:
 • Kolay kurulum
-• Saniyeler içinde harcama ekleme
+• Hızlı harcama kaydı
 • Günlük, haftalık, iki haftalık ve aylık bütçeler
-• Harcamadığın para devreder, bugün kalan yarına eklenir
-• Belirli tarihler için tek seferlik bütçeler (tatil ya da hafta sonu kaçamağı gibi)
-• Verilerin cihazında ve iCloud'da güvende tutulur
-• Cihazların arasında iCloud senkronizasyonu
-• iCloud senkronizasyonu dışında internet bağlantısı gerekmez
+• Devir ile harcanmayan para sonraki döneme geçer; bugün biriktirdiğiniz yarına kalır
+• Belirli tarih aralıkları için tek seferlik bütçeler (tatil ya da hafta sonu kaçamağı gibi)
+• Verileriniz cihazınızda ve iCloud'da güvenle saklanır
+• Cihazlarınız arasında iCloud eşzamanlaması
+• iCloud eşzamanlaması dışında internet bağlantısı gerekmez
 
-Bu bir kurumsal harcama takibi, vergi fişi kaydı ya da karmaşık bir bütçe sistemi değil. Banka hesaplarını bağlamıyorum, süslü grafikler de sunmuyorum. Tüm finansal hayatını değil, birkaç alışkanlığı düzene sokan sade bir araç sunmak istiyorum.
+Bu bir iş harcaması takip aracı, vergi fişi kaydedici ya da karmaşık bir bütçe sistemi değil. Banka hesaplarınızı bağlamıyorum, süslü grafikler de sunmuyorum. Tüm finansal hayatınıza değil, birkaç alışkanlığa odaklanan sade bir araç sunmak istiyorum.
 
-Uygulamayı verimli kullanmak için iyileştirmek istediğin bir iki düzenli harcama alışkanlığını düşün (market, kahve, dışarıda yemek, kıyafet gibi). Sonra her gün, hafta, iki hafta ya da ay için harcamak istediğin üst sınırı belirle. Bu bütçeleri ekleyip harcamalarını takip etmeye başladığında, kararlarını anında ve daha bilinçli verebilirsin.
+Uygulamayı verimli kullanmak için iyileştirmek istediğiniz bir ya da iki düzenli harcama alışkanlığını düşünmeniz yeterli (yemek, çay, taksi, kıyafet vb.). Ardından her gün, hafta, iki hafta ya da ay için harcamak istediğiniz üst sınırı belirleyin. Bu bütçeleri uygulamaya ekleyip harcamalarınızı kaydetmeye başladığınızda, harcama kararlarınızı anında ve daha bilinçli verebileceksiniz.
 
-Wren'i indir, her güne biraz daha rahat başla.
+Wren'i indirin, her gününüz biraz daha kolay geçsin.

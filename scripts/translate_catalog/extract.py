@@ -5,17 +5,11 @@ JSON file suitable for use as translation input.
 
 Default output: tmp/translate-inputs/source.json
 
-Each entry has the shape:
-  {
-    "key": {
-      "value": "<English string>",
-      "comment": "<translator comment>",
-      "formatSpecifiers": ["<spec1>", ...]   # ordered list
-    },
-    ...
-  }
-
-Format specifiers captured: %@, %1$@..%9$@, %lld, %d, %ld
+Each entry is flat or plural:
+  "key": {"value": "<English>", "comment": "<translator comment>", "formatSpecifiers": [...]}
+  "key": {"plural": {"one": "...", "other": "..."}, "comment": "...", "formatSpecifiers": [...]}
+`formatSpecifiers` lists the value's (or plural `other` form's) specifiers in order;
+dispatch_prompts.py leaves it out of the translator's slice.
 
 Modes:
   (default)         emit every translatable key in the catalog
@@ -36,17 +30,18 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 INPUTS_DIR = REPO_ROOT / "tmp" / "translate-inputs"
 OUTPUTS_DIR = REPO_ROOT / "tmp" / "translate-outputs"
 SOURCE_PATH = INPUTS_DIR / "source.json"
 MANIFEST_PATH = INPUTS_DIR / "manifest.json"
 
 sys.path.insert(0, str(Path(__file__).parent))
+from paths import CATALOG_PATH  # noqa: E402
 from locales import LOCALES  # noqa: E402
 
-# Full C/Apple printf-style specifier grammar (%ld, %lu, %f, %x, %.2f, flags) so
-# none is mis-tokenized if it lands in the catalog.
+# Full C/Apple printf-style specifier grammar, so we don't silently mis-tokenize
+# %ld / %lu / %f / %x / %.2f / flags if they ever land in the catalog. (Today the
+# catalog uses only %@, %n$@, %lld — all unchanged by this broader pattern.)
 FORMAT_SPEC_RE = re.compile(
     r"%(?:\d+\$)?[-+ 0#']*\d*(?:\.\d+)?(?:hh|h|ll|l|q|z|t|j|L)?[@%diouxXeEfFgGaAcsSp]"
 )
@@ -58,12 +53,14 @@ def extract_format_specifiers(value: str) -> list[str]:
     return FORMAT_SPEC_RE.findall(value)
 
 
-# CLDR plural categories in canonical order; a language uses a subset (en: one/other, ja: other, …).
+# CLDR plural categories, in canonical order. A given language uses a subset
+# (English: one/other; Japanese: other; Russian: one/few/many/other; …).
 CLDR_CATEGORIES = ("zero", "one", "two", "few", "many", "other")
 
 
 def localization_plural(localization: dict | None) -> dict[str, str] | None:
-    """Return {category: value} (non-empty values only) for a plural-`variations` localization, else None."""
+    """Return {category: value} for a plural-`variations` localization, else None.
+    Only categories with a non-empty value are included."""
     if not localization:
         return None
     plural = localization.get("variations", {}).get("plural")
@@ -81,7 +78,8 @@ def build_entry(key: str, strings: dict) -> dict:
     comment = entry.get("comment", "")
     plural = localization_plural(en_localization)
     if plural is not None:
-        # Plural key: emit per-category English forms; specifiers come from `other` (all categories share them).
+        # A plural key: emit the per-category English forms. Specifiers come from the
+        # `other` form (every category carries the same set).
         ref = plural.get("other") or next(iter(plural.values()))
         return {
             "plural": plural,
@@ -103,9 +101,9 @@ def is_translatable(entry: dict) -> bool:
 def find_missing(strings: dict) -> dict[str, list[str]]:
     """Return {locale: [keys...]} for keys that need translation in that locale.
 
-    A (key, locale) pair is missing when the entry is absent or its stringUnit.state
-    is in {new, needs_review, stale}. Mirrors check_translations.py so passing here
-    implies passing pre-push.
+    A (key, locale) pair is "missing" when the locale entry is absent or its
+    stringUnit.state is in {new, needs_review, stale}. Mirrors the logic in
+    check_translations.py so passing here implies passing pre-push.
     """
     missing: dict[str, list[str]] = {locale: [] for locale in LOCALES}
     for key, entry in strings.items():
@@ -119,7 +117,8 @@ def find_missing(strings: dict) -> dict[str, list[str]]:
                 missing[locale].append(key)
                 continue
             if en_is_plural:
-                # Plural key: needs work unless the locale has a plural block with `other` and every category `translated`.
+                # Plural key: needs work unless the locale has a plural block whose every
+                # category is `translated` and includes at least `other`.
                 if _plural_needs_translation(loc_entry):
                     missing[locale].append(key)
                 continue
@@ -197,7 +196,7 @@ def main() -> int:
         manifest = find_missing(strings)
         if not manifest:
             print("No missing or stale translations found — nothing to do.")
-            # Write empty artifacts so downstream tools don't read stale data.
+            # Still write empty artifacts so downstream tools don't trip on stale data.
             write_source([], strings)
             write_manifest({})
             return 0

@@ -7,7 +7,7 @@ prints `code=false` only when every path is docs-only, else `code=true`. An empt
 
 Conservative by design: a path is docs only when it matches below and is not under an app or test
 target folder. Swift, the Makefile, workflows, fastlane and scripts all count as code, and so does
-Markdown under scripts/ (prompt templates there feed tested code).
+Markdown under scripts/ and i18n/ (prompt templates and the brief that fills them feed tested code).
 """
 
 from __future__ import annotations
@@ -17,8 +17,8 @@ import sys
 DOCS_DIRS = ("docs/", "openspec/", "releases/", ".claude/")
 # Docs inside a target folder, kept out of the target by the project's membershipExceptions.
 DOCS_IN_TARGET_FOLDERS = ("simple-recurring-budgetsUITests/FLAKY_TESTS.md",)
-# Markdown here is input to code, not documentation.
-CODE_MARKDOWN_DIRS = ("scripts/",)
+# Markdown here is input to code, not documentation (i18n/brief.md fills the prompt templates).
+CODE_MARKDOWN_DIRS = ("scripts/", "i18n/")
 
 
 def is_docs(path: str) -> bool:

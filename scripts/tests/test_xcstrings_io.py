@@ -14,6 +14,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_catalog"))
 from paths import CATALOG_PATH as CATALOG  # noqa: E402
 from xcstrings_io import is_xcode_format, write_xcstrings, xcode_key_order  # noqa: E402
 
+
 # Sorted by Swift's `localizedStandardCompare`, the comparison Xcode's catalog editor imports.
 LOCALIZED_STANDARD_ORDER = [
     "0", "00", "1", "a.alpha", "a.Beta", "a.Zed", "a1", "a01", "A1", "ab", "aB", "Ab", "checklist",
@@ -45,13 +46,17 @@ class WriteTests(unittest.TestCase):
     def test_format_check_rejects_code_point_order(self) -> None:
         self.assertTrue(is_xcode_format(CATALOG))
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-        # Digit runs are where the two orders differ; add a pair so the check never depends on the
-        # committed keys happening to contain one.
-        catalog["strings"].update({"zz.item2": {}, "zz.item10": {}})
+        # Keys whose code-point and Xcode orders differ, whatever keys this catalog has.
+        catalog["strings"].update({"zz.item10": {}, "zz.item9": {}})
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "Localizable.xcstrings"
             out.write_text(json.dumps(catalog, ensure_ascii=False, indent=2, separators=(",", " : "), sort_keys=True), encoding="utf-8")
             self.assertFalse(is_xcode_format(out))
+
+    def test_no_committed_key_is_manual(self) -> None:
+        # Xcode never syncs a `manual` key's comment from Swift.
+        strings = json.loads(CATALOG.read_text(encoding="utf-8"))["strings"]
+        self.assertEqual([k for k, v in strings.items() if v.get("extractionState") == "manual"], [])
 
     def test_nested_objects_use_plain_sorted_order(self) -> None:
         catalog = {"version": "1.0", "strings": {"k": {"localizations": {"zh-HK": {}, "zh-Hans": {}}}}, "sourceLanguage": "en"}

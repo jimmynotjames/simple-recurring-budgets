@@ -1,1 +1,1 @@
-rozpočet,výdaje,finance,peníze,úspory,utrácení,osobní,správce,týdenní,měsíční,kapesné,limity
+rozpočet,výdaj,útrata,peníze,finance,úspory,budget,hotovost,denní,týdenní,měsíční,limit

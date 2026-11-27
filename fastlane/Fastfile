@@ -2,6 +2,9 @@
 # gitignored fastlane/.env. See fastlane/README.md for live vs. dormant lanes.
 
 default_platform(:ios)
+require_relative "lib/metadata_publish"
+
+RELEASE_ROOT = File.expand_path("..", __dir__)
 
 SCHEME = "simple-recurring-budgets"
 OUTPUT_DIR = "./build"
@@ -207,15 +210,17 @@ platform :ios do
   # is filled in by the translation pipeline.
   # ---------------------------------------------------------------------------
   desc "Upload localized App Store metadata only (no binary, no screenshots)"
-  lane :push_metadata do
+  lane :push_metadata do |options|
+    requested = options[:app_version].to_s
+    UI.user_error!("Pass app_version:<version> explicitly") if requested.strip.empty?
     verify_metadata_ready!
-    upload_to_app_store(
-      skip_binary_upload: true,
-      skip_screenshots: true,
-      force: true,                          # skip the interactive HTML preview confirmation
-      run_precheck_before_submit: false,    # we're not submitting; precheck can't check IAPs via API key
-      submit_for_review: false              # upload only; you press submit in ASC
-    )
+    # Stages a validated copy (English fallback per field, no empty files) for deliver to read.
+    sh("python3", File.join(RELEASE_ROOT, "scripts/appstore_metadata.py"), "prepare", "--output", File.join(RELEASE_ROOT, "tmp/appstore-metadata"))
+    app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
+    UI.user_error!("No access to #{APP_IDENTIFIER}") unless app && app.bundle_id == APP_IDENTIFIER
+    version = app.get_edit_app_store_version(platform: "IOS")
+    MetadataPublish.validate_target!(version, requested)
+    upload_to_app_store(MetadataPublish.options(APP_IDENTIFIER, requested, File.join(RELEASE_ROOT, "tmp/appstore-metadata")))
   end
 
   # ---------------------------------------------------------------------------

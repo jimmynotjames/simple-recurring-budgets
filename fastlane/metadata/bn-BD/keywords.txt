@@ -1,1 +1,1 @@
-budget,বাজেট,money,টাকা,খরচ,সঞ্চয়,হিসাব,wallet,saving,expense,finance,ট্র্যাক,মাসিক,সাপ্তাহিক
+খরচ,budget,expense,টাকা,money,tracker,saving,wallet,monthly,khoroch,hisab,spending

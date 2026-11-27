@@ -1,19 +1,19 @@
-Vezi cât poți cheltui, înainte să cheltui.
+Aflați cât puteți cheltui, înainte să cheltuiți.
 
-Wren face deciziile zilnice legate de bani rapide și simple. Stabilește-ți limite de cheltuieli și urmărește-le ușor.
+Cu Wren, deciziile de zi cu zi despre cheltuieli devin rapide și simple. Stabiliți limite de cheltuieli și urmăriți cât vă mai rămâne din ele.
 
 Funcții:
 • Configurare simplă
-• Adaugi o cheltuială în câteva secunde
+• Adăugare rapidă a cheltuielilor
 • Bugete zilnice, săptămânale, la două săptămâni și lunare
-• Banii necheltuiți se reportează, așa că ce economisești azi trece în ziua următoare
-• Bugete unice pentru anumite perioade (de exemplu o vacanță sau o escapadă de weekend)
-• Datele tale stau în siguranță pe dispozitiv și în iCloud
-• Sincronizare prin iCloud între dispozitivele tale
-• Nu ai nevoie de conexiune la internet, decât dacă folosești sincronizarea iCloud
+• Reportul sumelor necheltuite: ce economisiți azi trece pe mâine
+• Bugete unice pentru anumite perioade (de exemplu, un concediu sau o escapadă de weekend)
+• Datele sunt păstrate în siguranță pe dispozitiv și în iCloud
+• Sincronizare prin iCloud pe toate dispozitivele
+• Nu aveți nevoie de conexiune la internet decât pentru sincronizarea prin iCloud
 
-Wren nu e o aplicație pentru cheltuieli de business, un registru de bonuri fiscale sau un sistem complicat de bugetare. Nu îți conectez conturile bancare și nu îți arunc în față grafice complicate. Vreau să îți ofer un instrument simplu, axat pe câteva obiceiuri, nu pe toată viața ta financiară.
+Nu este o aplicație pentru cheltuieli de firmă, o evidență a bonurilor fiscale sau un sistem complicat de bugete. Nu vă conectez conturile bancare și nu vă ofer grafice sofisticate. Vreau să vă ofer un instrument simplu, axat pe câteva obiceiuri, nu pe întreaga viață financiară.
 
-Ca să folosești aplicația cu spor, e de ajuns să te gândești la unul sau două obiceiuri de cheltuieli pe care vrei să le ții mai bine sub control (mâncare, cafea, ieșiri în oraș, haine etc.). Apoi gândește-te cât vrei să cheltui cel mult pe zi, pe săptămână, la două săptămâni sau pe lună. După ce adaugi aceste bugete și începi să îți notezi cheltuielile, vei putea lua decizii mai bune chiar în momentul în care cheltui.
+Ca să folosiți aplicația eficient, gândiți-vă la unul sau două obiceiuri de cheltuieli pe care doriți să le îmbunătățiți (mâncare, cafea, ieșiri în oraș, haine etc.). Apoi stabiliți suma maximă pe care doriți să o cheltuiți pe zi, pe săptămână, la două săptămâni sau pe lună. După ce adăugați aceste bugete în aplicație și începeți să vă notați cheltuielile, veți putea lua pe loc decizii mai înțelepte.
 
-Descarcă Wren și fă-ți fiecare zi mai ușoară.
+Descărcați Wren și faceți-vă fiecare zi mai ușoară.

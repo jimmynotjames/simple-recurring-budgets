@@ -2,11 +2,12 @@
 """
 Merge per-locale translation JSON files back into Localizable.xcstrings.
 
-Reads tmp/translate-outputs/{locale}.json for every locale in locales.py and
-writes per-key localizations entries into the catalog.
+Reads tmp/translate-outputs/{locale}.json and {locale}.sample.json for every
+locale in locales.py and writes per-key localizations entries into the catalog.
+Promotes each merged key's English source from state `new` to `translated`.
 
 Idempotent: re-running with identical inputs produces an identical catalog.
-Stable JSON ordering (sorted keys) keeps diffs clean.
+Writes through xcstrings_io.py in Xcode's byte format, which keeps diffs clean.
 Preserves all existing catalog fields (comment, extractionState, etc.).
 
 Usage:
@@ -26,22 +27,30 @@ from pathlib import Path
 from typing import Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 OUTPUTS_DIR = REPO_ROOT / "tmp" / "translate-outputs"
 
 sys.path.insert(0, str(Path(__file__).parent))
+from paths import CATALOG_PATH  # noqa: E402
 from locales import LOCALES  # noqa: E402
 from extract import CLDR_CATEGORIES  # noqa: E402
 from xcstrings_io import write_xcstrings  # noqa: E402
 
 
 def load_translations(locale: str) -> Optional[dict]:
-    path = OUTPUTS_DIR / f"{locale}.json"
-    if not path.exists():
-        print(f"  SKIP {locale}: output file not found at {path}", file=sys.stderr)
+    """Union of the locale's UI output and its transcreated `sample.*` output (see
+    dispatch_prompts.TRANSCREATED_NAMESPACES); None when neither file exists."""
+    merged: dict = {}
+    found = False
+    for path in (OUTPUTS_DIR / f"{locale}.json", OUTPUTS_DIR / f"{locale}.sample.json"):
+        if not path.exists():
+            continue
+        found = True
+        with path.open(encoding="utf-8") as f:
+            merged.update(json.load(f))
+    if not found:
+        print(f"  SKIP {locale}: no output file at {OUTPUTS_DIR / f'{locale}.json'}", file=sys.stderr)
         return None
-    with path.open(encoding="utf-8") as f:
-        return json.load(f)
+    return merged
 
 
 def parse_keys(arg: str | None, path: Path | None) -> set[str] | None:
@@ -97,7 +106,7 @@ def main(argv: list[str]) -> int:
             en_is_plural = "plural" in localizations.get("en", {}).get("variations", {})
 
             if en_is_plural:
-                # Plural key: CLDR-category → string object, written as a variations.plural block.
+                # Plural key: expect a CLDR-category → string object; write a variations.plural block.
                 cats = {}
                 if isinstance(translated_value, dict):
                     cats = {c: v for c, v in translated_value.items()
@@ -114,20 +123,21 @@ def main(argv: list[str]) -> int:
                 }
                 locale_merged += 1
             else:
-                # Flat key: accept a string or the {"value": "..."} dict some models emit.
+                # Flat key. Accept a flat string or a {"value": "..."} dict some models emit.
                 flat = translated_value.get("value", "") if isinstance(translated_value, dict) else translated_value
                 if not isinstance(flat, str) or not flat.strip():
-                    # Never overwrite an existing translation with an empty/non-string value.
+                    # Refuse to overwrite an existing good translation with an empty/non-string value.
                     print(f"  WARN [{locale}] key {key!r} has empty/invalid value — skipping", file=sys.stderr)
                     rejected_empty += 1
                     continue
                 localizations[locale] = {"stringUnit": {"state": "translated", "value": flat}}
                 locale_merged += 1
 
-            # Promote the English source to "translated": Xcode-extracted keys land with
-            # en.stringUnit.state == "new", and check_translations.py would flag
-            # `NEW [en] '<key>' (source)` and block the push even when every locale is
-            # translated. Idempotent across locales.
+            # Finalize the English source. A key auto-extracted by Xcode lands with
+            # en.stringUnit.state == "new"; once we've translated it the source is
+            # effectively reviewed, so promote it to "translated". Otherwise
+            # check_translations.py flags `NEW [en] '<key>' (source)` and blocks the
+            # push even though every locale is translated. Idempotent across locales.
             en_unit = localizations.get("en", {}).get("stringUnit")
             if isinstance(en_unit, dict) and en_unit.get("state") == "new":
                 en_unit["state"] = "translated"

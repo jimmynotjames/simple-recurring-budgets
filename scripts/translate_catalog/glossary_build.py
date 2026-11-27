@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Build (and extend) the app translation glossary: scripts/translate_catalog/glossary.json.
+Build (and extend) the app translation glossary: i18n/glossary.json.
 
-The glossary gives each recurring app term ONE canonical translation per locale, so
-keys with the same English ("Add Funds") stay consistent and "Add Expense" can reuse
-"Add" and "Expense". Consulted by dispatch_prompts.py (translation) and
-audit_dispatch.py (audit); grown by glossary_sync.py.
+The glossary gives each recurring app term ONE canonical translation per locale, so two
+keys with the same English ("Share Anonymous Usage Data") stay consistent, and so that
+"Reset All" can reuse the glossary's "Reset". It is consulted by
+dispatch_prompts.py (translation) and audit_dispatch.py (audit), and grown by glossary_sync.py.
 
-An orchestration *primitive*: never calls an LLM. It prepares inputs/prompts and merges
-agent outputs, like extract.py/dispatch_prompts.py/merge.py. The parent agent runs the
-`glossary-locale` (Opus) agents between --dispatch and --merge.
+This script is an orchestration *primitive* — it never calls an LLM itself. It prepares
+inputs/prompts and merges agent outputs, exactly like extract.py/dispatch_prompts.py/merge.py.
+The parent agent runs the `glossary-locale` (Opus) agents between --dispatch and --merge.
 
 Pipeline:
   1. --candidates          deterministic: mine duplicate strings + frequent terms
@@ -24,8 +24,6 @@ Pipeline:
   4. --merge               assemble terms.json + tmp/glossary/outputs/{locale}.json into
                            glossary.json (merging into any existing terms); force protected
                            nouns to themselves; validate locale coverage
-
-Imports LOCALES, LOCALE_NAMES, REGIONAL_NOTES, _GENERIC_NOTE from locales.py / dispatch_prompts.py.
 """
 
 from __future__ import annotations
@@ -40,8 +38,6 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
-GLOSSARY_PATH = SCRIPT_DIR / "glossary.json"
 GLOSSARY_DIR = REPO_ROOT / "tmp" / "glossary"
 CANDIDATES_PATH = GLOSSARY_DIR / "candidates.json"
 TERMS_PATH = GLOSSARY_DIR / "terms.json"
@@ -52,12 +48,16 @@ CURATION_TEMPLATE = SCRIPT_DIR / "GLOSSARY_CURATION_PROMPT.md"
 TRANSLATE_TEMPLATE = SCRIPT_DIR / "GLOSSARY_TRANSLATE_PROMPT.md"
 
 sys.path.insert(0, str(SCRIPT_DIR))
+from paths import CATALOG_PATH  # noqa: E402
 from locales import LOCALES, LOCALE_NAMES  # noqa: E402
 from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE  # noqa: E402
+from prompt_render import render  # noqa: E402
+import app_config  # noqa: E402
 
-PROTECTED = ["Wren", "iCloud"]
+GLOSSARY_PATH = app_config.GLOSSARY_PATH
+PROTECTED = app_config.PROTECTED
 
-# English stopwords; keeps the frequent-word candidate pool to content words.
+# Small English stopword set — enough to keep the frequent-word candidate pool to content words.
 STOPWORDS = {
     "the", "a", "an", "to", "of", "in", "on", "for", "and", "or", "is", "are", "was", "be",
     "this", "that", "these", "those", "it", "its", "your", "you", "we", "us", "our", "with",
@@ -97,7 +97,7 @@ def load_glossary() -> dict:
     if GLOSSARY_PATH.exists():
         with GLOSSARY_PATH.open(encoding="utf-8") as f:
             return json.load(f)
-    return {"meta": {"model": "opus", "version": 1}, "protected": PROTECTED, "terms": {}}
+    return {"meta": {"version": 1}, "protected": PROTECTED, "terms": {}}
 
 
 # ---------------------------------------------------------------- candidates
@@ -145,9 +145,10 @@ def cmd_candidates() -> int:
 # ---------------------------------------------------------------- export terms
 
 def cmd_export_terms() -> int:
-    """Dump the curated term set from glossary.json to tmp/glossary/terms.json, so dispatch/merge
-    can extend existing terms to new locales without re-curating. Examples are omitted:
-    cmd_dispatch re-derives them from the catalog (_term_examples)."""
+    """Dump the already-curated term set from the committed glossary.json back out to
+    tmp/glossary/terms.json, so the dispatch/merge steps can extend the EXISTING terms to
+    newly-added locales without re-running curation. Examples are intentionally omitted —
+    cmd_dispatch re-derives them from the catalog (_term_examples) at dispatch time."""
     glossary = load_glossary()
     terms = glossary.get("terms", {})
     if not terms:
@@ -186,11 +187,13 @@ def cmd_write_curation_prompt() -> int:
         return 1
     candidates = json.loads(CANDIDATES_PATH.read_text(encoding="utf-8"))
     inventory = _string_inventory(load_catalog())
-    prompt = (
-        CURATION_TEMPLATE.read_text(encoding="utf-8")
-        .replace("{CANDIDATES_JSON}", json.dumps(candidates, ensure_ascii=False, indent=2))
-        .replace("{STRING_INVENTORY_JSON}", json.dumps(inventory, ensure_ascii=False, indent=2))
-        .replace("{TERMS_OUT_PATH}", str(TERMS_PATH))
+    prompt = render(
+        app_config.load_template(CURATION_TEMPLATE),
+        {
+            "CANDIDATES_JSON": json.dumps(candidates, ensure_ascii=False, indent=2),
+            "STRING_INVENTORY_JSON": json.dumps(inventory, ensure_ascii=False, indent=2),
+            "TERMS_OUT_PATH": str(TERMS_PATH),
+        },
     )
     GLOSSARY_DIR.mkdir(parents=True, exist_ok=True)
     CURATION_PROMPT_OUT.write_text(prompt, encoding="utf-8")
@@ -229,14 +232,14 @@ def cmd_dispatch(locales: list[str]) -> int:
         return 1
     terms = _load_terms()
     strings = load_catalog()
-    template = TRANSLATE_TEMPLATE.read_text(encoding="utf-8")
+    template = app_config.load_template(TRANSLATE_TEMPLATE)
     requested = locales if locales else LOCALES
     unknown = [loc for loc in requested if loc not in LOCALES]
     if unknown:
         print(f"ERROR: not target locales: {unknown}", file=sys.stderr)
         return 2
 
-    # Per-term payload is built once (examples are locale-independent).
+    # Build the per-term payload once (examples are locale-independent).
     term_payload = []
     for t in terms:
         en = t["en"]
@@ -251,13 +254,17 @@ def cmd_dispatch(locales: list[str]) -> int:
     for old in PROMPTS_DIR.glob("*.md"):
         old.unlink()
     for locale in sorted(requested):
-        # Protected nouns are kept as-is (agent is told; also forced at merge). Included so the agent sees the full set.
-        prompt = (
-            template.replace("{LOCALE_NAME}", LOCALE_NAMES.get(locale, locale))
-            .replace("{LOCALE_CODE}", locale)
-            .replace("{REGIONAL_NOTE}", REGIONAL_NOTES.get(locale, _GENERIC_NOTE))
-            .replace("{PROTECTED_JSON}", json.dumps(PROTECTED, ensure_ascii=False))
-            .replace("{TERMS_JSON}", json.dumps(term_payload, ensure_ascii=False, indent=2))
+        # Protected nouns need no translation; the agent is told to keep them as-is, but we
+        # also force them at merge time. Still include them so the agent sees the full set.
+        prompt = render(
+            template,
+            {
+                "LOCALE_NAME": LOCALE_NAMES.get(locale, locale),
+                "LOCALE_CODE": locale,
+                "REGIONAL_NOTE": REGIONAL_NOTES.get(locale, _GENERIC_NOTE),
+                "PROTECTED_JSON": json.dumps(PROTECTED, ensure_ascii=False),
+                "TERMS_JSON": json.dumps(term_payload, ensure_ascii=False, indent=2),
+            },
         )
         (PROMPTS_DIR / f"{locale}.md").write_text(prompt, encoding="utf-8")
     # Clear stale outputs for the locales we're dispatching.
@@ -317,7 +324,7 @@ def cmd_merge() -> int:
             "translations": translations,
         }
         if en in existing:
-            # Keep prior translations not re-produced this round.
+            # Merge: keep any prior translations not re-produced this round.
             merged = dict(existing[en].get("translations", {}))
             merged.update(translations)
             entry["translations"] = merged
@@ -328,7 +335,6 @@ def cmd_merge() -> int:
 
     glossary["protected"] = PROTECTED
     glossary.setdefault("meta", {})["builtAt"] = _dt.datetime.now(_dt.timezone.utc).isoformat()
-    glossary["meta"]["model"] = "opus"
     with GLOSSARY_PATH.open("w", encoding="utf-8") as f:
         json.dump(glossary, f, ensure_ascii=False, indent=2, sort_keys=True)
         f.write("\n")

@@ -38,6 +38,7 @@ class DocsOnlyTests(unittest.TestCase):
             "LICENSE",
             "scripts/build.sh",
             "scripts/translate_catalog/PROMPT_TEMPLATE.md",
+            "i18n/brief.md",
             "fastlane/Fastfile",
             ".github/workflows/ci.yml",
             "lefthook.yml",

@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
-Read-only inspector for Localizable.xcstrings.
-
-Replaces ad-hoc `python3 -c "import json; ..."` one-liners. Pure read-only: never
-writes the catalog. For "untranslated copy" detection (locale value equals English)
-use scripts/translate_audit/untranslated_copies.py; this tool doesn't duplicate it.
+Read-only inspector for Localizable.xcstrings; never writes the catalog. For
+"untranslated copy" detection (a locale value that equals the English source) use
+scripts/translate_audit/untranslated_copies.py.
 
 Subcommands:
   info
@@ -32,8 +30,8 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
+sys.path.insert(0, str(Path(__file__).parent))
+from paths import CATALOG_PATH  # noqa: E402
 
 
 def load_catalog() -> dict:

@@ -1,1 +1,1 @@
-spending,money,finance,saving,expense,budget,hisab,kharch,paisa,bachat,ਬਜਟ,ਖਰਚ,ਬੱਚਤ,hafta,maahvar
+budget,expense,spending,ਬਚਤ,ਪੈਸੇ,ਹਿਸਾਬ,money,kharcha,savings,wallet,weekly

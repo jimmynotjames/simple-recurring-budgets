@@ -9,7 +9,7 @@ ERRORS (exit 1) — unkeyed user-facing strings:
   is not a dotted localization key. These strings bypass the String Catalog and
   will never be translated. Fix by keying them:
       String(localized: "screen.purpose.detail", defaultValue: "…", comment: "…")
-  or, for locale-invariant text, Text(verbatim: "…"). AGENTS.md §"Cross-cutting concerns".
+  or, for locale-invariant text, Text(verbatim: "…"). See the localization spec (i18n/app.json `spec`).
 
   Suppression (rare, documented exceptions only):
     Add  // check-strings:ignore  on the same line.
@@ -20,7 +20,7 @@ WARNINGS (no exit code change) — likely debug print() calls:
   // check-strings:ignore comment.
 
 Scans: the app target (paths.SOURCE_DIR) only.
-Skips: *Tests.swift, *UITests.swift, and DesignExplorations/ (gitignored scratch).
+Skips: *Tests.swift, *UITests.swift, and i18n/app.json `sourceStrings.skippedDirs` (gitignored scratch).
 
 Not caught: literals bound to a plain `String` property or a custom initializer
 (`SomeRow(title: "…")`, `private let message = "…"`). Those are a review item
@@ -43,9 +43,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_catalog"))
 from paths import SOURCE_DIR  # noqa: E402
+import app_config  # noqa: E402
 
 SUPPRESS_MARKER = "check-strings:ignore"
-SKIPPED_DIRS = {"DesignExplorations"}
+SKIPPED_DIRS = set(app_config.APP.get("sourceStrings", {}).get("skippedDirs", ()))
 
 _QUOTED = r'"([^"\\]*(?:\\.[^"\\]*)*)"'
 # Same, but only when the literal opens with a capital letter: the ternary patterns below

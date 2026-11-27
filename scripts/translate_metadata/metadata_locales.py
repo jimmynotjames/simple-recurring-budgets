@@ -1,183 +1,141 @@
 """
 Single source of truth for the App Store *metadata* localization pipeline.
 
-Metadata sibling of scripts/translate_catalog/locales.py. Both pipelines target the
-SAME markets but use DIFFERENT locale code systems:
+This is the metadata sibling of scripts/translate_catalog/locales.py. Both target the
+SAME markets, but use DIFFERENT locale code systems:
 
-  * In-app strings (Localizable.xcstrings) use *runtime* BCP 47 codes (`ar`, `de`,
-    `nb`, `nl`, `zh-Hans`, ...), defined in translate_catalog/locales.py.
-  * App Store Connect metadata folders (fastlane/metadata/<storefront>/) use
-    *storefront* codes, which differ for several markets (`ar-SA`, `de-DE`,
-    `es-ES`, `fr-FR`, `no`, `nl-NL`, ...).
+  * In-app strings (Localizable.xcstrings) use the app's *runtime* BCP 47 codes
+    (`ar`, `de`, `nb`, `zh-Hans`, …).
+  * App Store Connect *metadata* folders (fastlane/metadata/<storefront>/) use ASC
+    *storefront* codes, which differ for several markets (`ar-SA`, `de-DE`, `no`,
+    `nl-NL`, …). `deliver` reads the storefront-coded folders.
 
-`deliver` / `upload_to_app_store` reads the storefront-coded folders, so this module
-owns the runtime -> storefront mapping and metadata-specific facts (translatable
-fields, character limits, brand constant, cultural register notes). The other
-translate_metadata/ scripts import from here.
+Both code systems, and the mapping between them, come from the locale registry in
+fastlane/screenshot-config.json via locales.py — this module adds only the
+metadata-specific facts (which fields are transcreated, their limits), read from i18n/app.json.
+
+**Field limits are imported from scripts/appstore_metadata.py**, the validator that
+actually gates the upload, so there is exactly one statement of Apple's limits in the
+repo. Note `keywords` is limited in UTF-8 BYTES, not characters — a CJK or Indic
+keyword list reaches the cap at roughly a third of the character count.
 """
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
-# Human-readable locale names come from the in-app pipeline (single source of truth).
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "translate_catalog"))
-from locales import LOCALE_NAMES, LOCALES as RUNTIME_LOCALES  # noqa: E402
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# English source storefront; everything else is transcreated from it. Never a target.
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_catalog"))
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from locales import (  # noqa: E402
+    LOCALE_NAMES,
+    RUNTIME_TO_STOREFRONT,
+    STOREFRONT_TO_RUNTIME,
+)
+from appstore_metadata import FIELD_BY_FILENAME  # noqa: E402
+import app_config  # noqa: E402
+
+_METADATA: dict = app_config.APP["metadata"]
+
+# The English source storefront. Its folder holds the copy everything else is
+# transcreated from. It is never itself a translation target.
 SOURCE_LOCALE = "en-US"
 
-# Brand token, verbatim in every locale (never translated, transliterated, or glossed).
-# The App Store `name` is "Wren" + a transcreated descriptor.
-BRAND = "Wren"
+# The translation TARGET storefronts (sorted), excluding the en-US source.
+STOREFRONT_LOCALES: list[str] = sorted(
+    storefront for storefront in RUNTIME_TO_STOREFRONT.values() if storefront != SOURCE_LOCALE
+)
 
-# In-app runtime locale -> App Store Connect storefront code (the exact folder names
-# `deliver` expects under fastlane/metadata/). Identical codes map to themselves.
-#
-# IMPORTANT: several markets need a REGION-QUALIFIED storefront code though the runtime
-# code is plain: bn->bn-BD, gu/kn/ml/mr/or/pa/ta/te->*-IN, sl->sl-SI, ur->ur-PK.
-# `deliver`/ASC REJECTS the plain code ("Unsupported directory name(s)"). When adding a
-# locale, don't assume runtime == storefront: confirm against the list `fastlane
-# push_metadata` prints on an unknown folder (or ASC's locale list).
-RUNTIME_TO_STOREFRONT: dict[str, str] = {
-    "ar": "ar-SA",
-    "bn": "bn-BD",
-    "ca": "ca",
-    "cs": "cs",
-    "da": "da",
-    "de": "de-DE",
-    "el": "el",
-    "en-AU": "en-AU",
-    "en-CA": "en-CA",
-    "en-GB": "en-GB",
-    "es": "es-ES",
-    "es-MX": "es-MX",
-    "fi": "fi",
-    "fr": "fr-FR",
-    "fr-CA": "fr-CA",
-    "gu": "gu-IN",
-    "he": "he",
-    "hi": "hi",
-    "hr": "hr",
-    "hu": "hu",
-    "id": "id",
-    "it": "it",
-    "ja": "ja",
-    "kn": "kn-IN",
-    "ko": "ko",
-    "ml": "ml-IN",
-    "mr": "mr-IN",
-    "ms": "ms",
-    "nb": "no",
-    "nl": "nl-NL",
-    "or": "or-IN",
-    "pa": "pa-IN",
-    "pl": "pl",
-    "pt-BR": "pt-BR",
-    "pt-PT": "pt-PT",
-    "ro": "ro",
-    "ru": "ru",
-    "sk": "sk",
-    "sl": "sl-SI",
-    "sv": "sv",
-    "ta": "ta-IN",
-    "te": "te-IN",
-    "th": "th",
-    "tr": "tr",
-    "uk": "uk",
-    "ur": "ur-PK",
-    "vi": "vi",
-    "zh-Hans": "zh-Hans",
-    "zh-Hant": "zh-Hant",
-}
-
-# Fail loud if the pipelines drift (e.g. a locale added in-app but not mapped here).
-_unmapped = [loc for loc in RUNTIME_LOCALES if loc not in RUNTIME_TO_STOREFRONT]
-if _unmapped:
-    raise RuntimeError(
-        f"RUNTIME_TO_STOREFRONT is missing runtime locale(s) present in "
-        f"translate_catalog/locales.py: {_unmapped}"
-    )
-
-STOREFRONT_TO_RUNTIME: dict[str, str] = {v: k for k, v in RUNTIME_TO_STOREFRONT.items()}
-
-# Target storefronts (sorted), excluding the en-US source.
-STOREFRONT_LOCALES: list[str] = sorted(RUNTIME_TO_STOREFRONT.values())
-
-# Human-readable name per storefront.
+# Human-readable name per storefront, derived from the registry's names.
 STOREFRONT_NAMES: dict[str, str] = {
     storefront: LOCALE_NAMES[runtime]
     for runtime, storefront in RUNTIME_TO_STOREFRONT.items()
 }
 
-# Transcreated fields with Apple's hard character limits (Unicode code points, not bytes).
+
+def _limit(field: str, attribute: str) -> int | None:
+    return getattr(FIELD_BY_FILENAME[f"{field}.txt"], attribute)
+
+
+# Apple's hard limits, taken from the shipping validator. Character counts are Unicode
+# code points; the byte map below is what actually binds for `keywords`.
 FIELD_LIMITS: dict[str, int] = {
-    "name": 30,
-    "subtitle": 30,
-    "promotional_text": 170,
-    "keywords": 100,
-    "description": 4000,
-    "release_notes": 4000,
+    field: _limit(field, "max_characters")
+    for field in ("name", "subtitle", "promotional_text", "description", "release_notes")
+    if _limit(field, "max_characters") is not None
+}
+FIELD_BYTE_LIMITS: dict[str, int] = {
+    field: _limit(field, "max_utf8_bytes")
+    for field in ("keywords",)
+    if _limit(field, "max_utf8_bytes") is not None
+}
+# `keywords` is byte-limited, so give it a character entry only as a loose upper bound
+# for prompts and reports that want one number.
+FIELD_LIMITS.setdefault("keywords", FIELD_BYTE_LIMITS["keywords"])
+
+# How the store `name` is handled (i18n/app.json `metadata.nameMode`):
+#   "passthrough"  the name is the bare brand, copied from en-US (PASSTHROUGH_OVERRIDES lists the
+#                  storefronts that must author it themselves);
+#   "descriptor"   the name is "<brand> – <descriptor>", and the descriptor is transcreated.
+NAME_MODE: str = _METADATA.get("nameMode", "passthrough")
+if NAME_MODE not in ("passthrough", "descriptor"):
+    raise RuntimeError(f"i18n/app.json: metadata.nameMode must be passthrough or descriptor, not {NAME_MODE!r}")
+
+# Fields the pipeline transcreates, in order; "name" joins them first in descriptor mode.
+TRANSLATABLE_FIELDS: list[str] = (["name"] if NAME_MODE == "descriptor" else []) + list(_METADATA["translatableFields"])
+
+# Copied verbatim from en-US, never sent to a model.
+PASSTHROUGH_FIELDS: list[str] = [f for f in _METADATA["passthroughFields"] if f not in TRANSLATABLE_FIELDS]
+
+# Passthrough fields a storefront authors itself instead of copying from en-US; merge.py leaves
+# these files alone (for example, a storefront where App Store Connect rejects the bare brand).
+PASSTHROUGH_OVERRIDES: dict[str, frozenset[str]] = {
+    storefront: frozenset(fields) for storefront, fields in _METADATA.get("passthroughOverrides", {}).items()
 }
 
-# Ordered transcreated fields.
-TRANSLATABLE_FIELDS: list[str] = [
-    "name",
-    "subtitle",
-    "promotional_text",
-    "keywords",
-    "description",
-    "release_notes",
-]
+# In-app glossary terms the listing must render the same way the app does (i18n/app.json
+# `metadata.glossaryTerms`). Pin core domain nouns only: UI verbs would straitjacket marketing prose.
+METADATA_GLOSSARY_TERMS: tuple[str, ...] = tuple(_METADATA.get("glossaryTerms", ()))
 
-# Per-locale fields copied verbatim from en-US (never sent to the model): URLs, the same
-# for every storefront unless localized by hand.
-PASSTHROUGH_FIELDS: list[str] = [
-    "marketing_url",
-    "privacy_url",
-    "support_url",
-]
+GLOSSARY_PATH = app_config.GLOSSARY_PATH
 
-# Catalog-level field (fastlane/metadata/copyright.txt), untouched by this pipeline.
-SHARED_FIELDS: list[str] = [
-    "copyright",
-]
 
-# Field-level guidance injected into every prompt: what each field is for and how to transcreate it.
-FIELD_GUIDANCE: dict[str, str] = {
-    "name": (
-        f'App name shown on the store. MUST begin with the brand "{BRAND}" '
-        "followed by a short, localized descriptor (e.g. \"Wren – Daily Expense "
-        "Tracker\"). Keep \"" + BRAND + "\" verbatim; transcreate only the "
-        "descriptor. If the natural descriptor will not fit, shorten it — never "
-        "drop the brand and never exceed the limit."
-    ),
-    "subtitle": (
-        "Short tagline shown under the name. Punchy and benefit-driven, not a "
-        "literal translation of the English. Title-case/sentence-case per local "
-        "convention."
-    ),
-    "promotional_text": (
-        "Short promotional banner (editable without a new app version). Lead with "
-        "the most compelling, current hook."
-    ),
-    "keywords": (
-        "Comma-separated SEARCH terms a native user would actually type to find a "
-        "budgeting / expense app in this market. This is search behaviour, NOT a "
-        "literal translation. Rules: no spaces after commas (they waste the "
-        "limit); deduplicate; do NOT repeat words already used in name or "
-        "subtitle (Apple indexes those separately); singular forms are usually "
-        "enough. Fill as much of the limit as natural terms allow."
-    ),
-    "description": (
-        "Full listing description. Transcreate persuasively into natural, native "
-        "marketing prose — adapt idioms and flow, do not calque the English. "
-        "Preserve the overall structure and line breaks (paragraphs, the bulleted "
-        "feature list, the closing line)."
-    ),
-    "release_notes": (
-        "The \"What's New\" text shown on the update sheet. Match the tone of the "
-        "English; keep it warm and concise."
-    ),
-}
+def glossary_terms(storefront: str, glossary_path: Path = GLOSSARY_PATH) -> list[tuple[str, str]]:
+    """(English, agreed translation) for each METADATA_GLOSSARY_TERMS entry the in-app glossary
+    translates for this storefront's runtime locale; [] when there are none."""
+    if not glossary_path.exists():
+        return []
+    terms = json.loads(glossary_path.read_text(encoding="utf-8")).get("terms", {})
+    runtime = STOREFRONT_TO_RUNTIME.get(storefront, storefront)
+    pairs: list[tuple[str, str]] = []
+    for term in METADATA_GLOSSARY_TERMS:
+        translation = terms.get(term, {}).get("translations", {}).get(runtime)
+        if translation:
+            pairs.append((term, translation))
+    return pairs
+
+
+def glossary_lines(storefront: str, glossary_path: Path = GLOSSARY_PATH) -> str:
+    """Bullet list of glossary_terms() for a prompt; "" drops the template's glossary section."""
+    return "\n".join(f'- "{en}" → "{tr}"' for en, tr in glossary_terms(storefront, glossary_path))
+
+
+def store_field(metadata_dir: Path, storefront: str, field: str) -> str:
+    """The storefront's committed value for `field`: its own file, else en-US's."""
+    for locale in (storefront, SOURCE_LOCALE):
+        path = metadata_dir / locale / f"{field}.txt"
+        if path.exists() and path.read_text(encoding="utf-8").strip():
+            return path.read_text(encoding="utf-8").strip()
+    return ""
+
+
+def store_name(metadata_dir: Path, storefront: str) -> str:
+    """The storefront's App Store name: its own `name.txt`, else en-US's."""
+    return store_field(metadata_dir, storefront, "name")
+
+# Field-level guidance injected into every prompt (i18n/app.json `metadata.fieldGuidance`):
+# what each field is for and how to transcreate it, rather than translate it.
+FIELD_GUIDANCE: dict[str, str] = dict(_METADATA["fieldGuidance"])

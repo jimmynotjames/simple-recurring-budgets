@@ -1,1 +1,1 @@
-rozpočet,výdavky,sledovanie,peniaze,financie,úspory,hotovosť,týždenný,mesačný,peňaženka,míňať
+rozpočet,výdavok,budget,peniaze,financie,úspory,míňanie,peňaženka,týždenný,mesačný

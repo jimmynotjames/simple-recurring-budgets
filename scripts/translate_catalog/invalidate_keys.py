@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
 Mark existing keys' non-en translations as needs_review in Localizable.xcstrings,
-WITHOUT changing the English source, so extract.py --missing re-emits them for
-re-translation.
+WITHOUT changing the English source — so extract.py --missing re-emits them and the
+normal translate pipeline re-translates them.
 
-Use when a key's *translation* must change though its English didn't, e.g. a glossary
-term was re-translated ("Carry-Over" stopped being a protected English term and gained
-per-locale renderings), so every string embedding it must be re-translated.
+Use this when the *translation* of a key must change even though its English text did
+not — most commonly when a glossary term was re-translated, so every string that
+embeds that term needs to flow through translation again to pick up the new wording.
 
-Term-changed sibling of update_keys.py (English-changed). Never touches the `en`
-localization or its `translated` state.
+This is the term-changed sibling of update_keys.py (English-changed). Unlike update_keys,
+it never touches the `en` localization, so the English source and its `translated` state
+are left exactly as-is.
 
 For each key:
   - Sets every non-`en` locale entry's stringUnit.state to "needs_review"
-    (en-AU, en-CA, en-GB are treated as non-en and are also invalidated)
+    (en-AU, en-CA, en-GB are treated as non-en and are also invalidated), or only
+    the --locales ones
   - For plural (`variations.plural`) entries, invalidates every category's state
   - Leaves the `en` localization untouched
   - Keys absent from the catalog cause a non-zero exit (so typos surface loudly)
@@ -22,6 +24,7 @@ Usage:
   python3 scripts/translate_catalog/invalidate_keys.py --keys k1,k2,...
   python3 scripts/translate_catalog/invalidate_keys.py --keys-file PATH
   python3 scripts/translate_catalog/invalidate_keys.py --keys k1,k2 --dry-run
+  python3 scripts/translate_catalog/invalidate_keys.py --keys k1 --locales de,fr
 
 Next: python3 scripts/translate_catalog/extract.py --missing
 """
@@ -33,10 +36,8 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
-
 sys.path.insert(0, str(Path(__file__).parent))
+from paths import CATALOG_PATH  # noqa: E402
 from locales import LOCALES  # noqa: E402
 from xcstrings_io import write_xcstrings  # noqa: E402
 

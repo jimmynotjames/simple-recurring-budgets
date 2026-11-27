@@ -1,0 +1,18 @@
+[
+  {
+    "en": "0",
+    "reason": "Placeholder digit in the allocation and amount fields: locale-invariant, not a term."
+  },
+  {
+    "en": "End date, %@",
+    "reason": "VoiceOver \"Label, value\" label; recurs only via the base/.recurring. key twin."
+  },
+  {
+    "en": "Start date, %@",
+    "reason": "VoiceOver \"Label, value\" label; recurs only via the base/.recurring. key twin."
+  },
+  {
+    "en": "Opens a calendar to pick the start date.",
+    "reason": "VoiceOver hint sentence; recurs only via the base/.recurring. key twin."
+  }
+]

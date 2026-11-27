@@ -1,19 +1,19 @@
-Vedz, koľko môžeš minúť, ešte predtým, než to minieš.
+Skôr než zaplatíte, viete, koľko si môžete dovoliť minúť.
 
-S Wren sú každodenné rozhodnutia o míňaní rýchle a jednoduché. Nastav si limity a sleduj, ako na ne míňaš.
+Wren vám zjednoduší a zrýchli každodenné rozhodnutia o míňaní. Nastavte si limity výdavkov a sledujte, ako sa ich držíte.
 
-Čo Wren ponúka:
+Funkcie:
 • Jednoduché nastavenie
 • Rýchle zapisovanie výdavkov
-• Denné, týždenné, dvojtýždňové a mesačné rozpočty
-• Prenos neminutých peňazí – čo dnes ušetríš, prejde do ďalšieho obdobia
-• Jednorazové rozpočty pre konkrétne obdobie (napríklad dovolenka či víkendový výlet)
-• Dáta sú v bezpečí v zariadení a na iCloude
-• Synchronizácia cez iCloud medzi tvojimi zariadeniami
-• Bez pripojenia na internet, pokiaľ nepoužívaš synchronizáciu cez iCloud
+• Denné, týždenné, dvojtýždenné a mesačné rozpočty
+• Prenos nevyčerpaných peňazí, takže to, čo dnes ušetríte, sa vám prenesie do zajtra
+• Jednorazové rozpočty na konkrétne obdobie (napríklad dovolenku alebo víkendový výlet)
+• Údaje sú bezpečne uložené v zariadení a v iCloude
+• Synchronizácia cez iCloud medzi vašimi zariadeniami
+• Pripojenie na internet nepotrebujete, ak nepoužívate synchronizáciu cez iCloud
 
-Toto nie je nástroj na firemné výdavky, evidenciu daňových dokladov ani zložitý rozpočtový systém. Neprepájam tvoje bankové účty ani ti neukazujem efektné grafy. Chcem ponúknuť jednoduchý nástroj, ktorý sa sústredí na pár návykov, nie na celý tvoj finančný život.
+Nie je to nástroj na firemné výdavky, evidenciu daňových dokladov ani zložitý rozpočtový systém. Nepripájam vaše bankové účty a neponúkam efektné grafy. Chcem vám dať jednoduchý nástroj, ktorý sa sústredí na pár návykov, nie na celý váš finančný život.
 
-Na to, aby ti appka naozaj pomohla, stačí, keď si premyslíš jeden či dva pravidelné výdavky, na ktorých chceš zapracovať (jedlo, káva, reštaurácie, oblečenie a podobne). Potom si urči, koľko najviac chceš minúť za deň, týždeň, dva týždne alebo mesiac. Keď si tieto rozpočty pridáš a začneš sledovať výdavky, budeš sa vedieť rozhodovať múdrejšie priamo v danej chvíli.
+Aby vám aplikácia naozaj pomohla, stačí si vybrať jeden či dva pravidelné návyky v míňaní, ktoré chcete zlepšiť (jedlo, káva, posedenia s priateľmi, oblečenie a pod.). Potom si určte, koľko najviac chcete minúť za deň, týždeň, dva týždne alebo mesiac. Keď si tieto rozpočty pridáte do aplikácie a začnete zapisovať výdavky, budete sa môcť o míňaní rozhodovať rozumnejšie, priamo v danej chvíli.
 
-Stiahni si Wren a maj každý deň o čosi ľahší.
+Stiahnite si Wren a nech je každý deň o niečo ľahší.

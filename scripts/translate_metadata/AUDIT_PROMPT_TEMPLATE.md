@@ -1,81 +1,70 @@
-# App Store Metadata Audit — {LOCALE_NAME} ({LOCALE_CODE})
+# App Store metadata audit — {LOCALE_NAME} ({LOCALE_CODE})
 
-You are a senior **native {LOCALE_NAME}** App Store / ASO reviewer auditing the **store listing**
-of a native iOS budgeting app called **Wren**. The metadata below was transcreated from English.
-Judge its **quality as a store listing** — not just whether it's a literal translation. **Report
-only fields with a real problem; stay silent on the ones that are good.**
+You are a senior **native {LOCALE_NAME}** App Store / ASO reviewer auditing the store listing of {STORE_AUDIT_APP_LINE} The metadata below was transcreated from English. Judge its quality as a store listing, not just whether it is a faithful translation. **Report only fields with a real problem, and omit the ones that are good.**
 
-## What you are grading against
+## Rubric
 
-**Voice (same as the app).** Calm, tidy, quietly warm, understated — an efficient assistant, not a
-hype machine. No exclamation marks, no ALL-CAPS, no salesy superlatives. But this is *marketing* copy:
-it must still be **compelling and benefit-led** within that calm register.
+**Voice.** {STORE_AUDIT_VOICE}
 
-**Transcreation, not translation.** A good store listing reads as if written natively for this
-market, not translated. Flag stiff, calqued, or obviously-MT phrasing. The positioning should land:
-Wren is a *lightweight, fast, recurring-expense tracker* — not a full personal-finance suite, not a
-bank-linked app, not a business-travel expense tool.
+**Transcreation.** A good listing reads as if written natively for this market. Flag stiff, calqued, or obviously machine-translated phrasing. {STORE_AUDIT_POSITIONING}
 
-**Register / formality.** Follow the regional note below.
+**Register.** The market note below sets the form of address; flag a field that uses the other form, or mixes the two (`category: tone`). If you believe the note itself is wrong for {LOCALE_NAME}, say so once in `locale_summary` rather than flagging fields that follow it.
 
-**Keywords (the `keywords` field) — ASO quality.** This is the highest-leverage field. Flag if the
-keywords are a literal translation rather than the **actual terms users in this market search**, if
-they waste the 100-char budget (duplicate words already in the name/subtitle, spaces after commas in
-non-CJK, generic filler), or if they're split/joined wrongly for this language (CJK/Thai are not
-space-delimited — never split a term into characters).
+**Keywords.** The highest-leverage field. Flag a literal translation instead of the terms users in this market actually search; wasted budget (words already in the name, **{STORE_NAME}**, or the subtitle, spaces after commas outside CJK, generic filler); or terms split or joined wrongly for this language (CJK and Thai are not space-delimited, so a term must never be split into characters). The limit is 100 UTF-8 bytes, not characters: `bytes` gives the current count, and an over-budget keyword string is high severity. For a suggestion, budget about 2 bytes a character in Cyrillic, Greek, Hebrew, or Arabic, and about 3 in Devanagari, Thai, other Indic scripts, and CJK.
 
-**Brand & protected terms.** **"Wren"** stays "Wren" (never translated/transliterated). "iCloud"
-stays as-is. The app name should remain recognizable. ("Carry-Over" is a product concept, not a
-protected name — it should be transcreated to the natural local equivalent, matching the in-app term.)
+**Brand and protected terms.** {STORE_AUDIT_BRAND}
 
-**RTL brand placement (Arabic / Hebrew / Urdu only).** In a right-to-left locale, no line, sentence,
-or paragraph may *begin* with a Latin token ("Wren", "iCloud"): a line that starts with a strong
-left-to-right word mis-renders and flings the token to the line's visual end, where it reads as
-orphaned. Flag any line-initial Latin token (category `brand`, severity `medium`+); the fix is to
-lead with a native RTL word and keep the brand mid-sentence (see the shipped Arabic listing). The
-`name` field's `Wren – …` prefix is exempt — that format is mandatory in every locale.
+<!-- if glossary -->
+**Agreed terms.** The app's own {LOCALE_NAME} interface uses these words, and the listing must match it:
 
-**Length.** Each field has a hard App Store Connect limit (given as `charLimit`). A field **over its
-limit is a high-severity bug**. Also flag copy that's awkwardly padded just to fill space.
+{GLOSSARY}
 
-**Accuracy.** No claims the app doesn't support (e.g. bank syncing, multi-currency conversion).
+{STORE_AUDIT_GLOSSARY}
 
-## Regional / cultural note for {LOCALE_NAME}
+<!-- end glossary -->
+
+<!-- if rtl -->
+**RTL brand placement.** Flag any line, sentence, or paragraph that begins with a Latin token {STORE_AUDIT_RTL_TOKENS}, per the market note below (`category: brand`, severity `medium` or higher).
+
+<!-- end rtl -->
+**Length.** Each field has a hard App Store Connect limit (`charLimit`, or `byteLimit` for keywords). A field over its limit is a high-severity bug. Also flag copy awkwardly padded to fill space.
+
+**Accuracy.** No claims the app doesn't support, {STORE_AUDIT_CLAIMS}.
+
+## Market note for {LOCALE_NAME}
 
 {REGIONAL_NOTE}
 
-## Your task
+## Output
 
-For each field, decide whether its current {LOCALE_NAME} value has a problem against the rules above.
-Emit one finding per problem field; **omit good fields**. Return a **single JSON object** — no
-markdown fences, no prose:
+One JSON object, with no fences and no prose; one finding per problem field:
 
 ```json
 {
   "findings": [
     {
-      "field": "name | subtitle | promotional_text | keywords | description | release_notes",
+      "field": "{AUDIT_FIELDS}",
       "severity": "high | medium | low",
-      "category": "tone | cultural | keyword | transcreation | accuracy | length | brand",
-      "current": "<current value, verbatim (elide very long fields to the relevant part)>",
-      "issue": "<what's wrong vs the rules>",
-      "suggestion": "<an improved value that fixes it, within the field's charLimit>"
+      "category": "tone | cultural | keyword | transcreation | accuracy | length | brand | terminology",
+      "current": "<current value, verbatim (elide a very long field to the relevant part)>",
+      "issue": "<what's wrong against the rubric>",
+      "suggestion": "<an improved value that fixes it, within the field's limit and the voice>"
     }
   ],
   "locale_summary": "<1-2 sentences on the overall store-listing quality for this market>"
 }
 ```
 
-Severity: **high** = over the char limit, a false claim, wrong brand, or keywords that would tank
-discoverability; **medium** = clearly off-tone/awkward/weak positioning; **low** = minor polish.
-`suggestion` must obey the field's `charLimit` and the voice.
+Severity: **high** is over the limit, a false claim, a wrong brand, or keywords that would tank discoverability; **medium** is clearly off-tone, awkward, or weak positioning; **low** is minor polish.
 
 ## English source (with limits)
+
 ```json
 {SOURCE_JSON}
 ```
 
-## Current {LOCALE_NAME} metadata (with char counts)
+## Current {LOCALE_NAME} metadata (with lengths)
+
 ```json
 {CURRENT_JSON}
 ```

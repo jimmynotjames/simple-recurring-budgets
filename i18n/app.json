@@ -1,0 +1,60 @@
+{
+  "brand": "Wren",
+  "protected": [
+    "Wren",
+    "iCloud"
+  ],
+  "paths": {
+    "catalog": "simple-recurring-budgets/Resources/Localizable.xcstrings",
+    "source": "simple-recurring-budgets",
+    "seeds": "simple-recurring-budgetsUITests/ScreenshotSeeds"
+  },
+  "xcode": {
+    "project": "simple-recurring-budgets",
+    "target": "simple-recurring-budgets"
+  },
+  "spec": "docs/localization-spec.md",
+  "sourceStrings": {
+    "skippedDirs": [
+      "DesignExplorations"
+    ]
+  },
+  "transcreatedNamespaces": [],
+  "tmpGroups": {
+    "screenshot-content": [
+      "screenshot-content-inputs",
+      "screenshot-content-prompts",
+      "screenshot-content-outputs"
+    ]
+  },
+  "metadata": {
+    "nameMode": "descriptor",
+    "translatableFields": [
+      "subtitle",
+      "promotional_text",
+      "keywords",
+      "description",
+      "release_notes"
+    ],
+    "passthroughFields": [
+      "marketing_url",
+      "privacy_url",
+      "support_url"
+    ],
+    "passthroughOverrides": {},
+    "glossaryTerms": [
+      "Budget",
+      "Expense",
+      "Carry-Over",
+      "Biweekly"
+    ],
+    "fieldGuidance": {
+      "name": "App name shown on the store. MUST begin with the brand \"Wren\" followed by a short, localized descriptor (e.g. \"Wren – Daily Expense Tracker\"). Keep \"Wren\" verbatim; transcreate only the descriptor. If the natural descriptor will not fit, shorten it — never drop the brand and never exceed the limit.",
+      "subtitle": "Short tagline shown under the name. Punchy and benefit-driven, not a literal translation of the English. Title-case/sentence-case per local convention.",
+      "promotional_text": "Short promotional banner (editable without a new app version). Lead with the most compelling, current hook.",
+      "keywords": "Comma-separated search terms, not a translation; follow the Keywords section. Fill as much of the byte budget as natural terms allow, and no more.",
+      "description": "Full listing description. Transcreate persuasively into natural, native marketing prose — adapt idioms and flow, do not calque the English. Preserve the overall structure and line breaks (paragraphs, the bulleted feature list, the closing line).",
+      "release_notes": "The \"What's New\" text shown on the update sheet. Match the tone of the English; keep it warm and concise."
+    }
+  }
+}

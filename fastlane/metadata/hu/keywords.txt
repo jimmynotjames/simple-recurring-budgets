@@ -1,1 +1,1 @@
-büdzsé,kiadáskövető,pénzkövető,költségfigyelő,kiadás,pénzügy,pénztárca,kassza,pénz,havi,heti
+költségkeret,kiadás,budget,költség,pénz,pénzügy,megtakarítás,költés,heti,havi,napi

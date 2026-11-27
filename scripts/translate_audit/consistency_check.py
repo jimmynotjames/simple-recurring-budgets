@@ -2,25 +2,23 @@
 """
 Deterministic cross-key terminology consistency check for Localizable.xcstrings.
 
-Many English strings are reused across keys ("Cancel" under 8 keys, "Add Funds"
-under 2, ...). Nothing in the translate pipeline makes identical English get the
-*same* translation, so they drift. This finds that drift (no LLM, no cost) and
-optionally emits a re-translation manifest for the divergent set so the
-glossary-aware translate flow can converge them.
+Some English strings are reused across keys ("Share Anonymous Usage Data"). Nothing
+in the translate pipeline guarantees that two keys with identical English get the
+*same* translation, so they drift. This script
+finds that drift — no LLM, no cost — and (optionally) emits a re-translation manifest
+for the divergent set so the glossary-aware translate flow can converge them.
 
-Deterministic complement to the LLM `consistency` finding from the auditor
-(scripts/translate_audit/); run both.
+It is the deterministic complement to the LLM `consistency` finding the auditor
+(scripts/translate_audit/) raises; run both.
 
 How it works:
-  - Group translatable keys by *normalized* English (casefold + collapsed whitespace)
-    so "Add Funds" and "Add funds" share a group.
-  - For each group with >= --min-keys keys and each locale, collect the distinct
-    current translations; more than one = a divergence.
-  - Classify: `word-choice` (differs even after casefold — a real inconsistency) vs
-    `casing-only` (matches after casefold — often legitimate when the English is
-    cased differently by context, e.g. a title vs a sentence).
-
-Imports scripts/translate_catalog/{locales.py, extract.py}.
+  - Group translatable keys by their *normalized* English value (casefold + collapsed
+    whitespace) so "Reset All" and "Reset all" land in one group.
+  - For each group with >= --min-keys keys, for each locale, collect the distinct
+    current translations across those keys. More than one distinct value = a divergence.
+  - Classify: `word-choice` (the translations differ even after casefold — a real
+    inconsistency) vs `casing-only` (they match after casefold — often legitimate when
+    the English itself is cased differently by context, e.g. a title vs a sentence).
 
 Usage:
   python3 scripts/translate_audit/consistency_check.py [options] [locale ...]
@@ -30,7 +28,7 @@ Usage:
   --json              machine-readable output
   --write-manifest    write tmp/translate-inputs/{manifest,source}.json for every key in a
                       divergent group (per locale), in the shape extract.py --missing produces,
-                      so the glossary-aware translate-new-strings flow re-converges them
+                      so the translate-new-strings flow re-converges them
   locale ...          restrict to these locales (default: all in locales.py)
 
 Exit code: 0 if no divergences (at/above the active filter), else 1.
@@ -45,11 +43,11 @@ from collections import defaultdict
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "simple-recurring-budgets" / "Resources" / "Localizable.xcstrings"
 CATALOG_DIR = REPO_ROOT / "scripts" / "translate_catalog"
+sys.path.insert(0, str(CATALOG_DIR))
+from paths import CATALOG_PATH  # noqa: E402
 TRANSLATE_INPUTS_DIR = REPO_ROOT / "tmp" / "translate-inputs"
 
-sys.path.insert(0, str(CATALOG_DIR))
 from locales import LOCALES  # noqa: E402
 from extract import extract_format_specifiers  # noqa: E402
 
@@ -85,7 +83,7 @@ def build_groups(strings: dict) -> dict[str, list[str]]:
 
 
 def english_label(strings: dict, keys: list[str]) -> str:
-    """Representative English label for a group; notes casing variants."""
+    """A representative English label for a group; note casing variants if any."""
     variants = sorted({stringunit_value(strings[k].get("localizations", {}).get("en")) or "" for k in keys})
     if len(variants) == 1:
         return variants[0]
@@ -126,7 +124,7 @@ def find_divergences(strings: dict, locales: list[str], min_keys: int, ignore_ca
 
 def _glossary_canonical_by_norm() -> dict[str, dict[str, str]]:
     """normalized English term -> {locale: canonical translation}, from glossary.json (if any).
-    Lets the manifest skip keys already on the canonical."""
+    Lets the manifest skip keys already sitting on the canonical instead of re-translating them."""
     try:
         from dispatch_prompts import load_glossary  # reuse the catalog loader (cross-folder import)
     except Exception:
@@ -138,8 +136,9 @@ def _glossary_canonical_by_norm() -> dict[str, dict[str, str]]:
 
 
 def write_manifest(findings: list[dict], strings: dict) -> None:
-    """Emit the divergent keys (per locale) for re-translation. When the group's English is a
-    whole-string glossary term, keys already equal to that locale's canonical are skipped."""
+    """Emit the divergent keys (per locale) so the translate flow re-converges them. When the
+    group's English is a whole-string glossary term, keys already equal to that locale's canonical
+    are skipped — only the off-canonical keys need re-translating."""
     canon = _glossary_canonical_by_norm()
     by_locale: dict[str, set[str]] = defaultdict(set)
     for f in findings:

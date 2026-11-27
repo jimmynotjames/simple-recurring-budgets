@@ -1,1 +1,1 @@
-पैसे,बचत,हिशोब,मासिक,खर्च नोंद,kharch,paise,budget,money,finance,track,wallet,daily,expense
+budget,expense,बचत,पैसे,हिशोब,money,kharch,मासिक,savings,paise

@@ -1,0 +1,79 @@
+[
+  {
+    "keys": [
+      "addEditBudget.biweeklyReanchor.confirm",
+      "addEditBudget.biweeklyReanchor.cancel"
+    ],
+    "reason": "both buttons of the change-start-date alert; identical words leave the person guessing"
+  },
+  {
+    "keys": [
+      "settings.weekStart.alert.confirm",
+      "settings.weekStart.alert.cancel"
+    ],
+    "reason": "both buttons of the change-start-of-week alert; identical words leave the person guessing"
+  },
+  {
+    "keys": [
+      "addEditBudget.orphanWarning.confirm",
+      "addEditBudget.orphanWarning.cancel"
+    ],
+    "reason": "both buttons of the save-time orphaned-expenses alert"
+  },
+  {
+    "keys": [
+      "saveError.alert.retry",
+      "saveError.alert.cancel"
+    ],
+    "reason": "buttons of the save-error alert; one tries again, the other gives up"
+  },
+  {
+    "keys": [
+      "saveError.alert.retry",
+      "saveError.alert.sendFeedback"
+    ],
+    "reason": "buttons of the save-error alert; one tries again, the other writes to the developer"
+  },
+  {
+    "keys": [
+      "budgetDetail.resetCarryOver.alert.confirm",
+      "common.action.cancel"
+    ],
+    "reason": "both buttons of the reset-carry-over alert"
+  },
+  {
+    "keys": [
+      "budgetDetail.resetBudget.dialog.confirm",
+      "common.action.cancel"
+    ],
+    "reason": "both buttons of the reset-budget dialog, which deletes every expense"
+  },
+  {
+    "keys": [
+      "budgetDetail.menu.resetBudget",
+      "budgetDetail.menu.resetCarryOver"
+    ],
+    "reason": "neighbouring rows of the budget detail menu; one deletes every expense, the other only zeroes the carry-over"
+  },
+  {
+    "keys": [
+      "budgetDetail.menu.editBudget",
+      "budgetDetail.menu.resetBudget"
+    ],
+    "reason": "neighbouring rows of the budget detail menu; one opens the form, the other deletes every expense"
+  },
+  {
+    "keys": [
+      "addEditBudget.action.delete",
+      "addEditBudget.action.cancel"
+    ],
+    "reason": "both on the Edit Budget form; one removes the budget, the other dismisses the form"
+  },
+  {
+    "keys": [
+      "addEditExpense.action.delete",
+      "addEditExpense.action.cancel"
+    ],
+    "reason": "both on the Edit Expense form; one removes the expense, the other dismisses the form"
+  }
+]

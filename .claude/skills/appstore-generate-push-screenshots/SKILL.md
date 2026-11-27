@@ -35,9 +35,26 @@ Code, a markdown block on Cursor) before running anything. There are no
 subagents (pure capture/upload mechanics); a model weaker than Sonnet may handle
 the tick-loop and success-verification steps unreliably, and Opus is pricier for no gain.
 
+## Preflight — sync with `origin/main` (right after the model preflight)
+
+Start from current `main` so the run doesn't work from stale sources:
+
+```bash
+git branch --show-current
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+
+- **On `main`, behind `origin/main`**: `git pull --ff-only`. Uncommitted edits
+  are fine; git refuses if an incoming commit touches a file you've modified. If
+  it refuses or can't fast-forward, stop and ask the user.
+- **On another branch**: don't switch or merge. If it's behind `origin/main`,
+  say by how many commits and confirm before continuing.
+
 ## Arguments — how to run fully unattended
 
-Optional arguments pre-answer the prompts, so there is zero prompting. Arguments are space-separated and order-independent, on two independent axes.
+Optional arguments pre-answer the prompts, so there is zero prompting (the sync
+preflight still stops if its pull is refused or the branch is behind). Arguments are space-separated and order-independent, on two independent axes.
 
 **Capture axis (pre-answers the step-2 re-capture prompt, only relevant when shots
 already exist):**
@@ -66,7 +83,7 @@ matching argument and don't prompt for that axis.
 
 ## Autonomy
 
-Apart from the step-2 re-capture prompt (only when shots already exist) and the
+Apart from the sync preflight's stops, the step-2 re-capture prompt (only when shots already exist) and the
 step-3 choice (both skippable via arguments), run end to end without pausing: don't ask "shall I
 proceed?" between steps, before re-capturing failed locales, or before
 retrying a failed upload subset (all pre-approved
@@ -79,7 +96,8 @@ stop.
 Print this checklist unchecked at the start, then re-print it (one line
 per step) with `- [x]` as each step completes:
 
-0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding)
+0. **Model preflight** — confirm session is Sonnet (else confirm before proceeding);
+   then sync with `origin/main`
 1. **Precondition** — seed catalog complete (`check_content.py` exits 0)
 2. **Capture status** — is capture already done? (`capture_progress.py`); if done,
    ask re-capture vs reuse (unless pre-answered by argument)

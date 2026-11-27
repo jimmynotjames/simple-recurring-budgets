@@ -97,6 +97,29 @@ go in the Note. Never check a box and leave its Note empty.
 
 ### 1. Locate state
 
+Sync with `origin/main` first, so the snapshot and checklist you read are
+current (snapshot chore PRs land on `main`):
+
+```bash
+git branch --show-current
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+
+- **On `main`, behind `origin/main`**: `git pull --ff-only`. Uncommitted edits
+  are fine; git refuses if an incoming commit touches a file you've modified. If
+  it refuses or can't fast-forward, stop and ask the user.
+- **On a step-5 chore branch whose PR has merged** (`gh pr view --json state`
+  says `MERGED`): `git switch main && git pull
+  --ff-only`.
+- **On another branch**: don't switch or merge. If it's behind `origin/main`,
+  say by how many commits and confirm before continuing.
+
+Sibling skills invoked later in this session skip their own sync step; this one
+covers them.
+
+Then find the in-flight snapshot:
+
 ```bash
 ls releases/ 2>/dev/null
 grep -l "Status: in-flight" releases/*.md 2>/dev/null

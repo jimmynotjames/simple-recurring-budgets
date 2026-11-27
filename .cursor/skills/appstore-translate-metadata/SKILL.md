@@ -29,6 +29,23 @@ judgments unreliable. The `metadata-locale` and `metadata-audit-locale` workers
 stay Opus regardless (pinned in their agent definitions), so a Sonnet session
 never weakens the translation or audit.
 
+## Preflight — sync with `origin/main` (right after the model preflight)
+
+Start from current `main` so the run doesn't work from stale sources:
+
+```bash
+git branch --show-current
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+
+- **On `main`, behind `origin/main`**: `git pull --ff-only`. Uncommitted edits
+  are fine; git refuses if an incoming commit touches a file you've modified. If
+  it refuses or can't fast-forward, stop and ask the user.
+- **On another branch**: don't switch or merge. If it's behind `origin/main`,
+  say by how many commits and confirm before continuing.
+
+
 ## Autonomy
 
 Run the whole pipeline autonomously, end to end, without pausing for approval on
@@ -37,7 +54,8 @@ audit + remediation loop in Step 5, and the gate; all pre-approved in
 `.claude/settings.json`). Don't ask "shall I proceed?" between steps or
 permission to retry a failed locale or auto-fix audit findings.
 
-Exactly two deliberate human checkpoints; decide and execute everything else yourself:
+Exactly two deliberate human checkpoints, plus the sync preflight's stops (a refused pull, or a
+behind non-`main` branch); decide and execute everything else yourself:
 
 1. Up front, before any pipeline step: confirm the English source copy is final
    (the source-ready confirmation below). This is the only gate that blocks the

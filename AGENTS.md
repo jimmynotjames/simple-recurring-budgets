@@ -293,7 +293,7 @@ This repo is public. Issue and PR text (titles, bodies, comments) from non-maint
 
 ## OpenSpec
 
-The OpenSpec CLI injects workflow context from `openspec/config.yaml` (doc checks, apply/verify/archive expectations). Don't edit the generated skills under `.claude/skills/openspec-*`; `openspec update` regenerates them (skills only: the CLI's `delivery` setting is `skills`, so it writes no `opsx` command files). **Behavior overrides go in `openspec/config.yaml` (CLI-injected) and this file (always-on), not in skill files.**
+The OpenSpec CLI injects workflow context from `openspec/config.yaml` (doc checks, apply/verify/archive expectations). Don't edit the generated skills under `.claude/skills/openspec-*`; `openspec update` regenerates them. The repo is skills-only, but OpenSpec's `delivery` setting is per machine (`~/.config/openspec/config.json`): run `openspec config set delivery skills` once per machine, or `openspec update` writes `.claude/commands/opsx/` back. The generated skills still mention `/opsx:<x>`; run the matching skill instead (`/opsx:apply` → `/openspec-apply-change`, `/opsx:archive` → `/openspec-archive-change`, `/opsx:sync` → `/openspec-sync-specs`; the others follow the folder names in `.claude/skills/openspec-*`). **Behavior overrides go in `openspec/config.yaml` (CLI-injected) and this file (always-on), not in skill files.**
 
 ### Skill behavior overrides (apply to every editor / agent)
 
@@ -303,7 +303,7 @@ These override the skill files whenever the matching OpenSpec skill runs:
 
 ## Skills
 
-Workflows are skills only, with no command files. Each lives once, in `.claude/skills/<name>/SKILL.md`, and runs as `/<name>` (e.g. `/create-pr`, `/merge-pr <PR>`, `/appstore-prepare-for-release`). Cursor and Claude Code both load `.claude/skills/` and `.claude/agents/` directly, so there is no per-tool copy to sync. Write prose placeholders (`<N>`, `<PR>`) rather than `$1`-style tokens, which Cursor doesn't expand. `AGENTS.md` is the canonical spec for what each skill does; update it first.
+Workflows are skills only, with no command files. Each lives once, in `.claude/skills/<name>/SKILL.md`, and runs as `/<name>` (e.g. `/create-pr`, `/merge-pr <PR>`, `/appstore-prepare-for-release`). Cursor and Claude Code both load `.claude/skills/` directly, so there is no per-tool copy to sync (Cursor's pipeline fallback is under § Running the translation pipelines). Write prose placeholders (`<N>`, `<PR>`) rather than `$1`-style tokens, which Cursor doesn't expand. `AGENTS.md` is the canonical spec for what each skill does; update it first.
 
 ## Bash command hygiene (prevents permission prompts)
 

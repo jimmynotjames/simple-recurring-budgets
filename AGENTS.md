@@ -48,6 +48,7 @@ The exception is the two translation checks in the pre-push hook (`check_transla
 | Create PR (`/create-pr`, `/create-pr-for-issue`) | `make gate`; `make focused-tests` for tests you touched | 0 (1 for focused tests) |
 | Push | pre-push (lefthook): no push to `main`, the two translation checks | 0 |
 | CI on the PR | lint, secrets, large files, i18n, tooling; build once, then unit + 3 UI shards | CI only |
+| Local CI (`/run-local-ci`), optional | `make tests` (unit + UI) on the rebased commit, then the `local-tests-passed` mark: the PR's CI skips the build and tests | 2 (pool permitting) |
 | Merge (`/merge-pr`) | waits for the required checks, squash-merges; no local checks | 0 |
 | CI on `main` | the full PR run again on the squash commit | CI only |
 
@@ -444,6 +445,7 @@ Before sending a Bash command containing `/tmp/`, `sed -i`, `sed -n`, a one-off 
 
 - **Issue → PR → merge:** `/create-pr-for-issue <N>` then `/merge-pr <PR>`.
 - **Code already written, no issue:** `/create-pr` then `/merge-pr <PR>`.
+- **Tests locally instead of on CI's macOS runners:** `/run-local-ci [<PR>]`, before `/create-pr` or on an open PR.
 - **TestFlight build:** `/appstore-push-testflight-build` (branch → build → upload → `/create-pr`, then stops); `/merge-pr <PR>` on a later turn.
 
 **Never merge on the same turn the PR is opened.**
@@ -467,7 +469,7 @@ The macOS work compiles once and tests in parallel. `build` runs `xcodebuild bui
 
 CI's UI tests (`ui-tests` and `focused-tests`) run with the app's animations off; local runs keep them. The jobs set `TEST_RUNNER_FORCE_ANIMATIONS=off`; xcodebuild hands it to the runner as `FORCE_ANIMATIONS`, `makeApp()` passes it to the app, and `TestAnimationsOverride` turns UIKit and SwiftUI animations off. To reproduce a CI-only UI failure locally, prefix `TEST_RUNNER_FORCE_ANIMATIONS=off` to `make focused-tests` or `make ui-tests`. A test that needs real animations calls `makeApp(keepsAnimations: true)`. CI's `ui-tests` shards also rerun a failed test once (`UI_RETRY_ON_FAILURE=1`); a test that passes only on retry leaves a "UI test passed only on retry" warning on the run, which counts as a flake for `FLAKY_TESTS.md`.
 
-Docs-only PRs skip `build` and every test job: the `changes` job lists the PR's files and they run only when one is code (`scripts/ci/docs_only.py` holds the rules). Manual runs always count as code. A push to `main` counts as code unless its PR's CI already tested the same code: the PR was up to date with `main`, its head has the same tree as the merge, and an automatic PR run on that head passed (`scripts/ci/pr_tested.py`). Otherwise every merge gets a full run. A skipped required check counts as passing, so don't replace this with a workflow-level `paths-ignore`: the required checks would never report. Required checks in the `main` ruleset: `lint`, `secrets`, `check-large-files`, `i18n-gates`, `tooling`, `tests`.
+Docs-only PRs skip `build` and every test job: the `changes` job lists the PR's files and they run only when one is code (`scripts/ci/docs_only.py` holds the rules). Manual runs always count as code. A PR whose head commit the owner marked `local-tests-passed` also skips them: `/run-local-ci` (`make run-local-ci`, `scripts/run-local-ci.sh`) ran the unit and UI suites locally on that exact commit first, and `scripts/ci/local_tests_passed.py` checks the mark. A push to `main` counts as code unless its PR's CI already tested the same code: the PR was up to date with `main`, its head has the same tree as the merge, and an automatic PR run on that head passed (`scripts/ci/pr_tested.py`). Otherwise every merge gets a full run. A skipped required check counts as passing, so don't replace this with a workflow-level `paths-ignore`: the required checks would never report. Required checks in the `main` ruleset: `lint`, `secrets`, `check-large-files`, `i18n-gates`, `tooling`, `tests`.
 
 `check_metadata.py` runs in `i18n-gates`; `check_content.py` and `check_source_voice.py` are release-time only: they run in the `fastlane push_metadata`/`screenshots` lanes (see `fastlane/Fastfile`, `fastlane/SETUP.md`), not in per-PR CI.
 

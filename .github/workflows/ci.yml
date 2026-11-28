@@ -17,6 +17,8 @@
 # Docs-only PRs skip build and every test job: the cheap `changes` job lists the PR's files and
 # outputs code=false only when every one is docs (the rules are in scripts/ci/docs_only.py), and
 # `tests` then passes. Manual runs and any error reading the list output code=true.
+# A PR whose head the owner marked `local-tests-passed` skips them too: scripts/run-local-ci.sh
+# ran the unit and UI suites locally first (the rules are in scripts/ci/local_tests_passed.py).
 # A push to main skips them too when its PR's CI already tested that exact code: the PR was up to
 # date with main, its head has the same tree, and an automatic PR run on it passed (the rules are
 # in scripts/ci/pr_tested.py). Any other push to main runs the full build and tests.
@@ -71,16 +73,19 @@ env:
 jobs:
   # --- Docs-only detection (ubuntu, seconds) ---------------------------------------
   # Both the changed path and, for a rename, the previous one count, so a file renamed out of the
-  # app folder is still code. A push to main is code unless its PR already tested the same tree
-  # (scripts/ci/pr_tested.py). Any other event, or a failed read, means code=true.
+  # app folder is still code. A PR head marked `local-tests-passed` is skipped as tested
+  # (scripts/ci/local_tests_passed.py; `skip` says so). A push to main is code unless its PR already
+  # tested the same tree (scripts/ci/pr_tested.py). Any other event, or a failed read, means code=true.
   changes:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
       actions: read
+      statuses: read
     outputs:
       code: ${{ steps.classify.outputs.code }}
+      skip: ${{ steps.classify.outputs.skip }}
     steps:
       - uses: actions/checkout@v7
       - name: Classify the PR's files
@@ -92,9 +97,15 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           CI_BEFORE: ${{ github.event.before }}
           CI_WORKFLOW: ci.yml
+          CI_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           if [[ "$EVENT" == push ]]; then
             python3 scripts/ci/pr_tested.py >> "$GITHUB_OUTPUT" || echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "$EVENT" == pull_request ]] && marked=$(python3 scripts/ci/local_tests_passed.py) \
+            && [[ "$marked" == code=false ]]; then
+            printf 'code=false\nskip=local-tests-passed\n' >> "$GITHUB_OUTPUT"
             exit 0
           fi
           # The files API stops at 3000 files, so a bigger PR could look docs-only; it counts as code.
@@ -494,7 +505,8 @@ jobs:
 
   # --- The required check: sums up the build and test jobs (ubuntu, seconds) -------------
   # Passes when every job this run asked for passed, or when `changes` found a docs-only PR (or a
-  # push to main its PR already tested) and the build and tests were skipped. Anything else fails, including a failed gate, `changes`, or
+  # PR head marked `local-tests-passed`, or a push to main its PR already tested) and the build and
+  # tests were skipped. Anything else fails, including a failed gate, `changes`, or
   # `build` (the test jobs are then skipped, which on their own would count as passing). Shards can
   # be added or renamed without touching the ruleset. Skipped on a manual run with no tests.
   tests:
@@ -508,6 +520,7 @@ jobs:
       - name: Sum up the build and test jobs
         env:
           CODE: ${{ needs.changes.outputs.code }}
+          SKIP: ${{ needs.changes.outputs.skip }}
           BUILD: ${{ needs.build.result }}
           UNIT: ${{ needs.unit-tests.result }}
           UI: ${{ needs.ui-tests.result }}
@@ -518,6 +531,8 @@ jobs:
           if [[ "$CODE" == false && "$BUILD" == skipped && "$UNIT" == skipped && "$UI" == skipped ]]; then
             if [[ "$GITHUB_EVENT_NAME" == push ]]; then
               echo "Already tested on its PR: build and tests skipped."
+            elif [[ "$SKIP" == local-tests-passed ]]; then
+              echo "Tested locally (local-tests-passed on this commit): build and tests skipped."
             else
               echo "Docs-only PR: build and tests skipped."
             fi
@@ -562,6 +577,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           CI_CODE: ${{ needs.changes.outputs.code }}
+          CI_SKIP: ${{ needs.changes.outputs.skip }}
           TALLY: ${{ needs.focused-tests.outputs.tally }}
         run: |
           printf '%s' "$TALLY" > tally.txt

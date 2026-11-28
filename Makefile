@@ -1,4 +1,4 @@
-.PHONY: tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests i18n-check i18n-sync i18n-sync-check uitest-check coverage lint gate hooks-install system initialize-sims sim-udid sim-show sim-run sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
+.PHONY: run-local-ci tool-versions-check format format-check lint-fix format-changed lint-changed build tests unit-tests focused-tests ui-tests script-tests i18n-check i18n-sync i18n-sync-check uitest-check coverage lint gate hooks-install system initialize-sims sim-udid sim-show sim-run sim-status sim-shutdown sim-clean simulator-slots-check simulator-slots-sync simulator-slots-status
 
 system:
 	bash scripts/system-setup.sh
@@ -39,6 +39,11 @@ tests: unit-tests ui-tests
 
 unit-tests:
 	bash scripts/unit-tests.sh
+
+# The full unit and UI suites in place of CI's macOS jobs, then the `local-tests-passed` mark and a
+# push (scripts/run-local-ci.sh; the /run-local-ci skill drives it).
+run-local-ci:
+	bash scripts/run-local-ci.sh
 
 # UI pass only; UI_SHARD=<name> runs one of CI's shards (scripts/ci/ui_shards.py), else all.
 #   make ui-tests UI_SHARD=accessibility

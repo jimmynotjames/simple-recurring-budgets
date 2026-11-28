@@ -1,6 +1,6 @@
 ---
 name: appstore-generate-screenshot-seeding
-description: Generate the culturally-tuned, per-locale demo content (the "seeding" data) the Wren app is seeded with when capturing App Store screenshots (≤3 budgets per locale with locally realistic names, emoji, currency, and amounts). Drives the scripts/screenshot_content/ pipeline with parallel per-storefront Opus subagents and writes the runtime-keyed catalog under simple-recurring-budgetsUITests/ScreenshotSeeds/. Invoked via /appstore:generate-screenshot-seeding. Use before capturing localized screenshots, or after editing SOURCE.json. This generates seed content only; capture + upload is the sibling /appstore:generate-push-screenshots.
+description: Generate the culturally-tuned, per-locale demo content (the "seeding" data) the Wren app is seeded with when capturing App Store screenshots (≤3 budgets per locale with locally realistic names, emoji, currency, and amounts). Drives the scripts/screenshot_content/ pipeline with parallel per-storefront Opus subagents and writes the runtime-keyed catalog under simple-recurring-budgetsUITests/ScreenshotSeeds/. Invoked via /appstore-generate-screenshot-seeding. Use before capturing localized screenshots, or after editing SOURCE.json. This generates seed content only; capture + upload is the sibling /appstore-generate-push-screenshots.
 ---
 
 # Generate App Store screenshot demo-content
@@ -13,7 +13,7 @@ exits 0: every runtime locale (en-US + 49 targets) has a well-formed catalog
 entry under `simple-recurring-budgetsUITests/ScreenshotSeeds/`.
 
 This is the screenshot demo-content pipeline. Siblings: in-app UI strings →
-`translate-new-strings`; App Store text metadata → `/appstore:translate-metadata`.
+`translate-new-strings`; App Store text metadata → `/appstore-translate-metadata`.
 All three target the same markets with different artifacts; `metadata_locales.py`
 owns the runtime↔storefront mapping that `content_locales.py` reuses.
 
@@ -238,7 +238,7 @@ Walks the catalog directly. If it reports gaps, loop back to step 2
 ### Capture and upload screenshots (separate skill)
 
 This skill stops once the seed catalog is green. Capturing (`fastlane screenshots`)
-and uploading to App Store Connect belong to `/appstore:generate-push-screenshots`,
+and uploading to App Store Connect belong to `/appstore-generate-push-screenshots`,
 the next step after this gate. Don't run `fastlane screenshots` from here.
 
 ### 9. Cleanup — offer to clear tmp working files
@@ -251,6 +251,6 @@ python3 scripts/pipeline_tmp.py clean screenshot-content
 
 ## When NOT to use this skill
 
-- App Store text metadata → `/appstore:translate-metadata`.
+- App Store text metadata → `/appstore-translate-metadata`.
 - In-app UI strings → `translate-new-strings`.
-- Capturing and uploading screenshots → `/appstore:generate-push-screenshots`.
+- Capturing and uploading screenshots → `/appstore-generate-push-screenshots`.

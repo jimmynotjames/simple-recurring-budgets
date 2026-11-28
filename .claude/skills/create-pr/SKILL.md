@@ -112,7 +112,7 @@ Fix any gaps. For translations, run `translate-new-strings` as a full autonomous
 
 ### 5. Docs-only? Confirm CI skip (heuristic)
 
-Before the gate, run `git diff main..HEAD --name-only`. If every changed path looks documentation-only (e.g. `docs/**`, `*.md`, `openspec/**`, `.cursor/**`, `.claude/**`, `.github/**/*.md`), stop and ask the user:
+Before the gate, run `git diff main..HEAD --name-only`. If every changed path looks documentation-only (e.g. `docs/**`, `*.md`, `openspec/**`, `.claude/**`, `.github/**/*.md`), stop and ask the user:
 
 > This looks like a documentation-only change. Add `[skip ci]` to the commit message before push to skip GitHub Actions? (Heuristic — not 100% reliable.)
 
@@ -177,5 +177,5 @@ Run all steps without prompting, except when a review finding is genuinely ambig
 
 - Does not merge. Use `/merge-pr <PR>` after review.
 - Does not run the app's unit or UI suites. PR CI runs both (unit plus the three UI shards); `/ci unit` or `/ci ui` re-runs them on the PR.
-- Does not handle OpenSpec changes. If the change needs spec/doc updates, the OpenSpec workflow (`/opsx:verify` → `/opsx:archive`) runs separately after merge.
+- Does not handle OpenSpec changes. If the change needs spec/doc updates, the OpenSpec workflow (`/openspec-verify-change` → `/openspec-archive-change`) runs separately after merge.
 - Does not involve a GitHub issue. For issue-linked work, use `/create-pr-for-issue <N>`.

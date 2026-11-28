@@ -1,6 +1,6 @@
 ---
 name: appstore-push-release-build
-description: Build and upload the App Store release-candidate build — confirms the release checklist has been worked through, prompts for the new App Store version number, bumps MARKETING_VERSION on a release branch, then runs `fastlane ios beta` so the candidate lands in TestFlight (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then hands the commit to `/create-pr` (gate, push, PR) and stops; `/merge-pr` lands it on a later turn. The same binary is then manually tested via TestFlight and attached to the App Store version in ASC — one build serves both. Does NOT submit for review — that stays a manual App Store Connect step. Use when the release checklist reaches the release-candidate build step, or when asked to push a release build. Invoked via /appstore:push-release-build.
+description: Build and upload the App Store release-candidate build — confirms the release checklist has been worked through, prompts for the new App Store version number, bumps MARKETING_VERSION on a release branch, then runs `fastlane ios beta` so the candidate lands in TestFlight (auto-bumps build number from ASC, archives, uploads, auto-commits the pbxproj bump), then hands the commit to `/create-pr` (gate, push, PR) and stops; `/merge-pr` lands it on a later turn. The same binary is then manually tested via TestFlight and attached to the App Store version in ASC — one build serves both. Does NOT submit for review — that stays a manual App Store Connect step. Use when the release checklist reaches the release-candidate build step, or when asked to push a release build. Invoked via /appstore-push-release-build.
 ---
 
 # Push the App Store release-candidate build
@@ -24,7 +24,7 @@ bumps `CURRENT_PROJECT_VERSION` in `project.pbxproj`, archives and exports the
 
 ## Preconditions
 
-Normally invoked from `/appstore:prepare-for-release` with the checklist's
+Normally invoked from `/appstore-prepare-for-release` with the checklist's
 Phases 0–3 complete. Either way, step 1 always asks the user to confirm the
 checklist has been worked through; never build against unfinished release prep:
 
@@ -59,11 +59,11 @@ grep MARKETING_VERSION simple-recurring-budgets.xcodeproj/project.pbxproj | head
 Then ask the user (one AskUserQuestion call, three questions):
 
 1. **"Have you worked through the release checklist —
-   `/appstore:prepare-for-release`, or manually through
+   `/appstore-prepare-for-release`, or manually through
    `docs/app-store-release-checklist.md` Phases 0–3?"** If an in-flight
    snapshot exists in `releases/`, cite its state alongside the question. A
    no (or "not sure") means stop and route to
-   `/appstore:prepare-for-release` instead of building.
+   `/appstore-prepare-for-release` instead of building.
 2. **The new App Store version number**, showing the current
    `MARKETING_VERSION` and, if known, the version ASC expects. The version is
    a product decision: confirm it here even if the checklist snapshot names one.
@@ -177,5 +177,5 @@ open (merge it with `/merge-pr <PR>` once CI is green). Apple takes ~30 min to p
 TestFlight for the final manual test (Settings must show vX.Y.Z (<N>) with no
 'Debug' badge). That exact build is what you attach to the version in ASC and
 submit for review — nothing has been submitted yet."** If running under
-`/appstore:prepare-for-release`, mark the corresponding snapshot items and
+`/appstore-prepare-for-release`, mark the corresponding snapshot items and
 continue the checklist.

@@ -47,7 +47,7 @@ a request to inspect or review a PR alone is not authorization.
    now. Verify with `openspec list` and the PR diff. If archiving or any other OpenSpec step
    (unsynced delta specs, incomplete tasks/artifacts) is still pending, do NOT merge: stop, tell the
    user exactly which step is pending, and ask whether to complete it now. If yes, do it on this
-   PR's branch (check out the branch, sync + `/opsx:archive <name>`, push so it lands in the same
+   PR's branch (check out the branch, sync + `/openspec-archive-change <name>`, push so it lands in the same
    PR), then go back to step 1 for the new commit. Don't merge with pending OpenSpec work unless the
    user explicitly says to merge anyway.
 

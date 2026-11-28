@@ -4,7 +4,7 @@ The master checklist for shipping a Wren release to the App Store. Audience: a
 future developer or agent who may not have touched this repo in months or years.
 Work top to bottom; phases are ordered by dependency.
 
-**How this is used:** the `/appstore:prepare-for-release` skill copies the checklist body
+**How this is used:** the `/appstore-prepare-for-release` skill copies the checklist body
 into a per-release snapshot at `releases/app-store-release-checklist--vX.Y.Z.md`, then works through it with
 you across as many sessions as the release takes. The snapshot is the state;
 this file is the template. Related: [`RELEASES.md`](../RELEASES.md) (append-only
@@ -149,7 +149,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P2.4** Metadata current **and pushed**: review
       `fastlane/metadata/en-US/*.txt` (description, keywords, promotional
       text) against the app as it is now; **write `release_notes.txt` for this
-      version**; then `/appstore:translate-metadata` until
+      version**; then `/appstore-translate-metadata` until
       `python3 scripts/translate_metadata/check_metadata.py` exits 0.
       Then upload: `fastlane ios push_metadata`. It stages into the editable
       ("Prepare for Submission") version in ASC, so if none exists yet, create
@@ -160,9 +160,9 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 - [ ] **P2.5** 🎈 Screenshots update? A developer judgment call; the agent
       **prompts you**: should the App Store screenshots be updated for this
       release? Compare `fastlane/screenshots/` against the current UI to
-      inform the call. If yes: `/appstore:generate-push-screenshots`
+      inform the call. If yes: `/appstore-generate-push-screenshots`
       (re-capture from the existing seed catalog); only regenerate seed
-      content (`/appstore:generate-screenshot-seeding`) if locales or demo
+      content (`/appstore-generate-screenshot-seeding`) if locales or demo
       content themselves changed. Record the decision in the Note.
       > Note:
 - [ ] **P2.6** App icon still right? Check `AppIcon` in the asset catalog:
@@ -223,7 +223,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
 
 - [ ] **P4.1** Release-candidate build. **One binary serves both the final
       TestFlight test and the App Store submission.**
-      `/appstore:push-release-build` confirms checklist prep, prompts for the
+      `/appstore-push-release-build` confirms checklist prep, prompts for the
       version number (decided in P0.6), bumps `MARKETING_VERSION` on a release
       branch, uploads a TestFlight build of it (`fastlane ios beta`), then
       opens the PR via `/create-pr`; merge it with `/merge-pr` once CI is green. The build it produces is the submission candidate: what
@@ -323,7 +323,7 @@ log of what shipped) gets its entry filled in at close-out (P7.5).
       > Note:
 - [ ] **P6.4** Bump `MARKETING_VERSION` to the next minor version (e.g.
       `1.0` → `1.1`, or `1.0.0` → `1.1.0`), same technique as
-      `/appstore:push-release-build` step 4: update every
+      `/appstore-push-release-build` step 4: update every
       `MARKETING_VERSION = …;` occurrence in `project.pbxproj`, branch,
       commit, PR, merge. This keeps any interim TestFlight build pushed before
       the next release cycle formally starts tagged as a future version rather

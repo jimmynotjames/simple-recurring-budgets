@@ -24,7 +24,6 @@ class DocsOnlyTests(unittest.TestCase):
             "releases/2.0.md",
             ".claude/skills/merge-pr/SKILL.md",
             ".claude/settings.json",
-            ".cursor/rules/project.mdc",
             ".github/pull_request_template.md",
         ):
             with self.subTest(path=path):

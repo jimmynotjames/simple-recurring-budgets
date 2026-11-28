@@ -90,7 +90,7 @@ CLAUDE.local.md
 
 # skills CLI working/source tree — regenerable from skills-lock.json via
 # `npx skills experimental_install`. Consumed copies are committed under
-# .claude/skills/ (Claude Code) and .cursor/skills/ (Cursor).
+# .claude/skills/ (read by Claude Code and Cursor).
 .agents/
 
 # Translation pipeline — generated outputs (keep .gitkeep to preserve dirs)

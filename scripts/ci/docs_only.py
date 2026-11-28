@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import sys
 
-DOCS_DIRS = ("docs/", "openspec/", "releases/", ".claude/", ".cursor/")
+DOCS_DIRS = ("docs/", "openspec/", "releases/", ".claude/")
 # Docs inside a target folder, kept out of the target by the project's membershipExceptions.
 DOCS_IN_TARGET_FOLDERS = ("simple-recurring-budgetsUITests/FLAKY_TESTS.md",)
 # Markdown here is input to code, not documentation (i18n/brief.md fills the prompt templates).

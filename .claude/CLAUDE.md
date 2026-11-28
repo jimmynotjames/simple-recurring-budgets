@@ -6,7 +6,7 @@ isolation: none
 
 Project-wide agent instructions live in [`AGENTS.md`](../AGENTS.md), which is canonical for:
 
-- Build and test procedure (four-step: `make format` → `make lint-fix` → `make build` → `make tests`)
+- Build and test procedure (`make gate`, then `make focused-tests` for touched tests; full suites run in PR CI)
 - Swift 6 concurrency rules (default `@MainActor` isolation, `Sendable` requirements)
 - High-level docs to consult (`docs/main-prd.md`, `docs/product-features-planning.md`, `docs/tech-design-doc.md`)
 - Cross-cutting concerns checklist (accessibility, localized source strings, translations queue, Mixpanel user-action events): every UI-touching change must address all four per `docs/main-prd.md` §6.8
@@ -16,6 +16,6 @@ Project-wide agent instructions live in [`AGENTS.md`](../AGENTS.md), which is ca
 
 OpenSpec workflow context (artifact rules, doc-alignment checks, apply/verify/archive expectations) lives in [`openspec/config.yaml`](../openspec/config.yaml).
 
-OpenSpec skill behavior overrides (e.g. auto-sync delta specs on `/opsx:archive` without prompting) are in [`AGENTS.md`](../AGENTS.md) under "OpenSpec > Skill behavior overrides". They apply to every editor and survive skill regeneration.
+OpenSpec skill behavior overrides (e.g. auto-sync delta specs on `openspec-archive-change` without prompting) are in [`AGENTS.md`](../AGENTS.md) under "OpenSpec > Skill behavior overrides". They apply to every editor and survive skill regeneration.
 
 Bash command hygiene (`/tmp/`, `sed`, throwaway scripts, output capture) is in [`AGENTS.md`](../AGENTS.md) under "Bash command hygiene". Follow it to avoid permission prompts.

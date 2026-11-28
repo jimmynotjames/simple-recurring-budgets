@@ -130,6 +130,11 @@ class RenderTests(unittest.TestCase):
         self.assertIn("Already tested", body)
         self.assertNotIn("Docs-only", body)
 
+    def test_tested_locally_note_on_a_marked_pr(self) -> None:
+        body = cs.render(_data(code="false", event="pull_request", skip="local-tests-passed"))
+        self.assertIn("Tested locally", body)
+        self.assertNotIn("Docs-only", body)
+
     def test_failures_retries_annotations_tally_and_bundles(self) -> None:
         reports = [{
             "job": "ui-tests-editing", "counts": {"total": 40, "passed": 39, "failed": 1},

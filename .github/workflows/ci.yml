@@ -16,7 +16,10 @@
 #
 # Docs-only PRs skip build and every test job: the cheap `changes` job lists the PR's files and
 # outputs code=false only when every one is docs (the rules are in scripts/ci/docs_only.py), and
-# `tests` then passes. Pushes to main, manual runs and any error reading the list output code=true.
+# `tests` then passes. Manual runs and any error reading the list output code=true.
+# A push to main skips them too when its PR's CI already tested that exact code: the PR was up to
+# date with main, its head has the same tree, and an automatic PR run on it passed (the rules are
+# in scripts/ci/pr_tested.py). Any other push to main runs the full build and tests.
 # Never use a workflow-level paths-ignore for this: the required checks would never report.
 # An automatic run (PR or push) runs unit and UI tests; `tests` and `test` only shape manual runs.
 name: CI
@@ -68,12 +71,14 @@ env:
 jobs:
   # --- Docs-only detection (ubuntu, seconds) ---------------------------------------
   # Both the changed path and, for a rename, the previous one count, so a file renamed out of the
-  # app folder is still code. Anything but a PR event, or a failed read, means code=true.
+  # app folder is still code. A push to main is code unless its PR already tested the same tree
+  # (scripts/ci/pr_tested.py). Any other event, or a failed read, means code=true.
   changes:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
+      actions: read
     outputs:
       code: ${{ steps.classify.outputs.code }}
     steps:
@@ -85,7 +90,13 @@ jobs:
           EVENT: ${{ github.event_name }}
           REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
+          CI_BEFORE: ${{ github.event.before }}
+          CI_WORKFLOW: ci.yml
         run: |
+          if [[ "$EVENT" == push ]]; then
+            python3 scripts/ci/pr_tested.py >> "$GITHUB_OUTPUT" || echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           # The files API stops at 3000 files, so a bigger PR could look docs-only; it counts as code.
           if [[ "$EVENT" != pull_request ]] \
             || ! count=$(gh api "repos/${REPO}/pulls/${PR}" --jq .changed_files) \
@@ -478,8 +489,8 @@ jobs:
           retention-days: 7
 
   # --- The required check: sums up the build and test jobs (ubuntu, seconds) -------------
-  # Passes when every job this run asked for passed, or when `changes` found a docs-only PR and
-  # the build and tests were skipped. Anything else fails, including a failed gate, `changes`, or
+  # Passes when every job this run asked for passed, or when `changes` found a docs-only PR (or a
+  # push to main its PR already tested) and the build and tests were skipped. Anything else fails, including a failed gate, `changes`, or
   # `build` (the test jobs are then skipped, which on their own would count as passing). Shards can
   # be added or renamed without touching the ruleset. Skipped on a manual run with no tests.
   tests:
@@ -501,7 +512,11 @@ jobs:
         run: |
           echo "changes.code=${CODE} build=${BUILD} unit-tests=${UNIT} ui-tests=${UI} focused-tests=${FOCUSED} (asked for: ${WANT})"
           if [[ "$CODE" == false && "$BUILD" == skipped && "$UNIT" == skipped && "$UI" == skipped ]]; then
-            echo "Docs-only PR: build and tests skipped."
+            if [[ "$GITHUB_EVENT_NAME" == push ]]; then
+              echo "Already tested on its PR: build and tests skipped."
+            else
+              echo "Docs-only PR: build and tests skipped."
+            fi
             exit 0
           fi
           case "$WANT" in

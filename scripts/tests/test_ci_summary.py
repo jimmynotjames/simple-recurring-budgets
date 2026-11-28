@@ -123,6 +123,11 @@ class RenderTests(unittest.TestCase):
     def test_docs_only_note(self) -> None:
         self.assertIn("Docs-only change", cs.render(_data(code="false")))
 
+    def test_already_tested_note_on_a_push(self) -> None:
+        body = cs.render(_data(code="false", event="push"))
+        self.assertIn("Already tested", body)
+        self.assertNotIn("Docs-only", body)
+
     def test_failures_retries_annotations_tally_and_bundles(self) -> None:
         reports = [{
             "job": "ui-tests-editing", "counts": {"total": 40, "passed": 39, "failed": 1},

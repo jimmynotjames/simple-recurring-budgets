@@ -113,13 +113,13 @@ characters. An unused field has no file; `appstore_metadata.py prepare` rejects 
 | `check_translations.py` | `make i18n-check` (in `make gate`), pre-push, CI | Yes |
 | `check_source_strings.py` | `make i18n-check` (in `make gate`), pre-push, CI | Yes |
 | `untranslated_copies.py` | `make i18n-check` (in `make gate`), CI | Yes |
-| `distinct_pairs.py` | `make i18n-check` (in `make gate`) | Yes |
+| `distinct_pairs.py` | `make i18n-check` (in `make gate`), CI | Yes |
 | `sync_catalog.py --check` | `make i18n-sync-check`, after the build in `make gate` | Yes |
 | `check_metadata.py` | `push_metadata` lane, CI | Yes |
 | `plural_completeness.py` | `audit-translations` skill, CI | Yes |
 | `consistency_check.py` | `audit-translations` skill, CI | No, informational |
 | `check_source_voice.py` | `push_metadata` lane | No, advisory |
-| `check_content.py` | Screenshot lanes | Yes |
+| `check_content.py` | `make i18n-check` (in `make gate`), screenshot lanes, CI | Yes |
 
 ---
 

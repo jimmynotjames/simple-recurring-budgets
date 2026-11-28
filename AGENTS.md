@@ -13,7 +13,7 @@ Run `make gate` (or `bash scripts/gate.sh`) from the repo root. It runs, in orde
 1. **`make tool-versions-check`** — local swiftformat/swiftlint/gitleaks/lefthook match `config/lint-tools.env`.
 2. **`make format-changed`** — SwiftFormat (`scripts/swiftformat.sh`) on the Swift files this branch changed (§ Lint policy).
 3. **`make lint-changed`** — `swiftlint --fix`, then `swiftlint lint --strict`, on the same files. Fix remaining violations by hand.
-4. **`make i18n-check`** — `check_translations.py`, `check_source_strings.py`, `untranslated_copies.py` and `distinct_pairs.py`, repo-wide.
+4. **`make i18n-check`** — `check_translations.py`, `check_source_strings.py`, `untranslated_copies.py`, `distinct_pairs.py` and `check_content.py`, repo-wide.
 5. **`make uitest-check`** — `check_ui_test_keyboard.py`: no UI test taps a software-keyboard key.
 6. **`make simulator-slots-check`** — the vendored pool copy matches its master (§ Simulator slots).
 7. **`make script-tests`** — `scripts/script-tests.sh`: offline unit tests of `scripts/tests/` and, on macOS, of the simulator-slots copy.

@@ -194,8 +194,8 @@ jobs:
         run: bash scripts/check-large-files.sh ${{ steps.diff.outputs.files }}
 
   # --- Localization gates (ubuntu) --------------------------------------------
-  # Same gates as the pre-push hook, plus check_metadata, the plural and untranslated-copy checks,
-  # and a non-blocking consistency report.
+  # The make i18n-check gates, plus check_metadata and the plural check, and a non-blocking
+  # consistency report.
   i18n-gates:
     if: inputs.only == '' || contains(format(',{0},', inputs.only), ',i18n,')
     runs-on: ubuntu-latest
@@ -214,6 +214,10 @@ jobs:
         run: python3 scripts/ci/annotate.py --name plural_completeness -- python3 scripts/translate_audit/plural_completeness.py
       - name: untranslated_copies.py
         run: python3 scripts/ci/annotate.py --name untranslated_copies -- python3 scripts/translate_audit/untranslated_copies.py
+      - name: distinct_pairs.py
+        run: python3 scripts/ci/annotate.py --name distinct_pairs -- python3 scripts/translate_audit/distinct_pairs.py
+      - name: check_content.py
+        run: python3 scripts/ci/annotate.py --name check_content -- python3 scripts/screenshot_content/check_content.py
       - name: consistency_check (informational, non-blocking)
         run: python3 scripts/translate_audit/consistency_check.py --ignore-casing || true
 

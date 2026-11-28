@@ -17,6 +17,9 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_catalog"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_metadata"))
 
+import app_config  # noqa: E402
+import locales  # noqa: E402
+
 
 def _load(name: str, relative: str):
     # By path: merge.py and validate.py exist in both pipelines, so a bare import
@@ -32,6 +35,8 @@ metadata_audit = _load("translate_metadata_audit", "scripts/translate_metadata/a
 metadata_validate = _load("translate_metadata_validate_fixes", "scripts/translate_metadata/validate.py")
 catalog_validate = _load("translate_catalog_validate_fixes", "scripts/translate_catalog/validate.py")
 metadata_extract = _load("translate_metadata_extract_fixes", "scripts/translate_metadata/extract.py")
+catalog_dispatch = _load("translate_catalog_dispatch_fixes", "scripts/translate_catalog/dispatch_prompts.py")
+metadata_dispatch = _load("translate_metadata_dispatch_fixes", "scripts/translate_metadata/dispatch_prompts.py")
 check_metadata = _load("translate_metadata_check_metadata", "scripts/translate_metadata/check_metadata.py")
 update_keys = _load("translate_catalog_update_keys", "scripts/translate_catalog/update_keys.py")
 
@@ -226,6 +231,34 @@ class MetadataExtractStorefrontsTests(unittest.TestCase):
     def test_unknown_storefront_exits(self) -> None:
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
             metadata_extract.force_fields(self.SOURCE, ["description"], ["xx-XX"])
+
+
+class RegisterLineTests(unittest.TestCase):
+    """Every translating and auditing prompt states the registry's form of address, once."""
+
+    def _formal_locale(self) -> str:
+        return next(r for r, reg in locales.REGISTER.items() if reg.get("form"))
+
+    def _assert_states_register(self, prompt: str, runtime: str) -> None:
+        self.assertEqual(prompt.count("**Form of address:**"), 1)
+        self.assertIn(f"**Form of address:** {locales.register_line(runtime)}.", prompt)
+
+    def test_catalog_prompt_states_the_form(self) -> None:
+        runtime = self._formal_locale()
+        template = app_config.load_template(REPO_ROOT / "scripts/translate_catalog/PROMPT_TEMPLATE.md")
+        self._assert_states_register(catalog_dispatch.render_prompt(template, runtime, {}), runtime)
+
+    def test_catalog_prompt_omits_the_line_without_a_form(self) -> None:
+        runtime = next(r for r, reg in locales.REGISTER.items() if not reg.get("form"))
+        template = app_config.load_template(REPO_ROOT / "scripts/translate_catalog/PROMPT_TEMPLATE.md")
+        self.assertNotIn("Form of address", catalog_dispatch.render_prompt(template, runtime, {}))
+
+    def test_metadata_prompt_states_the_form(self) -> None:
+        runtime = self._formal_locale()
+        storefront = locales.RUNTIME_TO_STOREFRONT[runtime]
+        template = app_config.load_template(REPO_ROOT / "scripts/translate_metadata/PROMPT_TEMPLATE.md")
+        source = {"description": {"english": "x", "charLimit": 4000, "guidance": ""}}
+        self._assert_states_register(metadata_dispatch.render_prompt(template, storefront, source), runtime)
 
 
 class UpdateKeysPluralTests(unittest.TestCase):

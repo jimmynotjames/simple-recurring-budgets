@@ -10,7 +10,7 @@ This is **transcreation, not translation.** Each field should read as if a nativ
 
 The personality stays constant across markets; its expression is localized. If a trait would read oddly here, adapt it to the local equivalent rather than copying the English move.
 
-**Register:** use the form of address the market note below sets, consistently across every field. Get warmth from word choice, never from changing the address.
+**Register:** use the form of address set below, consistently across every field. Get warmth from word choice, never from changing the address.
 
 ## Messaging brief
 
@@ -81,6 +81,10 @@ Its current `subtitle`, which you are not rewriting this time, is **{CURRENT_SUB
 <!-- end prose -->
 ## Market note for {LOCALE_NAME}
 
+<!-- if register -->
+**Form of address:** {REGISTER}.
+
+<!-- end register -->
 {CULTURAL_NOTE}
 
 ## Questions for a human

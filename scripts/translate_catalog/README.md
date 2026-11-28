@@ -36,7 +36,7 @@ No dependencies beyond Python 3 stdlib.
 App-specific text never lives in this folder: the templates take their app prose from
 `i18n/brief.md`, and the per-locale notes live in `i18n/regional_notes.json` (in-app) and
 `i18n/cultural_notes.json` (store), kept apart on purpose. The locale registry's `register` field
-holds the formality call both must state.
+holds the formality call; every prompt states it on its own line, so the notes never do.
 
 ## Full backfill
 

@@ -49,7 +49,7 @@ TRANSLATE_TEMPLATE = SCRIPT_DIR / "GLOSSARY_TRANSLATE_PROMPT.md"
 
 sys.path.insert(0, str(SCRIPT_DIR))
 from paths import CATALOG_PATH  # noqa: E402
-from locales import LOCALES, LOCALE_NAMES  # noqa: E402
+from locales import LOCALES, LOCALE_NAMES, register_line  # noqa: E402
 from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE  # noqa: E402
 from prompt_render import render  # noqa: E402
 import app_config  # noqa: E402
@@ -256,15 +256,19 @@ def cmd_dispatch(locales: list[str]) -> int:
     for locale in sorted(requested):
         # Protected nouns need no translation; the agent is told to keep them as-is, but we
         # also force them at merge time. Still include them so the agent sees the full set.
+        register = register_line(locale)
         prompt = render(
             template,
             {
                 "LOCALE_NAME": LOCALE_NAMES.get(locale, locale),
                 "LOCALE_CODE": locale,
+                "REGISTER": register,
                 "REGIONAL_NOTE": REGIONAL_NOTES.get(locale, _GENERIC_NOTE),
                 "PROTECTED_JSON": json.dumps(PROTECTED, ensure_ascii=False),
                 "TERMS_JSON": json.dumps(term_payload, ensure_ascii=False, indent=2),
             },
+            {"register"} if register else set(),
+            known={"register"},
         )
         (PROMPTS_DIR / f"{locale}.md").write_text(prompt, encoding="utf-8")
     # Clear stale outputs for the locales we're dispatching.

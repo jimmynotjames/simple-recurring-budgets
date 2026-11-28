@@ -30,6 +30,7 @@ TEMPLATE_PATH = Path(__file__).parent / "PROMPT_TEMPLATE.md"
 
 sys.path.insert(0, str(Path(__file__).parent))
 from metadata_locales import (  # noqa: E402
+    STOREFRONT_TO_RUNTIME,
     FIELD_BYTE_LIMITS,
     FIELD_GUIDANCE,
     STOREFRONT_NAMES,
@@ -39,6 +40,7 @@ from metadata_locales import (  # noqa: E402
 )
 from prompt_render import compact_json, render  # noqa: E402  (translate_catalog; metadata_locales puts it on the path)
 import app_config  # noqa: E402
+from locales import register_line  # noqa: E402
 
 PROSE_FIELDS = {"promotional_text", "description", "release_notes"}
 
@@ -47,7 +49,7 @@ _BULLET_RE = re.compile(r"^\s*[•\-*·]\s")
 
 # Marketing register, positioning and keyword notes live in i18n/cultural_notes.json, kept apart
 # from the in-app REGIONAL_NOTES on purpose; the registry's `register` field holds each locale's
-# formality call, and test_locale_registry checks both note maps state it.
+# formality call, and the prompt states it through register_line(), so the notes don't.
 CULTURAL_NOTES: dict[str, str] = app_config.CULTURAL_NOTES
 _GENERIC_NOTE: str = app_config.GENERIC_CULTURAL_NOTE
 
@@ -80,11 +82,15 @@ def render_prompt(template: str, storefront: str, prompt_source: dict) -> str:
     current_subtitle = "" if "subtitle" in prompt_source else store_field(METADATA_DIR, storefront, "subtitle")
     if "keywords" in prompt_source and current_subtitle:
         sections.add("current_subtitle")
+    register = register_line(STOREFRONT_TO_RUNTIME.get(storefront, storefront))
+    if register:
+        sections.add("register")
     return render(
         template,
         {
             "LOCALE_NAME": STOREFRONT_NAMES.get(storefront, storefront),
             "LOCALE_CODE": storefront,
+            "REGISTER": register,
             "CULTURAL_NOTE": CULTURAL_NOTES.get(storefront, _GENERIC_NOTE),
             "SOURCE_JSON": compact_json(prompt_source),
             "STORE_NAME": store_name(METADATA_DIR, storefront),
@@ -92,7 +98,7 @@ def render_prompt(template: str, storefront: str, prompt_source: dict) -> str:
             "CURRENT_SUBTITLE": current_subtitle,
         },
         sections,
-        known={"name", "subtitle", "keywords", "current_subtitle", "prose", "bullets", "glossary"},
+        known={"name", "subtitle", "keywords", "current_subtitle", "prose", "bullets", "glossary", "register"},
     )
 
 

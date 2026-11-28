@@ -13,7 +13,6 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_catalog"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "translate_audit"))
 
-import app_config  # noqa: E402
 import appstore_metadata  # noqa: E402
 import locales  # noqa: E402
 from plural_rules import PLURAL_RULES  # noqa: E402
@@ -40,17 +39,20 @@ class LocaleRegistryTests(unittest.TestCase):
     def test_plural_rules_cover_every_target(self) -> None:
         self.assertEqual(set(locales.LOCALES), set(PLURAL_RULES))
 
-    def test_every_target_has_one_register_call_that_both_note_maps_state(self) -> None:
+    def test_every_target_has_one_register_call(self) -> None:
         self.assertEqual(set(locales.REGISTER), set(locales.LOCALES))
         for runtime, register in locales.REGISTER.items():
-            form = register.get("form")
-            if not form:
+            if not register.get("form"):
                 self.assertEqual(register["level"], "neutral", f"{runtime}: only a neutral register may omit its form")
-                continue
-            storefront = locales.RUNTIME_TO_STOREFRONT[runtime]
-            with self.subTest(runtime=runtime):
-                self.assertIn(form, app_config.REGIONAL_NOTES[runtime], "in-app regional note")
-                self.assertIn(form, app_config.CULTURAL_NOTES[storefront], "store cultural note")
+
+    def test_register_line_states_form_and_level(self) -> None:
+        for runtime, register in locales.REGISTER.items():
+            line = locales.register_line(runtime)
+            if register.get("form"):
+                self.assertEqual(line, f"{register['form']} ({register['level']})")
+            else:
+                self.assertEqual(line, "", runtime)
+        self.assertEqual(locales.register_line(locales.SOURCE_RUNTIME), "")
 
     def test_storefront_map_round_trips(self) -> None:
         for runtime, storefront in locales.RUNTIME_TO_STOREFRONT.items():

@@ -38,6 +38,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 # `dispatch_prompts` also exists in translate_catalog/, and metadata_locales' own path setup can
 # otherwise shadow it.
 from dispatch_prompts import CULTURAL_NOTES, _GENERIC_NOTE  # noqa: E402
+from locales import register_line  # noqa: E402
 import app_config  # noqa: E402
 from metadata_locales import (  # noqa: E402
     FIELD_BYTE_LIMITS,
@@ -80,16 +81,20 @@ def audit_field(value: str, field: str, *, measure: bool) -> dict:
 
 
 def render_audit_prompt(template: str, storefront: str, source: dict, current: dict) -> str:
-    rtl = STOREFRONT_TO_RUNTIME.get(storefront, storefront).split("-")[0] in RTL_LANGUAGES
-    sections = {"rtl"} if rtl else set()
+    runtime = STOREFRONT_TO_RUNTIME.get(storefront, storefront)
+    sections = {"rtl"} if runtime.split("-")[0] in RTL_LANGUAGES else set()
     glossary = glossary_lines(storefront)
     if glossary:
         sections.add("glossary")
+    register = register_line(runtime)
+    if register:
+        sections.add("register")
     return render(
         template,
         {
             "LOCALE_NAME": STOREFRONT_NAMES.get(storefront, storefront),
             "LOCALE_CODE": storefront,
+            "REGISTER": register,
             "REGIONAL_NOTE": CULTURAL_NOTES.get(storefront, _GENERIC_NOTE),
             "SOURCE_JSON": compact_json(source),
             "CURRENT_JSON": compact_json(current),
@@ -98,7 +103,7 @@ def render_audit_prompt(template: str, storefront: str, source: dict, current: d
             "AUDIT_FIELDS": " | ".join(TRANSLATABLE_FIELDS),
         },
         sections,
-        known={"rtl", "glossary"},
+        known={"rtl", "glossary", "register"},
     )
 
 

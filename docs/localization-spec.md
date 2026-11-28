@@ -101,7 +101,7 @@ characters. An unused field has no file; `appstore_metadata.py prepare` rejects 
 - **Fan out in batches, named agents only.** Send about 8–12 agent calls per message with
   `run_in_background: true`, and never put a `Bash` call in the same message: one failed call
   cancels its whole batch. Dispatch the pipeline's own `*-locale` agent, never `general-purpose`.
-  On a tool without a subagent primitive (Cursor), run the step inline and serially: read each
+  On a tool without a subagent primitive, run the step inline and serially: read each
   prompt file, produce the JSON yourself, write the matching output file. Same scripts, same gates.
 
 ---

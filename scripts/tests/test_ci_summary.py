@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -218,7 +220,11 @@ class PostTests(unittest.TestCase):
             env = {"GITHUB_REPOSITORY": "o/r", "GITHUB_RUN_ID": "7", "GITHUB_EVENT_NAME": "pull_request",
                    "GITHUB_EVENT_PATH": str(event), "GITHUB_STEP_SUMMARY": str(summary)}
             gh = FakeGh({"-X": cs.GhError("Resource not accessible by integration")})
-            self.assertEqual(cs.main(["post", "--reports", tmp], env, gh), 0)
+            # Capture stdout: an uncaptured `::warning::` line becomes a real annotation on the CI run.
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(cs.main(["post", "--reports", tmp], env, gh), 0)
+            self.assertIn("::warning::CI summary not posted on PR #3", out.getvalue())
             self.assertIn("`b@1234567`", summary.read_text())
 
 

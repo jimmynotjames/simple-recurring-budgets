@@ -19,6 +19,7 @@ GITHUB_EVENT_NAME, GITHUB_SHA, GITHUB_REF_NAME, GITHUB_HEAD_REF, GITHUB_JOB, GIT
 (the PR number and head, the dispatch inputs and the pushed commit's subject come from it),
 GITHUB_STEP_SUMMARY, plus:
   CI_CODE       `changes.code`; "false" adds the docs-only note (on a push: the already-tested note)
+  CI_SKIP       `changes.skip`; "local-tests-passed" makes that the tested-locally note
   CI_COMMAND    the `/ci` command words, if the run came from a /ci comment
   CI_ONLY, CI_TESTS, CI_TEST, CI_ITERATIONS, CI_PR   override the dispatch inputs
   CI_SELF_JOB   the summary job's name, left out of the table (default: GITHUB_JOB)
@@ -93,6 +94,7 @@ def load_context(env: dict, payload: dict) -> dict:
         "inputs": {k: str(env.get(f"CI_{k.upper()}") or inputs.get(k) or "").strip() for k in INPUTS},
         "command": re.sub(r"^/ci\b", "", env.get("CI_COMMAND", "").strip()).strip(),
         "code": env.get("CI_CODE", "").strip().lower(),
+        "skip": env.get("CI_SKIP", "").strip(),
         "subject": message.splitlines()[0] if message else "",
         "self_job": env.get("CI_SELF_JOB") or env.get("GITHUB_JOB") or "summary",
     }
@@ -242,7 +244,7 @@ def collect(ctx: dict, gh: Gh, reports_dir: str | None, tally_path: str | None) 
         tally = Path(tally_path).read_text().strip()
     return {
         "trigger": describe_trigger(ctx), "branch": ctx["branch"], "sha": ctx["sha"],
-        "run_url": run_url, "run_id": run, "code": ctx["code"], "event": ctx["event"], "jobs": jobs,
+        "run_url": run_url, "run_id": run, "code": ctx["code"], "skip": ctx["skip"], "event": ctx["event"], "jobs": jobs,
         "wall_seconds": wall_seconds(jobs), "reports": load_reports(reports_dir),
         "annotations": pick_annotations(annotations), "tally": tally, "bundles": bundles,
         "marker": STICKY if ctx["event"] == "pull_request" else EVENT_MARK,
@@ -296,6 +298,9 @@ def render(data: dict) -> str:
     if data["code"] == "false" and data.get("event") == "push":
         head += ["Already tested: this commit's code passed CI on its PR, so the build and tests "
                  "were skipped.", ""]
+    elif data["code"] == "false" and data.get("skip") == "local-tests-passed":
+        head += ["Tested locally: this commit is marked `local-tests-passed` (scripts/run-local-ci.sh), "
+                 "so the build and tests were skipped.", ""]
     elif data["code"] == "false":
         head += ["Docs-only change: the build and tests were skipped.", ""]
 

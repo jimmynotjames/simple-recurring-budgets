@@ -12,7 +12,7 @@ term across the whole app, so consistency and composability matter more than any
    that reads naturally both standalone and inside the compounds shown in `examples`. Prefer the
    form a native speaker would actually use in app UI, not a dictionary gloss.
 3. **Be concise and on-voice.** {GLOSSARY_VOICE} Match Apple's first-party {LOCALE_NAME} UI register.
-4. **Register / formality:** follow the regional note below.
+4. **Register / formality:** follow the form of address set below, and the regional note.
 5. **Protected nouns stay verbatim.** For any term in this list — {PROTECTED_JSON} — return it
    **exactly as the English** {GLOSSARY_PROTECTED_EXAMPLE}.
    Do not translate or transliterate.
@@ -21,6 +21,10 @@ term across the whole app, so consistency and composability matter more than any
 
 ## Regional / cultural note for {LOCALE_NAME}
 
+<!-- if register -->
+**Form of address:** {REGISTER}.
+
+<!-- end register -->
 {REGIONAL_NOTE}
 
 ## Output

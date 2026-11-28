@@ -67,11 +67,11 @@ The principle every locale's form of address follows:
 > of every generation would expect it from a modern app, and the polite form where that is still
 > the respectful norm.
 
-Audience age is not the test. The call is made **once per locale, by Opus**, and recorded twice
-over: as the registry's `register` field (`{"level": "polite", "form": "vous"}`), and in that
-locale's notes as the concrete form plus where warmth comes from instead.
-`test_locale_registry.py` fails if either note map stops stating the registry's form. Translators
-follow the note; they never re-decide it string by string. The recurring failure is system text
+Audience age is not the test. The call is made **once per locale, by Opus**, and recorded once:
+the registry's `register` field (`{"level": "polite", "form": "vous"}`). Every translating and
+auditing prompt states it on its own line (`**Form of address:** vous (polite)`), and the notes say
+only how to apply it: where warmth comes from instead, gender handling, capitalisation. Translators
+follow the line; they never re-decide it string by string. The recurring failure is system text
 (error messages, Settings footers, VoiceOver hints), so the prompts name it. Short button labels
 are exempt: they keep the glossary's form.
 
@@ -94,8 +94,8 @@ characters. An unused field has no file; `appstore_metadata.py prepare` rejects 
   merges silently: last week's translation with this week's keys.
 - **The per-locale notes are two maps on purpose.** `i18n/regional_notes.json` (in-app) and
   `i18n/cultural_notes.json` (store listing) differ in wording and market advice (#173), so they are
-  not a DRY violation to fix. The formality call itself is one decision: change the registry's
-  `register` first, then both notes; the registry test fails until the three agree.
+  not a DRY violation to fix. The formality call is in neither: it is the registry's `register`,
+  which both prompts state, so the app and its listing address the reader the same way.
 - **No ad-hoc Python.** Every step, inspection included, is a flag on a pipeline script. Reaching
   for `python3 -c` or a throwaway `tmp/*.py` means a script is missing a flag: extend the script.
 - **Fan out in batches, named agents only.** Send about 8–12 agent calls per message with

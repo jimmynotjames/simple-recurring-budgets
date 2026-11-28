@@ -17,7 +17,7 @@ code systems**:
 
 The per-storefront market notes (`i18n/cultural_notes.json`) are kept apart from the in-app notes
 (`i18n/regional_notes.json`) on purpose; the locale registry's `register` field holds the formality
-call both must state (the repo's localization spec, i18n/app.json `spec`).
+call, which every prompt states on its own line (the repo's localization spec, i18n/app.json `spec`).
 
 ## What it translates
 

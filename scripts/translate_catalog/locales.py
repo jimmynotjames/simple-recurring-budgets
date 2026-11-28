@@ -70,9 +70,19 @@ RUNTIME_TO_STOREFRONT: dict[str, str] = {row["runtime"]: row["storefront"] for r
 STOREFRONT_TO_RUNTIME: dict[str, str] = {row["storefront"]: row["runtime"] for row in _ROWS}
 
 # Each target's formality call, made once per locale: {"level": …, "form": the concrete address
-# form, e.g. "vous"}. Both prompt note maps (i18n/regional_notes.json, i18n/cultural_notes.json)
-# must state the same `form`; test_locale_registry holds them to it.
+# form, e.g. "vous"}. Every translating and auditing prompt states it through register_line();
+# the notes (i18n/regional_notes.json, i18n/cultural_notes.json) carry only how to apply it.
 REGISTER: dict[str, dict[str, str]] = {row["runtime"]: row["register"] for row in _ROWS if "register" in row}
+
+
+def register_line(runtime: str) -> str:
+    """The form of address a prompt states for *runtime*, e.g. "vous (polite)".
+
+    Empty when the registry sets no form (the English variants), so the prompt's `register`
+    section drops out. The registry is the only place the call is made; the notes don't restate it.
+    """
+    register = REGISTER.get(runtime, {})
+    return f"{register['form']} ({register['level']})" if register.get("form") else ""
 
 
 if __name__ == "__main__":

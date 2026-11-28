@@ -30,7 +30,7 @@ SOURCE_PATH = AUDIT_INPUTS_DIR / "audit_source.json"
 TEMPLATE_PATH = Path(__file__).parent / "AUDIT_PROMPT_TEMPLATE.md"
 
 sys.path.insert(0, str(CATALOG_DIR))
-from locales import LOCALES, LOCALE_NAMES  # noqa: E402
+from locales import LOCALES, LOCALE_NAMES, register_line  # noqa: E402
 from dispatch_prompts import REGIONAL_NOTES, _GENERIC_NOTE, glossary_lines, is_transcreated  # noqa: E402
 from prompt_render import compact_json, render  # noqa: E402
 import app_config  # noqa: E402
@@ -76,17 +76,21 @@ def render_audit_prompt(template: str, locale: str, slice_source: dict) -> str:
         sections.add("plural")
     if glossary:
         sections.add("glossary")
+    register = register_line(locale)
+    if register:
+        sections.add("register")
     return render(
         template,
         {
             "LOCALE_NAME": LOCALE_NAMES.get(locale, locale),
             "LOCALE_CODE": locale,
+            "REGISTER": register,
             "REGIONAL_NOTE": REGIONAL_NOTES.get(locale, _GENERIC_NOTE),
             "GLOSSARY": glossary,
             "SOURCE_JSON": compact_json(slice_source),
         },
         sections,
-        known={"sample", "plural", "glossary"},
+        known={"sample", "plural", "glossary", "register"},
     )
 
 

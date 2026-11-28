@@ -6,7 +6,7 @@ You are a senior **native {LOCALE_NAME}** reviewer auditing the existing UI stri
 
 **Voice.** {AUDIT_VOICE}
 
-**Register.** The voice is modern and respectful: current and unfussy, never stiff or old-fashioned, and never so casual that it would sound flippant to an older reader. The regional note below sets this locale's form of address; grade against the note, not your own preference. The wrong register is a real problem: forced informality where the note sets the polite form reads as rude, not friendly, and vice versa. Check that the address is consistent across the locale, especially in error messages, Settings footers and VoiceOver hints, where the other form most often creeps in. Short button and menu labels are exempt: a label in the glossary's form, or the platform's usual label form (often an infinitive or bare verb), is not a register error. If you believe the note itself is wrong for {LOCALE_NAME}, say so once in `locale_summary` rather than flagging strings that follow it.
+**Register.** The voice is modern and respectful: current and unfussy, never stiff or old-fashioned, and never so casual that it would sound flippant to an older reader. The form of address set below is this locale's; grade against it, not your own preference. The wrong register is a real problem: forced informality where the polite form is set reads as rude, not friendly, and vice versa. Check that the address is consistent across the locale, especially in error messages, Settings footers and VoiceOver hints, where the other form most often creeps in. Short button and menu labels are exempt: a label in the glossary's form, or the platform's usual label form (often an infinitive or bare verb), is not a register error. If you believe the form set for {LOCALE_NAME} is wrong, say so once in `locale_summary` rather than flagging strings that follow it.
 
 **Length.** These are terse strings in tight layouts. `enChars` is the English length and `currentChars` the translation's. Flag a translation as too long only when the extra length is avoidable (padding, verbosity, needless formality), never when {LOCALE_NAME} structurally needs it (compounding, agglutination, script width).
 
@@ -22,6 +22,10 @@ You are a senior **native {LOCALE_NAME}** reviewer auditing the existing UI stri
 <!-- end plural -->
 ## Regional note for {LOCALE_NAME}
 
+<!-- if register -->
+**Form of address:** {REGISTER}.
+
+<!-- end register -->
 {REGIONAL_NOTE}
 
 <!-- if glossary -->

@@ -43,7 +43,7 @@ def is_transcreated(key: str) -> bool:
     return bool(TRANSCREATED_NAMESPACES) and key.startswith(TRANSCREATED_NAMESPACES)
 
 
-from locales import LOCALE_NAMES  # noqa: E402
+from locales import LOCALE_NAMES, register_line  # noqa: E402
 from prompt_render import compact_json, render  # noqa: E402
 
 # The exact CLDR categories each locale needs, injected per plural entry so the model never
@@ -96,17 +96,21 @@ def render_prompt(template: str, locale: str, stream_source: dict) -> str:
     sections = {"plural"} if any("plural" in e for e in stream_source.values()) else set()
     if glossary:
         sections.add("glossary")
+    register = register_line(locale)
+    if register:
+        sections.add("register")
     return render(
         template,
         {
             "LOCALE_NAME": LOCALE_NAMES.get(locale, locale),
             "LOCALE_CODE": locale,
+            "REGISTER": register,
             "REGIONAL_NOTE": REGIONAL_NOTES.get(locale, _GENERIC_NOTE),
             "GLOSSARY": glossary,
             "SOURCE_JSON": compact_json(stream_source),
         },
         sections,
-        known={"plural", "glossary"},
+        known={"plural", "glossary", "register"},
     )
 
 
@@ -123,7 +127,7 @@ def prompt_entry(entry: dict, locale: str) -> dict:
 
 # UI register, dialect and script notes live in i18n/regional_notes.json; the store-listing
 # CULTURAL_NOTES are kept apart on purpose. The registry's `register` field holds each locale's
-# formality call, and test_locale_registry checks both note maps state it.
+# formality call; the prompt states it through register_line(), so the notes don't.
 REGIONAL_NOTES: dict[str, str] = app_config.REGIONAL_NOTES
 _GENERIC_NOTE: str = app_config.GENERIC_REGIONAL_NOTE
 

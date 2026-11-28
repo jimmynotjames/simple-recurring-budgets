@@ -12,6 +12,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
 from pr_tested import decide  # noqa: E402
 
 REPO, SHA, BEFORE, HEAD, WF = "o/r", "m" * 40, "b" * 40, "h" * 40, "ci.yml"
+RUNS = f"repos/{REPO}/actions/workflows/{WF}/runs?event=pull_request&head_sha={HEAD}&per_page=10"
 
 
 def fake_api(**overrides):
@@ -23,8 +24,11 @@ def fake_api(**overrides):
         f"repos/{REPO}/git/commits/{SHA}": {"tree": {"sha": "t1"}},
         f"repos/{REPO}/git/commits/{HEAD}": {"tree": {"sha": "t1"}},
         f"repos/{REPO}/compare/{BEFORE}...{HEAD}": {"status": "ahead"},
-        f"repos/{REPO}/actions/workflows/{WF}/runs"
-        f"?event=pull_request&head_sha={HEAD}&status=success&per_page=1": {"total_count": 1},
+        RUNS: {"workflow_runs": [{"id": 1}, {"id": 2}]},
+        f"repos/{REPO}/actions/runs/1/jobs?per_page=100": {"jobs": [{"name": "tests", "conclusion": "failure"}]},
+        f"repos/{REPO}/actions/runs/2/jobs?per_page=100": {"jobs": [
+            {"name": "tests", "conclusion": "success"}, {"name": "summary", "conclusion": None},
+        ]},
     }
     responses.update(overrides)
     calls = []
@@ -64,11 +68,15 @@ class PrTestedTests(unittest.TestCase):
                 api = fake_api(**{f"repos/{REPO}/compare/{BEFORE}...{HEAD}": {"status": status}})
                 self.assertFalse(decide(api, REPO, SHA, BEFORE, WF)[0])
 
-    def test_no_successful_pr_run_runs_the_tests(self) -> None:
-        path = (f"repos/{REPO}/actions/workflows/{WF}/runs"
-                f"?event=pull_request&head_sha={HEAD}&status=success&per_page=1")
-        api = fake_api(**{path: {"total_count": 0}})
-        self.assertFalse(decide(api, REPO, SHA, BEFORE, WF)[0])
+    def test_passed_tests_job_counts_while_the_run_is_still_going(self) -> None:
+        # Auto-merge lands the PR when `tests` passes; `summary` (conclusion None) is still running.
+        self.assertTrue(decide(fake_api(), REPO, SHA, BEFORE, WF)[0])
+
+    def test_no_passed_tests_job_runs_the_tests(self) -> None:
+        for runs in ([], [{"id": 1}]):
+            with self.subTest(runs=runs):
+                api = fake_api(**{RUNS: {"workflow_runs": runs}})
+                self.assertFalse(decide(api, REPO, SHA, BEFORE, WF)[0])
 
     def test_missing_push_details_run_the_tests_without_calling_the_api(self) -> None:
         for before in ("", "0" * 40):

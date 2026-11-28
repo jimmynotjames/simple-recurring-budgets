@@ -8,8 +8,10 @@ Prints `code=false` when every check below holds, else `code=true` (the build an
   3. Main before the push (`before`) is an ancestor of the PR head, i.e. the PR was up to date.
      A pull_request run tests the PR head merged into main as it was then, and main only moves
      forward (the ruleset blocks non-fast-forward pushes), so that merge had the head's tree too.
-  4. An automatic `pull_request` run of this workflow on the PR head concluded `success`. Manual
-     runs don't count: a narrowed `/ci` run can pass without running the tests.
+  4. An automatic `pull_request` run of this workflow on the PR head has a `tests` job that
+     concluded `success`. The job, not the run: auto-merge lands the PR as soon as the required
+     checks pass, while the run's `summary` job is still going. Manual runs don't count: a
+     narrowed `/ci` run can pass without running the tests.
 Any API error, or a fact that can't be read, prints `code=true`: unknown means the tests run.
 A short reason goes to stderr for the job log.
 
@@ -27,6 +29,7 @@ import sys
 from collections.abc import Callable
 
 Api = Callable[[str], object]
+TESTS_JOB = "tests"  # ci.yml's job that sums up the build and test jobs
 
 
 def gh_api(path: str) -> object:
@@ -54,10 +57,14 @@ def decide(api: Api, repo: str, sha: str, before: str, workflow: str) -> tuple[b
         return False, f"PR #{number} was not up to date with main (compare: {status})"
     runs = api(
         f"repos/{repo}/actions/workflows/{workflow}/runs"
-        f"?event=pull_request&head_sha={head}&status=success&per_page=1"
-    )
-    if not runs.get("total_count"):  # type: ignore[union-attr]
-        return False, f"no successful pull_request run on PR #{number}'s head {head[:7]}"
+        f"?event=pull_request&head_sha={head}&per_page=10"
+    )["workflow_runs"]  # type: ignore[index]
+    for run in runs:
+        jobs = api(f"repos/{repo}/actions/runs/{run['id']}/jobs?per_page=100")["jobs"]  # type: ignore[index]
+        if any(j.get("name") == TESTS_JOB and j.get("conclusion") == "success" for j in jobs):
+            break
+    else:
+        return False, f"no pull_request run on PR #{number}'s head {head[:7]} passed `{TESTS_JOB}`"
     return True, f"PR #{number}'s CI already passed on this exact code ({head[:7]})"
 
 
